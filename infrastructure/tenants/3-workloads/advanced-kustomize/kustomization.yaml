@@ -1,0 +1,95 @@
+# Advanced Kustomize Features Demonstration
+# Strategic Merge Patches, JSON 6902 Patches, Transformers, Generators
+
+## Strategic Merge Patch Example
+# Modify existing resources without full replacement
+patchesStrategicMerge:
+- |
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nginx-sample
+    namespace: default
+  spec:
+    replicas: 3  # Override replica count
+    template:
+      spec:
+        containers:
+        - name: nginx
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+## JSON 6902 Patch Example
+# Precise RFC 6902 JSON patch modifications
+patches:
+- target:
+    kind: Service
+    name: nginx-sample
+  patch: |-
+    - op: add
+      path: /metadata/annotations
+      value:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: 'true'
+---
+## Label Transformer
+# Add consistent labels across all resources
+transformers:
+- |
+  apiVersion: builtin
+  kind: LabelTransformer
+  metadata:
+    name: label-transformer
+  labels:
+    environment: production
+    team: platform
+    managed-by: gitops
+---
+## Annotation Transformer
+# Add consistent annotations across all resources
+- |
+  apiVersion: builtin
+  kind: AnnotationsTransformer
+  metadata:
+    name: annotation-transformer
+  annotations:
+    fluxcd.io/ignore: "false"
+    argocd.argoproj.io/sync-options: Prune=false
+---
+## ConfigMap Generator
+# Generate ConfigMaps dynamically
+configMapGenerator:
+- name: app-config
+  literals:
+  - APP_ENV=production
+  - LOG_LEVEL=info
+  - DATABASE_URL=postgresql://db:5432/app
+---
+## Secret Generator
+# Generate Secrets dynamically
+secretGenerator:
+- name: app-secret
+  literals:
+  - api-key=your-api-key-here
+  - database-password=secure-password
+---
+## Image Transformer
+# Update container images across deployments
+images:
+- name: nginx
+  newTag: "1.25"
+- name: mysql
+  newName: mysql
+  newTag: "8.0"
+---
+## Namespace Transformer
+# Move resources to different namespaces
+namespace: production
+
+# Resources to include
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml

@@ -1,0 +1,56 @@
+# Cloud Resource Tagging with Kustomize Transformers
+# AWS, Azure, GCP cost accounting and compliance tagging
+
+## AWS Tagging Transformer
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: aws-tagging-transformer
+annotations:
+  service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: |
+    Environment=Production,Team=Platform,Project=GitOps,CostCenter=Engineering,Owner=platform-team@company.com
+---
+## Azure Tagging Transformer
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: azure-tagging-transformer
+annotations:
+  service.beta.kubernetes.io/azure-load-balancer-resource-tags: |
+    Environment=Production,Team=Platform,Project=GitOps,CostCenter=Engineering,Owner=platform-team@company.com
+---
+## GCP Tagging Transformer
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: gcp-tagging-transformer
+annotations:
+  cloud.google.com/load-balancer-metadata: |
+    environment=production,team=platform,project=gitops,cost-center=engineering,owner=platform-team@company.com
+---
+## Generic Resource Tagging
+# Labels for cost tracking and compliance
+labels:
+- pairs:
+    environment: production
+    team: platform
+    project: gitops
+    cost-center: engineering
+    compliance: pci-dss
+    data-classification: internal
+  includeSelectors: true
+  includeTemplates: true
+
+# Annotations for cloud provider specific tagging
+annotations:
+- pairs:
+    # AWS tagging
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: |
+      Environment=Production,Team=Platform,Project=GitOps,CostCenter=Engineering
+    # Azure tagging
+    service.beta.kubernetes.io/azure-load-balancer-resource-tags: |
+      environment=production,team=platform,project=gitops,cost-center=engineering
+    # GCP tagging
+    networking.gke.io/load-balancer-type: "Internal"
+  includeSelectors: true
+  includeTemplates: true
