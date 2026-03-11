@@ -8,6 +8,24 @@ spec:
   displayName: "GKE Node Service Account"
   projectId: PROJECT_ID
 ---
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerCluster
+metadata:
+  name: gke-cluster-placeholder
+  namespace: flux-system
+spec:
+  location: us-central1
+  initialNodeCount: 1
+  removeDefaultNodePool: true
+  ipAllocationPolicy:
+    useIpAliases: true
+    clusterSecondaryRangeName: pods
+    servicesSecondaryRangeName: services
+  networkRef:
+    name: gitops-network
+  subnetworkRef:
+    name: gitops-subnet-1
+---
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:
