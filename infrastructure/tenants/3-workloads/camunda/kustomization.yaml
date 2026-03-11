@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: camunda
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: camunda
+  namespace: camunda
+spec:
+  interval: 10m0s
+  url: https://helm.camunda.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: camunda-platform
+  namespace: camunda
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: camunda-platform
+      version: "8.3.0"
+      sourceRef:
+        kind: HelmRepository
+        name: camunda
+      interval: 10m0s
+  values:
+    global:
+      ingress:
+        enabled: true
+        className: nginx
+        host: camunda.local
