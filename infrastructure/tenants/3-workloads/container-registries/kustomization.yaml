@@ -1,0 +1,80 @@
+# Container Registry Integrations
+# Configurations for major container registries
+
+## ECR (AWS Elastic Container Registry)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ecr-credentials
+  namespace: default
+type: Opaque
+data:
+  username: <base64-encoded-access-key-id>
+  password: <base64-encoded-secret-access-key>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: container-registry-config
+  namespace: default
+data:
+  registries.conf: |
+    [registries]
+      [registries.docker]
+        [registries.docker."your-account.dkr.ecr.us-west-2.amazonaws.com"]
+          username = "AWS"
+          password = "your-ecr-token"
+      [registries.docker."ghcr.io"]
+        username = "your-github-username"
+        password = "your-github-token"
+      [registries.docker."gcr.io"]
+        username = "_json_key"
+        password = "your-gcp-service-account-key"
+
+## ACR (Azure Container Registry)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: acr-credentials
+  namespace: default
+type: Opaque
+data:
+  username: <base64-encoded-acr-username>
+  password: <base64-encoded-acr-password>
+
+## GCR (Google Container Registry)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcr-credentials
+  namespace: default
+type: Opaque
+data:
+  username: "_json_key"
+  password: <base64-encoded-gcp-service-account-json>
+
+## GHCR (GitHub Container Registry)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ghcr-credentials
+  namespace: default
+type: Opaque
+data:
+  username: <base64-encoded-github-username>
+  password: <base64-encoded-github-token>
+
+## Docker Hub
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhub-credentials
+  namespace: default
+type: Opaque
+data:
+  username: <base64-encoded-dockerhub-username>
+  password: <base64-encoded-dockerhub-token>
