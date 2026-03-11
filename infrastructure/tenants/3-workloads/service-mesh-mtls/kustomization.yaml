@@ -1,0 +1,111 @@
+# Service Mesh mTLS Configuration
+# Additional mTLS policies for different service mesh options
+
+## SPIFFE/SPIRE for workload identity
+apiVersion: spiffeid.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: cluster-spiffe-id
+spec:
+  spiffeIDTemplate: "spiffe://example.org/ns/{{.PodMeta.Namespace}}/sa/{{.PodMeta.ServiceAccountName}}"
+  workloadSelector:
+    matchLabels:
+      app: nginx-sample
+
+## Client Certificate Authentication
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: client-cert
+  namespace: default
+spec:
+  secretName: client-cert-secret
+  issuerRef:
+    name: internal-issuer
+    kind: Issuer
+  subject:
+    organizations:
+    - example.com
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  usages:
+  - client auth
+  - server auth
+
+## CertificateRequest for automatic client cert renewal
+apiVersion: cert-manager.io/v1
+kind: CertificateRequest
+metadata:
+  name: client-cert-request
+  namespace: default
+spec:
+  request:
+    issuerRef:
+      name: internal-issuer
+      kind: Issuer
+    subject:
+      organizations:
+      - example.com
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  usages:
+  - client auth
+
+## Istio DestinationRule for mTLS settings
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: mtls-destination-rule
+  namespace: default
+spec:
+  host: nginx-sample.default.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL  # Enforce mTLS
+
+## Linkerd NetworkAuthorization for cross-namespace mTLS
+apiVersion: policy.linkerd.io/v1beta1
+kind: NetworkAuthorization
+metadata:
+  name: cross-namespace-mtls
+  namespace: default
+spec:
+  client:
+    networks:
+    - cidr: 10.0.0.0/8  # Allow from cluster network
+  server:
+    selector:
+      matchLabels:
+        app: nginx-sample
+
+## EnvoyFilter for custom mTLS configuration (when using Envoy directly)
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: mtls-envoy-filter
+  namespace: default
+spec:
+  configPatches:
+  - applyTo: CLUSTER
+    match:
+      context: SIDECAR_OUTBOUND
+      cluster:
+        name: "outbound|443||nginx-sample.default.svc.cluster.local"
+    patch:
+      operation: MERGE
+      value:
+        transport_socket:
+          name: envoy.transport_sockets.tls
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+            common_tls_context:
+              tls_certificates:
+              - certificate_chain:
+                  filename: /etc/istio/certs/cert-chain.pem
+                private_key:
+                  filename: /etc/istio/certs/key.pem
+              validation_context:
+                trusted_ca:
+                  filename: /etc/istio/certs/root-cert.pem
