@@ -1,0 +1,368 @@
+# Karmada + Flux Multi-Cluster GitOps Configuration
+# This file defines the complete multi-cluster GitOps setup
+
+---
+# Namespace for multi-cluster resources
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-multi-cluster
+  labels:
+    purpose: multi-cluster-gitops
+    managed-by: karmada-flux
+
+---
+# GitOps Infrastructure Helm Repository
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: gitops-infra
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/component: helm-repository
+spec:
+  interval: 5m
+  url: https://stefanprodan.github.io/podinfo
+
+---
+# Multi-Cloud Infrastructure HelmRelease
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gitops-infrastructure
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infrastructure
+    app.kubernetes.io/component: helm-release
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: podinfo
+      version: 6.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: gitops-infra
+  values:
+    replicaCount: 3
+    image:
+      repository: ghcr.io/lloydchang/gitops-infra-control-plane
+      tag: latest
+    service:
+      type: ClusterIP
+      port: 9898
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: gitops-infra.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: gitops-infra-tls
+          hosts:
+            - gitops-infra.local
+    monitoring:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        interval: 30s
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9898"
+      prometheus.io/path: "/metrics"
+
+---
+# Propagation Policy for GitOps Infrastructure
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: gitops-infra-policy
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/component: propagation-policy
+spec:
+  resourceSelectors:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      name: gitops-infra
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: gitops-infrastructure
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - member1
+        - member2
+        - member3
+    spreadConstraints:
+      - spreadByField: cluster
+        maxSkew: 1
+        whenUnsatisfiable: DoNotSchedule
+
+---
+# Override Policy for Production Cluster (member1)
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: gitops-infra-production
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/component: override-policy
+spec:
+  resourceSelectors:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: gitops-infrastructure
+  overrideRules:
+    - targetCluster:
+        clusterNames:
+          - member1
+      overriders:
+        plaintext:
+          - path: "/spec/values"
+            operator: add
+            value:
+              replicaCount: 5
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+                requests:
+                  cpu: 500m
+                  memory: 512Mi
+              autoscaling:
+                enabled: true
+                minReplicas: 4
+                maxReplicas: 20
+                targetCPUUtilizationPercentage: 70
+              nodeSelector:
+                node-type: production
+              tolerations:
+                - key: "workload"
+                  operator: "Equal"
+                  value: "production"
+                  effect: "NoSchedule"
+              affinity:
+                podAntiAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                    - weight: 100
+                      podAffinityTerm:
+                        labelSelector:
+                          matchExpressions:
+                            - key: app.kubernetes.io/name
+                              operator: In
+                              values:
+                                - podinfo
+                        topologyKey: kubernetes.io/hostname
+
+---
+# Override Policy for Staging Cluster (member2)
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: gitops-infra-staging
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/component: override-policy
+spec:
+  resourceSelectors:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: gitops-infrastructure
+  overrideRules:
+    - targetCluster:
+        clusterNames:
+          - member2
+      overriders:
+        plaintext:
+          - path: "/spec/values"
+            operator: add
+            value:
+              replicaCount: 3
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+                requests:
+                  cpu: 250m
+                  memory: 256Mi
+              autoscaling:
+                enabled: true
+                minReplicas: 2
+                maxReplicas: 6
+                targetCPUUtilizationPercentage: 80
+              nodeSelector:
+                node-type: staging
+
+---
+# Override Policy for Development Cluster (member3)
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: gitops-infra-development
+  namespace: gitops-multi-cluster
+  labels:
+    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/component: override-policy
+spec:
+  resourceSelectors:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: gitops-infrastructure
+  overrideRules:
+    - targetCluster:
+        clusterNames:
+          - member3
+      overriders:
+        plaintext:
+          - path: "/spec/values"
+            operator: add
+            value:
+              replicaCount: 1
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+              autoscaling:
+                enabled: false
+              nodeSelector:
+                node-type: development
+              tolerations:
+                - key: "workload"
+                  operator: "Equal"
+                  value: "development"
+                  effect: "NoSchedule"
+
+---
+# Multi-Cluster Monitoring Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: multi-cluster-monitoring
+  labels:
+    purpose: monitoring
+    managed-by: karmada-flux
+
+---
+# Prometheus Helm Repository
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: prometheus-community
+  namespace: multi-cluster-monitoring
+spec:
+  interval: 1h
+  url: https://prometheus-community.github.io/helm-charts
+
+---
+# Grafana Helm Repository
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: grafana
+  namespace: multi-cluster-monitoring
+spec:
+  interval: 1h
+  url: https://grafana.github.io/helm-charts
+
+---
+# Multi-Cluster Prometheus
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: multi-cluster-prometheus
+  namespace: multi-cluster-monitoring
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 45.28.0
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+  values:
+    prometheus:
+      prometheusSpec:
+        retention: 7d
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: standard
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 20Gi
+        externalLabels:
+          cluster: '{{ .Values.global.clusterName }}'
+          region: '{{ .Values.global.region }}'
+    grafana:
+      enabled: true
+      persistence:
+        enabled: true
+        size: 10Gi
+      service:
+        type: LoadBalancer
+      adminPassword: admin123
+      sidecar:
+        datasources:
+          enabled: true
+        dashboards:
+          enabled: true
+          provider:
+            allowUptodate: true
+    global:
+      clusterName: multi-cluster
+      region: us-west-2
+
+---
+# Multi-Cluster Monitoring Propagation Policy
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: multi-cluster-monitoring-policy
+  namespace: multi-cluster-monitoring
+spec:
+  resourceSelectors:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      name: prometheus-community
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      name: grafana
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: multi-cluster-prometheus
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - member1
+        - member2
+    spreadConstraints:
+      - spreadByField: cluster
+        maxSkew: 1
+        whenUnsatisfiable: DoNotSchedule
