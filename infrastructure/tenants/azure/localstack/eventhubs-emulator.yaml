@@ -1,0 +1,52 @@
+# Azure Event Hubs Emulator
+# Containerized Event Hubs for local development and testing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventhubs-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventhubs-emulator
+  template:
+    metadata:
+      labels:
+        app: eventhubs-emulator
+    spec:
+      containers:
+      - name: eventhubs
+        image: mcr.microsoft.com/azure-messaging/eventhubs-emulator:latest
+        ports:
+        - containerPort: 5672  # AMQP
+        - containerPort: 9093  # Kafka protocol
+        env:
+        - name: EVENTHUBS_CONNECTION_STRING
+          value: "Endpoint=sb://localhost:5672/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;EntityPath=test-hub"
+        - name: KAFKA_ENABLED
+          value: "true"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventhubs-emulator
+  namespace: default
+spec:
+  selector:
+    app: eventhubs-emulator
+  ports:
+  - port: 5672
+    targetPort: 5672
+    name: amqp
+  - port: 9093
+    targetPort: 9093
+    name: kafka
+  type: ClusterIP
