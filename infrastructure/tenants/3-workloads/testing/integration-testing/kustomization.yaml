@@ -1,0 +1,53 @@
+# Integration Testing with TestContainers
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: testcontainers-integration-test
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: testcontainers
+        image: openjdk:17-slim
+        command: ["java", "-cp", "/app/testcontainers-integration.jar", "com.example.IntegrationTest"]
+        env:
+        - name: DOCKER_HOST
+          value: "tcp://docker-dind:2376"
+        - name: DOCKER_TLS_VERIFY
+          value: "1"
+        volumeMounts:
+        - name: test-code
+          mountPath: /app
+      volumes:
+      - name: test-code
+        configMap:
+          name: testcontainers-code
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testcontainers-code
+  namespace: testing
+data:
+  IntegrationTest.java: |
+    import org.testcontainers.containers.MySQLContainer;
+    import org.testcontainers.junit.jupiter.Container;
+    import org.testcontainers.junit.jupiter.Testcontainers;
+    import org.junit.jupiter.api.Test;
+
+    @Testcontainers
+    public class IntegrationTest {
+        @Container
+        private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+
+        @Test
+        void testDatabaseConnection() {
+            // Test database connectivity
+            assert mysql.isRunning();
+        }
+    }

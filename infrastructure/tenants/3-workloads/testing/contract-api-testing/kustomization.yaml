@@ -1,0 +1,101 @@
+# Contract Testing with Pact
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pact-contract-tests
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: pact
+        image: pactfoundation/pact-cli:latest
+        command: ["pact", "verify", "/pacts"]
+        volumeMounts:
+        - name: pacts
+          mountPath: /pacts
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: pacts
+        configMap:
+          name: pact-contracts
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pact-contracts
+  namespace: testing
+data:
+  api-contract.json: |
+    {
+      "consumer": {
+        "name": "nginx-sample"
+      },
+      "provider": {
+        "name": "mysql-sample"
+      },
+      "interactions": [
+        {
+          "description": "a request for database connection",
+          "request": {
+            "method": "GET",
+            "path": "/health"
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "status": "healthy"
+            }
+          }
+        }
+      ]
+    }
+
+## API Testing with REST Assured
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rest-assured-api-tests
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: rest-assured
+        image: openjdk:17-slim
+        command: ["java", "-cp", "/app/rest-assured-tests.jar", "com.example.ApiTest"]
+        volumeMounts:
+        - name: test-code
+          mountPath: /app
+      volumes:
+      - name: test-code
+        configMap:
+          name: rest-assured-code
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rest-assured-code
+  namespace: testing
+data:
+  ApiTest.java: |
+    import static io.restassured.RestAssured.*;
+    import static org.hamcrest.Matchers.*;
+
+    public class ApiTest {
+        public static void main(String[] args) {
+            given()
+                .baseUri("http://nginx-sample.default.svc.cluster.local")
+            .when()
+                .get("/")
+            .then()
+                .statusCode(200)
+                .body(containsString("nginx"));
+        }
+    }
