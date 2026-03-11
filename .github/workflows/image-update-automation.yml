@@ -1,0 +1,88 @@
+name: Image Update Automation
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/docker-build.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-image-references:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Get latest image digest
+        id: image-info
+        run: |
+          echo "Querying GitHub Container Registry for latest image..."
+          
+          # Get the latest image digest from GHCR
+          DIGEST=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://ghcr.io/v2/${{ github.repository_owner }}/gitops-infra-control-plane/manifests/tags/list" | \
+            jq -r '.tags[] | select(.tag == "canary") | .digest')
+          
+          if [ -n "$DIGEST" ]; then
+            echo "LATEST_DIGEST=$DIGEST" >> $GITHUB_OUTPUT
+            echo "Found latest digest: $DIGEST"
+          else
+            echo "No canary tag found, using fallback"
+            echo "LATEST_DIGEST=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update workload manifests
+        run: |
+          echo "🔄 Updating workload manifests to use latest image..."
+          
+          # Update sample app deployment to use latest image
+          sed -i.bak "s|image: .*/|image: ${{ env.IMAGE_REGISTRY }}/${{ github.repository_owner }}/gitops-infra-control-plane@${{ steps.image-info.outputs.LATEST_DIGEST }}|g" \
+            infrastructure/tenants/3-workloads/sample-apps/sample-app.yaml
+          
+          # Update any other workload manifests that reference the image
+          find infrastructure/tenants/3-workloads -name "*.yaml" -exec grep -l "image:.*gitops-infra-control-plane" {} \; | \
+            while read -r file; do
+              echo "Updating $file"
+              sed -i.bak "s|image: .*/|image: ${{ env.IMAGE_REGISTRY }}/${{ github.repository_owner }}/gitops-infra-control-plane@${{ steps.image-info.outputs.LATEST_DIGEST }}|g" "$file"
+            done
+          
+          echo "✅ Updated workload manifests with latest image reference"
+
+      - name: Commit and push updates
+        run: |
+          # Configure git
+          git config --local user.name "Flux Image Automation"
+          git config --local user.email "automation@flux.local"
+          
+          # Check for changes
+          if git diff --quiet --exit-code; then
+            echo "🔄 Committing image updates..."
+            git add infrastructure/tenants/3-workloads/
+            git commit -m "
+            🔄 Auto-Update Workload Images
+            
+            Updated workload manifests to use latest container image:
+            - Image: ${{ env.IMAGE_REGISTRY }}/${{ github.repository_owner }}/gitops-infra-control-plane@${{ steps.image-info.outputs.LATEST_DIGEST }}
+            - Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            
+            This automated update ensures workloads always use the latest
+            available image from the Docker build pipeline.
+            "
+            
+            git push origin main
+            echo "✅ Image updates committed and pushed"
+          else
+            echo "ℹ️ No image updates needed"
+          fi
