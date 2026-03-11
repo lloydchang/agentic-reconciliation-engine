@@ -1,0 +1,15 @@
+# AWS ACK Local Testing Configuration
+# Modify control-plane/controllers/ack/kustomization.yaml to include this
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ack-controller-config
+  namespace: ack-system
+data:
+  # Point ACK controllers to LocalStack instead of real AWS
+  AWS_ENDPOINT_URL: "http://localstack.localstack.svc.cluster.local:4566"
+  AWS_REGION: "us-east-1"
+  ACK_ENABLE_DEVELOPMENT_LOGGING: "true"
+  ACK_WATCH_NAMESPACE: ""
+  ACK_RESOURCE_TAGS: "gitops-infra-control-plane/test=true"
