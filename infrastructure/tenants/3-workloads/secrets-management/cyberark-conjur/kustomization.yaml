@@ -1,0 +1,51 @@
+# CyberArk Conjur - Enterprise Secrets Management (Alternative to SealedSecrets)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secrets-management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-follower
+  namespace: secrets-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-follower
+  template:
+    metadata:
+      labels:
+        app: conjur-follower
+    spec:
+      containers:
+      - name: conjur
+        image: cyberark/conjur:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CONJUR_ACCOUNT
+          value: "demo"
+        - name: CONJUR_AUTHN_LOGIN
+          value: "host/example"
+        - name: CONJUR_AUTHN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: conjur-secret
+              key: api-key
+        - name: CONJUR_APPLIANCE_URL
+          value: "https://conjur-master:8443"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conjur-follower
+  namespace: secrets-management
+spec:
+  selector:
+    app: conjur-follower
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: LoadBalancer
