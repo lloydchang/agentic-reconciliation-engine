@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: sample-apps
-  namespace: flux-system
+  namespace: default
 resources:
   - nginx-app.yaml
   - redis-app.yaml
