@@ -37,6 +37,14 @@ charts/**/tmp/
 .gcloud/
 kubeconfig*
 
+# API Keys and Secrets (CRITICAL - Prevent leaks)
+tskey-*
+TAILSCALE_*
+authKey*
+*authkey*
+*apikey*
+*secret*
+
 # Terraform files (not used in this project)
 *.tfstate
 *.tfstate.*

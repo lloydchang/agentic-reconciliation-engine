@@ -33,7 +33,7 @@ spec:
   values:
     operatorConfig:
       hostname: tailscale-emulator
-    authKey: "tskey-fake-key-for-emulation"
+    authKey: "${TAILSCALE_AUTH_KEY}" # Use environment variable, not hardcoded
 ---
 # Example Tailscale-enabled service
 apiVersion: v1
