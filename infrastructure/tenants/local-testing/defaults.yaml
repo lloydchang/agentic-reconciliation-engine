@@ -1,0 +1,109 @@
+# Local Management Cluster Defaults
+# Configuration defaults for local testing environments
+
+## Cluster Configuration
+management_cluster_name: gitops-management-local
+workload_cluster_name: gitops-workload-local
+cluster_type: kind  # kind or minikube
+
+## Flux Configuration
+flux_version: v2.1.0
+flux_components:
+  - source-controller
+  - kustomize-controller
+  - helm-controller
+  - notification-controller
+
+## Emulator Configuration
+emulators:
+  aws:
+    localstack:
+      enabled: true
+      services: "ec2,eks,iam,s3,lambda,dynamodb,sqs,sns,rds"
+      port: 4566
+      persistence: true
+
+  azure:
+    azurite:
+      enabled: true
+      account_name: devstoreaccount1
+      account_key: devstoreaccount1key
+    cosmos:
+      enabled: true
+      port: 8081
+
+  gcp:
+    storage:
+      enabled: true
+      port: 9023
+    pubsub:
+      enabled: true
+      port: 8085
+    firestore:
+      enabled: true
+      port: 8080
+    bigtable:
+      enabled: true
+      port: 8086
+
+## Workload Defaults
+workloads:
+  sample_apps:
+    enabled: true
+    nginx:
+      enabled: true
+      replicas: 2
+    redis:
+      enabled: true
+      replicas: 1
+    mysql:
+      enabled: true
+      version: "8.0"
+    postgres:
+      enabled: true
+      version: "15"
+
+  monitoring:
+    enabled: true
+    prometheus:
+      enabled: true
+      version: "v2.47.0"
+    grafana:
+      enabled: true
+      version: "10.1.0"
+      admin_password: admin123
+
+  ingress:
+    enabled: true
+    class: nginx
+    host_suffix: local
+
+## Security Defaults
+security:
+  sealed_secrets:
+    enabled: true
+    version: "2.13.0"
+
+  workload_identity:
+    # For local testing, use service account tokens
+    aws_irsa: false
+    azure_workload_identity: false
+    gcp_workload_identity: false
+
+## Resource Defaults
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "500m"
+
+## Network Defaults
+networking:
+  ingress_nginx:
+    enabled: true
+    version: "1.8.1"
+  metallb:
+    enabled: false  # Not needed for Kind/Minikube
+  service_type: ClusterIP  # Use LoadBalancer for cloud testing
