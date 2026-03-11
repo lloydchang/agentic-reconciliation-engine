@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: monitoring-alerts
+  namespace: flux-system
+resources:
+  - alerts/slack-provider.yaml
+  - alerts/github-provider.yaml
+  - alerts/gitops-alerts.yaml

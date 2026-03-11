@@ -1,0 +1,13 @@
+# Flux GitHub Commit Status Provider
+# Updates GitHub commit status with GitOps reconciliation results
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: github-status
+  namespace: flux-system
+spec:
+  type: github
+  address: https://github.com/lloydchang/gitops-infra-control-plane
+  secretRef:
+    name: github-token
