@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: pre-deploy-jobs
+  namespace: default
+resources:
+  - database-migration.job.yaml
+  - backup.job.yaml
+commonLabels:
+  phase: pre-deploy
+  component: job-orchestration
+  managed-by: flux
+commonAnnotations:
+  config.kubernetes.io/origin: gitops-infra-control-plane
+  config.kubernetes.io/version: v1.0.0

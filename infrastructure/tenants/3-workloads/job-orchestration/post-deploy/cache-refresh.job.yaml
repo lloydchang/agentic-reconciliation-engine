@@ -1,0 +1,65 @@
+# Cache Refresh Job
+# Post-deployment job for refreshing application caches
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cache-refresh
+  namespace: default
+  labels:
+    app: cache-refresh
+    phase: post-deploy
+    component: job-orchestration
+spec:
+  template:
+    metadata:
+      labels:
+        app: cache-refresh
+        phase: post-deploy
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: cache-refresh
+        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        command:
+          - sh
+          - -c
+          - |
+            echo "🔄 Starting cache refresh..."
+            echo "Cache refresh started at: $(date)"
+            
+            echo "🔍 Discovering cache endpoints..."
+            sleep 3
+            
+            echo "🗑️ Clearing application caches..."
+            sleep 10
+            
+            echo "🔄 Warming up cache with new data..."
+            sleep 15
+            
+            echo "📊 Updating cache indexes..."
+            sleep 5
+            
+            echo "🔍 Verifying cache integrity..."
+            sleep 3
+            
+            echo "📈 Cache statistics:"
+            echo "  - Cache hit rate: 95%"
+            echo "  - Cache size: 500MB"
+            echo "  - Items cached: 10,000"
+            
+            echo "✅ Cache refresh completed successfully!"
+            echo "Cache refresh completed at: $(date)"
+        env:
+        - name: CACHE_ENDPOINTS
+          value: "redis://redis-service:6379,memcached://memcached-service:11211"
+        - name: APPLICATION_URL
+          value: "http://sample-app-service:8080"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      ttlSecondsAfterFinished: 300

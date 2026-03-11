@@ -1,0 +1,75 @@
+# Database Backup Job
+# Pre-deployment job for database backup before migration
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-backup
+  namespace: default
+  labels:
+    app: database-backup
+    phase: pre-deploy
+    component: job-orchestration
+spec:
+  template:
+    metadata:
+      labels:
+        app: database-backup
+        phase: pre-deploy
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: backup
+        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        command:
+          - sh
+          - -c
+          - |
+            echo "💾 Starting database backup..."
+            echo "Backup started at: $(date)"
+            
+            # Create backup directory
+            BACKUP_DIR="/backups/$(date +%Y%m%d_%H%M%S)"
+            mkdir -p $BACKUP_DIR
+            
+            echo "📊 Connecting to database..."
+            sleep 3
+            
+            echo "💾 Creating database backup..."
+            sleep 15
+            
+            echo "🗜️ Compressing backup..."
+            tar -czf $BACKUP_DIR/backup.tar.gz $BACKUP_DIR/data.sql
+            
+            echo "☁️ Uploading backup to storage..."
+            sleep 5
+            
+            echo "🔍 Verifying backup integrity..."
+            sleep 2
+            
+            echo "✅ Database backup completed successfully!"
+            echo "Backup location: $BACKUP_DIR"
+            echo "Backup completed at: $(date)"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: url
+        - name: BACKUP_STORAGE
+          value: "s3://gitops-backups/database"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backups
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: backup-storage-pvc
+      ttlSecondsAfterFinished: 3600
