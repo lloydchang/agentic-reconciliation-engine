@@ -1,0 +1,114 @@
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: eks-cluster-role
+  namespace: flux-system
+spec:
+  description: "EKS Cluster Service Role"
+  assumeRolePolicyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Service": "eks.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    }
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: eks-cluster-policy
+  namespace: flux-system
+spec:
+  description: "EKS Cluster Policy"
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "ec2:CreateNetworkInterface",
+            "ec2:DescribeNetworkInterfaces",
+            "ec2:DeleteNetworkInterface",
+            "ec2:ModifyNetworkInterfaceAttribute",
+            "ec2:DescribeSubnets",
+            "ec2:DescribeVpcs",
+            "ec2:DescribeSecurityGroups",
+            "ec2:DescribeInstances",
+            "ec2:DescribeRouteTables",
+            "ec2:CreateSecurityGroup",
+            "ec2:DeleteSecurityGroup",
+            "ec2:AuthorizeSecurityGroupIngress",
+            "ec2:RevokeSecurityGroupIngress",
+            "ec2:CreateTags",
+            "ec2:DeleteTags"
+          ],
+          "Resource": "*"
+        }
+      ]
+    }
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: RolePolicyAttachment
+metadata:
+  name: eks-cluster-service-policy
+  namespace: flux-system
+spec:
+  policyARN: "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  roleNameRef:
+    name: eks-cluster-role
+---
+apiVersion: eks.services.k8s.aws/v1alpha1
+kind: Cluster
+metadata:
+  name: gitops-eks-cluster
+  namespace: flux-system
+spec:
+  roleARN: "arn:aws:iam::ACCOUNT_ID:role/eks-cluster-role"
+  resourcesVPCConfig:
+    subnetRefs:
+      - name: gitops-public-subnet-1a
+      - name: gitops-public-subnet-1b
+      - name: gitops-private-subnet-1a
+      - name: gitops-private-subnet-1b
+    endpointPublicAccess: true
+    endpointPrivateAccess: true
+  version: "1.29"
+  tags:
+    - key: Name
+      value: gitops-eks-cluster
+    - key: Environment
+      value: production
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: eks.services.k8s.aws/v1alpha1
+kind: Nodegroup
+metadata:
+  name: gitops-eks-nodegroup
+  namespace: flux-system
+spec:
+  clusterName: gitops-eks-cluster
+  subnets:
+    - gitops-private-subnet-1a
+    - gitops-private-subnet-1b
+  scalingConfig:
+    minSize: 2
+    maxSize: 6
+    desiredSize: 3
+  instanceTypes:
+    - t3.medium
+    - t3.large
+  nodeRole: "arn:aws:iam::ACCOUNT_ID:role/eks-nodegroup-role"
+  tags:
+    - key: Name
+      value: gitops-eks-nodegroup
+    - key: ManagedBy
+      value: gitops-flux

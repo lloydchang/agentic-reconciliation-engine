@@ -1,0 +1,19 @@
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: aso-identity
+  namespace: azureserviceoperator-system
+spec:
+  type: 0
+  resourceID: /subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aso-identity
+  clientID: AZURE_CLIENT_ID
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: aso-binding
+  namespace: azureserviceoperator-system
+spec:
+  azureIdentity: aso-identity
+  selector: azureserviceoperator-controller-manager

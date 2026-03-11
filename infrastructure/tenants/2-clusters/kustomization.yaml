@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: cluster-infra
+  namespace: flux-system
+resources:
+  - aws-eks-cluster.yaml
+  - azure-aks-cluster.yaml
+  - gcp-gke-cluster.yaml

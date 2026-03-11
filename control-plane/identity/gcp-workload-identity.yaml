@@ -1,0 +1,22 @@
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: cnrm-workload-identity
+  namespace: cnrm-system
+spec:
+  member: serviceAccount:PROJECT_ID.svc.id.goog[cnrm-system/cnrm-controller-manager]
+  role: roles/iam.workloadIdentityUser
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: cnrm-manager
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: cnrm-manager
+  namespace: cnrm-system
+spec:
+  displayName: "Config Connector Controller Service Account"
+  projectId: PROJECT_ID

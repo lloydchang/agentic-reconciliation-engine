@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ack-ec2-controller
+  namespace: ack-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/AckEC2ControllerRole
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ack-ec2-controller
+  namespace: ack-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ack-ec2-controller
+  template:
+    metadata:
+      labels:
+        app: ack-ec2-controller
+    spec:
+      serviceAccountName: ack-ec2-controller
+      containers:
+      - name: ack-ec2-controller
+        image: public.ecr.aws/aws-controllers-k8s/ec2-controller:v0.1.2
+        args:
+        - --aws-region=us-west-2
+        env:
+        - name: AWS_REGION
+          value: us-west-2
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

@@ -1,0 +1,116 @@
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: Subnet
+metadata:
+  name: gitops-public-subnet-1a
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  cidrBlock: "10.0.1.0/24"
+  availabilityZone: "us-west-2a"
+  mapPublicIPOnLaunch: true
+  tags:
+    - key: Name
+      value: gitops-public-subnet-1a
+    - key: Type
+      value: public
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: Subnet
+metadata:
+  name: gitops-public-subnet-1b
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  cidrBlock: "10.0.2.0/24"
+  availabilityZone: "us-west-2b"
+  mapPublicIPOnLaunch: true
+  tags:
+    - key: Name
+      value: gitops-public-subnet-1b
+    - key: Type
+      value: public
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: Subnet
+metadata:
+  name: gitops-private-subnet-1a
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  cidrBlock: "10.0.11.0/24"
+  availabilityZone: "us-west-2a"
+  mapPublicIPOnLaunch: false
+  tags:
+    - key: Name
+      value: gitops-private-subnet-1a
+    - key: Type
+      value: private
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: Subnet
+metadata:
+  name: gitops-private-subnet-1b
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  cidrBlock: "10.0.12.0/24"
+  availabilityZone: "us-west-2b"
+  mapPublicIPOnLaunch: false
+  tags:
+    - key: Name
+      value: gitops-private-subnet-1b
+    - key: Type
+      value: private
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: RouteTable
+metadata:
+  name: gitops-public-rt
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  routes:
+    - destinationCIDRBlock: "0.0.0.0/0"
+      gatewayRef:
+        name: gitops-igw
+  tags:
+    - key: Name
+      value: gitops-public-route-table
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: RouteTableAssociation
+metadata:
+  name: gitops-public-rta-1a
+  namespace: flux-system
+spec:
+  subnetRef:
+    name: gitops-public-subnet-1a
+  routeTableRef:
+    name: gitops-public-rt
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: RouteTableAssociation
+metadata:
+  name: gitops-public-rta-1b
+  namespace: flux-system
+spec:
+  subnetRef:
+    name: gitops-public-subnet-1b
+  routeTableRef:
+    name: gitops-public-rt
