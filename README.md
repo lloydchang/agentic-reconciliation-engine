@@ -6,7 +6,7 @@ This repository acts as a Continuous Reconciliation Engine for multi-cloud infra
 We do not use push-based tools (Terraform, Blueprints, CDK, CloudFormation, Bicep, ARM) that execute once and exit. Instead, we treat infrastructure as a living, self-healing process using native Kubernetes operators.
 
 * Continuous Reconciliation: Native Kubernetes controllers (AWS ACK, Azure ASO, GCP KCC) monitor Cloud APIs 24/7. They actively repair configuration drift without human intervention.
-* The Dependency DAG: We use the Flux dependsOn feature to define infrastructure hierarchies. We do not use pipeline-based orchestration.
+* The Dependency DAG: We use the Flux `dependsOn` feature to define infrastructure hierarchies. We do not use pipeline-based orchestration.
 * Zero State Files: There is no Terraform State to corrupt, lock, or lose. The live Cloud API is the only source of truth.
 
 ## Architectural Topology
@@ -44,6 +44,9 @@ We utilize Flux over Argo CD because Flux is architecturally optimized for infra
 
 ## Repository Standards
 - Refer to .gitignore to ensure no local secrets or state artifacts are ever committed.
-- All code is subject to the GNU Affero General Public License v3.0 (AGPL-3.0) (see LICENSE file).
+- All code is subject to the GNU Affero General Public License v3.0 (AGPL-3.0) (see [LICENSE](https://github.com/lloydchang/gitops-infra-control-plane/blob/main/LICENSE) file).
+
+## Open-source Software
+https://github.com/lloydchang/gitops-infra-control-plane
 
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/012c76ba-98f0-4513-be94-bf83691d0a9d" />
