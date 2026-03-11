@@ -1,4 +1,4 @@
-# Slack Integration - Communication and Alerts for Workload Clusters
+# Slack Integration - Communication and Alerts for Spoke Clusters
 
 apiVersion: v1
 kind: Namespace

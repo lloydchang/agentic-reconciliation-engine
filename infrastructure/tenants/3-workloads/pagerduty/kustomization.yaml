@@ -1,4 +1,4 @@
-# PagerDuty Integration - Incident Response for Workload Clusters
+# PagerDuty Integration - Incident Response for Spoke Clusters
 # Uses PagerDuty Kubernetes Operator for managing incidents
 
 apiVersion: v1

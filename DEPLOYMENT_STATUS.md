@@ -8,7 +8,7 @@
 
 ## ✅ COMPLETED COMPONENTS
 
-### 🧠 Brain Master Cluster (Management)
+### 🧠 Hub Cluster (Management)
 - **Flux GitOps**: ✅ Installed and running
 - **Cloud Controllers**: ✅ All three providers installed
   - **AWS ACK**: EKS, EC2, IAM controllers
@@ -17,7 +17,7 @@
 - **Git Repository**: ✅ Connected and syncing
 - **Dependency Management**: ✅ `dependsOn` chains working
 
-### 💼 Workload Clusters (Applications)
+### 💼 Spoke Clusters (Applications)
 - **Architecture**: ✅ Properly separated from management
 - **Namespace**: ✅ `default` (not `flux-system`)
 - **Applications**: ✅ Ready for deployment
@@ -36,7 +36,7 @@
 ## 📊 VALIDATION RESULTS
 
 ### ✅ Architecture Validation
-- **Separation of Concerns**: Management vs Workload clusters ✅
+- **Separation of Concerns**: Hub vs Spoke clusters ✅
 - **Namespace Isolation**: `flux-system` vs `default` ✅
 - **Security Boundaries**: Proper access controls ✅
 
@@ -60,7 +60,7 @@
 The platform is fully implemented and waiting for:
 1. **Cloud Provider Credentials** (AWS/Azure/GCP)
 2. **Infrastructure Deployment** (automatic via GitOps)
-3. **Workload Cluster Provisioning** (managed clusters)
+3. **Spoke Cluster Provisioning** (managed clusters)
 
 ### Expected Behavior:
 - **No Credentials**: Controllers in ImagePullBackOff (✅ Expected)

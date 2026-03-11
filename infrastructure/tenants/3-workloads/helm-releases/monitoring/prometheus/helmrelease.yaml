@@ -1,0 +1,1029 @@
+# Prometheus Helm Release
+# Comprehensive monitoring stack with Prometheus, Grafana, and AlertManager
+
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: helm-release
+    managed-by: flux
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: ">=45.0.0 <46.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: monitoring
+  values:
+    # Global configuration
+    global:
+      imageRegistry: docker.io
+      imagePullSecrets: []
+      imagePullPolicy: IfNotPresent
+      rbac:
+        create: true
+      psp:
+        enabled: false
+      labels: {}
+      annotations: {}
+    
+    # Prometheus configuration
+    prometheus:
+      enabled: true
+      image:
+        repository: prom/prometheus
+        tag: v2.45.0
+        pullPolicy: IfNotPresent
+      
+      # Prometheus server configuration
+      prometheusSpec:
+        replicas: 2
+        replicaExternalLabelName: "__replica__"
+        prometheusExternalLabelName: "__prometheus__"
+        externalLabels:
+          cluster: "gitops-cluster"
+          region: "us-west-2"
+          environment: "production"
+        
+        # Storage configuration
+        retention: "7d"
+        retentionSize: "50GB"
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "standard"
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 50Gi
+        
+        # Resources
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        
+        # Service configuration
+        service:
+          type: ClusterIP
+          clusterIP: ""
+          ports:
+            - name: http
+              port: 9090
+              protocol: TCP
+              targetPort: http
+        
+        # Service monitor configuration
+        serviceMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorSelector: {}
+        serviceMonitorNamespaceSelector: {}
+        podMonitorSelector: {}
+        podMonitorNamespaceSelector: {}
+        probeSelector: {}
+        probeNamespaceSelector: {}
+        
+        # Scrape configuration
+        scrapeInterval: 30s
+        evaluationInterval: 30s
+        scrapeTimeout: 10s
+        
+        # Remote write configuration
+        remoteWrite: []
+        
+        # Alerting configuration
+        alertingSpec:
+          alertmanagerConfigNamespaceSelector: {}
+          alertmanagerConfigSelector: {}
+          alertmanagerDiscovery: {}
+          enableAlertmanagerConfig: false
+          alertRelabelConfigs: []
+          
+          # AlertManager configuration
+          alertmanagers:
+            - pathPrefix: /
+              apiVersion: v2
+              staticConfigs:
+                - targets:
+                    - alertmanager.monitoring.svc.cluster.local
+          
+          # Alert rules
+          rules:
+            - alert: PrometheusTargetMissing
+              expr: up == 0
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Prometheus target missing (instance {{ $labels.instance }})"
+                description: "Prometheus target {{ $labels.instance }} is missing for 15 minutes."
+            
+            - alert: PrometheusRuleFailures
+              expr: prometheus_rule_evaluation_failures_total > 0
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Prometheus rule evaluation failures"
+                description: "Prometheus rule evaluation failures detected."
+            
+            - alert: PrometheusNotConnectedToAlertmanagers
+              expr: prometheus_notifications_total == 0
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Prometheus not connected to any Alertmanagers"
+                description: "Prometheus is not connected to any Alertmanagers."
+        
+        # Web configuration
+        web:
+          externalUrl: "http://prometheus.monitoring.svc.cluster.local:9090"
+          pageTitle: "Prometheus - GitOps Infrastructure"
+          
+          # Enable admin API
+          enableAdminAPI: false
+          
+          # TLS configuration
+          tlsConfig: {}
+          
+          # CORS configuration
+          corsOrigins: []
+          
+          # Path prefix
+          pathPrefix: ""
+        
+        # Remote read configuration
+        remoteRead: []
+        
+        # Enable features
+        enableFeatures:
+          - "remote-write-receiver"
+          - "exemplars-storage"
+        
+        # Exemplars configuration
+        exemplars: {}
+        
+        # Query log configuration
+        queryLog:
+          enabled: false
+          decisionLog:
+            enabled: false
+          
+          # WAL configuration
+          walCompression: false
+          
+          # Additional configuration
+          additionalScrapeConfigs: []
+          additionalPrometheusRules: []
+          ruleNamespaceSelector: {}
+          ruleSelector: {}
+          
+          # Expose configuration
+          expose: false
+          adminApi:
+            enabled: false
+            port: 9090
+          enableRemoteWriteReceiver: false
+          enableFeatures: []
+          
+          # Port configuration
+          port: 9090
+          
+          # Host configuration
+          hostNetwork: false
+          
+          # Pod configuration
+          podAntiAffinityHard: {}
+          podAntiAffinitySoft: {}
+          affinity: {}
+          podAntiAffinity: {}
+          
+          # Node selector and tolerations
+          nodeSelector: {}
+          tolerations: []
+          
+          # Security context
+          securityContext:
+            fsGroup: 65534
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+          
+          # Pod annotations and labels
+          podMetadata:
+            annotations: {}
+            labels: {}
+          
+          # Service account configuration
+          serviceAccountName: ""
+          serviceAccountAnnotations: {}
+          
+          # Persistent volume configuration
+          enableAdminAPI: false
+          retention: "7d"
+          retentionSize: "50GB"
+          
+          # Storage configuration
+          storageSpec: {}
+          
+          # Additional configuration
+          remoteWrite: []
+          remoteRead: []
+          additionalScrapeConfigs: []
+          additionalPrometheusRules: []
+          ruleNamespaceSelector: {}
+          ruleSelector: {}
+          serviceMonitorSelectorNilUsesHelmValues: false
+          serviceMonitorSelector: {}
+          serviceMonitorNamespaceSelector: {}
+          podMonitorSelector: {}
+          podMonitorNamespaceSelector: {}
+          probeSelector: {}
+          probeNamespaceSelector: {}
+          
+          # Web configuration
+          web: {}
+          
+          # Exemplars configuration
+          exemplars: {}
+          
+          # Query log configuration
+          queryLog: {}
+          
+          # WAL configuration
+          walCompression: false
+          
+          # Additional configuration
+          enableRemoteWriteReceiver: false
+          enableFeatures: []
+          
+          # Port configuration
+          port: 9090
+          
+          # Host configuration
+          hostNetwork: false
+          
+          # Pod configuration
+          podAntiAffinityHard: {}
+          podAntiAffinitySoft: {}
+          affinity: {}
+          podAntiAffinity: {}
+          
+          # Node selector and tolerations
+          nodeSelector: {}
+          tolerations: []
+          
+          # Security context
+          securityContext: {}
+          
+          # Pod annotations and labels
+          podMetadata: {}
+          
+          # Service account configuration
+          serviceAccountName: ""
+          serviceAccountAnnotations: {}
+          
+          # Persistent volume configuration
+          storageSpec: {}
+          
+          # Additional configuration
+          remoteWrite: []
+          remoteRead: []
+          additionalScrapeConfigs: []
+          additionalPrometheusRules: []
+          ruleNamespaceSelector: {}
+          ruleSelector: {}
+          serviceMonitorSelectorNilUsesHelmValues: false
+          serviceMonitorSelector: {}
+          serviceMonitorNamespaceSelector: {}
+          podMonitorSelector: {}
+          podMonitorNamespaceSelector: {}
+          probeSelector: {}
+          probeNamespaceSelector: {}
+          
+          # Web configuration
+          web: {}
+          
+          # Exemplars configuration
+          exemplars: {}
+          
+          # Query log configuration
+          queryLog: {}
+          
+          # WAL configuration
+          walCompression: false
+    
+    # Grafana configuration
+    grafana:
+      enabled: true
+      image:
+        repository: grafana/grafana
+        tag: 10.2.2
+        pullPolicy: IfNotPresent
+      
+      # Admin configuration
+      adminUser: admin
+      adminPassword: admin123
+      
+      # Service configuration
+      service:
+        type: LoadBalancer
+        port: 3000
+        annotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+        targetPort: 3000
+      
+      # Resources
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+      
+      # Persistence
+      persistence:
+        enabled: true
+        type: pvc
+        accessModes: ["ReadWriteOnce"]
+        size: 10Gi
+        storageClass: "standard"
+      
+      # Sidecar configuration
+      sidecar:
+        enable: true
+        datasources:
+          enabled: true
+          initDatasources: true
+          defaultDatasourceEnabled: true
+          label: "grafana_datasource"
+        dashboards:
+          enabled: true
+          label: "grafana_dashboard"
+          provider:
+            allowUptodate: true
+            foldersFromFilesStructure: true
+      
+      # Grafana configuration
+      grafana.ini:
+        server:
+          domain: grafana.company.com
+          root_url: "https://grafana.company.com"
+          serve_from_sub_path: true
+        
+        security:
+          admin_user: admin
+          admin_password: admin123
+          secret_key: SW2YcwTIb9zpOOhoPsMm
+        
+        users:
+          auto_assign_org_role: Editor
+        
+        auth:
+          disable_login_form: false
+          disable_signout_menu: false
+          oauth_auto_login: false
+        
+        database:
+          type: postgres
+          host: postgres.database.svc.cluster.local
+          name: grafana
+          user: grafana
+          password: grafana
+        
+        smtp:
+          enabled: true
+          host: smtp.company.com:587
+          user: noreply@company.com
+          password: smtp_password
+          from_address: noreply@company.com
+          from_name: Grafana
+        
+        log:
+          mode: console
+          level: info
+        
+        analytics:
+          reporting_enabled: false
+          check_for_updates: false
+      
+      # Environment variables
+      env: []
+      envFrom: []
+      
+      # Additional configuration
+      extraConfigmapMounts: []
+      extraSecretMounts: []
+      extraVolumeMounts: []
+      extraContainers: []
+      extraInitContainers: []
+      extraEmptyDirMounts: []
+      
+      # Network policy
+      networkPolicy:
+        enabled: false
+        ingress:
+          - from: []
+        egress:
+          - to: []
+          - ports: []
+      
+      # Ingress configuration
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        hosts:
+          - grafana.company.com
+        tls:
+          - secretName: grafana-tls
+            hosts:
+              - grafana.company.com
+        path: /
+      
+      # Service account configuration
+      serviceAccount:
+        create: true
+        name: ""
+        annotations: {}
+        automountServiceAccountToken: true
+      
+      # Pod annotations and labels
+      podAnnotations: {}
+      podLabels: {}
+      
+      # Security context
+      securityContext: {}
+      containerSecurityContext: {}
+      
+      # Node selector and tolerations
+      nodeSelector: {}
+      tolerations: []
+      
+      # Affinity
+      affinity: {}
+      
+      # Pod disruption budget
+      podDisruptionBudget:
+        enabled: false
+        minAvailable: 1
+        maxUnavailable: ""
+      
+      # Test configuration
+      testFramework:
+        enabled: false
+        image:
+          repository: bats/bats
+          tag: v1.4.1
+          pullPolicy: IfNotPresent
+        securityContext: {}
+      
+      # Extra configuration
+      extraExpose: false
+      forceDeployDatasources: false
+      forceDeployDashboards: false
+      persistence:
+        type: pvc
+        accessModes: ["ReadWriteOnce"]
+        size: 10Gi
+        storageClass: "standard"
+        annotations: {}
+        finalizers: []
+        extraVolumes: []
+        extraVolumeMounts: []
+      
+      # Additional configuration
+      defaultDashboardsEnabled: true
+      defaultDashboardsTimezone: utc
+      defaultDatasourceEnabled: true
+      defaultDatasource: Prometheus
+      
+      # Migration configuration
+      migration:
+        enabled: false
+      
+      # LDAP configuration
+      ldap:
+        enabled: false
+        config: ""
+      
+      # API configuration
+      api:
+        enabled: true
+        host: 0.0.0.0
+        port: 3000
+      
+      # Server configuration
+      server:
+        protocol: http
+        http_addr: 0.0.0.0:3000
+        enforce_domain: false
+        root_url: ""
+        serve_from_sub_path: false
+        static_root_path: public
+        enable_gzip: false
+        data_proxy_logging: false
+        data_proxy_timeout: 30
+        enable_cors: false
+        cors_origin: "*"
+        strict_cors: false
+        cors_credentials: false
+        cors_methods: GET, POST, OPTIONS, PUT, DELETE, PATCH
+        cors_headers: Accept, Accept-Language, Content-Type, Authorization, Origin, X-Requested-With
+        health_check_url: /api/health
+        router_logging: false
+        static_root_path: public
+        enable_gzip: false
+        data_proxy_logging: false
+        data_proxy_timeout: 30
+        enable_cors: false
+        cors_origin: "*"
+        strict_cors: false
+        cors_credentials: false
+        cors_methods: GET, POST, OPTIONS, PUT, DELETE, PATCH
+        cors_headers: Accept, Accept-Language, Content-Type, Authorization, Origin, X-Requested-With
+        health_check_url: /api/health
+        router_logging: false
+      
+      # Additional configuration
+      additionalConfiguration: {}
+      skipDeps: []
+      skipRelabelingsUpdate: false
+      
+      # Additional configuration
+      extraExpose: false
+      forceDeployDatasources: false
+      forceDeployDashboards: false
+      
+      # Additional configuration
+      extraConfiguration: {}
+      skipDeps: []
+      skipRelabelingsUpdate: false
+    
+    # AlertManager configuration
+    alertmanager:
+      enabled: true
+      image:
+        repository: prom/alertmanager
+        tag: v0.25.0
+        pullPolicy: IfNotPresent
+      
+      # Service configuration
+      service:
+        type: ClusterIP
+        port: 9093
+        annotations: {}
+      
+      # Resources
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+      
+      # Persistence
+      persistence:
+        enabled: true
+        size: 2Gi
+        storageClass: "standard"
+        accessModes: ["ReadWriteOnce"]
+      
+      # AlertManager configuration
+      alertmanagerSpec:
+        replicas: 1
+        externalUrl: "http://alertmanager.monitoring.svc.cluster.local:9093"
+        
+        # Storage configuration
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "standard"
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 2Gi
+        
+        # Resources
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        
+        # Route configuration
+        routePrefix: "/"
+        
+        # Configuration
+        config:
+          global:
+            smtp_smarthost: "smtp.company.com:587"
+            smtp_from: "alertmanager@company.com"
+          
+          route:
+            group_by: ['alertname', 'cluster', 'service']
+            group_wait: 10s
+            group_interval: 10s
+            repeat_interval: 1h
+            receiver: 'web.hook'
+          
+          receivers:
+            - name: 'web.hook'
+              email_configs:
+                - to: 'ops@company.com'
+                  subject: '[GitOps Alert] {{ .GroupLabels.alertname }}'
+                  body: |
+                    {{ range .Alerts }}
+                    Alert: {{ .Annotations.summary }}
+                    Description: {{ .Annotations.description }}
+                    Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+                    {{ end }}
+          
+          inhibit_rules:
+            - source_match:
+                severity: 'critical'
+              target_match:
+                severity: 'warning'
+              equal: ['alertname', 'cluster', 'service']
+        
+        # Additional configuration
+        logLevel: info
+        logFormat: logfmt
+        
+        # Port configuration
+        port: 9093
+        
+        # Host configuration
+        hostNetwork: false
+        
+        # Pod configuration
+        podAntiAffinityHard: {}
+        podAntiAffinitySoft: {}
+        affinity: {}
+        podAntiAffinity: {}
+        
+        # Node selector and tolerations
+        nodeSelector: {}
+        tolerations: []
+        
+        # Security context
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+        
+        # Pod annotations and labels
+        podMetadata:
+          annotations: {}
+          labels: {}
+        
+        # Service account configuration
+        serviceAccountName: ""
+        serviceAccountAnnotations: {}
+        
+        # Additional configuration
+        additionalConfiguration: {}
+    
+    # Node exporter configuration
+    nodeExporter:
+      enabled: true
+      image:
+        repository: prom/node-exporter
+        tag: v1.6.1
+        pullPolicy: IfNotPresent
+      
+      # Service configuration
+      service:
+        enabled: true
+        port: 9100
+        targetPort: 9100
+        annotations: {}
+      
+      # Resources
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+      
+      # Host network
+      hostNetwork: false
+      hostPID: true
+      hostRootFs: false
+      
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      
+      # Additional configuration
+      extraArgs: []
+      extraHostPathMounts: []
+      extraConfigmapMounts: []
+      config:
+        enabled: true
+        path: /etc/node_exporter
+        data: {}
+    
+    # Additional exporters
+    kubeStateMetrics:
+      enabled: true
+      image:
+        repository: registry.k8s.io/kube-state-metrics
+        tag: v2.9.2
+        pullPolicy: IfNotPresent
+      
+      # Service configuration
+      service:
+        enabled: true
+        port: 8080
+        annotations: {}
+      
+      # Resources
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+      
+      # Additional configuration
+      extraArgs: []
+      extraLabels: {}
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+    
+    # Default rules configuration
+    defaultRules:
+      create: true
+      rules:
+        etcd: true
+        general: true
+        k8s: true
+        kubeApiserver: true
+        kubeControllerManager: true
+        kubelet: true
+        kubeProxy: true
+        kubeScheduler: true
+        network: true
+        node: true
+        prometheus: true
+        prometheusOperator: true
+        time: true
+      
+      # Additional configuration
+      additionalRuleLabels: {}
+      disabledRules: []
+      additionalRuleAnnotations: {}
+      
+      # Service monitor configuration
+      serviceMonitor:
+        enabled: true
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Network policy configuration
+    networkPolicy:
+      enabled: false
+      ingress: []
+      egress: []
+    
+    # Pod security policy configuration
+    podSecurityPolicy:
+      enabled: false
+    
+    # Additional configuration
+    additionalPrometheusRules: []
+    additionalServiceMonitors: []
+    additionalPodMonitors: []
+    
+    # Common labels and annotations
+    commonLabels: {}
+    commonAnnotations: {}
+    
+    # Export configuration
+    export:
+      enabled: false
+      basedir: /tmp
+      host: ""
+      port: ""
+      service:
+        enabled: false
+        type: ClusterIP
+        annotations: {}
+      
+      # Export configuration
+      nodeExporter:
+        enabled: false
+        port: 9100
+        serviceMonitor:
+          enabled: false
+          interval: 30s
+          scrapeTimeout: 10s
+          metricRelabelings: []
+          relabelings: []
+          additionalLabels: {}
+          annotations: {}
+    
+    # Test configuration
+    tests:
+      enabled: true
+    
+    # Additional configuration
+    extraManifests: []
+    extraObjects: []
+    
+    # Additional configuration
+    kubeControllerManager:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    kubeScheduler:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeEtcd:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeProxy:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    coreDns:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeDns:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeDnsAutoscaler:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeDns:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+    
+    # Additional configuration
+    kubeDns:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        jobLabel: app.kubernetes.io/name
+        interval: 30s
+        scrapeTimeout: 10s
+        metricRelabelings: []
+        relabelings: []
+        additionalLabels: {}
+        annotations: {}
+  
+  # Install configuration
+  install:
+    remediation:
+      retries: 3
+      ignoreTestFailures: false
+      remediateLastFailure: true
+  
+  # Upgrade configuration
+  upgrade:
+    remediation:
+      retries: 5
+      ignoreTestFailures: false
+      remediateLastFailure: true
+      strategy: rollback
+  
+  # Rollback configuration
+  rollback:
+    timeout: 10m
+    disableWait: false
+    disableHooks: false
+    recreate: false
+    force: false
+    cleanupOnFail: false
+  
+  # Uninstall configuration
+  uninstall:
+    timeout: 10m
+    disableHooks: false
+    keepHistory: false
+    disableWait: false
+  
+  # Test configuration
+  test:
+    enable: true
+    ignoreFailures: false
+    timeout: 10m
+  
+  # Drift detection
+  driftDetection:
+    mode: warn
+    ignore: []
+  
+  # Post-renderers
+  postRenderers: []
+  
+  # Values from external sources
+  valuesFrom: []
+  
+  # Storage namespace
+  storageNamespace: ""

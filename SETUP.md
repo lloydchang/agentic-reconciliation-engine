@@ -17,7 +17,7 @@ This guide provides step-by-step instructions to set up the complete GitOps Infr
 - Azure subscription with AKS, VNet permissions  
 - Google Cloud project with GKE, Compute Network permissions
 
-### Management Cluster
+### Hub Cluster
 - Kubernetes cluster (EKS/AKS/GKE) to serve as the control plane
 - Cluster admin access
 
@@ -29,7 +29,7 @@ git clone https://github.com/lloydchang/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 ```
 
-### 2. Install Flux on Management Cluster
+### 2. Install Flux on Hub Cluster
 ```bash
 flux bootstrap git \
   --url=ssh://git@github.com/lloydchang/gitops-infra-control-plane \

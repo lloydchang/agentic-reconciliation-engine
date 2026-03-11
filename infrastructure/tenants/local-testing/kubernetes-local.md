@@ -1,5 +1,5 @@
 # Local Kubernetes Testing Setup
-# Use Minikube, Kind, or Docker Desktop to test workload cluster deployments locally
+# Use Minikube, Kind, or Docker Desktop to test spoke cluster deployments locally
 
 ## Option 1: Minikube (Recommended for single-node testing)
 ```bash

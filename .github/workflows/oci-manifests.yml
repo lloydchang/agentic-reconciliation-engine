@@ -1,0 +1,311 @@
+name: Push OCI Manifests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      tag:
+        description: 'Custom tag (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  OCI_REPO: "oci://ghcr.io/${{ github.repository_owner }}/gitops-manifests"
+  REGISTRY: "ghcr.io"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate manifests
+        id: manifests
+        run: |
+          echo "🔨 Generating Kubernetes manifests..."
+          
+          # Create temporary directory for manifests
+          MANIFEST_DIR="./deploy"
+          mkdir -p $MANIFEST_DIR
+          
+          # Determine environment and tag
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+            CUSTOM_TAG="${{ github.event.inputs.tag }}"
+          else
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              ENVIRONMENT="production"
+            else
+              ENVIRONMENT="staging"
+            fi
+            CUSTOM_TAG=""
+          fi
+          
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          
+          # Generate tag
+          if [ -n "$CUSTOM_TAG" ]; then
+            TAG="$CUSTOM_TAG"
+          else
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            TAG="${ENVIRONMENT}-${SHORT_SHA}-${TIMESTAMP}"
+          fi
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "full-tag=${{ env.OCI_REPO }}:$TAG" >> $GITHUB_OUTPUT
+          
+          # Build manifests for different components
+          echo "📦 Building infrastructure manifests..."
+          kustomize build ./infrastructure/tenants/1-network > $MANIFEST_DIR/network.yaml
+          kustomize build ./infrastructure/tenants/2-clusters > $MANIFEST_DIR/clusters.yaml
+          kustomize build ./infrastructure/tenants/3-workloads > $MANIFEST_DIR/workloads.yaml
+          
+          # Build control plane manifests
+          echo "🎛️ Building control plane manifests..."
+          kustomize build ./control-plane/flux > $MANIFEST_DIR/flux-system.yaml
+          kustomize build ./control-plane/karmada > $MANIFEST_DIR/karmada.yaml
+          kustomize build ./control-plane/controllers > $MANIFEST_DIR/controllers.yaml
+          
+          # Create combined manifest
+          echo "🔗 Creating combined manifest..."
+          cat $MANIFEST_DIR/*.yaml > $MANIFEST_DIR/all.yaml
+          
+          # Validate manifests
+          echo "🔍 Validating manifests..."
+          if command -v kubeval >/dev/null 2>&1; then
+            kubeval $MANIFEST_DIR/*.yaml || echo "⚠️ kubeval validation failed, continuing..."
+          fi
+          
+          echo "✅ Manifests generated successfully"
+          echo "📊 Generated files:"
+          ls -la $MANIFEST_DIR/
+          
+          # Display summary
+          echo "📋 Manifest Summary:"
+          echo "- Environment: $ENVIRONMENT"
+          echo "- Tag: $TAG"
+          echo "- Total manifests: $(find $MANIFEST_DIR -name '*.yaml' | wc -l)"
+
+      - name: Push OCI artifact
+        run: |
+          echo "📤 Pushing manifests to OCI registry..."
+          echo "Repository: ${{ env.OCI_REPO }}"
+          echo "Tag: ${{ steps.manifests.outputs.tag }}"
+          
+          # Push individual components
+          for manifest in deploy/*.yaml; do
+            component=$(basename "$manifest" .yaml)
+            echo "📦 Pushing $component..."
+            
+            flux push artifact \
+              ${{ env.OCI_REPO }}-${component}:${{ steps.manifests.outputs.tag }} \
+              --path="$manifest" \
+              --source="$(git config --get remote.origin.url)" \
+              --revision="$(git branch --show-current 2>/dev/null || echo 'HEAD')@sha1:$(git rev-parse HEAD)" \
+              --timeout=10m
+          done
+          
+          # Push combined manifest
+          echo "📦 Pushing combined manifest..."
+          flux push artifact \
+            ${{ steps.manifests.outputs.full-tag }} \
+            --path="./deploy" \
+            --source="$(git config --get remote.origin.url)" \
+            --revision="$(git branch --show-current 2>/dev/null || echo 'HEAD')@sha1:$(git rev-parse HEAD)" \
+            --timeout=10m
+
+      - name: Tag artifact for deployment
+        run: |
+          echo "🏷️ Tagging artifact for ${{ steps.manifests.outputs.environment }} deployment..."
+          
+          # Tag combined manifest for environment
+          flux tag artifact \
+            ${{ steps.manifests.outputs.full-tag }} \
+            --tag ${{ steps.manifests.outputs.environment }}
+          
+          # Tag latest for production
+          if [ "${{ steps.manifests.outputs.environment }}" = "production" ]; then
+            flux tag artifact \
+              ${{ steps.manifests.outputs.full-tag }} \
+              --tag latest
+          fi
+
+      - name: Verify artifacts
+        run: |
+          echo "🔍 Verifying pushed artifacts..."
+          
+          # List artifacts
+          flux list artifacts ${{ env.OCI_REPO }} | head -20
+          
+          # Verify specific artifact
+          flux get artifact ${{ steps.manifests.outputs.full-tag }} || echo "⚠️ Could not retrieve artifact"
+
+      - name: Generate SBOM
+        run: |
+          echo "📄 Generating Software Bill of Materials..."
+          
+          # Create SBOM directory
+          mkdir -p sbom
+          
+          # Generate SBOM for each component
+          for manifest in deploy/*.yaml; do
+            component=$(basename "$manifest" .yaml)
+            echo "📄 Generating SBOM for $component..."
+            
+            # Create basic SBOM
+            cat > sbom/${component}.json << EOF
+          {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.4",
+            "metadata": {
+              "component": {
+                "type": "container",
+                "name": "${{ env.OCI_REPO }}-${component}",
+                "version": "${{ steps.manifests.outputs.tag }}",
+                "supplier": {
+                  "name": "${{ github.repository_owner }}"
+                },
+                "properties": [
+                  {
+                    "name": "git:commit",
+                    "value": "$(git rev-parse HEAD)"
+                  },
+                  {
+                    "name": "git:branch",
+                    "value": "$(git branch --show-current 2>/dev/null || echo 'HEAD')"
+                  },
+                  {
+                    "name": "build:timestamp",
+                    "value": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                  },
+                  {
+                    "name": "environment",
+                    "value": "${{ steps.manifests.outputs.environment }}"
+                  }
+                ]
+              }
+            }
+          }
+          EOF
+          done
+          
+          echo "✅ SBOM generated"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: oci-manifests-${{ steps.manifests.outputs.tag }}
+          path: |
+            deploy/
+            sbom/
+          retention-days: 30
+
+      - name: Update deployment manifest
+        run: |
+          echo "📝 Updating deployment manifest reference..."
+          
+          # Create deployment reference
+          cat > deployment-reference.yaml << EOF
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: gitops-deployment-reference
+            namespace: flux-system
+            labels:
+              app.kubernetes.io/name: gitops-infra-control-plane
+              app.kubernetes.io/component: deployment-reference
+          data:
+            oci-repository: "${{ env.OCI_REPO }}"
+            oci-tag: "${{ steps.manifests.outputs.tag }}"
+            git-commit: "$(git rev-parse HEAD)"
+            git-branch: "$(git branch --show-current 2>/dev/null || echo 'HEAD')"
+            environment: "${{ steps.manifests.outputs.environment }}"
+            build-time: "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            flux-version: "$(flux -v | grep 'flux' | awk '{print $2}' | tr -d ',')"
+          EOF
+          
+          echo "📋 Deployment reference created:"
+          cat deployment-reference.yaml
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan]
+    if: always()
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 OCI Manifest Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.build-and-push.result }}" = "success" ]; then
+            echo "✅ **Status:** Successfully pushed manifests" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Repository:** ${{ env.OCI_REPO }}" >> $GITHUB_STEP_SUMMARY
+            echo "🏷️ **Tag:** ${{ needs.build-and-push.outputs.tag || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+            echo "🌍 **Environment:** ${{ needs.build-and-push.outputs.environment || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed to push manifests" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.security-scan.result }}" = "success" ]; then
+            echo "🔒 **Security Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Security Scan:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕐 **Completed:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

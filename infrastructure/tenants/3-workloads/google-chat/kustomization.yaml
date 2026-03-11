@@ -1,4 +1,4 @@
-# Google Chat Integration - Communication for Workload Clusters
+# Google Chat Integration - Communication for Spoke Clusters
 
 apiVersion: v1
 kind: Namespace

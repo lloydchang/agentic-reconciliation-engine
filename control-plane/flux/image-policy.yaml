@@ -1,0 +1,26 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: gitops-infra-control-plane
+  namespace: flux-system
+spec:
+  image: ghcr.io/${{ github.repository_owner }}/gitops-infra-control-plane
+  interval: 5m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: gitops-infra-control-plane-latest
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: gitops-infra-control-plane
+  policy:
+    alphabetical:
+      order: asc
+  filterTags:
+    pattern: '^main-[a-fA-F0-9]+-(?P<timestamp>[0-9]+)'
+    extract: '$timestamp'
+  updateStrategy:
+    semver:
+      range: '>=0.0.0'

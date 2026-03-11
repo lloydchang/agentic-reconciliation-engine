@@ -59,15 +59,15 @@ Sealed Secrets is a Kubernetes controller and operator for managing encrypted se
 
 ### Architecture
 
-#### Management Cluster
-- **SealedSecrets Controller**: Runs in management cluster to provision workload clusters
-- **Purpose**: Encrypt secrets that will be used across workload clusters
+#### Hub Cluster
+- **SealedSecrets Controller**: Runs in hub cluster to provision spoke clusters
+- **Purpose**: Encrypt secrets that will be used across spoke clusters
 - **Location**: `control-plane/controllers/sealed-secrets/`
 
-#### Workload Clusters
-- **SealedSecrets Controller**: Must run in each workload cluster that needs to decrypt secrets
+#### Spoke Clusters
+- **SealedSecrets Controller**: Must run in each spoke cluster that needs to decrypt secrets
 - **Purpose**: Decrypt SealedSecret resources into regular Kubernetes secrets at runtime
-- **Location**: `infrastructure/tenants/3-workloads/sealed-secrets/` (per workload cluster)
+- **Location**: `infrastructure/tenants/3-workloads/sealed-secrets/` (per spoke cluster)
 
 ### Sealing Process
 

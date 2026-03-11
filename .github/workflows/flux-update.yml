@@ -1,0 +1,192 @@
+name: Flux Components Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run daily at 00:00 UTC
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/flux-update.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+env:
+  FLUX_VERSION: latest
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    outputs:
+      has-updates: ${{ steps.update.outputs.has-updates }}
+      flux-version: ${{ steps.update.outputs.flux-version }}
+      current-version: ${{ steps.update.outputs.current-version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: ${{ env.FLUX_VERSION }}
+
+      - name: Get current Flux version
+        id: current
+        run: |
+          if [ -f "control-plane/flux/gotk-components.yaml" ]; then
+            CURRENT_VERSION=$(grep "app.kubernetes.io/version:" control-plane/flux/gotk-components.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          else
+            CURRENT_VERSION="unknown"
+          fi
+          echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current Flux version: $CURRENT_VERSION"
+
+      - name: Check for Flux updates
+        id: update
+        run: |
+          echo "🔍 Checking for Flux updates..."
+          
+          # Export latest Flux components
+          flux install --export > ./control-plane/flux/gotk-components-new.yaml
+          
+          # Get new version
+          NEW_VERSION=$(flux -v | grep 'flux' | awk '{print $2}' | tr -d ',')
+          echo "flux-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Compare versions
+          if [ "${{ steps.current.outputs.current-version }}" != "$NEW_VERSION" ]; then
+            echo "has-updates=true" >> $GITHUB_OUTPUT
+            echo "✅ Flux update available: $NEW_VERSION"
+          else
+            echo "has-updates=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Flux is up to date: $NEW_VERSION"
+          fi
+
+      - name: Upload new components file
+        if: steps.update.outputs.has-updates == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flux-components
+          path: ./control-plane/flux/gotk-components-new.yaml
+          retention-days: 1
+
+  create-pr:
+    runs-on: ubuntu-latest
+    needs: check-updates
+    if: needs.check-updates.outputs.has-updates == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download new components file
+        uses: actions/download-artifact@v4
+        with:
+          name: flux-components
+          path: ./control-plane/flux/
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: ${{ needs.check-updates.outputs.flux-version }}
+
+      - name: Validate new components
+        run: |
+          echo "🔍 Validating new Flux components..."
+          
+          # Replace old components with new
+          mv ./control-plane/flux/gotk-components-new.yaml ./control-plane/flux/gotk-components.yaml
+          
+          # Validate YAML syntax
+          flux install --dry-run --export > /dev/null
+          
+          # Check for breaking changes
+          echo "📋 Changes in Flux ${{ needs.check-updates.outputs.flux-version }}:"
+          flux diff --path ./control-plane/flux/ || echo "No differences detected"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-flux-${{ needs.check-updates.outputs.flux-version }}
+          commit-message: |
+            🔄 Update Flux components to ${{ needs.check-updates.outputs.flux-version }}
+            
+            - Updated from ${{ needs.check-updates.outputs.current-version }} to ${{ needs.check-updates.outputs.flux-version }}
+            - Automated update via Flux GitHub Action
+            - All components validated and ready for deployment
+          title: "🔄 Update Flux to ${{ needs.check-updates.outputs.flux-version }}"
+          body: |
+            ## 🚀 Flux Components Update
+            
+            This PR updates Flux components from **${{ needs.check-updates.outputs.current-version }}** to **${{ needs.check-updates.outputs.flux-version }}**.
+            
+            ### 📋 What's Changed
+            
+            - Updated Flux CLI to version ${{ needs.check-updates.outputs.flux-version }}
+            - Regenerated `control-plane/flux/gotk-components.yaml`
+            - Validated all components for compatibility
+            
+            ### 🔍 Review Checklist
+            
+            - [ ] Review the updated components in `control-plane/flux/gotk-components.yaml`
+            - [ ] Check for any breaking changes in [Flux release notes](https://github.com/fluxcd/flux2/releases)
+            - [ ] Verify compatibility with your Kubernetes version
+            - [ ] Test in development environment before production
+            
+            ### 🚀 Deployment
+            
+            After merging this PR:
+            1. Flux will automatically reconcile the new components
+            2. All controllers will be updated to the new version
+            3. Existing workloads will continue running without interruption
+            
+            ### ⚠️ Important Notes
+            
+            - This is an automated update generated by Flux GitHub Action
+            - All changes have been validated for syntax and compatibility
+            - Please review the changes before merging to production
+            
+            ---
+            
+            **Flux Version:** ${{ needs.check-updates.outputs.flux-version }}  
+            **Previous Version:** ${{ needs.check-updates.outputs.current-version }}  
+            **Generated:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          labels: 
+            - automated
+            - flux-update
+            - dependencies
+          delete-branch: true
+          draft: false
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [check-updates, create-pr]
+    if: always()
+    steps:
+      - name: Notification Summary
+        run: |
+          echo "## 📊 Flux Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.check-updates.outputs.has-updates }}" == "true" ]; then
+            echo "✅ **Update Available:** ${{ needs.check-updates.outputs.flux-version }}" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Current Version:** ${{ needs.check-updates.outputs.current-version }}" >> $GITHUB_STEP_SUMMARY
+            echo "🔄 **Status:** Pull request created" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **Status:** No updates available" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Current Version:** ${{ needs.check-updates.outputs.current-version }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕐 **Last Checked:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

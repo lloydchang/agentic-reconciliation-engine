@@ -2,7 +2,7 @@
 
 **Objective:** Implement a zero-Terraform, zero-Blueprints, zero-Crossplane, pull-based multi-cloud Infrastructure as Code (IaC) control plane. All infrastructure—from VPCs to Kubernetes clusters—is managed as native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
 
-**Prerequisites:** Before beginning, review the architectural topology diagram in [README.md](./README.md). The implementation assumes a hub-and-spoke model where the Management Cluster manages the lifecycle of all Workload Clusters.
+**Prerequisites:** Before beginning, review the architectural topology diagram in [README.md](./README.md). The implementation assumes a hub-and-spoke model where the Hub Cluster manages the lifecycle of all Spoke Clusters.
 
 ## 1. Architectural Mandates
 * No Push-Based IaC: No Terraform, Blueprints, CDK, CloudFormation, Bicep, or ARM.
@@ -11,7 +11,7 @@
 
 ## 2. Design Rationale
 * Why Flux (Not Argo CD)? 
-    * Controller-Native: Flux is a cluster extension, making it the preferred plumbing for management clusters.
+    * Controller-Native: Flux is a cluster extension, making it the preferred plumbing for hub clusters.
     * True Dependency DAG: Flux native dependsOn field allows specific resource-to-resource sequencing (critical for Network -> Cluster -> Workload chains).
 * Why Native Cloud Controllers?
     * Continuous Reconciliation: ACK, ASO, and KCC monitor Cloud APIs 24/7, repairing drift automatically.
@@ -26,9 +26,9 @@
 4. DAG Orchestration: Configure Flux Kustomization manifests. Explicitly define dependsOn chains: 1-network/ -> 2-clusters/ -> 3-workloads/.
 5. Non-Native Resources: Follow the fallback strategy: (1) Official Operator, (2) Flux-managed Kubernetes Job, (3) Targeted Crossplane Provider (only if strictly necessary).
 
-## 4. Management vs. Workload Cluster Strategy
-* Management Cluster (Brain): The single control plane running Flux + Cloud Controllers.
-* Workload Clusters (Limbs): Clusters provisioned by the Management Cluster. Once Ready, Flux targets these workload clusters to deploy applications. If the Management Cluster is lost, Workload Clusters continue to function; simply re-bootstrap and point back to Git.
+## 4. Hub vs. Spoke Cluster Strategy
+* Hub Cluster (Brain): The single control plane running Flux + Cloud Controllers.
+* Spoke Clusters (Limbs): Clusters provisioned by the Hub Cluster. Once Ready, Flux targets these spoke clusters to deploy applications. If the Hub Cluster is lost, Spoke Clusters continue to function; simply re-bootstrap and point back to Git.
 
 ## 5. Drift Test Validation
 The implementation must verify:

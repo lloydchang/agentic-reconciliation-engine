@@ -1,7 +1,7 @@
 # Recursive GitOps Deployment Simulation
-# Demonstrates Management Cluster → Workload Cluster → Application deployment
+# Demonstrates Hub Cluster → Spoke Cluster → Application deployment
 
-## Management Cluster Setup (Flux targeting workload clusters)
+## Hub Cluster Setup (Flux targeting spoke clusters)
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
@@ -14,7 +14,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  # This would target the workload cluster created by CAPI
+  # This would target spoke cluster created by CAPI
   # In real cloud, this would be EKS/AKS/GKE endpoint
   kubeConfig:
     secretRef:
@@ -23,7 +23,7 @@ spec:
   dependsOn:
   - name: workload-cluster-provisioning
 
-## Workload Cluster Provisioning (CAPI)
+## Spoke Cluster Provisioning (CAPI)
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:

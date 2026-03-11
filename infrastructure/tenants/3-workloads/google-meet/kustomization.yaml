@@ -1,4 +1,4 @@
-# Google Meet Integration - Video Conferencing for Workload Clusters
+# Google Meet Integration - Video Conferencing for Spoke Clusters
 # Note: Google Meet doesn't have a direct Kubernetes integration
 # This provides a webhook endpoint for Meet event notifications
 

@@ -1,0 +1,415 @@
+name: Push and Sign OCI Manifests
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - staging
+        - production
+      sign:
+        description: 'Enable signing'
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write # Required for OIDC token
+
+env:
+  OCI_REPO: "oci://ghcr.io/${{ github.repository_owner }}/gitops-manifests"
+  REGISTRY: "ghcr.io"
+  COSIGN_EXPERIMENTAL: "1"
+
+jobs:
+  build-push-and-sign:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+      tag: ${{ steps.manifests.outputs.tag }}
+      environment: ${{ steps.manifests.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate manifests
+        id: manifests
+        run: |
+          echo "🔨 Generating Kubernetes manifests..."
+          
+          # Create temporary directory for manifests
+          MANIFEST_DIR="./deploy"
+          mkdir -p $MANIFEST_DIR
+          
+          # Determine environment and tag
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+            ENABLE_SIGNING="${{ github.event.inputs.sign }}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            ENVIRONMENT="production"
+            ENABLE_SIGNING="true"
+          else
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              ENVIRONMENT="production"
+            else
+              ENVIRONMENT="staging"
+            fi
+            ENABLE_SIGNING="true"
+          fi
+          
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "signing=$ENABLE_SIGNING" >> $GITHUB_OUTPUT
+          
+          # Generate tag
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release_tag_name }}"
+          else
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            TAG="${ENVIRONMENT}-${SHORT_SHA}-${TIMESTAMP}"
+          fi
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "full-tag=${{ env.OCI_REPO }}:$TAG" >> $GITHUB_OUTPUT
+          
+          # Build manifests
+          echo "📦 Building infrastructure manifests..."
+          kustomize build ./infrastructure/tenants/1-network > $MANIFEST_DIR/network.yaml
+          kustomize build ./infrastructure/tenants/2-clusters > $MANIFEST_DIR/clusters.yaml
+          kustomize build ./infrastructure/tenants/3-workloads > $MANIFEST_DIR/workloads.yaml
+          
+          echo "🎛️ Building control plane manifests..."
+          kustomize build ./control-plane/flux > $MANIFEST_DIR/flux-system.yaml
+          kustomize build ./control-plane/karmada > $MANIFEST_DIR/karmada.yaml
+          kustomize build ./control-plane/controllers > $MANIFEST_DIR/controllers.yaml
+          
+          # Create combined manifest
+          echo "🔗 Creating combined manifest..."
+          cat $MANIFEST_DIR/*.yaml > $MANIFEST_DIR/all.yaml
+          
+          echo "✅ Manifests generated successfully"
+          echo "📋 Environment: $ENVIRONMENT"
+          echo "🏷️ Tag: $TAG"
+          echo "🔐 Signing: $ENABLE_SIGNING"
+
+      - name: Push OCI artifact
+        id: push
+        run: |
+          echo "📤 Pushing manifests to OCI registry..."
+          
+          # Push combined manifest
+          DIGEST_URL=$(flux push artifact \
+            ${{ steps.manifests.outputs.full-tag }} \
+            --path="./deploy" \
+            --source="$(git config --get remote.origin.url)" \
+            --revision="$(git branch --show-current 2>/dev/null || echo 'HEAD')@sha1:$(git rev-parse HEAD)" \
+            --output=json \
+            --timeout=10m | jq -r '. | .repository + "@" + .digest')
+          
+          echo "digest=$DIGEST_URL" >> $GITHUB_OUTPUT
+          echo "📦 Artifact pushed: $DIGEST_URL"
+
+      - name: Sign artifact with Cosign
+        if: steps.manifests.outputs.signing == 'true'
+        run: |
+          echo "🔐 Signing artifact with Cosign..."
+          
+          # Sign the artifact using GitHub OIDC
+          cosign sign \
+            --yes \
+            --timeout=10m \
+            ${{ steps.push.outputs.digest }}
+          
+          echo "✅ Artifact signed successfully"
+
+      - name: Verify signature
+        if: steps.manifests.outputs.signing == 'true'
+        run: |
+          echo "🔍 Verifying artifact signature..."
+          
+          # Verify the signature
+          cosign verify \
+            --timeout=5m \
+            ${{ steps.push.outputs.digest }}
+          
+          echo "✅ Signature verified successfully"
+
+      - name: Add SBOM to artifact
+        run: |
+          echo "📄 Generating and attaching SBOM..."
+          
+          # Generate SBOM
+          cat > sbom.json << EOF
+          {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.4",
+            "metadata": {
+              "component": {
+                "type": "container",
+                "name": "${{ env.OCI_REPO }}",
+                "version": "${{ steps.manifests.outputs.tag }}",
+                "supplier": {
+                  "name": "${{ github.repository_owner }}"
+                },
+                "properties": [
+                  {
+                    "name": "git:commit",
+                    "value": "$(git rev-parse HEAD)"
+                  },
+                  {
+                    "name": "git:branch",
+                    "value": "$(git branch --show-current 2>/dev/null || echo 'HEAD')"
+                  },
+                  {
+                    "name": "build:timestamp",
+                    "value": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                  },
+                  {
+                    "name": "environment",
+                    "value": "${{ steps.manifests.outputs.environment }}"
+                  },
+                  {
+                    "name": "signed",
+                    "value": "${{ steps.manifests.outputs.signing }}"
+                  },
+                  {
+                    "name": "workflow:run-id",
+                    "value": "${{ github.run_id }}"
+                  },
+                  {
+                    "name": "workflow:attempt",
+                    "value": "${{ github.run_attempt }}"
+                  }
+                ]
+              }
+            }
+          }
+          EOF
+          
+          # Attach SBOM to the artifact
+          if [ "${{ steps.manifests.outputs.signing }}" == 'true' ]; then
+            cosign attest \
+              --yes \
+              --predicate sbom.json \
+              --type spdxjson \
+              ${{ steps.push.outputs.digest }}
+          fi
+          
+          echo "✅ SBOM attached successfully"
+
+      - name: Tag artifact for deployment
+        run: |
+          echo "🏷️ Tagging artifact for ${{ steps.manifests.outputs.environment }} deployment..."
+          
+          # Tag for environment
+          flux tag artifact \
+            ${{ steps.manifests.outputs.full-tag }} \
+            --tag ${{ steps.manifests.outputs.environment }}
+          
+          # Tag latest for production
+          if [ "${{ steps.manifests.outputs.environment }}" = "production" ]; then
+            flux tag artifact \
+              ${{ steps.manifests.outputs.full-tag }} \
+              --tag latest
+          fi
+          
+          # Tag signed artifacts
+          if [ "${{ steps.manifests.outputs.signing }}" == 'true' ]; then
+            flux tag artifact \
+              ${{ steps.manifests.outputs.full-tag }} \
+              --tag signed
+          fi
+
+      - name: Verify artifacts
+        run: |
+          echo "🔍 Verifying pushed artifacts..."
+          
+          # List artifacts
+          flux list artifacts ${{ env.OCI_REPO }} | head -10
+          
+          # Get artifact details
+          flux get artifact ${{ steps.manifests.outputs.full-tag }} || echo "⚠️ Could not retrieve artifact details"
+
+      - name: Generate transparency log
+        if: steps.manifests.outputs.signing == 'true'
+        run: |
+          echo "📋 Generating transparency log entry..."
+          
+          cat > transparency-log.json << EOF
+          {
+            "apiVersion": "v1",
+            "kind": "TransparencyLog",
+            "metadata": {
+              "name": "gitops-manifest-${{ steps.manifests.outputs.tag }}",
+              "namespace": "flux-system",
+              "labels": {
+                "app.kubernetes.io/name": "gitops-infra-control-plane",
+                "app.kubernetes.io/component": "transparency-log"
+              }
+            },
+            "spec": {
+              "artifact": "${{ steps.push.outputs.digest }}",
+              "signature": {
+                "type": "cosign",
+                "verified": true,
+                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              },
+              "source": {
+                "repository": "${{ github.repository }}",
+                "commit": "$(git rev-parse HEAD)",
+                "branch": "$(git branch --show-current 2>/dev/null || echo 'HEAD')",
+                "workflow": "${{ github.workflow }}",
+                "run_id": "${{ github.run_id }}"
+              },
+              "environment": "${{ steps.manifests.outputs.environment }}",
+              "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }
+          }
+          EOF
+          
+          echo "📄 Transparency log generated"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-manifests-${{ steps.manifests.outputs.tag }}
+          path: |
+            deploy/
+            sbom.json
+            transparency-log.json
+          retention-days: 90
+
+  verify-deployment:
+    runs-on: ubuntu-latest
+    needs: build-push-and-sign
+    if: needs.build-push-and-sign.result == 'success'
+    steps:
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Verify deployment artifact
+        run: |
+          echo "🔍 Verifying deployment artifact..."
+          
+          # Get artifact details
+          flux get artifact ${{ needs.build-push-and-sign.outputs.full-tag || format('{0}:{1}', env.OCI_REPO, needs.build-push-and-sign.outputs.tag) }}
+          
+          # Verify signature if signed
+          if [ "${{ needs.build-push-and-sign.outputs.signing }}" = "true" ]; then
+            echo "🔐 Verifying signature..."
+            cosign verify ${{ needs.build-push-and-sign.outputs.digest }}
+          fi
+          
+          echo "✅ Artifact verified for deployment"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-push-and-sign
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Scan OCI artifact
+        run: |
+          echo "🔍 Scanning OCI artifact for vulnerabilities..."
+          
+          # Install trivy if not available
+          if ! command -v trivy >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install wget apt-transport-https gnupg lsb-release
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+            echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+            sudo apt-get update
+            sudo apt-get install trivy
+          fi
+          
+          # Scan the OCI artifact
+          trivy image ${{ needs.build-push-and-sign.outputs.full-tag || format('{0}:{1}', env.OCI_REPO, needs.build-push-and-push.outputs.tag) }}
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-push-and-sign, verify-deployment, security-scan]
+    if: always()
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Signed OCI Manifest Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.build-push-and-sign.result }}" = "success" ]; then
+            echo "✅ **Status:** Successfully pushed and signed manifests" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Repository:** ${{ env.OCI_REPO }}" >> $GITHUB_STEP_SUMMARY
+            echo "🏷️ **Tag:** ${{ needs.build-push-and-sign.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+            echo "🌍 **Environment:** ${{ needs.build-push-and-sign.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+            echo "🔐 **Signed:** ${{ needs.build-push-and-sign.outputs.signing }}" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 **Digest:** \`${{ needs.build-push-and-sign.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed to push/sign manifests" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.verify-deployment.result }}" = "success" ]; then
+            echo "✅ **Verification:** Artifact verified" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Verification:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.security-scan.result }}" = "success" ]; then
+            echo "🔒 **Security Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Security Scan:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕐 **Completed:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

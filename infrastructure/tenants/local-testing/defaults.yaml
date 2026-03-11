@@ -1,8 +1,8 @@
-# Local Management Cluster Defaults
+# Local Hub Cluster Defaults
 # Configuration defaults for local testing environments
 
 ## Cluster Configuration
-management_cluster_name: gitops-management-local
+hub_cluster_name: gitops-management-local
 workload_cluster_name: gitops-workload-local
 cluster_type: kind  # kind or minikube
 
@@ -54,6 +54,9 @@ workloads:
       enabled: true
       replicas: 2
     redis:
+      enabled: true
+      replicas: 1
+    valkey:
       enabled: true
       replicas: 1
     mysql:
