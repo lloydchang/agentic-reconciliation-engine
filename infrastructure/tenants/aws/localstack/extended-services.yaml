@@ -1,0 +1,38 @@
+# Enhanced LocalStack Configuration for AWS
+# Add more services to existing LocalStack deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack-extended
+  namespace: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: localstack/localstack:2.0
+        ports:
+        - containerPort: 4566
+        env:
+        - name: SERVICES
+          value: "ec2,eks,iam,s3,lambda,dynamodb,sqs,sns,rds,cloudformation"
+        - name: DEBUG
+          value: "1"
+        - name: PERSISTENCE
+          value: "1"
+        - name: DOCKER_HOST
+          value: "unix:///var/run/docker.sock"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"

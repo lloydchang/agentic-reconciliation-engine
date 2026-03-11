@@ -1,0 +1,45 @@
+# GCP Firestore Emulator
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firestore-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: firestore-emulator
+  template:
+    metadata:
+      labels:
+        app: firestore-emulator
+    spec:
+      containers:
+      - name: firestore
+        image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        command: ["gcloud", "beta", "emulators", "firestore", "start", "--host-port=0.0.0.0:8080"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: FIRESTORE_EMULATOR_HOST
+          value: "localhost:8080"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firestore-emulator
+  namespace: default
+spec:
+  selector:
+    app: firestore-emulator
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

@@ -1,39 +1,109 @@
 # Local Testing Configuration
-# This directory contains local cloud emulators for development/testing
+# This directory contains comprehensive local cloud emulators for development/testing
 
-## AWS - LocalStack
-- **Services**: EC2, EKS, IAM (core infrastructure services)
+## AWS - LocalStack (Extended)
+- **Core Services**: EC2, EKS, IAM (infrastructure)
+- **Additional Services**: S3, Lambda, DynamoDB, SQS, SNS, RDS, CloudFormation
 - **Usage**: Modify ACK controller config to point to LocalStack endpoint
-- **Limitations**: Not all AWS services supported, no real AWS costs
+- **Deployment**: Use `extended-services.yaml` for broader testing
 
-## Azure - Azurite  
-- **Services**: Storage (Blob, Queue, Table)
-- **Usage**: Basic storage testing only
-- **Limitations**: Limited to storage services, no full Azure resource management
+## Azure - Multiple Emulators
+- **Azurite**: Storage (Blob, Queue, Table) services
+- **Cosmos DB Emulator**: NoSQL database testing
+- **Usage**: Basic service testing, not full Azure resource management
+- **Limitations**: Limited to specific services, requires Windows/Linux host for full Cosmos
 
-## GCP - Bigtable Emulator
-- **Services**: Bigtable only
-- **Usage**: Specific service testing
-- **Limitations**: Very limited, most GCP services require real GCP
+## GCP - Comprehensive Emulators
+- **Bigtable Emulator**: NoSQL Big Data database
+- **Cloud Storage Emulator**: Object storage (GCS)
+- **Pub/Sub Emulator**: Message queuing
+- **Firestore Emulator**: Document database
+- **Usage**: Individual service testing with gcloud SDK
+- **Limitations**: Most services require real GCP, emulators are service-specific
 
-## How to Enable Local Testing
+## Additional Local Testing Options
 
-1. **Deploy emulators**:
-   ```bash
-   kubectl apply -f infrastructure/tenants/aws/localstack/
-   kubectl apply -f infrastructure/tenants/azure/localstack/
-   kubectl apply -f infrastructure/tenants/gcp/localstack/
-   ```
+### AWS Alternatives
+- **Moto**: Python library for AWS service mocking (unit tests)
+- **DynamoDB Local**: Standalone DynamoDB instance
+- **SQS/DynamoDB via LocalStack**: Already included
 
-2. **Modify controller configs** to point to local endpoints instead of cloud APIs
+### Azure Alternatives
+- **Azure SDK Emulators**: Limited, mostly for development
+- **Service Bus Emulator**: For messaging services
+- **Cosmos DB Emulator**: Full emulator for Windows/Linux
 
-3. **Update CRDs** with test-specific parameters (smaller instances, etc.)
+### GCP Alternatives
+- **Datastore Emulator**: For App Engine datastore
+- **Spanner Emulator**: For relational database testing
+- **Functions Framework**: For Cloud Functions testing
+
+### Cross-Platform
+- **TestContainers**: JVM-based containers for testing
+- **LocalStack Pro**: Commercial version with more services
+- **Minio**: S3-compatible object storage
+- **RabbitMQ**: Message queue alternative
+
+## Testing Strategies
+
+### 1. Service-Level Testing
+```bash
+# Test individual services locally
+kubectl port-forward svc/gcs-emulator 9023:9023
+# Use GCP SDK to connect to localhost:9023
+```
+
+### 2. Integration Testing
+```bash
+# Deploy multiple emulators together
+kubectl apply -f infrastructure/tenants/aws/localstack/
+kubectl apply -f infrastructure/tenants/gcp/localstack/
+# Test cross-service interactions
+```
+
+### 3. Workload Testing
+```bash
+# Use local K8s + emulators for full stack testing
+minikube start
+kubectl apply -k infrastructure/tenants/local-testing/workloads-local/
+# Applications connect to emulator services
+```
+
+## Configuration Examples
+
+### AWS LocalStack
+```yaml
+# In application config
+aws:
+  endpoint: http://localstack.localstack.svc.cluster.local:4566
+  region: us-east-1
+  access_key_id: test
+  secret_access_key: test
+```
+
+### GCP Emulators
+```bash
+# Set environment variables
+export STORAGE_EMULATOR_HOST=http://gcs-emulator.default.svc.cluster.local:9023
+export PUBSUB_EMULATOR_HOST=http://pubsub-emulator.default.svc.cluster.local:8085
+export FIRESTORE_EMULATOR_HOST=http://firestore-emulator.default.svc.cluster.local:8080
+```
+
+### Azure Emulators
+```bash
+# Azurite connection string
+export AZURITE_CONNECTION_STRING="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=devstoreaccount1key;BlobEndpoint=http://azurite.default.svc.cluster.local:10000;QueueEndpoint=http://azurite.default.svc.cluster.local:10001;TableEndpoint=http://azurite.default.svc.cluster.local:10002"
+```
 
 ## Important Notes
-- Local emulators provide **basic testing only**
-- **Not suitable for production** - use real cloud providers
-- **Limited service coverage** - many cloud features unavailable locally
-- **Performance differs** from real cloud services
-- **Cost-free** but may have different behavior than production
+- **Cost-Free**: All emulators run locally with no cloud charges
+- **Performance**: Local resources vs cloud scale - expect differences
+- **Feature Parity**: Emulators may not support all cloud features
+- **Production**: Never use emulators for production deployments
+- **Updates**: Keep emulator images updated for latest features
 
-For comprehensive testing, use real cloud accounts with test environments.
+## Recommended Testing Flow
+1. **Unit Tests**: Use SDK emulators (Moto, Azure SDK)
+2. **Integration Tests**: LocalStack + GCP emulators
+3. **Workload Tests**: Minikube/Kind + emulators
+4. **Production Tests**: Real cloud with test accounts

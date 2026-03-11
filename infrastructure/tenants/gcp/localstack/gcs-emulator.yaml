@@ -1,0 +1,46 @@
+# GCP Cloud Storage Emulator
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gcs-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gcs-emulator
+  template:
+    metadata:
+      labels:
+        app: gcs-emulator
+    spec:
+      containers:
+      - name: gcs
+        image: oittaa/gcp-storage-emulator:latest
+        ports:
+        - containerPort: 9023
+        env:
+        - name: PORT
+          value: "9023"
+        - name: STORAGE_BASE
+          value: "/tmp/gcs"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gcs-emulator
+  namespace: default
+spec:
+  selector:
+    app: gcs-emulator
+  ports:
+  - port: 9023
+    targetPort: 9023
+  type: ClusterIP

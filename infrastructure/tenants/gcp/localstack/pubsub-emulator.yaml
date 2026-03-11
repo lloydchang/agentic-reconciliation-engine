@@ -1,0 +1,45 @@
+# GCP Pub/Sub Emulator
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pubsub-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pubsub-emulator
+  template:
+    metadata:
+      labels:
+        app: pubsub-emulator
+    spec:
+      containers:
+      - name: pubsub
+        image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        command: ["gcloud", "beta", "emulators", "pubsub", "start", "--host-port=0.0.0.0:8085"]
+        ports:
+        - containerPort: 8085
+        env:
+        - name: PUBSUB_EMULATOR_HOST
+          value: "localhost:8085"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pubsub-emulator
+  namespace: default
+spec:
+  selector:
+    app: pubsub-emulator
+  ports:
+  - port: 8085
+    targetPort: 8085
+  type: ClusterIP
