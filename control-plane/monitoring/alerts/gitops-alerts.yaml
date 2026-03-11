@@ -1,0 +1,45 @@
+# GitOps Pipeline Alerts
+# Comprehensive alerting for all GitOps activities
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: gitops-pipeline-alerts
+  namespace: flux-system
+spec:
+  summary: "GitOps Infrastructure Pipeline"
+  eventMetadata:
+    env: "production"
+    cluster: "gitops-management"
+    region: "multi-cloud"
+  providerRef:
+    name: slack-bot
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+# Info alerts for successful deployments
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: gitops-deployment-alerts
+  namespace: flux-system
+spec:
+  summary: "GitOps Deployment Status"
+  eventMetadata:
+    env: "production"
+    cluster: "gitops-management"
+    region: "multi-cloud"
+  providerRef:
+    name: slack-bot
+  eventSeverity: info
+  eventSources:
+    - kind: Kustomization
+      name: 'network-infra'
+    - kind: Kustomization
+      name: 'cluster-infra'
+    - kind: Kustomization
+      name: 'workload-infra'
