@@ -1,9 +1,9 @@
-# argo-cd - Enterprise tool implementation
+# argo-cd - Enterprise tool implementation (WORKLOAD CLUSTER ONLY)
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: argo-cd
-  namespace: flux-system
+  namespace: default
 spec:
   interval: 10m0s
   url: https://charts.example.com  # Replace with actual Helm repo URL
@@ -12,7 +12,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: argo-cd
-  namespace: flux-system
+  namespace: default
 spec:
   interval: 10m0s
   chart:
