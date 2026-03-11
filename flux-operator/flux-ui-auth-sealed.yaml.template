@@ -1,0 +1,24 @@
+# Flux UI Authentication SealedSecret Template
+# Generate with: kubectl create secret generic flux-ui-auth --from-literal=auth="admin:$(openssl passwd -apr1 your-secure-password)" --dry-run=client -o yaml | kubeseal --format yaml > flux-ui-auth-sealed.yaml
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: flux-ui-auth
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux-operator
+    app.kubernetes.io/component: ui
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  encryptedData:
+    auth: [GENERATE_WITH_KUBESEAL_COMMAND]
+  template:
+    metadata:
+      name: flux-ui-auth
+      namespace: flux-system
+      labels:
+        app.kubernetes.io/name: flux-operator
+        app.kubernetes.io/component: ui
+        app.kubernetes.io/part-of: gitops-infra-control-plane
+    type: Opaque

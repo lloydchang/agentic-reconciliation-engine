@@ -134,8 +134,8 @@ metadata:
   namespace: flux-system
   type: Opaque
 data:
-  # username: admin, password: admin123 (base64 encoded)
-  auth: YWRtaW46JGFwcjEkZlZkR2hJYkEka1p2L1FvV3JFZ2NkTjNOLgo=
+  # username: admin, password: [REPLACE_WITH_SECURE_PASSWORD] (base64 encoded)
+  auth: [REPLACE_WITH_BASE64_ENCODED_CREDENTIALS]
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -688,7 +688,7 @@ kubectl logs -n cert-manager deployment/cert-manager
 kubectl get secret flux-ui-auth -n flux-system -o yaml
 
 # Test basic auth
-curl -v -u admin:admin123 http://flux-ui.local
+curl -v -u [USERNAME]:[PASSWORD] http://flux-ui.local
 
 # Check Ingress annotations
 kubectl get ingress flux-ui-ingress -n flux-system -o yaml
