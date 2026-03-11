@@ -49,4 +49,4 @@ We utilize Flux over Argo CD because Flux is architecturally optimized for infra
 ## Open-source Software
 https://github.com/lloydchang/gitops-infra-control-plane
 
-<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/012c76ba-98f0-4513-be94-bf83691d0a9d" />
+<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/6c461f18-f21b-4a78-9bcd-20c951cf8b57" />
