@@ -51,6 +51,36 @@ data:
     
     echo ""
     echo "✅ Flux Health Check Complete"
+    
+    echo ""
+    echo "🍯 Checking Honeycomb Observability..."
+    
+    # Check Honeycomb collectors
+    echo "📊 Honeycomb Collectors:"
+    if kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector 2>/dev/null | grep -q "Running"; then
+      echo "  ✅ Honeycomb Collectors: Running"
+      running_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector --field-selector=status.phase=Running 2>/dev/null | wc -l)
+      total_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector 2>/dev/null | grep -c "otel-collector" || echo "0")
+      echo "  📈 Status: $running_count/$total_count collectors running"
+    else
+      echo "  ⚠️  Honeycomb Collectors: Not running (observability optional)"
+    fi
+    
+    # Check Honeycomb API key
+    echo ""
+    echo "🔑 Honeycomb Configuration:"
+    if kubectl get secret honeycomb -n honeycomb 2>/dev/null >/dev/null; then
+      if kubectl get secret honeycomb -n honeycomb --template="{{.data.api-key}}" 2>/dev/null | base64 -d | grep -v "your-honeycomb-api-key-here" > /dev/null 2>&1; then
+        echo "  ✅ API Key: Configured"
+      else
+        echo "  ❌ API Key: Using placeholder - needs real API key"
+      fi
+    else
+      echo "  ⚠️  Honeycomb Secret: Not found"
+    fi
+    
+    echo ""
+    echo "🍯 Honeycomb Observability Check Complete"
   
   incident-response.md: |
     # Flux Incident Response Procedures
