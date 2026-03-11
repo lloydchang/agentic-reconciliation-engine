@@ -1,0 +1,55 @@
+# Slack Integration - Communication and Alerts for Workload Clusters
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slack-notifier
+  namespace: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slack-notifier
+  template:
+    metadata:
+      labels:
+        app: slack-notifier
+    spec:
+      containers:
+      - name: notifier
+        image: quay.io/prometheuscommunity/slack-alertmanager:latest
+        ports:
+        - containerPort: 9094
+        env:
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: slack-credentials
+              key: webhook-url
+        - name: SLACK_CHANNEL
+          value: "#alerts"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-notifier
+  namespace: communication
+spec:
+  selector:
+    app: slack-notifier
+  ports:
+  - port: 9094
+    targetPort: 9094
+  type: ClusterIP

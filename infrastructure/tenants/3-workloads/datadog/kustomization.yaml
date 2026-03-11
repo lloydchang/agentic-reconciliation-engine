@@ -1,0 +1,40 @@
+# Datadog Integration - Advanced Observability for Workload Clusters
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: datadog
+  namespace: observability
+spec:
+  interval: 10m0s
+  url: https://helm.datadoghq.com
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: datadog-agent
+  namespace: observability
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: datadog
+      version: "3.44.0"
+      sourceRef:
+        kind: HelmRepository
+        name: datadog
+      interval: 10m0s
+  values:
+    datadog:
+      apiKey: "your-datadog-api-key"
+      appKey: "your-datadog-app-key"
+      site: "datadoghq.com"
+    clusterAgent:
+      enabled: true
+    clusterChecks:
+      enabled: true
