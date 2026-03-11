@@ -1,0 +1,74 @@
+# Conftest - Policy Testing for Infrastructure as Code
+# Tests policies written in Rego against configuration files
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: conftest-policy-test
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: conftest
+        image: openpolicyagent/conftest:latest
+        command: ["conftest", "test", "--policy", "/policies", "/config"]
+        volumeMounts:
+        - name: policies
+          mountPath: /policies
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: policies
+        configMap:
+          name: conftest-policies
+      - name: config
+        configMap:
+          name: conftest-config
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conftest-policies
+  namespace: default
+data:
+  pod_security.rego: |
+    package main
+
+    # Ensure pods don't run as root
+    deny[msg] {
+      input.kind == "Pod"
+      input.spec.securityContext.runAsUser == 0
+      msg = "Pods must not run as root"
+    }
+
+    # Ensure containers have resource limits
+    deny[msg] {
+      input.kind == "Pod"
+      container := input.spec.containers[_]
+      not container.resources.limits
+      msg = sprintf("Container %s must have resource limits", [container.name])
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conftest-config
+  namespace: default
+data:
+  test-pod.yaml: |
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: test-pod
+    spec:
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - name: test
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"

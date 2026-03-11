@@ -1,0 +1,51 @@
+# Additional Policy and Security Tools
+
+## Polaris - Kubernetes Best Practices Validation
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: polaris-security-scan
+  namespace: security
+spec:
+  template:
+    spec:
+      containers:
+      - name: polaris
+        image: fairwinds/polaris:latest
+        command: ["polaris", "audit", "--audit-path", "/config", "--format", "json"]
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        configMap:
+          name: polaris-config
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: polaris-config
+  namespace: security
+data:
+  polaris-config.yaml: |
+    checks:
+      # Security checks
+      hostIPCSet: danger
+      hostPIDSet: danger
+      hostNetworkSet: warning
+      # Reliability checks
+      readinessProbeMissing: warning
+      livenessProbeMissing: warning
+      # Efficiency checks
+      cpuLimitsMissing: warning
+      memoryLimitsMissing: warning
+
+## Kube-bench - CIS Benchmark Scanning (already added)
+## Kube-hunter - Penetration Testing (already added)
+
+## Falco - Runtime Security (already added)
+## OPA Gatekeeper - Policy Enforcement (already added)
+## Kyverno - Policy Engine (added above)
+## Conftest - Policy Testing (added above)
