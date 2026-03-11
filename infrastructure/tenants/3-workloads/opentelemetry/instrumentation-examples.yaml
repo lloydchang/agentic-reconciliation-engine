@@ -1,0 +1,84 @@
+# OpenTelemetry Instrumentation Examples
+# How to instrument applications with OpenTelemetry
+
+## Example: Instrumented Nginx with OpenTelemetry
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-instrumented
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-instrumented
+  template:
+    metadata:
+      labels:
+        app: nginx-instrumented
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: OTEL_SERVICE_NAME
+          value: "nginx-sample"
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
+        - name: OTEL_METRICS_EXPORTER
+          value: "prometheus"
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx
+      - name: opentelemetry-sidecar
+        image: otel/opentelemetry-collector-contrib:latest
+        command:
+        - /otelcol-contrib
+        - --config
+        - /etc/otel/config.yaml
+        volumeMounts:
+        - name: otel-config
+          mountPath: /etc/otel
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: otel-config
+        configMap:
+          name: otel-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-config
+  namespace: default
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      batch:
+        timeout: 1s
+    exporters:
+      otlp:
+        endpoint: "opentelemetry-collector.opentelemetry.svc.cluster.local:4317"
+        insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp]
