@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Configuration
-CLUSTER_TYPE=${CLUSTER_TYPE:-kind}  # kind or minikube
+CLUSTER_TYPE=${CLUSTER_TYPE:-kind}  # kind, minikube, or docker-desktop
 CLUSTER_NAME="gitops-management-local"
 FLUX_VERSION="v2.1.0"
 
@@ -73,6 +73,23 @@ EOF
                 --addons=ingress,metrics-server \
                 --ports=30000:30000
             ;;
+
+        docker-desktop)
+            print_status "Using Docker Desktop Kubernetes..."
+            if ! docker version &> /dev/null; then
+                print_error "Docker not found. Please install Docker Desktop with Kubernetes enabled."
+                exit 1
+            fi
+
+            # Enable Kubernetes in Docker Desktop
+            if ! kubectl cluster-info &> /dev/null; then
+                print_error "Docker Desktop Kubernetes is not enabled or not running."
+                print_error "Please enable Kubernetes in Docker Desktop settings and try again."
+                exit 1
+            fi
+
+            print_status "✅ Docker Desktop Kubernetes is ready"
+            ;;
     esac
 
     print_status "✅ Local cluster created"
@@ -82,15 +99,23 @@ EOF
 install_ingress() {
     print_status "Installing ingress-nginx..."
 
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            # Docker Desktop already has ingress-nginx
+            print_status "✅ Docker Desktop ingress already available"
+            ;;
+        *)
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
 
-    # Wait for ingress to be ready
-    kubectl wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=300s
+            # Wait for ingress to be ready
+            kubectl wait --namespace ingress-nginx \
+                --for=condition=ready pod \
+                --selector=app.kubernetes.io/component=controller \
+                --timeout=300s
+            ;;
+    esac
 
-    print_status "✅ Ingress controller installed"
+    print_status "✅ Ingress controller ready"
 }
 
 # 3. Bootstrap Flux
@@ -140,8 +165,13 @@ deploy_emulators() {
 deploy_workload_simulation() {
     print_status "Deploying workload cluster simulation..."
 
-    # Create a simulated workload cluster using Kind
-    cat <<EOF | kind create cluster --name gitops-workload-local --config=-
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            print_status "Using Docker Desktop as workload cluster"
+            ;;
+        *)
+            # Create a simulated workload cluster using Kind
+            cat <<EOF | kind create cluster --name gitops-workload-local --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
@@ -160,19 +190,29 @@ nodes:
     hostPort: 8443
     protocol: TCP
 EOF
+            ;;
+    esac
 
-    print_status "✅ Workload cluster simulation created"
+    print_status "✅ Workload cluster simulation ready"
 }
 
 # 6. Deploy sample workloads
 deploy_workloads() {
     print_status "Deploying sample workloads to simulated workload cluster..."
 
-    # Switch to workload cluster context
-    kubectl config use-context kind-gitops-workload-local
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            # Deploy workloads to Docker Desktop
+            kubectl apply -k infrastructure/tenants/local-testing/workloads-local/
+            ;;
+        *)
+            # Switch to workload cluster context
+            kubectl config use-context kind-gitops-workload-local
 
-    # Deploy workloads
-    kubectl apply -k infrastructure/tenants/local-testing/workloads-local/
+            # Deploy workloads
+            kubectl apply -k infrastructure/tenants/local-testing/workloads-local/
+            ;;
+    esac
 
     print_status "✅ Sample workloads deployed"
 }
@@ -199,6 +239,14 @@ setup_access() {
 
 # Main execution
 main() {
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            CLUSTER_NAME="docker-desktop"
+            ;;
+        *)
+            CLUSTER_NAME="gitops-management-local"
+            ;;
+    esac
     create_cluster
     install_ingress
     bootstrap_flux
@@ -213,11 +261,25 @@ main() {
     echo "============================================="
     echo ""
     echo "Management Cluster (Control Plane):"
-    echo "  Context: kind-$CLUSTER_NAME"
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            echo "  Context: docker-desktop"
+            ;;
+        *)
+            echo "  Context: kind-$CLUSTER_NAME"
+            ;;
+    esac
     echo "  Flux: kubectl get pods -n flux-system"
     echo ""
     echo "Workload Cluster (Applications):"
-    echo "  Context: kind-gitops-workload-local"
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            echo "  Context: docker-desktop (same cluster)"
+            ;;
+        *)
+            echo "  Context: kind-gitops-workload-local"
+            ;;
+    esac
     echo "  Apps: kubectl get pods -A"
     echo ""
     echo "Emulator Endpoints:"
@@ -230,8 +292,15 @@ main() {
     echo "  GCP Spanner: localhost:9010"
     echo ""
     echo "Test commands:"
-    echo "  kubectl config use-context kind-$CLUSTER_NAME  # Switch to management"
-    echo "  kubectl config use-context kind-gitops-workload-local  # Switch to workload"
+    case $CLUSTER_TYPE in
+        docker-desktop)
+            echo "  # Single cluster setup - no context switching needed"
+            ;;
+        *)
+            echo "  kubectl config use-context kind-$CLUSTER_NAME  # Switch to management"
+            echo "  kubectl config use-context kind-gitops-workload-local  # Switch to workload"
+            ;;
+    esac
     echo "  ./tests/drift-test.sh  # Run tests"
 }
 
