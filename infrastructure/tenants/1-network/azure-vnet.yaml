@@ -1,0 +1,31 @@
+---
+apiVersion: network.azure.com/v1api20201101
+kind: VirtualNetwork
+metadata:
+  name: gitops-vnet
+  namespace: flux-system
+spec:
+  location: eastus
+  owner:
+    name: gitops-resource-group
+  addressSpace:
+    addressPrefixes:
+      - "10.1.0.0/16"
+  subnets:
+    - name: default
+      properties:
+        addressPrefix: "10.1.0.0/24"
+    - name: aks-subnet
+      properties:
+        addressPrefix: "10.1.1.0/24"
+---
+apiVersion: resources.azure.com/v1api20200601
+kind: ResourceGroup
+metadata:
+  name: gitops-resource-group
+  namespace: flux-system
+spec:
+  location: eastus
+  tags:
+    Environment: production
+    ManagedBy: gitops-flux

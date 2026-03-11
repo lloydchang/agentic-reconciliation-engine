@@ -1,0 +1,31 @@
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: VPC
+metadata:
+  name: gitops-vpc
+  namespace: flux-system
+spec:
+  cidrBlock: "10.0.0.0/16"
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  tags:
+    - key: Name
+      value: gitops-infra-vpc
+    - key: Environment
+      value: production
+    - key: ManagedBy
+      value: gitops-flux
+---
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: InternetGateway
+metadata:
+  name: gitops-igw
+  namespace: flux-system
+spec:
+  vpcRef:
+    name: gitops-vpc
+  tags:
+    - key: Name
+      value: gitops-infra-igw
+    - key: ManagedBy
+      value: gitops-flux

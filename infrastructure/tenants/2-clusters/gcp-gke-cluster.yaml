@@ -1,0 +1,102 @@
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: gke-node-sa
+  namespace: flux-system
+spec:
+  displayName: "GKE Node Service Account"
+  projectId: PROJECT_ID
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: gke-node-sa-logging
+  namespace: flux-system
+spec:
+  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
+  role: roles/logging.logWriter
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    name: PROJECT_ID
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: gke-node-sa-monitoring
+  namespace: flux-system
+spec:
+  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
+  role: roles/monitoring.metricWriter
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    name: PROJECT_ID
+---
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerCluster
+metadata:
+  name: gitops-gke-cluster
+  namespace: flux-system
+spec:
+  location: us-central1
+  initialNodeCount: 1
+  removeDefaultNodePool: true
+  networkRef:
+    name: gitops-network
+  subnetworkRef:
+    name: gitops-subnet-1
+  ipAllocationPolicy:
+    useIpAliases: true
+    clusterSecondaryRangeName: pods
+    servicesSecondaryRangeName: services
+  addonsConfig:
+    httpLoadBalancing:
+      disabled: false
+    horizontalPodAutoscaling:
+      disabled: false
+    networkPolicyConfig:
+      disabled: false
+  masterAuth:
+    clientCertificateConfig:
+      issueClientCertificate: false
+  workloadIdentityConfig:
+    workloadPool: PROJECT_ID.svc.id.goog
+  tags:
+    Environment: production
+    ManagedBy: gitops-flux
+---
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerNodePool
+metadata:
+  name: gitops-gke-nodepool
+  namespace: flux-system
+spec:
+  location: us-central1
+  clusterRef:
+    name: gitops-gke-cluster
+  nodeCount: 3
+  nodeConfig:
+    machineType: e2-standard-2
+    diskSizeGb: 100
+    diskType: pd-standard
+    oauthScopes:
+      - "https://www.googleapis.com/auth/devstorage.read_only"
+      - "https://www.googleapis.com/auth/logging.write"
+      - "https://www.googleapis.com/auth/monitoring"
+      - "https://www.googleapis.com/auth/servicecontrol"
+      - "https://www.googleapis.com/auth/service.management.readonly"
+      - "https://www.googleapis.com/auth/trace.append"
+    serviceAccountRef:
+      name: gke-node-sa
+    tags:
+      Environment: production
+      ManagedBy: gitops-flux
+  autoscaling:
+    enabled: true
+    minNodeCount: 2
+    maxNodeCount: 6
+  management:
+    autoRepair: true
+    autoUpgrade: true

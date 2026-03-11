@@ -1,0 +1,65 @@
+---
+apiVersion: managedidentity.azure.com/v1api20181130
+kind: UserAssignedIdentity
+metadata:
+  name: gitops-aks-identity
+  namespace: flux-system
+spec:
+  location: eastus
+  owner:
+    name: gitops-resource-group
+  tags:
+    Environment: production
+    ManagedBy: gitops-flux
+---
+apiVersion: containerservice.azure.com/v1api20231001
+kind: ManagedCluster
+metadata:
+  name: gitops-aks-cluster
+  namespace: flux-system
+spec:
+  location: eastus
+  owner:
+    name: gitops-resource-group
+  identity:
+    type: UserAssigned
+    userAssignedIdentities:
+      - idRef:
+          name: gitops-aks-identity
+          namespace: flux-system
+  dnsPrefix: gitops-aks
+  agentPoolProfiles:
+    - name: system
+      count: 3
+      vmSize: Standard_D2s_v3
+      mode: System
+      availabilityZones:
+        - "1"
+        - "2"
+        - "3"
+      osType: Linux
+      enableAutoScaling: true
+      minCount: 2
+      maxCount: 5
+  servicePrincipalProfile:
+    clientId: ""
+    secret: ""
+  networkProfile:
+    networkPlugin: azure
+    networkPolicy: calico
+    serviceCidr: "10.240.0.0/16"
+    dnsServiceIP: "10.240.0.10"
+    dockerBridgeCidr: "172.17.0.1/16"
+    vnetCidr: "10.1.0.0/16"
+    vnetSubnetIDRef:
+      name: gitops-vnet/aks-subnet
+  addonProfiles:
+    - name: omsagent
+      enabled: false
+    - name: azurepolicy
+      enabled: true
+    - name: ingressApplicationGateway
+      enabled: false
+  tags:
+    Environment: production
+    ManagedBy: gitops-flux

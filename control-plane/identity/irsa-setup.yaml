@@ -1,0 +1,69 @@
+---
+apiVersion: iam.aws.crossplane.io/v1beta1
+kind: IAMPolicy
+metadata:
+  name: ack-controllers-policy
+  namespace: flux-system
+spec:
+  forProvider:
+    description: "Policy for ACK controllers to manage AWS resources"
+    policyDocument: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "eks:*",
+              "ec2:*",
+              "iam:PassRole",
+              "iam:CreateRole",
+              "iam:DeleteRole",
+              "iam:GetRole",
+              "iam:AttachRolePolicy",
+              "iam:DetachRolePolicy",
+              "iam:PutRolePolicy",
+              "iam:DeleteRolePolicy"
+            ],
+            "Resource": "*"
+          }
+        ]
+      }
+---
+apiVersion: iam.aws.crossplane.io/v1beta1
+kind: IAMRole
+metadata:
+  name: AckEKSControllerRole
+  namespace: flux-system
+spec:
+  forProvider:
+    assumeRolePolicyDocument: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Federated": "arn:aws:iam::ACCOUNT_ID:oidc-provider/oidc.eks.REGION.amazonaws.com/id/CLUSTER_ID"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+              "StringEquals": {
+                "oidc.eks.REGION.amazonaws.com/id/CLUSTER_ID:sub": "system:serviceaccount:ack-system:ack-eks-controller"
+              }
+            }
+          }
+        ]
+      }
+    path: "/"
+---
+apiVersion: iam.aws.crossplane.io/v1beta1
+kind: IAMRolePolicyAttachment
+metadata:
+  name: ack-eks-attachment
+  namespace: flux-system
+spec:
+  forProvider:
+    policyArn: "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+    roleNameRef:
+      name: AckEKSControllerRole

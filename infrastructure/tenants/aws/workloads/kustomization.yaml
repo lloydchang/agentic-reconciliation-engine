@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: aws-workloads
+  namespace: flux-system
+dependsOn:
+- name: aws-clusters
+resources: []
