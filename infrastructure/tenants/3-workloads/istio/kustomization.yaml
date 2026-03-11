@@ -33,6 +33,23 @@ spec:
         requests:
           memory: "512Mi"
           cpu: "250m"
+    meshConfig:
+      accessLogFile: /dev/stdout
+      accessLogEncoding: JSON
+      defaultConfig:
+        proxyMetadata:
+          ISTIO_META_DNS_CAPTURE: "true"
+          ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      extensionProviders:
+      - name: "envoy-json"
+        envoyExtAuthzHttp:
+          service: "ext-authz.example.com"
+          port: "8080"
+          includeRequestHeadersInCheck: ["x-user"]
+      trustDomain: "cluster.local"
+      peerAuthentication:
+        mtls:
+          mode: STRICT  # Enforce mTLS
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
@@ -51,3 +68,50 @@ spec:
       interval: 10m0s
   dependsOn:
   - name: istiod
+---
+# Global mTLS PeerAuthentication Policy
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+---
+# RequestAuthentication for JWT validation
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: nginx-sample
+  jwtRules:
+  - issuer: "your-issuer"
+    jwksUri: "https://your-jwks-endpoint"
+    audiences:
+    - "your-audience"
+---
+# AuthorizationPolicy for mTLS + JWT
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-mtls-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: nginx-sample
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/default"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  # Deny all other requests
+  - {}

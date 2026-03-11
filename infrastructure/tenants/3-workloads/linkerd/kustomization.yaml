@@ -41,3 +41,47 @@ spec:
       MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwIJHtRWGpIcL
       [truncated - use cert-manager or real cert]
       -----END CERTIFICATE-----
+---
+# Linkerd ServerAuthorization for mTLS
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: nginx-sample
+  namespace: default
+spec:
+  server:
+    selector:
+      matchLabels:
+        app: nginx-sample
+  client:
+    # Allow authenticated clients
+    authenticated: true
+    # Allow specific service accounts
+    serviceAccounts:
+    - name: default
+      namespace: default
+---
+# Linkerd AuthorizationPolicy for fine-grained control
+apiVersion: policy.linkerd.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: nginx-sample-policy
+  namespace: default
+spec:
+  targetRef:
+    group: apps
+    kind: Deployment
+    name: nginx-sample
+  requiredAuthenticationRefs:
+  - name: linkerd-identity
+    kind: MeshTLSAuthentication
+---
+# MeshTLSAuthentication for mTLS
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata:
+  name: linkerd-identity
+  namespace: default
+spec:
+  identities:
+  - "*"
