@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rapid7-insightvm
+  namespace: security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rapid7-insightvm
+  template:
+    metadata:
+      labels:
+        app: rapid7-insightvm
+    spec:
+      containers:
+      - name: insightvm
+        image: rapid7/insightvm:latest
+        env:
+        - name: INSIGHTVM_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rapid7-credentials
+              key: username
+        - name: INSIGHTVM_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rapid7-credentials
+              key: password
+        ports:
+        - containerPort: 3780
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rapid7-insightvm
+  namespace: security
+spec:
+  selector:
+    app: rapid7-insightvm
+  ports:
+  - port: 3780
+    targetPort: 3780
+  type: ClusterIP

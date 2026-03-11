@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appdynamics-controller
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appdynamics-controller
+  template:
+    metadata:
+      labels:
+        app: appdynamics-controller
+    spec:
+      containers:
+      - name: controller
+        image: appdynamics/cluster-agent:latest
+        env:
+        - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: appdynamics-credentials
+              key: account-name
+        - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: appdynamics-credentials
+              key: access-key
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appdynamics-controller
+  namespace: observability
+spec:
+  selector:
+    app: appdynamics-controller
+  ports:
+  - port: 9090
+    targetPort: 9090
+  type: ClusterIP
