@@ -1,0 +1,107 @@
+# Docker-in-Docker (DinD) Setup for CI/CD Workloads
+# Useful for workloads that need to build Docker images (Jenkins, GitLab CI, etc.)
+
+## Option 1: Docker-in-Docker with Privileged Container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dind-sample
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dind-sample
+  template:
+    metadata:
+      labels:
+        app: dind-sample
+    spec:
+      containers:
+      - name: docker
+        image: docker:24.0.5-dind
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: docker-graph-storage
+          mountPath: /var/lib/docker
+      volumes:
+      - name: docker-graph-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dind-sample
+  namespace: default
+spec:
+  selector:
+    app: dind-sample
+  ports:
+  - port: 2376
+    targetPort: 2376
+  type: ClusterIP
+
+## Option 2: Rootless Docker-in-Docker (More Secure)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rootless-dind-sample
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rootless-dind-sample
+  template:
+    metadata:
+      labels:
+        app: rootless-dind-sample
+    spec:
+      containers:
+      - name: docker
+        image: docker:24.0.5-dind-rootless
+        env:
+        - name: DOCKER_TLS_CERTDIR
+          value: /certs
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        volumeMounts:
+        - name: docker-certs
+          mountPath: /certs/client
+        - name: docker-graph-storage
+          mountPath: /home/user/.local/share/docker
+      volumes:
+      - name: docker-certs
+        secret:
+          secretName: docker-certs
+      - name: docker-graph-storage
+        emptyDir: {}
+
+## Option 3: Kaniko (Docker-less Container Building)
+# Recommended alternative - no privileged containers needed
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kaniko-build-sample
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+        - "--context=git://github.com/myorg/myrepo.git"
+        - "--dockerfile=Dockerfile"
+        - "--destination=gcr.io/myproject/myimage:tag"
+        - "--cache=true"
+        volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker/
+      volumes:
+      - name: docker-config
+        secret:
+          secretName: docker-config
+      restartPolicy: Never

@@ -1,5 +1,5 @@
 # Local Kubernetes Testing Setup
-# Use Minikube or Kind to test workload cluster deployments locally
+# Use Minikube, Kind, or Docker Desktop to test workload cluster deployments locally
 
 ## Option 1: Minikube (Recommended for single-node testing)
 ```bash
@@ -46,11 +46,31 @@ EOF
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
 ```
 
+## Option 3: Docker Desktop Kubernetes
+```bash
+# Enable Kubernetes in Docker Desktop
+# Settings -> Kubernetes -> Enable Kubernetes
+
+# Verify it's working
+kubectl cluster-info
+
+# Use the automated setup script
+export CLUSTER_TYPE=docker-desktop
+./setup-local-management.sh
+```
+
+## Automated Setup Script
+```bash
+# Choose your cluster type
+export CLUSTER_TYPE=docker-desktop  # kind, minikube, or docker-desktop
+./setup-local-management.sh
+```
+
 ## Testing Workload Deployments Locally
 
 1. **Deploy Flux locally**:
    ```bash
-   flux install --components=source-controller,kustomize-controller
+   flux install --components=source-controller,kustomize-controller,helm-controller
    ```
 
 2. **Apply workload manifests**:
@@ -73,6 +93,17 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
    kubectl port-forward svc/nginx-sample 8080:80
    curl http://localhost:8080
    ```
+
+## Cluster Type Comparison
+
+| Feature | Kind | Minikube | Docker Desktop |
+|---------|------|----------|----------------|
+| Setup Complexity | Medium | Easy | Easiest |
+| Resource Usage | Low | Medium | High |
+| Multi-node | Yes | Limited | No |
+| Ingress | Manual | Addons | Built-in |
+| LoadBalancer | Port forward | Tunnel | Built-in |
+| Persistence | HostPath | HostPath | HostPath |
 
 ## Limitations
 - **No cloud services**: Can't test ACK/ASO/KCC controllers locally
