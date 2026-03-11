@@ -1,0 +1,54 @@
+# Google Chat Integration - Communication for Workload Clusters
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: google-chat-webhook
+  namespace: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: google-chat-webhook
+  template:
+    metadata:
+      labels:
+        app: google-chat-webhook
+    spec:
+      containers:
+      - name: webhook
+        image: curlimages/curl:latest
+        command: ["sh", "-c", "while true; do sleep 30; done"]  # Keep alive for webhook processing
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_CHAT_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: google-chat-credentials
+              key: webhook-url
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: google-chat-webhook
+  namespace: communication
+spec:
+  selector:
+    app: google-chat-webhook
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

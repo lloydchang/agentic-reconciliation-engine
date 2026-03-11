@@ -1,0 +1,60 @@
+# AWS Chime Successor - Amazon Q and Slack Integration
+# AWS Chime was sunsetted, replaced by Amazon Q with Slack integration
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amazon-q-slack-integration
+  namespace: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amazon-q-slack-integration
+  template:
+    metadata:
+      labels:
+        app: amazon-q-slack-integration
+    spec:
+      containers:
+      - name: integration
+        image: amazonlinux:2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: amazon-q-slack-credentials
+              key: bot-token
+        - name: AMAZON_Q_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: amazon-q-slack-credentials
+              key: webhook-url
+        command: ["python3", "-c", "import http.server; http.server.HTTPServer(('0.0.0.0', 8080), http.server.BaseHTTPRequestHandler).serve_forever()"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amazon-q-slack-integration
+  namespace: communication
+spec:
+  selector:
+    app: amazon-q-slack-integration
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

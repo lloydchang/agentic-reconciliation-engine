@@ -1,0 +1,56 @@
+# Google Meet Integration - Video Conferencing for Workload Clusters
+# Note: Google Meet doesn't have a direct Kubernetes integration
+# This provides a webhook endpoint for Meet event notifications
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: google-meet-integration
+  namespace: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: google-meet-integration
+  template:
+    metadata:
+      labels:
+        app: google-meet-integration
+    spec:
+      containers:
+      - name: integration
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_MEET_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: google-meet-credentials
+              key: webhook-secret
+        command: ["python", "-c", "import http.server; http.server.HTTPServer(('0.0.0.0', 8080), http.server.BaseHTTPRequestHandler).serve_forever()"]
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: google-meet-integration
+  namespace: communication
+spec:
+  selector:
+    app: google-meet-integration
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

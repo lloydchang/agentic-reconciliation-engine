@@ -1,0 +1,65 @@
+# Salesforce Slack Integration - CRM and Communication Integration
+# Note: This is a conceptual integration using Salesforce Connect or custom webhooks
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: integration
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: salesforce-slack-integration
+  namespace: integration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: salesforce-slack-integration
+  template:
+    metadata:
+      labels:
+        app: salesforce-slack-integration
+    spec:
+      containers:
+      - name: integration
+        image: node:18-slim
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SALESFORCE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: salesforce-credentials
+              key: client-id
+        - name: SALESFORCE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: salesforce-credentials
+              key: client-secret
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: slack-credentials
+              key: webhook-url
+        command: ["node", "-e", "require('http').createServer().listen(8080)"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: salesforce-slack-integration
+  namespace: integration
+spec:
+  selector:
+    app: salesforce-slack-integration
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
