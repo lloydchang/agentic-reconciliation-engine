@@ -332,7 +332,9 @@ spec:
       
       # Admin configuration
       adminUser: admin
-      adminPassword: admin123
+      adminPasswordFromSecret: true
+      adminSecretName: grafana-credentials
+      adminSecretKey: GF_SECURITY_ADMIN_PASSWORD
       
       # Service configuration
       service:
@@ -383,8 +385,9 @@ spec:
         
         security:
           admin_user: admin
-          admin_password: admin123
-          secret_key: SW2YcwTIb9zpOOhoPsMm
+          secret_key_from_secret: true
+          secret_key_secret_name: grafana-credentials
+          secret_key_secret_key: GF_SECURITY_SECRET_KEY
         
         users:
           auto_assign_org_role: Editor
@@ -399,13 +402,17 @@ spec:
           host: postgres.database.svc.cluster.local
           name: grafana
           user: grafana
-          password: grafana
+          password_from_secret: true
+          password_secret_name: grafana-credentials
+          password_secret_key: GF_DATABASE_PASSWORD
         
         smtp:
           enabled: true
           host: smtp.company.com:587
           user: noreply@company.com
-          password: smtp_password
+          password_from_secret: true
+          password_secret_name: grafana-credentials
+          password_secret_key: GF_SMTP_PASSWORD
           from_address: noreply@company.com
           from_name: Grafana
         
@@ -418,7 +425,27 @@ spec:
           check_for_updates: false
       
       # Environment variables
-      env: []
+      env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-credentials
+              key: GF_SECURITY_ADMIN_PASSWORD
+        - name: GF_SECURITY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: grafana-credentials
+              key: GF_SECURITY_SECRET_KEY
+        - name: GF_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-credentials
+              key: GF_DATABASE_PASSWORD
+        - name: GF_SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-credentials
+              key: GF_SMTP_PASSWORD
       envFrom: []
       
       # Additional configuration
