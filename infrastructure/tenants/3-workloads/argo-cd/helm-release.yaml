@@ -1,0 +1,31 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: argo-cd
+  namespace: argocd
+spec:
+  interval: 10m0s
+  url: https://argoproj.github.io/argo-helm
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: argo-cd
+  namespace: argocd
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: argo-cd
+      version: "5.46.0"
+      sourceRef:
+        kind: HelmRepository
+        name: argo-cd
+      interval: 10m0s
+  values:
+    server:
+      service:
+        type: LoadBalancer
+    configs:
+      secret:
+        argocdServerAdminPassword: "$2a$10$abcdefghijklmnopqrstuvwx"  # admin/admin123
