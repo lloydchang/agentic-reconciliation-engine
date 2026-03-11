@@ -1,0 +1,75 @@
+# Static Testing Tools - Code Analysis and Quality Gates
+
+## SonarQube - Static Application Security Testing (SAST)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: testing
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: sonarqube
+  namespace: testing
+spec:
+  interval: 10m0s
+  url: https://SonarSource.github.io/helm-chart-sonarqube
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: sonarqube
+  namespace: testing
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: sonarqube
+      version: "10.3.0"
+      sourceRef:
+        kind: HelmRepository
+        name: sonarqube
+      interval: 10m0s
+  values:
+    account:
+      adminPassword: "admin123"
+    postgresql:
+      enabled: true
+      postgresqlPassword: "sonarPass123"
+    service:
+      type: LoadBalancer
+    ingress:
+      enabled: true
+      className: nginx
+
+## ESLint - JavaScript/TypeScript Linting
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: eslint-static-analysis
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: eslint
+        image: node:18-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          npm install -g eslint eslint-plugin-react eslint-plugin-node
+          find /workspace -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" | head -10 | xargs eslint --format json > /output/eslint-results.json || true
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: workspace
+        gitRepo:
+          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          revision: "main"
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never

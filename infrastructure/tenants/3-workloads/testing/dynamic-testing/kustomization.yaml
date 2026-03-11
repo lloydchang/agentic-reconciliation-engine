@@ -1,0 +1,66 @@
+# Dynamic Testing Tools - Runtime Testing Frameworks
+
+## Jest - JavaScript Testing Framework
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jest-unit-tests
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: jest
+        image: node:18-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          cd /workspace
+          npm install jest @types/jest ts-jest
+          npx jest --coverage --coverageDirectory=/output --passWithNoTests
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: workspace
+        gitRepo:
+          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          revision: "main"
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+
+## pytest - Python Testing Framework
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pytest-unit-tests
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: pytest
+        image: python:3.11-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          cd /workspace
+          pip install pytest pytest-cov
+          python -m pytest --cov=. --cov-report=html:/output/coverage --tb=short || true
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: workspace
+        gitRepo:
+          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          revision: "main"
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
