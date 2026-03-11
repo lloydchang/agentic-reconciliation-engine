@@ -1,0 +1,48 @@
+# AWS EventBridge Emulator
+# Local testing of event-driven architectures
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventbridge-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventbridge-emulator
+  template:
+    metadata:
+      labels:
+        app: eventbridge-emulator
+    spec:
+      containers:
+      - name: eventbridge
+        image: localstack/localstack:3.0
+        ports:
+        - containerPort: 4566
+        env:
+        - name: SERVICES
+          value: "events"
+        - name: DEBUG
+          value: "1"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventbridge-emulator
+  namespace: default
+spec:
+  selector:
+    app: eventbridge-emulator
+  ports:
+  - port: 4566
+    targetPort: 4566
+  type: ClusterIP

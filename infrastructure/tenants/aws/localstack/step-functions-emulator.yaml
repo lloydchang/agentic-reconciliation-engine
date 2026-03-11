@@ -1,0 +1,48 @@
+# AWS Step Functions Emulator
+# Local testing of AWS Step Functions workflows
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: step-functions-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: step-functions-emulator
+  template:
+    metadata:
+      labels:
+        app: step-functions-emulator
+    spec:
+      containers:
+      - name: step-functions
+        image: amazon/aws-stepfunctions-local:latest
+        ports:
+        - containerPort: 8083
+        env:
+        - name: LAMBDA_ENDPOINT
+          value: "http://localstack.localstack.svc.cluster.local:4566"
+        - name: DYNAMODB_ENDPOINT
+          value: "http://localstack.localstack.svc.cluster.local:4566"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: step-functions-emulator
+  namespace: default
+spec:
+  selector:
+    app: step-functions-emulator
+  ports:
+  - port: 8083
+    targetPort: 8083
+  type: ClusterIP

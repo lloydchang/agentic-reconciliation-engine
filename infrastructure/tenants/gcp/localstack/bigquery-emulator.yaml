@@ -1,0 +1,47 @@
+# GCP BigQuery Emulator
+# Local testing of BigQuery queries and datasets
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bigquery-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bigquery-emulator
+  template:
+    metadata:
+      labels:
+        app: bigquery-emulator
+    spec:
+      containers:
+      - name: bigquery
+        image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        ports:
+        - containerPort: 9050
+        env:
+        - name: BIGQUERY_EMULATOR_HOST
+          value: "localhost:9050"
+        command: ["gcloud", "beta", "emulators", "bigquery", "start", "--host-port=0.0.0.0:9050"]
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bigquery-emulator
+  namespace: default
+spec:
+  selector:
+    app: bigquery-emulator
+  ports:
+  - port: 9050
+    targetPort: 9050
+  type: ClusterIP
