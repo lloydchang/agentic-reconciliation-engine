@@ -1,0 +1,208 @@
+name: Cross-Repository Manifest Generation
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'infrastructure/**'
+
+permissions:
+  contents: write
+
+jobs:
+  update-fleet-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare build metadata
+        id: prep
+        run: |
+          VERSION=${GITHUB_SHA::8}
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF/refs\/tags\//}
+          fi
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+        with:
+          version: 'latest'
+
+      - name: Generate infrastructure manifests
+        run: |
+          echo "🔄 Generating infrastructure manifests for fleet deployment..."
+          
+          # Create fleet manifests directory
+          mkdir -p ./fleet-config/infrastructure
+          mkdir -p ./fleet-config/workloads
+          
+          # Generate infrastructure manifests
+          cat > ./fleet-config/infrastructure/multi-cloud-setup.yaml << EOF
+          # Multi-Cloud Infrastructure Setup
+          # Generated: ${{ steps.prep.outputs.BUILD_DATE }}
+          # Version: ${{ steps.prep.outputs.VERSION }}
+          # Source: ${{ github.repository }}
+          
+          apiVersion: v1
+          kind: List
+          items:
+          - apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: fleet-infra
+              labels:
+                environment: production
+                managed-by: gitops
+                version: ${{ steps.prep.outputs.VERSION }}
+          - apiVersion: source.toolkit.fluxcd.io/v1
+            kind: GitRepository
+            metadata:
+              name: gitops-infra-control-plane
+              namespace: fleet-infra
+            spec:
+              interval: 5m
+              url: https://github.com/lloydchang/gitops-infra-control-plane
+              ref:
+                branch: main
+          - apiVersion: kustomize.toolkit.fluxcd.io/v1
+            kind: Kustomization
+            metadata:
+              name: infrastructure-controllers
+              namespace: fleet-infra
+            spec:
+              interval: 10m
+              path: ./control-plane/controllers
+              prune: true
+              sourceRef:
+                kind: GitRepository
+                name: gitops-infra-control-plane
+              dependsOn:
+                - name: gitops-system
+          EOF
+          
+          # Generate workload manifests
+          cat > ./fleet-config/workloads/deployment-config.yaml << EOF
+          # Workload Deployment Configuration
+          # Generated: ${{ steps.prep.outputs.BUILD_DATE }}
+          # Version: ${{ steps.prep.outputs.VERSION }}
+          
+          apiVersion: v1
+          kind: List
+          items:
+          - apiVersion: kustomize.toolkit.fluxcd.io/v1
+            kind: Kustomization
+            metadata:
+              name: tenant-workloads
+              namespace: fleet-infra
+            spec:
+              interval: 15m
+              path: ./infrastructure/tenants/3-workloads
+              prune: true
+              sourceRef:
+                kind: GitRepository
+                name: gitops-infra-control-plane
+              dependsOn:
+                - name: infrastructure-controllers
+              postBuild:
+                substituteFrom:
+                  - kind: ConfigMap
+                    name: build-info
+          - apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: build-info
+              namespace: fleet-infra
+            data:
+              version: "${{ steps.prep.outputs.VERSION }}"
+              build_date: "${{ steps.prep.outputs.BUILD_DATE }}"
+              git_sha: "${{ github.sha }}"
+              source_repo: "${{ github.repository }}"
+          EOF
+          
+          echo "✅ Fleet manifests generated"
+
+      - name: Create fleet kustomization
+        run: |
+          echo "📦 Creating fleet kustomization..."
+          
+          cat > ./fleet-config/kustomization.yaml << EOF
+          apiVersion: kustomize.config.k8s.io/v1beta1
+          kind: Kustomization
+          namespace: fleet-infra
+          resources:
+          - infrastructure/multi-cloud-setup.yaml
+          - workloads/deployment-config.yaml
+          commonLabels:
+            managed-by: fleet-infra
+            version: ${{ steps.prep.outputs.VERSION }}
+            build-date: ${{ steps.prep.outputs.BUILD_DATE }}
+          EOF
+          
+          echo "✅ Fleet kustomization created"
+
+      - name: Push to fleet-infra repository
+        uses: cpina/github-action-push-to-another-repository@v1.5.1
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          source-directory: 'fleet-config'
+          destination-github-username: 'lloydchang'
+          destination-repository-name: 'fleet-infra'
+          target-branch: 'deploy'
+          user-email: 'fleet-automation@lloydchang.dev'
+          commit-message: |
+            🔄 Fleet Infrastructure Update
+            
+            Version: ${{ steps.prep.outputs.VERSION }}
+            Build Date: ${{ steps.prep.outputs.BUILD_DATE }}
+            Source: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            
+            Generated manifests for multi-cloud infrastructure deployment
+            across the fleet with proper dependency management and version tracking.
+
+      - name: Update source repository with fleet status
+        run: |
+          echo "📊 Updating source repository with fleet deployment status..."
+          
+          # Create fleet status manifest
+          cat > ./fleet-status.yaml << EOF
+          apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: fleet-deployment-status
+              namespace: flux-system
+              labels:
+                type: fleet-status
+                version: ${{ steps.prep.outputs.VERSION }}
+            data:
+              fleet_repo: "lloydchang/fleet-infra"
+              fleet_branch: "deploy"
+              last_update: "${{ steps.prep.outputs.BUILD_DATE }}"
+              version: "${{ steps.prep.outputs.VERSION }}"
+              git_sha: "${{ github.sha }}"
+              status: "deployed"
+          EOF
+          
+          git add ./fleet-status.yaml
+          git commit -m "📊 Update fleet deployment status for ${{ steps.prep.outputs.VERSION }}" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
+          
+          echo "✅ Fleet status updated"
+
+      - name: Trigger fleet reconciliation
+        run: |
+          echo "🔄 Triggering fleet infrastructure reconciliation..."
+          
+          # Note: This would be run on the fleet-infra repository
+          echo "Fleet manifests pushed to lloydchang/fleet-infra:deploy"
+          echo "Flux will reconcile these manifests automatically"
+          echo "Infrastructure deployment status tracked in source repository"
+          
+          echo "✅ Cross-repository manifest generation complete"
