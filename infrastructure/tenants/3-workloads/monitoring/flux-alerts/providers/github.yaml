@@ -1,0 +1,24 @@
+# GitHub Commit Status Provider
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flux-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-token
+  namespace: flux-system
+data:
+  token: Z2hwX1Rva2Vu  # Replace with actual GitHub token
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: github-status
+  namespace: flux-system
+spec:
+  type: github
+  address: https://github.com/lloydchang/gitops-infra-control-plane
+  secretRef:
+    name: github-token

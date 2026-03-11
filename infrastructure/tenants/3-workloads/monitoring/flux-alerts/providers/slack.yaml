@@ -1,0 +1,25 @@
+# Slack Notification Provider
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flux-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: slack-bot-token
+  namespace: flux-system
+data:
+  token: eG94Yi1ZTFVSLUJPVC10b2tlbg==  # Replace with actual token
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: slack-bot
+  namespace: flux-system
+spec:
+  type: slack
+  channel: general
+  address: https://slack.com/api/chat.postMessage
+  secretRef:
+    name: slack-bot-token
