@@ -22,4 +22,3 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: argo-cd
-      interval: 10m0s
