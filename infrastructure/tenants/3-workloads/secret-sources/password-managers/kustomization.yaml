@@ -110,3 +110,107 @@ spec:
       - name: output
         emptyDir: {}
       restartPolicy: Never
+
+## LastPass CLI Integration
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seal-secrets-from-lastpass
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: sealer
+        image: lastpass/lastpass-cli:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Login to LastPass
+          lpass login myemail@company.com
+
+          # Get secrets
+          DB_PASSWORD=$(lpass show --password "database-password")
+          DB_USER=$(lpass show --username "database-user")
+
+          # Create and seal secret
+          kubectl create secret generic temp-secret \
+            --from-literal=password="$DB_PASSWORD" \
+            --from-literal=username="$DB_USER" \
+            --dry-run=client -o yaml | \
+          kubeseal --cert=/certs/pub-cert.pem --format=yaml > /output/sealed-secret.yaml
+
+          # Clean up
+          unset DB_PASSWORD DB_USER
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        - name: output
+          mountPath: /output
+        env:
+        - name: LPASS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: lastpass-credentials
+              key: password
+      volumes:
+      - name: certs
+        secret:
+          secretName: sealed-secrets-cert
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+
+## Keeper CLI Integration
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seal-secrets-from-keeper
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: sealer
+        image: keeper/keeper-cli:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Login to Keeper
+          keeper login --username=myemail@company.com
+
+          # Get secrets
+          DB_PASSWORD=$(keeper get --field=password "database-password")
+          DB_USER=$(keeper get --field=username "database-user")
+
+          # Create and seal secret
+          kubectl create secret generic temp-secret \
+            --from-literal=password="$DB_PASSWORD" \
+            --from-literal=username="$DB_USER" \
+            --dry-run=client -o yaml | \
+          kubeseal --cert=/certs/pub-cert.pem --format=yaml > /output/sealed-secret.yaml
+
+          # Clean up
+          unset DB_PASSWORD DB_USER
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        - name: output
+          mountPath: /output
+        env:
+        - name: KEEPER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keeper-credentials
+              key: password
+      volumes:
+      - name: certs
+        secret:
+          secretName: sealed-secrets-cert
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
