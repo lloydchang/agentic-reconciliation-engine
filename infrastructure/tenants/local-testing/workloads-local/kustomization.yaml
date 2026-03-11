@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: local-workloads
+  namespace: flux-system
+resources:
+  # Exclude cloud-specific resources for local testing
+  - ../3-workloads/sample-apps/
+  - ../3-workloads/monitoring/
+  - ../3-workloads/networking/
+  # Optional: Include development tools
+  - ../3-workloads/argo-cd/
+  - ../3-workloads/argo-workflows/
