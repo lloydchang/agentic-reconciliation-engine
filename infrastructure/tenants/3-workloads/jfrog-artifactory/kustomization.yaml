@@ -1,71 +1,25 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: artifactory
----
+# jfrog-artifactory - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: jfrog
-  namespace: artifactory
+  name: jfrog-artifactory
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://charts.jfrog.io
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: artifactory
-  namespace: artifactory
+  name: jfrog-artifactory
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: artifactory
-      version: "107.77.12"
+      chart: jfrog-artifactory
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: jfrog
+        name: jfrog-artifactory
       interval: 10m0s
-  values:
-    artifactory:
-      image:
-        repository: docker.bintray.io/jfrog/artifactory-oss
-        tag: "7.77.5"
-      persistence:
-        enabled: true
-        size: 100Gi
-      service:
-        type: LoadBalancer
-    nginx:
-      enabled: true
-      service:
-        type: LoadBalancer
-    postgresql:
-      enabled: true
-      postgresqlPassword: "artifactory"
----
-# Xray for vulnerability scanning
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: xray
-  namespace: artifactory
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: xray
-      version: "3.77.12"
-      sourceRef:
-        kind: HelmRepository
-        name: jfrog
-      interval: 10m0s
-  values:
-    xray:
-      image:
-        repository: docker.bintray.io/jfrog/xray-server
-        tag: "3.77.5"
-      persistence:
-        enabled: true
-        size: 50Gi

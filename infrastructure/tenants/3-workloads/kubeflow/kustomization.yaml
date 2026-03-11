@@ -1,95 +1,25 @@
-# Kubeflow - Complete ML Platform for Kubernetes
-# Includes training, serving, pipelines, notebooks
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: kubeflow
----
+# kubeflow - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: kubeflow
-  namespace: kubeflow
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://charts.kubeflow.org
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: kubeflow
-  namespace: kubeflow
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
       chart: kubeflow
-      version: "1.7.0"
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
         name: kubeflow
       interval: 10m0s
-  values:
-    cert-manager:
-      enabled: false  # We already have cert-manager
-    istio:
-      enabled: false  # We already have Istio
-    dex:
-      enabled: false  # We already have Dex
-    oidc-authservice:
-      enabled: true
----
-# Kubeflow Pipelines with GPU support
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: kubeflow-pipelines
-  namespace: kubeflow
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: kubeflow/pipelines
-      version: "2.0.0"
-      sourceRef:
-        kind: HelmRepository
-        name: kubeflow
-      interval: 10m0s
-  values:
-    persistence:
-      enabled: true
-      size: 100Gi
----
-# JupyterHub with GPU support for ML notebooks
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: jupyterhub
-  namespace: kubeflow
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: jupyterhub
-      version: "3.0.0"
-      sourceRef:
-        kind: HelmRepository
-        name: kubeflow
-      interval: 10m0s
-  values:
-    singleuser:
-      image:
-        name: kubeflownotebookswg/jupyter-scipy
-        tag: v1.7.0
-      profileList:
-      - display_name: "GPU Notebook"
-        description: "Start a personal notebook server with GPU support"
-        kubespawner_override:
-          image: kubeflownotebookswg/jupyter-pytorch-full
-          extra_resource_limits:
-            nvidia.com/gpu: "1"
-          tolerations:
-          - key: nvidia.com/gpu
-            operator: Exists
-            effect: NoSchedule

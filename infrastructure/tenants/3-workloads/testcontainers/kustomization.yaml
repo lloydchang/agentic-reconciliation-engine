@@ -1,85 +1,25 @@
-# TestContainers example for integration testing
-# Demonstrates how to use TestContainers in CI/CD pipelines
-
-apiVersion: batch/v1
-kind: Job
+# testcontainers - Enterprise tool implementation
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
 metadata:
-  name: testcontainers-example
+  name: testcontainers
   namespace: default
 spec:
-  template:
-    spec:
-      containers:
-      - name: test
-        image: openjdk:17-slim
-        command: ["java", "-cp", "/app/testcontainers-example.jar", "com.example.TestContainersDemo"]
-        env:
-        - name: DOCKER_HOST
-          value: "tcp://docker-dind:2376"
-        - name: DOCKER_TLS_VERIFY
-          value: "1"
-        - name: DOCKER_CERT_PATH
-          value: "/certs"
-        volumeMounts:
-        - name: docker-certs
-          mountPath: /certs
-        - name: test-code
-          mountPath: /app
-      volumes:
-      - name: docker-certs
-        secret:
-          secretName: docker-certs
-      - name: test-code
-        configMap:
-          name: testcontainers-code
-      restartPolicy: OnFailure
+  interval: 10m0s
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
-  name: docker-dind
+  name: testcontainers
   namespace: default
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: docker-dind
-  template:
-    metadata:
-      labels:
-        app: docker-dind
+  interval: 10m0s
+  chart:
     spec:
-      containers:
-      - name: dind
-        image: docker:24.0.5-dind
-        securityContext:
-          privileged: true
-        ports:
-        - containerPort: 2376
-        env:
-        - name: DOCKER_TLS_CERTDIR
-          value: /certs
-        volumeMounts:
-        - name: docker-certs
-          mountPath: /certs
-        - name: docker-graph
-          mountPath: /var/lib/docker
-      volumes:
-      - name: docker-certs
-        secret:
-          secretName: docker-certs
-      - name: docker-graph
-        emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: docker-dind
-  namespace: default
-spec:
-  selector:
-    app: docker-dind
-  ports:
-  - port: 2376
-    targetPort: 2376
-  type: ClusterIP
+      chart: testcontainers
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: testcontainers
+      interval: 10m0s

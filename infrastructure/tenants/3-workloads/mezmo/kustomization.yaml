@@ -1,49 +1,25 @@
-apiVersion: v1
-kind: Namespace
+# mezmo - Enterprise tool implementation
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
 metadata:
-  name: logging
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mezmo-agent
-  namespace: logging
+  name: mezmo
+  namespace: default
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: logdna-agent
-  template:
-    metadata:
-      labels:
-        app: logdna-agent
+  interval: 10m0s
+  url: https://charts.example.com  # Replace with actual Helm repo URL
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: mezmo
+  namespace: default
+spec:
+  interval: 10m0s
+  chart:
     spec:
-      containers:
-      - name: logdna
-        image: logdna/logdna-agent:latest
-        env:
-        - name: LOGDNA_KEY
-          valueFrom:
-            secretKeyRef:
-              name: logdna-credentials
-              key: ingestion-key
-        - name: LOGDNA_HOST
-          value: "logs.us-south.logging.cloud.ibm.com"
-        volumeMounts:
-        - name: varlogcontainers
-          mountPath: /var/log/containers
-        - name: varlogpods
-          mountPath: /var/log/pods
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
-      volumes:
-      - name: varlogcontainers
-        hostPath:
-          path: /var/log/containers
-      - name: varlogpods
-        hostPath:
-          path: /var/log/pods
-      - name: varlibdockercontainers
-        hostPath:
-          path: /var/lib/docker/containers
-      serviceAccountName: logdna-agent
+      chart: mezmo
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: mezmo
+      interval: 10m0s

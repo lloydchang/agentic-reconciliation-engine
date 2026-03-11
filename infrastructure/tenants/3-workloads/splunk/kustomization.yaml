@@ -1,39 +1,25 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: logging
----
+# splunk - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: splunk
-  namespace: logging
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://splunk.github.io/splunk-connect-for-kubernetes
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: splunk-connect
-  namespace: logging
+  name: splunk
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: splunk-connect-for-kubernetes
-      version: "1.4.18"
+      chart: splunk
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
         name: splunk
       interval: 10m0s
-  values:
-    splunk-kubernetes-logging:
-      enabled: true
-      splunk:
-        hec:
-          host: "your-splunk-hec-host"
-          port: "8088"
-          token: "your-splunk-hec-token"
-    splunk-kubernetes-metrics:
-      enabled: true

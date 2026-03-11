@@ -1,87 +1,25 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: linkerd
----
+# linkerd - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: linkerd2
-  namespace: linkerd
+  name: linkerd
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://helm.linkerd.io/stable
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: linkerd2
-  namespace: linkerd
+  name: linkerd
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: linkerd2
-      version: "30.12.0"
+      chart: linkerd
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: linkerd2
+        name: linkerd
       interval: 10m0s
-  values:
-    controllerImage: cr.l5d.io/linkerd/controller
-    webImage: cr.l5d.io/linkerd/web
-    proxyInjector:
-      externalSecret: true
-    profileValidator:
-      caBundle: ""
-    tap:
-      caBundle: ""
-    identityTrustAnchorsPEM: |
-      -----BEGIN CERTIFICATE-----
-      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwIJHtRWGpIcL
-      [truncated - use cert-manager or real cert]
-      -----END CERTIFICATE-----
----
-# Linkerd ServerAuthorization for mTLS
-apiVersion: policy.linkerd.io/v1beta1
-kind: ServerAuthorization
-metadata:
-  name: nginx-sample
-  namespace: default
-spec:
-  server:
-    selector:
-      matchLabels:
-        app: nginx-sample
-  client:
-    # Allow authenticated clients
-    authenticated: true
-    # Allow specific service accounts
-    serviceAccounts:
-    - name: default
-      namespace: default
----
-# Linkerd AuthorizationPolicy for fine-grained control
-apiVersion: policy.linkerd.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: nginx-sample-policy
-  namespace: default
-spec:
-  targetRef:
-    group: apps
-    kind: Deployment
-    name: nginx-sample
-  requiredAuthenticationRefs:
-  - name: linkerd-identity
-    kind: MeshTLSAuthentication
----
-# MeshTLSAuthentication for mTLS
-apiVersion: policy.linkerd.io/v1alpha1
-kind: MeshTLSAuthentication
-metadata:
-  name: linkerd-identity
-  namespace: default
-spec:
-  identities:
-  - "*"

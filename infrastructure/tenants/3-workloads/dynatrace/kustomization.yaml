@@ -1,57 +1,25 @@
-# Dynatrace - Full-Stack Observability Platform
-# AI-powered monitoring and analytics
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: dynatrace
----
+# dynatrace - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: dynatrace
-  namespace: dynatrace
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://raw.githubusercontent.com/Dynatrace/helm-charts/main/repos/stable
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: dynatrace-operator
-  namespace: dynatrace
+  name: dynatrace
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: dynatrace-operator
+      chart: dynatrace
       version: "1.0.0"
       sourceRef:
         kind: HelmRepository
         name: dynatrace
       interval: 10m0s
-  values:
-    apiUrl: "https://your-environment.live.dynatrace.com/api"
-    apiToken: "your-api-token"
-    dataIngestToken: "your-data-ingest-token"
-    networkZone: "kubernetes-cluster"
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: dynatrace-oneagent
-  namespace: dynatrace
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: dynatrace-oneagent
-      version: "1.0.0"
-      sourceRef:
-        kind: HelmRepository
-        name: dynatrace
-      interval: 10m0s
-  values:
-    oneagent:
-      apiUrl: "https://your-environment.live.dynatrace.com/api"
-      apiToken: "your-api-token"

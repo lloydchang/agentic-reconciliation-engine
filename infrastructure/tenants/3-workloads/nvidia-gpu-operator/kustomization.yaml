@@ -1,84 +1,25 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: gpu-operator
----
+# nvidia-gpu-operator - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: nvidia
-  namespace: gpu-operator
+  name: nvidia-gpu-operator
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://helm.ngc.nvidia.com/nvidia
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: gpu-operator
-  namespace: gpu-operator
+  name: nvidia-gpu-operator
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: gpu-operator
-      version: "v23.9.1"
+      chart: nvidia-gpu-operator
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: nvidia
+        name: nvidia-gpu-operator
       interval: 10m0s
-  values:
-    operator:
-      defaultRuntime: containerd
-    driver:
-      enabled: true
-    toolkit:
-      enabled: true
-    devicePlugin:
-      enabled: true
-    dcgm:
-      enabled: true
-    dcgmExporter:
-      enabled: true
-    gfd:
-      enabled: true
-    mig:
-      strategy: single
-    validator:
-      plugin:
-        env:
-        - name: WITH_WORKLOAD
-          value: "true"
----
-# GPU-enabled AI/ML workload example
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gpu-ml-workload
-  namespace: default
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: gpu-ml-workload
-  template:
-    metadata:
-      labels:
-        app: gpu-ml-workload
-    spec:
-      containers:
-      - name: ml-training
-        image: pytorch/pytorch:latest
-        command: ["python", "-c", "import torch; print('GPU available:', torch.cuda.is_available())"]
-        resources:
-          limits:
-            nvidia.com/gpu: 1  # Request 1 GPU
-          requests:
-            memory: "2Gi"
-            cpu: "1000m"
-      nodeSelector:
-        accelerator: nvidia-tesla-k80  # Optional: target specific GPU nodes
-      tolerations:
-      - key: nvidia.com/gpu
-        operator: Exists
-        effect: NoSchedule

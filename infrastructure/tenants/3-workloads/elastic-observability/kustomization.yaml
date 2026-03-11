@@ -1,96 +1,25 @@
-# Elastic Observability (ELK Stack)
-# Elasticsearch, Logstash, Kibana for logging and analytics
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: elastic-system
----
+# elastic-observability - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: elastic
-  namespace: elastic-system
+  name: elastic-observability
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://helm.elastic.co
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: elasticsearch
-  namespace: elastic-system
+  name: elastic-observability
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: elasticsearch
-      version: "8.11.0"
+      chart: elastic-observability
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: elastic
+        name: elastic-observability
       interval: 10m0s
-  values:
-    replicas: 1
-    minimumMasterNodes: 1
-    esConfig:
-      elasticsearch.yml: |
-        xpack.security.enabled: false
-        xpack.monitoring.enabled: false
-    persistence:
-      enabled: true
-      size: 50Gi
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: kibana
-  namespace: elastic-system
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: kibana
-      version: "8.11.0"
-      sourceRef:
-        kind: HelmRepository
-        name: elastic
-      interval: 10m0s
-  values:
-    elasticsearchHosts: "http://elasticsearch-master.elastic-system.svc.cluster.local:9200"
-    persistence:
-      enabled: true
-      size: 10Gi
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: filebeat
-  namespace: elastic-system
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: filebeat
-      version: "8.11.0"
-      sourceRef:
-        kind: HelmRepository
-        name: elastic
-      interval: 10m0s
-  values:
-    daemonset:
-      enabled: true
-      filebeatConfig:
-        filebeat.yml: |
-          filebeat.inputs:
-          - type: container
-            paths:
-            - /var/log/containers/*.log
-            processors:
-            - add_kubernetes_metadata:
-                host: ${NODE_NAME}
-                matchers:
-                - logs_path:
-                    logs_path: "/var/log/containers/"
-          output.elasticsearch:
-            hosts: ["elasticsearch-master.elastic-system.svc.cluster.local:9200"]
