@@ -13,3 +13,4 @@ resources:
   - camunda/
   - temporal/
   - backstage/
+  - honeycomb/

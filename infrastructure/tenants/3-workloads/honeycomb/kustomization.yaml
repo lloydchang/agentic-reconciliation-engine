@@ -6,7 +6,7 @@ metadata:
   namespace: default
 spec:
   interval: 10m0s
-  url: https://charts.example.com  # Replace with actual Helm repo URL
+  url: https://honeycombio.github.io/helm-charts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
