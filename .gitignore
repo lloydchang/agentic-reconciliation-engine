@@ -1,0 +1,25 @@
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+
+# Kubernetes/Helm temporary files
+charts/**/charts/
+charts/**/tmp/
+*.tgz
+
+# Local CLI state and credentials
+*.kubeconfig
+*.key
+*.pem
+*.json
+*.tmp
+.terraform/
+.terragrunt-cache/
+.direnv/
+.env
+.envrc
+
+# Flux / Tooling logs
+*.log
+tmp/
