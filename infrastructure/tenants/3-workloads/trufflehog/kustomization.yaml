@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trufflehog-secrets-scan
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: trufflehog
+        image: trufflesecurity/trufflehog:latest
+        args:
+        - "git"
+        - "file:////repo"
+        - "--json"
+        volumeMounts:
+        - name: repo
+          mountPath: /repo
+      volumes:
+      - name: repo
+        gitRepo:
+          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          revision: "main"
+      restartPolicy: Never
+---
+# Alternative: Trufflehog as a Deployment for continuous scanning
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trufflehog-scanner
+  namespace: security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trufflehog-scanner
+  template:
+    metadata:
+      labels:
+        app: trufflehog-scanner
+    spec:
+      containers:
+      - name: trufflehog
+        image: trufflesecurity/trufflehog:latest
+        args:
+        - "git"
+        - "file:////repo"
+        - "--json"
+        - "--only-verified"
+        volumeMounts:
+        - name: repo
+          mountPath: /repo
+      volumes:
+      - name: repo
+        gitRepo:
+          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          revision: "main"
