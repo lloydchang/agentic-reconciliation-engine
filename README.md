@@ -26,9 +26,9 @@ We use a hub-and-spoke model where a single Hub Cluster acts as the control plan
    (Provisions/Manages) (Provisions/Manages) (Provisions/Manages)
              |               |               |
       +-------------+ +-------------+ +-------------+
-      | Spoke 1  | | Spoke 2  | | Spoke 3  |
-      | (EKS)       | | (AKS)       | | (GKE)       |
-      | CLUSTER     | | CLUSTER     | | CLUSTER     |
+      |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   |
+      |   (EKS)     | |   (AKS)     | |   (GKE)     |
+      |   CLUSTER   | |   CLUSTER   | |   CLUSTER   |
       +-------------+ +-------------+ +-------------+
 ```
 
