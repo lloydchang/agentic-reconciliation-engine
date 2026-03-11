@@ -1,0 +1,63 @@
+# LocalStack Azure Services Configuration
+# LocalStack now supports Azure services alongside AWS
+# Deploy this for multi-cloud local testing
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack-azure
+  namespace: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: localstack/localstack:3.0
+        ports:
+        - containerPort: 4566  # AWS services
+        - containerPort: 4567  # Azure services
+        env:
+        - name: SERVICES
+          value: "s3,lambda,dynamodb,azureblob,azurequeue,azuretable,azurefunctions"
+        - name: DEBUG
+          value: "1"
+        - name: PERSISTENCE
+          value: "1"
+        - name: LOCALSTACK_WEB_UI
+          value: "1"
+        # Azure-specific configuration
+        - name: AZURE_STORAGE_ACCOUNT_NAME
+          value: "devstoreaccount1"
+        - name: AZURE_STORAGE_ACCOUNT_KEY
+          value: "devstoreaccount1key"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: localstack-azure
+  namespace: localstack
+spec:
+  selector:
+    app: localstack
+  ports:
+  - port: 4566
+    targetPort: 4566
+    name: aws
+  - port: 4567
+    targetPort: 4567
+    name: azure
+  type: ClusterIP
