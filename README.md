@@ -13,17 +13,19 @@ We do not use push-based tools (Terraform, Blueprints, CDK, CloudFormation, Bice
 We use a hub-and-spoke model where a single Hub Cluster acts as the control plane for all cloud environments:
 
 ```text
-       [ GIT REPOSITORY (Source of Truth) ]
-                     |
-                     | Flux Pulls Manifests
-                     v
+                       GIT REPOSITORY
+                     (Source of Truth)
+                             |
+                    Flux Pulls Manifests
+                             |
+                             v
       +------------------------------------------+
       |                HUB CLUSTER               |
       |------------------------------------------|
       | Flux | ACK        | ASO           | KCC  |
       +------------------------------------------+
              |               |               |
-   (Provisions/Manages) (Provisions/Manages) (Provisions/Manages)
+   Provisions/Manages Provisions/Manages Provisions/Manages
              |               |               |
       +-------------+ +-------------+ +-------------+
       |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   |
