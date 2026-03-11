@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compliance
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vanta-agent
+  namespace: compliance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vanta-agent
+  template:
+    metadata:
+      labels:
+        app: vanta-agent
+    spec:
+      containers:
+      - name: vanta
+        image: vanta/vanta-agent:latest
+        env:
+        - name: VANTA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: vanta-credentials
+              key: api-key
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vanta-agent
+  namespace: compliance
+spec:
+  selector:
+    app: vanta-agent
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

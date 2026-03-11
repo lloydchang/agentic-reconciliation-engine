@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compliance
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: drata
+  namespace: compliance
+spec:
+  interval: 10m0s
+  url: https://drata.github.io/drata-kubernetes
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: drata-agent
+  namespace: compliance
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: drata-agent
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: drata
+      interval: 10m0s
+  values:
+    drata:
+      apiKey: "your-drata-api-key"
+      accountId: "your-drata-account-id"
