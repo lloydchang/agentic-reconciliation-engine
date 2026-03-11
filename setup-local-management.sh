@@ -116,7 +116,7 @@ deploy_emulators() {
     print_status "Deploying cloud service emulators..."
 
     # AWS LocalStack (extended)
-    kubectl apply -f infrastructure/tenants/aws/localstack/extended-services.yaml
+    kubectl apply -f infrastructure/tenants/aws/localstack/localstack-aws.yaml
 
     # LocalStack Azure (multi-cloud)
     kubectl apply -f infrastructure/tenants/azure/localstack/localstack-azure.yaml
@@ -125,10 +125,13 @@ deploy_emulators() {
     kubectl apply -f infrastructure/tenants/gcp/localstack/gcs-emulator.yaml
     kubectl apply -f infrastructure/tenants/gcp/localstack/pubsub-emulator.yaml
     kubectl apply -f infrastructure/tenants/gcp/localstack/firestore-emulator.yaml
+    kubectl apply -f infrastructure/tenants/gcp/localstack/spanner-emulator.yaml
 
     # Additional Azure Emulators
     kubectl apply -f infrastructure/tenants/azure/localstack/azurite.yaml
     kubectl apply -f infrastructure/tenants/azure/localstack/cosmos-emulator.yaml
+    kubectl apply -f infrastructure/tenants/azure/localstack/servicebus-emulator.yaml
+    kubectl apply -f infrastructure/tenants/azure/localstack/eventhubs-emulator.yaml
 
     print_status "✅ Cloud emulators deployed"
 }
@@ -183,6 +186,9 @@ setup_access() {
     kubectl port-forward -n localstack svc/localstack-azure 4567:4567 &  # Azure
     kubectl port-forward -n default svc/gcs-emulator 9023:9023 &
     kubectl port-forward -n default svc/pubsub-emulator 8085:8085 &
+    kubectl port-forward -n default svc/servicebus-emulator 5672:5672 &
+    kubectl port-forward -n default svc/eventhubs-emulator 9093:9093 &
+    kubectl port-forward -n default svc/spanner-emulator 9010:9010 &
 
     print_status "✅ Port forwarding established"
     print_status "🌐 LocalStack AWS: http://localhost:4566"
@@ -217,8 +223,11 @@ main() {
     echo "Emulator Endpoints:"
     echo "  AWS LocalStack: http://localhost:4566"
     echo "  Azure LocalStack: http://localhost:4567"
+    echo "  Azure Service Bus: localhost:5672"
+    echo "  Azure Event Hubs: localhost:9093"
     echo "  GCP Storage: http://localhost:9023"
     echo "  GCP PubSub: http://localhost:8085"
+    echo "  GCP Spanner: localhost:9010"
     echo ""
     echo "Test commands:"
     echo "  kubectl config use-context kind-$CLUSTER_NAME  # Switch to management"

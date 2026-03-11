@@ -1,0 +1,51 @@
+# GCP Cloud Spanner Emulator
+# Local Spanner instance for relational database testing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spanner-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spanner-emulator
+  template:
+    metadata:
+      labels:
+        app: spanner-emulator
+    spec:
+      containers:
+      - name: spanner
+        image: gcr.io/cloud-spanner-emulator/emulator:latest
+        ports:
+        - containerPort: 9010  # gRPC
+        - containerPort: 9020  # REST
+        env:
+        - name: SPANNER_EMULATOR_HOST
+          value: "localhost:9010"
+        command: ["gcloud", "spanner", "instances", "create", "test-instance", "--config=emulator-config", "--description=Test Instance"]
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spanner-emulator
+  namespace: default
+spec:
+  selector:
+    app: spanner-emulator
+  ports:
+  - port: 9010
+    targetPort: 9010
+    name: grpc
+  - port: 9020
+    targetPort: 9020
+    name: rest
+  type: ClusterIP

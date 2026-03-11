@@ -7,17 +7,19 @@
 - **Usage**: Modify ACK controller config to point to LocalStack endpoint
 - **Deployment**: Use `extended-services.yaml` for broader testing
 
-## Azure - Multiple Emulators
+## Azure - Comprehensive Emulators
 - **Azurite**: Storage (Blob, Queue, Table) services
 - **Cosmos DB Emulator**: NoSQL database testing
-- **Usage**: Basic service testing, not full Azure resource management
-- **Limitations**: Limited to specific services, requires Windows/Linux host for full Cosmos
+- **Service Bus Emulator**: Message queuing and topics
+- **Event Hubs Emulator**: Event streaming with Kafka protocol support
+- **LocalStack Azure**: Unified Azure services via LocalStack
 
 ## GCP - Comprehensive Emulators
 - **Bigtable Emulator**: NoSQL Big Data database
 - **Cloud Storage Emulator**: Object storage (GCS)
 - **Pub/Sub Emulator**: Message queuing
 - **Firestore Emulator**: Document database
+- **Cloud Spanner Emulator**: Relational database
 - **Usage**: Individual service testing with gcloud SDK
 - **Limitations**: Most services require real GCP, emulators are service-specific
 
