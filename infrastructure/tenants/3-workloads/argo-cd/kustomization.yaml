@@ -1,24 +1,8 @@
 # argo-cd - Enterprise tool implementation (WORKLOAD CLUSTER ONLY)
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 metadata:
   name: argo-cd
-  namespace: default
-spec:
-  interval: 10m0s
-  url: https://charts.example.com  # Replace with actual Helm repo URL
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: argo-cd
-  namespace: default
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: argo-cd
-      version: "1.0.0"
-      sourceRef:
-        kind: HelmRepository
-        name: argo-cd
+
+resources:
+  - helm-release.yaml
