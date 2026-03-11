@@ -115,15 +115,18 @@ bootstrap_flux() {
 deploy_emulators() {
     print_status "Deploying cloud service emulators..."
 
-    # AWS LocalStack
+    # AWS LocalStack (extended)
     kubectl apply -f infrastructure/tenants/aws/localstack/extended-services.yaml
+
+    # LocalStack Azure (multi-cloud)
+    kubectl apply -f infrastructure/tenants/azure/localstack/localstack-azure.yaml
 
     # GCP Emulators
     kubectl apply -f infrastructure/tenants/gcp/localstack/gcs-emulator.yaml
     kubectl apply -f infrastructure/tenants/gcp/localstack/pubsub-emulator.yaml
     kubectl apply -f infrastructure/tenants/gcp/localstack/firestore-emulator.yaml
 
-    # Azure Emulators
+    # Additional Azure Emulators
     kubectl apply -f infrastructure/tenants/azure/localstack/azurite.yaml
     kubectl apply -f infrastructure/tenants/azure/localstack/cosmos-emulator.yaml
 
@@ -176,12 +179,14 @@ setup_access() {
     print_status "Setting up access to services..."
 
     # Port forward emulators (in background)
-    kubectl port-forward -n localstack svc/localstack 4566:4566 &
+    kubectl port-forward -n localstack svc/localstack 4566:4566 &  # AWS
+    kubectl port-forward -n localstack svc/localstack-azure 4567:4567 &  # Azure
     kubectl port-forward -n default svc/gcs-emulator 9023:9023 &
     kubectl port-forward -n default svc/pubsub-emulator 8085:8085 &
 
     print_status "✅ Port forwarding established"
-    print_status "🌐 LocalStack: http://localhost:4566"
+    print_status "🌐 LocalStack AWS: http://localhost:4566"
+    print_status "🌐 LocalStack Azure: http://localhost:4567"
     print_status "🌐 GCS Emulator: http://localhost:9023"
     print_status "🌐 PubSub Emulator: http://localhost:8085"
 }
@@ -211,6 +216,7 @@ main() {
     echo ""
     echo "Emulator Endpoints:"
     echo "  AWS LocalStack: http://localhost:4566"
+    echo "  Azure LocalStack: http://localhost:4567"
     echo "  GCP Storage: http://localhost:9023"
     echo "  GCP PubSub: http://localhost:8085"
     echo ""
