@@ -1,47 +1,25 @@
-apiVersion: batch/v1
-kind: Job
+# checkov - Enterprise tool implementation
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
 metadata:
-  name: checkov-compliance-scan
-  namespace: compliance
+  name: checkov
+  namespace: default
 spec:
-  template:
-    spec:
-      containers:
-      - name: checkov
-        image: bridgecrew/checkov:latest
-        command: ["checkov", "-f", "/config", "--framework", "kubernetes", "--output", "json"]
-        volumeMounts:
-        - name: config
-          mountPath: /config
-      volumes:
-      - name: config
-        configMap:
-          name: kubernetes-manifests
-      restartPolicy: Never
+  interval: 10m0s
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
-  name: kubernetes-manifests
-  namespace: compliance
-data:
-  nginx-deployment.yaml: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: nginx
+  name: checkov
+  namespace: default
+spec:
+  interval: 10m0s
+  chart:
     spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: nginx
-      template:
-        metadata:
-          labels:
-            app: nginx
-        spec:
-          containers:
-          - name: nginx
-            image: nginx:latest
-            ports:
-            - containerPort: 80
+      chart: checkov
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: checkov
+      interval: 10m0s

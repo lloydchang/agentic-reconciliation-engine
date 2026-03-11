@@ -1,0 +1,25 @@
+# wireguard - Enterprise tool implementation
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: wireguard
+  namespace: default
+spec:
+  interval: 10m0s
+  url: https://charts.example.com  # Replace with actual Helm repo URL
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: wireguard
+  namespace: default
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: wireguard
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: wireguard
+      interval: 10m0s

@@ -1,132 +1,25 @@
-# Flagger - Progressive Delivery for Kubernetes
-# Canary deployments, A/B testing, and gradual rollouts
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: flagger-system
----
+# flagger - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: flagger
-  namespace: flagger-system
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://flagger.app
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: flagger
-  namespace: flagger-system
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
       chart: flagger
-      version: "1.35.0"
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
         name: flagger
       interval: 10m0s
-  values:
-    meshProvider: istio
-    metricsServer: http://prometheus:9090
-    podSecurityContext:
-      runAsUser: 1001
----
-# Flagger LoadTester for generating traffic during canary analysis
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: flagger-loadtester
-  namespace: flagger-system
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: loadtester
-      version: "0.35.0"
-      sourceRef:
-        kind: HelmRepository
-        name: flagger
-      interval: 10m0s
-  values:
-    cmd:
-      timeout: 1h
----
-# Example Flagger Canary Deployment
-apiVersion: flagger.app/v1beta1
-kind: Canary
-metadata:
-  name: nginx-canary
-  namespace: default
-spec:
-  # deployment reference
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: nginx-sample
-  # the maximum time in seconds for the canary deployment
-  # to make progress before it is rollback (default 600s)
-  progressDeadlineSeconds: 60
-  # HPA reference (optional)
-  autoscalerRef:
-    apiVersion: autoscaling/v2beta2
-    kind: HorizontalPodAutoscaler
-    name: nginx-hpa
-  service:
-    # container port
-    port: 80
-    # service port name can be http or grpc
-    portName: http
-    # service port number
-    targetPort: 9898
-    # Istio gateways (optional)
-    gateways:
-    - istio-system/public-gateway
-    # Istio virtual service host names (optional)
-    hosts:
-    - nginx.example.com
-  analysis:
-    # schedule interval (default 60s)
-    interval: 30s
-    # max number of failed metric checks before rollback
-    threshold: 10
-    # max traffic percentage routed to canary
-    # percentage (0-100)
-    maxWeight: 50
-    # canary increment step
-    # percentage (0-100)
-    stepWeight: 5
-    # Istio Prometheus metrics
-    metrics:
-    - name: request-success-rate
-      # minimum req success rate (non 5xx responses)
-      # percentage (0-100)
-      thresholdRange:
-        min: 99
-      interval: 1m
-    - name: request-duration
-      # maximum req duration P99
-      # milliseconds
-      thresholdRange:
-        max: 500
-      interval: 30s
-    # testing (optional)
-    webhooks:
-      - name: "smoke test"
-        type: pre-rollout
-        url: http://flagger-loadtester.flagger-system/
-        timeout: 15s
-        metadata:
-          type: "bash"
-          cmd: "curl -sd 'test' http://nginx-canary.default:9898/token | grep token"
-      - name: "load test"
-        type: rollout
-        url: http://flagger-loadtester.flagger-system/
-        timeout: 5s
-        metadata:
-          type: "cmd"
-          cmd: "hey -z 1m -q 10 -c 2 http://nginx-canary.default:9898/"

@@ -1,93 +1,25 @@
-# OpenTelemetry Collector - Observability Data Pipeline
-# Collects, processes, and exports telemetry data (metrics, logs, traces)
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: opentelemetry
----
+# opentelemetry - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: open-telemetry
-  namespace: opentelemetry
+  name: opentelemetry
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://open-telemetry.github.io/opentelemetry-helm-charts
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: opentelemetry-collector
-  namespace: opentelemetry
+  name: opentelemetry
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: opentelemetry-collector
-      version: "0.64.0"
+      chart: opentelemetry
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: open-telemetry
+        name: opentelemetry
       interval: 10m0s
-  values:
-    mode: deployment
-    replicas: 1
-    config:
-      receivers:
-        otlp:
-          protocols:
-            grpc:
-              endpoint: 0.0.0.0:4317
-            http:
-              endpoint: 0.0.0.0:4318
-        prometheus:
-          config:
-            scrape_configs:
-            - job_name: 'kubernetes-pods'
-              kubernetes_sd_configs:
-              - role: pod
-              relabel_configs:
-              - source_labels: [__meta_kubernetes_pod_label_app]
-                action: keep
-                regex: nginx-sample|prometheus
-      processors:
-        batch:
-          timeout: 1s
-          send_batch_size: 1024
-      exporters:
-        logging:
-          loglevel: debug
-        prometheusremotewrite:
-          endpoint: "http://prometheus-server.prometheus.svc.cluster.local:9090/api/v1/write"
-      service:
-        pipelines:
-          metrics:
-            receivers: [prometheus]
-            processors: [batch]
-            exporters: [prometheusremotewrite]
-          traces:
-            receivers: [otlp]
-            processors: [batch]
-            exporters: [logging]
-          logs:
-            receivers: [otlp]
-            processors: [batch]
-            exporters: [logging]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: opentelemetry-collector
-  namespace: opentelemetry
-spec:
-  selector:
-    app.kubernetes.io/name: opentelemetry-collector
-  ports:
-  - name: otlp-grpc
-    port: 4317
-    targetPort: 4317
-  - name: otlp-http
-    port: 4318
-    targetPort: 4318
-  type: ClusterIP

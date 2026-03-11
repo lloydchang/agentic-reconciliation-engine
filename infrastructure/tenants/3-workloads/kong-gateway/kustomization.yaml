@@ -1,52 +1,25 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: api-gateway
----
+# kong-gateway - Enterprise tool implementation
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: kong
-  namespace: api-gateway
+  name: kong-gateway
+  namespace: default
 spec:
   interval: 10m0s
-  url: https://charts.konghq.com
+  url: https://charts.example.com  # Replace with actual Helm repo URL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: kong-gateway
-  namespace: api-gateway
+  namespace: default
 spec:
   interval: 10m0s
   chart:
     spec:
-      chart: kong
-      version: "2.20.0"
+      chart: kong-gateway
+      version: "1.0.0"
       sourceRef:
         kind: HelmRepository
-        name: kong
+        name: kong-gateway
       interval: 10m0s
-  values:
-    ingressController:
-      enabled: true
-      installCRDs: false
-    proxy:
-      type: LoadBalancer
-    enterprise:
-      enabled: false  # Use OSS version
-    postgresql:
-      enabled: true
-    manager:
-      type: LoadBalancer
----
-apiVersion: configuration.konghq.com/v1
-kind: KongClusterPlugin
-metadata:
-  name: rate-limiting
-  namespace: api-gateway
-spec:
-  plugin: rate-limiting
-  config:
-    minute: 100
-    policy: local

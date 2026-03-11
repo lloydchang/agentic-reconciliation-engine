@@ -1,96 +1,25 @@
-# Lightstep - Distributed Tracing
-# High-performance tracing with OpenTelemetry integration
-
-apiVersion: v1
-kind: Namespace
+# lightstep - Enterprise tool implementation
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
 metadata:
   name: lightstep
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: lightstep-collector
-  namespace: lightstep
+  namespace: default
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: lightstep-collector
-  template:
-    metadata:
-      labels:
-        app: lightstep-collector
+  interval: 10m0s
+  url: https://charts.example.com  # Replace with actual Helm repo URL
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: lightstep
+  namespace: default
+spec:
+  interval: 10m0s
+  chart:
     spec:
-      containers:
-      - name: otel-collector
-        image: otel/opentelemetry-collector-contrib:latest
-        command:
-        - /otelcol-contrib
-        - --config
-        - /etc/otel/config.yaml
-        volumeMounts:
-        - name: config
-          mountPath: /etc/otel
-        env:
-        - name: LS_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: lightstep-credentials
-              key: access-token
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "200m"
-      volumes:
-      - name: config
-        configMap:
-          name: lightstep-config
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: lightstep-config
-  namespace: lightstep
-data:
-  config.yaml: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-          http:
-            endpoint: 0.0.0.0:4318
-    processors:
-      batch:
-        timeout: 1s
-    exporters:
-      otlp:
-        endpoint: "ingest.lightstep.com:443"
-        headers:
-          lightstep-access-token: "${LS_ACCESS_TOKEN}"
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [otlp]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: lightstep-collector
-  namespace: lightstep
-spec:
-  selector:
-    app: lightstep-collector
-  ports:
-  - port: 4317
-    targetPort: 4317
-    name: otlp-grpc
-  - port: 4318
-    targetPort: 4318
-    name: otlp-http
-  type: ClusterIP
+      chart: lightstep
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: lightstep
+      interval: 10m0s

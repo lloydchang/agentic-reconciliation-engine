@@ -1,0 +1,60 @@
+# Flyway - Database Migration Tool (Alternative to Liquibase)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: database-tools
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flyway-migrator
+  namespace: database-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flyway-migrator
+  template:
+    metadata:
+      labels:
+        app: flyway-migrator
+    spec:
+      containers:
+      - name: flyway
+        image: flyway/flyway:latest
+        command: ["flyway"]
+        args: ["info"]
+        env:
+        - name: FLYWAY_URL
+          value: jdbc:postgresql://postgres:5432/mydb
+        - name: FLYWAY_USER
+          value: postgres
+        - name: FLYWAY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        volumeMounts:
+        - name: migrations
+          mountPath: /flyway/sql
+      volumes:
+      - name: migrations
+        configMap:
+          name: flyway-migrations
+      restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flyway-migrations
+  namespace: database-tools
+data:
+  V1__create_users_table.sql: |
+    CREATE TABLE users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(50) NOT NULL,
+      email VARCHAR(100) UNIQUE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  V2__add_user_roles.sql: |
+    ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user';
