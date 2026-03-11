@@ -665,7 +665,7 @@ kubectl get pods -n ingress-nginx
 kubectl logs -n ingress-nginx deployment/ingress-nginx-controller
 
 # Test connectivity
-curl -v http://flux-ui.local
+curl -v -u [USERNAME]:[PASSWORD] http://flux-ui.local
 ```
 
 #### 2. TLS Certificate Issues
@@ -688,7 +688,7 @@ kubectl logs -n cert-manager deployment/cert-manager
 kubectl get secret flux-ui-auth -n flux-system -o yaml
 
 # Test basic auth
-curl -v -u [USERNAME]:[PASSWORD] http://flux-ui.local
+curl -v -u {{USERNAME}}:{{PASSWORD}} http://flux-ui.local
 
 # Check Ingress annotations
 kubectl get ingress flux-ui-ingress -n flux-system -o yaml

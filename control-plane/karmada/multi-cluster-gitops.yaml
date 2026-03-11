@@ -327,7 +327,9 @@ spec:
         size: 10Gi
       service:
         type: LoadBalancer
-      adminPassword: admin123
+      # adminPassword: admin123  # REMOVED - Use external secret management
+      adminPasswordSecret: multi-cluster-grafana-admin
+      adminPasswordKey: password
       sidecar:
         datasources:
           enabled: true
