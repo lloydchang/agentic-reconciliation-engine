@@ -1,0 +1,81 @@
+# Chaos Testing with Chaos Mesh
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: chaos-mesh
+  namespace: chaos-testing
+spec:
+  interval: 10m0s
+  url: https://charts.chaos-mesh.org
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: chaos-mesh
+  namespace: chaos-testing
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: chaos-mesh
+      version: "2.6.2"
+      sourceRef:
+        kind: HelmRepository
+        name: chaos-mesh
+      interval: 10m0s
+  values:
+    chaosDaemon:
+      runtime: containerd
+      socketPath: /run/containerd/containerd.sock
+    dashboard:
+      create: true
+---
+# Example Chaos Experiment - Pod Failure
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: nginx-pod-failure
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      app: nginx-sample
+  duration: "30s"
+  scheduler:
+    cron: "@every 5m"
+
+## Litmus Chaos for Kubernetes
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: litmuschaos
+  namespace: chaos-testing
+spec:
+  interval: 10m0s
+  url: https://litmuschaos.github.io/litmus-helm
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: litmus
+  namespace: chaos-testing
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: litmus
+      version: "3.9.0"
+      sourceRef:
+        kind: HelmRepository
+        name: litmus
+      interval: 10m0s
+  values:
+    portal:
+      server:
+        service:
+          type: LoadBalancer
