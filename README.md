@@ -15,10 +15,10 @@ We use a hub-and-spoke model where a single Hub Cluster acts as the control plan
 ```text
        [ GIT REPOSITORY (Source of Truth) ]
                      |
-                     | (Flux Pulls Manifests)
+                     | Flux Pulls Manifests
                      v
       +------------------------------------------+
-      |      HUB CLUSTER (The Brain)      |
+      |                HUB CLUSTER               |
       |------------------------------------------|
       | Flux | ACK        | ASO           | KCC  |
       +------------------------------------------+
