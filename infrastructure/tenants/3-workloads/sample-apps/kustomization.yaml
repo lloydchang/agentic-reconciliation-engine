@@ -5,4 +5,4 @@ metadata:
   namespace: flux-system
 resources:
   - nginx-app.yaml
-  - redis-app.yaml
+  - redis-app.yamlpp.yaml
