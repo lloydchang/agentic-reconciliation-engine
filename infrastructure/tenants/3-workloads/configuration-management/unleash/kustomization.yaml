@@ -1,0 +1,76 @@
+# Unleash - Enterprise-Grade Feature Toggle Platform
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: config-management
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: unleash
+  namespace: config-management
+spec:
+  interval: 10m0s
+  url: https://docs.getunleash.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: unleash
+  namespace: config-management
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: unleash
+      version: "4.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: unleash
+      interval: 10m0s
+  values:
+    database:
+      type: postgres
+      host: postgres
+      port: 5432
+      name: unleash
+      username: unleash
+      password: unleash123
+    redis:
+      enabled: true
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+      - host: unleash.local
+        paths:
+        - path: /
+          pathType: Prefix
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-unleash
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-unleash
+  template:
+    metadata:
+      labels:
+        app: postgres-unleash
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        env:
+        - name: POSTGRES_USER
+          value: unleash
+        - name: POSTGRES_PASSWORD
+          value: unleash123
+        - name: POSTGRES_DB
+          value: unleash
+        ports:
+        - containerPort: 5432

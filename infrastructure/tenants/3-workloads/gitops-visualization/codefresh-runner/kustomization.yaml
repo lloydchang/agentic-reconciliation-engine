@@ -1,0 +1,46 @@
+# Codefresh Runner - Bridge between Flux and Argo CD
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-visualization
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codefresh-runner
+  namespace: gitops-visualization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codefresh-runner
+  template:
+    metadata:
+      labels:
+        app: codefresh-runner
+    spec:
+      containers:
+      - name: codefresh
+        image: codefresh/cli:latest
+        command: ["codefresh", "runner", "start"]
+        env:
+        - name: CODEFRESH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: codefresh-secret
+              key: api-key
+        - name: CODEFRESH_URL
+          value: https://g.codefresh.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codefresh-runner
+  namespace: gitops-visualization
+spec:
+  selector:
+    app: codefresh-runner
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: LoadBalancer
