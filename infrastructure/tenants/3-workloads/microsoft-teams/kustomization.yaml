@@ -1,0 +1,55 @@
+# Microsoft Teams Integration - Communication for Workload Clusters
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teams-webhook
+  namespace: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teams-webhook
+  template:
+    metadata:
+      labels:
+        app: teams-webhook
+    spec:
+      containers:
+      - name: webhook
+        image: quay.io/prometheuscommunity/teams-alertmanager:latest
+        ports:
+        - containerPort: 9094
+        env:
+        - name: TEAMS_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: teams-credentials
+              key: webhook-url
+        - name: TEAMS_CHANNEL
+          value: "General"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teams-webhook
+  namespace: communication
+spec:
+  selector:
+    app: teams-webhook
+  ports:
+  - port: 9094
+    targetPort: 9094
+  type: ClusterIP
