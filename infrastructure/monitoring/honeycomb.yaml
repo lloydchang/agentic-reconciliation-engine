@@ -1,0 +1,342 @@
+# Honeycomb Observability Integration
+# Deploys OpenTelemetry Collectors for sending metrics, logs, and traces to Honeycomb
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: observability
+
+---
+# Honeycomb API Key Secret
+# Note: In production, use SealedSecrets or external secret management
+apiVersion: v1
+kind: Secret
+metadata:
+  name: honeycomb
+  namespace: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: secret
+type: Opaque
+stringData:
+  # Replace with your actual Honeycomb API Key
+  # Use: kubectl create secret generic honeycomb --from-literal=api-key=$HONEYCOMB_API_KEY --namespace=honeycomb
+  api-key: "your-honeycomb-api-key-here"
+
+---
+# Honeycomb Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeycomb-config
+  namespace: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: config
+data:
+  # Deployment-mode Collector for cluster metrics
+  deployment-values.yaml: |
+    mode: deployment
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+    extraEnvs:
+      - name: HONEYCOMB_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: honeycomb
+            key: api-key
+    # We only want one of these collectors - any more and we'd produce duplicate data
+    replicaCount: 1
+    presets:
+      # enables the k8sclusterreceiver and adds it to the metrics pipelines
+      clusterMetrics:
+        enabled: true
+      # enables the k8sobjectsreceiver to collect events only and adds it to the logs pipelines
+      kubernetesEvents:
+        enabled: true
+    config:
+      receivers:
+        k8s_cluster:
+          collection_interval: 30s
+        metrics:
+          # Disable replicaset metrics by default. These are typically high volume, low signal metrics.
+          # If volume is not a concern, then the following blocks can be removed.
+          k8s.replicaset.desired:
+            enabled: false
+          k8s.replicaset.available:
+            enabled: false
+        jaeger: null
+        zipkin: null
+      processors:
+        transform/events:
+          error_mode: ignore
+          log_statements:
+            - context: log
+              statements:
+                # adds a new watch-type attribute from the body if it exists
+                - set(attributes["watch-type"], body["type"]) where IsMap(body) and body["type"] != nil
+                # create new attributes from the body if the body is an object
+                - merge_maps(attributes, body, "upsert") where IsMap(body) and body["object"] == nil
+                - merge_maps(attributes, body["object"], "upsert") where IsMap(body) and body["object"] != nil
+                # Transform the attributes so that the log events use the k8s.* semantic conventions
+                - merge_maps(attributes, attributes["metadata"], "upsert") where IsMap(attributes["metadata"])
+                - set(attributes["k8s.pod.name"], attributes["regarding"]["name"]) where attributes["regarding"]["kind"] == "Pod"
+                - set(attributes["k8s.node.name"], attributes["regarding"]["name"]) where attributes["regarding"]["kind"] == "Node"
+                - set(attributes["k8s.job.name"], attributes["regarding"]["name"]) where attributes["regarding"]["kind"] == "Job"
+                - set(attributes["k8s.cronjob.name"], attributes["regarding"]["name"]) where attributes["regarding"]["kind"] == "CronJob"
+                - set(attributes["k8s.namespace.name"], attributes["regarding"]["namespace"]) where attributes["regarding"]["kind"] == "Pod" or attributes["regarding"]["kind"] == "Job" or attributes["regarding"]["kind"] == "CronJob"
+                # Transform the type attributes into OpenTelemetry Severity types.
+                - set(severity_text, attributes["type"]) where attributes["type"] == "Normal" or attributes["type"] == "Warning"
+                - set(severity_number, SEVERITY_NUMBER_INFO) where attributes["type"] == "Normal"
+                - set(severity_number, SEVERITY_NUMBER_WARN) where attributes["type"] == "Warning"
+      exporters:
+        otlp/k8s-metrics:
+          endpoint: "api.honeycomb.io:443"
+          # For EU instance, use: "api.eu1.honeycomb.io:443"
+          headers:
+            "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+            "x-honeycomb-dataset": "k8s-metrics"
+        otlp/k8s-events:
+          endpoint: "api.honeycomb.io:443"
+          # For EU instance, use: "api.eu1.honeycomb.io:443"
+          headers:
+            "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+            "x-honeycomb-dataset": "k8s-events"
+      service:
+        pipelines:
+          traces: null
+          metrics:
+            receivers: [k8s_cluster]
+            exporters: [otlp/k8s-metrics]
+          logs:
+            receivers: [k8sobjects]
+            processors: [memory_limiter, transform/events, batch]
+            exporters: [otlp/k8s-events]
+    ports:
+      jaeger-compact:
+        enabled: false
+      jaeger-thrift:
+        enabled: false
+      jaeger-grpc:
+        enabled: false
+      zipkin:
+        enabled: false
+
+  # DaemonSet-mode Collector for node-level metrics and application telemetry
+  daemonset-values.yaml: |
+    mode: daemonset
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+    extraEnvs:
+      - name: HONEYCOMB_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: honeycomb
+            key: api-key
+    presets:
+      # enables the kubeletstatsreceiver for node and pod metrics
+      kubernetesAttributes:
+        enabled: true
+    config:
+      receivers:
+        kubeletstats:
+          collection_interval: 30s
+          auth:
+            auth_type: "serviceAccount"
+        otlp:
+          protocols:
+            grpc:
+              endpoint: ${env:MY_POD_IP}:4317
+            http:
+              endpoint: ${env:MY_POD_IP}:4318
+      processors:
+        batch:
+        memory_limiter:
+          check_interval: 1s
+          limit_percentage: 80
+          spike_limit_percentage: 25
+      exporters:
+        otlp/k8s-node-metrics:
+          endpoint: "api.honeycomb.io:443"
+          # For EU instance, use: "api.eu1.honeycomb.io:443"
+          headers:
+            "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+            "x-honeycomb-dataset": "k8s-node-metrics"
+        otlp/traces:
+          endpoint: "api.honeycomb.io:443"
+          # For EU instance, use: "api.eu1.honeycomb.io:443"
+          headers:
+            "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+            "x-honeycomb-dataset": "traces"
+      service:
+        pipelines:
+          metrics:
+            receivers: [kubeletstats]
+            processors: [memory_limiter, batch]
+            exporters: [otlp/k8s-node-metrics]
+          traces:
+            receivers: [otlp]
+            processors: [memory_limiter, batch]
+            exporters: [otlp/traces]
+
+---
+# Service Account for OpenTelemetry Collectors
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: serviceaccount
+
+---
+# RBAC permissions for OpenTelemetry Collectors
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: rbac
+rules:
+  # Metrics collection
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/stats", "nodes/metrics", "pods", "services"]
+    verbs: ["get", "list", "watch"]
+  # Events collection
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+  # Kubernetes API resources
+  - apiGroups: ["apps"]
+    resources: ["replicasets", "deployments", "daemonsets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector
+subjects:
+  - kind: ServiceAccount
+    name: otel-collector
+    namespace: honeycomb
+
+---
+# Honeycomb Deployment Script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeycomb-deploy-script
+  namespace: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: script
+data:
+  deploy-honeycomb.sh: |
+    #!/bin/bash
+    # Honeycomb OpenTelemetry Collector Deployment Script
+    
+    set -e
+    
+    echo "🍯 Deploying Honeycomb OpenTelemetry Collectors..."
+    
+    # Check if Honeycomb API key is set
+    if ! kubectl get secret honeycomb -n honeycomb --template="{{.data.api-key}}" | base64 -d | grep -v "your-honeycomb-api-key-here" > /dev/null 2>&1; then
+      echo "❌ Error: Honeycomb API key not configured!"
+      echo "Please run: kubectl create secret generic honeycomb --from-literal=api-key=\$HONEYCOMB_API_KEY --namespace=honeycomb"
+      exit 1
+    fi
+    
+    # Add OpenTelemetry Helm repository
+    echo "📦 Adding OpenTelemetry Helm repository..."
+    helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+    helm repo update
+    
+    # Deploy cluster-level collector
+    echo "🚀 Deploying cluster-level collector..."
+    helm upgrade --install otel-collector-cluster open-telemetry/opentelemetry-collector \
+      --namespace honeycomb \
+      --values /etc/config/deployment-values.yaml \
+      --set serviceAccount.name=otel-collector
+    
+    # Deploy node-level collectors
+    echo "🔧 Deploying node-level collectors..."
+    helm upgrade --install otel-collector-daemonset open-telemetry/opentelemetry-collector \
+      --namespace honeycomb \
+      --values /etc/config/daemonset-values.yaml \
+      --set serviceAccount.name=otel-collector
+    
+    # Verify deployment
+    echo "✅ Verifying deployment..."
+    kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=opentelemetry-collector -n honeycomb --timeout=300s
+    
+    echo "🍯 Honeycomb deployment complete!"
+    echo "📊 Check your Honeycomb datasets: k8s-metrics, k8s-events, k8s-node-metrics, traces"
+
+---
+# Honeycomb Monitoring Dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeycomb-monitoring
+  namespace: honeycomb
+  labels:
+    app.kubernetes.io/name: honeycomb
+    app.kubernetes.io/component: monitoring
+data:
+  honeycomb-health-check.sh: |
+    #!/bin/bash
+    # Honeycomb Collector Health Check
+    
+    echo "🍯 Checking Honeycomb OpenTelemetry Collectors..."
+    
+    # Check cluster collector
+    echo "📊 Cluster Collector:"
+    if kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-cluster | grep -q "Running"; then
+      echo "  ✅ Cluster Collector: Running"
+      kubectl logs -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-cluster --tail=5
+    else
+      echo "  ❌ Cluster Collector: FAILED"
+      kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-cluster
+    fi
+    
+    # Check daemonset collectors
+    echo ""
+    echo "🔧 Node Collectors:"
+    if kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-daemonset | grep -q "Running"; then
+      echo "  ✅ Node Collectors: Running"
+      running_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-daemonset --field-selector=status.phase=Running | wc -l)
+      total_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-daemonset | grep -c "otel-collector-daemonset")
+      echo "  📈 Status: $running_count/$total_count collectors running"
+    else
+      echo "  ❌ Node Collectors: FAILED"
+      kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector,app.kubernetes.io/instance=otel-collector-daemonset
+    fi
+    
+    # Check API key configuration
+    echo ""
+    echo "🔑 Configuration:"
+    if kubectl get secret honeycomb -n honeycomb --template="{{.data.api-key}}" | base64 -d | grep -v "your-honeycomb-api-key-here" > /dev/null 2>&1; then
+      echo "  ✅ API Key: Configured"
+    else
+      echo "  ❌ API Key: Not configured"
+    fi
+    
+    echo ""
+    echo "🍯 Honeycomb Health Check Complete"
