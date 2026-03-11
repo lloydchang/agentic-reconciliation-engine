@@ -3,4 +3,6 @@ kind: Kustomization
 metadata:
   name: aws-network
   namespace: flux-system
-resources: []
+resources:
+- vpc.yaml
+- subnet.yaml

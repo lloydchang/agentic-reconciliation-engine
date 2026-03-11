@@ -1,0 +1,12 @@
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: VPC
+metadata:
+  name: main-vpc
+spec:
+  cidrBlocks:
+  - 10.0.0.0/16
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  tags:
+  - key: Name
+    value: main-vpc

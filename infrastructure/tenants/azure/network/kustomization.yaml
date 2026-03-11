@@ -3,4 +3,5 @@ kind: Kustomization
 metadata:
   name: azure-network
   namespace: flux-system
-resources: []
+resources:
+- vnet.yaml

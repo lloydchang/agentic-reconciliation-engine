@@ -1,0 +1,13 @@
+apiVersion: eks.services.k8s.aws/v1alpha1
+kind: Cluster
+metadata:
+  name: workload-cluster
+spec:
+  name: workload-cluster
+  roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/eks-service-role
+  version: "1.27"
+  resourcesVpcConfig:
+    subnetIds:
+    - subnet-12345678  # Replace with actual subnet IDs from status
+    endpointPrivateAccess: true
+    endpointPublicAccess: true

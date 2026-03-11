@@ -5,4 +5,5 @@ metadata:
   namespace: flux-system
 dependsOn:
 - name: gcp-network
-resources: []
+resources:
+- gke-cluster.yaml

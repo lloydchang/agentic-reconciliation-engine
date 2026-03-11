@@ -5,4 +5,5 @@ metadata:
   namespace: flux-system
 dependsOn:
 - name: aws-network
-resources: []
+resources:
+- eks-cluster.yaml

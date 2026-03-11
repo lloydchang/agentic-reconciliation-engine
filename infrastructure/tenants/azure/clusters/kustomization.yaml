@@ -5,4 +5,5 @@ metadata:
   namespace: flux-system
 dependsOn:
 - name: azure-network
-resources: []
+resources:
+- aks-cluster.yaml
