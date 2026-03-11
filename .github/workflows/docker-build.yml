@@ -1,0 +1,116 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - 'release/*'
+
+env:
+  IMAGE_REGISTRY: ghcr.io
+  IMAGE_NAME: gitops-infra-control-plane
+
+jobs:
+  docker:
+    env:
+      IMAGE: ${{ env.IMAGE_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare build metadata
+        id: prep
+        run: |
+          # Extract branch information
+          BRANCH=${GITHUB_REF##*/}
+          TS=$(date +%s)
+          REVISION=${GITHUB_SHA::8}
+          
+          # Determine build ID based on event type
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            BUILD_ID=${GITHUB_REF/refs\/tags\//}
+            LATEST_ID=latest
+            echo "Build from tag: $BUILD_ID"
+          else
+            BUILD_ID="${BRANCH}-${REVISION}-${TS}"
+            LATEST_ID=canary
+            echo "Build from branch: $BRANCH"
+          fi
+          
+          # Set outputs for other steps
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_OUTPUT
+          echo "LATEST_ID=${LATEST_ID}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        id: docker_build
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
+            ${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_ID }}
+          labels: |
+            org.opencontainers.image.created=${{ steps.prep.outputs.BUILD_DATE }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}
+            org.opencontainers.image.version=${{ steps.prep.outputs.BUILD_ID }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            maintainer=${{ github.repository_owner }}
+            description=GitOps Infrastructure Control Plane - Multi-cloud management platform
+
+      - name: Generate ImageUpdateAutomation manifest
+        run: |
+          cat > image-update-automation.yaml << EOF
+          apiVersion: image.toolkit.fluxcd.io/v1beta2
+          kind: ImageUpdateAutomation
+          metadata:
+            name: gitops-infra-images
+            namespace: flux-system
+          spec:
+            interval: 5m
+            sourceRef:
+              kind: GitRepository
+              name: gitops-infra-control-plane
+            git:
+              commit:
+                author:
+                  email: "gitops@automation.local"
+                  name: "Flux Image Automation"
+                message: |
+                  Automated image update for ${{ steps.prep.outputs.BUILD_ID }}
+                  
+                  Built from: ${{ github.ref }}
+                  Commit: ${{ github.sha }}
+                  Build date: ${{ steps.prep.outputs.BUILD_DATE }}
+            updateStrategy:
+              path: ./infrastructure/tenants/3-workloads
+              matchTags:
+                - pattern: 'v*'
+                  semver:
+                    constraint: '>=1.0.0'
+            policy:
+              semver:
+                mode: automatic
+          EOF
+          echo "ImageUpdateAutomation manifest generated"
+
+      - name: Output image digest
+        run: |
+          echo "🐳 Image built and pushed:"
+          echo "Registry: ${{ env.IMAGE }}"
+          echo "Tags: ${{ steps.prep.outputs.BUILD_ID }}, ${{ steps.prep.outputs.LATEST_ID }}"
+          echo "Digest: ${{ steps.docker_build.outputs.digest }}"
+          echo ""
+          echo "📋 ImageUpdateAutomation manifest ready for Flux deployment"
