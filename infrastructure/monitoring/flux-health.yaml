@@ -1,0 +1,152 @@
+# Flux Health Monitoring & Incident Response
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-health-checks
+  namespace: monitoring
+data:
+  health-script.sh: |
+    #!/bin/bash
+    # Flux Health Check Script
+    
+    echo "🔍 Checking Hybrid Flux Architecture..."
+    
+    # Check Core Flux (Critical Path)
+    echo "📦 Core Flux CD (Critical Path):"
+    if kubectl wait --for=condition=available --timeout=30s deployment/source-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Source Controller: Healthy"
+    else
+        echo "  ❌ Source Controller: FAILED"
+        exit 1
+    fi
+    
+    if kubectl wait --for=condition=available --timeout=30s deployment/kustomize-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Kustomize Controller: Healthy"
+    else
+        echo "  ❌ Kustomize Controller: FAILED"
+        exit 1
+    fi
+    
+    if kubectl wait --for=condition=available --timeout=30s deployment/helm-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Helm Controller: Healthy"
+    else
+        echo "  ❌ Helm Controller: FAILED"
+        exit 1
+    fi
+    
+    # Check Flux Operator (Optional Add-on)
+    echo ""
+    echo "🛠️  Flux Operator (Optional Add-on):"
+    if kubectl get pods -n flux-operator-system 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ Flux Operator: Running"
+        if kubectl get pods -n flux-operator-system 2>/dev/null | grep -q "flux-operator"; then
+            echo "  ✅ Web UI: Available"
+        else
+            echo "  ⚠️  Web UI: Not available"
+        fi
+    else
+        echo "  ⚠️  Flux Operator: Not running (optional - system still functional)"
+    fi
+    
+    echo ""
+    echo "✅ Flux Health Check Complete"
+  
+  incident-response.md: |
+    # Flux Incident Response Procedures
+    
+    ## Priority 1: Core Flux Issues (Critical)
+    
+    ### Symptoms
+    - GitOps deployments failing
+    - `kubectl get pods -n flux-system` shows failed pods
+    - `flux get kustomizations` shows failing reconciliations
+    
+    ### Immediate Actions
+    1. **Check Core Controllers**
+       ```bash
+       kubectl get pods -n flux-system
+       kubectl logs -n flux-system deployment/source-controller
+       kubectl logs -n flux-system deployment/kustomize-controller
+       ```
+    
+    2. **Check Reconciliation Status**
+       ```bash
+       flux get kustomizations -n flux-system
+       flux get sources -n flux-system
+       ```
+    
+    3. **Force Re-bootstrap (if needed)**
+       ```bash
+       flux bootstrap git --force \
+         --url=https://github.com/lloydchang/gitops-infra-control-plane \
+         --path=infrastructure/flux/core
+       ```
+    
+    4. **Manual Recovery**
+       ```bash
+       # Restart core controllers
+       kubectl rollout restart deployment/source-controller -n flux-system
+       kubectl rollout restart deployment/kustomize-controller -n flux-system
+       kubectl rollout restart deployment/helm-controller -n flux-system
+       ```
+    
+    ## Priority 2: Flux Operator Issues (Optional)
+    
+    ### Symptoms
+    - Web UI not accessible
+    - MCP Server not responding
+    - `kubectl get pods -n flux-operator-system` shows failures
+    
+    ### Actions (Non-Critical)
+    1. **Check Operator Status**
+       ```bash
+       kubectl get pods -n flux-operator-system
+       kubectl logs -n flux-operator-system deployment/flux-operator
+       ```
+    
+    2. **Restart Operator**
+       ```bash
+       kubectl rollout restart deployment/flux-operator -n flux-operator-system
+       ```
+    
+    3. **Disable Problematic Features**
+       ```bash
+       # Disable Web UI if causing issues
+       kubectl patch fluxinstance flux-operator -n flux-operator-system \
+         --type='merge' -p='{"spec":{"webUI":{"enabled":false}}}'
+       
+       # Disable MCP Server if causing issues
+       kubectl patch fluxinstance flux-operator -n flux-operator-system \
+         --type='merge' -p='{"spec":{"mcpServer":{"enabled":false}}}'
+       ```
+    
+    4. **Complete Operator Restart**
+       ```bash
+       kubectl delete -f infrastructure/flux/operator/
+       kubectl apply -f infrastructure/flux/operator/
+       ```
+    
+    ## Monitoring Commands
+    
+    ### Continuous Monitoring
+    ```bash
+    # Watch core Flux
+    watch "kubectl get pods -n flux-system && flux get kustomizations -n flux-system"
+    
+    # Watch operator (optional)
+    watch "kubectl get pods -n flux-operator-system"
+    ```
+    
+    ### Health Status
+    ```bash
+    # Core health
+    kubectl wait --for=condition=available --timeout=60s \
+      deployment/source-controller -n flux-system && \
+    kubectl wait --for=condition=available --timeout=60s \
+      deployment/kustomize-controller -n flux-system && \
+    echo "✅ Core Flux: Healthy"
+    
+    # Operator health (optional)
+    kubectl get pods -n flux-operator-system || echo "⚠️  Flux Operator: Not running (optional)"
+    ```

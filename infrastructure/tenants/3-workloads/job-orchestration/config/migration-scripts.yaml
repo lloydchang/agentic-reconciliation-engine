@@ -153,4 +153,11 @@ data:
       exit 1
     fi
     
+    if redis-cli -h valkey-service -p 6379 ping > /dev/null 2>&1; then
+      echo "✅ Valkey cache healthy"
+    else
+      echo "❌ Valkey cache unhealthy"
+      exit 1
+    fi
+    
     echo "✅ Comprehensive health check completed"

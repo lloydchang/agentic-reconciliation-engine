@@ -1,0 +1,32 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-core
+  namespace: flux-system
+spec:
+  # Critical path - fast reconciliation
+  interval: 5m
+  path: ./infrastructure/flux/core
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-operator
+  namespace: flux-system
+spec:
+  # Optional add-on - slower interval, failure tolerated
+  interval: 30m
+  path: ./infrastructure/flux/operator
+  prune: true
+  # Depends on core being healthy first
+  dependsOn:
+    - name: flux-core
+  # Don't wait for operator - it's optional
+  wait: false
+  timeout: 10m
