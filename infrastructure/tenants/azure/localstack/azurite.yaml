@@ -1,0 +1,48 @@
+# Azure Local Testing Setup
+# Note: Full Azure emulation is complex. Use Azure Storage Emulator (Azurite) for storage services
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azurite
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azurite
+  template:
+    metadata:
+      labels:
+        app: azurite
+    spec:
+      containers:
+      - name: azurite
+        image: mcr.microsoft.com/azure-storage/azurite:latest
+        ports:
+        - containerPort: 10000  # Blob
+        - containerPort: 10001  # Queue
+        - containerPort: 10002  # Table
+        env:
+        - name: AZURITE_ACCOUNTS
+          value: "devstoreaccount1:devstoreaccount1key"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azurite
+  namespace: default
+spec:
+  selector:
+    app: azurite
+  ports:
+  - port: 10000
+    targetPort: 10000
+    name: blob
+  - port: 10001
+    targetPort: 10001
+    name: queue
+  - port: 10002
+    targetPort: 10002
+    name: table
+  type: ClusterIP

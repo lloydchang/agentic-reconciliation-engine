@@ -7,3 +7,8 @@ resources:
   - sample-apps/
   - monitoring/
   - networking/
+  - argo-cd/
+  - argo-workflows/
+  - camunda/
+  - temporal/
+  - backstage/
