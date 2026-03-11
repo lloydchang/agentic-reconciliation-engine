@@ -45,3 +45,5 @@ We utilize Flux over Argo CD because Flux is architecturally optimized for infra
 ## Repository Standards
 - Refer to .gitignore to ensure no local secrets or state artifacts are ever committed.
 - All code is subject to the GNU Affero General Public License v3.0 (AGPL-3.0) (see LICENSE file).
+
+<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/012c76ba-98f0-4513-be94-bf83691d0a9d" />
