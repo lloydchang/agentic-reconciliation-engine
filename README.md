@@ -20,7 +20,7 @@ We use a hub-and-spoke model where a single Management Cluster acts as the contr
       +------------------------------------------+
       |      MANAGEMENT CLUSTER (The Brain)      |
       |------------------------------------------|
-      | Flux System | AWS ACK | Azure ASO | KCC  |
+      | Flux | ACK        | ASO           | KCC  |
       +------------------------------------------+
              |               |               |
    (Provisions/Manages) (Provisions/Manages) (Provisions/Manages)
@@ -28,6 +28,7 @@ We use a hub-and-spoke model where a single Management Cluster acts as the contr
       +-------------+ +-------------+ +-------------+
       | Workload 1  | | Workload 2  | | Workload 3  |
       | (EKS)       | | (AKS)       | | (GKE)       |
+      | CLUSTER     | | CLUSTER     | | CLUSTER     |
       +-------------+ +-------------+ +-------------+
 ```
 
