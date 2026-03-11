@@ -1,0 +1,14 @@
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerCluster
+metadata:
+  name: workload-cluster
+spec:
+  location: ${REGION}
+  initialNodeCount: 1
+  networkRef:
+    name: main-network
+  subnetworkRef:
+    name: main-subnet
+  masterAuth:
+    clientCertificateConfig:
+      issueClientCertificate: false

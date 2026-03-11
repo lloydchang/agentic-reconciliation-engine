@@ -3,4 +3,5 @@ kind: Kustomization
 metadata:
   name: gcp-network
   namespace: flux-system
-resources: []
+resources:
+- network.yaml

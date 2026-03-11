@@ -1,0 +1,12 @@
+apiVersion: ec2.services.k8s.aws/v1alpha1
+kind: Subnet
+metadata:
+  name: public-subnet-1
+spec:
+  availabilityZone: ${AWS_REGION}a
+  cidrBlock: 10.0.1.0/24
+  vpcIdRef:
+    name: main-vpc
+  tags:
+  - key: Name
+    value: public-subnet-1
