@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: dex
+  namespace: dex
+spec:
+  interval: 10m0s
+  url: https://charts.dexidp.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: dex
+  namespace: dex
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: dex
+      version: "0.15.3"
+      sourceRef:
+        kind: HelmRepository
+        name: dex
+      interval: 10m0s
+  values:
+    config:
+      issuer: https://dex.dex.svc.cluster.local:5556/dex
+      storage:
+        type: memory
+      web:
+        http: 0.0.0.0:5556
+      frontend:
+        theme: "coreos"
+      connectors:
+      - type: mockCallback
+        id: mock
+        name: Example
+      staticClients:
+      - id: example-app
+        redirectURIs:
+        - 'http://127.0.0.1:5555/callback'
+        name: 'Example App'
+        secret: ZXhhbXBsZS1hcHAtc2VjcmV0
