@@ -1,0 +1,60 @@
+# ConfigHub - Enterprise Configuration Management Platform
+# Proprietary configuration management with feature flags and dynamic config
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: config-management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: confighub-agent
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: confighub-agent
+  template:
+    metadata:
+      labels:
+        app: confighub-agent
+    spec:
+      containers:
+      - name: confighub
+        image: confighub/agent:latest
+        env:
+        - name: CONFIGHUB_URL
+          value: "https://your-confighub-instance.com"
+        - name: CONFIGHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: confighub-secret
+              key: token
+        - name: APPLICATION_NAME
+          value: "gitops-infrastructure"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: confighub-secret
+  namespace: config-management
+type: Opaque
+data:
+  token: <base64-encoded-token>
+---
+# ConfigHub configuration example
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: confighub-config
+  namespace: config-management
+data:
+  application.properties: |
+    # ConfigHub-managed configuration
+    app.name=GitOps Infrastructure Control Plane
+    app.version=1.0.0
+    feature.flags.enabled=true
+    database.url=${confighub:db.connection.url}
+    cache.ttl=${confighub:cache.default.ttl}

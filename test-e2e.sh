@@ -36,22 +36,26 @@ print_error() {
 }
 
 # Test phases tracking
-declare -A test_results
-test_results["prerequisites"]=false
-test_results["bootstrap"]=false
-test_results["infrastructure"]=false
-test_results["cloud_providers"]=false
-test_results["workloads"]=false
-test_results["applications"]=false
-test_results["validation"]=false
-test_results["drift_test"]=false
-test_results["performance"]=false
-test_results["cleanup"]=false
+TEST_PHASES=("prerequisites" "bootstrap" "infrastructure" "cloud_providers" "workloads" "applications" "validation" "drift_test" "performance" "cleanup")
+declare -a test_results
+
+# Initialize test results
+for phase in "${TEST_PHASES[@]}"; do
+    test_results+=(false)
+done
 
 update_test_result() {
     local phase=$1
     local status=$2
-    test_results[$phase]=$status
+    
+    # Find index of phase
+    for i in "${!TEST_PHASES[@]}"; do
+        if [[ "${TEST_PHASES[$i]}" == "$phase" ]]; then
+            test_results[$i]=$status
+            break
+        fi
+    done
+    
     if [[ "$status" == "true" ]]; then
         print_status "$phase: ✓ PASS"
     else
@@ -336,12 +340,14 @@ generate_test_report() {
     echo "📊 Test Execution Results:"
     echo ""
 
-    local total_tests=0
+    local total_tests=${#TEST_PHASES[@]}
     local passed_tests=0
 
-    for phase in "${!test_results[@]}"; do
-        total_tests=$((total_tests + 1))
-        if [[ "${test_results[$phase]}" == "true" ]]; then
+    for i in "${!TEST_PHASES[@]}"; do
+        local phase="${TEST_PHASES[$i]}"
+        local status="${test_results[$i]}"
+        
+        if [[ "$status" == "true" ]]; then
             passed_tests=$((passed_tests + 1))
             echo "   ✅ $phase: PASS"
         else
