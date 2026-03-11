@@ -43,7 +43,10 @@ TAILSCALE_*
 authKey*
 *authkey*
 *apikey*
-*secret*
+*secret.yaml
+*secret.yml
+# Allow templates but block actual secrets
+!*secret*.template
 
 # Terraform files (not used in this project)
 *.tfstate

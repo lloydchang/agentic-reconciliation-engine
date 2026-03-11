@@ -32,10 +32,12 @@ spec:
       interval: 10m0s
   values:
     account:
-      adminPassword: "admin123"
+      existingSecret: sonarqube-credentials
+      existingSecretPasswordKey: admin-password
     postgresql:
       enabled: true
-      postgresqlPassword: "sonarPass123"
+      existingSecret: sonarqube-credentials
+      existingSecretPasswordKey: postgres-password
     service:
       type: LoadBalancer
     ingress:
