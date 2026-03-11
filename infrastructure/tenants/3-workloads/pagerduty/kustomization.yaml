@@ -1,0 +1,37 @@
+# PagerDuty Integration - Incident Response for Workload Clusters
+# Uses PagerDuty Kubernetes Operator for managing incidents
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: incident-response
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: pagerduty
+  namespace: incident-response
+spec:
+  interval: 10m0s
+  url: https://pagerduty.github.io/pd-helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pagerduty-agent
+  namespace: incident-response
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: pagerduty-agent
+      version: "0.3.0"
+      sourceRef:
+        kind: HelmRepository
+        name: pagerduty
+      interval: 10m0s
+  values:
+    pagerduty:
+      integrationKey: "your-pagerduty-integration-key"
+    service:
+      type: ClusterIP

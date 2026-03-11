@@ -1,0 +1,60 @@
+# Auth0 Integration - Identity as a Service for Workload Clusters
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: identity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth0-webhook
+  namespace: identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth0-webhook
+  template:
+    metadata:
+      labels:
+        app: auth0-webhook
+    spec:
+      containers:
+      - name: webhook
+        image: auth0/k8s-webhook:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: AUTH0_DOMAIN
+          value: "your-domain.auth0.com"
+        - name: AUTH0_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth0-credentials
+              key: client-id
+        - name: AUTH0_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth0-credentials
+              key: client-secret
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth0-webhook
+  namespace: identity
+spec:
+  selector:
+    app: auth0-webhook
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
