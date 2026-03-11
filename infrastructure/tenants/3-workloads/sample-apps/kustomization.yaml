@@ -6,5 +6,6 @@ metadata:
 resources:
   - nginx-app.yaml
   - redis-app.yaml
+  - valkey-app.yaml
   - mysql.yaml
   - postgres.yaml

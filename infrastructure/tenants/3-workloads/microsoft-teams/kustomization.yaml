@@ -1,4 +1,4 @@
-# Microsoft Teams Integration - Communication for Workload Clusters
+# Microsoft Teams Integration - Communication for Spoke Clusters
 
 apiVersion: v1
 kind: Namespace

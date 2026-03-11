@@ -1,10 +1,10 @@
 #!/bin/bash
-# Local Management Cluster Setup Script
-# Sets up a local Kubernetes cluster to emulate cloud management clusters
+# Local Hub Cluster Setup Script
+# Sets up a local Kubernetes cluster to emulate cloud hub clusters
 
 set -e
 
-echo "🚀 Setting up Local Management Cluster"
+echo "🚀 Setting up Local Hub Cluster"
 echo "======================================"
 
 # Colors
@@ -166,16 +166,16 @@ deploy_emulators() {
     print_status "✅ Cloud emulators deployed"
 }
 
-# 5. Deploy local workload cluster simulation
+# 5. Deploy local spoke cluster simulation
 deploy_workload_simulation() {
-    print_status "Deploying workload cluster simulation..."
+    print_status "Deploying spoke cluster simulation..."
 
     case $CLUSTER_TYPE in
         docker-desktop)
-            print_status "Using Docker Desktop as workload cluster"
+            print_status "Using Docker Desktop as spoke cluster"
             ;;
         *)
-            # Create a simulated workload cluster using Kind
+            # Create a simulated spoke cluster using Kind
             cat <<EOF | kind create cluster --name gitops-workload-local --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -198,12 +198,12 @@ EOF
             ;;
     esac
 
-    print_status "✅ Workload cluster simulation ready"
+    print_status "✅ Spoke cluster simulation ready"
 }
 
 # 6. Deploy sample workloads
 deploy_workloads() {
-    print_status "Deploying sample workloads to simulated workload cluster..."
+    print_status "Deploying sample workloads to simulated spoke cluster..."
 
     case $CLUSTER_TYPE in
         docker-desktop)
@@ -211,7 +211,7 @@ deploy_workloads() {
             kubectl apply -k infrastructure/tenants/local-testing/workloads-local/
             ;;
         *)
-            # Switch to workload cluster context
+            # Switch to spoke cluster context
             kubectl config use-context kind-gitops-workload-local
 
             # Deploy workloads
@@ -262,10 +262,10 @@ main() {
 
     echo ""
     echo "============================================="
-    echo "🎉 Local Management Cluster Setup Complete!"
+    echo "🎉 Local Hub Cluster Setup Complete!"
     echo "============================================="
     echo ""
-    echo "Management Cluster (Control Plane):"
+    echo "Hub Cluster (Control Plane):"
     case $CLUSTER_TYPE in
         docker-desktop)
             echo "  Context: docker-desktop"
@@ -276,7 +276,7 @@ main() {
     esac
     echo "  Flux: kubectl get pods -n flux-system"
     echo ""
-    echo "Workload Cluster (Applications):"
+    echo "Spoke Cluster (Applications):"
     case $CLUSTER_TYPE in
         docker-desktop)
             echo "  Context: docker-desktop (same cluster)"

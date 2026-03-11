@@ -6,3 +6,6 @@ metadata:
 resources:
   - gotk-components.yaml
   - gotk-sync.yaml
+  - image-update-automation.yaml
+  - image-policy.yaml
+  - jenkins-image-automation.yaml

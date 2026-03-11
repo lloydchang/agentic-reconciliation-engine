@@ -1,0 +1,265 @@
+# Traefik Helm Release
+# Ingress Controller with comprehensive configuration
+
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: default
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/component: helm-release
+    managed-by: flux
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: traefik
+      version: ">=26.0.0 <27.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: default
+  values:
+    # Global configuration
+    global:
+      imageRegistry: docker.io
+      imagePullSecrets: []
+      imagePullPolicy: IfNotPresent
+    
+    # Provider configuration
+    providers:
+      kubernetesCRD:
+        enabled: true
+        allowCrossNamespace: true
+      kubernetesIngress:
+        enabled: true
+        allowCrossNamespace: true
+        ingressClass: traefik
+        namespaces: []
+      kubernetesGateway:
+        enabled: true
+        experimental:
+          http3: true
+    
+    # EntryPoints configuration
+    entryPoints:
+      web:
+        address: ":80"
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
+              priority: 10
+      websecure:
+        address: ":443"
+        http:
+          tls:
+            options: "default"
+            certResolver: "letsencrypt"
+      traefik:
+        address: ":8080"
+      metrics:
+        address: ":8082"
+    
+    # TLS configuration
+    tls:
+      stores:
+        default:
+          defaultCertificate:
+            secretName: traefik-default-cert
+      options:
+        default:
+          minVersion: "VersionTLS12"
+          cipherSuites:
+            - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+            - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+            - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+          sniStrict: true
+    
+    # Pilot configuration
+    pilot:
+      token: ""
+    
+    # Certificates configuration
+    certificatesResolvers:
+      letsencrypt:
+        acme:
+          email: "admin@company.com"
+          server: "https://acme-v02.api.letsencrypt.org/directory"
+          storage: "acme.json"
+          httpChallenge:
+            entryPoint: "web"
+    
+    # Dashboard configuration
+    ports:
+      traefik:
+        expose: true
+        exposedPort: 8080
+      metrics:
+        expose: true
+        exposedPort: 8082
+    
+    # Service configuration
+    service:
+      enabled: true
+      type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+      spec:
+        externalTrafficPolicy: Local
+        loadBalancerSourceRanges: []
+    
+    # Resources configuration
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+    
+    # Autoscaling
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+      targetMemoryUtilizationPercentage: 80
+    
+    # Affinity and tolerations
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - traefik
+              topologyKey: kubernetes.io/hostname
+    
+    tolerations: []
+    
+    # Node selector
+    nodeSelector: {}
+    
+    # Pod annotations
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8082"
+      prometheus.io/path: "/metrics"
+    
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65532
+      fsGroup: 65532
+      capabilities:
+        drop:
+          - ALL
+        add:
+          - NET_BIND_SERVICE
+    
+    # Pod labels
+    podLabels:
+      app.kubernetes.io/name: traefik
+      app.kubernetes.io/component: ingress-controller
+      app.kubernetes.io/part-of: gitops-infra-control-plane
+    
+    # Additional arguments
+    additionalArguments:
+      - "--api.insecure=true"
+      - "--serversTransport.insecureSkipVerify=true"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.addServices=true"
+      - "--entrypoints.traefik.address=:8080"
+      - "--ping=true"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+      - "--log.level=INFO"
+      - "--global.checknewversion=false"
+    
+    # Persistence
+    persistence:
+      enabled: true
+      name: data
+      size: 1Gi
+      storageClass: "standard"
+      path: /data
+      annotations: {}
+    
+    # RBAC
+    rbac:
+      enabled: true
+      namespaced: false
+    
+    # Service account
+    serviceAccount:
+      create: true
+      name: ""
+      annotations: {}
+      automountServiceAccountToken: true
+    
+    # Extra objects
+    extraObjects: []
+    
+    # Tests
+    tests:
+      enabled: true
+  
+  # Install configuration
+  install:
+    remediation:
+      retries: 3
+      ignoreTestFailures: false
+      remediateLastFailure: true
+  
+  # Upgrade configuration
+  upgrade:
+    remediation:
+      retries: 5
+      ignoreTestFailures: false
+      remediateLastFailure: true
+      strategy: rollback
+  
+  # Rollback configuration
+  rollback:
+    timeout: 5m
+    disableWait: false
+    disableHooks: false
+    recreate: false
+    force: false
+    cleanupOnFail: false
+  
+  # Uninstall configuration
+  uninstall:
+    timeout: 5m
+    disableHooks: false
+    keepHistory: false
+    disableWait: false
+  
+  # Test configuration
+  test:
+    enable: true
+    ignoreFailures: false
+    timeout: 5m
+  
+  # Drift detection
+  driftDetection:
+    mode: warn
+    ignore: []
+  
+  # Post-renderers
+  postRenderers: []
+  
+  # Values from external sources
+  valuesFrom: []
+  
+  # Storage namespace
+  storageNamespace: ""

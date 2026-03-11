@@ -1,0 +1,15 @@
+# Traefik Helm Repository
+# Source for Traefik Ingress Controller
+
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: traefik
+  namespace: default
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/component: helm-repository
+    managed-by: flux
+spec:
+  interval: 5m
+  url: https://helm.traefik.io/traefik

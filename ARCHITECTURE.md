@@ -8,7 +8,7 @@ The GitOps Infrastructure Control Plane implements a zero-Terraform, multi-cloud
 
 ## Core Components
 
-### 1. Management Cluster (Control Plane)
+### 1. Hub Cluster (Control Plane)
 
 The central hub that orchestrates all infrastructure across multiple cloud providers.
 
@@ -24,13 +24,13 @@ The central hub that orchestrates all infrastructure across multiple cloud provi
 - Detect and repair configuration drift
 - Orchestrate resource dependencies
 
-### 2. Workload Clusters
+### 2. Spoke Clusters
 
-Kubernetes clusters provisioned and managed by the Management Cluster.
+Kubernetes clusters provisioned and managed by the Hub Cluster.
 
 **Characteristics:**
 - Provisioned via native cloud controllers (EKS/AKS/GKE)
-- Independent operation if Management Cluster is lost
+- Independent operation if Hub Cluster is lost:
 - Can be re-bootstrapped to point back to Git
 - Run application workloads and monitoring
 
@@ -197,12 +197,12 @@ Infrastructure is organized by tenants and environments:
 
 ## Disaster Recovery
 
-### Management Cluster Failure
+### Hub Cluster Failure
 
-If the Management Cluster is lost:
-1. Workload Clusters continue operating independently
+If the Hub Cluster is lost:
+1. Spoke Clusters continue operating independently
 2. Infrastructure state remains in cloud providers
-3. New Management Cluster can be bootstrapped
+3. New Hub Cluster can be bootstrapped
 4. Git repository contains all required state
 
 ### Git Repository Failure

@@ -1,0 +1,30 @@
+# Kind cluster configuration for E2E testing
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: gitops-e2e
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+  extraMounts:
+  - hostPath: ./test-data
+    containerPath: /test-data
+- role: worker
+  extraMounts:
+  - hostPath: ./test-data
+    containerPath: /test-data
+- role: worker
+  extraMounts:
+  - hostPath: ./test-data
+    containerPath: /test-data

@@ -52,7 +52,7 @@ spec:
             echo "Cache refresh completed at: $(date)"
         env:
         - name: CACHE_ENDPOINTS
-          value: "redis://redis-service:6379,memcached://memcached-service:11211"
+          value: "redis://redis-service:6379,valkey://valkey-service:6379,memcached://memcached-service:11211"
         - name: APPLICATION_URL
           value: "http://sample-app-service:8080"
         resources:

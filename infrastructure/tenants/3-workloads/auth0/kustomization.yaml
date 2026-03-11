@@ -1,4 +1,4 @@
-# Auth0 Integration - Identity as a Service for Workload Clusters
+# Auth0 Integration - Identity as a Service for Spoke Clusters
 
 apiVersion: v1
 kind: Namespace

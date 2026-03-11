@@ -1,4 +1,4 @@
-# Okta Integration - Identity Management for Workload Clusters
+# Okta Integration - Identity Management for Spoke Clusters
 # Note: This is a conceptual integration. Okta doesn't have a direct Helm chart,
 # but you can use the Okta Kubernetes Authenticator or custom integration
 

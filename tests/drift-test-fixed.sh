@@ -241,7 +241,7 @@ test_architecture() {
     echo "🏗 Architecture Test"
     echo "=================="
     
-    print_status "Checking management vs workload cluster separation..."
+    print_status "Checking hub vs spoke cluster separation..."
     
     # Check if workloads are in default namespace (not flux-system)
     WORKLOAD_IN_DEFAULT=$(kubectl get kustomizations -A -o name | grep "default" | wc -l)

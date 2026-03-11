@@ -1,5 +1,5 @@
-# Cluster API Provider Docker (CAPD) - Simulate Workload Cluster Provisioning
-# Enables recursive GitOps deployment: Management → Workload Clusters → Applications
+# Cluster API Provider Docker (CAPD) - Simulate Spoke Cluster Provisioning
+# Enables recursive GitOps deployment: Hub → Spoke Clusters → Applications
 
 ## Cluster API Core Components
 apiVersion: v1
@@ -134,7 +134,7 @@ spec:
   dependsOn:
   - name: cluster-api-core
 
-## Example Workload Cluster (Docker-based)
+## Example Spoke Cluster (Docker-based)
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:

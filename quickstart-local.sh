@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quickstart: Local Management Cluster with Cloud Emulators
+# Quickstart: Local Hub Cluster with Cloud Emulators
 
 # 1. Make script executable and run
 chmod +x setup-local-management.sh
@@ -8,12 +8,12 @@ chmod +x setup-local-management.sh
 # 2. Verify setup
 kubectl config get-contexts
 
-# 3. Test management cluster
-kubectl config use-context kind-gitops-management-local
+# 3. Test hub cluster
+kubectl config use-context kind-gitops-hub-local
 kubectl get pods -n flux-system
 
-# 4. Test workload cluster
-kubectl config use-context kind-gitops-workload-local
+# 4. Test spoke cluster
+kubectl config use-context kind-gitops-spoke-local
 kubectl get pods -A
 
 # 5. Test emulators

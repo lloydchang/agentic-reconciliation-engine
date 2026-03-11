@@ -10,7 +10,7 @@ We do not use push-based tools (Terraform, Blueprints, CDK, CloudFormation, Bice
 * Zero State Files: There is no Terraform State to corrupt, lock, or lose. The live Cloud API is the only source of truth.
 
 ## Architectural Topology
-We use a hub-and-spoke model where a single Management Cluster acts as the control plane for all cloud environments:
+We use a hub-and-spoke model where a single Hub Cluster acts as the control plane for all cloud environments:
 
 ```text
        [ GIT REPOSITORY (Source of Truth) ]
@@ -18,7 +18,7 @@ We use a hub-and-spoke model where a single Management Cluster acts as the contr
                      | (Flux Pulls Manifests)
                      v
       +------------------------------------------+
-      |      MANAGEMENT CLUSTER (The Brain)      |
+      |      HUB CLUSTER (The Brain)      |
       |------------------------------------------|
       | Flux | ACK        | ASO           | KCC  |
       +------------------------------------------+
@@ -26,7 +26,7 @@ We use a hub-and-spoke model where a single Management Cluster acts as the contr
    (Provisions/Manages) (Provisions/Manages) (Provisions/Manages)
              |               |               |
       +-------------+ +-------------+ +-------------+
-      | Workload 1  | | Workload 2  | | Workload 3  |
+      | Spoke 1  | | Spoke 2  | | Spoke 3  |
       | (EKS)       | | (AKS)       | | (GKE)       |
       | CLUSTER     | | CLUSTER     | | CLUSTER     |
       +-------------+ +-------------+ +-------------+
@@ -40,7 +40,7 @@ To understand the technical design, architectural mandates, and step-by-step imp
 We utilize Flux over Argo CD because Flux is architecturally optimized for infrastructure lifecycle management:
 - Controller-Native: Flux is a set of Kubernetes controllers, not an external UI overlay.
 - Dependency Chaining: Flux dependency chaining enables a true Directed Acyclic Graph (DAG) for complex infrastructure dependencies, whereas Argo CD relies on linear Sync Waves.
-- Headless & Reliable: Flux is designed for cluster-to-cluster management, which is essential for our hub-and-spoke Management vs. Workload cluster strategy.
+- Headless & Reliable: Flux is designed for cluster-to-cluster management, which is essential for our hub-and-spoke Hub vs. Spoke Clusters strategy.
 
 ## Repository Standards
 - Refer to .gitignore to ensure no local secrets or state artifacts are ever committed.
