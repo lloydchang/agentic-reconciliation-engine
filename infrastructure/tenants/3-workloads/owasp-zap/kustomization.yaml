@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owasp-zap
+  namespace: security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: owasp-zap
+  template:
+    metadata:
+      labels:
+        app: owasp-zap
+    spec:
+      containers:
+      - name: zap
+        image: owasp/zap2docker-stable:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 8090
+        env:
+        - name: ZAP_PORT_8080
+          value: "8080"
+        - name: ZAP_PORT_8090
+          value: "8090"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      - name: zap-api
+        image: owasp/zap2docker-stable:latest
+        ports:
+        - containerPort: 8090
+        command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8090", "-config", "api.disablekey=true"]
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: owasp-zap
+  namespace: security
+spec:
+  selector:
+    app: owasp-zap
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: web
+  - port: 8090
+    targetPort: 8090
+    name: api
+  type: LoadBalancer

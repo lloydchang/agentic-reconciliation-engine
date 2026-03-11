@@ -1,0 +1,34 @@
+# DevContainer configuration for development environments
+# Example .devcontainer/devcontainer.json for the GitOps repository
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devcontainer-config
+  namespace: default
+data:
+  devcontainer.json: |
+    {
+      "name": "GitOps Infra Control Plane",
+      "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+      "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+        "ghcr.io/devcontainers/features/aws-cli:1": {},
+        "ghcr.io/devcontainers/features/azure-cli:1": {},
+        "ghcr.io/devcontainers/features/google-cloud-cli:1": {}
+      },
+      "customizations": {
+        "vscode": {
+          "extensions": [
+            "ms-kubernetes-tools.vscode-kubernetes-tools",
+            "ms-vscode.vscode-json",
+            "redhat.vscode-yaml",
+            "ms-vscode.vscode-git-graph",
+            "github.copilot"
+          ]
+        }
+      },
+      "postCreateCommand": "flux --version && kubectl version --client && aws --version",
+      "remoteUser": "vscode"
+    }

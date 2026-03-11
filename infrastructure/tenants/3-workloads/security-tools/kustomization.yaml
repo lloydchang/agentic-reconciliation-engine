@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench-security-scan
+  namespace: security
+spec:
+  template:
+    spec:
+      containers:
+      - name: kube-bench
+        image: aquasecurity/kube-bench:latest
+        command: ["kube-bench", "--config-dir", "/opt/kube-bench/cfg", "--config", "cfg/config.yaml"]
+        volumeMounts:
+        - name: var-lib-kubelet
+          mountPath: /var/lib/kubelet
+          readOnly: true
+        - name: etc-systemd
+          mountPath: /etc/systemd
+          readOnly: true
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+          readOnly: true
+      volumes:
+      - name: var-lib-kubelet
+        hostPath:
+          path: "/var/lib/kubelet"
+      - name: etc-systemd
+        hostPath:
+          path: "/etc/systemd"
+      - name: etc-kubernetes
+        hostPath:
+          path: "/etc/kubernetes"
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-hunter-penetration-test
+  namespace: security
+spec:
+  template:
+    spec:
+      containers:
+      - name: kube-hunter
+        image: aquasecurity/kube-hunter:latest
+        command: ["kube-hunter", "--remote", "kubernetes.default.svc.cluster.local"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+      restartPolicy: Never
