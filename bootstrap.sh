@@ -104,7 +104,6 @@ bootstrap_flux() {
         --branch=$BRANCH \
         --path=$FLUX_PATH \
         --components-extra=image-reflector-controller,image-automation-controller \
-        --tolerate-different-origin \
         --silent
 
     print_status "Waiting for Flux controllers to be ready..."

@@ -1,0 +1,70 @@
+# ConfigCat - Open-Source Feature Flag Management
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: config-management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configcat-server
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configcat-server
+  template:
+    metadata:
+      labels:
+        app: configcat-server
+    spec:
+      containers:
+      - name: configcat
+        image: configcat/configcat:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        - name: ConnectionStrings__Default
+          value: "Server=postgres;Database=configcat;User Id=postgres;Password=password;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configcat-server
+  namespace: config-management
+spec:
+  selector:
+    app: configcat-server
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        env:
+        - name: POSTGRES_PASSWORD
+          value: password
+        - name: POSTGRES_DB
+          value: configcat
+        ports:
+        - containerPort: 5432

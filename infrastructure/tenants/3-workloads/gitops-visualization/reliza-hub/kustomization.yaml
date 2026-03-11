@@ -1,0 +1,72 @@
+# Reliza Hub - Release Management and Deployment Visualization
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-visualization
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reliza-hub
+  namespace: gitops-visualization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reliza-hub
+  template:
+    metadata:
+      labels:
+        app: reliza-hub
+    spec:
+      containers:
+      - name: reliza
+        image: reliza/reliza-hub:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: DB_URL
+          value: jdbc:postgresql://postgres:5432/reliza
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reliza-hub
+  namespace: gitops-visualization
+spec:
+  selector:
+    app: reliza-hub
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-reliza
+  namespace: gitops-visualization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-reliza
+  template:
+    metadata:
+      labels:
+        app: postgres-reliza
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        env:
+        - name: POSTGRES_DB
+          value: reliza
+        - name: POSTGRES_USER
+          value: reliza
+        - name: POSTGRES_PASSWORD
+          value: reliza123
+        ports:
+        - containerPort: 5432

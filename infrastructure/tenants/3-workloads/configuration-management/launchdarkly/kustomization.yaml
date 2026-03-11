@@ -1,0 +1,68 @@
+# LaunchDarkly - Enterprise Feature Management Platform
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: config-management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: launchdarkly-relay
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: launchdarkly-relay
+  template:
+    metadata:
+      labels:
+        app: launchdarkly-relay
+    spec:
+      containers:
+      - name: relay
+        image: launchdarkly/ld-relay:latest
+        ports:
+        - containerPort: 8030
+        env:
+        - name: LD_ENV_Production
+          valueFrom:
+            secretKeyRef:
+              name: launchdarkly-secret
+              key: sdk-key
+        - name: REDIS_URL
+          value: redis://redis:6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: launchdarkly-relay
+  namespace: config-management
+spec:
+  selector:
+    app: launchdarkly-relay
+  ports:
+  - port: 8030
+    targetPort: 8030
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: config-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379

@@ -1,0 +1,44 @@
+# Flagsmith - Feature Flags and Remote Configuration
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: config-management
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: flagsmith
+  namespace: config-management
+spec:
+  interval: 10m0s
+  url: https://flagsmith.github.io/flagsmith-charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: flagsmith
+  namespace: config-management
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: flagsmith
+      version: "2.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: flagsmith
+      interval: 10m0s
+  values:
+    postgresql:
+      enabled: true
+      postgresqlPassword: "flagsmith123"
+    redis:
+      enabled: true
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+      - host: flagsmith.local
+        paths:
+        - path: /
+          pathType: Prefix
