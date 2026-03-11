@@ -1,0 +1,50 @@
+# Penetration Testing with Nuclei
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nuclei-penetration-test
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: nuclei
+        image: projectdiscovery/nuclei:latest
+        command: ["nuclei", "-u", "http://nginx-sample.default.svc.cluster.local", "-t", "/templates", "-o", "/output/results.txt"]
+        volumeMounts:
+        - name: templates
+          mountPath: /templates
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: templates
+        configMap:
+          name: nuclei-templates
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nuclei-templates
+  namespace: testing
+data:
+  nginx-test.yaml: |
+    id: nginx-security-check
+
+    info:
+      name: Nginx Security Check
+      author: test
+      severity: info
+
+    http:
+      - method: GET
+        path:
+          - "{{BaseURL}}"
+
+        matchers:
+          - type: word
+            words:
+              - "nginx"
+            part: body

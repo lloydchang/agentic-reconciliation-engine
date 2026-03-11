@@ -1,0 +1,110 @@
+# Load Testing with k6
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-load-test
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: k6
+        image: grafana/k6:latest
+        command: ["k6", "run", "/scripts/load-test.js"]
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: scripts
+        configMap:
+          name: k6-scripts
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k6-scripts
+  namespace: testing
+data:
+  load-test.js: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export let options = {
+      stages: [
+        { duration: '2m', target: 100 }, // Ramp up to 100 users
+        { duration: '5m', target: 100 }, // Stay at 100 users
+        { duration: '2m', target: 200 }, // Ramp up to 200 users
+        { duration: '5m', target: 200 }, // Stay at 200 users
+        { duration: '2m', target: 0 },    // Ramp down to 0 users
+      ],
+    };
+
+    export default function () {
+      let response = http.get('http://nginx-sample.default.svc.cluster.local');
+      check(response, { 'status is 200': (r) => r.status === 200 });
+      sleep(1);
+    }
+
+## JMeter Load Testing
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jmeter-load-test
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: jmeter
+        image: justb4/jmeter:latest
+        command: ["jmeter", "-n", "-t", "/test-plans/load-test.jmx", "-l", "/output/results.jtl"]
+        volumeMounts:
+        - name: test-plans
+          mountPath: /test-plans
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: test-plans
+        configMap:
+          name: jmeter-plans
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jmeter-plans
+  namespace: testing
+data:
+  load-test.jmx: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
+      <hashTree>
+        <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Load Test" enabled="true">
+          <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true"/>
+        </TestPlan>
+        <hashTree>
+          <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+            <intProp name="ThreadGroup.num_threads">100</intProp>
+            <intProp name="ThreadGroup.ramp_time">60</intProp>
+            <longProp name="ThreadGroup.duration">300</longProp>
+            <longProp name="ThreadGroup.delay">0</longProp>
+          </ThreadGroup>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">nginx-sample.default.svc.cluster.local</stringProp>
+              <stringProp name="HTTPSampler.port">80</stringProp>
+              <stringProp name="HTTPSampler.path">/</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+            </HTTPSamplerProxy>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+    </jmeterTestPlan>

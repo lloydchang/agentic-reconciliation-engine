@@ -1,0 +1,77 @@
+# End-to-End Testing with Playwright
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: playwright-e2e-test
+  namespace: testing
+spec:
+  template:
+    spec:
+      containers:
+      - name: playwright
+        image: mcr.microsoft.com/playwright:v1.40.0-jammy
+        command: ["npx", "playwright", "test", "/tests", "--headed=false", "--reporter=json"]
+        volumeMounts:
+        - name: tests
+          mountPath: /tests
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: tests
+        configMap:
+          name: playwright-tests
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: playwright-tests
+  namespace: testing
+data:
+  e2e-test.spec.ts: |
+    import { test, expect } from '@playwright/test';
+
+    test('nginx service is accessible', async ({ page }) => {
+      // Since we're in Kubernetes, we'll test via HTTP requests
+      const response = await page.request.get('http://nginx-sample.default.svc.cluster.local');
+      expect(response.status()).toBe(200);
+      expect(await response.text()).toContain('nginx');
+    });
+
+## Selenium Grid for Browser Testing
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: selenium
+  namespace: testing
+spec:
+  interval: 10m0s
+  url: https://www.selenium.dev/docker-selenium
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: selenium-grid
+  namespace: testing
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: selenium-grid
+      version: "0.20.0"
+      sourceRef:
+        kind: HelmRepository
+        name: selenium
+      interval: 10m0s
+  values:
+    chrome:
+      enabled: true
+      replicas: 1
+    firefox:
+      enabled: true
+      replicas: 1
+    hub:
+      replicas: 1
