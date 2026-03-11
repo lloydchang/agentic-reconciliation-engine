@@ -1,0 +1,97 @@
+# WAF Emulator using ModSecurity + Nginx
+# Simulates Web Application Firewall functionality
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: waf-emulator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: waf-nginx
+  namespace: waf-emulator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: waf-nginx
+  template:
+    metadata:
+      labels:
+        app: waf-nginx
+    spec:
+      containers:
+      - name: nginx-modsecurity
+        image: owasp/modsecurity-crs:nginx-alpine
+        ports:
+        - containerPort: 80
+        env:
+        - name: PARANOIA
+          value: "1"
+        - name: ANOMALY_INBOUND
+          value: "5"
+        - name: ANOMALY_OUTBOUND
+          value: "4"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: modsecurity-config
+          mountPath: /etc/modsecurity.d/modsecurity.conf
+          subPath: modsecurity.conf
+        - name: crs-config
+          mountPath: /etc/modsecurity.d/owasp-crs/
+      volumes:
+      - name: config
+        configMap:
+          name: waf-config
+      - name: modsecurity-config
+        configMap:
+          name: modsecurity-config
+      - name: crs-config
+        configMap:
+          name: crs-rules
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: waf-config
+  namespace: waf-emulator
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      modsecurity on;
+      modsecurity_rules_file /etc/modsecurity.d/modsecurity.conf;
+      server {
+        listen 80;
+        location / {
+          modsecurity_rules_file /etc/modsecurity.d/owasp-crs/crs-setup.conf;
+          modsecurity_rules_file /etc/modsecurity.d/owasp-crs/rules/*.conf;
+          proxy_pass http://backend;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+      upstream backend {
+        server nginx-sample.default.svc.cluster.local:80;
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: waf-emulator
+  namespace: waf-emulator
+spec:
+  selector:
+    app: waf-nginx
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer

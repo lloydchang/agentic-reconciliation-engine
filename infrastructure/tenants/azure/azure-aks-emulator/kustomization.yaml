@@ -1,0 +1,65 @@
+# AKS Emulator using LocalStack
+# Simulates Azure Kubernetes Service locally
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aks-emulator
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: localstack
+  namespace: aks-emulator
+spec:
+  interval: 10m0s
+  url: https://helm.localstack.cloud
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: localstack-aks
+  namespace: aks-emulator
+spec:
+  interval: 10m0s
+  chart:
+    spec:
+      chart: localstack
+      version: "0.7.0"
+      sourceRef:
+        kind: HelmRepository
+        name: localstack
+      interval: 10m0s
+  values:
+    service:
+      type: LoadBalancer
+      ports:
+        aks: 4566
+    persistence:
+      enabled: true
+      size: 10Gi
+    localstack:
+      SERVICES: aks,resource-manager,authorization,keyvault
+      DEBUG: "1"
+---
+# Simulated AKS Cluster CRD
+apiVersion: containerservice.azure.com/v1api20230201
+kind: ManagedCluster
+metadata:
+  name: local-aks-cluster
+  namespace: aks-emulator
+spec:
+  location: eastus
+  kubernetesVersion: "1.28.0"
+  dnsPrefix: local-aks
+  agentPoolProfiles:
+  - name: agentpool
+    count: 3
+    vmSize: Standard_DS2_v2
+    osType: Linux
+    mode: System
+  networkProfile:
+    networkPlugin: azure
+    serviceCidr: "10.0.0.0/16"
+    dnsServiceIP: "10.0.0.10"
+    dockerBridgeCidr: "172.17.0.1/16"

@@ -1,0 +1,95 @@
+# CDN Emulator using Nginx
+# Simulates Content Delivery Network functionality
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cdn-emulator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdn-nginx
+  namespace: cdn-emulator
+spec:
+  replicas: 3  # Multiple replicas for "edge" simulation
+  selector:
+    matchLabels:
+      app: cdn-nginx
+  template:
+    metadata:
+      labels:
+        app: cdn-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: content
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: config
+        configMap:
+          name: cdn-config
+      - name: cache
+        emptyDir: {}
+      - name: content
+        configMap:
+          name: cdn-content
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cdn-config
+  namespace: cdn-emulator
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m max_size=10g inactive=60m use_temp_path=off;
+      server {
+        listen 80;
+        location / {
+          proxy_pass http://backend;
+          proxy_cache my_cache;
+          proxy_cache_valid 200 302 10m;
+          proxy_cache_valid 404 1m;
+          add_header X-Cache-Status $upstream_cache_status;
+        }
+      }
+      upstream backend {
+        server nginx-sample.default.svc.cluster.local:80;
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cdn-content
+  namespace: cdn-emulator
+data:
+  index.html: |
+    <h1>CDN Emulator - Content Delivery Network Simulation</h1>
+    <p>This simulates CDN functionality with caching and edge distribution.</p>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cdn-emulator
+  namespace: cdn-emulator
+spec:
+  selector:
+    app: cdn-nginx
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer
