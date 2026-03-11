@@ -1,0 +1,49 @@
+# Security Infrastructure Kustomization
+# This includes all security-related resources
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: security-infrastructure
+  namespace: monitoring
+
+resources:
+  # Network Policies
+  - network-policies.yaml
+  
+  # RBAC Configuration
+  - rbac-secret-management.yaml
+
+# Common labels for all security resources
+commonLabels:
+  app.kubernetes.io/component: security
+  app.kubernetes.io/managed-by: kustomize
+  security.policy: enabled
+
+# Common annotations
+commonAnnotations:
+  config.kubernetes.io/origin: gitops-infra-control-plane
+  security.audit: required
+
+# Namespace configuration
+namespace: monitoring
+
+# Patches for specific configurations
+patches:
+  # Ensure monitoring namespace exists
+  - target:
+      kind: Namespace
+      name: monitoring
+    patch: |-
+      - op: add
+        path: /metadata/labels/security.policy
+        value: "enabled"
+      - op: add
+        path: /metadata/annotations/security.audit
+        value: "required"
+
+# Resources to be created before applying security policies
+resources:
+- ../../monitoring/grafana-secret.yaml
+- ../../monitoring/kustomization.yaml
