@@ -158,6 +158,11 @@ deploy_emulators() {
     kubectl apply -f infrastructure/tenants/azure/localstack/servicebus-emulator.yaml
     kubectl apply -f infrastructure/tenants/azure/localstack/eventhubs-emulator.yaml
 
+    # Advanced Emulators
+    kubectl apply -f infrastructure/tenants/local-testing/cluster-api-setup.yaml
+    kubectl apply -f infrastructure/tenants/local-testing/kubernetes-api-emulator.yaml
+    kubectl apply -f infrastructure/tenants/local-testing/recursive-deployment-simulation.yaml
+
     print_status "✅ Cloud emulators deployed"
 }
 

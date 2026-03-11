@@ -1,0 +1,116 @@
+# Kubernetes API Server Emulator (kube-apiserver)
+# Simulates cloud provider managed Kubernetes API for EKS/AKS/GKE
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-apiserver-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-apiserver-emulator
+  template:
+    metadata:
+      labels:
+        app: kube-apiserver-emulator
+    spec:
+      containers:
+      - name: kube-apiserver
+        image: registry.k8s.io/kube-apiserver:v1.27.0
+        command:
+        - kube-apiserver
+        - --advertise-address=0.0.0.0
+        - --allow-privileged=true
+        - --authorization-mode=Node,RBAC
+        - --client-ca-file=/certs/ca.crt
+        - --enable-admission-plugins=NodeRestriction
+        - --enable-bootstrap-token-auth=true
+        - --etcd-servers=http://etcd-emulator:2379
+        - --kubelet-client-certificate=/certs/kubelet.crt
+        - --kubelet-client-key=/certs/kubelet.key
+        - --secure-port=6443
+        - --service-account-issuer=https://kubernetes.default.svc.cluster.local
+        - --service-account-key-file=/certs/sa.key
+        - --service-account-signing-key-file=/certs/sa.key
+        - --service-cluster-ip-range=10.0.0.0/24
+        - --tls-cert-file=/certs/tls.crt
+        - --tls-private-key-file=/certs/tls.key
+        ports:
+        - containerPort: 6443
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          secretName: kube-apiserver-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-apiserver-emulator
+  namespace: default
+spec:
+  selector:
+    app: kube-apiserver-emulator
+  ports:
+  - port: 6443
+    targetPort: 6443
+  type: ClusterIP
+
+# Etcd Emulator (Backing store for Kubernetes)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd-emulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd-emulator
+  template:
+    metadata:
+      labels:
+        app: etcd-emulator
+    spec:
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:v3.5.5
+        command:
+        - etcd
+        - --advertise-client-urls=http://0.0.0.0:2379
+        - --listen-client-urls=http://0.0.0.0:2379
+        - --data-dir=/etcd-data
+        ports:
+        - containerPort: 2379
+        volumeMounts:
+        - name: etcd-data
+          mountPath: /etcd-data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+      volumes:
+      - name: etcd-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-emulator
+  namespace: default
+spec:
+  selector:
+    app: etcd-emulator
+  ports:
+  - port: 2379
+    targetPort: 2379
+  type: ClusterIP
