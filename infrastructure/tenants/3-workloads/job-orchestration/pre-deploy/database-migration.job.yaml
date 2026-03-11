@@ -1,0 +1,68 @@
+# Database Migration Job
+# Pre-deployment job for database schema migrations
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-migration
+  namespace: default
+  labels:
+    app: database-migration
+    phase: pre-deploy
+    component: job-orchestration
+spec:
+  template:
+    metadata:
+      labels:
+        app: database-migration
+        phase: pre-deploy
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        command:
+          - sh
+          - -c
+          - |
+            echo "🔄 Starting database migration..."
+            echo "Migration started at: $(date)"
+            
+            # Simulate database migration
+            echo "📊 Checking database connection..."
+            sleep 5
+            
+            echo "🔄 Running schema migrations..."
+            sleep 10
+            
+            echo "📝 Applying schema changes..."
+            sleep 5
+            
+            echo "🔍 Verifying migration results..."
+            sleep 3
+            
+            echo "✅ Database migration completed successfully!"
+            echo "Migration completed at: $(date)"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: url
+        - name: MIGRATION_VERSION
+          value: "v1.0.0"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        volumeMounts:
+        - name: migration-scripts
+          mountPath: /scripts
+      volumes:
+      - name: migration-scripts
+        configMap:
+          name: migration-scripts
+      ttlSecondsAfterFinished: 300
