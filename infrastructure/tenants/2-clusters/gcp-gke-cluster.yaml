@@ -11,50 +11,6 @@ spec:
 apiVersion: container.cnrm.cloud.google.com/v1beta1
 kind: ContainerCluster
 metadata:
-  name: gke-cluster-placeholder
-  namespace: flux-system
-spec:
-  location: us-central1
-  initialNodeCount: 1
-  removeDefaultNodePool: true
-  ipAllocationPolicy:
-    useIpAliases: true
-    clusterSecondaryRangeName: pods
-    servicesSecondaryRangeName: services
-  networkRef:
-    name: gitops-network
-  subnetworkRef:
-    name: gitops-subnet-1
----
-apiVersion: iam.cnrm.cloud.google.com/v1beta1
-kind: IAMPolicyMember
-metadata:
-  name: gke-node-sa-logging
-  namespace: flux-system
-spec:
-  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
-  role: roles/logging.logWriter
-  resourceRef:
-    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
-    kind: Project
-    name: PROJECT_ID
----
-apiVersion: iam.cnrm.cloud.google.com/v1beta1
-kind: IAMPolicyMember
-metadata:
-  name: gke-node-sa-monitoring
-  namespace: flux-system
-spec:
-  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
-  role: roles/monitoring.metricWriter
-  resourceRef:
-    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
-    kind: Project
-    name: PROJECT_ID
----
-apiVersion: container.cnrm.cloud.google.com/v1beta1
-kind: ContainerCluster
-metadata:
   name: gitops-gke-cluster
   namespace: flux-system
 spec:
@@ -118,3 +74,29 @@ spec:
   management:
     autoRepair: true
     autoUpgrade: true
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: gke-node-sa-logging
+  namespace: flux-system
+spec:
+  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
+  role: roles/logging.logWriter
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    name: PROJECT_ID
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: gke-node-sa-monitoring
+  namespace: flux-system
+spec:
+  member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
+  role: roles/monitoring.metricWriter
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    name: PROJECT_ID
