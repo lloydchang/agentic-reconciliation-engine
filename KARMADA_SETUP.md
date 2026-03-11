@@ -359,4 +359,50 @@ kubectl get helmrelease gitops-infrastructure -n gitops-multi-cluster -o yaml --
 4. **Monitoring**: Set up comprehensive multi-cluster monitoring
 5. **Security**: Implement RBAC and network policies
 
+---
+
+## 🔄 Integration with Control Plane
+
+### **Kustomization Structure**
+The Karmada configuration is now fully integrated into the GitOps infrastructure control plane:
+
+```yaml
+# Root level kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - control-plane/
+labels:
+  - pairs:
+      managed-by: flux
+      component: gitops-infra-control-plane
+      platform: multi-cluster-gitops
+
+# control-plane/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux/gotk-components.yaml
+  - flux/gotk-sync.yaml
+  - flux/image-update-automation.yaml
+  - flux/image-policy.yaml
+  - controllers/
+  - karmada/          # ← Karmada multi-cluster setup
+  - monitoring/
+```
+
+### **Deployment Commands**
+```bash
+# Deploy entire control plane including Karmada
+kubectl apply -k .
+
+# Deploy only Karmada components
+kubectl apply -k control-plane/karmada/
+
+# Verify Karmada integration
+kubectl get propagationpolicies -A
+kubectl get overridepolicies -A
+kubectl get work -A
+```
+
 The Karmada + Flux integration provides enterprise-grade multi-cluster GitOps capabilities with centralized management and cluster-specific customization! 🚀
