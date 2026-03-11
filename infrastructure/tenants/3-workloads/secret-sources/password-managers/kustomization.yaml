@@ -1,0 +1,112 @@
+# Password Manager CLI Examples for Secret Creation
+# These can be used in CI/CD pipelines to retrieve secrets for SealedSecrets creation
+
+## 1Password CLI Integration
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seal-secrets-from-1password
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: sealer
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Install 1Password CLI
+          curl -sS https://downloads.1password.com/linux/tar/b5x/1password-cli.tar.gz | tar -xz && sudo mv 1password /usr/local/bin/
+
+          # Sign in to 1Password (use service account token)
+          export OP_SERVICE_ACCOUNT_TOKEN="$OP_TOKEN"
+          op account add --address my.1password.com --email myemail@company.com --signin
+
+          # Retrieve secrets
+          DB_PASSWORD=$(op item get "database-password" --fields password)
+          DB_USER=$(op item get "database-user" --fields username)
+
+          # Create and seal secret
+          kubectl create secret generic temp-secret \
+            --from-literal=password="$DB_PASSWORD" \
+            --from-literal=username="$DB_USER" \
+            --dry-run=client -o yaml | \
+          kubeseal --cert=/certs/pub-cert.pem --format=yaml > /output/sealed-secret.yaml
+
+          # Clean up
+          unset DB_PASSWORD DB_USER
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        - name: output
+          mountPath: /output
+        env:
+        - name: OP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: onepassword-token
+              key: token
+      volumes:
+      - name: certs
+        secret:
+          secretName: sealed-secrets-cert
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+
+## Bitwarden CLI Integration
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seal-secrets-from-bitwarden
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: sealer
+        image: bitwarden/cli:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Login to Bitwarden
+          bw login --apikey
+
+          # Unlock vault
+          export BW_SESSION=$(bw unlock --passwordenv BW_PASSWORD --raw)
+
+          # Get secrets
+          DB_PASSWORD=$(bw get password "database-password")
+          DB_USER=$(bw get username "database-user")
+
+          # Create and seal secret
+          kubectl create secret generic temp-secret \
+            --from-literal=password="$DB_PASSWORD" \
+            --from-literal=username="$DB_USER" \
+            --dry-run=client -o yaml | \
+          kubeseal --cert=/certs/pub-cert.pem --format=yaml > /output/sealed-secret.yaml
+
+          # Clean up
+          unset DB_PASSWORD DB_USER BW_SESSION
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        - name: output
+          mountPath: /output
+        env:
+        - name: BW_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bitwarden-credentials
+              key: password
+      volumes:
+      - name: certs
+        secret:
+          secretName: sealed-secrets-cert
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
