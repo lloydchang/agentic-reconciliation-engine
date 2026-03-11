@@ -41,8 +41,8 @@ print_error() {
 # AWS Drift Test
 test_aws_drift() {
     echo ""
-    echo "🟦 AWS Drift Test"
-    echo "================"
+    echo "� AWS Drift Test"
+    echo "================="
 
     # Step 1: Verify initial infrastructure exists
     print_status "Verifying initial AWS infrastructure..."
@@ -105,7 +105,7 @@ test_aws_drift() {
 # Azure Drift Test
 test_azure_drift() {
     echo ""
-    echo "🟩 Azure Drift Test"
+    echo "� Azure Drift Test"
     echo "==================="
 
     # Step 1: Verify initial infrastructure exists
@@ -168,8 +168,8 @@ test_azure_drift() {
 # GCP Drift Test
 test_gcp_drift() {
     echo ""
-    echo "🟨 GCP Drift Test"
-    echo "================="
+    echo "☁️ GCP Drift Test"
+    echo "=================="
 
     # Step 1: Verify initial infrastructure exists
     print_status "Verifying initial GCP infrastructure..."
