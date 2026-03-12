@@ -5,8 +5,9 @@ metadata:
   namespace: flux-system
 resources:
   # Core workloads that can be swapped based on ecosystem needs
-  - cert-manager/
-  - monitoring/
+  - sealed-secrets.yaml
+  - monitoring.yaml
+  - karpenter/
   - networking/
   - security/
   # Ecosystem-specific workloads (comment/uncomment based on needs)

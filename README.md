@@ -66,14 +66,15 @@ flux get kustomizations
 
 > **Important**: This repository solves specific infrastructure problems. Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md) before implementation.
 
-## Key Features
+## Key Capabilities
 
-- **Continuous Reconciliation**: 24/7 drift detection and auto-repair
-- **Multi-Cloud Support**: AWS, Azure, GCP with native controllers
-- **DAG Dependencies**: Explicit dependency management with Flux
-- **Agent Orchestration**: Optional AI-enhanced consensus agents
-- **Multi-Language Support**: Go, Python, Rust, TypeScript, C#, Java
-- **Security-First**: Zero-trust networking and comprehensive auditing
+- **Fast Feedback Loops**: Regular optimization cycles
+- **Consensus-Based Coordination**: Raft protocol for distributed decision-making
+- **Multi-Language Support**: Go, Python, Bash, C#/.NET, TypeScript/Node.js, Java/JVM, Rust
+- **Self-Organizing Agents**: Coordination through local agent interactions
+- **Temporal Workflows**: Fault-tolerant workflow execution
+- **Multi-Cloud Coordination**: Cross-cloud resource management
+- **Just-in-Time Scaling**: Karpenter integration for dynamic node provisioning
 
 ## Documentation
 
