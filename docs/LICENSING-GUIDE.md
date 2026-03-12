@@ -118,6 +118,23 @@ CRE (AGPL) ←→ Plugin Interface ←→ Your Code (Proprietary)
 - [ ] Legal review completed
 - [ ] License headers on proprietary code
 
+## AI and LLM Considerations
+
+### Determining Derivative Works from LLM-Generated Alternatives
+Determining whether an LLM-generated alternative constitutes a "derivative work" under AGPL-3.0 is complex and depends on copyright law specifics, which vary by jurisdiction. This guidance is general—consult legal counsel for definitive advice.
+
+#### Key Factors for Assessment
+- **Core Logic Replication/Extension**: If the LLM output directly copies, modifies, or extends AGPL-3.0 protected elements (e.g., Flux reconciliation logic, dependency chaining, or core manifests), it's likely a derivative work requiring AGPL licensing. This applies even if the LLM "implements alternatives"—if the alternative embeds or closely mirrors the AGPL core, it's derivative.
+- **Apache 2.0 Examples**: Outputs inspired by Apache-licensed documentation snippets (e.g., code blocks showing integration patterns) are not derivatives and can be used commercially without restrictions.
+- **Network/API Usage**: Alternatives that communicate with the AGPL core via APIs/network (e.g., REST calls to Flux, webhooks) are safe and not derivative, per AGPL Section 13. This includes LLM-generated code for proprietary UIs or services interacting with the CRE.
+- **LLM Training Data**: LLM outputs are generally not considered derivatives of training data under current copyright precedents. However, if the LLM is fine-tuned on AGPL code or produces near-identical reproductions, it could cross into derivative territory.
+
+#### Practical Guidelines
+- **Validate Similarity**: Compare the LLM output to the AGPL core using code diffing or plagiarism tools. If >50% of the logic/structure matches AGPL elements, treat as derivative.
+- **Isolate Components**: Ensure LLM-generated code runs separately (no imports/linking to AGPL code). Deploy in different namespaces/containers.
+- **Documentation and Attribution**: Log LLM usage and include licensing headers. If in doubt, default to AGPL for safety.
+- **Risk Mitigation**: Implement human review workflows for LLM outputs, especially in production. Reference `docs/AI-INTEGRATION-ANALYSIS.md` for safe patterns.
+
 ## Additional Resources
 
 - [AGPL-3.0 Full Text](https://www.gnu.org/licenses/agpl-3.0.en.html)
