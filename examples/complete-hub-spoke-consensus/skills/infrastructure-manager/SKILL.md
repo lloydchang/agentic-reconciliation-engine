@@ -17,23 +17,23 @@ agent: Plan
 # Consensus-Based Infrastructure Manager Skill
 
 ## Quick Start
-This skill provides infrastructure management capabilities with distributed consensus decision making and the tightest possible feedback loops. Use it for:
+This skill provides infrastructure management capabilities with distributed consensus decision making and fast feedback loops. Use it for:
 
 - **Deploying applications and infrastructure** with consensus validation (30s response)
 - **Detecting and fixing infrastructure drift** through agent coordination (5m consensus)
 - **Security compliance validation** with distributed voting (weighted decisions)
-- **Cost optimization** through swarm intelligence (emergent behavior)
+- **Cost optimization** through swarm intelligence (coordinated behavior)
 - **Multi-cloud resource management** with consensus coordination
 
 ## Core Capabilities
 
-### 1. Tight Feedback Loop Implementation
+### 1. Fast Feedback Loop Implementation
 
 #### Micro-Loop (30 seconds): Local Optimization
 ```bash
 #!/bin/bash
 # Local optimization with 30-second feedback loop
-run_tight_feedback_loop() {
+run_fast_feedback_loop() {
     while true; do
         # 1. Observe local state (no network calls)
         current_state=$(observe_local_metrics)

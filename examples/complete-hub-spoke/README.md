@@ -58,30 +58,30 @@ The example implements four deployment modes with consensus-based orchestration:
 [Local Optimization] ◄─────► [Distributed State] ◄─────► [Global Coordination]
        │                        │                        │
        ▼                        ▼                        ▼
-[30-Second Loops] ◄─────► [Raft Consensus] ◄─────► [Emergent Intelligence]
+[30-Second Loops] ◄─────► [Raft Consensus] ◄─────► [Coordinated Behavior]
 ```
 
 ### 2. Direct Consensus Mode
 - **Direct Agent Coordination**: No gateway overhead, pure consensus protocols
-- **Ultra-Fast Performance**: 15-second feedback loops possible
+- **Fast Performance**: 15-second feedback loops possible
 - **Good for development/small teams**
 
 ### 3. Local LLM Consensus Mode  
 - **Local Consensus**: Uses local LLM service for agent decision-making
-- **Maximum Privacy**: No external dependencies for consensus
+- **High Privacy**: No external dependencies for consensus
 - **Cost Control**: Predictable resource usage
 
 ### 4. Hybrid Consensus Mode
 - **Mixed Coordination**: Critical decisions via distributed consensus
 - **Local Autonomy**: Non-critical decisions made locally
-- **Optimal Performance**: Balance of speed and coordination
+- **Good Performance**: Balance of speed and coordination
 
 ## Components
 
 ### Agent Workflows (`agent-workflows/`)
 - **Purpose**: Consensus-based agent orchestration and coordination
-- **Capabilities**: Raft consensus, self-organizing swarms, tight feedback loops
-- **Innovation**: Bottom-up orchestration with distributed decision-making
+- **Capabilities**: Raft consensus, self-organizing swarms, feedback loops
+- **Approach**: Bottom-up orchestration with distributed decision-making
 - **When to use**: All production deployments requiring autonomy
 
 ### AI Gateway (`ai-gateway/`)
