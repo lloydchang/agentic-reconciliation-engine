@@ -1,0 +1,78 @@
+---
+# Git Mirroring Controller
+# Runs bidirectional synchronization as a Kubernetes Job
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: git-mirroring-controller
+  namespace: flux-system
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: git-sync
+            image: alpine/git:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              #!/bin/sh
+              
+              set -e
+              
+              PRIMARY_REPO="https://github.com/antigravity/gitops-infra-control-plane.git"
+              SECONDARY_REPO="https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+              TERTIARY_REPO="https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+              MIRROR_DIR="/tmp/git-mirror"
+              
+              # Setup credentials from secrets
+              if [ -f "/etc/git-credentials/github" ]; then
+                export GIT_ASKPASS="/bin/echo"
+                echo "Setting up GitHub credentials..."
+              fi
+              
+              # Create mirror directory
+              mkdir -p "$MIRROR_DIR"
+              cd "$MIRROR_DIR"
+              
+              # Initialize or update mirror
+              if [ ! -d "gitops-infra-control-plane.git" ]; then
+                echo "📥 Cloning primary repository..."
+                git clone --mirror "$PRIMARY_REPO"
+              fi
+              
+              cd gitops-infra-control-plane.git
+              
+              # Add remotes if they don't exist
+              git remote add secondary "$SECONDARY_REPO" 2>/dev/null || true
+              git remote add tertiary "$TERTIARY_REPO" 2>/dev/null || true
+              
+              # Fetch from all remotes
+              echo "📥 Fetching from all remotes..."
+              git fetch --all || echo "⚠️ Some fetch operations failed"
+              
+              # Push to all remotes
+              echo "📤 Pushing to all remotes..."
+              git push --mirror origin || echo "⚠️ Failed to push to primary"
+              git push --mirror secondary || echo "⚠️ Failed to push to secondary"
+              git push --mirror tertiary || echo "⚠️ Failed to push to tertiary"
+              
+              echo "✅ Synchronization completed at $(date)"
+            volumeMounts:
+            - name: git-credentials
+              mountPath: /etc/git-credentials
+              readOnly: true
+            - name: mirror-storage
+              mountPath: /tmp/git-mirror
+          volumes:
+          - name: git-credentials
+            secret:
+              secretName: git-repository-credentials
+          - name: mirror-storage
+            emptyDir: {}
+          restartPolicy: OnFailure
+          serviceAccountName: flux-reconciler

@@ -1,0 +1,70 @@
+---
+# Offline Mode Controller
+# Enables Flux to operate from cached Git repository when remote repositories are unavailable
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: offline-mode-controller
+  namespace: flux-system
+spec:
+  schedule: "*/1 * * * *"  # Every minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: offline-controller
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              
+              set -e
+              
+              # Check if all Git repositories are unhealthy
+              PRIMARY_STATUS=$(kubectl get gitrepository gitops-infra-primary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              SECONDARY_STATUS=$(kubectl get gitrepository gitops-infra-secondary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              TERTIARY_STATUS=$(kubectl get gitrepository gitops-infra-tertiary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              
+              echo "Repository Status - Primary: $PRIMARY_STATUS, Secondary: $SECONDARY_STATUS, Tertiary: $TERTIARY_STATUS"
+              
+              # Check if all repositories are failed
+              if [[ "$PRIMARY_STATUS" != "True" && "$SECONDARY_STATUS" != "True" && "$TERTIARY_STATUS" != "True" ]]; then
+                echo "🚨 All Git repositories failed - enabling offline mode"
+                
+                # Enable offline mode by switching to local Git repository
+                kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
+                
+                # Annotate kustomizations for offline mode
+                kubectl annotate kustomization --all fluxcd.io/offline-mode=true -n flux-system --overwrite
+                
+                echo "✅ Offline mode enabled"
+              else
+                # Check if we're in offline mode and repositories are healthy
+                CURRENT_URL=$(kubectl get gitrepository gitops-infra-primary -n flux-system -o jsonpath='{.spec.url}' 2>/dev/null || echo "")
+                
+                if [[ "$CURRENT_URL" == *"git-cache-service"* && "$PRIMARY_STATUS" == "True" ]]; then
+                  echo "🔄 Repositories healthy - disabling offline mode"
+                  
+                  # Restore original Git repository URL
+                  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"https://github.com/antigravity/gitops-infra-control-plane.git"}}' --type=merge
+                  
+                  # Remove offline mode annotations
+                  kubectl annotate kustomization --all fluxcd.io/offline-mode- -n flux-system --overwrite
+                  
+                  echo "✅ Offline mode disabled"
+                fi
+              fi
+              
+              # Update cache health status
+              CACHE_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://git-cache-service.flux-system.svc.cluster.local:8080/ || echo "000")
+              if [[ "$CACHE_HEALTH" == "200" ]]; then
+                kubectl label service git-cache-service cache.fluxcd.io/healthy=true --overwrite -n flux-system
+              else
+                kubectl label service git-cache-service cache.fluxcd.io/healthy=false --overwrite -n flux-system
+              fi
+          restartPolicy: OnFailure
+          serviceAccountName: flux-reconciler

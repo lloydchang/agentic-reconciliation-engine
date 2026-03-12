@@ -1,0 +1,239 @@
+---
+# Git Repository Health Monitoring and Alerting
+# Comprehensive monitoring for Git repository availability and performance
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: git-health-monitoring
+  namespace: flux-system
+data:
+  health-monitor.sh: |
+    #!/bin/bash
+    
+    # Git Repository Health Monitoring Script
+    
+    set -euo pipefail
+    
+    NAMESPACE="flux-system"
+    LOG_FILE="/var/log/git-health-monitor.log"
+    ALERT_THRESHOLD=3
+    
+    # Repository configurations
+    declare -A REPOSITORIES=(
+      ["gitops-infra-primary"]="https://github.com/antigravity/gitops-infra-control-plane.git"
+      ["gitops-infra-secondary"]="https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+      ["gitops-infra-tertiary"]="https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+    )
+    
+    log() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+    }
+    
+    check_repository_health() {
+      local repo_name=$1
+      local repo_url=$2
+      
+      log "Checking health of $repo_name..."
+      
+      # Test repository connectivity
+      local start_time=$(date +%s.%N)
+      local health_status="unhealthy"
+      local response_time=0
+      local error_message=""
+      
+      if timeout 30 git ls-remote "$repo_url" &>/dev/null; then
+        local end_time=$(date +%s.%N)
+        response_time=$(echo "$end_time - $start_time" | bc -l 2>/dev/null || echo "0")
+        health_status="healthy"
+        log "✅ $repo_name is healthy (${response_time}s)"
+        
+        # Update health status
+        kubectl label gitrepository "$repo_name" gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/last-healthy="$(date -Iseconds)" --overwrite -n "$NAMESPACE"
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/response-time="$response_time" --overwrite -n "$NAMESPACE"
+        
+        # Reset failure count
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
+        
+        return 0
+      else
+        response_time=30
+        error_message="Connection timeout or failed"
+        log "❌ $repo_name is unhealthy: $error_message"
+        
+        # Update health status
+        kubectl label gitrepository "$repo_name" gitrepo.fluxcd.io/healthy=false --overwrite -n "$NAMESPACE"
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/last-unhealthy="$(date -Iseconds)" --overwrite -n "$NAMESPACE"
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/error-message="$error_message" --overwrite -n "$NAMESPACE"
+        
+        # Increment failure count
+        local current_count=$(kubectl get gitrepository "$repo_name" -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.gitrepo\.fluxcd\.io/failure-count}' 2>/dev/null || echo "0")
+        local new_count=$((current_count + 1))
+        kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/failure-count="$new_count" --overwrite -n "$NAMESPACE"
+        
+        # Trigger alert if threshold exceeded
+        if [[ "$new_count" -ge "$ALERT_THRESHOLD" ]]; then
+          log "🚨 ALERT: $repo_name has failed $new_count consecutive checks"
+          kubectl annotate gitrepository "$repo_name" gitrepo.fluxcd.io/alert-triggered="true" --overwrite -n "$NAMESPACE"
+          send_alert "$repo_name" "$new_count" "$error_message"
+        fi
+        
+        return 1
+      fi
+    }
+    
+    send_alert() {
+      local repo_name=$1
+      local failure_count=$2
+      local error_message=$3
+      
+      log "📢 Sending alert for $repo_name failure"
+      
+      # Create alert event
+      kubectl create event --namespace="$NAMESPACE" \
+        --type="Warning" \
+        --reason="GitRepositoryUnhealthy" \
+        --message="Git repository $repo_name has failed $failure_count consecutive health checks: $error_message" \
+        --source-component="git-health-monitor" \
+        --involved-object-kind="GitRepository" \
+        --involved-object-name="$repo_name" \
+        --dry-run=client -o yaml | kubectl apply -f -
+      
+      # Update alert status
+      kubectl label gitrepository "$repo_name" gitrepo.fluxcd.io/alert-severity="critical" --overwrite -n "$NAMESPACE"
+    }
+    
+    check_git_cache_health() {
+      log "Checking Git cache health..."
+      
+      local cache_url="http://git-cache-service.flux-system.svc.cluster.local:8080"
+      
+      if curl -s --max-time 10 "$cache_url" >/dev/null 2>&1; then
+        log "✅ Git cache is healthy"
+        kubectl label service git-cache-service cache.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
+        return 0
+      else
+        log "❌ Git cache is unhealthy"
+        kubectl label service git-cache-service cache.fluxcd.io/healthy=false --overwrite -n "$NAMESPACE"
+        return 1
+      fi
+    }
+    
+    check_flux_health() {
+      log "Checking Flux controller health..."
+      
+      local controllers=("source-controller" "kustomize-controller" "helm-controller" "notification-controller")
+      
+      for controller in "${controllers[@]}"; do
+        local pod_status=$(kubectl get pods -n "$NAMESPACE" -l app="$controller" -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "NotFound")
+        
+        if [[ "$pod_status" == "Running" ]]; then
+          log "✅ $controller is healthy"
+        else
+          log "❌ $controller is unhealthy: $pod_status"
+          kubectl create event --namespace="$NAMESPACE" \
+            --type="Warning" \
+            --reason="FluxControllerUnhealthy" \
+            --message="Flux controller $controller is not running: $pod_status" \
+            --source-component="git-health-monitor" \
+            --involved-object-kind="Deployment" \
+            --involved-object-name="$controller" \
+            --dry-run=client -o yaml | kubectl apply -f -
+        fi
+      done
+    }
+    
+    generate_health_report() {
+      log "Generating health report..."
+      
+      local healthy_repos=0
+      local unhealthy_repos=0
+      local total_repos=${#REPOSITORIES[@]}
+      
+      for repo_name in "${!REPOSITORIES[@]}"; do
+        local is_healthy=$(kubectl get gitrepository "$repo_name" -n "$NAMESPACE" -l gitrepo.fluxcd.io/healthy=true --no-headers | wc -l)
+        if [[ "$is_healthy" -gt 0 ]]; then
+          ((healthy_repos++))
+        else
+          ((unhealthy_repos++))
+        fi
+      done
+      
+      # Create health report ConfigMap
+      kubectl create configmap "health-report-$(date +%Y%m%d-%H%M%S)" \
+        --namespace="$NAMESPACE" \
+        --from-literal="healthy_repos=$healthy_repos" \
+        --from-literal="unhealthy_repos=$unhealthy_repos" \
+        --from-literal="total_repos=$total_repos" \
+        --from-literal="timestamp=$(date -Iseconds)" \
+        --from-literal="health_percentage=$((healthy_repos * 100 / total_repos))" \
+        --dry-run=client -o yaml | kubectl apply -f -
+      
+      log "📊 Health Report: $healthy_repos/$total_repos repositories healthy ($((healthy_repos * 100 / total_repos))%)"
+    }
+    
+    # Main monitoring loop
+    log "Starting Git repository health monitoring..."
+    
+    # Check all repositories
+    for repo_name in "${!REPOSITORIES[@]}"; do
+      check_repository_health "$repo_name" "${REPOSITORIES[$repo_name]}"
+    done
+    
+    # Check Git cache
+    check_git_cache_health
+    
+    # Check Flux controllers
+    check_flux_health
+    
+    # Generate health report
+    generate_health_report
+    
+    log "Health monitoring completed"
+    
+  alert-manager.yaml: |
+    # Alert Manager Configuration for Git Repository Failures
+    
+    global:
+      smtp_smarthost: 'localhost:587'
+      smtp_from: 'alerts@gitops.company.com'
+    
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'web.hook'
+      routes:
+      - match:
+          alertname: GitRepositoryUnhealthy
+        receiver: 'git-repository-alerts'
+    
+    receivers:
+    - name: 'web.hook'
+      webhook_configs:
+      - url: 'http://127.0.0.1:5001/'
+    
+    - name: 'git-repository-alerts'
+      email_configs:
+      - to: 'admin@company.com'
+        subject: '[GitOps Alert] Git Repository Unhealthy'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Repository: {{ .Labels.repository }}
+          Failure Count: {{ .Labels.failure_count }}
+          {{ end }}
+      slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#gitops-alerts'
+        title: 'Git Repository Health Alert'
+        text: |
+          {{ range .Alerts }}
+          *Repository:* {{ .Labels.repository }}
+          *Status:* {{ .Status }}
+          *Description:* {{ .Annotations.description }}
+          *Failure Count:* {{ .Labels.failure_count }}
+          {{ end }}

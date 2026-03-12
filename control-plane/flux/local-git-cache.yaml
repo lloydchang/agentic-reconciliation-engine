@@ -1,0 +1,110 @@
+---
+# Local Git Cache with Offline Mode
+# Maintains a cached copy of Git repository in-cluster for offline operations
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: git-cache-pvc
+  namespace: flux-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: git-cache-manager
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: git-cache-manager
+  template:
+    metadata:
+      labels:
+        app: git-cache-manager
+    spec:
+      containers:
+      - name: git-cache
+        image: alpine/git:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          #!/bin/sh
+          
+          set -e
+          
+          CACHE_DIR="/data/git-cache"
+          REPOSITORIES=(
+            "https://github.com/antigravity/gitops-infra-control-plane.git"
+            "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+            "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+          )
+          
+          # Initialize cache directory
+          mkdir -p "$CACHE_DIR"
+          cd "$CACHE_DIR"
+          
+          # Clone or update repositories
+          for repo in "${REPOSITORIES[@]}"; do
+            repo_name=$(basename "$repo" .git)
+            
+            if [ ! -d "$repo_name" ]; then
+              echo "📥 Cloning $repo_name..."
+              git clone "$repo" "$repo_name"
+            else
+              echo "🔄 Updating $repo_name..."
+              cd "$repo_name"
+              git fetch --all
+              cd ..
+            fi
+          done
+          
+          # Start HTTP server for serving cached content
+          echo "🌐 Starting Git cache HTTP server..."
+          cd "$CACHE_DIR"
+          python3 -m http.server 8080 --bind 0.0.0.0
+        volumeMounts:
+        - name: git-cache-storage
+          mountPath: /data
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: git-cache-storage
+        persistentVolumeClaim:
+          claimName: git-cache-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: git-cache-service
+  namespace: flux-system
+spec:
+  selector:
+    app: git-cache-manager
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

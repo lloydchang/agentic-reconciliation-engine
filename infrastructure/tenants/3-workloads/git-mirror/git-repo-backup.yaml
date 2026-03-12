@@ -1,0 +1,90 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: git-repository-backup
+  namespace: flux-system
+  labels:
+    app: git-repository-backup
+    component: backup-recovery
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: flux-reconciler
+          containers:
+          - name: backup
+            image: amazonlinux:2
+            command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "📦 Starting Git repository backup..."
+
+              # Install AWS CLI and Git
+              yum update -y && yum install -y awscli git
+
+              # Configure AWS credentials from secret
+              export AWS_ACCESS_KEY_ID=$(cat /etc/aws/credentials/access-key)
+              export AWS_SECRET_ACCESS_KEY=$(cat /etc/aws/credentials/secret-key)
+              export AWS_DEFAULT_REGION=us-east-1
+
+              # Repository configuration
+              REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane.git"
+              BACKUP_BUCKET="gitops-repo-backups"
+              BACKUP_PREFIX="daily/$(date +%Y/%m/%d)"
+              TEMP_DIR="/tmp/backup"
+
+              mkdir -p "$TEMP_DIR"
+              cd "$TEMP_DIR"
+
+              echo "📥 Cloning repository..."
+              git clone --mirror "$REPO_URL" repo.git
+
+              # Create backup archive
+              BACKUP_FILE="gitops-infra-control-plane-$(date +%Y%m%d-%H%M%S).tar.gz"
+              echo "🗜️ Creating backup archive..."
+              tar -czf "$BACKUP_FILE" repo.git/
+
+              # Upload to S3
+              S3_PATH="s3://$BACKUP_BUCKET/$BACKUP_PREFIX/$BACKUP_FILE"
+              echo "☁️ Uploading to S3: $S3_PATH"
+              aws s3 cp "$BACKUP_FILE" "$S3_PATH"
+
+              # Verify upload
+              if aws s3 ls "$S3_PATH" > /dev/null; then
+                echo "✅ Backup completed successfully!"
+                echo "📍 Backup location: $S3_PATH"
+
+                # Clean up old backups (keep last 30 days)
+                echo "🧹 Cleaning up old backups..."
+                aws s3api list-objects-v2 \
+                  --bucket "$BACKUP_BUCKET" \
+                  --prefix "daily/" \
+                  --query 'Contents[?LastModified<`'"$(date -d '30 days ago' +%Y-%m-%d)"'`].Key' \
+                  --output text | \
+                xargs -I {} aws s3 rm "s3://$BACKUP_BUCKET/{}" || true
+              else
+                echo "❌ Backup verification failed!"
+                exit 1
+              fi
+
+              # Cleanup
+              rm -rf "$TEMP_DIR"
+            env:
+            - name: GIT_ASKPASS
+              value: "/bin/echo"
+            volumeMounts:
+            - name: aws-credentials
+              mountPath: /etc/aws/credentials
+              readOnly: true
+          volumes:
+          - name: aws-credentials
+            secret:
+              secretName: aws-backup-credentials
+          restartPolicy: OnFailure
+          ttlSecondsAfterFinished: 86400  # 24 hours

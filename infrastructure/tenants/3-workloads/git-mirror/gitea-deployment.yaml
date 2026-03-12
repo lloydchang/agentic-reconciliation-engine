@@ -1,0 +1,68 @@
+# Self-Hosted Git Server (Gitea) for GitOps Redundancy
+# Provides local Git repository hosting as fallback to remote GitHub
+
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: gitea-charts
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://dl.gitea.com/charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: gitea
+  namespace: gitops-tools
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: gitea
+      version: "10.2.0"
+      sourceRef:
+        kind: HelmRepository
+        name: gitea-charts
+        namespace: flux-system
+  values:
+    gitea:
+      config:
+        server:
+          DOMAIN: gitea.internal.gitops.local
+          ROOT_URL: http://gitea.internal.gitops.local/
+        database:
+          DB_TYPE: postgres
+          HOST: gitea-postgresql.gitops-tools.svc.cluster.local:5432
+          NAME: gitea
+          USER: gitea
+          PASSWD: ${GITEA_DB_PASSWORD}
+      admin:
+        username: gitops-admin
+        password: ${GITEA_ADMIN_PASSWORD}
+        email: admin@gitops.local
+    postgresql:
+      enabled: true
+      auth:
+        postgresPassword: ${POSTGRES_ADMIN_PASSWORD}
+        username: gitea
+        password: ${GITEA_DB_PASSWORD}
+        database: gitea
+    service:
+      type: ClusterIP
+      http:
+        port: 3000
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+      - host: gitea.internal.gitops.local
+        paths:
+        - path: /
+          pathType: Prefix
+    persistence:
+      enabled: true
+      size: 20Gi
+  dependsOn:
+  - name: network-dependencies  # Ensures network is ready before deploying
+    namespace: flux-system

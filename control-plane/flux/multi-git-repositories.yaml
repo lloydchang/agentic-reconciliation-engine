@@ -1,0 +1,75 @@
+---
+# Multi-Repository Strategy for Git SPOF Mitigation
+# Primary: GitHub, Secondary: GitLab, Tertiary: Gitea
+
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gitops-infra-primary
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://github.com/antigravity/gitops-infra-control-plane.git
+  ref:
+    branch: main
+  secretRef:
+    name: github-credentials
+  timeout: 60s
+  retryInterval: 2m
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gitops-infra-secondary
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://gitlab.com/antigravity/gitops-infra-control-plane.git
+  ref:
+    branch: main
+  secretRef:
+    name: gitlab-credentials
+  timeout: 60s
+  retryInterval: 2m
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gitops-infra-tertiary
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://gitea.internal/antigravity/gitops-infra-control-plane.git
+  ref:
+    branch: main
+  secretRef:
+    name: gitea-credentials
+  timeout: 60s
+  retryInterval: 2m
+---
+# Repository Health Monitor
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: git-repository-health-check
+  namespace: flux-system
+data:
+  health-check.sh: |
+    #!/bin/bash
+    # Health check script for Git repositories
+    
+    REPOSITORIES=(
+      "https://github.com/antigravity/gitops-infra-control-plane.git"
+      "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+      "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+    )
+    
+    for repo in "${REPOSITORIES[@]}"; do
+      if git ls-remote "$repo" &>/dev/null; then
+        echo "✅ $repo - HEALTHY"
+        kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=true --overwrite
+      else
+        echo "❌ $repo - UNHEALTHY"
+        kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=false --overwrite
+      fi
+    done

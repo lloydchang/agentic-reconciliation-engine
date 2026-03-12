@@ -1,0 +1,175 @@
+---
+# Infrastructure State Persistence
+# Stores critical infrastructure state in Kubernetes etcd for Git outage recovery
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: state-persistence-config
+  namespace: flux-system
+data:
+  state-persistence.yaml: |
+    # State Persistence Configuration
+    
+    persistence:
+      enabled: true
+      storage_backend: "etcd"
+      backup_interval: "5m"
+      retention_period: "168h"  # 7 days
+      
+    resources_to_persist:
+      - kind: "VPC"
+        group: "ec2.aws.crossplane.io"
+        version: "v1alpha1"
+      - kind: "EKSCluster"
+        group: "eks.aws.crossplane.io"
+        version: "v1alpha1"
+      - kind: "VirtualNetwork"
+        group: "network.azure.com"
+        version: "v1api20201101"
+      - kind: "ManagedCluster"
+        group: "containerservice.azure.com"
+        version: "v1api20231001"
+      - kind: "Network"
+        group: "networking.gke.io"
+        version: "v1"
+      - kind: "GKECluster"
+        group: "container.cnrm.cloud.google.com"
+        version: "v1beta1"
+        
+    backup_locations:
+      - name: "etcd-primary"
+        type: "kubernetes_etcd"
+        namespace: "flux-system"
+        prefix: "infrastructure-state"
+        
+      - name: "s3-backup"
+        type: "s3"
+        bucket: "gitops-infrastructure-backup"
+        prefix: "state-backups"
+        region: "us-west-2"
+        
+    recovery:
+      auto_recovery: true
+      recovery_threshold: 3
+      max_recovery_attempts: 5
+      
+  backup-script.sh: |
+    #!/bin/bash
+    
+    # Infrastructure State Backup Script
+    
+    set -euo pipefail
+    
+    NAMESPACE="flux-system"
+    BACKUP_PREFIX="infrastructure-state"
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+    
+    # Resources to backup
+    RESOURCES=(
+      "vpcs.ec2.aws.crossplane.io"
+      "eksclusters.eks.aws.crossplane.io"
+      "virtualnetworks.network.azure.com"
+      "managedclusters.containerservice.azure.com"
+      "networks.networking.gke.io"
+      "gkeclusters.container.cnrm.cloud.google.com"
+    )
+    
+    echo "🔄 Starting infrastructure state backup at $TIMESTAMP"
+    
+    # Create backup directory
+    BACKUP_DIR="/tmp/infra-backup-$TIMESTAMP"
+    mkdir -p "$BACKUP_DIR"
+    
+    # Backup each resource type
+    for resource in "${RESOURCES[@]}"; do
+      echo "📦 Backing up $resource..."
+      
+      # Get all resources of this type across all namespaces
+      kubectl get "$resource" --all-namespaces -o yaml > "$BACKUP_DIR/$resource.yaml" 2>/dev/null || echo "No $resource found"
+      
+      # Store as ConfigMap for etcd persistence
+      if [ -s "$BACKUP_DIR/$resource.yaml" ]; then
+        kubectl create configmap "state-backup-$resource-$TIMESTAMP" \
+          --from-file="data=$BACKUP_DIR/$resource.yaml" \
+          --namespace="$NAMESPACE" \
+          --dry-run=client -o yaml | kubectl apply -f -
+          
+        echo "✅ Backed up $resource to ConfigMap"
+      fi
+    done
+    
+    # Create backup manifest
+    cat > "$BACKUP_DIR/backup-manifest.yaml" << EOF
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: backup-manifest-$TIMESTAMP
+      namespace: $NAMESPACE
+      labels:
+        backup.fluxcd.io/timestamp: "$TIMESTAMP"
+        backup.fluxcd.io/type: "infrastructure-state"
+    data:
+      timestamp: "$TIMESTAMP"
+      resources: "${RESOURCES[*]}"
+      backup_count: "$(echo "${RESOURCES[@]}" | wc -w)"
+    EOF
+    
+    kubectl apply -f "$BACKUP_DIR/backup-manifest.yaml"
+    
+    # Cleanup old backups (keep last 10)
+    echo "🧹 Cleaning up old backups..."
+    kubectl get configmaps -n "$NAMESPACE" -l backup.fluxcd.io/type=infrastructure-state \
+      --sort-by=.metadata.creationTimestamp | tail -n +11 | awk '{print $1}' | \
+      xargs -r kubectl delete configmap -n "$NAMESPACE"
+    
+    echo "✅ Backup completed at $TIMESTAMP"
+    
+  recovery-script.sh: |
+    #!/bin/bash
+    
+    # Infrastructure State Recovery Script
+    
+    set -euo pipefail
+    
+    NAMESPACE="flux-system"
+    BACKUP_PREFIX="infrastructure-state"
+    
+    if [ -z "${1:-}" ]; then
+      echo "Usage: $0 <timestamp>"
+      echo "Available backups:"
+      kubectl get configmaps -n "$NAMESPACE" -l backup.fluxcd.io/type=infrastructure-state \
+        -o custom-columns=TIMESTAMP:.metadata.labels.backup\.fluxcd\.io/timestamp,NAME:.metadata.name
+      exit 1
+    fi
+    
+    TIMESTAMP="$1"
+    echo "🔄 Starting infrastructure state recovery from backup $TIMESTAMP"
+    
+    # Get backup manifest
+    BACKUP_MANIFEST="backup-manifest-$TIMESTAMP"
+    if ! kubectl get configmap "$BACKUP_MANIFEST" -n "$NAMESPACE" >/dev/null 2>&1; then
+      echo "❌ Backup manifest $BACKUP_MANIFEST not found"
+      exit 1
+    fi
+    
+    # Find all backup ConfigMaps for this timestamp
+    BACKUP_CONFIGMAPS=$(kubectl get configmaps -n "$NAMESPACE" -l backup.fluxcd.io/timestamp="$TIMESTAMP" \
+      --no-headers | awk '{print $1}')
+    
+    echo "📦 Found backup ConfigMaps: $BACKUP_CONFIGMAPS"
+    
+    # Restore each backup
+    for configmap in $BACKUP_CONFIGMAPS; do
+      if [[ "$configmap" == backup-manifest-* ]]; then
+        continue  # Skip the manifest itself
+      fi
+      
+      echo "🔄 Restoring from $configmap..."
+      
+      # Extract the backup data and apply it
+      kubectl get configmap "$configmap" -n "$NAMESPACE" -o jsonpath='{.data.data}' | kubectl apply -f - || \
+        echo "⚠️ Some resources from $configmap could not be restored (may already exist)"
+    done
+    
+    echo "✅ Recovery completed from backup $TIMESTAMP"

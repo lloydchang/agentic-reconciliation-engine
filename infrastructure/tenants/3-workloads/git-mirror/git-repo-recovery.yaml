@@ -1,0 +1,103 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: git-repository-recovery
+  namespace: flux-system
+  labels:
+    app: git-repository-recovery
+    component: backup-recovery
+spec:
+  template:
+    spec:
+      serviceAccountName: flux-reconciler
+      containers:
+      - name: recovery
+        image: amazonlinux:2
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -euo pipefail
+
+          echo "🔄 Starting Git repository recovery..."
+
+          # Install AWS CLI and Git
+          yum update -y && yum install -y awscli git
+
+          # Configure AWS credentials from secret
+          export AWS_ACCESS_KEY_ID=$(cat /etc/aws/credentials/access-key)
+          export AWS_SECRET_ACCESS_KEY=$(cat /etc/aws/credentials/secret-key)
+          export AWS_DEFAULT_REGION=us-east-1
+
+          # Repository configuration
+          PRIMARY_REPO="https://github.com/lloydchang/gitops-infra-control-plane.git"
+          BACKUP_REPO="https://gitlab.example.com/lloydchang/gitops-infra-control-plane.git"
+          BACKUP_BUCKET="gitops-repo-backups"
+          BACKUP_PREFIX="daily"
+          TEMP_DIR="/tmp/recovery"
+          RECOVERY_DIR="/tmp/git-mirror"
+
+          mkdir -p "$TEMP_DIR" "$RECOVERY_DIR"
+          cd "$TEMP_DIR"
+
+          # Check if primary repository is accessible
+          echo "🔍 Checking primary repository availability..."
+          if git ls-remote "$PRIMARY_REPO" --heads main >/dev/null 2>&1; then
+            echo "✅ Primary repository is available, no recovery needed"
+            exit 0
+          fi
+
+          echo "⚠️ Primary repository unavailable, initiating recovery..."
+
+          # Find latest backup
+          echo "📦 Finding latest backup..."
+          LATEST_BACKUP=$(aws s3api list-objects-v2 \
+            --bucket "$BACKUP_BUCKET" \
+            --prefix "$BACKUP_PREFIX/" \
+            --query 'sort_by(Contents, &LastModified)[-1].Key' \
+            --output text)
+
+          if [ -z "$LATEST_BACKUP" ]; then
+            echo "❌ No backup found!"
+            exit 1
+          fi
+
+          echo "📥 Downloading backup: $LATEST_BACKUP"
+          aws s3 cp "s3://$BACKUP_BUCKET/$LATEST_BACKUP" "./backup.tar.gz"
+
+          # Extract backup
+          echo "🗜️ Extracting backup..."
+          tar -xzf backup.tar.gz
+          mv repo.git "$RECOVERY_DIR/gitops-infra-control-plane.git"
+          cd "$RECOVERY_DIR/gitops-infra-control-plane.git"
+
+          # Add backup remote if not exists
+          git remote add backup "$BACKUP_REPO" 2>/dev/null || true
+
+          # Push to backup repository
+          echo "📤 Pushing recovered repository to backup remote..."
+          git push --mirror backup
+
+          echo "✅ Repository recovery completed!"
+          echo "🔄 Backup repository updated with latest state"
+
+          # Notify monitoring system (placeholder)
+          echo "📢 Triggering repository failover notification..."
+          # Could integrate with alerting system here
+
+          # Cleanup
+          rm -rf "$TEMP_DIR" "$RECOVERY_DIR"
+        env:
+        - name: GIT_ASKPASS
+          value: "/bin/echo"
+        volumeMounts:
+        - name: aws-credentials
+          mountPath: /etc/aws/credentials
+          readOnly: true
+      volumes:
+      - name: aws-credentials
+        secret:
+          secretName: aws-backup-credentials
+      restartPolicy: OnFailure
+      ttlSecondsAfterFinished: 3600
