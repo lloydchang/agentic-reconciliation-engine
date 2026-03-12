@@ -1194,3 +1194,322 @@ This document researches each provided URL, evaluates its applicability to the G
 **Safety Assessment**: Safe.
 
 **Integration Approach**: N/A.
+
+## 72. https://github.blog/changelog/2025-06-13-copilot-code-review-customization-for-all/
+
+**Content Summary**: GitHub Changelog post announcing that Copilot code review now supports custom instructions, matching those used by Copilot Chat and coding agent. This enables personalized and consistent AI reviews across workflows.
+
+**Applicability**: High - provides a model for customizing AI integrations in the GitOps control plane. We can achieve similar granularity by customizing agent skills in SKILLS.md files, MCP server configurations, and AI workflows to align with repository-specific standards, security policies, and multi-cloud infrastructure requirements.
+
+**Safety Assessment**: Safe - standard GitHub feature with customization controls.
+
+**Integration Approach**: Enable custom instructions for Copilot code reviews in the repository to ensure consistent reviews aligned with GitOps best practices. Extend this approach to customize agent skills, MCPs, and AI agents for infrastructure-specific tasks, maintaining the same level of personalization and consistency as Copilot's customization feature.
+
+## 73. https://www.solo.io/request-support-agentgateway-kagent-agentregistry
+
+**Content Summary**: Solo.io offers production support for agentgateway, kagent, and Agent Registry. Designed for teams building or scaling agentic applications on open source distributions, providing enterprise-grade help for agentic infrastructure.
+
+**Applicability**: High - Provides enterprise support for the open source tools mentioned throughout this analysis, enabling production deployment of agentgateway and kagent in the GitOps control plane.
+
+**Safety Assessment**: Safe - Enterprise support service, no security risks.
+
+**Integration Approach**: Use Solo.io support when deploying agentgateway or kagent in production environments to ensure reliability and get expert assistance with multi-cloud infrastructure integration.
+
+## 74. https://github.com/kagent-dev/kagent
+
+**Content Summary**: Kagent is a cloud-native framework for orchestrating autonomous AI coding agents in Kubernetes. Supports primitives like TaskSpawner, agent chaining, and MCP servers for DevOps and platform engineering tasks.
+
+**Applicability**: High - Directly applicable for running AI agents in Kubernetes for infrastructure automation. Fits the control plane's Kubernetes-native approach for agent orchestration in multi-cloud setups.
+
+**Safety Assessment**: Safe - Kubernetes-native with isolation.
+
+**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn.
+
+## 75. https://www.solo.io/resources/lab/introduction-to-agentregistry
+
+**Content Summary**: Free technical lab introducing agentregistry, teaching how to curate, publish, and deploy MCP servers and agent skills for unified management of AI artifacts.
+
+**Applicability**: Medium - Educational resource for learning agentregistry, which supports agent skills for AI infrastructure management.
+
+**Safety Assessment**: Safe - Educational content.
+
+**Integration Approach**: Use the lab to train operators on deploying agentregistry in the control plane for managing MCP servers and skills.
+
+## 76. https://www.cloudnativedeepdive.com/routing-ai-traffic-from-your-ide-through-agentgateway-wit/
+
+**Content Summary**: Tutorial on routing AI traffic from IDE (VSCode) through agentgateway for observation and security. Covers configuration for secure AI traffic routing.
+
+**Applicability**: High - Enables secure routing of AI traffic from development environments through agentgateway, aligning with the control plane's security mandates.
+
+**Safety Assessment**: Safe - Focuses on security and observability.
+
+**Integration Approach**: Implement agentgateway routing for IDE-based AI tools in development workflows, ensuring traffic passes through secure gateways before reaching APIs.
+
+## 77. https://www.truefoundry.com/agent-gateway
+
+**Content Summary**: Agent Gateway as unified control plane for AI workflows, compatible with any agent framework, providing governance and monitoring for production AI agents.
+
+**Applicability**: High - Provides enterprise-grade agent gateway for governing AI agents in multi-cloud infrastructure, supporting MCP and memory management.
+
+**Safety Assessment**: Safe - Enterprise-grade security and governance.
+
+**Integration Approach**: Integrate TrueFoundry's Agent Gateway into infrastructure/tenants/3-workloads/ for centralized control of AI agents and workflows.
+
+## 78. https://thenewstack.io/solo-io-open-sources-agentregistry-with-support-for-agent-skills/
+
+**Content Summary**: Solo.io open sources agentregistry with support for Agent Skills, a centralized registry for AI applications and artifacts, serving as single source of truth for organizations using agents.
+
+**Applicability**: High - agentregistry enables curation and deployment of MCP servers and skills, directly supporting AI integration in the GitOps control plane.
+
+**Safety Assessment**: Safe - Open source registry with security features.
+
+**Integration Approach**: Deploy agentregistry in the control plane to manage and deploy AI skills and MCP servers for infrastructure automation.
+
+## 79. https://www.solo.io/resources/video/building-an-agent-gateway-to-support-mcp-at-scale
+
+**Content Summary**: Video on building agent gateway to support MCP at scale, addressing challenges around tool registry, multiplexing, and authorization in enterprise environments.
+
+**Applicability**: High - Addresses scaling MCP adoption in complex environments like the multi-cloud GitOps setup.
+
+**Safety Assessment**: Safe - Educational video on scaling practices.
+
+**Integration Approach**: Reference for implementing agentgateway at scale in the control plane, using for MCP tool management across clusters.
+
+## 80. https://www.devopsdigest.com/soloio-launches-agentregistry
+
+**Content Summary**: Solo.io launches agentregistry, part of their agentic infrastructure platform including kagent, agentgateway, and agentregistry for connectivity, runtime, and registry capabilities.
+
+**Applicability**: High - Completes the stack for agentic infrastructure, supporting skills across multiple formats.
+
+**Safety Assessment**: Safe - Product announcement.
+
+**Integration Approach**: Use agentregistry to provide registry capabilities for AI artifacts in the GitOps repo's infrastructure/tenants/.
+
+## 81. https://docs.litellm.ai/docs/a2a
+
+**Content Summary**: LiteLLM's Agent Gateway supporting A2A (Agent-to-Agent) protocol for invoking and managing agents with LLM API controls.
+
+**Applicability**: Medium - Provides gateway for agent-to-agent communication, useful for multi-agent orchestration in infrastructure tasks.
+
+**Safety Assessment**: Safe - API gateway with controls.
+
+**Integration Approach**: Integrate LiteLLM Agent Gateway for managing A2A communications between agents in the control plane.
+
+## 82. https://www.solo.io/resources/video/introducing-agent-gateway
+
+**Content Summary**: Video introducing Agent Gateway, demonstrating security, metrics, and tracing for AI agents using MCP and A2A protocols.
+
+**Applicability**: High - Introduces agentgateway for secure agent communications, fitting the security-first approach.
+
+**Safety Assessment**: Safe - Product demo focusing on security.
+
+**Integration Approach**: Use agentgateway for securing agent-to-agent and agent-to-tool communications in multi-cloud environments.
+
+## 83. https://www.linkedin.com/posts/ceposta_production-support-for-agentgateway-kagent-activity-7402021030136893440-u6BU/
+
+**Content Summary**: LinkedIn post announcing production support for agentgateway, kagent, and Agent Registry by Solo.io.
+
+**Applicability**: Medium - Community announcement of enterprise support availability.
+
+**Safety Assessment**: Safe - Social media post.
+
+**Integration Approach**: Leverage Solo.io support for production deployments of these tools in the control plane.
+
+## 84. https://agentgateway.dev/docs/
+
+**Content Summary**: Documentation for agentgateway, an open source project for connecting, securing, and observing agent-to-agent and agent-to-tool communication across frameworks.
+
+**Applicability**: High - Primary documentation for agentgateway deployment and usage.
+
+**Safety Assessment**: Safe - Official documentation.
+
+**Integration Approach**: Follow docs for deploying agentgateway in Kubernetes for secure AI traffic routing.
+
+## 85. https://agentgateway.dev/docs/standalone/latest/
+
+**Content Summary**: Standalone deployment docs for agentgateway, covering installation, configuration, and tutorials for local or server deployment.
+
+**Applicability**: High - Guides standalone deployment, useful for development and testing.
+
+**Safety Assessment**: Safe - Technical documentation.
+
+**Integration Approach**: Use for local development of agentgateway integrations before Kubernetes deployment.
+
+## 86. https://agentgateway.dev/docs/kubernetes/latest/
+
+**Content Summary**: Kubernetes deployment docs for agentgateway, using control plane for lifecycle management with Gateway API.
+
+**Applicability**: High - Directly applicable for K8s deployment in the GitOps repo.
+
+**Safety Assessment**: Safe - Kubernetes-native docs.
+
+**Integration Approach**: Deploy agentgateway via Helm in infrastructure/tenants/3-workloads/ with Flux management.
+
+## 87. https://www.cloudnativedeepdive.com/tag/agentregistry/
+
+**Content Summary**: Collection of articles on agentregistry, covering introductions, tutorials, and integrations.
+
+**Applicability**: Medium - Resource hub for agentregistry knowledge.
+
+**Safety Assessment**: Safe - Blog series.
+
+**Integration Approach**: Reference for best practices in deploying and using agentregistry.
+
+## 88. https://www.solo.io/resources/video/solo-enterprise-for-agentgateway-demo-on-behalf-of
+
+**Content Summary**: Video demo of Solo Enterprise for agentgateway, showing enterprise features for AI strategy.
+
+**Applicability**: High - Demonstrates enterprise-grade agentgateway for production use.
+
+**Safety Assessment**: Safe - Product demo.
+
+**Integration Approach**: Evaluate Solo Enterprise for agentgateway in production deployments.
+
+## 89. https://www.solo.io/blog/introducing-solo-enterprise-for-agentgateway
+
+**Content Summary**: Blog introducing Solo Enterprise for agentgateway, providing enterprise distributions with standardized API and governance.
+
+**Applicability**: High - Enterprise version of agentgateway for secure, scalable AI workflows.
+
+**Safety Assessment**: Safe - Enterprise product.
+
+**Integration Approach**: Adopt Solo Enterprise for agentgateway in multi-cloud infrastructure for consistent AI access.
+
+## 90. https://www.solo.io/resources/video/ai-connectivity-secure-llms-agents-tools-agentgateway
+
+**Content Summary**: Video on AI connectivity, securing LLMs, agents, and tools with agentgateway.
+
+**Applicability**: High - Focuses on security for AI connectivity in enterprise settings.
+
+**Safety Assessment**: Safe - Security-focused video.
+
+**Integration Approach**: Implement agentgateway for securing AI connectivity in the control plane.
+
+## 91. https://agentgateway.dev/docs/standalone/latest/about/introduction/
+
+**Content Summary**: Introduction to agentgateway, emphasizing enterprise-grade security, observability, and support for MCP and A2A protocols.
+
+**Applicability**: High - Core introduction to the tool's capabilities.
+
+**Safety Assessment**: Safe - Project introduction.
+
+**Integration Approach**: Use as foundation for understanding agentgateway before integration.
+
+## 92. https://arxiv.org/html/2508.03095v1
+
+**Content Summary**: ArXiv paper (title and abstract not fully loaded, but likely related to AI agents or protocols).
+
+**Applicability**: Medium - Research paper on AI/agent topics.
+
+**Safety Assessment**: Safe - Academic content.
+
+**Integration Approach**: Reference for theoretical foundations of agent protocols.
+
+## 93. https://learn.microsoft.com/en-us/azure/api-center/agent-to-agent-overview
+
+**Content Summary**: Overview of agent-to-agent communication in Azure API Center.
+
+**Applicability**: Medium - For Azure components in multi-cloud setup.
+
+**Safety Assessment**: Safe - Official Microsoft docs.
+
+**Integration Approach**: Use for Azure-specific agent integrations in the control plane.
+
+## 94. https://learn.microsoft.com/en-us/azure/api-center/register-manage-agents#register-agent
+
+**Content Summary**: Guide for registering and managing agents in Azure API Center.
+
+**Applicability**: Medium - Azure-specific agent management.
+
+**Safety Assessment**: Safe - Documentation.
+
+**Integration Approach**: Follow for registering agents in Azure environments.
+
+## 95. https://learn.microsoft.com/en-us/azure/api-center/tutorials/register-apis
+
+**Content Summary**: Tutorial for registering APIs in Azure API Center.
+
+**Applicability**: Medium - API registration for agent communications.
+
+**Safety Assessment**: Safe - Tutorial.
+
+**Integration Approach**: Use for setting up API center in Azure hubs.
+
+## Local File References
+
+## 96. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/agent-orchestration-demo.md
+
+**Content Summary**: Local markdown file demonstrating agent orchestration in the complete hub-spoke example.
+
+**Applicability**: High - Directly part of the repository's examples for AI integration.
+
+**Safety Assessment**: Safe - Repository example.
+
+**Integration Approach**: Reference in docs as implementation example for agent orchestration.
+
+## 97. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-cronjobs
+
+**Content Summary**: Directory containing AI-powered cronjob examples.
+
+**Applicability**: High - Shows AI cronjobs for infrastructure tasks.
+
+**Safety Assessment**: Safe - Example code.
+
+**Integration Approach**: Use as template for deploying AI cronjobs in infrastructure/tenants/3-workloads/.
+
+## 98. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml
+
+**Content Summary**: YAML manifest for AI cronjobs.
+
+**Applicability**: High - Ready-to-deploy cronjob configuration.
+
+**Safety Assessment**: Safe - Manifest example.
+
+**Integration Approach**: Apply via Flux in the control plane.
+
+## 99. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-gateway
+
+**Content Summary**: Directory with AI gateway examples.
+
+**Applicability**: High - Gateway deployment examples.
+
+**Safety Assessment**: Safe - Example code.
+
+**Integration Approach**: Use for deploying AI gateways in infrastructure/tenants/.
+
+## 100. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-gateway/gateway.yaml
+
+**Content Summary**: YAML manifest for AI gateway.
+
+**Applicability**: High - Deployable gateway configuration.
+
+**Safety Assessment**: Safe - Manifest example.
+
+**Integration Approach**: Deploy via Flux with dependsOn from network/cluster resources.
+
+## 101. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-validation
+
+**Content Summary**: Directory with AI validation examples.
+
+**Applicability**: High - Validation pipeline examples.
+
+**Safety Assessment**: Safe - Example code.
+
+**Integration Approach**: Integrate into CI/CD for AI-generated manifest validation.
+
+## 102. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-validation/validation.yaml
+
+**Content Summary**: YAML manifest for AI validation.
+
+**Applicability**: High - Validation configuration.
+
+**Safety Assessment**: Safe - Manifest example.
+
+**Integration Approach**: Use in infrastructure/tenants/3-workloads/ for automated validation.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: 2025-03-12  
+**Security Classification**: Internal Use  
+**Review Required**: Yes
