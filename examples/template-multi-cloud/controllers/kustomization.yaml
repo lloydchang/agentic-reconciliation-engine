@@ -1,0 +1,26 @@
+# Controllers Template - INCOMPLETE
+# TODO: Complete this template with cloud-specific controllers
+# Use prompts like: "Add ACK/ASO/KCC controller deployments for multi-cloud support"
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: controllers-template
+resources:
+  # TODO: Add AWS ACK controllers
+  # - aws-ack/
+
+  # TODO: Add Azure ASO controllers
+  # - azure-aso/
+
+  # TODO: Add GCP KCC controllers
+  # - gcp-kcc/
+
+  # TODO: Add unified controller installer
+  # - unified-controller-installer.yaml
+
+  # TODO: Add controller dependencies (dependsOn for proper ordering)
+---
+# TODO: Add RBAC for controller service accounts
+# TODO: Add controller-specific ConfigMaps
+# TODO: Add monitoring for controller health

@@ -606,7 +606,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe; curated collection.
 
-**Integration Approach**: Reference for building agents in control plane.
+**Integration Approach**: Reference for latest Agentgateway features and integration guides.
 
 ## 16. https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories
 
@@ -1014,3 +1014,183 @@ This document researches each provided URL, evaluates its applicability to the G
 **Safety Assessment**: Safe.
 
 **Integration Approach**: Optional addition to infrastructure/tenants/3-workloads/ for operator tools.
+
+## 49. https://blog.christianposta.com/enterprise-mcp-sso-with-microsoft-entra-and-agentgateway/
+
+**Content Summary**: Blog post on securing MCP servers with Single Sign-On using Microsoft Entra ID (Azure AD) and Agentgateway. Discusses enterprise authentication challenges, OAuth limitations, and practical implementation for MCP SSO. Covers testing MCP SSO with Entra, using custom MCP clients, and caveats for MCP Inspector.
+
+**Applicability**: High - addresses security for MCP integrations in enterprise environments. The GitOps control plane could use this for securing AI agent access in multi-cloud setups, especially with Azure components.
+
+**Safety Assessment**: Safe - focuses on authentication and security best practices.
+
+**Integration Approach**: Implement Entra ID integration with Agentgateway for MCP server authentication in the control plane. Add to infrastructure/tenants/3-workloads/ as part of security hardening for AI operations.
+
+## 50. https://www.youtube.com/watch?v=_DxOmM6biQ4
+
+**Content Summary**: YouTube video demo by Christian Posta on connecting AI agents (like Claude, VS Code) to external MCP servers hosted by third parties (e.g., Databricks), while enforcing internal enterprise SSO policies. Demonstrates using Agentgateway Enterprise for cross-domain identity authorization, token exchange, and policy enforcement. Shows configuration of HTTP routes, OAuth alignment with MCP specs, integration with enterprise IDPs (like Keycloak or Microsoft Entra), and authorization workflows for accessing external MCP tools.
+
+**Applicability**: High - directly addresses secure integration of external AI/MCP resources in enterprise environments. The GitOps control plane can use this pattern for connecting to third-party MCP servers (e.g., cloud provider APIs, external data sources) while maintaining internal SSO and access policies.
+
+**Safety Assessment**: Safe - emphasizes secure authentication, policy enforcement, and controlled access to external resources.
+
+**Integration Approach**: Implement Agentgateway for routing external MCP server connections through enterprise SSO. Configure in infrastructure/tenants/3-workloads/ with HTTP routes and token exchange policies. Enables secure access to external AI tools while applying internal enterprise policies.
+
+## 51. https://aihackathon.dev/
+
+**Content Summary**: Hackathon website for MCP and AI Agents, focused on building MCP servers and AI agents. Includes competition categories like Secure & Govern MCP, Building Cool Agents, Explore Agent Registry, and Open Source Contributions. Features judges, key dates (submissions until April 3, 2026), and $5,000 prize pool.
+
+**Applicability**: High - directly relevant to AI integration in GitOps control plane. Provides community resources and inspiration for building custom MCP servers and agents for infrastructure automation.
+
+**Safety Assessment**: Safe - educational and community-focused event.
+
+**Integration Approach**: Reference for building custom MCP servers for the control plane. Encourage team participation to develop GitOps-specific AI agents and MCP integrations.
+
+## 52. https://aihackathon.dev/#about
+
+**Content Summary**: About section of the hackathon site, detailing the event's focus on MCP (Model Context Protocol) and AI agents.
+
+**Applicability**: Medium - provides context for MCP development.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Use as reference for understanding MCP ecosystem.
+
+## 53. https://aihackathon.dev/#judges
+
+**Content Summary**: Lists hackathon judges including Kelsey Hightower, Alan Blount, Dmytro Rashko, Nathan Taber, Carlos Santana, Keith Mattix, Chris Aniszczyk, Sebastian Maniak, Lin Sun, Christian Posta, and Michael Levan.
+
+**Applicability**: Medium - identifies experts in the field.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reference for networking with AI/K8s experts.
+
+## 54. https://aihackathon.dev/#schedule
+
+**Content Summary**: Hackathon schedule and key dates.
+
+**Applicability**: Low - event-specific.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 55. https://aihackathon.dev/#prizes
+
+**Content Summary**: Details on prizes and awards, total prize pool $5,000.
+
+**Applicability**: Low - event-specific.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 56. https://aihackathon.dev/submission/
+
+**Content Summary**: Submission page for hackathon entries.
+
+**Applicability**: Low - event-specific.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 57. https://aihackathon.dev/submissions/
+
+**Content Summary**: Submissions page for hackathon.
+
+**Applicability**: Low - event-specific.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 58. https://aihackathon.dev/terms/
+
+**Content Summary**: Terms and conditions for the hackathon.
+
+**Applicability**: Low - event-specific.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 59. https://github.com/kagent-dev/kagent
+
+**Content Summary**: Open source project for Cloud Native Agentic AI. Framework that runs AI agents inside Kubernetes clusters to automate DevOps and platform engineering tasks. Includes core concepts, architecture, and roadmap.
+
+**Applicability**: High - directly applicable to running AI agents in the GitOps control plane for automation tasks like infrastructure management.
+
+**Safety Assessment**: Safe - Kubernetes-native with isolation.
+
+**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent orchestration. Use for automating DevOps workflows in the multi-cloud setup.
+
+## 60. https://github.com/kagent-dev/kagent/pull/1210
+
+**Content Summary**: Pull request in kagent repository.
+
+**Applicability**: Medium - specific contribution details.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Review for potential improvements to agent frameworks.
+
+## 61. https://github.com/kagent-dev/kagent/pull/1213
+
+**Content Summary**: Pull request in kagent repository.
+
+**Applicability**: Medium - specific contribution details.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Review for potential improvements to agent frameworks.
+
+## 62. https://github.com/agentgateway
+
+**Content Summary**: GitHub repository for Agentgateway project.
+
+**Applicability**: High - security proxy for AI agents, relevant to safe AI integrations.
+
+**Safety Assessment**: Safe - focuses on security.
+
+**Integration Approach**: Use in control-plane/controllers/ for secure AI traffic routing.
+
+## 63. https://github.com/agentregistry
+
+**Content Summary**: GitHub repository for Agent Registry.
+
+**Applicability**: Medium - registry for agents.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Explore for agent discovery in the control plane.
+
+## 64. https://discord.gg/H28ZKWG2mX
+
+**Content Summary**: Discord community invite for the hackathon/project.
+
+**Applicability**: Medium - community engagement.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Join for discussions on AI integrations.
+
+## 65. https://legal.solo.io/#privacy-policy
+
+**Content Summary**: Privacy policy for solo.io legal page.
+
+**Applicability**: Low - legal document.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.
+
+## 66. https://legal.solo.io/#website-terms-of-use
+
+**Content Summary**: Website terms of use for solo.io.
+
+**Applicability**: Low - legal document.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: N/A.

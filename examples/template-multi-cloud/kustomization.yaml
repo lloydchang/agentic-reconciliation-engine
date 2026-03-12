@@ -1,0 +1,21 @@
+# Multi-Cloud Template with AI Integration
+# This template is INCOMPLETE and requires adaptation using LLMs
+# Use Claude Code or similar to complete the placeholders marked with TODO
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: template-multi-cloud-ai
+  namespace: flux-system
+resources:
+  # TODO: Add cloud-specific controller deployments (ACK/ASO/KCC)
+  # TODO: Add AI integration components (gateway, cronjobs, validation)
+  # TODO: Configure dependsOn for proper DAG ordering
+  # TODO: Add monitoring and security policies
+labels:
+  - pairs:
+      managed-by: flux
+      component: template-multi-cloud-ai
+      platform: multi-cluster-gitops
+      # TODO: Add environment-specific labels
+      environment: TODO_ENVIRONMENT_NAME
