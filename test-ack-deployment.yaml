@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ack-ec2-controller
+  namespace: ack-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ack-ec2-controller
+  template:
+    metadata:
+      labels:
+        app: ack-ec2-controller
+    spec:
+      serviceAccountName: ack-controller
+      containers:
+      - name: controller
+        image: public.ecr.aws/aws-controllers-k8s/ec2-controller:v1.6.0
+        env:
+        - name: AWS_ENDPOINT_URL
+          value: "http://localstack.localstack.svc.cluster.local:4566"
+        - name: AWS_REGION
+          value: "us-west-2"
+        - name: AWS_ACCESS_KEY_ID
+          value: "test"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "test"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ack-controller-config
+  namespace: ack-system
+data:
+  AWS_ENDPOINT_URL: "http://localstack.localstack.svc.cluster.local:4566"
+  AWS_REGION: "us-west-2"
