@@ -111,7 +111,7 @@ class FlockAlignment:
 ```
 
 **Benefits**:
-- **Emergent intelligence** from simple local rules
+- **Coordinated behavior** from simple local rules
 - **Complex global behavior** without central control
 - **Adaptive learning** from environmental feedback
 - **Scalable coordination** across unlimited agents
@@ -190,7 +190,7 @@ spec:
   - name: infrastructure-network
   - name: infrastructure-clusters
   - name: consensus-layer
-  interval: 15s  # Ultra-tight feedback loops
+  interval: 15s  # Fast feedback loops
   retryInterval: 5s
   timeout: 1m
   sourceRef:
@@ -269,7 +269,7 @@ spec:
 2. **Full Autonomy**
    - Complete self-organization
    - Predictive optimization
-   - Zero-touch operations
+   - Automated operations
 
 ## Security and Safety Enhancements
 
