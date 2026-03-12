@@ -1,5 +1,10 @@
 # Complete AI Validation Pipeline
 # Production-ready validation system for AI-generated infrastructure
+#
+# ⚠️ Architecture Note: This pipeline can use either:
+# 1. AI Gateway for enterprise compliance (default)
+# 2. Direct Claude API for local LLM setups (set GATEWAY_MODE=direct)
+# 3. Local LLM service (set CLAUDE_BASE_URL to local endpoint)
 
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
@@ -64,7 +69,7 @@ spec:
     newTag: v1.2.0
   dependsOn:
   - name: ai-cronjobs
-  - name: ai-gateway
+  # - name: ai-gateway  # Optional: comment out for local LLM setups
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -135,6 +140,11 @@ spec:
             secretKeyRef:
               name: github-secrets
               key: token
+        - name: GATEWAY_MODE
+          value: "gateway"  # Options: gateway, direct, local
+        - name: CLAUDE_BASE_URL
+          value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+          # Override with local LLM endpoint when GATEWAY_MODE=local
         volumeMounts:
         - name: validation-config
           mountPath: /config

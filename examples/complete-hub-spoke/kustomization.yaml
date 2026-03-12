@@ -7,7 +7,7 @@ resources:
   # Core Flux and controllers (same as base)
   - ../../control-plane/
   # AI Integration components
-  - ai-gateway/
+  # - ai-gateway/  # Optional: comment out for local LLM setups
   - ai-cronjobs/
   - ai-validation/
 labels:
@@ -16,3 +16,9 @@ labels:
       component: complete-hub-spoke-with-ai
       platform: multi-cluster-gitops
       ai-enhanced: "true"
+# Deployment mode configuration
+configMapGenerator:
+- name: ai-deployment-config
+  literals:
+  - GATEWAY_MODE=gateway  # Options: gateway, direct, local
+  - CLAUDE_BASE_URL=http://claude-code-gateway.control-plane.svc.cluster.local:80
