@@ -2,6 +2,8 @@
 
 > **🎯 Problem-First Architecture**: This architecture adapts to your specific problems, not vice-versa. Start with [Strategic Framework](./STRATEGIC-FRAMEWORK.md) to determine your needs.
 
+**⚠️ CRITICAL**: Before reading this architecture document, complete the [Problem Definition Guide](./PROBLEM-DEFINITION-GUIDE.md) to ensure this solution fits YOUR specific infrastructure challenges. This architecture is designed to be modular and adaptable - you implement only what solves your problems.
+
 This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management, with **scenario-specific adaptability**.
 
 ## 🏗️ Adaptive Architecture: Problem-Specific Implementation
@@ -27,6 +29,36 @@ multi-cloud-enterprise:
   - consensus-agents
   - ai-optimization
 ```
+
+### Scenario-Specific Architecture Patterns
+
+#### 🟢 Greenfield Scenarios (New Infrastructure)
+**When Applicable**: Starting from scratch, no legacy constraints
+**Architectural Focus**: Maximum flexibility and future evolution
+- **Use Case**: New platform development, startup infrastructure
+- **Recommended**: Full consensus architecture from day one
+- **Risk**: Over-engineering for simple needs
+
+#### 🟡 Brownfield Scenarios (Existing Infrastructure)  
+**When Applicable**: Migrating legacy systems, existing infrastructure constraints
+**Architectural Focus**: Gradual adoption, migration safety
+- **Use Case**: Terraform/CloudFormation migration, legacy modernization
+- **Recommended**: Start with Flux core, add layers incrementally
+- **Risk**: Attempting big-bang migration
+
+#### 🟡 Hybrid Scenarios (Local + Cloud)
+**When Applicable**: Development teams + cloud operations, local infrastructure + cloud
+**Architectural Focus**: Environment consistency, progressive migration
+- **Use Case**: Dev teams with local infra, prod in cloud; most common scenario
+- **Recommended**: Local-first with cloud integration, DAG-bounded modularity
+- **Risk**: Environment drift, inconsistent tooling
+
+#### 🔴 Multi-Cloud Scenarios (Multiple Providers)
+**When Applicable**: Operations across AWS + Azure + GCP
+**Architectural Focus**: Cross-cloud coordination, global optimization
+- **Use Case**: Regulatory requirements, global distribution, provider-specific capabilities
+- **Recommended**: Full consensus agents for optimization
+- **Risk**: Multi-cloud complexity without real multi-cloud problems
 
 ## Revolutionary Architecture: Consensus-Based Agent Swarms
 

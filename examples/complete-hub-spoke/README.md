@@ -1,6 +1,34 @@
-# Complete Hub-Spoke AI Integration Example - Consensus-Based Agent Orchestration
+# Complete Hub-Spoke AI Integration Example - Scenario-Based Implementation
 
-This example demonstrates a **revolutionary multi-agent AI system** for GitOps infrastructure management, implementing **consensus-based distributed orchestration** and **tight feedback loops** based on the ai-agents-sandbox architecture.
+## 🚨 Critical Reader Advisory: Problem-First Required
+
+**This example demonstrates SOLUTIONS for SPECIFIC PROBLEMS**. Before implementing, you MUST:
+
+1. **Define Your Problem**: What infrastructure challenge are you solving?
+2. **Classify Your Scenario**: Greenfield, Brownfield, or Hybrid?
+3. **Select Appropriate Components**: Use only what solves YOUR specific problem
+4. **Validate Success**: Measure against YOUR defined criteria
+
+**⚠️ Accountability**: YOU are responsible for determining if this solution fits YOUR problem. We provide flexible building blocks; you provide the problem definition and implementation decisions.
+
+## 🏗️ Scenario-Based Architecture
+
+The example implements **problem-specific deployment patterns** for different infrastructure challenges:
+
+### 🟢 Greenfield Pattern (New Infrastructure)
+**When to Use**: Starting from scratch with no existing constraints
+**Problem Types**: Multi-cloud coordination, complex new applications, startup infrastructure
+**Components**: Full consensus agents + AI orchestration + tight feedback loops
+
+### 🟡 Brownfield Pattern (Existing Infrastructure)
+**When to Use**: Migrating from existing IaC, legacy systems, or partial cloud adoption  
+**Problem Types**: Migration complexity, gradual modernization, legacy integration
+**Components**: Core Flux first, gradual AI integration, phased migration tools
+
+### 🟡 Hybrid Pattern (Local + Cloud)
+**When to Use**: Development teams with local infrastructure needing cloud integration
+**Problem Types**: Local-cloud coordination, progressive migration, multi-environment management
+**Components**: Hybrid variants + selective AI + edge computing integration
 
 ## Revolutionary Architecture: Self-Organizing Agent Swarms
 
