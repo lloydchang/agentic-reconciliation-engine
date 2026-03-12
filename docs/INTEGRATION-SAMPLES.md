@@ -1,6 +1,6 @@
-# Sample Integration Scripts and Examples
+# Integration Examples
 
-This directory contains sample scripts demonstrating how to integrate with the Continuous Reconciliation Engine (CRE).
+This directory contains integration examples demonstrating how to integrate with the Continuous Reconciliation Engine (CRE).
 
 ## Directory Structure
 
@@ -25,9 +25,21 @@ scripts/
 
 These examples demonstrate safe, AGPL-compliant integration patterns that maintain clear separation between the CRE core and your proprietary business logic.
 
-## Licensing for Sample Scripts
+## How Examples Are Provided
 
-**Important**: All sample scripts in this documentation are provided under the **Apache License 2.0** (permissive open-source license). This allows you to:
+**Important**: The integration examples are embedded directly in this documentation as code snippets, not as separate executable files. This design choice provides several benefits:
+
+- **Demonstration Focus**: Examples show integration patterns and concepts, not production-ready code
+- **Repository Cleanliness**: Avoids cluttering the repository with non-production files
+- **Easy Adaptation**: Users can copy-paste code directly into their own projects
+- **Documentation Integration**: Examples stay synchronized with explanatory text
+- **Version Control**: Changes to examples are tracked with documentation updates
+
+If you need executable scripts for your project, copy the code snippets into your own repository and adapt them to your specific requirements.
+
+## Licensing for Examples
+
+**Important**: All integration examples in this documentation are provided under the **Apache License 2.0** (permissive open-source license). This allows you to:
 
 - Use the code commercially
 - Modify and distribute
@@ -35,7 +47,7 @@ These examples demonstrate safe, AGPL-compliant integration patterns that mainta
 - Include in proprietary software
 - Patent protection for contributors
 
-The samples are **NOT** licensed under AGPL-3.0 because they demonstrate integration patterns, not modifications of the CRE core. You can adapt these samples into your proprietary applications while maintaining AGPL compliance.
+The examples are **NOT** licensed under AGPL-3.0 because they demonstrate integration patterns, not modifications of the CRE core. You can adapt these examples into your proprietary applications while maintaining AGPL compliance.
 
 ## Python API Client Example
 
