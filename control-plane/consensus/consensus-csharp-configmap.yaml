@@ -1,0 +1,308 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consensus-csharp-scripts
+  namespace: control-plane
+data:
+  ConsensusFeedbackLoop.cs: |
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Linq;
+    using System.Diagnostics;
+
+    namespace ConsensusAgentOrchestration
+    {
+        // Data structures for consensus
+        public class ConsensusProposal
+        {
+            public string Id { get; set; }
+            public string AgentType { get; set; }
+            public string Description { get; set; }
+            public int Priority { get; set; }
+            public DateTime Timestamp { get; set; }
+            public int VotesRequired { get; set; } = 3;
+            public bool Approved { get; set; } = false;
+        }
+
+        public class ConsensusState
+        {
+            public int QuorumSize { get; set; } = 3;
+            public string Protocol { get; set; } = "raft";
+            public Dictionary<string, ConsensusProposal> ActiveProposals { get; set; } = new();
+            public DateTime? LastUpdate { get; set; }
+        }
+
+        // Agent interface
+        public interface IConsensusAgent
+        {
+            Task<ConsensusProposal> LocalOptimizationAsync(ConsensusState state);
+            Task<bool> VoteOnProposalAsync(ConsensusProposal proposal);
+            Task ExecuteConsensusAsync(ConsensusProposal proposal, List<bool> votes);
+        }
+
+        // Cost optimizer agent implementation
+        public class CostOptimizerAgent : IConsensusAgent
+        {
+            private readonly ConsensusState _state;
+
+            public CostOptimizerAgent(ConsensusState state)
+            {
+                _state = state;
+            }
+
+            public async Task<ConsensusProposal> LocalOptimizationAsync(ConsensusState state)
+            {
+                // Simulate local optimization work
+                await Task.Delay(1000);
+
+                // Mock: Sometimes create a proposal (30% chance)
+                var random = new Random();
+                if (random.NextDouble() < 0.3)
+                {
+                    return new ConsensusProposal
+                    {
+                        Id = $"proposal-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}",
+                        AgentType = "cost-optimizer",
+                        Description = "Scale EKS node group from 3 to 5 nodes",
+                        Priority = 2,
+                        Timestamp = DateTime.Now,
+                        VotesRequired = _state.QuorumSize
+                    };
+                }
+
+                return null;
+            }
+
+            public async Task<bool> VoteOnProposalAsync(ConsensusProposal proposal)
+            {
+                // Weighted voting based on agent type
+                await Task.Delay(100); // Simulate voting deliberation
+
+                if (proposal.AgentType == "cost-optimizer")
+                {
+                    return true; // Cost optimizer always approves cost-related proposals
+                }
+
+                // For other proposals, approve with 80% confidence
+                return new Random().NextDouble() < 0.8;
+            }
+
+            public async Task ExecuteConsensusAsync(ConsensusProposal proposal, List<bool> votes)
+            {
+                Console.WriteLine($"Executing consensus proposal: {proposal.Description}");
+
+                // Simulate infrastructure change execution
+                await Task.Delay(500);
+
+                Console.WriteLine("Consensus change executed successfully");
+            }
+        }
+
+        // Main consensus feedback loop
+        public class ConsensusFeedbackLoop
+        {
+            private readonly ConsensusState _consensusState;
+            private readonly List<IConsensusAgent> _agents;
+            private readonly TimeSpan _feedbackInterval;
+            private readonly int _quorumSize;
+            private bool _running = true;
+
+            public ConsensusFeedbackLoop()
+            {
+                // Read environment variables
+                _consensusState = new ConsensusState
+                {
+                    QuorumSize = int.Parse(Environment.GetEnvironmentVariable("AGENT_QUORUM") ?? "3"),
+                    Protocol = Environment.GetEnvironmentVariable("CONSENSUS_PROTOCOL") ?? "raft"
+                };
+
+                _feedbackInterval = TimeSpan.FromSeconds(
+                    int.Parse(Environment.GetEnvironmentVariable("FEEDBACK_INTERVAL")?.TrimEnd('s') ?? "30")
+                );
+
+                _quorumSize = _consensusState.QuorumSize;
+
+                // Initialize agents
+                _agents = new List<IConsensusAgent>
+                {
+                    new CostOptimizerAgent(_consensusState)
+                    // Add more agent types as needed
+                };
+
+                // Setup signal handling for graceful shutdown
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    e.Cancel = true;
+                    _running = false;
+                };
+            }
+
+            public async Task RunFeedbackLoopAsync()
+            {
+                Console.WriteLine("Starting C# consensus feedback loop");
+
+                while (_running)
+                {
+                    try
+                    {
+                        // Phase 1: Local optimization (30 seconds)
+                        await RunLocalOptimizationPhaseAsync();
+
+                        // Phase 2: Consensus proposal submission
+                        await RunConsensusProposalPhaseAsync();
+
+                        // Phase 3: Vote collection
+                        await RunVoteCollectionPhaseAsync();
+
+                        // Phase 4: Consensus execution
+                        await RunConsensusExecutionPhaseAsync();
+
+                        // Wait for next iteration
+                        await Task.Delay(TimeSpan.FromMinutes(1) - _feedbackInterval);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error in feedback loop iteration: {ex.Message}");
+                        await Task.Delay(TimeSpan.FromSeconds(10));
+                    }
+                }
+            }
+
+            private async Task RunLocalOptimizationPhaseAsync()
+            {
+                Console.WriteLine("Starting local optimization phase");
+
+                try
+                {
+                    // Run local optimization with timeout
+                    var optimizationTasks = _agents.Select(agent =>
+                        Task.Run(() => agent.LocalOptimizationAsync(_consensusState))
+                    );
+
+                    var optimizationResults = await Task.WhenAll(optimizationTasks);
+
+                    foreach (var proposal in optimizationResults.Where(p => p != null))
+                    {
+                        _consensusState.ActiveProposals[proposal.Id] = proposal;
+                        Console.WriteLine($"Created consensus proposal: {proposal.Id}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Local optimization failed: {ex.Message}");
+                }
+            }
+
+            private async Task RunConsensusProposalPhaseAsync()
+            {
+                if (!_consensusState.ActiveProposals.Any())
+                    return;
+
+                foreach (var proposal in _consensusState.ActiveProposals.Values.ToList())
+                {
+                    try
+                    {
+                        // Submit to consensus protocol (simulated)
+                        await SubmitToConsensusAsync(proposal);
+                        Console.WriteLine($"Submitted proposal {proposal.Id} to consensus");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to submit proposal {proposal.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            private async Task RunVoteCollectionPhaseAsync()
+            {
+                foreach (var proposal in _consensusState.ActiveProposals.Values.ToList())
+                {
+                    try
+                    {
+                        var votes = await CollectVotesAsync(proposal);
+
+                        if (votes.Count(v => v) >= proposal.VotesRequired)
+                        {
+                            proposal.Approved = true;
+                            Console.WriteLine($"Proposal {proposal.Id} reached quorum");
+                        }
+                        else if (votes.Any())
+                        {
+                            Console.WriteLine($"Proposal {proposal.Id} has {votes.Count(v => v)} votes");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to collect votes for proposal {proposal.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            private async Task RunConsensusExecutionPhaseAsync()
+            {
+                foreach (var proposal in _consensusState.ActiveProposals.Where(p => p.Value.Approved).ToList())
+                {
+                    try
+                    {
+                        // Collect final votes for execution
+                        var finalVotes = await CollectVotesAsync(proposal.Value);
+                        await _agents.First().ExecuteConsensusAsync(proposal.Value, finalVotes);
+
+                        _consensusState.ActiveProposals.Remove(proposal.Key);
+                        Console.WriteLine($"Executed approved proposal: {proposal.Key}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to execute proposal {proposal.Key}: {ex.Message}");
+                    }
+                }
+            }
+
+            private async Task SubmitToConsensusAsync(ConsensusProposal proposal)
+            {
+                // Simulate consensus protocol submission
+                await Task.Delay(100);
+            }
+
+            private async Task<List<bool>> CollectVotesAsync(ConsensusProposal proposal)
+            {
+                // Simulate vote collection from agents
+                var votes = new List<bool>();
+
+                foreach (var agent in _agents)
+                {
+                    try
+                    {
+                        var vote = await agent.VoteOnProposalAsync(proposal);
+                        votes.Add(vote);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Agent voting failed: {ex.Message}");
+                        votes.Add(false); // Default to false on error
+                    }
+                }
+
+                return votes;
+            }
+        }
+
+        class Program
+        {
+            static async Task Main(string[] args)
+            {
+                var loop = new ConsensusFeedbackLoop();
+
+                try
+                {
+                    await loop.RunFeedbackLoopAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Consensus feedback loop failed: {ex.Message}");
+                    Environment.Exit(1);
+                }
+            }
+        }
+    }
