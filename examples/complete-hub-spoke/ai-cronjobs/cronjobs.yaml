@@ -1,5 +1,10 @@
 # Complete AI CronJobs for Infrastructure Automation
 # Production-ready Claude Code jobs with safety controls
+# 
+# ⚠️ Architecture Note: These jobs can use either:
+# 1. AI Gateway for enterprise compliance (default)
+# 2. Direct Claude API for local LLM setups (set GATEWAY_MODE=direct)
+# 3. Local LLM service (set CLAUDE_BASE_URL to local endpoint)
 
 apiVersion: batch/v1
 kind: CronJob
@@ -51,6 +56,11 @@ spec:
                 secretKeyRef:
                   name: claude-secrets
                   key: api-key
+            - name: GATEWAY_MODE
+              value: "gateway"  # Options: gateway, direct, local
+            - name: CLAUDE_BASE_URL
+              value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+              # Override with local LLM endpoint when GATEWAY_MODE=local
             volumeMounts:
             - name: reports-volume
               mountPath: /reports
@@ -126,6 +136,11 @@ spec:
                 secretKeyRef:
                   name: claude-secrets
                   key: api-key
+            - name: GATEWAY_MODE
+              value: "gateway"  # Options: gateway, direct, local
+            - name: CLAUDE_BASE_URL
+              value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+              # Override with local LLM endpoint when GATEWAY_MODE=local
             volumeMounts:
             - name: validation-volume
               mountPath: /validation
