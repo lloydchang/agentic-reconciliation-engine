@@ -64,7 +64,7 @@ We utilize Flux over Argo CD because Flux is architecturally optimized for infra
 This repository uses dual licensing to enable both open-source contributions and commercial usage:
 
 - **AGPL-3.0**: Core Continuous Reconciliation Engine (CRE) - infrastructure manifests, Flux configurations, and core logic
-- **Apache 2.0**: Documentation, integration samples, and examples - allows commercial use and proprietary derivatives
+- **Apache 2.0**: Code samples and example snippets within documentation - allows commercial use and proprietary derivatives
 
 See [Licensing Guide](./docs/LICENSING-GUIDE.md) for detailed compliance information and building proprietary layers on the CRE.
 

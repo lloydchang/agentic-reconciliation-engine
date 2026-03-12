@@ -12,10 +12,10 @@ This repository uses a **dual licensing approach** to support both open-source d
 - **License**: GNU Affero General Public License v3.0 (AGPL-3.0)
 - **Requirements**: Derivative works must be AGPL-licensed
 
-### Apache 2.0 Documentation & Examples
-- **What**: Integration examples, tutorials, and documentation
-- **Files**: All `.md` documentation files, code examples, and sample implementations
-- **License**: Apache License 2.0 (permissive)
+### Apache 2.0 Code Samples Only
+- **What**: Integration code samples and example snippets (incomplete implementations requiring adaptation)
+- **Files**: Code blocks within `.md` documentation files
+- **License**: Apache License 2.0 (permissive) - can be copied and modified commercially
 - **Requirements**: Commercial use allowed, no copyleft restrictions
 
 ### Why This Works
