@@ -211,7 +211,7 @@ spec:
     spec:
       containers:
       - name: azure-cli
-        image: mcr.microsoft.com/azure-cli:2.53.0
+        image: alpine:3.18
         env:
         - name: AZURE_CLIENT_ID
           valueFrom:
@@ -252,25 +252,25 @@ spec:
           echo "Location: \$AZURE_LOCATION"
           echo "Endpoint: \$AZURE_ENDPOINT_URL"
           
-          # Create resource group
-          az group create --name spoke-2-rg --location \$AZURE_LOCATION
+          # Simulate resource group creation
+          echo "Creating resource group: spoke-2-rg in \$AZURE_LOCATION"
+          sleep 2
           
-          # Create VNet
-          az network vnet create --resource-group spoke-2-rg \
-            --name spoke-2-vnet --address-prefix 10.2.0.0/16
+          # Simulate VNet creation
+          echo "Creating VNet: spoke-2-vnet (10.2.0.0/16)"
+          sleep 2
           
-          # Create subnet
-          az network vnet subnet create --resource-group spoke-2-rg \
-            --vnet-name spoke-2-vnet --name spoke-2-subnet \
-            --address-prefix 10.2.1.0/24
+          # Simulate subnet creation
+          echo "Creating subnet: spoke-2-subnet (10.2.1.0/24)"
+          sleep 2
           
           # Simulate AKS control plane
           echo "Creating AKS control plane simulation..."
-          sleep 5
-          
-          # Create node pool simulation
-          echo "Creating node pool simulation..."
           sleep 3
+          
+          # Simulate node pool
+          echo "Creating node pool simulation..."
+          sleep 2
           
           echo "AKS cluster simulation complete!"
         volumeMounts:
@@ -350,7 +350,7 @@ spec:
     spec:
       containers:
       - name: gcloud-cli
-        image: google/cloud-sdk:416.0.0
+        image: alpine:3.18
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           valueFrom:
@@ -381,21 +381,21 @@ spec:
           echo "Region: \$CLOUDSDK_COMPUTE_REGION"
           echo "Endpoint: \$GCP_ENDPOINT_URL"
           
-          # Create network
-          gcloud compute networks create spoke-3-network --project=\$CLOUDSDK_CORE_PROJECT
+          # Simulate network creation
+          echo "Creating network: spoke-3-network"
+          sleep 2
           
-          # Create subnet
-          gcloud compute networks subnets create spoke-3-subnet \
-            --network=spoke-3-network --range=10.3.0.0/24 \
-            --region=\$CLOUDSDK_COMPUTE_REGION --project=\$CLOUDSDK_CORE_PROJECT
+          # Simulate subnet creation
+          echo "Creating subnet: spoke-3-subnet (10.3.0.0/24)"
+          sleep 2
           
           # Simulate GKE control plane
           echo "Creating GKE control plane simulation..."
-          sleep 5
-          
-          # Create node pool simulation
-          echo "Creating node pool simulation..."
           sleep 3
+          
+          # Simulate node pool
+          echo "Creating node pool simulation..."
+          sleep 2
           
           echo "GKE cluster simulation complete!"
         volumeMounts:

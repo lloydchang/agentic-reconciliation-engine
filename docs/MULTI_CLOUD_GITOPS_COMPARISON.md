@@ -34,6 +34,13 @@ Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spo
 - ❌ **Complex setup** - Multiple controllers to configure
 - ❌ **Debugging challenges** - Distributed reconciliation
 
+**Mitigation Strategies:**
+- **High Availability Setup**: Deploy Flux in multiple hub clusters across regions with shared Git repository. Use DNS-based load balancing or active-passive failover.
+- **Controller Distribution**: Move some controllers to spoke clusters for local reconciliation, reducing hub dependency.
+- **Automated Controller Deployment**: Create Helm charts or Kustomize templates that automate controller installation across environments.
+- **Centralized Logging**: Implement structured logging with correlation IDs across all controllers and Flux components. Use tools like Loki or CloudWatch for aggregation.
+- **Observability Stack**: Add Prometheus metrics and Grafana dashboards for reconciliation status, failure rates, and dependency chains.
+
 **Best For:** Enterprise teams needing strict dependency ordering and cross-cloud resource management.
 
 ### 2. **Red Hat Validated Patterns**
