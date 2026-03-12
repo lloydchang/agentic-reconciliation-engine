@@ -1,13 +1,13 @@
 # implementation_plan.md: GitOps Infrastructure Control Plane
 
-**Objective:** Implement a hybrid multi-cloud Infrastructure as Code (IaC) control plane. Initial cluster bootstrap uses industry-standard CLIs (eksctl, az, gcloud), then transitions to pull-based GitOps for ongoing management. All infrastructure—from VPCs to Kubernetes clusters—is managed as native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
+**Objective:** Implement continuous reconciliation for multi-cloud infrastructure that traditional IaC tools cannot provide. While Terraform, CDK, CloudFormation, Bicep, and ARM run once and exit, our approach provides 24/7 automated drift detection and repair. Initial Hub cluster setup uses industry-standard CLIs (eksctl, az, gcloud), then transitions to continuous reconciliation for all ongoing infrastructure management via native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
 
 **Prerequisites:** Before beginning, review the architectural topology diagram in [README.md](./README.md). The implementation assumes a hub-and-spoke model where the Hub Cluster manages the lifecycle of all Spoke Clusters.
 
 ## 1. Architectural Mandates
-* Hybrid Approach: Industry-standard CLIs (eksctl, az, gcloud) for initial cluster bootstrap, then native Kubernetes operators for declarative management.
-* No Abstraction Layers: No Crossplane or custom intent-synthesis engines. Communicate directly with the Cloud Providers' official Kubernetes controllers.
-* No Centralized State: The state is the live Cloud API, reconciled by the local controller.
+* **Continuous Reconciliation**: 24/7 monitoring and automatic repair of configuration drift - something traditional IaC cannot achieve without external orchestration.
+* **No Abstraction Layers**: No Crossplane or custom intent-synthesis engines. Communicate directly with the Cloud Providers' official Kubernetes controllers.
+* **No Centralized State**: The state is the live Cloud API, reconciled by the local controller.
 
 ## 2. Design Rationale
 * Why Flux (Not Argo CD)? 
@@ -37,4 +37,4 @@ The implementation must verify:
 3. Observe the controller detecting drift and reverting cloud state to Git manifest within minutes.
 
 **Completion Criteria:**
-The repository must contain a complete, self-healing, Git-driven infrastructure platform where every layer is pulled and reconciled by native Kubernetes controllers under the GNU Affero General Public License v3.0 (AGPL-3.0), with industry-standard CLIs used only for initial cluster bootstrap.
+The repository must contain a complete, self-healing, Git-driven infrastructure platform that provides continuous reconciliation capabilities unavailable in traditional IaC tools. Every layer is pulled and reconciled by native Kubernetes controllers under the GNU Affero General Public License v3.0 (AGPL-3.0), with industry-standard CLIs used only for initial Hub cluster setup.
