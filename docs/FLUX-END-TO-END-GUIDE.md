@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file provides end-to-end guidance for Flux implementation within the hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Documenting complete Flux integration and deployment patterns.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Flux End-to-End Implementation Guide
 
 This guide provides a comprehensive overview of Flux CD's end-to-end architecture and implementation for the GitOps Infrastructure Control Plane, updated for Flux v2.0+ with modern practices and OCIRepository support.

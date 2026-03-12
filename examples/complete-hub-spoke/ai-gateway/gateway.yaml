@@ -1,3 +1,9 @@
+# Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach
+# This gateway provides AI integration within the consensus layer
+# North Star: Definitive reference implementation for autonomous infrastructure management
+# Current Status: AI gateway deployment for agent orchestration
+# Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md
+
 # Complete AI Gateway Deployment
 # Production-ready agentgateway proxy for Claude Code with security controls
 

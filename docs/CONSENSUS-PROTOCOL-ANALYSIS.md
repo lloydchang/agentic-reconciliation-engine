@@ -34,26 +34,26 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 | Tendermint | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
 | HotStuff | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
 
-## Why Raft Was Chosen
+## Why Raft Was Chosen: Context-Dependent Decision
 
-### 1. Understandability and Developer Experience
+### 1. Understandability and Operational Simplicity
 
-**Raft's Primary Advantage**: Designed for understandability
+**Raft's Primary Advantage**: Designed for understandability, but **only valuable when complexity warrants it**
 
 The original Raft paper explicitly states: *"The main goal of Raft is to be understandable."* This is crucial for infrastructure management systems where:
 
-- **Operations Teams** need to understand consensus behavior for troubleshooting
-- **Security Teams** must audit consensus decisions for compliance
-- **Development Teams** need to implement and maintain the system
-- **Incident Response** requires quick understanding of failure modes
+- **Large distributed teams** need to understand consensus behavior for troubleshooting
+- **Multi-cloud environments** require audit trails for compliance
+- **Complex failure scenarios** demand quick understanding of recovery procedures
+- **Enterprise operations** need maintainable consensus implementations
 
-**Paxos Challenge**: Notoriously difficult to understand and implement correctly
-- Multiple phases with complex interleaving
-- Hard to reason about edge cases
-- Implementation pitfalls are common and subtle
-- Difficult to debug when issues occur
+**When Simpler Alternatives Are Better**:
+- **Single-cloud deployments**: Use centralized coordination instead
+- **Small team environments**: Direct communication is more efficient
+- **Simple automation tasks**: Basic controller coordination suffices
+- **Low-complexity workloads**: Consensus adds unnecessary overhead
 
-### 2. Implementation Simplicity
+### 2. Implementation Complexity vs. Problem Complexity
 
 **Raft Implementation**:
 ```go
