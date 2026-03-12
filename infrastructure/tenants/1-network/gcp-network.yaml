@@ -4,6 +4,9 @@ kind: ComputeNetwork
 metadata:
   name: gitops-network
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/description: "Foundation VPC network for all GCP resources"
 spec:
   description: "GitOps infrastructure network"
   routingMode: REGIONAL
@@ -14,6 +17,10 @@ kind: ComputeSubnetwork
 metadata:
   name: gitops-subnet-1
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/network: "gitops-network"
+    dependsOn.fluxcd.io/description: "Subnet 1 depends on network"
 spec:
   region: us-central1
   ipCidrRange: "10.2.1.0/24"
@@ -30,6 +37,10 @@ kind: ComputeSubnetwork
 metadata:
   name: gitops-subnet-2
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/network: "gitops-network"
+    dependsOn.fluxcd.io/description: "Subnet 2 depends on network"
 spec:
   region: us-central1
   ipCidrRange: "10.2.2.0/24"
@@ -46,6 +57,11 @@ kind: ContainerCluster
 metadata:
   name: gke-cluster-placeholder
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "3"
+    dependsOn.fluxcd.io/network: "gitops-network"
+    dependsOn.fluxcd.io/subnet: "gitops-subnet-1"
+    dependsOn.fluxcd.io/description: "GKE cluster depends on network and subnet"
 spec:
   location: us-central1
   initialNodeCount: 1

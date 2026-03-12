@@ -9,6 +9,7 @@ REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"
 BRANCH="main"
 FLUX_PATH="control-plane/flux"
 TIMEOUT=1800  # 30 minutes
+CLUSTER_NAME=${CLUSTER_NAME:-"gitops-cluster"}  # Default cluster name
 
 # Colors
 RED='\033[0;31m'
@@ -102,7 +103,7 @@ bootstrap_flux() {
     # Check if Flux is already installed
     if kubectl get namespace flux-system &>/dev/null && kubectl get deployments -n flux-system | grep -q "kustomize-controller"; then
         print_status "Flux already installed, skipping bootstrap..."
-        # Apply local GitRepository and Kustomization
+        # Apply local GitRepository and Kustomization for local testing
         if [[ -f "local-test.yaml" ]]; then
             kubectl apply -f local-test.yaml
         fi
@@ -110,12 +111,45 @@ bootstrap_flux() {
             kubectl apply -f test-kustomization.yaml
         fi
     else
-        flux bootstrap git \
-            --url=$REPO_URL \
-            --branch=$BRANCH \
-            --path=$FLUX_PATH \
-            --components-extra=image-reflector-controller,image-automation-controller \
-            --silent
+        # For local testing, use local Git repository instead of remote
+        if [[ "$CLUSTER_TYPE" == "kind" ]] || [[ "$CLUSTER_NAME" == *"local"* ]] || [[ "$CLUSTER_TYPE" == "kind-"* ]]; then
+            print_status "Local cluster detected, using local Git repository..."
+            # Create local GitRepository pointing to local filesystem
+            cat <<EOF | kubectl apply -f -
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: local-infra
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  url: file:///workspace
+EOF
+            # Create basic Kustomization
+            cat <<EOF | kubectl apply -f -
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: test-infra
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: local-infra
+EOF
+        else
+            flux bootstrap git \
+                --url=$REPO_URL \
+                --branch=$BRANCH \
+                --path=$FLUX_PATH \
+                --components-extra=image-reflector-controller,image-automation-controller \
+                --silent
+        fi
     fi
 
     print_status "Waiting for Flux controllers to be ready..."

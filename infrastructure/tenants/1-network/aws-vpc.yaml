@@ -4,6 +4,9 @@ kind: VPC
 metadata:
   name: gitops-vpc
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/description: "Foundation VPC for all network resources"
 spec:
   cidrBlock: "10.0.0.0/16"
   enableDnsHostnames: true
@@ -21,6 +24,10 @@ kind: InternetGateway
 metadata:
   name: gitops-igw
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/vpc: "gitops-vpc"
+    dependsOn.fluxcd.io/description: "Internet gateway depends on VPC"
 spec:
   vpcRef:
     name: gitops-vpc

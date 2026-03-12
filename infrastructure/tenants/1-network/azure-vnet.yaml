@@ -4,6 +4,10 @@ kind: VirtualNetwork
 metadata:
   name: gitops-vnet
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/resource-group: "gitops-resource-group"
+    dependsOn.fluxcd.io/description: "Virtual network depends on resource group"
 spec:
   location: eastus
   owner:
@@ -24,6 +28,9 @@ kind: ResourceGroup
 metadata:
   name: gitops-resource-group
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/description: "Foundation resource group for all Azure resources"
 spec:
   location: eastus
   tags:
