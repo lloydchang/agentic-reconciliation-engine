@@ -1,0 +1,18 @@
+apiVersion: consensus.gitops.io/v1alpha1
+kind: ConsensusLayer
+metadata:
+  name: raft-consensus-protocol
+  namespace: control-plane
+spec:
+  protocol: raft
+  heartbeatInterval: 10s
+  electionTimeout: 30s
+  consensusQuorum: 3
+  faultTolerance: 1  # Can tolerate 1 failure with 3 nodes
+  security:
+    encryptedCommunication: true
+    certificateAuthority: sealed-secrets
+  monitoring:
+    enabled: true
+    prometheusEndpoint: /metrics
+    logLevel: info
