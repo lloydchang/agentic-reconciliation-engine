@@ -25,17 +25,32 @@ scripts/
 
 These examples demonstrate safe, AGPL-compliant integration patterns that maintain clear separation between the CRE core and your proprietary business logic.
 
-## How Examples Are Provided
+## How Samples Are Provided
 
-**Important**: The integration examples are embedded directly in this documentation as code snippets, not as separate executable files. This design choice provides several benefits:
+**Important**: The integration samples are **intentionally incomplete patterns** embedded as code snippets in documentation. They require user adaptation and are **NOT** complete, executable implementations.
 
-- **Demonstration Focus**: Examples show integration patterns and concepts, not production-ready code
-- **Repository Cleanliness**: Avoids cluttering the repository with non-production files
-- **Easy Adaptation**: Users can copy-paste code directly into their own projects
-- **Documentation Integration**: Examples stay synchronized with explanatory text
-- **Version Control**: Changes to examples are tracked with documentation updates
+### Why Samples Are Incomplete:
 
-If you need executable scripts for your project, copy the code snippets into your own repository and adapt them to your specific requirements.
+- **Environment-Specific Configuration**: Require user-defined variables (project IDs, credentials, endpoints)
+- **Business Logic Integration**: Users must add their own authentication, monitoring, and error handling
+- **Infrastructure Customization**: Platform-specific parameters must be adapted to user environments  
+- **Security Requirements**: Users must implement their own security hardening and compliance checks
+- **Production Readiness**: Samples demonstrate patterns, not production-deployable code
+
+### Sample Usage Pattern:
+```bash
+# Sample shows the pattern - user must provide actual values
+deploy_gcp_network "$tenant_id" "$GCP_PROJECT_ID"  # User provides GCP_PROJECT_ID
+
+# Sample demonstrates structure - user implements actual logic
+check_deployment_status() {
+    # Sample shows approach, user implements specifics
+    kubectl get pods -n "$tenant_namespace" -o jsonpath='{.status.phase}'
+}
+```
+
+### Licensing Justification:
+Since samples are **incomplete by definition** and require significant user adaptation, they can be **Apache 2.0 licensed** without triggering AGPL derivative work requirements. Users create their own complete implementations using these patterns.
 
 ## Licensing for Examples
 
@@ -49,9 +64,409 @@ If you need executable scripts for your project, copy the code snippets into you
 
 The examples are **NOT** licensed under AGPL-3.0 because they demonstrate integration patterns, not modifications of the CRE core. You can adapt these examples into your proprietary applications while maintaining AGPL compliance.
 
-## Python API Client Example
+## Multi-Cloud Integration Samples
 
-### infrastructure_client.py
+The following samples demonstrate how to integrate with the CRE across all supported platforms. Each sample shows safe, AGPL-compliant integration patterns using network communication only.
+
+### AWS Integration Sample
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# AWS Infrastructure Deployment via CRE
+# Uses network communication (kubectl/git) - AGPL compliant
+
+deploy_aws_vpc() {
+    local tenant_id="$1"
+    local region="${2:-us-east-1}"
+    local cidr="${3:-10.0.0.0/16}"
+    
+    log "Deploying VPC for tenant ${tenant_id} in ${region}"
+    
+    # Generate AWS-specific VPC manifest
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: VPC
+metadata:
+  name: "${tenant_id}-vpc"
+  namespace: flux-system
+  labels:
+    tenant: "${tenant_id}"
+    cloud: aws
+spec:
+  forProvider:
+    region: "${region}"
+    cidrBlock: "${cidr}"
+    enableDnsHostnames: true
+    enableDnsSupport: true
+    tags:
+    - key: Name
+      value: "${tenant_id}-vpc"
+    - key: Environment
+      value: tenant-${tenant_id}
+EOF
+)
+    
+    # Safe: Use GitOps to communicate with CRE (network protocol)
+    echo "$manifest" > "tenants/${tenant_id}/aws-vpc.yaml"
+    git add "tenants/${tenant_id}/aws-vpc.yaml"
+    git commit -m "Deploy AWS VPC for tenant ${tenant_id}"
+    git push origin main
+}
+
+deploy_aws_eks() {
+    local tenant_id="$1"
+    local cluster_name="${2:-${tenant_id}-cluster}"
+    local vpc_id="${3:-${tenant_id}-vpc}"
+    
+    log "Deploying EKS cluster ${cluster_name}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: eks.aws.crossplane.io/v1beta1
+kind: Cluster
+metadata:
+  name: "${cluster_name}"
+  namespace: flux-system
+spec:
+  forProvider:
+    region: us-east-1
+    roleARN: "arn:aws:iam::123456789012:role/eks-service-role"
+    vpcConfig:
+    - subnetIdsRef:
+        name: "${vpc_id}"
+      securityGroupIds:
+      - sg-default
+    version: "1.28"
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/aws-eks.yaml"
+    git add "tenants/${tenant_id}/aws-eks.yaml"
+    git commit -m "Deploy AWS EKS cluster for tenant ${tenant_id}"
+    git push origin main
+}
+```
+
+### Azure Integration Sample
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Azure Infrastructure Deployment via CRE
+# Uses network communication (kubectl/git) - AGPL compliant
+
+deploy_azure_resource_group() {
+    local tenant_id="$1"
+    local location="${2:-eastus}"
+    
+    log "Deploying Azure Resource Group for tenant ${tenant_id}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: azure.crossplane.io/v1alpha1
+kind: ResourceGroup
+metadata:
+  name: "${tenant_id}-rg"
+  namespace: flux-system
+spec:
+  forProvider:
+    location: "${location}"
+    tags:
+      environment: "tenant-${tenant_id}"
+      managed-by: cre
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/azure-rg.yaml"
+    git add "tenants/${tenant_id}/azure-rg.yaml"
+    git commit -m "Deploy Azure Resource Group for tenant ${tenant_id}"
+    git push origin main
+}
+
+deploy_azure_aks() {
+    local tenant_id="$1"
+    local cluster_name="${2:-${tenant_id}-aks}"
+    local rg_name="${3:-${tenant_id}-rg}"
+    
+    log "Deploying AKS cluster ${cluster_name}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: containerservice.azure.crossplane.io/v1beta1
+kind: KubernetesCluster
+metadata:
+  name: "${cluster_name}"
+  namespace: flux-system
+spec:
+  forProvider:
+    resourceGroupNameRef:
+      name: "${rg_name}"
+    location: eastus
+    kubernetesVersion: "1.28.0"
+    dnsPrefix: "${tenant_id}"
+    agentPools:
+    - name: default
+      count: 3
+      vmSize: Standard_DS2_v2
+      osType: Linux
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/azure-aks.yaml"
+    git add "tenants/${tenant_id}/azure-aks.yaml"
+    git commit -m "Deploy Azure AKS cluster for tenant ${tenant_id}"
+    git push origin main
+}
+```
+
+### GCP Integration Sample
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# GCP Infrastructure Deployment via CRE
+# Uses network communication (kubectl/git) - AGPL compliant
+
+deploy_gcp_network() {
+    local tenant_id="$1"
+    local project_id="$2"
+    
+    log "Deploying GCP VPC network for tenant ${tenant_id}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeNetwork
+metadata:
+  name: "${tenant_id}-network"
+  namespace: flux-system
+  annotations:
+    cnrm.cloud.google.com/project-id: "${project_id}"
+spec:
+  description: "VPC network for tenant ${tenant_id}"
+  autoCreateSubnetworks: false
+  routingConfig:
+    routingMode: REGIONAL
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/gcp-network.yaml"
+    git add "tenants/${tenant_id}/gcp-network.yaml"
+    git commit -m "Deploy GCP VPC network for tenant ${tenant_id}"
+    git push origin main
+}
+
+deploy_gcp_gke() {
+    local tenant_id="$1"
+    local cluster_name="${2:-${tenant_id}-gke}"
+    local project_id="$2"
+    local network_name="${3:-${tenant_id}-network}"
+    
+    log "Deploying GKE cluster ${cluster_name}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerCluster
+metadata:
+  name: "${cluster_name}"
+  namespace: flux-system
+  annotations:
+    cnrm.cloud.google.com/project-id: "${project_id}"
+spec:
+  location: us-central1
+  initialNodeCount: 3
+  networkRef:
+    name: "${network_name}"
+  nodeConfig:
+    machineType: n1-standard-1
+    diskSizeGb: 100
+    oauthScopes:
+    - https://www.googleapis.com/auth/cloud-platform
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/gcp-gke.yaml"
+    git add "tenants/${tenant_id}/gcp-gke.yaml"
+    git commit -m "Deploy GCP GKE cluster for tenant ${tenant_id}"
+    git push origin main
+}
+```
+
+### Local/Kubernetes Integration Sample
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Local Kubernetes Infrastructure Deployment via CRE
+# Uses network communication (kubectl/git) - AGPL compliant
+
+deploy_local_namespace() {
+    local tenant_id="$1"
+    
+    log "Deploying local Kubernetes namespace for tenant ${tenant_id}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "tenant-${tenant_id}"
+  labels:
+    tenant: "${tenant_id}"
+    environment: local
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/local-namespace.yaml"
+    git add "tenants/${tenant_id}/local-namespace.yaml"
+    git commit -m "Deploy local namespace for tenant ${tenant_id}"
+    git push origin main
+}
+
+deploy_local_deployment() {
+    local tenant_id="$1"
+    local app_name="${2:-tenant-app}"
+    local image="${3:-nginx:latest}"
+    
+    log "Deploying local Kubernetes deployment ${app_name}"
+    
+    local manifest
+    manifest=$(cat << EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "${app_name}"
+  namespace: "tenant-${tenant_id}"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "${app_name}"
+  template:
+    metadata:
+      labels:
+        app: "${app_name}"
+        tenant: "${tenant_id}"
+    spec:
+      containers:
+      - name: app
+        image: "${image}"
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+EOF
+)
+    
+    echo "$manifest" > "tenants/${tenant_id}/local-deployment.yaml"
+    git add "tenants/${tenant_id}/local-deployment.yaml"
+    git commit -m "Deploy local Kubernetes app for tenant ${tenant_id}"
+    git push origin main
+}
+```
+
+## Usage Examples for Each Platform
+
+### AWS Usage
+```bash
+# Deploy complete AWS infrastructure stack
+deploy_aws_vpc "tenant-123"
+deploy_aws_eks "tenant-123"
+
+# Monitor via CRE
+kubectl get vpc tenant-123-vpc -w
+kubectl get cluster tenant-123-cluster -w
+```
+
+### Azure Usage  
+```bash
+# Deploy complete Azure infrastructure stack
+deploy_azure_resource_group "tenant-456"
+deploy_azure_aks "tenant-456"
+
+# Monitor via CRE
+kubectl get resourcegroup tenant-456-rg -w
+kubectl get kubernetescluster tenant-456-aks -w
+```
+
+### GCP Usage
+```bash
+# Deploy complete GCP infrastructure stack
+deploy_gcp_network "tenant-789" "my-gcp-project"
+deploy_gcp_gke "tenant-789" "my-gcp-project"
+
+# Monitor via CRE
+kubectl get computenetwork tenant-789-network -w
+kubectl get containercluster tenant-789-gke -w
+```
+
+### Local Usage
+```bash
+# Deploy local Kubernetes resources
+deploy_local_namespace "tenant-local"
+deploy_local_deployment "tenant-local"
+
+# Monitor via CRE
+kubectl get deployments -n tenant-tenant-local -w
+kubectl get pods -n tenant-tenant-local -w
+```
+
+## Multi-Cloud Deployment Script
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Multi-Cloud Infrastructure Deployment
+# Demonstrates CRE's ability to manage infrastructure across all platforms
+
+deploy_multi_cloud() {
+    local tenant_id="$1"
+    local cloud_provider="$2"  # aws, azure, gcp, local
+    
+    case "$cloud_provider" in
+        aws)
+            deploy_aws_vpc "$tenant_id"
+            deploy_aws_eks "$tenant_id"
+            ;;
+        azure)
+            deploy_azure_resource_group "$tenant_id"
+            deploy_azure_aks "$tenant_id"
+            ;;
+        gcp)
+            deploy_gcp_network "$tenant_id" "$GCP_PROJECT"
+            deploy_gcp_gke "$tenant_id" "$GCP_PROJECT"
+            ;;
+        local)
+            deploy_local_namespace "$tenant_id"
+            deploy_local_deployment "$tenant_id"
+            ;;
+        *)
+            echo "Unsupported cloud provider: $cloud_provider"
+            exit 1
+            ;;
+    esac
+    
+    log "Successfully deployed ${cloud_provider} infrastructure for tenant ${tenant_id}"
+}
+
+# Usage: ./deploy.sh tenant-123 aws
+deploy_multi_cloud "$1" "$2"
+```
+
+These samples demonstrate how the CRE provides unified infrastructure management across AWS, Azure, GCP, and local Kubernetes environments using consistent GitOps patterns and network-based communication.
 ```python
 #!/usr/bin/env python3
 """
