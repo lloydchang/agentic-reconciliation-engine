@@ -1,0 +1,106 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: karpenter-alerts
+  namespace: karpenter
+  labels:
+    app: karpenter
+    demo: karpenter-monitoring
+spec:
+  groups:
+  - name: karpenter.rules
+    rules:
+    - alert: KarpenterNodeProvisioningFailure
+      expr: increase(karpenter_nodes_created_total{status="failed"}[5m]) > 0
+      for: 2m
+      labels:
+        severity: critical
+        component: karpenter
+      annotations:
+        summary: "Karpenter failed to provision nodes"
+        description: "Karpenter has failed to provision {{ $value }} nodes in the last 5 minutes"
+
+    - alert: KarpenterHighNodeTerminationRate
+      expr: rate(karpenter_nodes_terminated_total[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        component: karpenter
+      annotations:
+        summary: "High node termination rate detected"
+        description: "Karpenter is terminating nodes at a rate of {{ $value }} per second"
+
+    - alert: KarpenterNodeClaimsPending
+      expr: kube_nodeclaim_info{phase="Pending"} > 5
+      for: 3m
+      labels:
+        severity: warning
+        component: karpenter
+      annotations:
+        summary: "Multiple NodeClaims pending"
+        description: "{{ $value }} NodeClaims have been pending for more than 3 minutes"
+
+    - alert: KarpenterInsufficientCapacity
+      expr: increase(karpenter_nodes_created_total{status="insufficient_capacity"}[5m]) > 0
+      for: 1m
+      labels:
+        severity: critical
+        component: karpenter
+      annotations:
+        summary: "Insufficient capacity for node provisioning"
+        description: "Karpenter cannot provision nodes due to insufficient capacity"
+
+    - alert: KarpenterConsolidationDisabled
+      expr: karpenter_consolidation_enabled == 0
+      for: 10m
+      labels:
+        severity: info
+        component: karpenter
+      annotations:
+        summary: "Karpenter consolidation is disabled"
+        description: "Node consolidation is disabled, consider enabling for cost optimization"
+
+    - alert: KarpenterHighCostNodes
+      expr: |
+        (
+          sum by (instance_type) (
+            karpenter_node_cost_total * 
+            on (node_name) group_left() (kube_node_info)
+          )
+        ) > 100
+      for: 15m
+      labels:
+        severity: warning
+        component: karpenter
+      annotations:
+        summary: "High-cost nodes detected"
+        description: "Instance type {{ $labels.instance_type }} is costing more than $100 per hour"
+
+  - name: karpenter.recording_rules
+    rules:
+    - record: karpenter:node_provisioning_rate
+      expr: rate(karpenter_nodes_created_total{status="created"}[5m])
+
+    - record: karpenter:node_termination_rate
+      expr: rate(karpenter_nodes_terminated_total[5m])
+
+    - record: karpenter:node_claim_duration_seconds
+      expr: |
+        (
+          karpenter_nodeclaim_created_timestamp * 
+          on (nodeclaim_name) group_left() (karpenter_nodeclaim_bound_timestamp)
+        ) - 
+        karpenter_nodeclaim_created_timestamp
+
+    - record: karpenter:cluster_cost_per_hour
+      expr: sum(karpenter_node_cost_total)
+
+    - record: karpenter:node_utilization
+      expr: |
+        sum by (node) (
+          rate(container_cpu_usage_seconds_total{container!="POD",container!=""}[5m]) * 
+          on (pod) group_left() (kube_pod_info) * 
+          on (node) group_left() (kube_pod_info)
+        ) / 
+        sum by (node) (kube_node_status_capacity{resource="cpu"})

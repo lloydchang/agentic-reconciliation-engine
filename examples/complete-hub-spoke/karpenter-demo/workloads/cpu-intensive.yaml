@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-intensive
+  namespace: default
+  labels:
+    app: cpu-intensive
+    demo: karpenter
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: cpu-intensive
+  template:
+    metadata:
+      labels:
+        app: cpu-intensive
+        demo: karpenter
+    spec:
+      containers:
+      - name: cpu-stress
+        image: polinux/stress
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          while true; do
+            # Generate CPU load for 30 seconds, then rest for 30 seconds
+            stress-ng --cpu 1 --cpu-load 80 --timeout 30s
+            sleep 30
+          done
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+      - key: "karpenter"
+        operator: "Exists"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpu-intensive-service
+  namespace: default
+  labels:
+    app: cpu-intensive
+    demo: karpenter
+spec:
+  selector:
+    app: cpu-intensive
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
