@@ -36,7 +36,7 @@ We use a hub-and-spoke model where a single Hub Cluster acts as the control plan
 
 ## Getting Started
 To understand the technical design, architectural mandates, and step-by-step implementation phases, refer to:
-[implementation_plan.md](./implementation_plan.md)
+[implementation_plan.md](./docs/implementation_plan.md)
 
 ## Why Flux?
 We utilize Flux over Argo CD because Flux is architecturally optimized for infrastructure lifecycle management:
