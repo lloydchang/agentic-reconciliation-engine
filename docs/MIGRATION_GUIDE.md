@@ -6,15 +6,17 @@ This guide documents the approach for handling existing workloads built with pus
 
 ## Core Philosophy
 
-The GitOps approach fundamentally differs from push-based IaC tools:
+The GitOps approach provides capabilities fundamentally unavailable in traditional IaC tools:
 
-- **Push-Based IaC (Terraform, CDK, etc.)**: Execute once, create state files, require external orchestration for dependencies.
-- **GitOps Control Plane**: Continuous reconciliation using native Kubernetes controllers (ACK/ASO/KCC), no state files, Flux `dependsOn` for DAG dependencies.
+- **Traditional IaC (Terraform, CDK, etc.)**: Execute once, create state files, require manual re-runs or external orchestration for changes.
+- **GitOps Control Plane**: Continuous reconciliation using native Kubernetes controllers (ACK/ASO/KCC), 24/7 automated drift detection and repair, no state files, Flux `dependsOn` for DAG dependencies.
+
+**Key Advantage**: Self-healing infrastructure that automatically maintains desired state without human intervention.
 
 ## Migration Requirements
 
-### Hybrid Compatibility
-Existing IaC workloads can be gradually migrated to this GitOps framework. The repository uses industry-standard CLIs for initial cluster bootstrap, then transitions to declarative, controller-managed infrastructure for ongoing operations.
+### Continuous Reconciliation Advantage
+Existing IaC workloads can be enhanced with continuous reconciliation capabilities. The repository uses industry-standard CLIs for initial Hub cluster setup, then provides 24/7 automated drift detection and repair for ongoing operations - something traditional IaC cannot achieve without complex external orchestration.
 
 ### No Built-in Conversion Tools
 The repository does not contain automated migration utilities. Conversion must be performed manually or with external assistance.
