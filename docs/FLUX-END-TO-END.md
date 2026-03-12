@@ -144,9 +144,9 @@ flux create kustomization --help
 
 These generators can be used imperatively to create Flux resources in the cluster, or as preferred: when called with the `--export` option, `flux create ...` can emit YAML on stdout. That output can be captured in a file, then committed and pushed to create the resource.
 
-Following this process (rather than applying the resources directly to the cluster) maintains the manifests in the repository as the Single Source of Truth, according to GitOps principles.
+Following this process (rather than applying the resources directly to the cluster) maintains the manifests in the repository as the Single Source of Truth, following GitOps principles.
 
-Some resource options are not available through generators and can only be accessed through fields in YAML; users are generally expected to write resources in YAML and commit them, and should do so when they require access to those features.
+Some resource options are not available through generators and can only be accessed through fields in YAML; users are often expected to write resources in YAML and commit them when they require access to those features.
 
 For more information, see: [flux create](https://fluxcd.io/flux/cmd/flux_create/).
 
@@ -222,7 +222,7 @@ This capability allows Flux to manage resources outside of the cluster with like
 
 The period of waiting or `spec.interval` can be increased or reduced for each Flux resource that reconciles an external data source. The lower bound on that interval is probably best kept above 30s; if tighter responsiveness is needed from Flux, Receivers are expected to be used to close the gap.
 
-This is mentioned here because Flux is specifically used by many organizations seeking to increase velocity and aiming to improve the DORA metrics (from the DevOps Research and Assessment team at Google Cloud).
+This is mentioned here because Flux is commonly used by organizations seeking to increase velocity and aiming to improve the DORA metrics (from the DevOps Research and Assessment team at Google Cloud).
 
 One of the measures generally considered important is how long it takes for developers to get feedback from CI/CD systems. It's commonly put forth that "the CI feedback loop should not take longer than 10 minutes." It should be clear from those relevant materials that for tasks we do many times every day, seconds add up to minutes quickly. For this reason it is recommended to use Receivers wherever possible, at least whenever shortening the feedback loop is to be considered as an important goal.
 
@@ -356,7 +356,7 @@ sequenceDiagram
 
 The GitRepository and Bucket sources are also valid for use with Helm Controller.
 
-A GitRepository can be used as a source for Helm Release. The Git repo is not a native storage format for helm and there are some idiosyncrasies when you're using Helm Controller with a Git repository source. While one can use a GitRepository as a source for HelmRelease, a best practice is to not package many HelmReleases through the same GitRepository, but instead limit it to one chart per GitRepository.
+A GitRepository can be used as a source for HelmRelease. While one can use a GitRepository as a source for HelmRelease, a recommended approach is to not package many HelmReleases through the same GitRepository, but instead limit it to one chart per GitRepository.
 
 It is a bad idea to create a GitRepository with 400 helm charts. Why exactly? The problem is that Git repo sources are simple .tgz files under the hood, and since it's not possible to partially fetch such an artifact, this configuration will end up with lots of oversized artifacts that are all pulled each time any of them changes.
 

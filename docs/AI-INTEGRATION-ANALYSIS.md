@@ -15,8 +15,8 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 **Do NOT implement AI components if you:**
 - Only have simple scenarios
 - Operate in highly regulated environments with strict change controls **AND** lack the expertise to implement compliant AI
-- Have small teams (1-3 people) with limited DevOps expertise
-- Require ultra-low latency (<30 seconds) for critical operations
+- Have small teams with limited DevOps expertise
+- **May require low latency for critical operations**
 - Are in early brownfield migration phases with unstable infrastructure
 
 #### 📋 Examples of When AI Is NOT Appropriate
@@ -26,11 +26,11 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 - **Alternative**: Manual approval processes, traditional monitoring
 
 **Legacy Healthcare Systems (HIPAA)**:
-- **Why**: 100% audit trail requirements, no AI-assisted decisions in early phases
+- **Why**: Complete audit trail requirements, no AI-assisted decisions in early phases
 - **Alternative**: Start with Flux-only for declarative infrastructure, add AI later
 
 **Critical Infrastructure (Nuclear/Power Grid)**:
-- **Why**: Ultra-low latency requirements (<100ms), zero AI decision-making in safety systems
+- **Why**: Low latency requirements (<100ms), no AI decision-making in safety systems
 - **Alternative**: Traditional automation, no AI in safety-critical paths
 
 ### ✅ When AI Integration IS Appropriate
@@ -46,7 +46,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 
 **SOC 2 Compliance Monitoring**:
 - **AI Role**: Continuous policy violation detection, automated compliance reporting
-- **Benefit**: 95% reduction in manual compliance checking time
+- **Benefit**: Significant reduction in manual compliance checking time
 - **Implementation**: AI agents monitor infrastructure changes against compliance policies
 
 **GDPR Data Protection**:
@@ -61,7 +61,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 
 **PCI DSS Payment Processing**:
 - **AI Role**: Automated segmentation validation, intelligent change impact assessment
-- **Benefit**: Zero manual PCI compliance validation overhead
+- **Benefit**: Minimal manual PCI compliance validation overhead
 - **Implementation**: AI cronjobs validate payment processing infrastructure hourly
 
 ### ⚠️ When AI Requires Special Caution
@@ -762,8 +762,8 @@ The integration can significantly enhance the repository's capabilities while ma
 ### Key Insights for GitOps Infrastructure Control Plane
 
 #### 1. Tight Feedback Loops Through Local Optimization
-The research demonstrates that **local decision-making** achieves tighter feedback loops than centralized orchestration:
-- **30-second local optimization loops** vs minutes/hours for centralized systems
+The research suggests that **local decision-making** can achieve tighter feedback loops than centralized orchestration:
+- **Fast local optimization loops** vs minutes/hours for centralized systems
 - **Distributed consensus** for critical decisions requiring coordination
 - **Emergent global behavior** from locally-optimizing agents
 
@@ -780,9 +780,9 @@ The research demonstrates that **local decision-making** achieves tighter feedba
 - **Fault tolerance** through distributed consensus
 
 #### 4. Multi-Scale Feedback Architecture
-- **Micro-loops (30s)**: Local optimization and monitoring
-- **Meso-loops (5m)**: Agent consensus and coordination
-- **Macro-loops (1h)**: Global strategy and optimization
+- **Micro-loops**: Local optimization and monitoring
+- **Meso-loops**: Agent consensus and coordination
+- **Macro-loops**: Global strategy and optimization
 
 ---
 
@@ -980,7 +980,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 ## 19. https://itnext.io/stop-ai-from-hallucinating-your-kubernetes-yaml-10142f685a8b
 
-**Content Summary**: AI models (LLMs) commonly produce Kubernetes manifests with deprecated API versions, missing required fields, or incorrect structure because training data can be outdated and models do not validate against live Kubernetes schemas. Practical workflows using kubectl apply --dry-run=client, API version lists, and static validators catch these issues before deployment.
+**Content Summary**: AI models (LLMs) can produce Kubernetes manifests with deprecated API versions, missing required fields, or incorrect structure because training data may be outdated and models do not validate against live Kubernetes schemas. Practical workflows using kubectl apply --dry-run=client, API version lists, and static validators catch these issues before deployment.
 
 **Best Practices**:
 • Validate API versions against the target cluster before applying manifests.
@@ -1514,7 +1514,7 @@ spec:
    - Basic proposal/voting mechanism
 
 2. **Add Tight Feedback Loops**
-   - Local monitoring loops (30-second intervals)
+   - Local monitoring loops with short intervals
    - Agent-to-agent communication channels
    - Fast failure detection and recovery
 
@@ -2301,7 +2301,7 @@ Key architectural patterns to adopt:
 2. **Local Optimization**: Agents make decisions based on local state without central coordination
 3. **Skill-Based Modularity**: Each skill operates independently with fork context for isolation
 4. **Temporal Integration**: Durable workflow execution with comprehensive monitoring
-5. **Multi-Scale Feedback**: 30-second micro-loops, minute-level meso-loops, hour-level macro-loops
+5. **Multi-Scale Feedback**: Fast micro-loops, medium meso-loops, slow macro-loops
 
 ## Additional Resources
 
@@ -2895,8 +2895,8 @@ spec:
                 // 2. Propose to consensus
                 proposal := activities.CreateProposal(ctx, improvement)
                 
-                // 3. Wait for consensus (5m timeout)
-                votes := activities.CollectVotes(ctx, proposal, 5*time.Minute)
+                // 3. Wait for consensus (timeout)
+                votes := activities.CollectVotes(ctx, proposal, timeout)
                 
                 // 4. Apply consensus decision
                 if activities.ReachesQuorum(votes) {
@@ -3091,7 +3091,7 @@ metadata:
   name: consensus-agent-workflow
   namespace: control-plane
 spec:
-  # 30-second feedback loop schedule
+  # Fast feedback loop schedule
   schedule: "*/30 * * * *"  # Every 30 seconds
   triggers:
   - type: ConfigMapChange
@@ -3176,7 +3176,7 @@ class ConsensusAgentWorkflow:
             if await activities.reaches_quorum(votes):
                 return await activities.execute_consensus(proposal, votes)
         
-        # Continue 30-second feedback loop
+        # Continue fast feedback loop
         await workflow.sleep(30)
 
 @activity.defn
@@ -3210,14 +3210,14 @@ export class ConsensusAgentWorkflow {
             if (improvement.benefit > threshold) {
                 // Consensus proposal with TypeScript interfaces
                 const proposal = await activities.createProposal(improvement);
-                const votes = await activities.collectVotes(proposal, 5 * 60 * 1000); // 5 minutes
+                const votes = await activities.collectVotes(proposal, timeout);
                 
                 if (await activities.reachesQuorum(votes)) {
                     await activities.executeConsensus(proposal, votes);
                 }
             }
             
-            // 30-second feedback loop
+            // Fast feedback loop
             await sleep('30 seconds');
         }
     }
@@ -3273,7 +3273,7 @@ public class ConsensusAgentWorkflow
                 }
             }
             
-            // 30-second feedback loop
+            // Fast feedback loop
             await Workflow.DelayAsync(TimeSpan.FromSeconds(30));
         }
     }
@@ -3361,7 +3361,7 @@ public class ConsensusAgentWorkflowImpl implements ConsensusAgentWorkflow {
                 }
             }
             
-            // 30-second feedback loop
+            // Fast feedback loop
             Workflow.sleep(Duration.ofSeconds(30));
         }
     }
@@ -3685,7 +3685,7 @@ spec:
 - **Lower Latency**: Leader-based decisions reduce communication overhead
 - **Predictable Timing**: Leader election intervals are deterministic
 - **Faster Convergence**: Single point of coordination speeds up consensus
-- **Optimized for 30-Second Loops**: Raft's efficiency matches tight feedback requirements
+- **Optimized for Fast Loops**: Raft's efficiency matches tight feedback requirements
 
 **4. Fault Tolerance and Recovery**
 - **Leader Election**: Automatic leader replacement on failures
@@ -3882,7 +3882,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 
 **Implementation Strategy**:
 - **Phase 1**: Implement basic Raft for agent consensus
-- **Phase 2**: Add performance optimizations for 30-second loops
+- **Phase 2**: Add performance optimizations for fast feedback loops
 - **Phase 3**: Enhance with dynamic membership and load balancing
 - **Phase 4**: Consider PBFT only if security requirements demand Byzantine fault tolerance
 
@@ -3950,7 +3950,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 2. **Performance-Critical Applications**
    - Leader-based coordination reduces latency
    - Predictable timing characteristics
-   - Better for tight feedback loops (30-second optimization cycles)
+   - Better for tight feedback loops (fast optimization cycles)
 
 3. **Cloud-Native Environments**
    - Kubernetes ecosystem heavily uses Raft (etcd)
@@ -4390,7 +4390,7 @@ spec:
 
 | Aspect | Traditional Top-Down | Consensus Bottoms-Up |
 |---------|---------------------|---------------------|
-| **Response Time** | Minutes to hours | 30 seconds to minutes |
+| **Response Time** | Minutes to hours | Seconds to minutes |
 | **Fault Tolerance** | Single point of failure | No single point of failure |
 | **Scalability** | Limited by controller | Linear with agent count |
 | **Decision Making** | Centralized control | Distributed consensus |
@@ -4440,7 +4440,7 @@ spec:
 
 #### Phase 1: Foundation
 1. **Deploy Consensus Protocol**: Implement Raft-based consensus for critical decisions
-2. **Add Tight Feedback Loops**: Local monitoring loops (30-second intervals)
+2. **Add Tight Feedback Loops**: Local monitoring loops with short intervals
 3. **Enable Agent Communication**: Inter-agent coordination channels
 
 #### Phase 2: Advanced Features

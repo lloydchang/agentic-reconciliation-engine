@@ -60,11 +60,11 @@ multi-cloud-enterprise:
 - **Recommended**: Full consensus agents for optimization
 - **Risk**: Multi-cloud complexity without real multi-cloud problems
 
-## Revolutionary Architecture: Consensus-Based Agent Swarms
+## Architecture: Consensus-Based Agent Swarms
 
 > **⚠️ Advanced Feature**: Consensus agents are ONLY for complex, multi-cloud scenarios. Most users should stop at Layer 2.
 
-Based on analysis of **ai-agents-sandbox** repository and distributed consensus research, this architecture implements a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops **when justified by complexity**.
+Based on analysis of **ai-agents-sandbox** repository and distributed consensus research, this architecture implements an approach from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve feedback loops **when justified by complexity**.
 
 ### When to Use Each Architectural Layer
 
@@ -79,7 +79,7 @@ Based on analysis of **ai-agents-sandbox** repository and distributed consensus 
 
 1. **30-Second Local Optimization**: Agents continuously optimize their local environment
 2. **Distributed Consensus**: Raft-based coordination for critical decisions
-3. **Self-Organizing Swarms**: Emergent intelligence from local interactions
+3. **Self-Organizing Swarms**: Coordination from local interactions
 4. **Fault Tolerance**: No single point of failure through distributed consensus
 5. **Linear Scalability**: Performance scales with agent count
 
@@ -558,13 +558,13 @@ class FlockAlignment:
                 agent.direction = avg_direction * 0.7 + agent.direction * 0.3
 ```
 
-### Revolutionary Benefits
+### Benefits
 
-#### 1. **Unprecedented Response Times**
-- **Local Decisions**: 15-30 seconds (vs minutes/hours traditional)
-- **Consensus Decisions**: 1-2 minutes (vs hours/days traditional)
+#### 1. **Response Times**
+- **Local Decisions**: 15-30 seconds
+- **Consensus Decisions**: 1-2 minutes
 - **Global Optimization**: Continuous learning and adaptation
-- **Million-Decisions/Second**: 1000+ local decisions per agent
+- **Local Decisions**: 1000+ decisions per agent
 
 #### 2. **Extreme Fault Tolerance**
 - **Byzantine Protection**: Handle up to 1/3 malicious agents
@@ -615,7 +615,7 @@ spec:
       AUTONOMOUS_ORGANIZATION: "true"
 ```
 
-This represents the ultimate evolution: from centralized control to fully autonomous, self-organizing agent swarms that achieve the tightest possible feedback loops through local optimization and distributed consensus.
+This represents an approach: from centralized control to autonomous, self-organizing agent swarms that achieve feedback loops through local optimization and distributed consensus.
 
 ## Advanced Features
 
@@ -635,13 +635,13 @@ This represents the ultimate evolution: from centralized control to fully autono
 
 ### Analysis of AI Agents Sandbox Architecture
 
-The **ai-agents-sandbox** repository demonstrates a revolutionary approach that achieves the tightest possible feedback loops through **distributed consensus systems** rather than centralized control.
+The **ai-agents-sandbox** repository demonstrates an approach that achieves feedback loops through **distributed consensus systems** rather than centralized control.
 
-#### Key Architectural Breakthrough
+#### Key Architectural Approach
 
 **Bottom-Up Orchestration vs Top-Down Control**
 - **Current**: Centralized controllers create bottlenecks and single points of failure
-- **Next-Level**: Distributed consensus enables self-organizing agent swarms
+- **Alternative**: Distributed consensus enables self-organizing agent swarms
 - **Benefit**: No single coordination point, agents make local decisions rapidly
 
 **Multi-Scale Feedback Loops**

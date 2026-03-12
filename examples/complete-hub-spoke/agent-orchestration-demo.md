@@ -69,7 +69,7 @@ The architecture adapts as your problems change:
 
 ---
 
-## Revolutionary Architecture: Self-Organizing Agent Swarms
+## Architecture: Self-Organizing Agent Swarms
 
 ### ✅ **Definitely Use For:**
 - Large enterprises (50+ people) with complex infrastructure
@@ -513,11 +513,11 @@ spec:
 
 ### Analysis of AI Agents Sandbox Architecture
 
-The **ai-agents-sandbox** repository demonstrates the next evolution beyond kagent and Agent Skills: **consensus-based agent orchestration** that achieves the tightest possible feedback loops through distributed decision-making.
+The **ai-agents-sandbox** repository demonstrates consensus-based agent orchestration that achieves feedback loops through distributed decision-making.
 
-#### Key Architectural Breakthrough
+#### Key Architectural Approach
 
-  From Centralized to Distributed Consensus**:
+From Centralized to Distributed Consensus:
 ```yaml
 # Current Kagent (Centralized)
 apiVersion: kagent.io/v1alpha1

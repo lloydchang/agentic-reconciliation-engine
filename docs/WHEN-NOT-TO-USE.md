@@ -69,10 +69,10 @@ This document provides **unbiased guidance** on when this GitOps Infrastructure 
 **Problem:** Your infrastructure runs on VMs, bare metal, or non-K8s platforms.
 
 **Why This Solution Cannot Be Adapted:**
-- **Core Dependency**: Built around Kubernetes controllers and CRDs
-- **Flux Requirement**: Requires Kubernetes for Flux controllers
-- **Temporal Dependency**: Needs Kubernetes for Temporal operator
-- **Consensus Agents**: Designed for pod-based deployment
+- **Kubernetes-Native**: All components assume Kubernetes APIs and CRDs
+- **GitOps Principles**: Built around Git repository reconciliation
+- **Flux Dependencies**: Core automation relies on Flux controllers
+- **Operator Pattern**: Uses Kubernetes operators for cloud integration
 
 **Better Alternatives:**
 - **Terraform**: Cloud-agnostic infrastructure provisioning
