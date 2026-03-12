@@ -1,11 +1,6 @@
-# Agent-to-Agent Orchestration in Complete AI Integration Example - Consensus-Based Approach
+# Autonomous Agent Orchestration: Self-Organizing Swarms with Consensus
 
-This document demonstrates how multiple AI agents orchestrate together in GitOps Infrastructure Control Plane using **consensus-based decentralized coordination** and **tight feedback loops**, specifically in `examples/complete-hub-spoke/` setup.
-
-## Revolutionary Architecture: AI Agents Sandbox Integration
-
-Based on analysis of the **ai-agents-sandbox** repository and distributed consensus research, this implementation represents a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops.
-
+This document demonstrates **fully autonomous agent orchestration** using consensus-based self-organizing swarms that achieve the tightest possible feedback loops through local optimization and distributed decision-making.
 ### Key Innovations from AI Agents Sandbox
 
 1. **30-Second Feedback Loops**: Continuous local optimization vs minutes/hours for centralized systems
