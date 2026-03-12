@@ -1,0 +1,398 @@
+# Multi-Language Consensus-Based Agent Orchestration
+# Support for Go/Temporal, Python, Bash, C#/.NET, TypeScript/Node.js, Java/JVM, and Rust
+
+apiVersion: swarm.gitops.io/v1alpha1
+kind: MultiLanguageConsensus
+metadata:
+  name: multi-language-agent-swarm
+  namespace: control-plane
+  labels:
+    app: agent-swarm
+    component: multi-language-consensus
+spec:
+  # Core consensus configuration
+  consensus:
+    protocol: "raft"
+    leaderElectionTimeout: "10s"
+    heartbeatInterval: "5s"
+    commitTimeout: "15s"
+    quorumSize: 3
+    feedbackLoopInterval: "15s"  # Ultra-tight feedback loops
+  
+  # Multi-language runtime support
+  runtimes:
+    # Go/Temporal - Production-grade performance
+    - name: "go-temporal"
+      type: "production-grade"
+      language: "go"
+      framework: "temporal"
+      agents:
+        - name: "consensus-coordinator"
+          image: "consensus-coordinator-go:latest"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          env:
+            - name: "TEMPORAL_HOST"
+              value: "temporal.control-plane.svc.cluster.local"
+            - name: "FEEDBACK_LOOP_INTERVAL"
+              value: "15s"
+            - name: "CONSENSUS_PROTOCOL"
+              value: "raft"
+          advantages:
+            - "Native Kubernetes integration"
+            - "Optimal concurrency with goroutines"
+            - "Production proven reliability"
+            - "Memory safety with garbage collection"
+    
+    # Python - AI/ML integration
+    - name: "python-ml"
+      type: "ai-ml"
+      language: "python"
+      framework: "flask/fastapi"
+      agents:
+        - name: "ml-optimizer"
+          image: "ml-optimizer-python:latest"
+          resources:
+            requests:
+              cpu: "750m"
+              memory: "2Gi"
+            limits:
+              cpu: "1500m"
+              memory: "4Gi"
+          env:
+            - name: "PYTHONPATH"
+              value: "/app:/usr/local/lib/python3.9/site-packages"
+            - name: "ML_MODEL_PATH"
+              value: "/models"
+            - name: "CONSENSUS_CLIENT"
+              value: "go-temporal:8080"
+          advantages:
+            - "AI/ML ecosystem (TensorFlow, PyTorch)"
+            - "Rapid prototyping capabilities"
+            - "Rich scientific computing libraries"
+            - "Easy integration with data pipelines"
+    
+    # Bash/Shell - Simple coordination
+    - name: "bash-shell"
+      type: "simple-coordination"
+      language: "bash"
+      framework: "shell"
+      agents:
+        - name: "shell-coordinator"
+          image: "shell-coordinator-bash:latest"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: "SHELL_PATH"
+              value: "/bin/bash"
+            - name: "KUBECONFIG"
+              value: "/etc/kubernetes/config"
+            - name: "CONSENSUS_ENDPOINT"
+              value: "http://go-temporal:8080"
+          advantages:
+            - "Zero dependencies required"
+            - "Universal compatibility"
+            - "Simple debugging and logging"
+            - "Lightweight resource usage"
+    
+    # C#/.NET - Enterprise integration
+    - name: "csharp-enterprise"
+      type: "enterprise"
+      language: "csharp"
+      framework: "aspnetcore"
+      agents:
+        - name: "enterprise-validator"
+          image: "enterprise-validator-csharp:latest"
+          resources:
+            requests:
+              cpu: "600m"
+              memory: "1.5Gi"
+            limits:
+              cpu: "1200m"
+              memory: "3Gi"
+          env:
+            - name: "ASPNETCORE_ENVIRONMENT"
+              value: "Production"
+            - name: "ENTERPRISE_INTEGRATION"
+              value: "enabled"
+            - name: "CONSENSUS_SERVICE"
+              value: "go-temporal:8080"
+          advantages:
+            - "Enterprise ecosystem integration"
+            - "Strong typing and performance"
+            - "Windows support"
+            - "Rich .NET libraries"
+    
+    # TypeScript/Node.js - Web integration
+    - name: "typescript-nodejs"
+      type: "web-integration"
+      language: "typescript"
+      framework: "nodejs"
+      agents:
+        - name: "web-dashboard"
+          image: "web-dashboard-nodejs:latest"
+          resources:
+            requests:
+              cpu: "400m"
+              memory: "512Mi"
+            limits:
+              cpu: "800m"
+              memory: "1Gi"
+          env:
+            - name: "NODE_ENV"
+              value: "production"
+            - name: "WEB_PORT"
+              value: "3000"
+            - name: "CONSENSUS_API"
+              value: "http://go-temporal:8080"
+          advantages:
+            - "Real-time capabilities"
+            - "Web integration natural fit"
+            - "TypeScript type safety"
+            - "Large npm ecosystem"
+    
+    # Java/JVM - Enterprise scale
+    - name: "java-enterprise"
+      type: "enterprise-scale"
+      language: "java"
+      framework: "springboot"
+      agents:
+        - name: "java-coordinator"
+          image: "java-coordinator-enterprise:latest"
+          resources:
+            requests:
+              cpu: "800m"
+              memory: "2Gi"
+            limits:
+              cpu: "1600m"
+              memory: "4Gi"
+          env:
+            - name: "JAVA_OPTS"
+              value: "-Xmx2g -Xms1g"
+            - name: "SPRING_PROFILES_ACTIVE"
+              value: "production"
+            - name: "CONSENSUS_ENDPOINT"
+              value: "http://go-temporal:8080"
+          advantages:
+            - "Enterprise maturity and scalability"
+            - "Platform independence with JVM"
+            - "Rich Java ecosystem"
+            - "Proven horizontal scaling"
+    
+    # Rust - Ultra-high performance
+    - name: "rust-performance"
+      type: "performance-critical"
+      language: "rust"
+      framework: "actix-web"
+      agents:
+        - name: "rust-optimizer"
+          image: "rust-optimizer-performance:latest"
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "256Mi"
+            limits:
+              cpu: "600m"
+              memory: "512Mi"
+          env:
+            - name: "RUST_LOG"
+              value: "info"
+            - name: "PERFORMANCE_MODE"
+              value: "maximum"
+            - name: "CONSENSUS_CLIENT"
+              value: "go-temporal:8080"
+          advantages:
+            - "Zero-cost abstractions"
+            - "Memory safety with ownership system"
+            - "WebAssembly support"
+            - "Actor model natural fit"
+  
+  # Inter-runtime communication
+  communication:
+    protocol: "http/grpc"
+    serialization: "json"
+    compression: "gzip"
+    timeout: "30s"
+    retryPolicy:
+      maxRetries: 3
+      backoff: "exponential"
+      initialDelay: "100ms"
+    
+    # Message routing between runtimes
+    routing:
+      - from: "python-ml"
+        to: ["go-temporal", "rust-performance"]
+        purpose: "ml-optimization-results"
+      - from: "typescript-nodejs"
+        to: ["go-temporal", "csharp-enterprise"]
+        purpose: "dashboard-updates"
+      - from: "bash-shell"
+        to: ["go-temporal"]
+        purpose: "coordination-commands"
+      - from: "java-enterprise"
+        to: ["go-temporal", "csharp-enterprise"]
+        purpose: "enterprise-validation"
+      - from: "rust-performance"
+        to: ["go-temporal", "python-ml"]
+        purpose: "performance-metrics"
+  
+  # Consensus decision matrix
+  decisionMatrix:
+    operationalChanges:
+      requiredRuntimes: ["go-temporal"]
+      votingWeight: "production-grade"
+      threshold: 0.5
+    
+    securityChanges:
+      requiredRuntimes: ["go-temporal", "csharp-enterprise", "java-enterprise"]
+      votingWeight: "enterprise-weighted"
+      threshold: 0.8
+    
+    mlOptimizations:
+      requiredRuntimes: ["python-ml", "go-temporal"]
+      votingWeight: "ai-informed"
+      threshold: 0.6
+    
+    performanceOptimizations:
+      requiredRuntimes: ["rust-performance", "go-temporal"]
+      votingWeight: "performance-prioritized"
+      threshold: 0.7
+    
+    webUpdates:
+      requiredRuntimes: ["typescript-nodejs", "go-temporal"]
+      votingWeight: "user-experience"
+      threshold: 0.5
+  
+  # Monitoring and observability
+  monitoring:
+    metrics:
+      - name: "consensus_duration_seconds"
+        type: "histogram"
+        labels: ["runtime", "decision_type"]
+        buckets: [0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0]
+      
+      - name: "runtime_health_score"
+        type: "gauge"
+        labels: ["runtime", "language"]
+      
+      - name: "inter_runtime_communication_total"
+        type: "counter"
+        labels: ["from_runtime", "to_runtime", "message_type"]
+      
+      - name: "feedback_loop_frequency"
+        type: "histogram"
+        labels: ["runtime"]
+        buckets: [10, 15, 30, 60, 120, 300, 600]
+    
+    logging:
+      level: "info"
+      format: "json"
+      fields:
+        - timestamp
+        - runtime
+        - language
+        - agent_id
+        - decision_type
+        - consensus_result
+        - feedback_loop_duration
+        - error_details
+        - performance_metrics
+    
+    distributedTracing:
+      enabled: true
+      samplingRate: 0.01  # 1% of decisions traced
+      traceDuration: "1h"
+      propagationDelay: "100ms"
+      services:
+        - name: "go-temporal"
+          port: 8080
+        - name: "python-ml"
+          port: 8081
+        - name: "bash-shell"
+          port: 8082
+        - name: "csharp-enterprise"
+          port: 8083
+        - name: "typescript-nodejs"
+          port: 8084
+        - name: "java-enterprise"
+          port: 8085
+        - name: "rust-performance"
+          port: 8086
+  
+  # Security configuration
+  security:
+    networkPolicies:
+      enabled: true
+      runtimeIsolation: true
+      allowedCommunications:
+        - from: "python-ml"
+          to: ["go-temporal", "rust-performance"]
+          ports: [8080, 8086]
+        - from: "typescript-nodejs"
+          to: ["go-temporal", "csharp-enterprise"]
+          ports: [8080, 8083]
+        - from: "bash-shell"
+          to: ["go-temporal"]
+          ports: [8080]
+        - from: "java-enterprise"
+          to: ["go-temporal", "csharp-enterprise"]
+          ports: [8080, 8083]
+        - from: "rust-performance"
+          to: ["go-temporal", "python-ml"]
+          ports: [8080, 8081]
+    
+    podSecurityPolicies:
+      runAsNonRoot: true
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop: ["ALL"]
+      volumes:
+        - "configMap"
+        - "emptyDir"
+        - "secret"
+        - "downwardAPI"
+  
+  # Integration with GitOps
+  gitops:
+    fluxIntegration:
+      enabled: true
+      kustomizationName: "multi-language-consensus"
+      dependsOn:
+        - name: "infrastructure-network"
+        - name: "infrastructure-clusters"
+        - name: "consensus-layer"
+      interval: "15s"  # Match ultra-tight feedback loops
+      healthChecks:
+        - apiVersion: "v1"
+          kind: "Service"
+          name: "consensus-leader"
+          namespace: "control-plane"
+        - apiVersion: "v1"
+          kind: "Service"
+          name: "ml-optimizer"
+          namespace: "control-plane"
+        - apiVersion: "v1"
+          kind: "Service"
+          name: "web-dashboard"
+          namespace: "control-plane"
+    
+    repository:
+      path: "./examples/complete-hub-spoke/consensus-agents"
+      postBuild:
+        substitute:
+          MULTI_LANGUAGE_SUPPORT: "true"
+          ULTRA_TIGHT_FEEDBACK: "true"
+          FEEDBACK_INTERVAL: "15s"
+          CONSENSUS_PROTOCOL: "raft"
+          RUNTIME_MATRIX: "go-temporal,python-ml,bash-shell,csharp-enterprise,typescript-nodejs,java-enterprise,rust-performance"
+          HYBRID_STRATEGY: "enabled"
