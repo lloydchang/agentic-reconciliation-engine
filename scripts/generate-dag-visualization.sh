@@ -78,6 +78,9 @@ get_dep() {
 # Function to check if name exists
 has_name() {
     local target="$1"
+    if [[ ${#names[@]} -eq 0 ]]; then
+        return 1
+    fi
     for name in "${names[@]}"; do
         if [[ "$name" == "$target" ]]; then
             return 0
@@ -134,7 +137,7 @@ for i in "${!names[@]}"; do
     ecosystem="${ecosystems[$i]}"
 
     # Create node with variant/ecosystem info
-    local node_label="$name"
+    node_label="$name"
     if [[ "$variant" != "unknown" ]]; then
         node_label="$node_label<br/><small>variant: $variant</small>"
     fi

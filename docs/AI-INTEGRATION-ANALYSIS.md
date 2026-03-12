@@ -4596,9 +4596,183 @@ spec:
 - `workers/` - AI SDK plugin configurations
 - `api/` - Express servers for workflow orchestration
 
+## 28. https://docs.temporal.io/ai-cookbook/agentic-loop-tool-call-claude-python
+
+**Content Summary**: Basic agentic loop implementation using Claude with tool calling in Python. Demonstrates how to create durable AI agents that can intelligently choose and execute tools to answer user questions, with automatic retry logic and state persistence through Temporal.
+
+**Key Features**:
+- **Agentic Loop**: Continuous AI decision-making with tool selection
+- **Tool Calling**: Claude can invoke external tools based on user queries
+- **Durable Execution**: Every AI decision and tool call is persisted and retryable
+- **Python Implementation**: Alternative to TypeScript for Python-based teams
+
+**Safety Assessment**: ✅ **SAFE** - Temporal provides enterprise-grade reliability for AI agent execution, with automatic error handling and state persistence.
+
+**Applicability**: **MEDIUM** - Useful for Python-based infrastructure automation:
+- **Infrastructure Analysis**: AI agents that can query cloud APIs and analyze results
+- **Automated Remediation**: Tools that can fix infrastructure issues based on AI decisions
+- **Compliance Checking**: Agents that can validate infrastructure against policies
+
+## 29. https://james-carr.org/posts/2026-02-03-temporal-scatter-gather/
+
+**Content Summary**: Implementation of scatter/gather pattern in Temporal for parallel querying of multiple data brokers with result aggregation. Demonstrates how to handle partial failures, retry policies, and result aggregation in distributed systems.
+
+**Key Features**:
+- **Parallel Execution**: Query multiple data sources simultaneously
+- **Fault Tolerance**: Graceful handling of individual broker failures
+- **Result Aggregation**: Combine results from successful queries
+- **Retry Policies**: Configurable retry logic for different failure types
+
+**Safety Assessment**: ✅ **SAFE** - Proven enterprise pattern with comprehensive error handling and fault tolerance.
+
+**Applicability**: **HIGH** - Directly applicable to multi-cloud GitOps operations:
+- **Multi-Cloud Discovery**: Parallel queries across AWS, Azure, GCP APIs
+- **Resource Inventory**: Gather infrastructure data from multiple sources
+- **Compliance Scanning**: Parallel security checks across environments
+- **Cost Analysis**: Simultaneous cost queries from different providers
+
+## 30. https://docs.temporal.io/ai-cookbook/durable-agent-with-tools
+
+**Content Summary**: Build durable AI agents with OpenAI Agents SDK and Temporal that can intelligently choose tools to answer user questions. Demonstrates integration of AI agents with external tools and APIs through Temporal's durable execution model.
+
+**Key Features**:
+- **Tool Selection**: AI agents dynamically choose appropriate tools
+- **Durable Tool Execution**: Tool calls are persisted and retryable
+- **OpenAI Integration**: Alternative AI provider integration
+- **Enterprise Reliability**: Production-ready error handling and state management
+
+**Safety Assessment**: ✅ **SAFE** - Enterprise-grade reliability with comprehensive tool execution safeguards.
+
+**Applicability**: **MEDIUM** - Alternative AI provider integration:
+- **Multi-Provider Strategy**: Use OpenAI alongside Claude for different tasks
+- **Tool Integration**: Connect AI agents with infrastructure management tools
+- **Cost Optimization**: Choose optimal AI models for specific infrastructure tasks
+
+## 31. https://docs.temporal.io/evaluate/development-production-features/release-stages
+
+**Content Summary**: Temporal's product release stages guide detailing criteria for Pre-release, Public Preview, and General Availability features. Helps organizations make informed decisions about feature adoption and production readiness.
+
+**Key Stages**:
+- **Pre-release**: Early access for testing and feedback
+- **Public Preview**: Feature-complete but not yet GA
+- **General Availability**: Production-ready with full support
+
+**Safety Assessment**: ✅ **SAFE** - Governance framework for technology adoption.
+
+**Applicability**: **MEDIUM** - Technology adoption guidance:
+- **Feature Evaluation**: Assess readiness of new Temporal features
+- **Risk Management**: Understand support and stability implications
+- **Planning**: Timeline for production feature adoption
+
+## 32. https://docs.temporal.io/develop/typescript/ai-sdk
+
+**Content Summary**: Comprehensive guide for implementing AI applications in TypeScript using Temporal TypeScript SDK and Vercel AI SDK. Covers prerequisites, worker configuration, simple agents, tool integration, and Model Context Protocol (MCP) server integration.
+
+**Key Features**:
+- **TypeScript Integration**: Native TypeScript support for AI development
+- **Vercel AI SDK**: Seamless integration with popular AI framework
+- **MCP Support**: Model Context Protocol for standardized AI interactions
+- **Production Patterns**: Enterprise-ready implementation guidance
+
+**Safety Assessment**: ✅ **SAFE** - Official documentation with production-ready patterns.
+
+**Applicability**: **HIGH** - Primary integration path for TypeScript-based teams:
+- **Type Safety**: Compile-time error prevention for AI workflows
+- **Developer Experience**: Familiar TypeScript patterns for AI development
+- **Ecosystem Integration**: Leverage existing TypeScript infrastructure
+
+## 33. https://docs.temporal.io/ai-cookbook
+
+**Content Summary**: Comprehensive collection of AI integration patterns including Hello World examples, structured outputs, retry policies, agentic loops, human-in-the-loop patterns, and claim check patterns. Provides production-ready templates for common AI use cases.
+
+**Key Patterns**:
+- **Hello World**: Basic AI integration templates
+- **Structured Outputs**: Type-safe AI response handling
+- **Retry Policies**: Intelligent error handling for AI failures
+- **Human-in-the-Loop**: AI workflows with human approval steps
+- **Claim Check**: Large data handling patterns
+
+**Safety Assessment**: ✅ **HIGHLY SAFE** - Curated collection of production-ready patterns.
+
+**Applicability**: **HIGH** - Pattern library for GitOps AI integration:
+- **Template Library**: Ready-to-use patterns for common infrastructure tasks
+- **Best Practices**: Proven approaches for AI reliability
+- **Human Oversight**: Patterns for human-in-the-loop infrastructure changes
+
+## 34. https://ai-sdk.dev/
+
+**Content Summary**: Vercel AI SDK - The AI Toolkit for TypeScript providing unified interface for multiple AI providers including OpenAI, Anthropic, Google, and others. Offers streaming, tool calling, structured outputs, and provider switching capabilities.
+
+**Key Features**:
+- **Multi-Provider Support**: Unified API across AI providers
+- **Streaming**: Real-time AI response streaming
+- **Tool Calling**: Standardized tool integration across providers
+- **Type Safety**: TypeScript-first design with full type support
+
+**Safety Assessment**: ✅ **SAFE** - Industry-standard AI SDK with enterprise adoption.
+
+**Applicability**: **HIGH** - Foundation for AI integration in GitOps:
+- **Provider Flexibility**: Switch between AI providers without code changes
+- **Type Safety**: Compile-time guarantees for AI interactions
+- **Ecosystem**: Large community and extensive documentation
+
+## 35. https://temporal.io/blog/building-durable-agents-with-temporal-and-ai-sdk-by-vercel
+
+**Content Summary**: Official guide on building production-ready, durable AI agents in TypeScript with Vercel's AI SDK and Temporal. Demonstrates how to add automatic retries, state persistence, and crash-safe tool calls with minimal code changes.
+
+**Key Benefits**:
+- **Minimal Code Changes**: Simple migration from standard AI SDK usage
+- **Automatic Durability**: Built-in retry logic and state persistence
+- **Crash Safety**: Agents survive infrastructure failures
+- **Production Ready**: Enterprise-grade reliability patterns
+
+**Safety Assessment**: ✅ **HIGHLY SAFE** - Official production guidance from Temporal.
+
+**Applicability**: **HIGH** - Migration path for existing AI integrations:
+- **Easy Migration**: Minimal changes to add durability to existing AI code
+- **Production Upgrade**: Path from experimental to production AI systems
+- **Reliability**: Enterprise-grade guarantees for AI operations
+
+## 36. https://james-carr.org/posts/2026-02-03-temporal-process-manager/
+
+**Content Summary**: Implementation of Process Manager pattern in Temporal with signals and queries for real-time workflow interaction. Demonstrates how to coordinate complex workflows that require external events and human interaction through signals and state queries.
+
+**Key Features**:
+- **Process Manager Pattern**: Coordinate complex workflows across multiple services
+- **Signals**: Real-time event injection into running workflows
+- **Queries**: Inspect workflow state without side effects
+- **Human-in-the-Loop**: Workflow patterns requiring human approval
+
+**Safety Assessment**: ✅ **SAFE** - Proven enterprise pattern with comprehensive coordination capabilities.
+
+**Applicability**: **HIGH** - Complex infrastructure coordination:
+- **Multi-Cluster Operations**: Coordinate changes across multiple clusters
+- **Human Approval**: Required approval steps for critical infrastructure changes
+- **Real-time Coordination**: Respond to external events during infrastructure operations
+
+## 37. https://james-carr.org/posts/2026-03-01-agent-hosting-patterns/
+
+**Content Summary**: Comprehensive taxonomy of seven deployment patterns for AI agents in production: from simple cron jobs to complex multi-agent meshes. Provides examples and trade-offs for each pattern to help choose appropriate hosting strategy.
+
+**Seven Patterns**:
+1. **Scheduled Agent (Cron)**: Time-triggered AI operations
+2. **Event-Driven Agent (Reactive)**: Responds to infrastructure events
+3. **Persistent Long-Running Agent (Daemon)**: Always-on AI services
+4. **Workflow-Orchestrated Agent (Pipeline)**: Part of larger workflows
+5. **Agent-as-API (Service)**: AI capabilities exposed as API
+6. **Self-Scheduling Agent (Adaptive)**: Intelligent scheduling
+7. **Multi-Agent Mesh (Distributed)**: Coordinated agent networks
+
+**Safety Assessment**: ✅ **SAFE** - Comprehensive pattern analysis with trade-off evaluation.
+
+**Applicability**: **HIGH** - Strategic planning for AI agent deployment:
+- **Pattern Selection**: Choose appropriate hosting model for specific needs
+- **Evolution Path**: Progress from simple to complex agent deployments
+- **Architecture Planning**: Design scalable AI agent infrastructure
+
 ---
 
-**Document Version**: 1.1  
+**Document Version**: 1.2  
 **Last Updated**: 2025-03-12  
 **Security Classification**: Internal Use  
 **Review Required**: Yes
