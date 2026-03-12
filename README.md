@@ -1,6 +1,6 @@
 # gitops-infra-control-plane
 
-Continuous Reconciliation Engine for multi-cloud infrastructure. 
+Continuous Reconciliation Engine for Multi-Cloud Infra
 
 ## The Core Philosophy
 We do not use push-based tools (Terraform, Blueprints, CDK, CloudFormation, Bicep, ARM) that execute once and exit. Instead, we treat infrastructure as a living, self-healing process using native Kubernetes operators.
