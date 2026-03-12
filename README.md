@@ -79,10 +79,12 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 
 ## Contributing
 
-This repository uses dual licensing:
-- AGPL-3.0: Core infrastructure manifests and logic
-- Apache 2.0: Documentation and example snippets
+https://github.com/lloydchang/gitops-infra-control-plane/pulls
 
 ## License
 
-GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file.
+This repository uses dual licensing:
+- AGPL-3.0: Core infrastructure manifests and logic
+  - GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
+- Apache 2.0: Documentation and example snippets
+  - Apache License, Version 2.0 - see https://www.apache.org/licenses/LICENSE-2.0
