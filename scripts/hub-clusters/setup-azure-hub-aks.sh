@@ -2,6 +2,17 @@
 
 # Setup Azure AKS Hub Cluster for GitOps Control Plane
 # This script creates an AKS cluster that serves as the hub for multi-cloud GitOps
+#
+# INDUSTRY STANDARD: Uses Azure CLI (az aks) - Microsoft's official command-line tool for AKS
+# Reference: https://learn.microsoft.com/en-us/cli/azure/aks
+# Azure CLI is the standard and most widely adopted tool for AKS cluster management
+#
+# Tooling Choice Summary:
+# - Uses Azure CLI (az aks) (industry-standard for AKS) instead of Bicep for cluster bootstrap
+# - Reference: https://learn.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli
+# - Aligns with GitOps migration strategy: imperative setup for initial infrastructure,
+#   then Flux + ASO for declarative management of workloads and cross-cloud resources
+# - Avoids IaC lock-in during transition period, enables gradual migration from legacy IaC
 
 set -euo pipefail
 
@@ -16,8 +27,8 @@ echo "🚀 Setting up Azure AKS Hub Cluster: $CLUSTER_NAME"
 echo "📍 Location: $LOCATION"
 echo "🖥️  Nodes: $NODE_COUNT x $VM_SIZE"
 
-# Check prerequisites
-command -v az >/dev/null 2>&1 || { echo "❌ Azure CLI not installed"; exit 1; }
+# Using Azure CLI (az), the industry-standard command-line interface for managing Azure resources and AKS clusters.
+# Azure CLI provides comprehensive support for AKS operations and integrates seamlessly with Azure services.
 
 # Login to Azure (interactive)
 echo "🔐 Please login to Azure..."

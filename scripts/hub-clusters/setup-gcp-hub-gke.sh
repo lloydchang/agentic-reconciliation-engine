@@ -2,10 +2,13 @@
 
 # Setup GCP GKE Hub Cluster for GitOps Control Plane
 # This script creates a GKE cluster that serves as the hub for multi-cloud GitOps
-
-set -euo pipefail
-
-# Configuration
+#
+# Tooling Choice Summary:
+# - Uses Google Cloud CLI (gcloud) (industry-standard for GKE) instead of Terraform Blueprints for cluster bootstrap
+# - Reference: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster
+# - Aligns with GitOps migration strategy: imperative setup for initial infrastructure,
+#   then Flux + KCC for declarative management of workloads and cross-cloud resources
+# - Avoids IaC lock-in during transition period, enables gradual migration from legacy IaC
 CLUSTER_NAME="${CLUSTER_NAME:-gitops-hub-gke}"
 PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project)}"
 REGION="${REGION:-us-central1}"
