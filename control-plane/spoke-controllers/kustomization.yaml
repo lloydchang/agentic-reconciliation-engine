@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: spoke-controllers
+
+# Base controller manifests to be deployed to spoke clusters
+resources:
+  - aws-ack/ec2-controller.yaml  # Example: Move EC2 controller to spokes
+  # Add other controllers as needed
+
+# Patches for spoke-specific configuration
+patchesStrategicMerge:
+  - spoke-patches.yaml
+
+# Namespace override if needed
+namespace: spoke-controllers

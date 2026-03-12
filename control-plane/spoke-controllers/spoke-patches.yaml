@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ec2-controller
+  namespace: spoke-controllers
+spec:
+  template:
+    spec:
+      containers:
+      - name: manager
+        env:
+        - name: SPOKE_MODE
+          value: "true"  # Enable spoke-specific behavior
+        - name: HUB_ENDPOINT
+          value: "hub-cluster-endpoint"  # Reference to hub for coordination
+---
+# Add similar patches for other controllers

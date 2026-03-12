@@ -1,0 +1,505 @@
+# Dependency Graph Visualization System
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dependency-graph-visualizer
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: dependency-graph-visualizer
+    app.kubernetes.io/component: gitops-infra-control-plane
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dependency-graph-visualizer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dependency-graph-visualizer
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: graph-visualizer
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: graph-data
+          mountPath: /usr/share/nginx/html
+        - name: config
+          mountPath: /etc/nginx/conf.d
+      - name: graph-generator
+        image: python:3.9-alpine
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            pip install networkx matplotlib kubernetes pyyaml
+            python /app/generate-graph.py
+        env:
+        - name: NAMESPACE
+          value: "flux-system"
+        - name: UPDATE_INTERVAL
+          value: "60"
+        volumeMounts:
+        - name: graph-data
+          mountPath: /app/output
+        - name: script
+          mountPath: /app
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: graph-data
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: nginx-graph-config
+      - name: script
+        configMap:
+          name: graph-generator-script
+---
+# Service for Dependency Graph Visualizer
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependency-graph-visualizer
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: dependency-graph-visualizer
+spec:
+  selector:
+    app.kubernetes.io/name: dependency-graph-visualizer
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  type: ClusterIP
+---
+# Ingress for Dependency Graph Visualizer
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dependency-graph-visualizer
+  namespace: flux-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: dependency-graph.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dependency-graph-visualizer
+            port:
+              number: 80
+---
+# Nginx Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-graph-config
+  namespace: flux-system
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        location / {
+            try_files \$uri \$uri/ /index.html;
+        }
+        
+        location /api/graph {
+            proxy_pass http://localhost:8080;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
+        
+        location /metrics {
+            proxy_pass http://localhost:8080;
+            proxy_set_header Host \$host;
+        }
+    }
+---
+# Graph Generator Script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graph-generator-script
+  namespace: flux-system
+data:
+  generate-graph.py: |
+    import os
+    import json
+import networkx as nx
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from kubernetes import client, config
+import yaml
+import time
+from datetime import datetime
+
+class DependencyGraphGenerator:
+    def __init__(self):
+        self.namespace = os.getenv('NAMESPACE', 'flux-system')
+        self.update_interval = int(os.getenv('UPDATE_INTERVAL', '60'))
+        self.output_dir = '/app/output'
+        
+        # Load Kubernetes config
+        try:
+            config.load_incluster_config()
+        except:
+            config.load_kube_config()
+        
+        self.k8s_apps = client.AppsV1Api()
+        self.k8s_custom = client.CustomObjectsApi()
+        
+    def get_flux_kustomizations(self):
+        """Get all Flux Kustomizations with their dependencies"""
+        try:
+            kustomizations = self.k8s_custom.list_namespaced_custom_object(
+                group='kustomize.toolkit.fluxcd.io',
+                version='v1',
+                namespace=self.namespace,
+                plural='kustomizations'
+            )
+            return kustomizations.get('items', [])
+        except Exception as e:
+            print(f"Error getting kustomizations: {e}")
+            return []
+    
+    def extract_dependencies(self, kustomization):
+        """Extract dependencies from a Kustomization"""
+        deps = kustomization.get('spec', {}).get('dependsOn', [])
+        if isinstance(deps, list):
+            return [dep.get('name') for dep in deps if dep.get('name')]
+        return []
+    
+    def build_dependency_graph(self):
+        """Build the dependency graph from Flux Kustomizations"""
+        G = nx.DiGraph()
+        
+        kustomizations = self.get_flux_kustomizations()
+        
+        # Add nodes
+        for kustomization in kustomizations:
+            name = kustomization['metadata']['name']
+            namespace = kustomization['metadata']['namespace']
+            
+            # Get status
+            status = kustomization.get('status', {})
+            ready_condition = next((c for c in status.get('conditions', []) 
+                                  if c.get('type') == 'Ready'), None)
+            
+            # Add node with metadata
+            G.add_node(name, 
+                      namespace=namespace,
+                      ready=ready_condition.get('status', 'Unknown') if ready_condition else 'Unknown',
+                      last_applied=kustomization.get('status', {}).get('lastAppliedRevision', 'Unknown'),
+                      path=kustomization.get('spec', {}).get('path', 'Unknown'))
+        
+        # Add edges (dependencies)
+        for kustomization in kustomizations:
+            name = kustomization['metadata']['name']
+            dependencies = self.extract_dependencies(kustomization)
+            
+            for dep in dependencies:
+                if dep in G.nodes:
+                    G.add_edge(dep, name)  # dep -> name (dep must complete before name)
+        
+        return G
+    
+    def generate_graph_visualization(self, G):
+        """Generate visual representation of the dependency graph"""
+        plt.figure(figsize=(12, 8))
+        
+        # Create layout
+        pos = nx.spring_layout(G, k=2, iterations=50)
+        
+        # Color nodes based on status
+        node_colors = []
+        for node in G.nodes():
+            status = G.nodes[node].get('ready', 'Unknown')
+            if status == 'True':
+                node_colors.append('green')
+            elif status == 'False':
+                node_colors.append('red')
+            else:
+                node_colors.append('gray')
+        
+        # Draw the graph
+        nx.draw(G, pos, 
+                with_labels=True, 
+                node_color=node_colors,
+                node_size=1500,
+                font_size=8,
+                font_weight='bold',
+                arrows=True,
+                arrowsize=20,
+                edge_color='black',
+                width=2)
+        
+        plt.title('GitOps Infrastructure Dependency Graph', fontsize=16, fontweight='bold')
+        plt.tight_layout()
+        
+        # Save the graph
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        graph_file = f'{self.output_dir}/dependency_graph_{timestamp}.png'
+        plt.savefig(graph_file, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # Also save as latest
+        latest_file = f'{self.output_dir}/dependency_graph_latest.png'
+        plt.savefig(latest_file, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        return graph_file
+    
+    def generate_graph_data(self, G):
+        """Generate JSON data for web visualization"""
+        nodes = []
+        edges = []
+        
+        for node in G.nodes():
+            node_data = G.nodes[node]
+            nodes.append({
+                'id': node,
+                'label': node,
+                'namespace': node_data.get('namespace', ''),
+                'ready': node_data.get('ready', 'Unknown'),
+                'lastApplied': node_data.get('lastApplied', ''),
+                'path': node_data.get('path', ''),
+                'color': 'green' if node_data.get('ready') == 'True' else 
+                        'red' if node_data.get('ready') == 'False' else 'gray'
+            })
+        
+        for edge in G.edges():
+            edges.append({
+                'from': edge[0],
+                'to': edge[1]
+            })
+        
+        return {
+            'nodes': nodes,
+            'edges': edges,
+            'generated_at': datetime.now().isoformat(),
+            'total_nodes': len(nodes),
+            'total_edges': len(edges)
+        }
+    
+    def generate_html_dashboard(self, graph_data):
+        """Generate HTML dashboard for dependency visualization"""
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitOps Dependency Graph</title>
+    <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        #graph {{
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 5px;
+        }}
+        .header {{
+            text-align: center;
+            margin-bottom: 20px;
+        }}
+        .stats {{
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }}
+        .stat-item {{
+            text-align: center;
+        }}
+        .legend {{
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }}
+        .legend-item {{
+            display: inline-block;
+            margin-right: 20px;
+        }}
+        .legend-color {{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GitOps Infrastructure Dependency Graph</h1>
+        <p>Generated: {graph_data['generated_at']}</p>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item">
+            <h3>{graph_data['total_nodes']}</h3>
+            <p>Total Resources</p>
+        </div>
+        <div class="stat-item">
+            <h3>{graph_data['total_edges']}</h3>
+            <p>Dependencies</p>
+        </div>
+        <div class="stat-item">
+            <h3 id="ready-count">0</h3>
+            <p>Ready Resources</p>
+        </div>
+        <div class="stat-item">
+            <h3 id="failed-count">0</h3>
+            <p>Failed Resources</p>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: green;"></span>
+            Ready
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: red;"></span>
+            Failed
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: gray;"></span>
+            Unknown
+        </div>
+    </div>
+    
+    <div id="graph"></div>
+    
+    <script>
+        const nodes = new vis.DataSet({json.dumps(graph_data['nodes'])});
+        const edges = new vis.DataSet({json.dumps(graph_data['edges'])});
+        
+        const container = document.getElementById('graph');
+        const data = {{ nodes: nodes, edges: edges }};
+        
+        const options = {{
+            nodes: {{
+                shape: 'box',
+                margin: 10,
+                font: {{
+                    size: 12,
+                    color: '#333'
+                }}
+            }},
+            edges: {{
+                arrows: 'to',
+                smooth: {{
+                    type: 'cubicBezier'
+                }}
+            }},
+            physics: {{
+                stabilization: {{
+                    iterations: 200
+                }}
+            }},
+            layout: {{
+                hierarchical: {{
+                    direction: 'UD',
+                    sortMethod: 'directed'
+                }}
+            }}
+        }};
+        
+        const network = new vis.Network(container, data, options);
+        
+        // Update statistics
+        let readyCount = 0;
+        let failedCount = 0;
+        
+        nodes.forEach(node => {{
+            if (node.color === 'green') readyCount++;
+            else if (node.color === 'red') failedCount++;
+        }});
+        
+        document.getElementById('ready-count').textContent = readyCount;
+        document.getElementById('failed-count').textContent = failedCount;
+        
+        // Auto-refresh every 60 seconds
+        setTimeout(() => {{
+            location.reload();
+        }}, 60000);
+    </script>
+</body>
+</html>
+        """
+        
+        # Save HTML
+        html_file = f'{self.output_dir}/index.html'
+        with open(html_file, 'w') as f:
+            f.write(html_content)
+        
+        return html_file
+    
+    def run(self):
+        """Main execution loop"""
+        print("Starting dependency graph generator...")
+        
+        while True:
+            try:
+                print("Generating dependency graph...")
+                
+                # Build graph
+                G = self.build_dependency_graph()
+                
+                # Generate visualization
+                graph_file = self.generate_graph_visualization(G)
+                print(f"Graph saved to: {graph_file}")
+                
+                # Generate data for web
+                graph_data = self.generate_graph_data(G)
+                
+                # Generate HTML dashboard
+                html_file = self.generate_html_dashboard(graph_data)
+                print(f"HTML dashboard saved to: {html_file}")
+                
+                # Save JSON data
+                json_file = f'{self.output_dir}/graph_data.json'
+                with open(json_file, 'w') as f:
+                    json.dump(graph_data, f, indent=2)
+                print(f"Graph data saved to: {json_file}")
+                
+                print(f"Waiting {self.update_interval} seconds before next update...")
+                time.sleep(self.update_interval)
+                
+            except Exception as e:
+                print(f"Error generating graph: {e}")
+                time.sleep(30)  # Wait before retrying
+
+if __name__ == '__main__':
+    generator = DependencyGraphGenerator()
+    generator.run()

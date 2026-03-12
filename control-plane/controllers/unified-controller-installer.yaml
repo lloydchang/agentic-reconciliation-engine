@@ -1,0 +1,352 @@
+# Unified Controller Installer for All Cloud Providers
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cloud-controllers
+  namespace: flux-system
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: gitops-infra-controllers
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: gitops-infra-charts
+        namespace: flux-system
+  values:
+    # Global Configuration
+    global:
+      namespace: flux-system
+      reconcileInterval: "5m"
+      retryCount: 3
+      logLevel: "info"
+      enableTracing: true
+      correlationId: true
+    
+    # AWS Controllers Configuration
+    aws:
+      enabled: true
+      region: "us-west-2"
+      services:
+        - name: "ec2"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        - name: "eks"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        - name: "vpc"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        - name: "iam"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      authentication:
+        method: "irsa"
+        roleArn: "arn:aws:iam::ACCOUNT:role/gitops-controller-role"
+    
+    # Azure Controllers Configuration
+    azure:
+      enabled: true
+      location: "East US"
+      subscriptionId: "SUBSCRIPTION_ID"
+      tenantId: "TENANT_ID"
+      services:
+        - name: "aks"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        - name: "network"
+          version: "v1alpha1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      authentication:
+        method: "workload-identity"
+        clientId: "CLIENT_ID"
+    
+    # GCP Controllers Configuration
+    gcp:
+      enabled: true
+      project: "PROJECT_ID"
+      region: "us-central1"
+      services:
+        - name: "gke"
+          version: "v1beta1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        - name: "compute"
+          version: "v1beta1"
+          enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      authentication:
+        method: "workload-identity"
+        serviceAccount: "gitops-controller@PROJECT_ID.iam.gserviceaccount.com"
+    
+    # Monitoring Configuration
+    monitoring:
+      enabled: true
+      prometheus:
+        enabled: true
+        serviceMonitor: true
+        port: 8080
+        path: "/metrics"
+      grafana:
+        enabled: true
+        dashboards:
+          - "controller-reconciliation"
+          - "resource-status"
+          - "dependency-graph"
+    
+    # Security Configuration
+    security:
+      rbac:
+        enabled: true
+        crossNamespace: true
+      networkPolicy:
+        enabled: true
+      podSecurity:
+        enabled: true
+        level: "restricted"
+---
+# Helm Repository for Unified Controllers
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: gitops-infra-charts
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://gitops-infra.github.io/helm-charts
+---
+# Configuration Template Generator
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: controller-config-templates
+  namespace: flux-system
+data:
+  aws-template.yaml: |
+    # AWS Controller Template
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: aws-{{ .Service }}-controller
+      namespace: {{ .Namespace }}
+      labels:
+        app.kubernetes.io/name: aws-{{ .Service }}-controller
+        app.kubernetes.io/component: gitops-infra-control-plane
+        cloud: aws
+        service: {{ .Service }}
+    spec:
+      replicas: {{ .Replicas }}
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: aws-{{ .Service }}-controller
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: aws-{{ .Service }}-controller
+            cloud: aws
+            service: {{ .Service }}
+        spec:
+          serviceAccountName: aws-{{ .Service }}-controller
+          containers:
+          - name: controller
+            image: public.ecr.aws/aws-controllers-k8s/{{ .Service }}-controller:{{ .Version }}
+            args:
+            - --v={{ .LogLevel }}
+            - --metrics-bind-address=:8080
+            - --health-probe-bind-address=:8081
+            env:
+            - name: AWS_REGION
+              value: "{{ .Region }}"
+            - name: RECONCILE_INTERVAL
+              value: "{{ .ReconcileInterval }}"
+            - name: CORRELATION_ID
+              value: "{{ .CorrelationId }}"
+            resources:
+              requests:
+                cpu: {{ .Resources.Requests.Cpu }}
+                memory: {{ .Resources.Requests.Memory }}
+              limits:
+                cpu: {{ .Resources.Limits.Cpu }}
+                memory: {{ .Resources.Limits.Memory }}
+            ports:
+            - containerPort: 8080
+              name: metrics
+            - containerPort: 8081
+              name: health
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: health
+              initialDelaySeconds: 15
+              periodSeconds: 20
+            readinessProbe:
+              httpGet:
+                path: /readyz
+                port: health
+              initialDelaySeconds: 5
+              periodSeconds: 10
+  
+  azure-template.yaml: |
+    # Azure Controller Template
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: azure-{{ .Service }}-controller
+      namespace: {{ .Namespace }}
+      labels:
+        app.kubernetes.io/name: azure-{{ .Service }}-controller
+        app.kubernetes.io/component: gitops-infra-control-plane
+        cloud: azure
+        service: {{ .Service }}
+    spec:
+      replicas: {{ .Replicas }}
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: azure-{{ .Service }}-controller
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: azure-{{ .Service }}-controller
+            cloud: azure
+            service: {{ .Service }}
+        spec:
+          serviceAccountName: azure-{{ .Service }}-controller
+          containers:
+          - name: controller
+            image: mcr.microsoft.com/azure-service-operator/{{ .Service }}-controller:{{ .Version }}
+            args:
+            - --v={{ .LogLevel }}
+            - --metrics-bind-address=:8080
+            - --health-probe-bind-address=:8081
+            env:
+            - name: AZURE_SUBSCRIPTION_ID
+              value: "{{ .SubscriptionId }}"
+            - name: AZURE_TENANT_ID
+              value: "{{ .TenantId }}"
+            - name: AZURE_LOCATION
+              value: "{{ .Location }}"
+            - name: RECONCILE_INTERVAL
+              value: "{{ .ReconcileInterval }}"
+            - name: CORRELATION_ID
+              value: "{{ .CorrelationId }}"
+            resources:
+              requests:
+                cpu: {{ .Resources.Requests.Cpu }}
+                memory: {{ .Resources.Requests.Memory }}
+              limits:
+                cpu: {{ .Resources.Limits.Cpu }}
+                memory: {{ .Resources.Limits.Memory }}
+            ports:
+            - containerPort: 8080
+              name: metrics
+            - containerPort: 8081
+              name: health
+  
+  gcp-template.yaml: |
+    # GCP Controller Template
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: gcp-{{ .Service }}-controller
+      namespace: {{ .Namespace }}
+      labels:
+        app.kubernetes.io/name: gcp-{{ .Service }}-controller
+        app.kubernetes.io/component: gitops-infra-control-plane
+        cloud: gcp
+        service: {{ .Service }}
+    spec:
+      replicas: {{ .Replicas }}
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: gcp-{{ .Service }}-controller
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: gcp-{{ .Service }}-controller
+            cloud: gcp
+            service: {{ .Service }}
+        spec:
+          serviceAccountName: gcp-{{ .Service }}-controller
+          containers:
+          - name: controller
+            image: gcr.io/gke-config/{{ .Service }}-controller:{{ .Version }}
+            args:
+            - --v={{ .LogLevel }}
+            - --metrics-bind-address=:8080
+            - --health-probe-bind-address=:8081
+            env:
+            - name: GOOGLE_PROJECT
+              value: "{{ .Project }}"
+            - name: GOOGLE_REGION
+              value: "{{ .Region }}"
+            - name: RECONCILE_INTERVAL
+              value: "{{ .ReconcileInterval }}"
+            - name: CORRELATION_ID
+              value: "{{ .CorrelationId }}"
+            resources:
+              requests:
+                cpu: {{ .Resources.Requests.Cpu }}
+                memory: {{ .Resources.Requests.Memory }}
+              limits:
+                cpu: {{ .Resources.Limits.Cpu }}
+                memory: {{ .Resources.Limits.Memory }}
+            ports:
+            - containerPort: 8080
+              name: metrics
+            - containerPort: 8081
+              name: health
