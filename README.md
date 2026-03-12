@@ -3,8 +3,9 @@
 Continuous Reconciliation Engine for Multi-Cloud Infra
 
 ## The Core Philosophy
-We do not use push-based tools (Terraform, Blueprints, CDK, CloudFormation, Bicep, ARM) that execute once and exit. Instead, we treat infrastructure as a living, self-healing process using native Kubernetes operators.
+We employ a hybrid approach: push-based tools for initial cluster bootstrap, transitioning to continuous reconciliation for ongoing infrastructure management.
 
+* **Phased Migration Strategy**: Use industry-standard tools (eksctl, az, gcloud) for initial cluster creation, then leverage native Kubernetes operators for declarative, self-healing infrastructure management.
 * Continuous Reconciliation: Native Kubernetes controllers (AWS ACK, Azure ASO, GCP KCC) monitor Cloud APIs 24/7. They actively repair configuration drift without human intervention.
 * The Dependency DAG: We use the Flux `dependsOn` feature to define infrastructure hierarchies. We do not use pipeline-based orchestration.
 * Zero State Files: There is no Terraform State to corrupt, lock, or lose. The live Cloud API is the only source of truth.
