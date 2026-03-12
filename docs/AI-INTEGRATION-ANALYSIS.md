@@ -10,6 +10,39 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 
 ## 🎯 Scenario-Based Integration Framework
 
+### ❌ When AI Integration Is NOT Appropriate
+
+**Do NOT implement AI components if you:**
+- Have single-cloud or simple infrastructure scenarios
+- Operate in highly regulated environments with strict change controls
+- Have small teams (1-3 people) with limited DevOps expertise
+- Require ultra-low latency (<30 seconds) for critical operations
+- Are in early brownfield migration phases with unstable infrastructure
+
+**For these scenarios:**
+- Focus on basic GitOps with Flux for declarative infrastructure
+- Use traditional automation tools (Terraform, Ansible, CI/CD pipelines)
+- Implement manual approval processes for all changes
+- Consider simpler monitoring and alerting solutions
+
+### ✅ When AI Integration IS Appropriate
+
+**Consider AI integration if you:**
+- Have genuine multi-cloud complexity causing operational challenges
+- Need autonomous optimization across large-scale infrastructure
+- Have established GitOps practices and experienced teams
+- Can afford the operational overhead of AI systems
+- Require rapid response to infrastructure changes and drift
+
+### 🔄 Problem Evolution and AI Adoption
+
+**AI adoption should follow infrastructure maturity:**
+1. **Phase 1**: Basic GitOps (no AI) - establish declarative infrastructure
+2. **Phase 2**: Monitoring & Alerting (limited AI) - add intelligent monitoring
+3. **Phase 3**: Optimization (full AI) - implement autonomous agent orchestration
+
+## 🎯 Scenario-Based Integration Framework
+
 ### 🟢 Greenfield Scenarios (New Infrastructure)
 **When to Apply**: Starting from scratch with no legacy constraints
 **Common Problems**: Multi-cloud coordination from day one, complex new applications

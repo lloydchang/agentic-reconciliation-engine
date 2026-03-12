@@ -1,22 +1,28 @@
-# Strategic Architecture Context
+# Consensus Protocol Analysis: Problem-First Approach for Distributed Decision Making
 
-**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+> **🎯 Problem-First Warning**: This document analyzes consensus protocols, but distributed decision-making is NOT always the answer. Start with [Problem Definition Guide](./PROBLEM-DEFINITION-GUIDE.md) to determine if consensus solves YOUR specific problem.
 
-This file analyzes consensus protocols for the consensus layer implementation of our hybrid architecture.
-
-**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
-
-**Current Status**: Analyzing consensus protocol options for fault-tolerant agent coordination.
-
-**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
-
----
-
-# Consensus Protocol Analysis: Raft vs Paxos and Alternatives
+> **⚠️ Critical Self-Assessment**: Before implementing consensus protocols, complete [Solution Fit Analysis](./docs/SOLUTION-FIT-ANALYSIS.md) to ensure this approach is right for your situation.
 
 ## Executive Summary
 
-This document provides a comprehensive analysis of consensus protocol choices for the GitOps Infrastructure Control Plane, explaining why Raft was selected over Paxos and other alternatives, while documenting the trade-offs and considerations for each approach.
+This document provides a comprehensive analysis of consensus protocol choices for the GitOps Infrastructure Control Plane, explaining when distributed decision-making is appropriate versus when simpler coordination mechanisms should be used instead. The analysis focuses on **problem-solution fit**, implementation complexity, and practical applicability based on deployment scenarios.
+
+## 🎯 When Consensus is NOT the Right Solution
+
+### ❌ Consensus is Overkill For:
+- **Single-cloud environments** (use centralized coordination)
+- **Simple automation tasks** (use basic Flux CronJobs)
+- **Small teams with predictable workloads** (use standard GitOps)
+- **Low-latency requirements** (consensus adds overhead)
+- **Simple resource management** (use basic controllers)
+
+### ✅ Consensus is Valuable For:
+- **Multi-cloud coordination complexity** (cross-cloud decision making)
+- **Large-scale distributed systems** (human-scale coordination challenges)
+- **Fault-tolerant requirements** (autonomous healing needs)
+- **Complex optimization problems** (multiple competing objectives)
+- **High-security environments** (Byzantine fault tolerance)
 
 ## Protocol Comparison Matrix
 
