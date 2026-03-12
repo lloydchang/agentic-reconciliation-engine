@@ -241,19 +241,27 @@ The traditional AI Gateway cannot effectively filter LLM requests without alread
 - **Validation**: Validation coverage, error rates
 
 ### Logs Collection
-All agents log to stdout/stderr for collection by cluster logging solution.
+All agents and consensus components log to stdout/stderr for collection by cluster logging solution.
 
 ## Security Considerations
 
+### Consensus-Based Security
+- **Distributed Validation**: Multiple agents validate all decisions independently
+- **Reputation Systems**: Agents earn trust through reliable behavior over time
+- **Byzantine Protection**: System resists up to 1/3 malicious agents
+- **Encrypted Communication**: All agent-to-agent communication secured with mTLS
+
 ### Network Policies
-- AI Gateway only accepts traffic from authorized agents
-- CronJobs and Validation have egress restrictions
-- Local LLM mode requires different network configuration
+- **Consensus Network**: Agent communication restricted to secure channels
+- **Legacy Gateway**: Only accepts traffic from authorized agents (if enabled)
+- **CronJobs and Validation**: Egress restrictions for security
+- **Local LLM Mode**: Requires different network configuration
 
 ### RBAC
-- Minimal permissions per component
-- Service accounts with least privilege
-- No cluster-admin access required
+- **Minimal Permissions**: Each agent has least privilege for its function
+- **Service Account Isolation**: Agents run with dedicated service accounts
+- **Consensus Roles**: Separate roles for consensus participation
+- **No Cluster-Admin**: No agent requires cluster-admin access
 
 ## Troubleshooting
 
