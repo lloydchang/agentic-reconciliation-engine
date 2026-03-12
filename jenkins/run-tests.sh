@@ -3,7 +3,7 @@
 # Test script for Jenkins CI pipeline
 # This script runs various tests to validate the GitOps Infrastructure Control Plane
 
-set -e
+set -euxo pipefail
 
 echo "🧪 Starting Jenkins CI tests..."
 echo "📅 Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"

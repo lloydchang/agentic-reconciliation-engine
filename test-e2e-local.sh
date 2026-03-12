@@ -1,7 +1,7 @@
 #!/bin/bash
 # Complete Local End-to-End Test with Emulators
 
-set -e
+set -euxo pipefail
 
 # Colors
 RED='\033[0;31m'

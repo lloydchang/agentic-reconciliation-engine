@@ -2,7 +2,7 @@
 # Comprehensive Local Testing Suite for GitOps Infrastructure Control Plane
 # Tests infrastructure, workloads, security, and observability locally
 
-set -e
+set -euxo pipefail
 
 # Colors
 RED='\033[0;31m'

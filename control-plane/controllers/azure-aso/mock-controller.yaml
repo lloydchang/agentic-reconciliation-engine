@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azureserviceoperator-controller-manager
+  namespace: azureserviceoperator-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azureserviceoperator-controller-manager-mock
+  namespace: azureserviceoperator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azureserviceoperator-controller-manager-mock
+  template:
+    metadata:
+      labels:
+        app: azureserviceoperator-controller-manager-mock
+    spec:
+      serviceAccountName: azureserviceoperator-controller-manager
+      containers:
+      - name: mock-controller
+        image: nginx:alpine
+        command: ["sleep", "3600"]
+        env:
+        - name: AZURE_ENVIRONMENT
+          value: "AzureCloud"
+        - name: AZURE_CLIENT_ID
+          value: "mock-client-id"
+        - name: AZURE_CLIENT_SECRET
+          value: "mock-client-secret"
+        - name: AZURE_TENANT_ID
+          value: "mock-tenant-id"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

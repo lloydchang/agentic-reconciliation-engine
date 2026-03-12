@@ -3,7 +3,7 @@
 # Multi-Cluster GitOps Workflows Setup Script
 # This script implements comprehensive multi-cluster GitOps workflows
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -632,7 +632,7 @@ cat > $WORKFLOW_DIR/scripts/deploy-spoke-cluster.sh << EOF
 #!/bin/bash
 
 # Deploy Spoke Cluster Script
-set -e
+set -euxo pipefail
 
 CLUSTER_NAME=\$1
 CLUSTER_TYPE=\${2:-"eks"}
@@ -672,7 +672,7 @@ cat > $WORKFLOW_DIR/scripts/promote-environment.sh << EOF
 #!/bin/bash
 
 # Environment Promotion Script
-set -e
+set -euxo pipefail
 
 FROM_ENV=\$1
 TO_ENV=\$2
@@ -712,7 +712,7 @@ cat > $WORKFLOW_DIR/scripts/rollback-application.sh << EOF
 #!/bin/bash
 
 # Application Rollback Script
-set -e
+set -euxo pipefail
 
 APPLICATION=\$1
 ENVIRONMENT=\$2

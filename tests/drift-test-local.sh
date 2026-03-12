@@ -3,7 +3,7 @@
 # GitOps Infrastructure Control Plane - Local Drift Test Script
 # Tests Flux reconciliation without requiring cloud credentials
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Starting GitOps Infrastructure Drift Test (Local Mode)"
 echo "======================================================"

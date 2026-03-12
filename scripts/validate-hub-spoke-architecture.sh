@@ -3,7 +3,7 @@
 # Hub-Spoke Cluster Architecture Validation Script
 # This script validates the complete hub-spoke GitOps architecture
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

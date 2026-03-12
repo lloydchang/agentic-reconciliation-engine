@@ -5,6 +5,4 @@ metadata:
   namespace: flux-system
 resources:
   - namespace.yaml
-  - eks-controller.yaml
-  - ec2-controller.yaml
-  - iam-controller.yaml
+  - mock-controller.yaml

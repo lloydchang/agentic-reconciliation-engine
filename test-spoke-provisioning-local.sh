@@ -2,7 +2,7 @@
 # Test AWS ACK, Azure ASO, GCP KCC Spoke Cluster Provisioning with Local Emulators
 # Simulates hub-and-spoke architecture using emulators
 
-set -e
+set -euxo pipefail
 
 # Colors
 RED='\033[0;31m'

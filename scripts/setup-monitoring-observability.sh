@@ -3,7 +3,7 @@
 # Enhanced Monitoring and Observability Setup
 # This script sets up comprehensive monitoring for the GitOps Infrastructure Control Plane
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

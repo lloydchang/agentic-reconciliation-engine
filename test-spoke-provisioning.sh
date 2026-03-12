@@ -2,7 +2,7 @@
 # Test AWS ACK, Azure ASO, GCP KCC Spoke Cluster Provisioning
 # Tests the hub-and-spoke architecture with real cloud controllers
 
-set -e
+set -euxo pipefail
 
 # Colors
 RED='\033[0;31m'

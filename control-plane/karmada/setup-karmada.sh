@@ -3,7 +3,7 @@
 # Karmada + Flux Multi-Cluster GitOps Setup
 # This script sets up Karmada with Flux for multi-cluster management
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Setting up Karmada + Flux Multi-Cluster GitOps"
 echo "=================================================="

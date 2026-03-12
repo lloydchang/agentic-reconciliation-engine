@@ -3,7 +3,7 @@
 # GitOps Infrastructure Control Plane - Drift Test Script
 # This script validates the continuous reconciliation capability for AWS, Azure, and GCP
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Starting GitOps Infrastructure Drift Test"
 echo "============================================="

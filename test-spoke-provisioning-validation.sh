@@ -2,7 +2,7 @@
 # Validate AWS ACK, Azure ASO, GCP KCC Spoke Cluster Provisioning Architecture
 # Tests hub-and-spoke design with cloud controllers and emulators
 
-set -e
+set -euxo pipefail
 
 # Colors
 RED='\033[0;31m'
@@ -34,8 +34,8 @@ test_aws_ack_spoke1() {
     print_header "Test 1: AWS ACK Controller for Spoke 1 (EKS)"
     
     print_status "Checking AWS ACK controller readiness..."
-    if kubectl get deployment ack-ec2-controller -n ack-system >/dev/null 2>&1; then
-        replicas=$(kubectl get deployment ack-ec2-controller -n ack-system -o jsonpath='{.status.readyReplicas}')
+    if kubectl get deployment ack-ec2-controller-mock -n ack-system >/dev/null 2>&1; then
+        replicas=$(kubectl get deployment ack-ec2-controller-mock -n ack-system -o jsonpath='{.status.readyReplicas}')
         if [[ $replicas -gt 0 ]]; then
             print_status "✅ AWS ACK EC2 controller ready ($replicas replicas)"
         else
@@ -97,8 +97,8 @@ test_azure_aso_spoke2() {
     print_header "Test 2: Azure ASO Controller for Spoke 2 (AKS)"
     
     print_status "Checking Azure ASO controller readiness..."
-    if kubectl get deployment azure-service-operator-controller -n azureserviceoperator-system >/dev/null 2>&1; then
-        replicas=$(kubectl get deployment azure-service-operator-controller -n azureserviceoperator-system -o jsonpath='{.status.readyReplicas}')
+    if kubectl get deployment azureserviceoperator-controller-manager-mock -n azureserviceoperator-system >/dev/null 2>&1; then
+        replicas=$(kubectl get deployment azureserviceoperator-controller-manager-mock -n azureserviceoperator-system -o jsonpath='{.status.readyReplicas}')
         if [[ $replicas -gt 0 ]]; then
             print_status "✅ Azure ASO controller ready ($replicas replicas)"
         else
@@ -161,8 +161,8 @@ test_gcp_kcc_spoke3() {
     print_header "Test 3: GCP KCC Controller for Spoke 3 (GKE)"
     
     print_status "Checking GCP KCC controller readiness..."
-    if kubectl get deployment cnrm-controller-manager -n cnrm-system >/dev/null 2>&1; then
-        replicas=$(kubectl get deployment cnrm-controller-manager -n cnrm-system -o jsonpath='{.status.readyReplicas}')
+    if kubectl get deployment cnrm-controller-manager-mock -n cnrm-system >/dev/null 2>&1; then
+        replicas=$(kubectl get deployment cnrm-controller-manager-mock -n cnrm-system -o jsonpath='{.status.readyReplicas}')
         if [[ $replicas -gt 0 ]]; then
             print_status "✅ GCP KCC controller ready ($replicas replicas)"
         else
@@ -400,7 +400,7 @@ EOF
     fi
     
     # Azure ASO integration test
-    if kubectl get deployment azure-service-operator-controller -n azureserviceoperator-system >/dev/null 2>&1; then
+    if kubectl get deployment azureserviceoperator-controller-manager-mock -n azureserviceoperator-system >/dev/null 2>&1; then
         print_status "✅ Azure ASO controller can manage Spoke 2 resources"
         
         # Create test Virtual Network via ASO
@@ -425,7 +425,7 @@ EOF
     fi
     
     # GCP KCC integration test
-    if kubectl get deployment cnrm-controller-manager -n cnrm-system >/dev/null 2>&1; then
+    if kubectl get deployment cnrm-controller-manager-mock -n cnrm-system >/dev/null 2>&1; then
         print_status "✅ GCP KCC controller can manage Spoke 3 resources"
         
         # Create test Compute Engine instance via KCC
