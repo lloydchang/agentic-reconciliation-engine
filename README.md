@@ -5,10 +5,20 @@ Continuous Reconciliation Engine for Multi-Cloud Infra
 ## The Core Advantage
 Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide **24/7 continuous reconciliation** that automatically detects and repairs configuration drift, something push-based tools fundamentally cannot achieve without complex external orchestration.
 
+| Approach | Traditional IaC | Continuous Reconciliation |
+|----------|----------------|---------------------------|
+| **Operation** | Run once → Exit | Monitor 24/7 → Auto-heal |
+| **Drift Detection** | Manual `plan` runs | Automatic within minutes |
+| **Emergency Fix** | Manual process | Git commit → Auto-deploy |
+| **State Management** | State files (corruption risk) | Live cloud API (no files) |
+| **Human Error** | Manual corrections needed | Automatic reverts |
+
 * **Continuous Reconciliation**: Native Kubernetes controllers (AWS ACK, Azure ASO, GCP KCC) monitor Cloud APIs 24/7. They actively repair configuration drift without human intervention.
 * **Self-Healing Infrastructure**: Unlike traditional IaC that requires manual re-runs, our approach automatically maintains desired state continuously.
 * **Zero State Files**: There is no Terraform State to corrupt, lock, or lose. The live Cloud API is the only source of truth.
 * **Hybrid Setup**: Industry-standard CLIs (eksctl, az, gcloud) for initial Hub cluster creation, then continuous reconciliation for all ongoing infrastructure management.
+
+**👉 See [Continuous Reconciliation Value Proposition](./docs/CONTINUOUS-RECONCILIATION-VALUE-PROP.md) for detailed comparison and real-world scenarios.**
 
 ## Architectural Topology
 We use a hub-and-spoke model where a single Hub Cluster acts as the control plane for all cloud environments:
