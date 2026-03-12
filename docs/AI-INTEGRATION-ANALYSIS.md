@@ -421,7 +421,7 @@ spec:
 - Multi-cloud support (AWS, Azure, GCP)
 - Intelligent resource optimization
 
-**Applicability**: Provides alternative to cluster autoscaler for dynamic node scaling in the GitOps infrastructure control plane. Can be integrated with Flux for automated node management across spoke clusters.
+**Applicability**: Integrated into the GitOps Infrastructure Control Plane for dynamic node scaling across spoke clusters. Provides alternative to cluster autoscaler with faster response times and better resource utilization.
 
 **Safety Assessment**: ✅ **SAFE**
 - Standard Kubernetes integration
@@ -429,30 +429,13 @@ spec:
 - No direct access to sensitive data
 
 **Application to Repository**:
-```yaml
-# Karpenter integration example
-apiVersion: karpenter.sh/v1beta1
-kind: NodePool
-metadata:
-  name: default
-spec:
-  template:
-    spec:
-      requirements:
-        - key: kubernetes.io/arch
-          operator: In
-          values: ["amd64"]
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values: ["on-demand"]
-      nodeClassRef:
-        name: default
-```
+Karpenter is deployed via Flux in `control-plane/controllers/karpenter/` and configured per cloud provider in `infrastructure/tenants/3-workloads/karpenter/`. NodePools are created for each spoke cluster with appropriate dependsOn relationships ensuring clusters exist before node scaling is configured.
 
 **Benefits**:
 - Faster scaling than traditional autoscalers
 - Cost optimization through right-sizing
 - Multi-cloud compatibility
+- GitOps-managed configuration
 
 ## Security Considerations
 

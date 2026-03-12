@@ -6,3 +6,10 @@ resources:
   - aws-nodepool.yaml
   - azure-nodepool.yaml
   - gcp-nodepool.yaml
+dependsOn:
+  - name: aws-clusters
+    namespace: flux-system
+  - name: azure-clusters
+    namespace: flux-system
+  - name: gcp-clusters
+    namespace: flux-system
