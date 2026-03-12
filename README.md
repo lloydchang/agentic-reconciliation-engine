@@ -2,6 +2,30 @@
 
 Continuous Reconciliation Engine for Multi-Cloud Infrastructure
 
+```text
+                       GIT REPOSITORY
+                     (Source of Truth)
+                             |
+                    Flux Pulls Manifests
+                             |
+                             v
+      +------------------------------------------+
+      |                HUB CLUSTER               |
+      |------------------------------------------|
+      | Flux | ACK        | ASO           | KCC  |
+      +------------------------------------------+
+             |               |               |
+   Provisions/Manages Provisions/Manages Provisions/Manages
+             |               |               |
+      +-------------+ +-------------+ +-------------+
+      |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   |
+      |   (EKS)     | |   (AKS)     | |   (GKE)     |
+      |   CLUSTER   | |   CLUSTER   | |   CLUSTER   |
+      +-------------+ +-------------+ +-------------+
+```
+
+<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
+
 ## Core Advantage
 
 Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
