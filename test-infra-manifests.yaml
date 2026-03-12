@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-infra
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: infra-state
+  namespace: test-infra
+data:
+  vpc-cidr: "10.0.0.0/16"
+  subnet-cidr: "10.0.1.0/24"
+  vpc-name: "main-vpc"
+  subnet-name: "main-subnet"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-vpc
+  namespace: test-infra
+spec:
+  template:
+    spec:
+      containers:
+      - name: aws-cli
+        image: amazon/aws-cli:2.13.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          aws --endpoint-url=http://localstack.localstack.svc.cluster.local:4566 \
+          ec2 create-vpc --cidr-block 10.0.0.0/16 \
+          --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=main-vpc}]' || echo "VPC may already exist"
+      restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-subnet
+  namespace: test-infra
+spec:
+  template:
+    spec:
+      containers:
+      - name: aws-cli
+        image: amazon/aws-cli:2.13.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          VPC_ID=$(aws --endpoint-url=http://localstack.localstack.svc.cluster.local:4566 \
+          ec2 describe-vpcs --filters "Name=tag:Name,Values=main-vpc" \
+          --query 'Vpcs[0].VpcId' --output text)
+          
+          if [ "$VPC_ID" != "None" ] && [ "$VPC_ID" != "" ]; then
+            aws --endpoint-url=http://localstack.localstack.svc.cluster.local:4566 \
+            ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24 \
+            --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=main-subnet}]' || echo "Subnet may already exist"
+          fi
+      restartPolicy: OnFailure

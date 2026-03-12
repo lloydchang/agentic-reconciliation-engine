@@ -99,15 +99,26 @@ bootstrap_flux() {
     print_header "Bootstrapping Flux GitOps Controller"
 
     print_status "Installing Flux components..."
-    flux bootstrap git \
-        --url=$REPO_URL \
-        --branch=$BRANCH \
-        --path=$FLUX_PATH \
-        --components-extra=image-reflector-controller,image-automation-controller \
-        --silent
+    # Check if Flux is already installed
+    if kubectl get namespace flux-system &>/dev/null && kubectl get deployments -n flux-system | grep -q "kustomize-controller"; then
+        print_status "Flux already installed, skipping bootstrap..."
+        # Apply local GitRepository and Kustomization
+        if [[ -f "local-test.yaml" ]]; then
+            kubectl apply -f local-test.yaml
+        fi
+        if [[ -f "test-kustomization.yaml" ]]; then
+            kubectl apply -f test-kustomization.yaml
+        fi
+    else
+        flux bootstrap git \
+            --url=$REPO_URL \
+            --branch=$BRANCH \
+            --path=$FLUX_PATH \
+            --components-extra=image-reflector-controller,image-automation-controller \
+            --silent
+    fi
 
     print_status "Waiting for Flux controllers to be ready..."
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/flux-controller-manager -n flux-system
     kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/kustomize-controller -n flux-system
     kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/helm-controller -n flux-system
     kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/source-controller -n flux-system
@@ -119,17 +130,35 @@ bootstrap_flux() {
 deploy_core_infrastructure() {
     print_header "Deploying Core Infrastructure"
 
-    print_status "Deploying cert-manager..."
-    kubectl apply -k infrastructure/control-plane/cert-manager/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/cert-manager -n cert-manager
+    # For local testing, skip cert-manager and external-dns as they may not be available
+    print_status "Checking for local test environment..."
+    
+    if [[ "$CLUSTER_TYPE" == "kind" ]] || [[ "$CLUSTER_NAME" == *"local"* ]]; then
+        print_status "Local cluster detected, deploying minimal infrastructure..."
+        # Deploy basic monitoring if available
+        if [[ -d "infrastructure/monitoring" ]]; then
+            print_status "Deploying basic monitoring..."
+            kubectl apply -k infrastructure/monitoring/ || true
+        fi
+    else
+        print_status "Deploying cert-manager..."
+        if [[ -d "infrastructure/control-plane/cert-manager" ]]; then
+            kubectl apply -k infrastructure/control-plane/cert-manager/
+            kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/cert-manager -n cert-manager
+        fi
 
-    print_status "Deploying external-dns..."
-    kubectl apply -k infrastructure/control-plane/external-dns/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/external-dns -n external-dns
+        print_status "Deploying external-dns..."
+        if [[ -d "infrastructure/control-plane/external-dns" ]]; then
+            kubectl apply -k infrastructure/control-plane/external-dns/
+            kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/external-dns -n external-dns
+        fi
 
-    print_status "Deploying Velero..."
-    kubectl apply -k infrastructure/control-plane/velero/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/velero -n velero
+        print_status "Deploying Velero..."
+        if [[ -d "infrastructure/control-plane/velero" ]]; then
+            kubectl apply -k infrastructure/control-plane/velero/
+            kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/velero -n velero
+        fi
+    fi
 
     print_status "Core infrastructure: ✓"
 }
@@ -138,17 +167,29 @@ deploy_core_infrastructure() {
 deploy_cloud_providers() {
     print_header "Deploying Cloud Provider Controllers"
 
+    # For local testing, skip cloud provider controllers and use emulators
+    if [[ "$CLUSTER_TYPE" == "kind" ]] || [[ "$CLUSTER_NAME" == *"local"* ]]; then
+        print_status "Local cluster detected, using emulators instead of cloud controllers..."
+        return
+    fi
+
     print_status "Deploying AWS ACK controllers..."
-    kubectl apply -k infrastructure/tenants/aws/ack-controllers/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/ack-ec2-controller -n ack-system
+    if [[ -d "infrastructure/tenants/aws/ack-controllers" ]]; then
+        kubectl apply -k infrastructure/tenants/aws/ack-controllers/
+        kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/ack-ec2-controller -n ack-system
+    fi
 
     print_status "Deploying Azure ASO controllers..."
-    kubectl apply -k infrastructure/tenants/azure/aso-controllers/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/azureserviceoperator-controller-manager -n azureserviceoperator-system
+    if [[ -d "infrastructure/tenants/azure/aso-controllers" ]]; then
+        kubectl apply -k infrastructure/tenants/azure/aso-controllers/
+        kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/azureserviceoperator-controller-manager -n azureserviceoperator-system
+    fi
 
     print_status "Deploying GCP KCC controllers..."
-    kubectl apply -k infrastructure/tenants/gcp/kcc-controllers/
-    kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/controller-manager -n cnrm-system
+    if [[ -d "infrastructure/tenants/gcp/kcc-controllers" ]]; then
+        kubectl apply -k infrastructure/tenants/gcp/kcc-controllers/
+        kubectl wait --for=condition=available --timeout=${TIMEOUT}s deployment/controller-manager -n cnrm-system
+    fi
 
     print_status "Cloud providers: ✓"
 }
