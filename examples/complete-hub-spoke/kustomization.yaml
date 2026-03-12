@@ -1,5 +1,25 @@
+# Complete Hub-Spoke Example: When and How to Use
+
+# ⚠️  CRITICAL: Problem-Solution Fit Assessment Required
+
+# Before deploying this example, ensure you have:
+# 1. Clearly defined infrastructure problems
+# 2. Confirmed this complexity level is necessary
+# 3. Team skills to implement and maintain
+# 4. Measurable success criteria
+
+# See docs/PROBLEM-SOLUTION-FIT.md for complete assessment framework
+
 # Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach
 # This configuration deploys the complete hub-spoke example with consensus-based agent orchestration
+# ⚠️  WARNING: Advanced pattern for large-scale, complex environments only
+# For simpler scenarios, see examples/template-multi-cloud/ or use basic Flux patterns
+
+# Problem Context:
+# - BEST: Multi-cloud enterprise with coordination challenges
+# - MAYBE: Large single-cloud with high operational overhead  
+# - AVOID: Small teams, simple applications, greenfield projects
+
 # North Star: Definitive reference implementation for autonomous infrastructure management
 # Current Status: Production-ready hub-spoke deployment with AI integration
 # Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md
