@@ -21,7 +21,11 @@ print_warning() {
 test_flux() {
     print_status "Testing Flux controllers..."
     kubectl get pods -n flux-system
-    kubectl wait --for=condition=available --timeout=300s deployment/flux-controller-manager -n flux-system
+    # Check for individual Flux controllers instead of non-existent flux-controller-manager
+    kubectl wait --for=condition=available --timeout=300s deployment/helm-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=300s deployment/kustomize-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=300s deployment/notification-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=300s deployment/source-controller -n flux-system
 }
 
 test_cert_manager() {

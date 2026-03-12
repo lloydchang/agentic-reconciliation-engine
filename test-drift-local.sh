@@ -32,13 +32,20 @@ setup_localstack() {
     export AWS_ACCESS_KEY_ID=test
     export AWS_SECRET_ACCESS_KEY=test
     export AWS_DEFAULT_REGION=$AWS_REGION
-    export AWS_ENDPOINT_URL=http://localhost:4567
+    export AWS_ENDPOINT_URL=http://localhost:4566
+    
+    # Start port-forwarding to LocalStack
+    print_status "Starting port-forward to LocalStack..."
+    kubectl port-forward -n localstack svc/localstack 4566:4566 >/dev/null 2>&1 &
+    PORT_FORWARD_PID=$!
+    sleep 3
     
     # Test connection
     if aws --endpoint-url=$AWS_ENDPOINT_URL ec2 describe-regions >/dev/null 2>&1; then
         print_status "✅ LocalStack connection successful"
     else
         print_error "❌ Cannot connect to LocalStack"
+        kill $PORT_FORWARD_PID 2>/dev/null || true
         exit 1
     fi
 }
@@ -50,7 +57,6 @@ create_infrastructure() {
     # Create VPC
     VPC_ID=$(aws --endpoint-url=$AWS_ENDPOINT_URL ec2 create-vpc \
         --cidr-block 10.0.0.0/16 \
-        --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=$VPC_NAME}]" \
         --query 'Vpc.VpcId' --output text)
     
     print_status "✅ Created VPC: $VPC_ID"
@@ -59,7 +65,6 @@ create_infrastructure() {
     SUBNET_ID=$(aws --endpoint-url=$AWS_ENDPOINT_URL ec2 create-subnet \
         --vpc-id $VPC_ID \
         --cidr-block 10.0.1.0/24 \
-        --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$SUBNET_NAME}]" \
         --query 'Subnet.SubnetId' --output text)
     
     print_status "✅ Created Subnet: $SUBNET_ID"
@@ -108,7 +113,6 @@ test_drift() {
     NEW_SUBNET_ID=$(aws --endpoint-url=$AWS_ENDPOINT_URL ec2 create-subnet \
         --vpc-id $VPC_ID \
         --cidr-block 10.0.1.0/24 \
-        --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$SUBNET_NAME}]" \
         --query 'Subnet.SubnetId' --output text)
     
     print_status "✅ Subnet recreated: $NEW_SUBNET_ID"
