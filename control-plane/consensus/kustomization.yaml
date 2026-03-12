@@ -1,0 +1,27 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: consensus-agent-orchestration
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: ./control-plane/consensus
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+  - name: infrastructure-network
+  - name: control-plane-base
+  postBuild:
+    substitute:
+      CONSENSUS_ENABLED: "true"
+      AGENT_QUORUM: "3"
+      FEEDBACK_INTERVAL: "30s"
+      CONSENSUS_PROTOCOL: "raft"
+  validation: client
+  healthChecks:
+  - apiVersion: swarm.gitops.io/v1alpha1
+    kind: AgentSwarm
+    name: infrastructure-optimizers
+    namespace: control-plane

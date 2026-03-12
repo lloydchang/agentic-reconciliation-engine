@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: consensus-feedback-loops
+  namespace: control-plane
+spec:
+  schedule: "*/1 * * * *"  # Every minute for tight feedback
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: consensus-agent-sa
+          containers:
+          - name: feedback-loop
+            image: lloydchang/ai-agents-sandbox:latest
+            command:
+            - python
+            - /app/feedback_loop.py
+            env:
+            - name: CONSENSUS_ENABLED
+              value: "true"
+            - name: FEEDBACK_INTERVAL
+              value: "30s"
+            - name: AGENT_QUORUM
+              value: "3"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+          restartPolicy: OnFailure
