@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: aws-ack-system
+  name: flux-system
   labels:
     managed-by: flux
-    component: aws-ack-controllers
+    component: gitops-core

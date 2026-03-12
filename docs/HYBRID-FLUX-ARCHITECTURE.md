@@ -45,7 +45,7 @@ infrastructure/
 ### Quick Start
 ```bash
 # Deploy hybrid architecture
-./bootstrap-hybrid-flux.sh
+./scripts/bootstrap-hybrid-flux.sh
 
 # Check status
 kubectl get pods -n flux-system      # Core Flux (critical)

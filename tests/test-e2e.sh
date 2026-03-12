@@ -100,9 +100,9 @@ test_bootstrap() {
     print_header "Phase 2: Bootstrap Test"
 
     # Run bootstrap script
-    if [[ -f "bootstrap.sh" ]]; then
-        chmod +x bootstrap.sh
-        if ./bootstrap.sh; then
+    if [[ -f "scripts/bootstrap.sh" ]]; then
+        chmod +x scripts/bootstrap.sh
+        if ./scripts/bootstrap.sh; then
             update_test_result "bootstrap" true
         else
             update_test_result "bootstrap" false

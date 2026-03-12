@@ -104,11 +104,11 @@ bootstrap_flux() {
     if kubectl get namespace flux-system &>/dev/null && kubectl get deployments -n flux-system | grep -q "kustomize-controller"; then
         print_status "Flux already installed, skipping bootstrap..."
         # Apply local GitRepository and Kustomization for local testing
-        if [[ -f "local-test.yaml" ]]; then
-            kubectl apply -f local-test.yaml
+        if [[ -f "tests/local-test.yaml" ]]; then
+            kubectl apply -f tests/local-test.yaml
         fi
-        if [[ -f "test-kustomization.yaml" ]]; then
-            kubectl apply -f test-kustomization.yaml
+        if [[ -f "tests/test-kustomization.yaml" ]]; then
+            kubectl apply -f tests/test-kustomization.yaml
         fi
     else
         # For local testing, use local Git repository instead of remote

@@ -6,4 +6,8 @@ metadata:
 resources:
   - alerts/slack-provider.yaml
   - alerts/github-provider.yaml
+  - alerts/teams-provider.yaml
+  - alerts/googlechat-provider.yaml
+  - alerts/email-provider.yaml
   - alerts/gitops-alerts.yaml
+  - alerts/multi-channel-alerts.yaml

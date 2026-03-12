@@ -1,0 +1,13 @@
+# Flux Microsoft Teams Notification Provider
+# Sends GitOps pipeline events to Microsoft Teams
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: teams-bot
+  namespace: flux-system
+spec:
+  type: teams
+  address: https://outlook.office.com/webhook/WEBHOOK_URL_HERE
+  secretRef:
+    name: teams-webhook-url

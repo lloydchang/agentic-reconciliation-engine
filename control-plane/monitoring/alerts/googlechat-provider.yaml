@@ -1,0 +1,13 @@
+# Flux Google Chat Notification Provider
+# Sends GitOps pipeline events to Google Chat
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: googlechat-bot
+  namespace: flux-system
+spec:
+  type: googlechat
+  address: https://chat.googleapis.com/v1/spaces/SPACE_ID/messages?key=KEY&token=TOKEN
+  secretRef:
+    name: googlechat-webhook-url

@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cnrm-system
+  name: gcp-kcc-system
   labels:
-    name: cnrm-system
+    managed-by: flux
+    component: gcp-kcc-controllers

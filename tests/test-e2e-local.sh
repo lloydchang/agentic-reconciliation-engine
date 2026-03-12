@@ -132,7 +132,7 @@ test_drift_detection() {
     print_header "Testing Infrastructure Drift Detection"
     
     # Run our local drift test
-    if ./test-drift-local.sh >/dev/null 2>&1; then
+    if ./tests/test-drift-local.sh >/dev/null 2>&1; then
         print_status "✅ Local drift test passed"
     else
         print_error "❌ Local drift test failed"
