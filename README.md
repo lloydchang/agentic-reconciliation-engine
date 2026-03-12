@@ -28,7 +28,7 @@ Continuous Reconciliation Engine for Multi-Cloud Infrastructure
 
 ## Core Advantage
 
-Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
+Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. Kubernetes operators, such as Flux, ACK, ASO, KCC, can provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
 
 | Approach | Traditional IaC | Continuous Reconciliation |
 |----------|----------------|---------------------------|
