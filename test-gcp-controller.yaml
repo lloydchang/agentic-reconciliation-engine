@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cnrm-controller-manager
+  namespace: cnrm-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cnrm-controller-manager
+  template:
+    metadata:
+      labels:
+        app: cnrm-controller-manager
+    spec:
+      serviceAccountName: cnrm-controller-manager
+      containers:
+      - name: manager
+        image: gcr.io/k8s-staging/config-management-operator:v1.13.0
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/etc/google/service-account.json"
+        volumeMounts:
+        - name: google-service-account
+          mountPath: "/etc/google"
+          readOnly: true
+      volumes:
+      - name: google-service-account
+        secret:
+          secretName: gcp-service-account
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cnrm-controller-manager
+  namespace: cnrm-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-service-account
+  namespace: cnrm-system
+type: Opaque
+data:
+  service-account.json: eyJ0eXBlIjogInNlcnZlLXNlcnZpY2UiLCAidHlwZSI6ICJ0ZXN0IiwgInR5cGUiOiAidGVzdCIsICJhdWQiOiAidGVzdCIsICJhdXRoX3VybCI6ICJodHRwczovL2FjY291bnRzLmdvb2dsLmNvbSIsICJwcm9qZWN0X2lkIjogInRlc3QtcHJvamVjdCIsICJ0b2tlbl9pZCI6ICJ0ZXN0LXRva2VuIiwgInRva2VuX3VybCI6ICJodHRwczovL2FjY291bnRzLmdvb2dsLmNvbSIsICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCJ9fQ==
