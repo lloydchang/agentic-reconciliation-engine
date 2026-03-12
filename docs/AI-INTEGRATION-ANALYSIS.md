@@ -2435,10 +2435,297 @@ spec:
 - Resource efficiency
 - Operational simplicity
 
-**Recommendation**:
-- **Start with Resolute** for K8s-native workflows and simplicity
-- **Consider Temporal** for complex cross-system orchestration requiring Go performance
-- **Both can coexist** for different use cases - Resolute for standard agent workflows, Temporal for high-performance consensus coordination
+#### Multi-Language Runtime Support for Consensus-Based Agents
+
+**Temporal SDK Support for Multiple Languages**:
+
+**1. Python SDK**
+- **Mature Ecosystem**: Extensive libraries for AI/ML integrations (pandas, numpy, scikit-learn)
+- **Rich AI Tooling**: Native support for TensorFlow, PyTorch, LangChain
+- **Data Processing**: Excellent for infrastructure analytics and cost optimization
+- **Agent Development**: Fast prototyping with dynamic typing and REPL
+
+**Python Integration Example**:
+```python
+from temporalio import workflow, activity
+
+@workflow.defn
+class ConsensusAgentWorkflow:
+    @workflow.run
+    async def run_consensus_orchestration(self):
+        # Local optimization with Python AI/ML tools
+        local_metrics = await activities.analyze_infrastructure_metrics()
+        optimization = await activities.ml_optimization(local_metrics)
+        
+        if optimization.benefit > threshold:
+            # Create consensus proposal
+            proposal = await activities.create_proposal(optimization)
+            votes = await activities.collect_votes(proposal)
+            
+            if await activities.reaches_quorum(votes):
+                return await activities.execute_consensus(proposal, votes)
+        
+        # Continue 30-second feedback loop
+        await workflow.sleep(30)
+
+@activity.defn
+async def analyze_infrastructure_metrics() -> dict:
+    # Use pandas for data analysis
+    import pandas as pd
+    # AI/ML analysis for infrastructure optimization
+    return {"cpu_usage": 75, "memory_usage": 80, "cost_trend": "increasing"}
+```
+
+**2. TypeScript/Node.js SDK**
+- **Event-Driven Architecture**: Natural fit for real-time agent coordination
+- **Rich Ecosystem**: npm packages for cloud APIs and infrastructure tools
+- **Async/Await**: Perfect for consensus protocol implementation
+- **JSON Processing**: Native for agent communication and proposal handling
+
+**TypeScript Integration Example**:
+```typescript
+import { workflow, activity } from '@temporalio/workflow';
+import { sleep } from '@temporalio/workflow';
+
+@workflow.defn
+export class ConsensusAgentWorkflow {
+    @workflow.run
+    async runConsensusOrchestration(): Promise<void> {
+        while (true) {
+            // Local optimization with Node.js async patterns
+            const localState = await activities.getLocalInfrastructureState();
+            const improvement = await activities.identifyOptimization(localState);
+            
+            if (improvement.benefit > threshold) {
+                // Consensus proposal with TypeScript interfaces
+                const proposal = await activities.createProposal(improvement);
+                const votes = await activities.collectVotes(proposal, 5 * 60 * 1000); // 5 minutes
+                
+                if (await activities.reachesQuorum(votes)) {
+                    await activities.executeConsensus(proposal, votes);
+                }
+            }
+            
+            // 30-second feedback loop
+            await sleep('30 seconds');
+        }
+    }
+}
+
+@activity.defn
+export async function getLocalInfrastructureState(): Promise<InfrastructureState> {
+    // Use Node.js ecosystem for cloud API integration
+    const awsMetrics = await getAWSMetrics();
+    const azureMetrics = await getAzureMetrics();
+    const gcpMetrics = await getGCPMetrics();
+    
+    return {
+        cpu: calculateAverageUsage([awsMetrics, azureMetrics, gcpMetrics]),
+        memory: calculateMemoryUsage([awsMetrics, azureMetrics, gcpMetrics]),
+        cost: calculateTotalCost([awsMetrics, azureMetrics, gcpMetrics])
+    };
+}
+```
+
+**3. C#/.NET SDK**
+- **Enterprise Integration**: Native support for Azure, AWS, and Windows environments
+- **Strong Typing**: Compile-time type safety for consensus protocols
+- **Performance**: JIT compilation for optimized execution
+- **Ecosystem**: NuGet packages for infrastructure and cloud tools
+
+**C# Integration Example**:
+```csharp
+using Temporalio.Workflow;
+using Temporalio.Activity;
+
+[Workflow]
+public class ConsensusAgentWorkflow
+{
+    [WorkflowRun]
+    public async Task RunConsensusOrchestration()
+    {
+        while (true)
+        {
+            // Local optimization with .NET enterprise libraries
+            var localState = await Activities.GetInfrastructureStateAsync();
+            var optimization = await Activities.IdentifyOptimizationAsync(localState);
+            
+            if (optimization.Benefit > threshold)
+            {
+                // Consensus proposal with C# strong typing
+                var proposal = await Activities.CreateProposalAsync(optimization);
+                var votes = await Activities.CollectVotesAsync(proposal, TimeSpan.FromMinutes(5));
+                
+                if (await Activities.ReachesQuorumAsync(votes))
+                {
+                    await Activities.ExecuteConsensusAsync(proposal, votes);
+                }
+            }
+            
+            // 30-second feedback loop
+            await Workflow.DelayAsync(TimeSpan.FromSeconds(30));
+        }
+    }
+}
+
+[Activity]
+public static class InfrastructureActivities
+{
+    public static async Task<InfrastructureState> GetInfrastructureStateAsync()
+    {
+        // Use .NET ecosystem for enterprise integration
+        var awsClient = new AWSClient();
+        var azureClient = new AzureClient();
+        var gcpClient = new GCPClient();
+        
+        var metrics = await Task.WhenAll(
+            awsClient.GetMetricsAsync(),
+            azureClient.GetMetricsAsync(),
+            gcpClient.GetMetricsAsync()
+        );
+        
+        return new InfrastructureState
+        {
+            CPU = CalculateAverageCPU(metrics),
+            Memory = CalculateAverageMemory(metrics),
+            Cost = CalculateTotalCost(metrics)
+        };
+    }
+}
+```
+
+**4. Java/OpenJDK SDK**
+- **Enterprise Maturity**: Battle-tested in large-scale enterprise environments
+- **JVM Ecosystem**: Rich libraries for infrastructure monitoring and management
+- **Multi-Threading**: Excellent for concurrent agent coordination
+- **Cloud Integration**: Native AWS, Azure, GCP Java SDKs
+
+**Java Integration Example**:
+```java
+import io.temporal.workflow.Workflow;
+import io.temporal.activity.Activity;
+
+@WorkflowInterface
+public interface ConsensusAgentWorkflow {
+    @WorkflowMethod
+    void runConsensusOrchestration();
+}
+
+@ActivityInterface
+public interface InfrastructureActivities {
+    @ActivityMethod
+    InfrastructureState getInfrastructureState();
+    
+    @ActivityMethod
+    Proposal createProposal(Optimization optimization);
+    
+    @ActivityMethod
+    Votes collectVotes(Proposal proposal, Duration timeout);
+    
+    @ActivityMethod
+    boolean reachesQuorum(Votes votes);
+    
+    @ActivityMethod
+    void executeConsensus(Proposal proposal, Votes votes);
+}
+
+public class ConsensusAgentWorkflowImpl implements ConsensusAgentWorkflow {
+    private final InfrastructureActivities activities = 
+        Workflow.newActivityStub(InfrastructureActivities.class);
+    
+    @Override
+    public void runConsensusOrchestration() {
+        while (true) {
+            // Local optimization with Java enterprise libraries
+            InfrastructureState localState = activities.getInfrastructureState();
+            Optimization optimization = identifyOptimization(localState);
+            
+            if (optimization.getBenefit() > threshold) {
+                // Consensus proposal with Java strong typing
+                Proposal proposal = activities.createProposal(optimization);
+                Votes votes = activities.collectVotes(proposal, Duration.ofMinutes(5));
+                
+                if (activities.reachesQuorum(votes)) {
+                    activities.executeConsensus(proposal, votes);
+                }
+            }
+            
+            // 30-second feedback loop
+            Workflow.sleep(Duration.ofSeconds(30));
+        }
+    }
+}
+```
+
+#### Language Selection Recommendations
+
+| Language | Best For | Ecosystem Strengths | Consensus Integration |
+|-----------|------------|-------------------|-------------------|
+| **Go** | High-performance coordination | Kubernetes integration, concurrency | Native Temporal performance |
+| **Python** | AI/ML analytics | pandas, TensorFlow, scikit-learn | Rich AI tooling ecosystem |
+| **TypeScript** | Real-time coordination | Node.js, npm packages | Event-driven consensus |
+| **C#** | Enterprise environments | .NET, Azure, Windows | Strong typing, enterprise integration |
+| **Java** | Large-scale enterprise | JVM, cloud SDKs | Battle-tested reliability |
+
+#### Hybrid Approach Recommendations
+
+**1. Multi-Language Agent Teams**
+- **Go**: Consensus coordination and performance-critical components
+- **Python**: AI/ML analysis and optimization algorithms
+- **TypeScript**: Real-time monitoring and event handling
+- **C#**: Enterprise integration and Windows environments
+- **Java**: Legacy system integration and large-scale deployment
+
+**2. Cross-Language Communication**
+- **Protocol Buffers**: Language-agnostic message format for agent communication
+- **REST APIs**: Standard HTTP interfaces for cross-language coordination
+- **gRPC**: High-performance RPC for consensus protocols
+- **Message Queues**: Redis/Kafka for asynchronous agent coordination
+
+**3. Deployment Strategy**
+```yaml
+# Multi-language agent swarm deployment
+apiVersion: swarm.gitops.io/v1alpha1
+kind: AgentSwarm
+metadata:
+  name: multi-language-infrastructure-optimizers
+spec:
+  agents:
+  - type: consensus-coordinator
+    language: go
+    count: 1
+    role: "consensus-protocol"
+  - type: cost-optimizer
+    language: python
+    count: 2
+    role: "ml-optimization"
+  - type: security-validator
+    language: typescript
+    count: 2
+    role: "real-time-monitoring"
+  - type: performance-tuner
+    language: csharp
+    count: 2
+    role: "enterprise-integration"
+  - type: compliance-checker
+    language: java
+    count: 1
+    role: "legacy-integration"
+  communication:
+    protocol: "grpc"
+    serialization: "protobuf"
+    messageQueue: "redis"
+```
+
+#### Benefits of Multi-Language Support
+
+1. **Leverage Existing Skills**: Use existing codebases and expertise
+2. **Optimal Tool Selection**: Choose best language for specific agent tasks
+3. **Team Productivity**: Developers work with familiar languages
+4. **Ecosystem Integration**: Access to language-specific libraries and tools
+5. **Performance Optimization**: Use Go for performance-critical, Python for AI/ML, etc.
+
+This multi-language approach ensures that consensus-based agent orchestration can leverage the strengths of each programming language while maintaining tight feedback loops and distributed coordination across heterogeneous agent environments.
 
 ### OpsLevel - Internal Developer Platform Management
 
