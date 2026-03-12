@@ -1,0 +1,62 @@
+# Multi-Channel GitOps Alerts
+# Sends alerts to multiple notification providers
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: gitops-multi-channel-alerts
+  namespace: flux-system
+spec:
+  summary: "GitOps Infrastructure Pipeline - Multi-Channel"
+  eventMetadata:
+    env: "production"
+    cluster: "gitops-management"
+    region: "multi-cloud"
+  providerRef:
+    name: teams-bot
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: gitops-googlechat-alerts
+  namespace: flux-system
+spec:
+  summary: "GitOps Infrastructure Pipeline - Google Chat"
+  eventMetadata:
+    env: "production"
+    cluster: "gitops-management"
+    region: "multi-cloud"
+  providerRef:
+    name: googlechat-bot
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: gitops-email-alerts
+  namespace: flux-system
+spec:
+  summary: "GitOps Infrastructure Pipeline - Email"
+  eventMetadata:
+    env: "production"
+    cluster: "gitops-management"
+    region: "multi-cloud"
+  providerRef:
+    name: email-bot
+  eventSeverity: error
+  eventSources:
+    - kind: GitRepository
+      name: '*'
+    - kind: Kustomization
+      name: '*'

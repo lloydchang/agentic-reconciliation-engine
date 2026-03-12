@@ -82,7 +82,7 @@ for dir in "${directories[@]}"; do
 done
 
 # Check for key files
-files=("README.md" "SETUP.md" "bootstrap.sh")
+files=("README.md" "SETUP.md" "scripts/bootstrap.sh")
 for file in "${files[@]}"; do
     if [ -f "/app/$file" ]; then
         pass_step "File exists: $file"

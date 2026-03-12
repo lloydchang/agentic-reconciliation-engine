@@ -79,7 +79,7 @@ dependsOn:
 - **Our solution:** Orchestrates **infrastructure provisioning** of spoke clusters
 - **Example:** Hub cluster provisions EKS/AKS/GKE via controllers
 
-**Evidence:** Our bootstrap.sh installs ACK/ASO/KCC controllers that provision and manage spoke clusters.
+**Evidence:** Our scripts/bootstrap.sh installs ACK/ASO/KCC controllers that provision and manage spoke clusters.
 
 ### **3. Cross-Cloud Orchestration**
 

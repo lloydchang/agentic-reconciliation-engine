@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: azureserviceoperator-system
+  name: azure-aso-system
   labels:
-    name: azureserviceoperator-system
+    managed-by: flux
+    component: azure-aso-controllers

@@ -6,7 +6,6 @@ metadata:
 
 # Base controller manifests to be deployed to spoke clusters
 resources:
-  - aws-ack/ec2-controller.yaml  # Example: Move EC2 controller to spokes
   # Add other controllers as needed
 
 # Patches for spoke-specific configuration

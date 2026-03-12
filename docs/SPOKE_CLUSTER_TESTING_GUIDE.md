@@ -28,7 +28,7 @@ This guide explains how to test AWS ACK, Azure ASO, and GCP KCC controllers for 
       +-------------+ +-------------+ +-------------+
 ```
 
-## Test Script: `test-spoke-provisioning-validation.sh`
+## Test Script: `tests/test-spoke-provisioning-validation.sh`
 
 This comprehensive test validates the complete hub-and-spoke architecture with local emulators.
 
@@ -76,10 +76,10 @@ This comprehensive test validates the complete hub-and-spoke architecture with l
 
 ```bash
 # Make executable
-chmod +x test-spoke-provisioning-validation.sh
+chmod +x tests/test-spoke-provisioning-validation.sh
 
 # Run the complete test suite
-./test-spoke-provisioning-validation.sh
+./tests/test-spoke-provisioning-validation.sh
 ```
 
 ## Expected Results

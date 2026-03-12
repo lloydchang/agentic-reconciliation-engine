@@ -1,0 +1,13 @@
+# Flux Email Notification Provider
+# Sends GitOps pipeline events via email
+
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: email-bot
+  namespace: flux-system
+spec:
+  type: email
+  address: smtp://smtp.gmail.com:587
+  secretRef:
+    name: email-credentials

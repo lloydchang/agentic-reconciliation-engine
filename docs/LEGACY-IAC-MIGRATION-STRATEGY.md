@@ -113,7 +113,7 @@ az deployment group show --resource-group my-rg --name my-deployment | ai-conver
 **Actions:**
 ```bash
 # Deploy control plane
-./bootstrap.sh
+./scripts/bootstrap.sh
 
 # Create dependency mapping
 kubectl create namespace legacy-infrastructure
