@@ -1,0 +1,454 @@
+# Infrastructure Automation TaskSpawners
+# Advanced agent orchestration for infrastructure management
+
+---
+# Infrastructure Drift Analysis Chain
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: infra-drift-analyzer
+  namespace: control-plane
+  labels:
+    app: kagent
+    task: drift-analysis
+    component: infrastructure-automation
+spec:
+  schedule: "0 */4 * * *"  # Every 4 hours
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  timeout: "30m"
+  retryPolicy:
+    maxRetries: 3
+    backoffDuration: "30s"
+  agentChain:
+  - name: drift-detection
+    target: claude-code
+    config:
+      task: "detect-infrastructure-drift"
+      scope: "all-clusters"
+      output-format: "json"
+      include: ["deployments", "services", "configmaps", "secrets"]
+      exclude: ["kube-system", "kagent-system"]
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: impact-analysis
+    target: claude-code
+    dependsOn: ["drift-detection"]
+    config:
+      task: "analyze-drift-impact"
+      input: "${drift-detection.results}"
+      risk-assessment: "true"
+      business-impact: "true"
+      remediation-complexity: "true"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: validation
+    target: kubeconform
+    dependsOn: ["impact-analysis"]
+    config:
+      manifests: "${impact-analysis.affected-manifests}"
+      strict: "true"
+      ignore-missing-schemas: "true"
+      summary: "true"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: remediation
+    target: kubectl-apply
+    dependsOn: ["validation"]
+    condition: "validation.has-fixable-issues"
+    config:
+      manifests: "${validation.fixable-manifests}"
+      dry-run: "false"
+      validate: "true"
+      timeout: "5m"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: reporting
+    target: report-generator
+    dependsOn: ["remediation"]
+    config:
+      template: "drift-analysis-report"
+      data: "${drift-detection.results},${impact-analysis.results},${validation.results},${remediation.results}"
+      output: "/reports/drift-analysis-$(date +%Y-%m-%d-%H%M).json"
+      notification: "slack"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Security Compliance Checker
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: security-compliance-checker
+  namespace: control-plane
+  labels:
+    app: kagent
+    task: security-compliance
+    component: infrastructure-automation
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  timeout: "45m"
+  retryPolicy:
+    maxRetries: 2
+    backoffDuration: "60s"
+  agentChain:
+  - name: rbac-analysis
+    target: rbac-analyzer
+    config:
+      scope: "cluster-wide"
+      check: ["excessive-permissions", "unused-roles", "service-account-risks"]
+      severity: "high"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: network-policy-check
+    target: network-policy-analyzer
+    dependsOn: ["rbac-analysis"]
+    config:
+      check: ["missing-policies", "overly-permissive-rules", "pod-to-internet"]
+      baseline: "default-deny"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: secret-scanner
+    target: secret-scanner
+    dependsOn: ["network-policy-check"]
+    config:
+      scan: ["base64-secrets", "encrypted-secrets", "secret-in-configmaps"]
+      exclude: ["system-secrets", "kubernetes-secrets"]
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: compliance-validator
+    target: compliance-validator
+    dependsOn: ["secret-scanner"]
+    config:
+      standards: ["cis-benchmark", "nist-800-53", "company-policies"]
+      severity: "medium"
+      auto-remediate: "false"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: security-reporting
+    target: security-reporter
+    dependsOn: ["compliance-validator"]
+    config:
+      format: "pdf"
+      include: ["executive-summary", "detailed-findings", "remediation-steps"]
+      distribution: ["security-team", "compliance-officer"]
+      storage: "/reports/security-compliance-$(date +%Y-%m-%d).pdf"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Multi-Cloud Health Monitor
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: multi-cloud-health-monitor
+  namespace: control-plane
+  labels:
+    app: kagent
+    task: health-monitoring
+    component: infrastructure-automation
+spec:
+  schedule: "*/15 * * * *"  # Every 15 minutes
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  timeout: "10m"
+  retryPolicy:
+    maxRetries: 1
+    backoffDuration: "30s"
+  agentChain:
+  - name: aws-health-check
+    target: aws-health-checker
+    config:
+      services: ["eks", "rds", "ec2", "elb", "cloudwatch"]
+      regions: ["us-east-1", "us-west-2", "eu-west-1"]
+      metrics: ["cpu-utilization", "memory-utilization", "disk-usage", "network-throughput"]
+      alert-threshold: "80"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: azure-health-check
+    target: azure-health-checker
+    dependsOn: ["aws-health-check"]
+    config:
+      services: ["aks", "sql-database", "vm", "load-balancer", "monitor"]
+      subscriptions: ["production", "staging"]
+      metrics: ["cpu-percentage", "memory-percentage", "disk-percentage", "network-in"]
+      alert-threshold: "85"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: gcp-health-check
+    target: gcp-health-checker
+    dependsOn: ["azure-health-check"]
+    config:
+      services: ["gke", "cloud-sql", "compute", "load-balancing", "monitoring"]
+      projects: ["prod-project", "staging-project"]
+      metrics: ["cpu-utilization", "memory-utilization", "disk-usage", "network-egress"]
+      alert-threshold: "75"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: health-aggregator
+    target: health-aggregator
+    dependsOn: ["aws-health-check", "azure-health-check", "gcp-health-check"]
+    config:
+      aggregation: "weighted-average"
+      weights: {"aws": "0.4", "azure": "0.35", "gcp": "0.25"}
+      alert-threshold: "critical"
+      notification: ["slack", "pagerduty", "email"]
+      dashboard: "true"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Cost Optimization Analyzer
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: cost-optimization-analyzer
+  namespace: control-plane
+  labels:
+    app: kagent
+    task: cost-optimization
+    component: infrastructure-automation
+spec:
+  schedule: "0 6 * * 1"  # Every Monday at 6 AM
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  timeout: "60m"
+  retryPolicy:
+    maxRetries: 2
+    backoffDuration: "60s"
+  agentChain:
+  - name: cost-collector
+    target: cost-collector
+    config:
+      providers: ["aws", "azure", "gcp"]
+      services: ["compute", "storage", "network", "database"]
+      time-range: "30-days"
+      granularity: "daily"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: usage-analyzer
+    target: usage-analyzer
+    dependsOn: ["cost-collector"]
+    config:
+      metrics: ["cpu-utilization", "memory-utilization", "storage-utilization", "network-utilization"]
+      threshold: "30"  # Low utilization threshold
+      recommendations: "true"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: optimization-engine
+    target: optimization-engine
+    dependsOn: ["usage-analyzer"]
+    config:
+      strategies: ["right-sizing", "scheduling", "reserved-instances", "spot-instances"]
+      savings-target: "20"
+      risk-tolerance: "medium"
+      auto-apply: "false"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: cost-reporter
+    target: cost-reporter
+    dependsOn: ["optimization-engine"]
+    config:
+      format: "json"
+      include: ["current-costs", "potential-savings", "recommendations", "implementation-plan"]
+      stakeholders: ["finance-team", "infrastructure-team", "executives"]
+      storage: "/reports/cost-optimization-$(date +%Y-%m-%d).json"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Backup and Recovery Validator
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: backup-recovery-validator
+  namespace: control-plane
+  labels:
+    app: kagent
+    task: backup-validation
+    component: infrastructure-automation
+spec:
+  schedule: "0 3 * * 0"  # Every Sunday at 3 AM
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  timeout: "120m"
+  retryPolicy:
+    maxRetries: 1
+    backoffDuration: "120s"
+  agentChain:
+  - name: backup-verifier
+    target: backup-verifier
+    config:
+      backup-types: ["etcd", "pv-snapshots", "database", "application-state"]
+      retention-check: "true"
+      integrity-check: "true"
+      location-check: "true"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: recovery-tester
+    target: recovery-tester
+    dependsOn: ["backup-verifier"]
+    config:
+      test-environment: "staging"
+      restore-types: ["etcd", "pv-snapshots", "database"]
+      validation: "data-integrity,service-availability"
+      cleanup: "true"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: rto-rpo-analyzer
+    target: rto-rpo-analyzer
+    dependsOn: ["recovery-tester"]
+    config:
+      rto-target: "4h"
+      rpo-target: "1h"
+      compliance: "true"
+      reporting: "detailed"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: backup-reporter
+    target: backup-reporter
+    dependsOn: ["rto-rpo-analyzer"]
+    config:
+      format: "pdf"
+      include: ["backup-status", "recovery-test-results", "rto-rpo-compliance", "recommendations"]
+      distribution: ["disaster-recovery-team", "compliance-officer"]
+      storage: "/reports/backup-validation-$(date +%Y-%m-%d).pdf"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"

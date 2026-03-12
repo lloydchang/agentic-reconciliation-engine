@@ -1,0 +1,466 @@
+# Kagent Core Installation
+# Production-ready kagent deployment for enterprise agent orchestration
+
+---
+# Kagent Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kagent-system
+  labels:
+    name: kagent-system
+    app: kagent
+    component: orchestration
+
+---
+# Kagent Controller Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kagent-controller
+  namespace: kagent-system
+  labels:
+    app: kagent
+    component: controller
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kagent
+      component: controller
+  template:
+    metadata:
+      labels:
+        app: kagent
+        component: controller
+    spec:
+      serviceAccountName: kagent-controller
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: controller
+        image: kagent/kagent-controller:v0.8.0
+        ports:
+        - containerPort: 8080
+          name: metrics
+        - containerPort: 9443
+          name: webhook
+        env:
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config"
+        - name: METRICS_ADDR
+          value: ":8080"
+        - name: WEBHOOK_ADDR
+          value: ":9443"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: ENABLE_AUDIT_LOG
+          value: "true"
+        - name: MCP_TIMEOUT
+          value: "30s"
+        - name: TASK_TIMEOUT
+          value: "10m"
+        - name: MAX_CONCURRENT_TASKS
+          value: "10"
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubeconfig
+          readOnly: true
+        - name: webhook-certs
+          mountPath: /etc/webhook-certs
+          readOnly: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: kubeconfig
+        configMap:
+          name: kubeconfig
+      - name: webhook-certs
+        secret:
+          secretName: kagent-webhook-certs
+
+---
+# Kagent Controller Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kagent-controller
+  namespace: kagent-system
+  labels:
+    app: kagent
+    component: controller
+spec:
+  selector:
+    app: kagent
+    component: controller
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+  - name: webhook
+    port: 9443
+    targetPort: 9443
+
+---
+# Kagent Metrics Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kagent-metrics
+  namespace: kagent-system
+  labels:
+    app: kagent
+    component: metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    app: kagent
+    component: controller
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+
+---
+# Kagent ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kagent-controller
+  namespace: kagent-system
+  labels:
+    app: kagent
+    component: controller
+
+---
+# Kagent ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kagent-controller
+  labels:
+    app: kagent
+    component: controller
+rules:
+# Kagent CRDs
+- apiGroups: ["kagent.io"]
+  resources: ["*"]
+  verbs: ["*"]
+# Core Kubernetes resources
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets", "events"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "list"]
+# Batch resources for task execution
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Apps resources for deployment management
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+# Networking resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies", "ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+# Custom resources for cloud providers
+- apiGroups: ["k8s.cni.cncf.io"]
+  resources: ["network-attachment-definitions"]
+  verbs: ["get", "list", "watch"]
+# Monitoring resources
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+
+---
+# Kagent ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kagent-controller
+  labels:
+    app: kagent
+    component: controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kagent-controller
+subjects:
+- kind: ServiceAccount
+  name: kagent-controller
+  namespace: kagent-system
+
+---
+# Kagent CRDs
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: taskspawners.kagent.io
+  labels:
+    app: kagent
+    component: crd
+spec:
+  group: kagent.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              schedule:
+                type: string
+              agentChain:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    target:
+                      type: string
+                    dependsOn:
+                      type: array
+                      items:
+                        type: string
+                    condition:
+                      type: string
+                    config:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+              resources:
+                type: object
+                properties:
+                  requests:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                      cpu:
+                        type: string
+                  limits:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                      cpu:
+                        type: string
+              timeout:
+                type: string
+              retryPolicy:
+                type: object
+                properties:
+                  maxRetries:
+                    type: integer
+                  backoffDuration:
+                    type: string
+    subresources:
+      status: {}
+  scope: Namespaced
+  names:
+    plural: taskspawners
+    singular: taskspawner
+    kind: TaskSpawner
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: agentworkflows.kagent.io
+  labels:
+    app: kagent
+    component: crd
+spec:
+  group: kagent.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              triggers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    repository:
+                      type: string
+                    paths:
+                      type: array
+                      items:
+                        type: string
+                    cron:
+                      type: string
+              agents:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    task:
+                      type: string
+                    dependsOn:
+                      type: array
+                      items:
+                        type: string
+                    condition:
+                      type: string
+                    config:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+    subresources:
+      status: {}
+  scope: Namespaced
+  names:
+    plural: agentworkflows
+    singular: agentworkflow
+    kind: AgentWorkflow
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mcpregistries.kagent.io
+  labels:
+    app: kagent
+    component: crd
+spec:
+  group: kagent.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              tools:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    version:
+                      type: string
+                    capabilities:
+                      type: array
+                      items:
+                        type: string
+                    security:
+                      type: string
+                    endpoint:
+                      type: string
+    subresources:
+      status: {}
+  scope: Namespaced
+  names:
+    plural: mcpregistries
+    singular: mcpregistry
+    kind: MCPRegistry
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mcpservers.kagent.io
+  labels:
+    app: kagent
+    component: crd
+spec:
+  group: kagent.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              image:
+                type: string
+              tools:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    endpoint:
+                      type: string
+              resources:
+                type: object
+                properties:
+                  requests:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                      cpu:
+                        type: string
+                  limits:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                      cpu:
+                        type: string
+    subresources:
+      status: {}
+  scope: Namespaced
+  names:
+    plural: mcpservers
+    singular: mcpserver
+    kind: MCPServer
