@@ -1,0 +1,47 @@
+# Azure ASO Controllers Template - INCOMPLETE
+# TODO: Complete this template with actual ASO controller deployments
+# Use prompts like: "Create Azure ASO controllers for AKS, networking, storage, etc."
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aso-controller
+  namespace: azureserviceoperator-system
+  labels:
+    app: aso-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aso-controller
+  template:
+    metadata:
+      labels:
+        app: aso-controller
+    spec:
+      containers:
+      - name: controller
+        # TODO: Replace with actual ASO controller image
+        image: TODO_ASO_IMAGE:latest
+        env:
+        # TODO: Add Azure credentials and subscription
+        - name: AZURE_CLIENT_ID
+          value: TODO_AZURE_CLIENT_ID
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: TODO_AZURE_SECRETS
+              key: client-secret
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      serviceAccountName: aso-controller
+---
+# TODO: Add ASO AKS controller
+# TODO: Add ASO networking controller
+# TODO: Add ASO storage controller
+# TODO: Add workload identity configuration

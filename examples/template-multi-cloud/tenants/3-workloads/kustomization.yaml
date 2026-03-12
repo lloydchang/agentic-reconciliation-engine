@@ -1,0 +1,26 @@
+# Workloads Template - INCOMPLETE
+# TODO: Complete this template with application workloads and AI integrations
+# Use prompts like: "Create workload manifests with AI cronjobs and validation pipelines"
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: workloads-template
+resources:
+  # TODO: Add AI gateway and cronjobs (reference ai-gateway/, ai-cronjobs/)
+  # - ../../ai-gateway/
+  # - ../../ai-cronjobs/
+
+  # TODO: Add AI validation pipeline
+  # - ../../ai-validation/
+
+  # TODO: Add application workloads
+  # - apps/
+
+  # TODO: Add service meshes and ingress
+  # - istio.yaml
+  # - ingress.yaml
+---
+# TODO: Add dependsOn for cluster resources
+# TODO: Add workload monitoring and observability
+# TODO: Add security policies and network policies

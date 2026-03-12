@@ -1,0 +1,271 @@
+# AI Orchestration Framework for Local Llama Models
+# Custom framework since Llama-3.2-3B-Instruct-q4f16_1-MLC lacks A2A protocols
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-orchestrator
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-orchestrator
+  template:
+    metadata:
+      labels:
+        app: ai-orchestrator
+    spec:
+      containers:
+      - name: orchestrator
+        # Custom image with orchestration framework (LangChain/CrewAI-style)
+        image: custom/ai-orchestrator:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: LLAMA_ENDPOINT
+          value: "http://llama-model-service.control-plane.svc.cluster.local:8080"
+        - name: ORCHESTRATION_CONFIG
+          value: "/config/orchestration.yaml"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+          readOnly: true
+        - name: shared-storage
+          mountPath: /shared
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ai-orchestrator-config
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: ai-shared-pvc
+      serviceAccountName: ai-orchestrator-sa
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-orchestrator-config
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+data:
+  orchestration.yaml: |
+    # Custom orchestration configuration since Llama lacks A2A protocols
+    agents:
+      drift-analyzer:
+        role: "Infrastructure Drift Analysis Specialist"
+        goal: "Monitor and report infrastructure configuration drift"
+        backstory: "Expert at analyzing cloud infrastructure changes"
+        tasks:
+          - "Query Kubernetes API for current state"
+          - "Compare with desired state from Git"
+          - "Generate drift analysis report"
+        model: "meta-llama/Llama-3.2-3B-Instruct-q4f16_1-MLC"
+        tools:
+          - kubectl_query
+          - git_compare
+          - report_generator
+
+      validator:
+        role: "Kubernetes Manifest Validator"
+        goal: "Validate manifests for security and best practices"
+        backstory: "Specialized in Kubernetes security and compliance"
+        tasks:
+          - "Parse YAML manifests"
+          - "Check against security policies"
+          - "Validate resource limits and requests"
+          - "Generate validation report"
+        model: "meta-llama/Llama-3.2-3B-Instruct-q4f16_1-MLC"
+        tools:
+          - yaml_parser
+          - security_scanner
+          - kube_validator
+          - report_generator
+
+    workflows:
+      scheduled-monitoring:
+        trigger: "cron(0 */6 * * *)"
+        steps:
+          - agent: drift-analyzer
+            task: "analyze-infrastructure-drift"
+            output: "/shared/drift-reports/$(date +%Y-%m-%d-%H).json"
+          - agent: validator
+            task: "validate-manifests"
+            input: "/shared/drift-reports/$(date +%Y-%m-%d-%H).json"
+            output: "/shared/validation-reports/$(date +%Y-%m-%d-%H).json"
+
+      gitops-validation:
+        trigger: "git-commit"
+        steps:
+          - agent: validator
+            task: "validate-changed-manifests"
+            input: "git-changes"
+            output: "/shared/validation-pr/$(git-commit-hash).json"
+
+    communication:
+      # Custom protocol since Llama doesn't support A2A
+      method: "shared-storage"
+      format: "json"
+      schema:
+        message:
+          type: object
+          properties:
+            agent_id: {type: string}
+            task_id: {type: string}
+            timestamp: {type: string, format: date-time}
+            status: {type: string, enum: [pending, in-progress, completed, failed]}
+            input: {type: object}
+            output: {type: object}
+            metadata: {type: object}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-orchestrator
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+spec:
+  selector:
+    app: ai-orchestrator
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-orchestration-scheduler
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: scheduler
+            image: custom/ai-orchestrator:latest
+            command: ["/bin/sh"]
+            args:
+            - -c
+            - |
+              # Custom orchestration script since Llama lacks A2A protocols
+              echo "Starting AI orchestration workflow..."
+
+              # Step 1: Trigger drift analysis agent
+              curl -X POST http://ai-orchestrator.control-plane.svc.cluster.local/workflow/scheduled-monitoring \
+                -H "Content-Type: application/json" \
+                -d '{"trigger": "cron", "timestamp": "'$(date -Iseconds)'"}'
+
+              # Step 2: Wait for completion (polling since no A2A protocol)
+              while true; do
+                STATUS=$(curl -s http://ai-orchestrator.control-plane.svc.cluster.local/workflow/scheduled-monitoring/status)
+                if [[ "$STATUS" == *"completed"* ]]; then
+                  echo "Orchestration workflow completed successfully"
+                  break
+                elif [[ "$STATUS" == *"failed"* ]]; then
+                  echo "Orchestration workflow failed"
+                  exit 1
+                fi
+                sleep 30
+              done
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+          restartPolicy: Never
+          serviceAccountName: ai-orchestrator-sa
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-shared-pvc
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+spec:
+  accessModes:
+    - ReadWriteMany  # Shared access for orchestration
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-orchestrator-sa
+  namespace: control-plane
+  labels:
+    app: ai-orchestrator
+    component: ai-integration
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-orchestrator-role
+  labels:
+    app: ai-orchestrator
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+  resourceNames: ["ai-orchestrator-config", "github-secrets"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+  resourceNames: ["ai-shared-pvc"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-orchestrator-binding
+  labels:
+    app: ai-orchestrator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-orchestrator-role
+subjects:
+- kind: ServiceAccount
+  name: ai-orchestrator-sa
+  namespace: control-plane
