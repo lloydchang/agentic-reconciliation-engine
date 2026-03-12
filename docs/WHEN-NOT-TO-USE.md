@@ -99,11 +99,32 @@ This document provides **unbiased guidance** on when this GitOps Infrastructure 
 - ✅ **Small startup (10 employees)**: If your entire team includes ≥ 5 DevOps engineers, this solution may work
 - ❌ **Any organization with < 5 dedicated DevOps/SRE personnel**: This solution is inappropriate regardless of total company size
 
-**Better Alternatives:**
+**❓ Can automation replace the need for dedicated personnel?**
+
+**Short Answer: No - automation amplifies existing expertise but cannot replace it.**
+
+**Why Automation Cannot Substitute for Personnel:**
+- **Design ≠ Operations**: The people who design automation systems ≠ the people who operate them 24/7
+- **Incident Response**: Automation can detect issues, but human judgment is required for complex incident response
+- **Evolution**: Systems change over time - automation needs human oversight to adapt
+- **Edge Cases**: No automation handles every edge case without human intervention
+- **Business Logic**: Infrastructure decisions often involve business context automation cannot provide
+
+**The Myth of "Set It and Forget It":**
+Many organizations adopt complex automation hoping it will reduce their need for operations personnel. In reality:
+- **Monitoring Still Required**: Someone must monitor the automation itself
+- **Updates Needed**: Systems evolve, automation must be updated by experts
+- **Integration Required**: New applications/services need integration by skilled personnel
+- **Vendor Management**: Cloud provider updates, security patches require human oversight
+
+**Better Alternatives (When You Want Automation Without Large Teams):**
 - **Cloud-Managed Services**: Let cloud providers handle the undifferentiated heavy lifting
 - **Fully Managed Platforms**: Heroku, Vercel, Firebase, Elastic Beanstalk
 - **Serverless**: AWS Lambda, Google Cloud Functions, Azure Functions
 - **PaaS Solutions**: App Engine, Cloud Run, Container Apps
+- **Simple GitOps**: Basic Flux + Terraform without consensus orchestration
+
+**Reality Check:** If your goal is to minimize DevOps/SRE headcount, this solution will likely increase your operational burden rather than decrease it. Complex automation requires MORE expertise to operate, not less.
 
 **Reality Check:** If your "infrastructure team" is one person, this is the wrong tool.
 

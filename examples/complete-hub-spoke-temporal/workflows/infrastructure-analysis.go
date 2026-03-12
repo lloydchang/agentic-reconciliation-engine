@@ -53,7 +53,17 @@ type InfrastructureRecommendation struct {
 	Effort      string  `json:"effort"` // "low", "medium", "high"
 }
 
-// InfrastructureAnalysisWorkflow implements durable infrastructure analysis with AI
+// Infrastructure Analysis Workflow for GitOps Control Plane
+// 
+// SCENARIO APPLICABILITY:
+// BEST FOR: Brownfield scenarios - analyzing existing infrastructure for migration
+// GOOD FOR: Hybrid scenarios - analyzing local/cloud environments
+// OVERKILL: Greenfield scenarios - no existing infrastructure to analyze
+//
+// IMPLEMENTATION GUIDANCE:
+// Brownfield: Use full workflow to analyze existing resources and plan migration
+// Hybrid: Use multi-cloud analysis for environment coordination
+// Greenfield: Skip or use minimal version - no existing infrastructure to analyze
 func InfrastructureAnalysisWorkflow(ctx workflow.Context, input InfrastructureAnalysisInput) (*InfrastructureAnalysisOutput, error) {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("Starting infrastructure analysis workflow", "resourceType", input.ResourceType)
