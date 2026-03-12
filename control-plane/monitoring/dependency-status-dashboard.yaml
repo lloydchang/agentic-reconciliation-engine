@@ -1,0 +1,1032 @@
+# Dependency Status Dashboard Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dependency-status-dashboard
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: dependency-status-dashboard
+    app.kubernetes.io/component: gitops-infra-control-plane
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dependency-status-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dependency-status-dashboard
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: dashboard-backend
+        image: python:3.9-alpine
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            pip install fastapi uvicorn kubernetes pyyaml prometheus-client
+            python /app/dashboard.py
+        env:
+        - name: NAMESPACE
+          value: "flux-system"
+        - name: PROMETHEUS_URL
+          value: "http://prometheus-operated.flux-system.svc.cluster.local:9090"
+        - name: LOKI_URL
+          value: "http://loki.flux-system.svc.cluster.local:3100"
+        volumeMounts:
+        - name: script
+          mountPath: /app
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        ports:
+        - containerPort: 8080
+          name: http
+      - name: dashboard-frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: nginx
+        volumeMounts:
+        - name: frontend
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: script
+        configMap:
+          name: dashboard-backend-script
+      - name: frontend
+        configMap:
+          name: dashboard-frontend
+      - name: nginx-config
+        configMap:
+          name: nginx-dashboard-config
+---
+# Service for Dependency Status Dashboard
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependency-status-dashboard
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: dependency-status-dashboard
+spec:
+  selector:
+    app.kubernetes.io/name: dependency-status-dashboard
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: api
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+# Ingress for Dashboard
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dependency-status-dashboard
+  namespace: flux-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: dependency-status.local
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: dependency-status-dashboard
+            port:
+              number: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dependency-status-dashboard
+            port:
+              number: 80
+---
+# Backend Script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-backend-script
+  namespace: flux-system
+data:
+  dashboard.py: |
+    import os
+    import json
+    import asyncio
+    from datetime import datetime, timedelta
+    from typing import Dict, List, Optional
+    import logging
+    
+    from fastapi import FastAPI, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.staticfiles import StaticFiles
+    from kubernetes import client, config
+    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+    import yaml
+    import requests
+    
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    # FastAPI app
+    app = FastAPI(title="GitOps Dependency Status Dashboard", version="1.0.0")
+    
+    # Add CORS middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # Prometheus metrics
+    REQUEST_COUNT = Counter('dashboard_requests_total', 'Total dashboard requests', ['method', 'endpoint'])
+    REQUEST_DURATION = Histogram('dashboard_request_duration_seconds', 'Dashboard request duration')
+    
+    # Configuration
+    NAMESPACE = os.getenv('NAMESPACE', 'flux-system')
+    PROMETHEUS_URL = os.getenv('PROMETHEUS_URL', 'http://prometheus-operated.flux-system.svc.cluster.local:9090')
+    LOKI_URL = os.getenv('LOKI_URL', 'http://loki.flux-system.svc.cluster.local:3100')
+    
+    # Initialize Kubernetes client
+    try:
+        config.load_incluster_config()
+    except:
+        config.load_kube_config()
+    
+    k8s_apps = client.AppsV1Api()
+    k8s_custom = client.CustomObjectsApi()
+    k8s_core = client.CoreV1Api()
+    
+    class DependencyAnalyzer:
+        def __init__(self):
+            self.cache = {}
+            self.cache_expiry = {}
+            self.cache_ttl = 60  # seconds
+            
+        def _is_cache_valid(self, key: str) -> bool:
+            if key not in self.cache_expiry:
+                return False
+            return datetime.now() < self.cache_expiry[key]
+        
+        def _set_cache(self, key: str, value):
+            self.cache[key] = value
+            self.cache_expiry[key] = datetime.now() + timedelta(seconds=self.cache_ttl)
+        
+        def _get_cache(self, key: str):
+            return self.cache.get(key)
+        
+        async def get_flux_kustomizations(self) -> List[Dict]:
+            cache_key = 'kustomizations'
+            if self._is_cache_valid(cache_key):
+                return self._get_cache(cache_key)
+            
+            try:
+                kustomizations = k8s_custom.list_namespaced_custom_object(
+                    group='kustomize.toolkit.fluxcd.io',
+                    version='v1',
+                    namespace=NAMESPACE,
+                    plural='kustomizations'
+                )
+                result = kustomizations.get('items', [])
+                self._set_cache(cache_key, result)
+                return result
+            except Exception as e:
+                logger.error(f"Error getting kustomizations: {e}")
+                return []
+        
+        async def get_controllers(self) -> List[Dict]:
+            cache_key = 'controllers'
+            if self._is_cache_valid(cache_key):
+                return self._get_cache(cache_key)
+            
+            try:
+                deployments = k8s_apps.list_namespaced_deployment(
+                    namespace=NAMESPACE,
+                    label_selector='app.kubernetes.io/part-of=gitops-infra-control-plane'
+                )
+                result = deployments.items
+                self._set_cache(cache_key, result)
+                return result
+            except Exception as e:
+                logger.error(f"Error getting controllers: {e}")
+                return []
+        
+        def extract_dependencies(self, kustomization: Dict) -> List[str]:
+            deps = kustomization.get('spec', {}).get('dependsOn', [])
+            if isinstance(deps, list):
+                return [dep.get('name') for dep in deps if dep.get('name')]
+            return []
+        
+        def get_resource_status(self, kustomization: Dict) -> Dict:
+            status = kustomization.get('status', {})
+            ready_condition = next((c for c in status.get('conditions', []) 
+                                  if c.get('type') == 'Ready'), None)
+            
+            return {
+                'ready': ready_condition.get('status', 'Unknown') if ready_condition else 'Unknown',
+                'message': ready_condition.get('message', '') if ready_condition else '',
+                'reason': ready_condition.get('reason', '') if ready_condition else '',
+                'last_applied': status.get('lastAppliedRevision', ''),
+                'last_handled_reconcile': status.get('lastHandledReconcileAt', '')
+            }
+        
+        async def build_dependency_graph(self) -> Dict:
+            cache_key = 'dependency_graph'
+            if self._is_cache_valid(cache_key):
+                return self._get_cache(cache_key)
+            
+            kustomizations = await self.get_flux_kustomizations()
+            
+            nodes = []
+            edges = []
+            
+            # Build nodes
+            for kustomization in kustomizations:
+                name = kustomization['metadata']['name']
+                namespace = kustomization['metadata']['namespace']
+                status = self.get_resource_status(kustomization)
+                
+                nodes.append({
+                    'id': name,
+                    'name': name,
+                    'namespace': namespace,
+                    'status': status['ready'],
+                    'message': status['message'],
+                    'reason': status['reason'],
+                    'last_applied': status['last_applied'],
+                    'path': kustomization.get('spec', {}).get('path', ''),
+                    'interval': kustomization.get('spec', {}).get('interval', ''),
+                    'suspend': kustomization.get('spec', {}).get('suspend', False)
+                })
+            
+            # Build edges
+            for kustomization in kustomizations:
+                name = kustomization['metadata']['name']
+                dependencies = self.extract_dependencies(kustomization)
+                
+                for dep in dependencies:
+                    if any(node['id'] == dep for node in nodes):
+                        edges.append({
+                            'from': dep,
+                            'to': name,
+                            'type': 'dependency'
+                        })
+            
+            result = {
+                'nodes': nodes,
+                'edges': edges,
+                'generated_at': datetime.now().isoformat()
+            }
+            
+            self._set_cache(cache_key, result)
+            return result
+        
+        async def get_controller_health(self) -> Dict:
+            cache_key = 'controller_health'
+            if self._is_cache_valid(cache_key):
+                return self._get_cache(cache_key)
+            
+            controllers = await self.get_controllers()
+            health_data = []
+            
+            for controller in controllers:
+                name = controller.metadata.name
+                namespace = controller.metadata.namespace
+                
+                # Get deployment status
+                ready_replicas = controller.status.ready_replicas or 0
+                replicas = controller.spec.replicas
+                status = 'Healthy' if ready_replicas == replicas else 'Unhealthy'
+                
+                # Get pod status
+                try:
+                    pods = k8s_core.list_namespaced_pod(
+                        namespace=namespace,
+                        label_selector=f'app.kubernetes.io/name={name}'
+                    )
+                    
+                    pod_statuses = []
+                    for pod in pods.items:
+                        pod_status = {
+                            'name': pod.metadata.name,
+                            'phase': pod.status.phase,
+                            'ready': all(c.ready for c in (pod.status.container_statuses or [])),
+                            'restarts': sum(c.restart_count for c in (pod.status.container_statuses or [])),
+                            'node': pod.spec.node_name
+                        }
+                        pod_statuses.append(pod_status)
+                    
+                except Exception as e:
+                    logger.error(f"Error getting pods for {name}: {e}")
+                    pod_statuses = []
+                
+                health_data.append({
+                    'name': name,
+                    'namespace': namespace,
+                    'status': status,
+                    'ready_replicas': ready_replicas,
+                    'replicas': replicas,
+                    'pods': pod_statuses,
+                    'created_at': controller.metadata.creation_timestamp.isoformat() if controller.metadata.creation_timestamp else ''
+                })
+            
+            result = {
+                'controllers': health_data,
+                'generated_at': datetime.now().isoformat()
+            }
+            
+            self._set_cache(cache_key, result)
+            return result
+        
+        async def get_metrics_from_prometheus(self, query: str) -> Dict:
+            try:
+                response = requests.get(
+                    f"{PROMETHEUS_URL}/api/v1/query",
+                    params={'query': query},
+                    timeout=10
+                )
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                logger.error(f"Error querying Prometheus: {e}")
+                return {'data': {'result': []}}
+        
+        async def get_reconciliation_metrics(self) -> Dict:
+            cache_key = 'reconciliation_metrics'
+            if self._is_cache_valid(cache_key):
+                return self._get_cache(cache_key)
+            
+            # Get reconciliation success rate
+            success_query = 'rate(flux_reconcile_success_total[5m])'
+            failure_query = 'rate(flux_reconcile_failure_total[5m])'
+            duration_query = 'histogram_quantile(0.95, rate(flux_reconcile_duration_seconds_bucket[5m]))'
+            
+            success_data = await self.get_metrics_from_prometheus(success_query)
+            failure_data = await self.get_metrics_from_prometheus(failure_query)
+            duration_data = await self.get_metrics_from_prometheus(duration_query)
+            
+            result = {
+                'success_rate': success_data.get('data', {}).get('result', []),
+                'failure_rate': failure_data.get('data', {}).get('result', []),
+                'duration_p95': duration_data.get('data', {}).get('result', []),
+                'generated_at': datetime.now().isoformat()
+            }
+            
+            self._set_cache(cache_key, result)
+            return result
+        
+        async def get_logs_from_loki(self, correlation_id: Optional[str] = None, 
+                                   controller: Optional[str] = None, 
+                                   limit: int = 100) -> Dict:
+            try:
+                # Build Loki query
+                query_parts = ['{app.kubernetes.io/part-of="gitops-infra-control-plane"}']
+                
+                if correlation_id:
+                    query_parts.append(f'correlation_id="{correlation_id}"')
+                
+                if controller:
+                    query_parts.append(f'controller="{controller}"')
+                
+                query = '{' + ','.join(query_parts) + '}'
+                
+                response = requests.get(
+                    f"{LOKI_URL}/loki/api/v1/query_range",
+                    params={
+                        'query': query,
+                        'limit': limit,
+                        'start': (datetime.now() - timedelta(hours=1)).timestamp(),
+                        'end': datetime.now().timestamp()
+                    },
+                    timeout=10
+                )
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                logger.error(f"Error querying Loki: {e}")
+                return {'data': {'result': []}}
+    
+    # Initialize analyzer
+    analyzer = DependencyAnalyzer()
+    
+    @app.get("/")
+    async def root():
+        return {"message": "GitOps Dependency Status Dashboard API"}
+    
+    @app.get("/metrics")
+    async def metrics():
+        return generate_latest()
+    
+    @app.get("/api/dependency-graph")
+    @REQUEST_DURATION.time()
+    async def get_dependency_graph():
+        REQUEST_COUNT.labels(method='GET', endpoint='/api/dependency-graph').inc()
+        return await analyzer.build_dependency_graph()
+    
+    @app.get("/api/controller-health")
+    @REQUEST_DURATION.time()
+    async def get_controller_health():
+        REQUEST_COUNT.labels(method='GET', endpoint='/api/controller-health').inc()
+        return await analyzer.get_controller_health()
+    
+    @app.get("/api/reconciliation-metrics")
+    @REQUEST_DURATION.time()
+    async def get_reconciliation_metrics():
+        REQUEST_COUNT.labels(method='GET', endpoint='/api/reconciliation-metrics').inc()
+        return await analyzer.get_reconciliation_metrics()
+    
+    @app.get("/api/logs")
+    @REQUEST_DURATION.time()
+    async def get_logs(correlation_id: Optional[str] = None, 
+                      controller: Optional[str] = None, 
+                      limit: int = 100):
+        REQUEST_COUNT.labels(method='GET', endpoint='/api/logs').inc()
+        return await analyzer.get_logs_from_loki(correlation_id, controller, limit)
+    
+    @app.get("/api/health")
+    async def health_check():
+        return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+    
+    if __name__ == "__main__":
+        import uvicorn
+        uvicorn.run(app, host="0.0.0.0", port=8080)
+---
+# Frontend HTML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-frontend
+  namespace: flux-system
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GitOps Dependency Status Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: #f5f7fa;
+                color: #333;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1rem 2rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+                font-weight: 600;
+            }
+            
+            .header p {
+                opacity: 0.9;
+                margin-top: 0.5rem;
+            }
+            
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+            
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .card {
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            }
+            
+            .card h3 {
+                color: #2d3748;
+                margin-bottom: 1rem;
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+            
+            .metric-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #4a5568;
+                margin-bottom: 0.5rem;
+            }
+            
+            .metric-label {
+                color: #718096;
+                font-size: 0.9rem;
+            }
+            
+            .status-healthy {
+                color: #48bb78;
+            }
+            
+            .status-unhealthy {
+                color: #f56565;
+            }
+            
+            .status-unknown {
+                color: #ed8936;
+            }
+            
+            .graph-container {
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                margin-bottom: 2rem;
+            }
+            
+            .graph-container h3 {
+                color: #2d3748;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+            
+            #dependency-graph {
+                width: 100%;
+                height: 500px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+            }
+            
+            .controller-list {
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            }
+            
+            .controller-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .controller-item:last-child {
+                border-bottom: none;
+            }
+            
+            .controller-info h4 {
+                color: #2d3748;
+                margin-bottom: 0.25rem;
+            }
+            
+            .controller-info p {
+                color: #718096;
+                font-size: 0.9rem;
+            }
+            
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+            
+            .status-badge.healthy {
+                background-color: #c6f6d5;
+                color: #22543d;
+            }
+            
+            .status-badge.unhealthy {
+                background-color: #fed7d7;
+                color: #742a2a;
+            }
+            
+            .loading {
+                text-align: center;
+                padding: 2rem;
+                color: #718096;
+            }
+            
+            .refresh-btn {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: background-color 0.2s ease;
+            }
+            
+            .refresh-btn:hover {
+                background: #5a67d8;
+            }
+            
+            .tab-container {
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                margin-bottom: 2rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                border-bottom: 2px solid #e2e8f0;
+                margin-bottom: 1.5rem;
+            }
+            
+            .tab-btn {
+                background: none;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                cursor: pointer;
+                font-size: 0.9rem;
+                color: #718096;
+                border-bottom: 2px solid transparent;
+                transition: all 0.2s ease;
+            }
+            
+            .tab-btn.active {
+                color: #667eea;
+                border-bottom-color: #667eea;
+            }
+            
+            .tab-content {
+                display: none;
+            }
+            
+            .tab-content.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>GitOps Dependency Status Dashboard</h1>
+            <p>Real-time monitoring of GitOps infrastructure dependencies and controller health</p>
+        </div>
+        
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Total Resources</h3>
+                    <div class="metric-value" id="total-resources">-</div>
+                    <div class="metric-label">Flux Kustomizations</div>
+                </div>
+                
+                <div class="card">
+                    <h3>Healthy Resources</h3>
+                    <div class="metric-value status-healthy" id="healthy-resources">-</div>
+                    <div class="metric-label">Ready status</div>
+                </div>
+                
+                <div class="card">
+                    <h3>Failed Resources</h3>
+                    <div class="metric-value status-unhealthy" id="failed-resources">-</div>
+                    <div class="metric-label">Failed status</div>
+                </div>
+                
+                <div class="card">
+                    <h3>Active Controllers</h3>
+                    <div class="metric-value" id="active-controllers">-</div>
+                    <div class="metric-label">Cloud controllers</div>
+                </div>
+            </div>
+            
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showTab('graph')">Dependency Graph</button>
+                    <button class="tab-btn" onclick="showTab('controllers')">Controller Health</button>
+                    <button class="tab-btn" onclick="showTab('metrics')">Reconciliation Metrics</button>
+                    <button class="tab-btn" onclick="showTab('logs')">Logs</button>
+                </div>
+                
+                <div id="graph-tab" class="tab-content active">
+                    <div class="graph-container">
+                        <h3>Infrastructure Dependency Graph</h3>
+                        <button class="refresh-btn" onclick="refreshGraph()">Refresh Graph</button>
+                        <div id="dependency-graph"></div>
+                    </div>
+                </div>
+                
+                <div id="controllers-tab" class="tab-content">
+                    <div class="controller-list">
+                        <h3>Controller Health Status</h3>
+                        <div id="controller-list-content" class="loading">Loading controller status...</div>
+                    </div>
+                </div>
+                
+                <div id="metrics-tab" class="tab-content">
+                    <div class="graph-container">
+                        <h3>Reconciliation Metrics</h3>
+                        <canvas id="metrics-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="logs-tab" class="tab-content">
+                    <div class="graph-container">
+                        <h3>Recent Logs</h3>
+                        <div id="logs-content" class="loading">Loading logs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            let currentTab = 'graph';
+            let dependencyGraph = null;
+            
+            // Tab switching
+            function showTab(tabName) {
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabName + '-tab').classList.add('active');
+                event.target.classList.add('active');
+                currentTab = tabName;
+                
+                // Load tab content
+                if (tabName === 'graph') {
+                    loadDependencyGraph();
+                } else if (tabName === 'controllers') {
+                    loadControllerHealth();
+                } else if (tabName === 'metrics') {
+                    loadReconciliationMetrics();
+                } else if (tabName === 'logs') {
+                    loadLogs();
+                }
+            }
+            
+            // API calls
+            async function fetchAPI(endpoint) {
+                try {
+                    const response = await fetch('/api' + endpoint);
+                    if (!response.ok) {
+                        throw new Error('API request failed');
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Error:', error);
+                    return null;
+                }
+            }
+            
+            // Load dependency graph
+            async function loadDependencyGraph() {
+                const data = await fetchAPI('/dependency-graph');
+                if (!data) return;
+                
+                // Update metrics
+                updateMetrics(data);
+                
+                // Create network graph
+                const nodes = new vis.DataSet(data.nodes.map(node => ({
+                    id: node.id,
+                    label: node.name,
+                    color: node.status === 'True' ? '#48bb78' : 
+                           node.status === 'False' ? '#f56565' : '#ed8936',
+                    font: { color: '#fff', size: 12 },
+                    title: `${node.name}\\nStatus: ${node.status}\\nPath: ${node.path}`
+                })));
+                
+                const edges = new vis.DataSet(data.edges.map(edge => ({
+                    from: edge.from,
+                    to: edge.to,
+                    arrows: 'to',
+                    color: { color: '#718096' }
+                })));
+                
+                const container = document.getElementById('dependency-graph');
+                const graphData = { nodes, edges };
+                
+                const options = {
+                    layout: {
+                        hierarchical: {
+                            direction: 'UD',
+                            sortMethod: 'directed'
+                        }
+                    },
+                    physics: {
+                        stabilization: { iterations: 100 }
+                    },
+                    nodes: {
+                        shape: 'box',
+                        margin: 10,
+                        widthConstraint: { minimum: 100, maximum: 200 }
+                    },
+                    edges: {
+                        smooth: { type: 'cubicBezier' }
+                    }
+                };
+                
+                if (dependencyGraph) {
+                    dependencyGraph.destroy();
+                }
+                
+                dependencyGraph = new vis.Network(container, graphData, options);
+            }
+            
+            // Load controller health
+            async function loadControllerHealth() {
+                const data = await fetchAPI('/controller-health');
+                if (!data) return;
+                
+                const container = document.getElementById('controller-list-content');
+                container.innerHTML = '';
+                
+                data.controllers.forEach(controller => {
+                    const item = document.createElement('div');
+                    item.className = 'controller-item';
+                    
+                    const statusClass = controller.status === 'Healthy' ? 'healthy' : 'unhealthy';
+                    
+                    item.innerHTML = `
+                        <div class="controller-info">
+                            <h4>${controller.name}</h4>
+                            <p>${controller.namespace} | ${controller.ready_replicas}/${controller.replicas} replicas ready</p>
+                        </div>
+                        <span class="status-badge ${statusClass}">${controller.status}</span>
+                    `;
+                    
+                    container.appendChild(item);
+                });
+            }
+            
+            // Load reconciliation metrics
+            async function loadReconciliationMetrics() {
+                const data = await fetchAPI('/reconciliation-metrics');
+                if (!data) return;
+                
+                const ctx = document.getElementById('metrics-chart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['5m ago', '4m ago', '3m ago', '2m ago', '1m ago', 'Now'],
+                        datasets: [{
+                            label: 'Success Rate',
+                            data: data.success_rate.map(item => parseFloat(item.value[1]) || 0),
+                            borderColor: '#48bb78',
+                            backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'Failure Rate',
+                            data: data.failure_rate.map(item => parseFloat(item.value[1]) || 0),
+                            borderColor: '#f56565',
+                            backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Load logs
+            async function loadLogs() {
+                const data = await fetchAPI('/logs?limit=50');
+                if (!data) return;
+                
+                const container = document.getElementById('logs-content');
+                container.innerHTML = '';
+                
+                if (data.data && data.data.result && data.data.result.length > 0) {
+                    const logs = data.data.result[0].values || [];
+                    logs.forEach(log => {
+                        const [timestamp, message] = log;
+                        const item = document.createElement('div');
+                        item.style.cssText = 'padding: 0.5rem; border-bottom: 1px solid #e2e8f0; font-family: monospace; font-size: 0.9rem;';
+                        item.innerHTML = `<strong>${new Date(timestamp * 1000).toLocaleString()}</strong>: ${message}`;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<p>No logs found</p>';
+                }
+            }
+            
+            // Update metrics
+            function updateMetrics(graphData) {
+                const total = graphData.nodes.length;
+                const healthy = graphData.nodes.filter(n => n.status === 'True').length;
+                const failed = graphData.nodes.filter(n => n.status === 'False').length;
+                
+                document.getElementById('total-resources').textContent = total;
+                document.getElementById('healthy-resources').textContent = healthy;
+                document.getElementById('failed-resources').textContent = failed;
+            }
+            
+            // Refresh functions
+            function refreshGraph() {
+                loadDependencyGraph();
+            }
+            
+            // Auto-refresh
+            setInterval(() => {
+                if (currentTab === 'graph') {
+                    loadDependencyGraph();
+                } else if (currentTab === 'controllers') {
+                    loadControllerHealth();
+                }
+            }, 30000); // Refresh every 30 seconds
+            
+            // Initial load
+            loadDependencyGraph();
+            
+            // Load controllers count
+            async function loadControllerCount() {
+                const data = await fetchAPI('/controller-health');
+                if (data && data.controllers) {
+                    document.getElementById('active-controllers').textContent = data.controllers.length;
+                }
+            }
+            
+            loadControllerCount();
+        </script>
+    </body>
+    </html>
+---
+# Nginx Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-dashboard-config
+  namespace: flux-system
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        location / {
+            try_files \$uri \$uri/ /index.html;
+        }
+        
+        location /api/ {
+            proxy_pass http://localhost:8080;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+        }
+        
+        location /metrics {
+            proxy_pass http://localhost:8080;
+            proxy_set_header Host \$host;
+        }
+    }
