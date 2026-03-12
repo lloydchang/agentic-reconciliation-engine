@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file provides setup instructions for the complete infrastructure control plane deployment.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Documenting deployment procedures for production environments.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # GitOps Infrastructure Control Plane - Setup Guide
 
 This guide provides step-by-step instructions to set up the complete GitOps Infrastructure Control Plane.

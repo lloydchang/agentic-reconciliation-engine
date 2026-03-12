@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """
+Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach
+
+This tool visualizes dependency management within the Flux declarative layer of our hybrid architecture.
+
+North Star Vision: Establish the definitive reference implementation for autonomous infrastructure management
+
+Current Status: Core Flux dependency visualization and DAG analysis
+
+Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md for roadmap
+
 GitOps DAG Visualization Tool
 Generates interactive dependency graphs for GitOps Infrastructure Control Plane
 """

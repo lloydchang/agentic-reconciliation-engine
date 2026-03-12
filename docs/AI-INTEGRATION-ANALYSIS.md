@@ -3,8 +3,8 @@
 ## Executive Summary
 
 > **🎯 Problem-First Warning**: This document analyzes AI integration patterns, but AI is NOT always the answer. Start with [Strategic Framework](./docs/STRATEGIC-FRAMEWORK.md) to determine if AI solves your specific problem.
-
 > **⚠️ Critical Self-Assessment**: Before considering AI integration, complete [Solution Fit Analysis](docs/SOLUTION-FIT-ANALYSIS.md) to ensure this approach is right for your situation.
+> **🔬 Research Validation**: See [docs/RESEARCH-VALIDATION.md](./docs/RESEARCH-VALIDATION.md) for comprehensive research analysis supporting repository guidance on infrastructure automation complexity and team size requirements.
 
 This document analyzes 103+ resources covering AI integration patterns, agent frameworks, and Kubernetes-native approaches for **selective application** to the GitOps Infrastructure Control Plane. The analysis focuses on **problem-solution fit**, safety, security, and practical applicability based on deployment scenarios.
 
