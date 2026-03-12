@@ -67,7 +67,97 @@ This repository uses dual licensing to enable both open-source contributions and
 - **Apache 2.0**: Code samples and example snippets within documentation - allows commercial use and proprietary derivatives
 - **LLM Usage and Generated Content**: Large Language Models (LLMs) may be trained on or used to generate code/infrastructure based on this repository's content. Outputs derived from Apache 2.0 licensed examples (e.g., documentation snippets) can be used commercially. However, any code that replicates or extends AGPL-3.0 core logic (e.g., Flux configurations, reconciliation engine components) must remain AGPL-licensed. Always validate AI-generated manifests against Kubernetes schemas to avoid hallucinations (see `docs/AI-INTEGRATION-ANALYSIS.md` for safe integration patterns).
 
-See [Licensing Guide](./docs/LICENSING-GUIDE.md) for detailed compliance information and building proprietary layers on the CRE.
+## 🚀 Multi-Language Consensus-Based Agent Orchestration
+
+The GitOps Infrastructure Control Plane now supports **comprehensive multi-language consensus-based agent orchestration**, enabling autonomous, self-organizing agent swarms with tight feedback loops across all major programming paradigms.
+
+### 🎯 **Supported Languages & Runtimes**
+
+| Language | Performance | Feedback Loop Speed | Best Use Case |
+|-----------|------------|---------------------|-------------|
+| **Rust** | **Highest** | **10-15 seconds** | Performance-critical consensus |
+| **Go** | High | 30 seconds | Kubernetes integration |
+| **Python** | Medium | 30 seconds | AI/ML analytics |
+| **TypeScript** | Medium | 30 seconds | Real-time coordination |
+| **C#/.NET** | High | 30 seconds | Enterprise integration |
+| **Java** | Medium | 30 seconds | Large-scale systems |
+
+### 🔄 **Consensus Protocol: Raft-Based Coordination**
+
+- **Raft over Paxos**: Chosen for simplicity, performance, and understandability
+- **Leader-Based Coordination**: Natural fit for agent swarm architecture
+- **Tight Feedback Loops**: 10-30 second optimization cycles
+- **Fault Tolerance**: Automatic leader election and log replication
+- **Production Proven**: Used in etcd, Consul, and enterprise systems
+
+### 🛠 **Integration Options**
+
+#### **Temporal-Based Orchestration**
+- **Multi-Language SDKs**: Go, Python, TypeScript, C#, Java support
+- **Durable Workflows**: Persistent consensus state across failures
+- **Go-Based Performance**: Native Kubernetes integration
+- **Enterprise Features**: Advanced error handling and monitoring
+
+#### **Kubernetes-Native Workflows**
+- **Resolute**: Pure Kubernetes-native workflow management
+- **Zero External Dependencies**: Runs entirely within Kubernetes
+- **GitOps-Friendly**: Declarative workflow definitions in Git
+- **Resource Efficiency**: Shared cluster resources
+
+#### **Hybrid Architecture**
+- **Performance-Critical**: Rust components for ultra-fast loops
+- **AI/ML Processing**: Python for machine learning and analytics
+- **Enterprise Integration**: C#/Java for large-scale systems
+- **Real-Time Coordination**: TypeScript for event-driven monitoring
+
+### 📊 **Key Capabilities**
+
+#### **Autonomous Agent Swarms**
+- **Self-Organization**: Emergent intelligence from local interactions
+- **Distributed Consensus**: Raft-based coordination without single points of failure
+- **Local Optimization**: Agents make decisions based on local state
+- **Global Coherence**: Lightweight consensus protocols maintain system-wide optimization
+
+#### **Ultra-Tight Feedback Loops**
+- **Micro-Loops**: 10-15 seconds (Rust) for performance-critical decisions
+- **Standard Loops**: 30 seconds for most agent coordination
+- **Hierarchical Consensus**: Multi-level coordination (local → regional → global)
+- **Byzantine Tolerance**: Optional PBFT for high-security environments
+
+#### **Multi-Cloud Coordination**
+- **Cross-Cloud Consensus**: Global optimization across providers
+- **Dynamic Membership**: Add/remove agents without system disruption
+- **Load Balancing**: Distributed decision making across all agents
+- **Fault Recovery**: Automatic failover and state recovery
+
+### 🎯 **Getting Started**
+
+#### **Quick Start with Rust Performance**
+```bash
+# Deploy ultra-fast Rust-based agents
+kubectl apply -f examples/complete-hub-spoke-consensus/
+```
+
+#### **Python AI/ML Integration**
+```bash
+# Deploy Python agents with machine learning
+kubectl apply -f examples/complete-hub-spoke-kagent/
+```
+
+#### **Multi-Language Swarm**
+```bash
+# Deploy hybrid multi-language agent team
+kubectl apply -f examples/complete-hub-spoke/
+```
+
+### 📚 **Documentation**
+
+- **[AI Integration Analysis](./docs/AI-INTEGRATION-ANALYSIS.md)**: Comprehensive multi-language runtime support
+- **[Agent Architecture](./docs/ARCHITECTURE.md)**: Consensus-based orchestration design
+- **[Agent Skills](./docs/AGENT-SKILLS-NEXT-LEVEL.md)**: Self-organizing swarm patterns
+- **[Examples](./examples/)**: Complete implementation examples for all languages
+
+---
 
 ## Open-source Software
 https://github.com/lloydchang/gitops-infra-control-plane
