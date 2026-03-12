@@ -1500,8 +1500,8 @@ spec:
 - **Distributed Load**: Decision making distributed across all agents
 - **Local Resource Usage**: Agents primarily use local resources
 
-#### 4. **Emergent Intelligence**
-- **Swarm Behavior**: Complex global behavior emerges from simple local rules
+#### 4. **Coordinated Intelligence**
+- **Swarm Behavior**: Complex global behavior from simple local rules
 - **Adaptive Learning**: Agents learn successful patterns and share through consensus
 - **Self-Organization**: Agents automatically organize into efficient configurations
 

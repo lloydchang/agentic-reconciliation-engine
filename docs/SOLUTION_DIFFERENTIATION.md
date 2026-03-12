@@ -156,7 +156,7 @@ dependsOn:
 - **Complete implementation** with testing is rare
 
 ### **Value Proposition:**
-We've created a **production-ready synthesis** of existing tools that solves real multi-cloud infrastructure challenges better than most alternatives. While not revolutionary, it's a **comprehensive, tested approach** that demonstrates how to do enterprise-grade multi-cloud GitOps reliably.
+We've created a **production-ready synthesis** of existing tools that solves real multi-cloud infrastructure challenges. While not novel, it's a **comprehensive, tested approach** that demonstrates how to do enterprise-grade multi-cloud GitOps reliably.
 
 ## Competitive Advantages
 
