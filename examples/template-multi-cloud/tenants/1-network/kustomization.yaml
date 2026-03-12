@@ -1,0 +1,23 @@
+# Network Infrastructure Template - INCOMPLETE
+# TODO: Complete this template with cloud-specific networking
+# Use prompts like: "Create VPC/networking configuration for multi-cloud hub-spoke"
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: network-template
+resources:
+  # TODO: Add cloud-specific network resources (VPC, subnets, security groups)
+  # - aws-vpc.yaml
+  # - azure-vnet.yaml
+  # - gcp-network.yaml
+
+  # TODO: Add load balancers and DNS
+  # - load-balancers.yaml
+
+  # TODO: Add firewall/security group rules
+  # - security-rules.yaml
+---
+# TODO: Add network dependencies (no dependsOn needed for network tier)
+# TODO: Add network monitoring and alerting
+# TODO: Add network policies for pod-to-pod communication
