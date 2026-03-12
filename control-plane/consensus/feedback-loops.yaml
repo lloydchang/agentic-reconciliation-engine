@@ -40,3 +40,117 @@ spec:
     interval: 30s  # Tight feedback loop
     enabled: true
     timezone: UTC
+---
+# Alternative: Python-based CronJob for Consensus Feedback Loops
+# For users who prefer Python runtime over Go (Temporal) or bash
+# Object-oriented approach with better error handling than bash
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: consensus-feedback-loops-python
+  namespace: control-plane
+  annotations:
+    description: "Python-based alternative to Temporal workflow for consensus feedback loops"
+spec:
+  schedule: "*/1 * * * *"  # Every minute for tight feedback
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: consensus-agent-sa
+          containers:
+          - name: feedback-loop
+            image: python:3.11-slim  # Or custom image with consensus libraries
+            command:
+            - python3
+            - /app/consensus_feedback_loop.py
+            env:
+            - name: CONSENSUS_ENABLED
+              value: "true"
+            - name: FEEDBACK_INTERVAL
+              value: "30s"
+            - name: AGENT_QUORUM
+              value: "3"
+            - name: CONSENSUS_PROTOCOL
+              value: "raft"
+            volumeMounts:
+            - name: consensus-scripts
+              mountPath: /app
+          volumes:
+          - name: consensus-scripts
+            configMap:
+              name: consensus-python-scripts
+          restartPolicy: OnFailure
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+---
+# Alternative: Bash-based CronJob for Consensus Feedback Loops
+# For users who prefer not to deploy Temporal infrastructure
+# Less efficient than Temporal but simpler to deploy
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: consensus-feedback-loops-bash
+  namespace: control-plane
+  annotations:
+    description: "Bash-based alternative to Temporal workflow for consensus feedback loops"
+spec:
+  schedule: "*/1 * * * *"  # Every minute for tight feedback
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: consensus-agent-sa
+          containers:
+          - name: feedback-loop
+            image: lloydchang/ai-agents-sandbox:latest
+            command:
+            - bash
+            - -c
+            - |
+              # Simple bash-based consensus feedback loop
+              # Note: Less robust than Temporal but doesn't require additional infrastructure
+
+              # Local optimization loop (runs for ~30 seconds)
+              timeout 30 /app/local_optimizer.sh || echo "Local optimization timed out"
+
+              # Check if consensus proposal needed
+              if [ -f /tmp/consensus_proposal ]; then
+                /app/consensus_proposer.sh
+                rm -f /tmp/consensus_proposal
+              fi
+
+              # Collect votes if proposal active
+              if [ -f /tmp/active_proposal ]; then
+                /app/vote_collector.sh
+              fi
+
+              # Execute approved changes
+              if [ -f /tmp/approved_changes ]; then
+                /app/change_executor.sh
+                rm -f /tmp/approved_changes
+              fi
+            env:
+            - name: CONSENSUS_ENABLED
+              value: "true"
+            - name: FEEDBACK_INTERVAL
+              value: "30s"
+            - name: AGENT_QUORUM
+              value: "3"
+            - name: CONSENSUS_PROTOCOL
+              value: "raft"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+          restartPolicy: OnFailure
