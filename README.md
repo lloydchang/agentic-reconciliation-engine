@@ -2,6 +2,37 @@
 
 Continuous reconciliation engine for multi-cloud infrastructure with autonomous agent orchestration.
 
+## 🚨 CRITICAL: Problem Definition First - Accountability Statement
+
+**Before considering this solution, you MUST clearly define your actual infrastructure problems.** This is NOT a universal solution for all infrastructure management needs.
+
+### ❌ When This Solution Is NOT Appropriate
+
+**Do NOT adopt this if you:**
+- Have single-cloud or simple infrastructure scenarios
+- Run exclusively on-premise without cloud components  
+- Don't use Kubernetes and have no plans to adopt it
+- Have small teams (1-3 people) with limited DevOps expertise
+- Require ultra-low latency or real-time processing
+- Operate in highly regulated environments with strict manual change controls
+
+**For these scenarios, use simpler alternatives:**
+- Single cloud: Terraform, CloudFormation, or basic CI/CD
+- On-premise: Ansible, Puppet, VMware vSphere
+- No Kubernetes: Serverless platforms, Docker Swarm, traditional VMs
+- Small teams: Managed Kubernetes services with basic automation
+
+### ✅ When This Solution IS Appropriate
+
+**Consider this if you:**
+- Have genuine multi-cloud complexity causing operational issues
+- Need automated compliance and comprehensive audit trails
+- Manage infrastructure that changes frequently at scale
+- Have GitOps/Kubernetes experience and resources to invest
+
+### 📖 Scenario Application Guide
+📖 **[SCENARIO-APPLICATION-GUIDE.md](./docs/SCENARIO-APPLICATION-GUIDE.md)** - **REQUIRED READING** before adoption. Comprehensive analysis of brownfield vs greenfield scenarios, when the solution cannot be adapted, and accountability for problem definition.
+
 ## Core Advantage
 
 Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide **24/7 continuous reconciliation** that automatically detects and repairs configuration drift.
