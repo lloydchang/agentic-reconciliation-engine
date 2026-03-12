@@ -1,19 +1,32 @@
 # GitOps Infrastructure Control Plane
 
-Continuous Reconciliation Engine for Multi-Cloud Infrastructure
+Continuous reconciliation engine for multi-cloud infrastructure with autonomous agent orchestration.
+
+## Quick Start
+
+```bash
+# Install Flux
+flux install
+
+# Deploy infrastructure
+kubectl apply -f examples/complete-hub-spoke/
+
+# Verify deployment
+flux get kustomizations
+```
 
 ## Core Advantage
 
-Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide **24/7 continuous reconciliation** that automatically detects and repairs configuration drift.
+Traditional IaC tools run once and exit. We provide **24/7 continuous reconciliation** that automatically detects and repairs configuration drift.
 
-| Approach | Traditional IaC | Continuous Reconciliation |
-|----------|----------------|---------------------------|
-| Operation | Run once → Exit | Monitor 24/7 → Auto-heal |
-| Drift Detection | Manual `plan` runs | Automatic within minutes |
-| Emergency Fix | Manual process | Git commit → Auto-deploy |
-| State Management | State files (corruption risk) | Live cloud API (no files) |
+| Feature | Traditional IaC | This Solution |
+|----------|----------------|--------------|
+| **Operation** | Run once → Exit | Monitor 24/7 → Auto-heal |
+| **Drift Detection** | Manual `plan` runs | Automatic within minutes |
+| **Emergency Fix** | Manual process | Git commit → Auto-deploy |
+| **State Management** | State files (corruption risk) | Live cloud API (no files) |
 
-## Architecture Overview
+## Architecture
 
 Hub-and-spoke model with continuous reconciliation:
 
@@ -31,40 +44,21 @@ SPOKE 1   SPOKE 2   SPOKE 3
 (EKS)     (AKS)     (GKE)
 ```
 
-## Quick Start
-
-### Prerequisites
-- Kubernetes cluster (v1.24+) with RBAC
-- Git repository with infrastructure manifests
-- Cloud provider credentials
-
-### Basic Deployment
-```bash
-# Install Flux
-flux install
-
-# Deploy infrastructure
-kubectl apply -f examples/complete-hub-spoke/
-
-# Verify deployment
-flux get kustomizations
-```
-
 ## When to Use This Solution
 
 ### ✅ Good Fit
-- **Multi-cloud infrastructure** with complex coordination needs
-- **Large-scale deployments** requiring autonomous optimization
-- **Brownfield migrations** with gradual modernization requirements
-- **Enterprise environments** needing security and compliance features
+- Multi-cloud infrastructure with coordination needs
+- Large-scale deployments requiring autonomous optimization
+- Brownfield migrations with gradual modernization
+- Enterprise environments needing security and compliance
 
 ### ❌ Not a Good Fit
-- **Simple single-app deployments** (use basic GitOps)
-- **Time-critical migrations** (<3 months timeline)
-- **Small teams** with basic infrastructure needs
-- **Cost-sensitive projects** with limited budget
+- Simple single-app deployments (use basic GitOps)
+- Time-critical migrations (<3 months timeline)
+- Small teams with basic infrastructure needs
+- Cost-sensitive projects with limited budget
 
-> **Important**: This repository solves specific infrastructure problems. Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md) before implementation.
+> **Important**: Complete our [Problem-Solution Fit Assessment](./docs/SCENARIO-APPLICABILITY-GUIDE.md) before implementation.
 
 ## Key Features
 
@@ -77,20 +71,34 @@ flux get kustomizations
 
 ## Documentation
 
-### Essential Reading (In Order)
-1. **[Problem-Solution Fit](./docs/PROBLEM-SOLUTION-FIT.md)** - When and how to use this solution
-2. **[Architecture](./docs/ARCHITECTURE.md)** - Technical architecture overview
-3. **[Implementation Plan](./docs/implementation_plan.md)** - Step-by-step deployment guide
+### Essential Reading
+1. **[Scenario Applicability Guide](./docs/SCENARIO-APPLICABILITY-GUIDE.md)** - When and how to use this solution
+2. **[Strategic Architecture](./docs/STRATEGIC-ARCHITECTURE.md)** - Complete technical vision
+3. **[Implementation Plan](./docs/implementation_plan.md)** - Step-by-step deployment
 
 ### Implementation Examples
 - **[Complete Hub-Spoke](./examples/complete-hub-spoke/)** - Full deployment with all features
-- **[Agent Orchestration](./examples/complete-hub-spoke/agent-orchestration-demo.md)** - Autonomous agent coordination
-- **[Variants](./variants/)** - Deployment variations for different scenarios
+- **[Agent Orchestration](./examples/complete-hub-spoke/agent-orchestration-demo.md)** - Autonomous coordination
 
 ### Advanced Topics
 - **[AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md)** - Intelligent automation patterns
 - **[Consensus Protocols](./docs/CONSENSUS-PROTOCOL-ANALYSIS.md)** - Distributed decision-making
 - **[Migration Strategy](./docs/LEGACY-IAC-MIGRATION-STRATEGY.md)** - Converting from traditional IaC
+
+## Modular Adoption
+
+Start simple, add complexity as needed:
+
+```yaml
+# Phase 1: Basic GitOps (1-3 months)
+components: ["flux-core", "monitoring"]
+
+# Phase 2: Workflow Automation (3-9 months)  
+components: ["flux-core", "temporal-workflows"]
+
+# Phase 3: Autonomous Intelligence (9+ months)
+components: ["flux-core", "temporal-workflows", "consensus-agents"]
+```
 
 ## Contributing
 
