@@ -148,7 +148,7 @@ test_gitops_simulation() {
     
     # Create a test GitOps Kustomization
     cat <<EOF | kubectl apply -f -
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: test-infra
@@ -161,7 +161,7 @@ spec:
     kind: GitRepository
     name: test-repo
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
   name: test-repo
