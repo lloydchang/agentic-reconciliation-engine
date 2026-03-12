@@ -19,6 +19,45 @@
 - Hybrid local/cloud development workflows
 - Organizations experiencing growing operational toil
 
+### ✅ **Strong Candidates For:**
+- Large enterprises (50+ people) with multi-cloud complexity
+- Organizations with complex infrastructure dependencies
+- Teams needing autonomous optimization capabilities
+- Environments requiring ultra-fast response times
+
+## 🏗️ **Modular Adaptability: Use Only What You Need**
+
+This example demonstrates the **full consensus architecture**, but you can use components individually:
+
+### **Extract Individual Components:**
+```yaml
+# Option 1: Flux + Temporal Only (No Consensus)
+components: ["flux-core", "temporal-workflows"]
+
+# Option 2: Basic Agent Coordination (No AI)
+components: ["flux-core", "basic-consensus"]
+
+# Option 3: Local + Cloud Optimization
+components: ["local-agents", "cloud-coordination"]
+```
+
+### **Evolutionary Adoption:**
+- **Phase 1**: Start with Flux monitoring only
+- **Phase 2**: Add basic temporal workflows for complex operations
+- **Phase 3**: Introduce consensus for multi-agent coordination
+- **Phase 4**: Enable full autonomous optimization
+
+### **Problem Evolution Support:**
+The architecture adapts as your problems change:
+- **Growing Complexity**: Add more agents and consensus layers
+- **New Requirements**: Introduce temporal workflows for durability
+- **Scaling Challenges**: Distribute agents across more infrastructure
+- **Performance Needs**: Optimize feedback loops for faster response
+
+---
+
+## Revolutionary Architecture: Self-Organizing Agent Swarms
+
 ### ✅ **Definitely Use For:**
 - Large enterprises (50+ people) with complex infrastructure
 - Multi-cloud environments with coordination challenges

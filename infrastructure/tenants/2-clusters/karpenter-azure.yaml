@@ -1,0 +1,57 @@
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: NodePool
+metadata:
+  name: azure-default
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: azure-default
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - karpenter.azure.com/instance-family
+          operator: In
+          values: ["Standard_D", "Standard_E", "Standard_F"]
+        - karpenter.azure.com/spot
+          operator: In
+          values: ["true", "false"]
+      expireAfter: 720h # 30 days
+  limits:
+    cpu: "1000"
+    memory: 1000Gi
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h # 30 days
+    budgets:
+    - nodes: "10"
+---
+apiVersion: karpenter.azure.com/v1alpha1
+kind: AKSNodeClass
+metadata:
+  name: azure-default
+spec:
+  imageFamily: Ubuntu2204
+  vmSizes:
+  - "Standard_D2s_v3"
+  - "Standard_D4s_v3"
+  - "Standard_D8s_v3"
+  - "Standard_E2s_v3"
+  - "Standard_E4s_v3"
+  - "Standard_E8s_v3"
+  - "Standard_F2s_v2"
+  - "Standard_F4s_v2"
+  - "Standard_F8s_v2"
+  subnetSelectorTerms:
+  - tags:
+      karpenter.sh/instancepool: "true"
+      kubernetes.io/cluster: "hub-cluster" # This should be overridden per cluster
+  requirements:
+  - key: karpenter.azure.com/instance-family
+    operator: In
+    values: ["Standard_D", "Standard_E", "Standard_F"]
