@@ -135,6 +135,8 @@ setup_localstack
 create_infrastructure
 test_drift
 
+kill $PORT_FORWARD_PID 2>/dev/null || true
+
 echo ""
 echo "🎉 Local drift test completed successfully!"
 echo "✅ Infrastructure created"

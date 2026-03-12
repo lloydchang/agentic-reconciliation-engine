@@ -55,7 +55,11 @@ test_infrastructure() {
     print_header "Testing Infrastructure Controllers"
 
     print_status "Checking Flux controllers..."
-    kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/flux-controller-manager -n flux-system
+    # Check for individual Flux controllers instead of non-existent flux-controller-manager
+    kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/helm-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/kustomize-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/notification-controller -n flux-system
+    kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/source-controller -n flux-system
 
     print_status "Checking cert-manager..."
     kubectl wait --for=condition=available --timeout=${TEST_TIMEOUT}s deployment/cert-manager -n cert-manager
