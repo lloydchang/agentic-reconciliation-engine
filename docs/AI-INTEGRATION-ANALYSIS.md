@@ -2455,29 +2455,22 @@ data:
 - **Memory Efficiency**: Go's garbage collection and memory management ideal for long-running agent processes
 - **Compile-Time Optimization**: Statically typed Go provides performance advantages over interpreted languages
 
-**2. Durable Workflow Execution for Consensus Protocols**
-- **Persistent State**: Workflows survive pod failures, perfect for maintaining consensus state
-- **Event Sourcing**: All consensus decisions are immutably logged and replayable
-- **Exactly-Once Semantics**: Critical for consensus protocols to prevent duplicate decisions
-- **Long-Running Processes**: Supports 30-second feedback loops without timeout issues
-
-**3. Fault-Tolerant Distributed Systems**
-- **Built-in Retries**: Automatic retry with exponential backoff for failed consensus rounds
-- **Circuit Breakers**: Prevents cascading failures in agent networks
-- **Distributed Tracing**: End-to-end observability for consensus decision flows
+**2. Battle-Tested Distributed Systems Foundation**
+- **Production Proven**: Used by Netflix, Stripe, and other large-scale distributed systems
+- **Fault Tolerance**: Built-in retry, circuit breaker, and failure handling mechanisms
+- **Durable Execution**: Workflow state survives process failures and cluster restarts
 - **Cluster-Sharding**: Natural fit for multi-cloud consensus across regions
 
-**4. Kubernetes-Native Architecture**
+**3. Kubernetes-Native Architecture**
 - **Operator Integration**: Temporal Kubernetes Operator provides native K8s resource management
 - **Sidecar Pattern**: Agents can run as sidecars with Temporal workers
 - **Resource Efficiency**: Shared worker pools reduce resource overhead for agent orchestration
 - **Health Checking**: Built-in health probes for consensus participant monitoring
 
-**Key Features for Agent Orchestration**:
-- **Durable execution of workflows** - Critical for maintaining consensus state across failures
-- **Fault-tolerant distributed systems** - Essential for reliable agent coordination
-- **State machine-based orchestration** - Perfect for consensus protocol state machines
-- **Language-agnostic SDKs** - While Go is optimal, supports multiple agent languages
+**4. Advanced Workflow Capabilities for Consensus**
+- **Durable State Management**: Temporal workflows maintain Raft log state across agent failures
+- **Multi-Agent Coordination**: Complex infrastructure deployment orchestration with consensus validation
+- **Rollback and Recovery Procedures**: Automated rollback of failed consensus decisions
 - **Built-in retry and error handling** - Essential for consensus reliability
 
 **Documentation and Resources**:
@@ -2490,6 +2483,103 @@ data:
 - **Consensus State Management**: Temporal workflows maintain Raft log state across agent failures
 - **Multi-Agent Coordination**: Complex infrastructure deployment orchestration with consensus validation
 - **Rollback and Recovery Procedures**: Automated rollback of failed consensus decisions
+- **Ultra-Tight Feedback Integration**: 15-30 second loops with durable workflow execution
+
+### Multi-Language Runtime Support for Maximum Flexibility
+
+#### 1. Go/Temporal - Production-Grade Performance
+**Advantages**:
+- **Native Kubernetes Integration**: Both Go and Kubernetes share the same runtime foundation
+- **Optimal Concurrency**: Goroutines provide lightweight, efficient parallelism for agent coordination
+- **Memory Safety**: Strong typing and garbage collection prevent memory leaks in long-running processes
+- **Production Proven**: Battle-tested in large-scale distributed systems
+
+**Use Case**: Best for production deployments requiring maximum performance and reliability
+
+#### 2. Python - Rapid Development and AI/ML Integration
+**Advantages**:
+- **AI/ML Ecosystem**: Unmatched access to machine learning libraries (TensorFlow, PyTorch, scikit-learn)
+- **Rapid Prototyping**: Fast development cycle for agent behavior experimentation
+- **Rich Scientific Computing**: NumPy, pandas, and scientific computing libraries
+- **Easy Integration**: Simple syntax for quick agent skill development
+
+**Use Case**: Ideal for AI-powered agents requiring machine learning capabilities
+
+#### 3. Bash/Shell - Simplicity and Universal Compatibility
+**Advantages**:
+- **Zero Dependencies**: Available on every system without additional installation
+- **Kubernetes Native**: Direct access to kubectl and cloud CLI tools
+- **Simple Debugging**: Straightforward troubleshooting and logging
+- **Lightweight**: Minimal resource overhead for simple coordination tasks
+
+**Use Case**: Perfect for simple coordination tasks and environments with minimal dependencies
+
+#### 4. C#/.NET - Enterprise Integration and Windows Support
+**Advantages**:
+- **Enterprise Ecosystem**: Seamless integration with Microsoft stack and enterprise systems
+- **Strong Typing**: Compile-time type safety and performance optimization
+- **Windows Support**: Native Windows development and deployment capabilities
+- **Rich Libraries**: Extensive .NET ecosystem for enterprise integrations
+
+**Use Case**: Enterprise environments requiring Microsoft ecosystem integration
+
+#### 5. TypeScript/Node.js - Real-time and Web Integration
+**Advantages**:
+- **Real-time Capabilities**: Event-driven architecture perfect for agent communication
+- **Web Integration**: Natural fit for web-based dashboards and APIs
+- **Type Safety**: TypeScript provides compile-time type checking
+- **Large Ecosystem**: npm packages for virtually any integration need
+
+**Use Case**: Web-based agent interfaces and real-time coordination requirements
+
+#### 6. Java/OpenJDK/JVM - Enterprise Maturity and Scalability
+**Advantages**:
+- **Enterprise Maturity**: Decades of enterprise deployment experience
+- **Scalability**: Proven horizontal scaling capabilities
+- **Rich Ecosystem**: Extensive Java libraries and frameworks
+- **Platform Independence**: Write once, run anywhere with JVM
+
+**Use Case**: Large enterprise deployments requiring proven scalability
+
+#### 7. Rust - Ultra-High Performance and Memory Safety
+**Advantages**:
+- **Zero-Cost Abstractions**: Performance comparable to C/C++ with safety guarantees
+- **Memory Safety**: Ownership system prevents common memory errors at compile time
+- **WebAssembly Support**: Compile to WASM for cross-platform deployment
+- **Actor Model**: Natural fit for concurrent agent coordination patterns
+
+**Use Case**: Performance-critical applications requiring maximum efficiency and safety
+
+### Runtime Selection Matrix
+
+| Runtime | Performance | Development Speed | AI/ML Support | Enterprise | Ecosystem | Best For |
+|----------|-------------|------------------|-----------------|-------------|------------|
+| Go/Temporal | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | Production systems |
+| Python | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | AI/ML agents |
+| Bash | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ | ⭐⭐ | Simple coordination |
+| C#/.NET | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Enterprise systems |
+| TypeScript/Node.js | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | Web integration |
+| Java/JVM | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Large scale |
+| Rust | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ | Performance critical |
+
+### Hybrid Runtime Strategy
+
+**Recommended Approach**: Support multiple runtimes simultaneously for maximum flexibility:
+
+1. **Core Consensus Layer**: Go/Temporal for production-grade reliability
+2. **AI/ML Agents**: Python for machine learning capabilities
+3. **Web Interfaces**: TypeScript/Node.js for dashboards and APIs
+4. **Enterprise Integration**: C#/.NET for corporate environments
+5. **Performance Components**: Rust for critical performance paths
+6. **Simple Coordination**: Bash for lightweight orchestration
+7. **Large Scale**: Java/JVM for enterprise deployments
+
+**Benefits of Multi-Runtime Support**:
+- **Flexibility**: Choose the right tool for each specific task
+- **Team Skills**: Leverage existing team expertise in different languages
+- **Performance Optimization**: Use high-performance languages where needed
+- **Migration Path**: Gradual adoption without complete rewrites
+- **Risk Mitigation**: Diversify technology stack to avoid single points of failure
 - **Cross-Cloud Dependency Management**: Global coordination across multi-cloud infrastructure
 
 **Safety Assessment**: 
@@ -4394,6 +4484,117 @@ This section analyzes the provided references on distributed consensus, orchestr
 **Integration Approach**: Reference in examples/complete-hub-spoke-kagent/ for Go-based agent workflow development. Could serve as alternative to Kelos for Kubernetes-native orchestration with stronger typing and built-in enterprise patterns.
 
 These references collectively support the evolution from traditional top-down Flux orchestration to bottom-up consensus-based agent swarms, enabling tighter feedback loops (sub-second to minute intervals), distributed decision-making, and self-organizing infrastructure optimization while maintaining the security and reliability standards of the GitOps control plane.
+
+## 26. https://james-carr.org/posts/2026-02-05-temporal-durable-ai-agents/
+
+**Content Summary**: Comprehensive guide to building durable AI agents with Temporal's AI SDK integration, featuring multi-model scatter/gather patterns across Claude Haiku, Sonnet, and Opus. Demonstrates how to make LLM calls survive infrastructure failures, API rate limits, and network timeouts through automatic durability and retry logic.
+
+**Key Features**:
+- **Durable Execution**: Every LLM call becomes a Temporal Activity with automatic retries and state persistence
+- **Multi-Model Scatter/Gather**: Parallel queries across Claude models with result aggregation
+- **Tool Integration**: AI tools implemented as Temporal Activities with same durability guarantees
+- **Clean Separation**: API credentials isolated to worker nodes, servers only handle workflow orchestration
+- **Built-in Observability**: Every step recorded in Temporal event history for debugging
+
+**Architecture Pattern**: Express API server → Temporal → Workers with AI SDK plugin → LLM APIs. Workers scale independently from API servers, enabling efficient resource utilization.
+
+**Safety Assessment**: ✅ **HIGHLY SAFE** - Temporal provides enterprise-grade reliability with automatic error handling, state persistence, and comprehensive audit trails. The separation of API credentials from client servers enhances security posture.
+
+**Applicability**: **HIGH** - Directly applicable to GitOps infrastructure control plane for:
+- **Durable Infrastructure Agents**: AI agents that can survive cluster failures and resume operations
+- **Multi-Cloud Analysis**: Scatter/gather across different cloud providers' APIs simultaneously
+- **Long-Running Workflows**: Complex infrastructure provisioning that spans hours or days
+- **Tool Integration**: Infrastructure tools (kubectl, cloud CLIs) as durable Temporal Activities
+
+**Integration Approach**: 
+```yaml
+# Potential integration: Temporal workers in control-plane
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ai-workers
+  namespace: control-plane
+spec:
+  template:
+    spec:
+      containers:
+      - name: ai-worker
+        image: gitops-infra/temporal-ai-worker:latest
+        env:
+        - name: TEMPORAL_ADDRESS
+          value: "temporal.control-plane.svc:7233"
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: anthropic-api-key
+        - name: CLOUD_CREDENTIALS
+          valueFrom:
+            secretKeyRef:
+              name: cloud-secrets
+              key: credentials
+```
+
+**Benefits for GitOps Control Plane**:
+- **Failure Recovery**: Infrastructure agents resume exactly where they left off after failures
+- **Parallel Processing**: Multi-cloud scatter/gather for comprehensive infrastructure analysis
+- **Audit Trail**: Complete history of AI decisions and infrastructure modifications
+- **Resource Efficiency**: Workers scale independently based on AI workload demands
+
+**Related Resources**:
+- [Night City Services Demo](https://github.com/jamescarr/night-city-services) - Complete implementation
+- [Temporal AI SDK Integration](https://docs.temporal.io/develop/typescript/ai-sdk) - TypeScript integration guide
+- [AI Cookbook](https://docs.temporal.io/ai-cookbook) - Additional patterns and examples
+- [Vercel AI SDK](https://ai-sdk.dev/) - Underlying AI SDK framework
+
+## 27. https://github.com/jamescarr/night-city-services
+
+**Content Summary**: Complete cyberpunk-themed implementation of Temporal workflow patterns including AI agents, scatter/gather, process managers, and saga orchestration. Features four main demos: cyberware installation saga, data broker scatter-gather, heist process manager, and NetWatch AI agent with multi-model analysis.
+
+**Key Demos**:
+- **Cyberware Installation Saga**: Long-running workflow with compensation patterns for rollback
+- **Data Broker Scatter-Gather**: Parallel queries across multiple data sources with aggregation
+- **Heist Process Manager**: Real-time workflow coordination using signals and queries
+- **NetWatch AI Agent**: Multi-model AI analysis using Claude Haiku, Sonnet, and Opus in parallel
+
+**Architecture**: TypeScript implementation using Temporal's AI SDK integration with Vercel AI SDK. Demonstrates production-ready patterns for durable AI agents, enterprise integration patterns, and complex workflow orchestration.
+
+**Safety Assessment**: ✅ **HIGHLY SAFE** - Production-quality code with comprehensive error handling, retry logic, and compensation patterns. Demonstrates enterprise-grade reliability patterns.
+
+**Applicability**: **HIGH** - Reference implementation for GitOps control plane:
+- **Saga Patterns**: Infrastructure provisioning with automatic rollback on failure
+- **Scatter/Gather**: Multi-cloud resource discovery and analysis
+- **Process Managers**: Coordinated infrastructure changes across multiple clusters
+- **AI Integration**: Durable AI agents for infrastructure analysis and optimization
+
+**Integration Approach**: Use as reference implementation for:
+```yaml
+# Example: Infrastructure saga with compensation
+apiVersion: io.temporal/v1alpha1
+kind: Workflow
+metadata:
+  name: infrastructure-provisioning-saga
+spec:
+  steps:
+  - name: provision-network
+    compensation: delete-network
+  - name: provision-clusters
+    compensation: delete-clusters  
+  - name: deploy-workloads
+    compensation: delete-workloads
+```
+
+**Benefits for GitOps Control Plane**:
+- **Reliability Patterns**: Proven saga and compensation patterns for infrastructure changes
+- **Multi-Cloud Coordination**: Scatter/gather across AWS, Azure, GCP APIs
+- **AI-Enhanced Operations**: Durable AI agents for intelligent infrastructure management
+- **Enterprise Integration**: Production-ready patterns for complex workflows
+
+**Repository Structure**:
+- `workflows/` - Temporal workflow definitions
+- `activities/` - Infrastructure tool integrations
+- `workers/` - AI SDK plugin configurations
+- `api/` - Express servers for workflow orchestration
 
 ---
 
