@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file provides migration strategies from traditional IaC to our hybrid architecture approach.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Developing migration strategies for legacy IaC to continuous reconciliation.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Legacy IaC Migration Strategy
 
 ## Overview

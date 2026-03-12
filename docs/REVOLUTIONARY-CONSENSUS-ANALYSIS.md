@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file analyzes revolutionary consensus approaches for the consensus layer of our hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Analyzing revolutionary consensus mechanisms for autonomous agent swarms.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Revolutionary Consensus-Based Agent Orchestration: Complete Analysis
 
 ## Executive Summary

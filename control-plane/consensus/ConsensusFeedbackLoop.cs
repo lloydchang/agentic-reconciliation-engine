@@ -1,3 +1,15 @@
+/*
+ * Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach
+ *
+ * This code implements consensus feedback loops within the consensus layer.
+ *
+ * North Star Vision: Establish the definitive reference implementation for autonomous infrastructure management
+ *
+ * Current Status: Core consensus layer implementation
+ *
+ * Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md for roadmap
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

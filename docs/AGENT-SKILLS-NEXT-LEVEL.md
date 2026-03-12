@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file implements advanced agent skills for self-organizing swarms within the consensus layer of our hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Developing advanced agent orchestration patterns for consensus-based decision making.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Agent Skills: The Next Level Beyond MCP - Consensus-Based Distributed Orchestration
 
 This document explores the evolution from Model Context Protocol (MCP) to Agent Skills, representing the next level of AI agent orchestration for the GitOps Infrastructure Control Plane with emphasis on **consensus-based decentralized orchestration** and **tight feedback loops**.

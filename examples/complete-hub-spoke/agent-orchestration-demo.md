@@ -1,13 +1,51 @@
-# Autonomous Agent Orchestration: Self-Organizing Swarms with Consensus
+# Autonomous Agent Orchestration: When and How to Use Self-Organizing Swarms
 
-This document demonstrates **fully autonomous agent orchestration** using consensus-based self-organizing swarms that achieve the tightest possible feedback loops through local optimization and distributed decision-making.
-### Key Innovations from AI Agents Sandbox
+## 🎯 **CRITICAL: Is This the Right Solution for Your Problem?**
 
-1. **30-Second Feedback Loops**: Continuous local optimization vs minutes/hours for centralized systems
-2. **Distributed Consensus**: Raft-based coordination eliminates single points of failure
-3. **Self-Organizing Swarms**: Emergent intelligence from local agent interactions
-4. **Linear Scalability**: Performance scales with agent count, not controller capacity
-5. **Fault Tolerance**: System continues despite individual agent failures
+**⚠️ IMPORTANT**: This is an **advanced pattern** for specific, complex problems. Do not implement unless you have clear evidence that simpler approaches won't work.
+
+### ❌ **Definitely Don't Use This For:**
+- Simple web applications with basic deployment needs
+- Small teams (1-5 people) with straightforward infrastructure
+- Single-cloud deployments with no complexity
+- Projects just starting out (greenfield)
+- Basic CRUD applications or simple microservices
+
+### ⚠️ **Consider Carefully For:**
+- Medium teams (5-20 people) with growing complexity
+- Brownfield migrations with existing infrastructure
+- Hybrid local/cloud development workflows
+- Organizations experiencing growing operational toil
+
+### ✅ **Definitely Use For:**
+- Large enterprises (50+ people) with complex infrastructure
+- Multi-cloud environments with coordination challenges
+- High-frequency deployments requiring autonomous optimization
+- Organizations with significant operational overhead
+- Systems requiring 99.9%+ uptime with autonomous recovery
+
+## 🤔 **Problem Definition Framework**
+
+Before implementing, answer these questions:
+
+### 1. **What is your primary pain point?**
+- ❌ Manual deployment processes? → Use basic Flux instead
+- ❌ Configuration drift? → Use Flux + monitoring
+- ❌ Slow recovery from failures? → Consider Temporal workflows
+- ✅ Complex multi-cloud coordination? → This pattern may help
+- ✅ Need for autonomous optimization? → This pattern may help
+
+### 2. **What is your scale?**
+- 🟢 **Small**: < 10 services, < 5 engineers → Skip this pattern
+- 🟡 **Medium**: 10-50 services, 5-20 engineers → Consider after basics
+- 🔴 **Large**: 50+ services, 20+ engineers → This pattern appropriate
+
+### 3. **What is your failure tolerance?**
+- 🟢 **Low**: Minutes/hours of downtime acceptable → Skip this pattern
+- 🟡 **Medium**: Seconds of downtime problematic → Consider after basics
+- 🔴 **High**: Seconds of downtime unacceptable → This pattern appropriate
+
+This document demonstrates **fully autonomous agent orchestration** using consensus-based self-organizing swarms that achieve ultra-tight feedback loops through local optimization and distributed decision-making.
 
 ## Architecture Overview
 
