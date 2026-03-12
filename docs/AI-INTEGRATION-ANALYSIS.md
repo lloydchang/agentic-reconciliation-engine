@@ -3908,7 +3908,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 
 **Why Google Stuck with Paxos**:
 - **Maturity**: Decades of production use and optimization
-- **Investment**: Massive engineering effort already invested
+- **Investment**: Significant engineering effort already invested
 - **Integration**: Deep integration across critical infrastructure
 - **No Alternative**: At the time, Raft didn't exist as a viable alternative
 
@@ -4235,7 +4235,7 @@ The key is to maintain the GitOps-first principles while selectively integrating
 
 ### Architecture: From Centralized Control to Distributed Consensus
 
-The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and emergent intelligence.
+The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and coordinated behavior.
 
 #### Key Architectural Insights from ai-agents-sandbox
 
@@ -4247,9 +4247,9 @@ The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orche
 
 **Bottoms-Up Orchestration Benefits**:
 - **No Single Point of Failure**: Consensus continues despite agent failures
-- **Tight Feedback Loops**: Local optimization decisions made in seconds
+- **Fast Feedback Loops**: Local optimization decisions made in seconds
 - **Scalable Coordination**: Add agents without changing architecture
-- **Emergent Intelligence**: Complex global behavior from simple local rules
+- **Coordinated Behavior**: Complex global behavior from simple local rules
 
 ### Academic Foundation: Consensus Algorithms in Multi-Agent Systems
 

@@ -57,7 +57,7 @@ This example implements all three phases of Temporal integration with comprehens
 - **Durable Consensus**: Raft-based consensus with Temporal persistence
 - **Multi-Scale Feedback**: 30s, 5m, 1h feedback loops
 - **Fault Tolerance**: No single point of failure in decision making
-- **Emergent Intelligence**: Complex behavior from simple local rules
+- **Coordinated Behavior**: Complex behavior from simple local rules
 
 ### 3.2 AI-Enhanced Reconciliation
 - **Predictive Scaling**: AI anticipates infrastructure needs

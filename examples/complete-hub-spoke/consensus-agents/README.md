@@ -1,14 +1,14 @@
 # Consensus-Based Agent Swarm Examples
 
-This directory contains examples of **self-organizing agent swarms** that use **distributed consensus algorithms** to achieve tight feedback loops and autonomous infrastructure optimization.
+This directory contains examples of **self-organizing agent swarms** that use **distributed consensus algorithms** to achieve feedback loops and autonomous infrastructure optimization.
 
 ## Overview
 
-The consensus-based approach represents the next evolution in AI agent orchestration, moving from centralized control to **bottom-up consensus systems**. This enables:
+The consensus-based approach represents an evolution in AI agent orchestration, moving from centralized control to **bottom-up consensus systems**. This enables:
 
-- **Tight Feedback Loops**: Local optimization decisions made in seconds
+- **Fast Feedback Loops**: Local optimization decisions made in seconds
 - **Fault Tolerance**: No single point of failure
-- **Emergent Intelligence**: Complex global behavior emerges from local rules
+- **Coordinated Intelligence**: Complex global behavior from local rules
 - **Scalability**: Add more agents without changing architecture
 
 ## Files
@@ -209,7 +209,7 @@ kubectl annotate agentproposal emergency-proposal \
 - Distributed decision making
 - Local resource optimization
 
-### 4. **Emergent Intelligence**
+### 4. **Coordinated Intelligence**
 - Swarm behavior from simple rules
 - Adaptive learning
 - Self-organization
@@ -218,12 +218,12 @@ kubectl annotate agentproposal emergency-proposal \
 
 ### Phase 1: Foundation
 1. Deploy basic consensus protocol
-2. Implement tight feedback loops
+2. Implement feedback loops
 3. Add agent-to-agent communication
 
 ### Phase 2: Advanced Features
 1. Multi-cloud consensus
-2. Emergent behavior patterns
+2. Coordinated behavior patterns
 3. Dynamic agent specialization
 
 ### Phase 3: Production Readiness
