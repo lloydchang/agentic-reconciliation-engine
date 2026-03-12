@@ -353,6 +353,8 @@ EOF
 ### Azure Integration Sample
 
 ```bash
+# Licensed under Apache License 2.0
+# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -426,6 +428,8 @@ EOF
 ### GCP Integration Sample
 
 ```bash
+# Licensed under Apache License 2.0
+# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -501,6 +505,8 @@ EOF
 ### Local/Kubernetes Integration Sample
 
 ```bash
+# Licensed under Apache License 2.0
+# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env bash
 set -euo pipefail
 
