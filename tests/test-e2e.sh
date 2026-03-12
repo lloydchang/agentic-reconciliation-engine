@@ -100,16 +100,16 @@ test_bootstrap() {
     print_header "Phase 2: Bootstrap Test"
 
     # Run bootstrap script
-    if [[ -f "scripts/bootstrap.sh" ]]; then
-        chmod +x scripts/bootstrap.sh
-        if ./scripts/bootstrap.sh; then
+    if [[ -f "scripts/deploy-gitops-infrastructure.sh" ]]; then
+        chmod +x scripts/deploy-gitops-infrastructure.sh
+        if ./scripts/deploy-gitops-infrastructure.sh; then
             update_test_result "bootstrap" true
         else
             update_test_result "bootstrap" false
             return 1
         fi
     else
-        print_error "bootstrap.sh not found"
+        print_error "deploy-gitops-infrastructure.sh not found"
         update_test_result "bootstrap" false
         return 1
     fi

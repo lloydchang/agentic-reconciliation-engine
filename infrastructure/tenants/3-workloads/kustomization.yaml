@@ -14,3 +14,4 @@ resources:
   - temporal/
   - backstage/
   - honeycomb/
+  - pixie-spoke-config.yaml

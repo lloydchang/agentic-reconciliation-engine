@@ -1,0 +1,261 @@
+# Pixie Configuration for Spoke Clusters
+# Deploys Pixie eBPF observability to spoke clusters with different naming
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-spoke-config
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: gitops-workloads
+data:
+  # Pixie cluster configuration for spoke clusters
+  spoke-cluster-config.yaml: |
+    # Configuration for spoke clusters in GitOps topology
+    
+    # Dynamic cluster naming based on cluster metadata
+    cluster_name_pattern: "gitops-spoke-{CLUSTER_NAME}"
+    cluster_type: "K8S"
+    
+    # Optimized data collection for spoke clusters
+    data_collection:
+      # Enable core data collection for spoke monitoring
+      enable_http_tracing: true
+      enable_mysql_profiling: true
+      enable_postgres_profiling: true
+      enable_redis_profiling: false  # Disable for spoke clusters to reduce overhead
+      enable_node_stats: true
+      enable_process_stats: true
+      
+      # Lower sampling rates for spoke clusters (resource optimization)
+      http_trace_sampling_rate: 0.05  # 5% sampling for spoke clusters
+      stats_collection_interval: 60   # Less frequent collection
+      trace_collection_interval: 120 # Less frequent traces
+    
+    # Reduced resource limits for spoke clusters
+    resource_limits:
+      vizier:
+        memory_limit: "1Gi"
+        cpu_limit: "500m"
+        memory_request: "512Mi"
+        cpu_request: "250m"
+      pem:
+        memory_limit: "512Mi"
+        cpu_limit: "250m"
+        memory_request: "256Mi"
+        cpu_request: "100m"
+
+---
+# Spoke cluster deployment script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-spoke-deploy
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/part-of: gitops-workloads
+data:
+  deploy-spoke-pixie.sh: |
+    #!/bin/bash
+    # Pixie deployment script for spoke clusters
+    
+    set -e
+    
+    echo "🔮 Deploying Pixie to spoke cluster..."
+    
+    # Get cluster name from environment or use default
+    CLUSTER_NAME=${CLUSTER_NAME:-"unknown-spoke"}
+    echo "🏷️  Cluster name: $CLUSTER_NAME"
+    
+    # Check if cluster supports eBPF
+    echo "🔍 Checking eBPF support..."
+    if ! kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kernelVersion}' | grep -E "^[4-5]\." > /dev/null 2>&1; then
+      echo "⚠️  Warning: Kernel version may not support eBPF"
+    fi
+    
+    # Add Pixie Helm repository
+    echo "📦 Adding Pixie Helm repository..."
+    helm repo add pixie https://pixie-io.github.io/pixie-charts
+    helm repo update
+    
+    # Deploy Pixie with spoke-specific configuration
+    echo "🚀 Deploying Pixie for spoke cluster..."
+    helm upgrade --install pixie pixie/pixie-chart \
+      --namespace pl \
+      --set clusterName="gitops-spoke-$CLUSTER_NAME" \
+      --set deployKey.enabled=false \
+      --set cloudAddr="with.px.dev:443" \
+      --set pem.memoryLimit="512Mi" \
+      --set pem.cpuLimit="250m" \
+      --set vizier.memoryLimit="1Gi" \
+      --set vizier.cpuLimit="500m" \
+      --set etcd.memoryLimit="512Mi" \
+      --set etcd.cpuLimit="250m" \
+      --set autoInstrumentation.enabled=true \
+      --set autoInstrumentation.languages="go,java,nodejs,python"
+    
+    # Wait for deployment
+    echo "⏳ Waiting for Pixie deployment..."
+    kubectl wait --for=condition=ready pod -l app=vizier -n pl --timeout=600s
+    kubectl wait --for=condition=ready pod -l app=pem -n pl --timeout=600s
+    
+    # Verify deployment
+    echo "✅ Verifying Pixie deployment..."
+    if kubectl get pods -n pl | grep -q "vizier\|pem"; then
+      echo "✅ Pixie deployment successful for spoke cluster!"
+      echo "📊 Cluster will appear as: gitops-spoke-$CLUSTER_NAME"
+    else
+      echo "❌ Pixie deployment failed"
+      exit 1
+    fi
+
+---
+# Spoke cluster monitoring scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-spoke-scripts
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: scripts
+    app.kubernetes.io/part-of: gitops-workloads
+data:
+  # Spoke cluster specific monitoring scripts
+  spoke-monitoring-scripts.yaml: |
+    # Pixie scripts for spoke cluster monitoring
+    
+    # Cross-cluster communication monitoring
+    cross_cluster_traffic: |
+      #import px
+      
+      df = px.DataFrame('network_flow')
+      # Filter for traffic to/from hub cluster (adjust IP ranges as needed)
+      df = df[(px.contains(df['src_addr'], '10.0.0')) | (px.contains(df['dst_addr'], '10.0.0'))]
+      df = df.groupby(['src_addr', 'dst_addr', 'protocol']).agg(
+          bytes_sent=('bytes_sent', px.sum),
+          bytes_received=('bytes_received', px.sum),
+          connections=('time_', px.count)
+      )
+      df = df.sort('bytes_sent', descending=True)
+      df.head(20)
+    
+    # Spoke application performance
+    spoke_app_performance: |
+      #import px
+      
+      df = px.DataFrame('http_events')
+      # Filter for application services (exclude system services)
+      df = df[~px.contains(df['service'], 'kube-')]
+      df = df[~px.contains(df['service'], 'coredns')]
+      df = df.groupby(['service', 'http_resp_status']).agg(
+          latency=('latency_ns', px.mean),
+          requests=('time_', px.count),
+          error_rate=('http_resp_status', px.mean)
+      )
+      df = df.sort('requests', descending=True)
+      df.head(15)
+    
+    # Resource utilization by workload
+    workload_resource_usage: |
+      #import px
+      
+      df = px.DataFrame('process_stats')
+      df = df.groupby(['pod_name', 'container_name']).agg(
+          cpu_usage=('cpu_usage_ns', px.mean),
+          memory_usage=('memory_usage_bytes', px.mean),
+          fd_count=('fd_count', px.mean),
+          network_io=('bytes_sent', px.sum) + ('bytes_received', px.sum)
+      )
+      df = df.sort('cpu_usage', descending=True)
+      df.head(25)
+    
+    # Database performance (if applicable)
+    database_performance: |
+      #import px
+      
+      # MySQL monitoring
+      mysql_df = px.DataFrame('mysql_events')
+      if mysql_df.size() > 0:
+          mysql_df = mysql_df.groupby(['remote_addr', 'req_cmd']).agg(
+              query_time=('time_', px.mean),
+              queries=('time_', px.count),
+              errors=('resp_status', px.count_if(lambda x: x > 0))
+          )
+          mysql_df = mysql_df.sort('query_time', descending=True)
+          display(mysql_df.head(10))
+      
+      # PostgreSQL monitoring
+      pg_df = px.DataFrame('postgres_events')
+      if pg_df.size() > 0:
+          pg_df = pg_df.groupby(['remote_addr', 'req_cmd']).agg(
+              query_time=('time_', px.mean),
+              queries=('time_', px.count),
+              errors=('resp_status', px.count_if(lambda x: x > 0))
+          )
+          pg_df = pg_df.sort('query_time', descending=True)
+          display(pg_df.head(10))
+
+---
+# Spoke cluster health check
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-spoke-health
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: health
+    app.kubernetes.io/part-of: gitops-workloads
+data:
+  spoke-health-check.sh: |
+    #!/bin/bash
+    # Pixie health check for spoke clusters
+    
+    echo "🔮 Checking Pixie on spoke cluster..."
+    
+    # Check Pixie components
+    echo "📦 Pixie Components:"
+    if kubectl get pods -n pl | grep -q "vizier\|pem"; then
+      echo "  ✅ Pixie components: Running"
+      
+      # Check Vizier
+      vizier_running=$(kubectl get pods -n pl -l app=vizier --field-selector=status.phase=Running | wc -l)
+      echo "  🎯 Vizier: $vizier_running running"
+      
+      # Check PEMs
+      pem_running=$(kubectl get pods -n pl -l app=pem --field-selector=status.phase=Running | wc -l)
+      node_count=$(kubectl get nodes --no-headers | wc -l)
+      echo "  🔧 PEMs: $pem_running/$node_count agents running"
+      
+      if [ "$pem_running" -eq "$node_count" ]; then
+        echo "  ✅ Full node coverage achieved"
+      else
+        echo "  ⚠️  Partial node coverage"
+      fi
+    else
+      echo "  ❌ Pixie components: Not running"
+    fi
+    
+    # Check data collection
+    echo ""
+    echo "📊 Data Collection Status:"
+    if kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null | grep -q "True"; then
+      echo "  ✅ Data collection: Active"
+    else
+      echo "  ❌ Data collection: Inactive"
+    fi
+    
+    # Check resource usage
+    echo ""
+    echo "💾 Resource Usage:"
+    kubectl top pods -n pl -l app=pem --no-headers | awk '{sum+=$2} END {print "  🔧 PEM CPU: " sum "m"}' 2>/dev/null || echo "  🔧 PEM CPU: N/A"
+    kubectl top pods -n pl -l app=vizier --no-headers | awk '{sum+=$2} END {print "  🎯 Vizier CPU: " sum "m"}' 2>/dev/null || echo "  🎯 Vizier CPU: N/A"
+    
+    echo ""
+    echo "🔮 Spoke cluster health check complete"
