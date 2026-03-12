@@ -13,7 +13,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ### ❌ When AI Integration Is NOT Appropriate
 
 **Do NOT implement AI components if you:**
-- Have single-cloud or simple infrastructure scenarios
+- Simple scenarios
 - Operate in highly regulated environments with strict change controls **AND** lack the expertise to implement compliant AI
 - Have small teams (1-3 people) with limited DevOps expertise
 - Require ultra-low latency (<30 seconds) for critical operations
