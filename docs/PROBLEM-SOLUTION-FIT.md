@@ -89,13 +89,14 @@ spec:
 
 ### Single-Cloud Scenarios
 
-#### **Scenario: AWS-Only Enterprise**
-**Problem**: Large organization committed to AWS but needing advanced GitOps capabilities.
+#### **Scenario: Already applied [GitOps principles](https://opengitops.dev/) and considering the next steps
+**Problem**: Large organization committed to a cloud, and seeking to add multi-cloud capabilities.
+- **Why it fits**: Already uses GitOps ([Flux](https://fluxcd.io/) and/or [Argo CD](https://argoproj.github.io/cd/)), and ready to expand to multi-cloud
 
 **Fit Assessment**: ⭐⭐⭐⭐ **STRONG FIT**
-- **Why it fits**: Modular design allows focusing on AWS components only
-- **Simplification**: Disable Azure/GCP components for cleaner architecture
-- **Benefits**: Still get continuous reconciliation, DAG orchestration, agent capabilities
+- **Why it fits**: Modular design allows focusing on single-cloud components first
+- **Simplification**: Disable other clouds' components for initial implementation
+- **Benefits**: Still get continuous reconciliation, DAG orchestration, agent capabilities, and expand to multi-cloud in the future
 
 **Configuration**:
 ```bash
