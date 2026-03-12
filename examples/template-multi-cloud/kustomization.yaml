@@ -8,14 +8,29 @@ metadata:
   name: template-multi-cloud-ai
   namespace: flux-system
 resources:
+  # Core infrastructure components
+  - controllers/
+  - tenants/
+  # AI Integration components (optional based on variant)
   # TODO: Add cloud-specific controller deployments (ACK/ASO/KCC)
   # TODO: Add AI integration components (gateway, cronjobs, validation)
-  # TODO: Configure dependsOn for proper DAG ordering
   # TODO: Add monitoring and security policies
+dependsOn:
+  - controllers
+  - tenants
 labels:
   - pairs:
       managed-by: flux
       component: template-multi-cloud-ai
       platform: multi-cluster-gitops
+      variant: opensource  # Options: opensource, small-business, enterprise
       # TODO: Add environment-specific labels
-      environment: TODO_ENVIRONMENT_NAME
+      environment: development
+# Variant configuration
+configMapGenerator:
+- name: variant-config
+  literals:
+  - DEPLOYMENT_SIZE=small  # Options: small, medium, large
+  - AI_INTEGRATION=false   # Options: true, false
+  - MONITORING_LEVEL=basic  # Options: basic, advanced, enterprise
+  - SECURITY_LEVEL=standard # Options: basic, standard, enterprise

@@ -5,13 +5,28 @@ metadata:
   namespace: flux-system
 resources:
   # Core Flux and controllers (same as base)
-  - ../../control-plane/
+  - name: ../../control-plane/
+    dependsOn:
+      - flux-system
   # Kagent orchestration components
-  - kagent-core/
-  - taskspawners/
-  - agent-workflows/
-  - mcp-registry/
-  - monitoring/
+  - name: kagent-core/
+    dependsOn:
+      - ../../control-plane/
+  - name: taskspawners/
+    dependsOn:
+      - kagent-core
+  - name: agent-workflows/
+    dependsOn:
+      - taskspawners
+  - name: mcp-registry/
+    dependsOn:
+      - kagent-core
+  - name: monitoring/
+    dependsOn:
+      - ../../control-plane/
+      - kagent-core
+dependsOn:
+  - gitops-infra-control-plane
 labels:
   - pairs:
       managed-by: flux

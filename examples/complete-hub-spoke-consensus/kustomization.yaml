@@ -7,15 +7,31 @@ metadata:
     config.kubernetes.io/local-config: "true"
 resources:
 # Consensus Layer
-- consensus-layer/
+- name: consensus-layer/
+  dependsOn:
+    - gitops-infra-control-plane
 # Agent Swarm
-- agent-swarm/
+- name: agent-swarm/
+  dependsOn:
+    - consensus-layer
 # Consensus-Enhanced TaskSpawners
-- consensus-taskspawners/
+- name: consensus-taskspawners/
+  dependsOn:
+    - consensus-layer
+    - agent-swarm
 # Flux Integration
-- flux-integration/
+- name: flux-integration/
+  dependsOn:
+    - consensus-layer
+    - consensus-taskspawners
 # Monitoring
-- monitoring/
+- name: monitoring/
+  dependsOn:
+    - consensus-layer
+    - agent-swarm
+    - consensus-taskspawners
+dependsOn:
+  - gitops-infra-control-plane
 # Common configurations
 configurations:
 - name: consensus-config

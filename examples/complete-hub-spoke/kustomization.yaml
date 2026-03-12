@@ -5,13 +5,22 @@ metadata:
   namespace: flux-system
 resources:
   # Core Flux and controllers (same as base)
-  - ../../control-plane/
+  - name: ../../control-plane/
+    dependsOn:
+      - flux-system
   # AI Integration components
   # - ai-gateway/  # Optional: comment out for local LLM setups
-  - ai-cronjobs/
-  - ai-validation/
+  - name: ai-cronjobs/
+    dependsOn:
+      - ../../control-plane/
+  - name: ai-validation/
+    dependsOn:
+      - ../../control-plane/
   # Consensus-based agent swarms
-  - agent-workflows/
+  - name: agent-workflows/
+    dependsOn:
+      - ai-cronjobs
+      - ai-validation
 dependsOn:
   - gitops-infra-control-plane
 labels:

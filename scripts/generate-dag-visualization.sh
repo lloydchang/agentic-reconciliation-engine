@@ -1,6 +1,7 @@
 #!/bin/bash
 # Generate DAG visualization from Flux Kustomization dependsOn relationships
 # Outputs Mermaid format for documentation
+# Supports variant and ecosystem visualization
 
 set -euo pipefail
 
@@ -9,7 +10,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo "# Flux Infrastructure DAG Visualization"
 echo ""
-echo "Generated from Kustomization dependsOn relationships in control-plane/flux/"
+echo "Generated from Kustomization dependsOn relationships across the repository"
 echo ""
 
 # Function to extract dependsOn from a Kustomization
@@ -21,6 +22,12 @@ get_dependencies() {
 
     # Extract name more precisely
     local name=$(grep -A2 "^metadata:" "$file" | grep "^  name:" | head -1 | sed 's/.*name: //' | tr -d ' ')
+
+    # Extract variant from labels
+    local variant=$(grep -A10 "labels:" "$file" | grep "variant:" | sed 's/.*variant: //' | tr -d ' ' | head -1 || echo "unknown")
+    
+    # Extract ecosystem from labels
+    local ecosystem=$(grep -A10 "labels:" "$file" | grep "ecosystem:" | sed 's/.*ecosystem: //' | tr -d ' ' | head -1 || echo "unknown")
 
     # Extract dependsOn more precisely - only get name fields under dependsOn
     local depends_on=""
@@ -36,7 +43,7 @@ get_dependencies() {
 
     # Only output if we have a valid name
     if [[ -n "$name" ]]; then
-        echo "$name|$depends_on"
+        echo "$name|$depends_on|$variant|$ecosystem"
     fi
 }
 
@@ -47,6 +54,14 @@ echo ""
 # Use indexed arrays instead of associative arrays for compatibility
 declare -a names
 declare -a deps_list
+declare -a variants
+declare -a ecosystems
+
+# Initialize arrays
+names=()
+deps_list=()
+variants=()
+ecosystems=()
 
 # Function to get dependency for a name
 get_dep() {
@@ -71,7 +86,7 @@ has_name() {
     return 1
 }
 
-while IFS='|' read -r name deps; do
+while IFS='|' read -r name deps variant ecosystem; do
     if [[ -n "$name" ]]; then
         # Clean up deps (remove extra spaces)
         deps=$(echo "$deps" | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
@@ -79,23 +94,27 @@ while IFS='|' read -r name deps; do
         if ! has_name "$name"; then
             names+=("$name")
             deps_list+=("$deps")
+            variants+=("$variant")
+            ecosystems+=("$ecosystem")
         fi
     fi
-done < <(for file in "$REPO_ROOT/control-plane/flux"/*.yaml; do
+done < <(for file in "$REPO_ROOT"/control-plane/flux/*.yaml "$REPO_ROOT"/infrastructure/tenants/*/kustomization.yaml "$REPO_ROOT"/examples/*/kustomization.yaml; do
     [[ "$file" == *install.yaml ]] && continue  # Skip the large install file
     get_dependencies "$file"
 done)
 
-# Print dependency table
-echo "| Kustomization | Depends On |"
-echo "|--------------|------------|"
+# Print dependency table with variant and ecosystem info
+echo "| Kustomization | Depends On | Variant | Ecosystem |"
+echo "|--------------|------------|---------|-----------|"
 for i in "${!names[@]}"; do
     name="${names[$i]}"
     deps="${deps_list[$i]}"
+    variant="${variants[$i]}"
+    ecosystem="${ecosystems[$i]}"
     if [[ -z "$deps" ]]; then
-        echo "| $name | (none) |"
+        echo "| $name | (none) | $variant | $ecosystem |"
     else
-        echo "| $name | $deps |"
+        echo "| $name | $deps | $variant | $ecosystem |"
     fi
 done
 
@@ -107,23 +126,34 @@ echo "graph TD"
 echo "    %% Root node"
 echo "    Git[Git Repository<br/>Source of Truth] --> Flux[Flux Controllers<br/>flux-system]"
 
-# Generate Mermaid edges
+# Generate Mermaid edges with variant/ecosystem styling
 for i in "${!names[@]}"; do
     name="${names[$i]}"
     deps="${deps_list[$i]}"
+    variant="${variants[$i]}"
+    ecosystem="${ecosystems[$i]}"
+
+    # Create node with variant/ecosystem info
+    local node_label="$name"
+    if [[ "$variant" != "unknown" ]]; then
+        node_label="$node_label<br/><small>variant: $variant</small>"
+    fi
+    if [[ "$ecosystem" != "unknown" ]]; then
+        node_label="$node_label<br/><small>ecosystem: $ecosystem</small>"
+    fi
 
     if [[ -z "$deps" ]]; then
         # No dependencies - connect to Flux
-        echo "    Flux --> $name[$name]"
+        echo "    Flux --> $name[\"$node_label\"]"
     else
         # Has dependencies - connect each dep to this node
         for dep in $deps; do
-            echo "    $dep --> $name[$name]"
+            echo "    $dep --> $name[\"$node_label\"]"
         done
     fi
 done
 
-# Styling
+# Enhanced styling for variants and ecosystems
 echo ""
 echo "    %% Styling"
 echo "    classDef git fill:#e8f4fd,stroke:#0066cc,stroke-width:2px"
@@ -131,34 +161,57 @@ echo "    classDef flux fill:#fff2cc,stroke:#d6b656,stroke-width:2px"
 echo "    classDef network fill:#d5e8d4,stroke:#82b366,stroke-width:2px"
 echo "    classDef cluster fill:#ffe6cc,stroke:#d79b00,stroke-width:2px"
 echo "    classDef workload fill:#f8cecc,stroke:#b85450,stroke-width:2px"
+echo "    classDef opensource fill:#e8f5e8,stroke:#4caf50,stroke-width:2px"
+echo "    classDef smallbusiness fill:#fff3e0,stroke:#ff9800,stroke-width:2px"
+echo "    classDef enterprise fill:#fce4ec,stroke:#e91e63,stroke-width:2px"
+echo "    classDef rust fill:#fff8e1,stroke:#ffc107,stroke-width:2px"
+echo "    classDef go fill:#e3f2fd,stroke:#2196f3,stroke-width:2px"
+echo "    classDef python fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px"
+echo "    classDef typescript fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px"
+echo "    classDef dotnet fill:#fce4ec,stroke:#e91e63,stroke-width:2px"
+echo "    classDef java fill:#ffebee,stroke:#f44336,stroke-width:2px"
+echo "    classDef shell fill:#f1f8e9,stroke:#4caf50,stroke-width:2px"
 echo ""
 echo "    class Git git"
 echo "    class Flux flux"
 
-# Apply styling based on naming patterns
-network_nodes=""
-cluster_nodes=""
-workload_nodes=""
-
-for name in "${!dependencies[@]}"; do
-    if [[ "$name" == *network* ]]; then
-        network_nodes="$network_nodes,$name"
+# Apply styling based on naming patterns, variants, and ecosystems
+for i in "${!names[@]}"; do
+    name="${names[$i]}"
+    variant="${variants[$i]}"
+    ecosystem="${ecosystems[$i]}"
+    
+    # Apply variant styling
+    if [[ "$variant" == "opensource" ]]; then
+        echo "    class $name opensource"
+    elif [[ "$variant" == "small-business" ]]; then
+        echo "    class $name smallbusiness"
+    elif [[ "$variant" == "enterprise" ]]; then
+        echo "    class $name enterprise"
+    # Apply ecosystem styling if no variant
+    elif [[ "$ecosystem" == "rust" ]]; then
+        echo "    class $name rust"
+    elif [[ "$ecosystem" == "go" ]]; then
+        echo "    class $name go"
+    elif [[ "$ecosystem" == "python" ]]; then
+        echo "    class $name python"
+    elif [[ "$ecosystem" == "typescript" ]]; then
+        echo "    class $name typescript"
+    elif [[ "$ecosystem" == "dotnet" ]]; then
+        echo "    class $name dotnet"
+    elif [[ "$ecosystem" == "java" ]]; then
+        echo "    class $name java"
+    elif [[ "$ecosystem" == "shell" ]]; then
+        echo "    class $name shell"
+    # Apply tier-based styling
+    elif [[ "$name" == *network* ]]; then
+        echo "    class $name network"
     elif [[ "$name" == *cluster* ]]; then
-        cluster_nodes="$cluster_nodes,$name"
+        echo "    class $name cluster"
     elif [[ "$name" == *workload* ]]; then
-        workload_nodes="$workload_nodes,$name"
+        echo "    class $name workload"
     fi
 done
-
-if [[ -n "$network_nodes" ]]; then
-    echo "    class ${network_nodes#,} network"
-fi
-if [[ -n "$cluster_nodes" ]]; then
-    echo "    class ${cluster_nodes#,} cluster"
-fi
-if [[ -n "$workload_nodes" ]]; then
-    echo "    class ${workload_nodes#,} workload"
-fi
 
 echo "\`\`\`"
 
@@ -171,16 +224,22 @@ echo "### Cycle Detection"
 
 # Simple cycle detection - check for any mutual dependencies
 has_cycles=false
-for name in "${!dependencies[@]}"; do
-    deps="${dependencies[$name]}"
+for i in "${!names[@]}"; do
+    name="${names[$i]}"
+    deps="${deps_list[$i]}"
 
     for dep in $deps; do
         # Check if the dependency depends back on this node
-        dep_deps="${dependencies[$dep]:-}"
-        for dep_dep in $dep_deps; do
-            if [[ "$dep_dep" == "$name" ]]; then
-                echo "❌ Cycle detected: $name -> $dep -> $name"
-                has_cycles=true
+        for j in "${!names[@]}"; do
+            if [[ "${names[$j]}" == "$dep" ]]; then
+                dep_deps="${deps_list[$j]}"
+                for dep_dep in $dep_deps; do
+                    if [[ "$dep_dep" == "$name" ]]; then
+                        echo "❌ Cycle detected: $name -> $dep -> $name"
+                        has_cycles=true
+                    fi
+                done
+                break
             fi
         done
     done
@@ -196,11 +255,12 @@ echo "### Connectivity Check"
 root_nodes=""
 leaf_nodes=""
 
-for name in "${!dependencies[@]}"; do
+for i in "${!names[@]}"; do
+    name="${names[$i]}"
     # Check if this node is depended on by others
     is_depended_on=false
-    for other in "${!dependencies[@]}"; do
-        deps="${dependencies[$other]}"
+    for j in "${!names[@]}"; do
+        deps="${deps_list[$j]}"
         for dep in $deps; do
             if [[ "$dep" == "$name" ]]; then
                 is_depended_on=true
@@ -214,7 +274,7 @@ for name in "${!dependencies[@]}"; do
     fi
 
     # Check if this node depends on others
-    deps="${dependencies[$name]}"
+    deps="${deps_list[$i]}"
     if [[ -z "$deps" ]]; then
         leaf_nodes="$leaf_nodes $name"
     fi
@@ -224,7 +284,7 @@ echo "Root nodes (no dependencies):${root_nodes:- none}"
 echo "Leaf nodes (no dependents):${leaf_nodes:- none}"
 
 # Count connections
-total_nodes=${#dependencies[@]}
+total_nodes=${#names[@]}
 echo "Total nodes: $total_nodes"
 
 if [[ $total_nodes -gt 0 ]]; then

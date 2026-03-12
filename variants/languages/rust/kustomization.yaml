@@ -1,0 +1,96 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: gitops-infra-control-plane-rust
+  namespace: flux-system
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    variant.language: "rust"
+    variant.ecosystem: "cargo"
+resources:
+  # Core control plane
+  - name: ../../control-plane/
+    dependsOn:
+      - flux-system
+  # Rust-specific wasmcloud components
+  - name: rust-wasmcloud/
+    dependsOn:
+      - ../../control-plane/
+  # Rust actors
+  - name: rust-actors/
+    dependsOn:
+      - rust-wasmcloud
+  # Rust providers
+  - name: rust-providers/
+    dependsOn:
+      - rust-wasmcloud
+  # Rust monitoring
+  - name: rust-monitoring/
+    dependsOn:
+      - rust-wasmcloud
+      - rust-providers
+# Rust ecosystem configuration
+configurations:
+- name: rust-config
+  literals:
+  - RUST_VERSION= "1.75"
+  - BUILD_TOOL= "cargo"
+  - FRAMEWORK= "wasmcloud"
+  - TARGET= "wasm32-wasi"
+  - ACTOR_MODEL= "true"
+  - CAPABILITY_PROVIDERS= "true"
+  - WASM_RUNTIME= "wasmtime"
+  - SECURITY= "wasm-security"
+  - PERFORMANCE= "zero-copy"
+  - MEMORY_SAFETY= "true"
+  - CONCURRENCY= "async-std"
+  - NETWORKING= "tokio"
+# Rust-specific labels
+commonLabels:
+  variant: rust-ecosystem
+  language: rust
+  runtime: rust1.75
+  build-tool: cargo
+  framework: wasmcloud
+  target: wasm32-wasi
+# Rust resource patches
+patchesStrategicMerge:
+- rust-resources/rust-runtime.yaml
+- rust-resources/wasmcloud-host.yaml
+- rust-resources/actor-registry.yaml
+- rust-resources/provider-config.yaml
+# Rust images
+images:
+- name: rust/runtime
+  newTag: "1.75-slim"
+- name: wasmcloud/host
+  newTag: "v0.57.0"
+- name: wasmcloud/wasmtime
+  newTag: "v15.0.0"
+- name: rust/cargo
+  newTag: "1.75"
+# Namespace for Rust workloads
+namespace: rust-workloads
+# Rust-specific configurations
+configMapGenerator:
+- name: rust-wasmcloud-config
+  literals:
+  - WASMCLOUD_VERSION= "v0.57.0"
+  - WASMTIME_VERSION= "v15.0.0"
+  - ACTOR_INTERFACE_VERSION= "v0.2.0"
+  - PROVIDER_INTERFACE_VERSION= "v0.1.0"
+  - LATTICE_VERSION= "v0.11.0"
+- name: rust-build-config
+  literals:
+  - RUST_VERSION= "1.75"
+  - TARGET= "wasm32-wasi"
+  - PROFILE= "release"
+  - OPT_LEVEL= "3"
+  - LTO= "true"
+  - CODEGEN_UNITS= "1"
+- name: rust-security-config
+  literals:
+  - WASM_SECURITY= "true"
+  - CAPABILITY_SECURITY= "true"
+  - ACTOR_ISOLATION= "true"
+  - PROVIDER_SANDBOX= "true"

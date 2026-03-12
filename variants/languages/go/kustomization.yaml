@@ -1,0 +1,98 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: gitops-infra-control-plane-go
+  namespace: flux-system
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    variant.language: "go"
+    variant.ecosystem: "go-mod"
+resources:
+  # Core control plane
+  - name: ../../control-plane/
+    dependsOn:
+      - flux-system
+  # Go-specific controllers
+  - name: go-controllers/
+    dependsOn:
+      - ../../control-plane/
+  # Go operators
+  - name: go-operators/
+    dependsOn:
+      - go-controllers
+  # Go service mesh
+  - name: go-service-mesh/
+    dependsOn:
+      - go-controllers
+  # Go monitoring
+  - name: go-monitoring/
+    dependsOn:
+      - go-controllers
+      - go-service-mesh
+# Go ecosystem configuration
+configurations:
+- name: go-config
+  literals:
+  - GO_VERSION= "1.21"
+  - BUILD_TOOL= "go"
+  - FRAMEWORK= "kubernetes-operator"
+  - SERVICE_MESH= "istio"
+  - API_VERSION= "v1"
+  - CONTROLLER_RUNTIME= "v0.17.0"
+  - CLIENT_GO= "v0.28.0"
+  - SIGSTORE= "true"
+  - SBOM= "true"
+  - COSIGN= "true"
+  - KO= "true"
+  - BUILDKIT= "true"
+# Go-specific labels
+commonLabels:
+  variant: go-ecosystem
+  language: go
+  runtime: go1.21
+  build-tool: go-mod
+  framework: kubernetes-operator
+  service-mesh: istio
+# Go resource patches
+patchesStrategicMerge:
+- go-resources/go-runtime.yaml
+- go-resources/operator-sdk.yaml
+- go-resources/istio-integration.yaml
+- go-resources/sigstore-signing.yaml
+# Go images
+images:
+- name: golang/runtime
+  newTag: "1.21-alpine"
+- name: operator-sdk/operator-sdk
+  newTag: "v1.31.0"
+- name: istio/proxyv2
+  newTag: "1.19.0"
+- name: ko/golang
+  newTag: "latest"
+- name: sigstore/cosign
+  newTag: "v2.2.2"
+# Namespace for Go workloads
+namespace: go-workloads
+# Go-specific configurations
+configMapGenerator:
+- name: go-operator-config
+  literals:
+  - CONTROLLER_RUNTIME_VERSION= "v0.17.0"
+  - CLIENT_GO_VERSION= "v0.28.0"
+  - API_MACHINERY_VERSION= "v0.28.0"
+  - CERT_MANAGER_VERSION= "v1.13.0"
+  - PROMETHEUS_OPERATOR_VERSION= "v0.68.0"
+- name: go-build-config
+  literals:
+  - GO_VERSION= "1.21"
+  - CGO_ENABLED= "0"
+  - GOOS= "linux"
+  - GOARCH= "amd64"
+  - BUILD_TAGS= "netgo"
+  - LDFLAGS= "-s -w"
+- name: go-security-config
+  literals:
+  - SIGSTORE_ENABLED= "true"
+  - SBOM_GENERATION= "true"
+  - VULNERABILITY_SCANNING= "true"
+  - IMAGE_VERIFICATION= "true"
