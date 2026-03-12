@@ -12,6 +12,8 @@ resources:
   - ai-validation/
   # Consensus-based agent swarms
   - agent-workflows/
+dependsOn:
+  - gitops-infra-control-plane
 labels:
   - pairs:
       managed-by: flux
@@ -19,6 +21,7 @@ labels:
       platform: multi-cluster-gitops
       ai-enhanced: "true"
       consensus-orchestration: "true"
+      variant: enterprise
 # Deployment mode configuration
 configMapGenerator:
 - name: ai-deployment-config
