@@ -1,6 +1,6 @@
 # GitOps Infrastructure Control Plane
 
-GitOps Infra Control Plane: Continuous Reconciliation Engine for Multi-Cloud Infra
+## Continuous Reconciliation Engine for Multi-Cloud Infra
 
 ---
 
