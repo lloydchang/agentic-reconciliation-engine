@@ -1,33 +1,42 @@
-apiVersion: batch/v1
-kind: CronJob
+# Temporal Workflow for Consensus-Based Agent Feedback Loops
+# Replaced bash-based CronJob with durable Temporal workflows for better concurrency and fault tolerance
+
+apiVersion: temporal.io/v1alpha1
+kind: WorkflowSpec
 metadata:
   name: consensus-feedback-loops
   namespace: control-plane
 spec:
-  schedule: "*/1 * * * *"  # Every minute for tight feedback
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          serviceAccountName: consensus-agent-sa
-          containers:
-          - name: feedback-loop
-            image: lloydchang/ai-agents-sandbox:latest
-            command:
-            - python
-            - /app/feedback_loop.py
-            env:
-            - name: CONSENSUS_ENABLED
-              value: "true"
-            - name: FEEDBACK_INTERVAL
-              value: "30s"
-            - name: AGENT_QUORUM
-              value: "3"
-            resources:
-              requests:
-                cpu: 100m
-                memory: 256Mi
-              limits:
-                cpu: 500m
-                memory: 1Gi
-          restartPolicy: OnFailure
+  name: ConsensusFeedbackWorkflow
+  description: "Durable workflow for consensus-based agent feedback loops with Raft coordination"
+  execution:
+    maxAttempts: 3
+    timeout: 3600s  # 1 hour
+    retryPolicy:
+      initialInterval: 1s
+      backoffCoefficient: 2.0
+      maximumInterval: 100s
+      maximumAttempts: 5
+  signal:
+    name: ConsensusSignal
+    description: "Signal for consensus proposals"
+  query:
+    name: GetConsensusState
+    description: "Query current consensus state"
+  activities:
+  - name: LocalOptimizationActivity
+    description: "Local agent optimization with 30s feedback loop"
+    timeout: 30s
+  - name: ConsensusProposalActivity
+    description: "Propose changes to consensus"
+    timeout: 60s
+  - name: VoteCollectionActivity
+    description: "Collect votes from agent quorum"
+    timeout: 300s
+  - name: ChangeExecutionActivity
+    description: "Execute consensus-approved changes"
+    timeout: 180s
+  schedule:
+    interval: 30s  # Tight feedback loop
+    enabled: true
+    timezone: UTC

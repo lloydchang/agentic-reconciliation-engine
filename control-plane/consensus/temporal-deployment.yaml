@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-server
+  namespace: control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-server
+  template:
+    metadata:
+      labels:
+        app: temporal-server
+    spec:
+      containers:
+      - name: temporal
+        image: temporalio/server:1.22.0
+        ports:
+        - containerPort: 7233
+        - containerPort: 7234
+        env:
+        - name: DB
+          value: postgresql
+        - name: DB_PORT
+          value: "5432"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: temporal-secrets
+              key: postgres-user
+        - name: POSTGRES_PWD
+          valueFrom:
+            secretKeyRef:
+              name: temporal-secrets
+              key: postgres-password
+        - name: POSTGRES_DB
+          value: temporal
+        - name: POSTGRES_HOST
+          value: temporal-postgres.control-plane.svc.cluster.local
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consensus-agent-worker
+  namespace: control-plane
+spec:
+  replicas: 3  # Match agent quorum
+  selector:
+    matchLabels:
+      app: consensus-agent-worker
+  template:
+    metadata:
+      labels:
+        app: consensus-agent-worker
+    spec:
+      serviceAccountName: consensus-agent-sa
+      containers:
+      - name: temporal-worker
+        image: lloydchang/gitops-consensus-worker:latest  # Custom Go image with Temporal SDK
+        command: ["/app/temporal-worker"]
+        env:
+        - name: TEMPORAL_HOST_PORT
+          value: temporal-server.control-plane.svc.cluster.local:7233
+        - name: TASK_QUEUE
+          value: consensus-task-queue
+        - name: CONSENSUS_ENABLED
+          value: "true"
+        - name: AGENT_QUORUM
+          value: "3"
+        - name: CONSENSUS_PROTOCOL
+          value: "raft"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+      - name: raft-consensus
+        image: hashicorp/raft:latest  # Raft consensus implementation
+        ports:
+        - containerPort: 8300  # Raft protocol port
+        env:
+        - name: RAFT_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: RAFT_CLUSTER_ADDR
+          value: consensus-agent-worker-0.control-plane.svc.cluster.local:8300,consensus-agent-worker-1.control-plane.svc.cluster.local:8300,consensus-agent-worker-2.control-plane.svc.cluster.local:8300
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
