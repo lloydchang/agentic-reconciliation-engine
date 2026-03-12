@@ -63,7 +63,7 @@ This is like saying "I've never seen my house on fire, so fires don't happen."
 3. **You're lucky** - Your environment hasn't had the "perfect storm" yet
 4. **Someone else is fixing it** - Manual interventions hide the underlying problem
 
-## The Insurance Analogy
+## Analogy: Car Insurance vs. Advanced Driver Assistance
 
 Traditional IaC is like **car insurance you only use after an accident**:
 - You pay premiums (maintain Terraform code)
