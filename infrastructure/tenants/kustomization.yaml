@@ -5,5 +5,9 @@ metadata:
   namespace: flux-system
 resources:
   - 1-network/
-  - 2-clusters/
-  - 3-workloads/
+  - name: 2-clusters/
+    dependsOn:
+      - 1-network
+  - name: 3-workloads/
+    dependsOn:
+      - 2-clusters
