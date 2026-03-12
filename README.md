@@ -54,10 +54,10 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 ## Key Features
 
 - Continuous Reconciliation: 24/7 drift detection and auto-repair
-- Multi-Cloud Support: AWS, Azure, GCP with native controllers
+- Multi-Cloud Integrations: AWS, Azure, GCP with native controllers
 - DAG Dependencies: Explicit dependency management with Flux
 - Agent Orchestration: Optional AI-enhanced consensus agents
-- Multi-Language Support: Go, Python, Rust, TypeScript, C#, Java
+- Multi-Language Extensions: Go, Python, Rust, TypeScript, C#, Java
 - Security-First: Zero-trust networking and comprehensive auditing
 
 ## Documentation
