@@ -1,0 +1,42 @@
+apiVersion: swarm.gitops.io/v1alpha1
+kind: AgentSwarm
+metadata:
+  name: infrastructure-optimizers
+  namespace: control-plane
+spec:
+  consensusProtocol: raft
+  consensusRef:
+    name: raft-consensus-protocol
+  agents:
+  - type: cost-optimizer
+    count: 3
+    strategy: local-hill-climbing
+    feedbackLoop: 30s
+    skills:
+    - cost-analysis
+    - resource-sizing
+    - spot-instance-optimization
+  - type: security-validator
+    count: 2
+    strategy: consensus-validation
+    feedbackLoop: 5m
+    skills:
+    - vulnerability-scanning
+    - compliance-checking
+    - access-control-validation
+  - type: performance-tuner
+    count: 2
+    strategy: feedback-driven
+    feedbackLoop: 1h
+    skills:
+    - load-balancing
+    - auto-scaling
+    - cache-optimization
+  communication:
+    protocol: raft-based
+    heartbeat: 10s
+    consensusTimeout: 30s
+  security:
+    isolatedExecution: true
+    humanApproval: required
+    auditLogging: enabled
