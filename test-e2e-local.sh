@@ -111,14 +111,14 @@ test_cloud_controllers() {
     fi
     
     # Azure ASO Controllers
-    if kubectl get deployment azureserviceoperator-controller-manager -n azureserviceoperator-system >/dev/null 2>&1; then
+    if kubectl get deployment azure-service-operator-controller -n azureserviceoperator-system >/dev/null 2>&1; then
         print_status "✅ Azure ASO controllers found"
     else
         print_warning "⚠️ Azure ASO controllers not found"
     fi
     
     # GCP KCC Controllers
-    if kubectl get deployment controller-manager -n cnrm-system >/dev/null 2>&1; then
+    if kubectl get deployment cnrm-controller-manager -n cnrm-system >/dev/null 2>&1; then
         print_status "✅ GCP KCC controllers found"
     else
         print_warning "⚠️ GCP KCC controllers not found"
