@@ -1,0 +1,158 @@
+# Multi-Hub Architecture for Geographic Distribution and Failover
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: flux-hub-failover
+  namespace: flux-system
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: flux-components
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: kustomize-controller
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: helm-controller
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - hub-us-east-1
+        - hub-us-west-2
+        - hub-eu-west-1
+    spreadConstraints:
+      - spreadByField: cluster
+        maxSkew: 1
+        whenUnsatisfiable: DoNotSchedule
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: flux-hub-primary-override
+  namespace: flux-system
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: flux-components
+  overrideRules:
+    - targetCluster:
+        clusterNames:
+          - hub-us-east-1
+      overriders:
+        plaintext:
+          - path: "/spec/replicas"
+            operator: replace
+            value: 3
+          - path: "/spec/template/spec/containers/0/resources/limits/cpu"
+            operator: replace
+            value: "1000m"
+          - path: "/spec/template/spec/containers/0/resources/limits/memory"
+            operator: replace
+            value: "1Gi"
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: flux-hub-secondary-override
+  namespace: flux-system
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: flux-components
+  overrideRules:
+    - targetCluster:
+        clusterNames:
+          - hub-us-west-2
+          - hub-eu-west-1
+      overriders:
+        plaintext:
+          - path: "/spec/replicas"
+            operator: replace
+            value: 2
+          - path: "/spec/template/spec/containers/0/resources/limits/cpu"
+            operator: replace
+            value: "500m"
+          - path: "/spec/template/spec/containers/0/resources/limits/memory"
+            operator: replace
+            value: "512Mi"
+---
+# Health Check Service for Hub Failover
+apiVersion: v1
+kind: Service
+metadata:
+  name: flux-hub-health-check
+  namespace: flux-system
+  labels:
+    app: flux-hub-health
+spec:
+  selector:
+    app.kubernetes.io/name: flux
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: health
+  type: ClusterIP
+---
+# Hub Failover ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hub-failover-config
+  namespace: flux-system
+data:
+  failover.yaml: |
+    hubs:
+      primary:
+        name: "hub-us-east-1"
+        region: "us-east-1"
+        priority: 1
+        health_check_endpoint: "http://flux-hub-health-check.flux-system.svc.cluster.local:8080/healthz"
+      secondary:
+        - name: "hub-us-west-2"
+          region: "us-west-2"
+          priority: 2
+        - name: "hub-eu-west-1"
+          region: "eu-west-2"
+          priority: 3
+    failover:
+      health_check_interval: "30s"
+      failure_threshold: 3
+      recovery_threshold: 2
+      dns_ttl: "60s"
+      notification_channels: ["slack", "email"]
+---
+# DNS Load Balancer for Hub Access
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dns-load-balancer-config
+  namespace: flux-system
+data:
+  corefile.yaml: |
+    .:53 {
+        errors
+        health {
+          lameduck 5s
+        }
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+          ttl 30
+        }
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+        flux-hub gitops-infra-control-plane.local {
+          endpoints hub-us-east-1.flux-system.svc.cluster.local:443
+          endpoints hub-us-west-2.flux-system.svc.cluster.local:443
+          endpoints hub-eu-west-1.flux-system.svc.cluster.local:443
+          policy round_robin
+          health_check /healthz 30s
+        }
+    }

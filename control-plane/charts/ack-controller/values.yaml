@@ -1,0 +1,48 @@
+# Default values for ack-controller.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/aws-controllers-k8s/ec2-controller
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# AWS configuration
+aws:
+  region: us-east-1
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/ack-ec2-controller"
+
+# Controller configuration
+controller:
+  logLevel: info
+  metricsAddr: ":8080"
+  enableLeaderElection: true
