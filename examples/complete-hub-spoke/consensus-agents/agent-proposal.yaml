@@ -1,0 +1,140 @@
+# Agent Proposal for Consensus-Based Infrastructure Changes
+# This file demonstrates how agents propose changes through consensus
+
+apiVersion: consensus.gitops.io/v1alpha1
+kind: AgentProposal
+metadata:
+  name: infrastructure-change-123
+  namespace: control-plane
+  labels:
+    app: agent-proposal
+    type: scaling
+spec:
+  proposal: "Scale EKS node group from 3 to 5 nodes due to increased CPU utilization"
+  proposer: "cost-optimizer-agent"
+  proposalType: "scaling"
+  priority: "medium"
+  requiredVotes: 3
+  timeout: "5m"
+  voters:
+  - "security-agent"
+  - "compliance-agent" 
+  - "performance-agent"
+  justification:
+    reason: "High CPU utilization detected"
+    metrics:
+      cpuUtilization: "85%"
+      memoryUtilization: "65%"
+      duration: "15m"
+    impact:
+      cost: "+$200/month"
+      performance: "+30%"
+      reliability: "+10%"
+  rollbackPlan:
+    enabled: true
+    timeout: "10m"
+    steps:
+    - "Scale node group back to original size"
+    - "Validate application performance"
+    - "Monitor for 5 minutes"
+---
+# Example Security-Related Proposal
+apiVersion: consensus.gitops.io/v1alpha1
+kind: AgentProposal
+metadata:
+  name: security-policy-update-456
+  namespace: control-plane
+  labels:
+    app: agent-proposal
+    type: security
+spec:
+  proposal: "Update network policy to restrict egress traffic to approved endpoints only"
+  proposer: "security-validator-agent"
+  proposalType: "security"
+  priority: "high"
+  requiredVotes: 3  # Higher requirement for security changes
+  timeout: "10m"
+  voters:
+  - "cost-optimizer-agent"
+  - "performance-tuner-agent"
+  - "compliance-agent"
+  justification:
+    reason: "Security scan detected unrestricted egress traffic"
+    findings:
+      - "Unrestricted outbound traffic from production pods"
+      - "Potential data exfiltration risk"
+      - "Compliance violation (CIS 5.3.2)"
+    impact:
+      security: "+40%"
+      compliance: "+25%"
+      performance: "-5%"  # Slight performance impact expected
+  rollbackPlan:
+    enabled: true
+    timeout: "5m"
+    steps:
+    - "Revert network policy to previous version"
+    - "Validate connectivity"
+    - "Run security scan"
+---
+# Example Cost Optimization Proposal
+apiVersion: consensus.gitops.io/v1alpha1
+kind: AgentProposal
+metadata:
+  name: cost-optimization-789
+  namespace: control-plane
+  labels:
+    app: agent-proposal
+    type: cost
+spec:
+  proposal: "Replace oversized instances with right-sized alternatives"
+  proposer: "cost-optimizer-agent"
+  proposalType: "cost"
+  priority: "low"
+  requiredVotes: 2  # Lower requirement for cost changes
+  timeout: "15m"
+  voters:
+  - "performance-tuner-agent"
+  - "security-agent"
+  justification:
+    reason: "Resource utilization analysis shows over-provisioning"
+    metrics:
+      currentUtilization: "35%"
+      targetUtilization: "70%"
+      monthlyCost: "$2,500"
+      projectedSavings: "$800/month"
+    impact:
+      cost: "-$800/month"
+      performance: "neutral"
+      reliability: "+5%"  # New instances are more reliable
+  rollbackPlan:
+    enabled: true
+    timeout: "30m"
+    steps:
+    - "Restore original instances"
+    - "Validate application functionality"
+    - "Monitor performance for 15 minutes"
+---
+# Agent Proposal Template for Custom Use
+apiVersion: consensus.gitops.io/v1alpha1
+kind: AgentProposalTemplate
+metadata:
+  name: custom-proposal-template
+  namespace: control-plane
+spec:
+  template:
+    proposalType: "custom"
+    priority: "medium"
+    requiredVotes: 3
+    timeout: "5m"
+    voters:
+    - "security-agent"
+    - "cost-optimizer-agent"
+    - "performance-tuner-agent"
+    justification:
+      reason: ""  # To be filled by agent
+      metrics: {}  # To be filled by agent
+      impact: {}   # To be filled by agent
+    rollbackPlan:
+      enabled: true
+      timeout: "10m"
+      steps: []  # To be filled by agent
