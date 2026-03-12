@@ -153,7 +153,7 @@ main() {
     echo "============================================="
     
     TOTAL_SCORE=$((FLUX_HEALTHY + AWS_CONTROLLERS + AZURE_CONTROLLERS + GCP_CONTROLLERS + GIT_SYNC + DEPS_OK + ARCH_OK))
-    MAX_SCORE=6
+    MAX_SCORE=7
     
     echo "Flux Controllers: $(if [ $FLUX_HEALTHY -eq 1 ]; then echo "✅ PASSED"; else echo "❌ FAILED"; fi)"
     echo "AWS ACK: $(if [ $AWS_CONTROLLERS -eq 1 ]; then echo "✅ INSTALLED"; else echo "❌ MISSING"; fi)"
