@@ -1,6 +1,18 @@
-# Agent Skills: The Next Level Beyond MCP - Consensus-Based Orchestration
+# Agent Skills: The Next Level Beyond MCP - Consensus-Based Distributed Orchestration
 
 This document explores the evolution from Model Context Protocol (MCP) to Agent Skills, representing the next level of AI agent orchestration for the GitOps Infrastructure Control Plane with emphasis on **consensus-based decentralized orchestration** and **tight feedback loops**.
+
+## Executive Summary: The AI Agents Sandbox Revolution
+
+The **ai-agents-sandbox** repository demonstrates a paradigm shift in AI agent orchestration, implementing **distributed consensus systems** that achieve the tightest possible feedback loops through **bottom-up orchestration** rather than centralized control. This approach transforms infrastructure management from reactive monitoring to **proactive, self-organizing optimization**.
+
+### Key Revolutionary Insights
+
+1. **30-Second Feedback Loops**: Local optimization loops operating continuously
+2. **Distributed Consensus**: Raft-based coordination for critical decisions
+3. **Self-Organizing Swarms**: Emergent intelligence from local agent interactions
+4. **Fault-Tolerant Architecture**: No single point of failure through distributed consensus
+5. **Linear Scalability**: Performance scales with agent count, not controller capacity
 
 ## Consensus-Based Agent Orchestration: The Next Evolution
 
