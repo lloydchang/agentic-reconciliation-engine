@@ -34,12 +34,6 @@
 - **Hierarchical Coordination**: Multi-level coordination (local → regional → global)
 - **Fault Tolerance**: Optional protocols for high-security environments
 
-### Enterprise-Grade Security
-- **Zero-Trust Networking**: Network policies for agent communication
-- **Byzantine Fault Tolerance**: Handle up to 1/3 malicious agents
-- **Reputation Systems**: Automatically identify and isolate unreliable agents
-- **Comprehensive Auditing**: Complete audit trail of all decisions
-- **Secret Management**: Kubernetes Secrets and SealedSecrets integration
 
 ### Scalability and Performance
 - **Linear Agent Scaling**: Add agents without architectural changes

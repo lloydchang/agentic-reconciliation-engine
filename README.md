@@ -58,7 +58,6 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 - DAG Dependencies: Explicit dependency management with Flux
 - Agent Orchestration: Optional AI-enhanced consensus agents
 - Multi-Language Extensions: Go, Python, Rust, TypeScript, C#, Java
-- Security-First: Zero-trust networking and comprehensive auditing
 
 ## Documentation
 

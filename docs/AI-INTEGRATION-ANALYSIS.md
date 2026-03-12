@@ -168,7 +168,6 @@ The GitOps Infrastructure Control Plane is a **problem-solving system** featurin
 - **Continuous Reconciliation**: 24/7 drift detection and auto-repair via native cloud controllers
 - **GitOps Principles**: Flux-based dependency management with explicit DAG dependencies
 - **Zero State Files**: Live cloud APIs as single source of truth
-- **Security-First**: Workload identity, least privilege, Git-based audit trails
 
 ## Deployment Scenario Integration Analysis
 
