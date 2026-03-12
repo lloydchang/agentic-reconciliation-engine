@@ -1,6 +1,18 @@
 # Agent-to-Agent Orchestration in Complete AI Integration Example - Consensus-Based Approach
 
-This document demonstrates how multiple AI agents orchestrate together in GitOps Infrastructure Control Plane using **consensus-based decentralized coordination** and **tight feedback loops**, specifically in the `examples/complete-hub-spoke/` setup.
+This document demonstrates how multiple AI agents orchestrate together in GitOps Infrastructure Control Plane using **consensus-based decentralized coordination** and **tight feedback loops**, specifically in `examples/complete-hub-spoke/` setup.
+
+## Revolutionary Architecture: AI Agents Sandbox Integration
+
+Based on analysis of the **ai-agents-sandbox** repository and distributed consensus research, this implementation represents a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops.
+
+### Key Innovations from AI Agents Sandbox
+
+1. **30-Second Feedback Loops**: Continuous local optimization vs minutes/hours for centralized systems
+2. **Distributed Consensus**: Raft-based coordination eliminates single points of failure
+3. **Self-Organizing Swarms**: Emergent intelligence from local agent interactions
+4. **Linear Scalability**: Performance scales with agent count, not controller capacity
+5. **Fault Tolerance**: System continues despite individual agent failures
 
 ## Architecture Overview
 
@@ -26,14 +38,15 @@ The complete example implements a multi-agent AI system where Claude Code agents
 
 **Traditional Approach**: Centralized controller creates bottlenecks and single points of failure.
 
-**Consensus-Based Approach**: Self-organizing agent swarms achieve coordination through distributed consensus protocols.
+**AI Agents Sandbox Approach**: Self-organizing agent swarms achieve coordination through distributed consensus protocols.
 
-### Core Principles
+### Core Principles from Research
 
-1. **Local Maxima Optimization**: Agents continuously optimize their local environment
-2. **Consensus-Based Coordination**: Critical decisions require agent consensus
-3. **Tight Feedback Loops**: Rapid response through local decision-making
-4. **Emergent Intelligence**: Global behavior emerges from local interactions
+1. **Local Maxima Optimization**: Agents continuously optimize their local environment without global coordination
+2. **Consensus-Based Coordination**: Critical decisions require agent consensus using Raft/Paxos-inspired protocols
+3. **Tight Feedback Loops**: 30-second local optimization vs minutes/hours for centralized systems
+4. **Emergent Intelligence**: Global system behavior emerges from local agent interactions
+5. **Fault Tolerance**: No single point of failure; consensus continues despite agent failures
 
 ## Agent Swarm Components
 

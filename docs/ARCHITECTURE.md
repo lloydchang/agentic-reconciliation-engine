@@ -2,6 +2,18 @@
 
 This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management.
 
+## Revolutionary Architecture: Consensus-Based Agent Swarms
+
+Based on analysis of the **ai-agents-sandbox** repository and distributed consensus research, this architecture implements a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops.
+
+### Key Architectural Innovations
+
+1. **30-Second Local Optimization**: Agents continuously optimize their local environment
+2. **Distributed Consensus**: Raft-based coordination for critical decisions
+3. **Self-Organizing Swarms**: Emergent intelligence from local interactions
+4. **Fault Tolerance**: No single point of failure through distributed consensus
+5. **Linear Scalability**: Performance scales with agent count
+
 ## Overview
 
 The GitOps Infrastructure Control Plane implements a zero-Terraform, multi-cloud infrastructure management system using native Kubernetes controllers and GitOps principles. The system treats infrastructure as a living, self-healing process rather than a one-time deployment, enhanced with **self-organizing agent swarms** that achieve local optimization through distributed consensus.
@@ -61,7 +73,7 @@ spec:
 
 ### 3. Spoke Clusters
 
-Kubernetes clusters provisioned and managed by the Hub Cluster, with **local agent instances** for tight feedback loops.
+Kubernetes clusters provisioned and managed by Hub Cluster, with **local agent instances** for tight feedback loops.
 
 **Characteristics:**
 - Provisioned via native cloud controllers (EKS/AKS/GKE)
@@ -93,7 +105,7 @@ gitops-infra-control-plane/
 
 ## Tight Feedback Loop Architecture
 
-### Micro-Loops (Seconds): Local Optimization
+### Micro-Loops (30 Seconds): Local Optimization
 
 Agents continuously monitor their local environment and make rapid decisions without central coordination:
 
