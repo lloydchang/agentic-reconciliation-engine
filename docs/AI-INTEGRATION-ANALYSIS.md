@@ -377,6 +377,50 @@ spec:
       claimName: infra-repo-pvc
 ```
 
+## 5. Node Scaling and Management Approaches
+
+#### Karpenter - Just-in-Time Node Scaling
+**Source**: [https://karpenter.sh/](https://karpenter.sh/) ([GitHub](https://github.com/kubernetes-sigs/karpenter))
+
+**Key Features**:
+- Just-in-time node provisioning for Kubernetes clusters
+- Fast scaling based on workload demands
+- Multi-cloud support (AWS, Azure, GCP)
+- Intelligent resource optimization
+
+**Applicability**: Provides alternative to cluster autoscaler for dynamic node scaling in the GitOps infrastructure control plane. Can be integrated with Flux for automated node management across spoke clusters.
+
+**Safety Assessment**: ✅ **SAFE**
+- Standard Kubernetes integration
+- RBAC-based permissions
+- No direct access to sensitive data
+
+**Application to Repository**:
+```yaml
+# Karpenter integration example
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+      nodeClassRef:
+        name: default
+```
+
+**Benefits**:
+- Faster scaling than traditional autoscalers
+- Cost optimization through right-sizing
+- Multi-cloud compatibility
+
 ## Security Considerations
 
 ### Critical Security Requirements
@@ -5240,8 +5284,64 @@ This integration transforms the repository's consensus-based architecture into a
 
 ---
 
-**Document Version**: 1.3  
-**Last Updated**: 2025-03-12  
+**Document Version**: 1.4  
+**Last Updated**: 2026-03-12  
 **Security Classification**: Internal Use  
 **Review Required**: Yes  
 **Temporal Integration Assessment**: Complete
+
+## Additional Resources: Kubernetes Resource Scaling
+
+### Karpenter - Just-in-time Node Scaling
+
+**Website**: https://karpenter.sh/  
+**GitHub**: https://github.com/kubernetes-sigs/karpenter
+
+**Key Features**:
+- **Just-in-time Node Provisioning**: Automatically launches nodes as soon as pods need them
+- **Node Pool Management**: Replaces traditional node pools with dynamic provisioning
+- **Cost Optimization**: Removes need for over-provisioned node pools
+- **Multi-cloud Support**: Works across AWS, Azure, GCP, and on-premises
+- **Integration with GitOps**: Can be managed through Kubernetes manifests
+
+**Applicability to GitOps Infrastructure Control Plane**:
+- **Complementary Technology**: Karpenter handles node-level scaling while the control plane handles application-level orchestration
+- **Declarative Configuration**: Karpenter configurations can be managed through Flux manifests
+- **Cost Efficiency**: Eliminates over-provisioning by provisioning nodes exactly when needed
+- **Multi-cloud Consistency**: Provides consistent scaling behavior across cloud providers
+
+**Integration Approach**:
+```yaml
+# Example Karpenter provisioner configuration
+apiVersion: karpenter.sh/v1beta1
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.k8s.aws/instance-category
+      operator: In
+      values: ["c", "m", "r"]
+  limits:
+    resources:
+      cpu: "1000"
+      memory: 1000Gi
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 30
+```
+
+**Benefits for Repository Users**:
+- **Reduced Infrastructure Costs**: Pay only for compute resources when actually needed
+- **Improved Resource Utilization**: Better matching of workload requirements to node sizes
+- **Simplified Operations**: No manual node pool management required
+- **Fast Scaling**: Nodes provisioned in seconds rather than minutes
+
+**Considerations**:
+- **Complexity**: Adds another component to manage in the Kubernetes cluster
+- **Cost Monitoring**: Requires careful monitoring of provisioning costs
+- **Integration Testing**: Should be tested with existing GitOps workflows
+- **Security Boundaries**: Ensure proper IAM permissions for node provisioning
+
+**Recommendation**:
+Consider Karpenter for workloads with variable resource demands or when looking to optimize infrastructure costs through just-in-time provisioning. It complements the GitOps Infrastructure Control Plane by handling the node scaling layer while the control plane manages application deployment and orchestration.
