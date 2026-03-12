@@ -126,7 +126,7 @@ Continuous Reconciliation is like **advanced driver assistance**:
 4. **Watch it auto-heal**
 5. **Measure the time saved** and stress reduced
 
-**Once you see it work, the value becomes obvious.**
+**👉 See [Configuration Drift Reality](./CONFIGURATION-DRIFT-REALITY.md) for detailed analysis of how drift happens in "secure" systems and cost comparison vs manual labor.**
 
 ---
 
