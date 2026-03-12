@@ -81,20 +81,29 @@ This document provides **unbiased guidance** on when this GitOps Infrastructure 
 
 **Cannot Be Fixed:** The architecture is fundamentally Kubernetes-centric.
 
-### **3. Very Small Teams (< 5 people)**
+### **3. Very Small DevOps/SRE Teams (< 5 people)**
 
-**Problem:** You have a startup or small team without dedicated DevOps/SRE resources.
+**Problem:** Your organization has insufficient dedicated DevOps/SRE personnel to operate and maintain this complex infrastructure control plane.
 
 **Why This Solution Doesn't Fit:**
-- **Learning Curve**: Requires Kubernetes, GitOps, and consensus protocol knowledge
-- **Maintenance Overhead**: More complex than the infrastructure it manages
-- **Onboarding Time**: New hires need months to become productive
-- **Failure Modes**: Complex systems fail in complex ways
+- **Maintenance Overhead**: Requires dedicated expertise in Kubernetes, Flux, Temporal, and consensus protocols
+- **24/7 Operations**: Complex distributed systems need constant monitoring and incident response
+- **Learning Curve**: Team members need deep expertise across multiple technologies
+- **Failure Recovery**: Complex failures require specialized troubleshooting skills
+
+**Reality Check:** If your DevOps/SRE team has fewer than 5 dedicated personnel, this solution will consume their entire capacity just maintaining the control plane itself, leaving no bandwidth for actual application development or business logic.
+
+**This applies to the immediate DevOps/SRE team size, not your general organization:**
+
+- ✅ **Large organization (1000+ employees) with micro-teams**: If you have dedicated platform/infrastructure teams ≥ 5 people, this solution may be appropriate
+- ✅ **Small startup (10 employees)**: If your entire team includes ≥ 5 DevOps engineers, this solution may work
+- ❌ **Any organization with < 5 dedicated DevOps/SRE personnel**: This solution is inappropriate regardless of total company size
 
 **Better Alternatives:**
-- **Heroku/Railway**: Fully managed platforms
-- **Vercel/Netlify**: For web applications
-- **Firebase**: For full-stack applications
+- **Cloud-Managed Services**: Let cloud providers handle the undifferentiated heavy lifting
+- **Fully Managed Platforms**: Heroku, Vercel, Firebase, Elastic Beanstalk
+- **Serverless**: AWS Lambda, Google Cloud Functions, Azure Functions
+- **PaaS Solutions**: App Engine, Cloud Run, Container Apps
 
 **Reality Check:** If your "infrastructure team" is one person, this is the wrong tool.
 
