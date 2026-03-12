@@ -158,7 +158,7 @@ Your infrastructure needs will evolve. This repository is designed to evolve wit
 - **Cost Optimization**: Through automated resource management
 - **Resource Efficiency**: Automated resource optimization
 - **Waste Reduction**: Identify and eliminate unused resources
-- **Scaling**: Better resource allocation
+- **Scaling**: Automated resource scaling based on workload demands
 
 ## 📋 Quick Start
 

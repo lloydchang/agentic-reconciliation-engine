@@ -1,7 +1,32 @@
 # Complete AI CronJobs for Infrastructure Automation
 # Production-ready Claude Code jobs with safety controls
 # 
-# ⚠️ Architecture Note: These jobs can use either:
+# ⚠️  CRITICAL: Problem-Solution Fit Assessment Required
+# 
+# Before deploying these AI jobs, ensure you have:
+# 1. Clearly defined problems that require AI automation (see docs/PROBLEM-SOLUTION-FIT.md)
+# 2. Confirmed that simpler automation approaches are insufficient
+# 3. Team skills to maintain AI workflows and monitor outputs
+# 4. Measurable success criteria for AI automation ROI
+# 
+# SCENARIO APPROPRIATENESS:
+# - ❌ SMALL TEAMS (1-5): Overkill, use basic automation instead
+# - ⚠️ MEDIUM TEAMS (6-20): Consider if you have complex operational needs
+# - ✅ LARGE TEAMS (20+): Appropriate for complex operational challenges
+# - ✅ MULTI-CLOUD: Valuable for cross-cloud coordination and optimization
+# - ❌ SINGLE CLOUD + SIMPLE APPS: Use basic monitoring instead
+# 
+# PROBLEM TYPES WHERE THIS HELPS:
+# - High operational toil requiring intelligent automation
+# - Complex multi-cloud environment coordination
+# - Advanced compliance and security monitoring
+# - Predictive maintenance and optimization
+# - PROBLEM TYPES WHERE THIS IS OVERKILL:
+# - Basic deployment automation (use simple CI/CD)
+# - Simple monitoring (use Prometheus/Grafana)
+# - Small-scale infrastructure (manual processes may be sufficient)
+# 
+# Architecture Note: These jobs can use either:
 # 1. AI Gateway for enterprise compliance (default)
 # 2. Direct Claude API for local LLM setups (set GATEWAY_MODE=direct)
 # 3. Local LLM service (set CLAUDE_BASE_URL to local endpoint)

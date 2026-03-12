@@ -4,6 +4,8 @@
 
 **⚠️ IMPORTANT**: This is an **advanced pattern** for specific, complex problems. Do not implement unless you have clear evidence that simpler approaches won't work.
 
+> **📋 Required Pre-Reading**: Before proceeding, complete [Strategic Framework](../../docs/STRATEGIC-FRAMEWORK.md) and [Solution Fit Analysis](../../docs/SOLUTION-FIT-ANALYSIS.md) to ensure this approach is appropriate.
+
 ### ❌ **Definitely Don't Use This For:**
 - Simple web applications with basic deployment needs
 - Small teams (1-5 people) with straightforward infrastructure

@@ -12,9 +12,59 @@ This file implements advanced agent skills for self-organizing swarms within the
 
 ---
 
-# Agent Skills: The Next Level Beyond MCP - Consensus-Based Distributed Orchestration
+# Agent Skills Evolution: Problem-First Approach to Next-Level Infrastructure Management
 
-This document explores the evolution from Model Context Protocol (MCP) to Agent Skills, representing the next level of AI agent orchestration for the GitOps Infrastructure Control Plane with emphasis on **consensus-based decentralized orchestration** and **tight feedback loops**.
+## 🚨 Critical Advisory: Problem-Driven Skill Selection
+
+**Agent Skills are NOT universal solutions** - they solve specific infrastructure problems. Before implementing any agent skill, you MUST:
+
+1. **Define the Specific Problem**: What infrastructure challenge requires intelligent automation?
+2. **Assess Problem Complexity**: Simple automation vs. complex coordination vs. predictive optimization?
+3. **Match Skill to Problem**: Select skills that directly address your defined problem
+4. **Validate Problem-Solution Fit**: Ensure the skill actually solves YOUR specific challenge
+
+## 🎯 Problem-Based Skill Classification
+
+### 🟢 Simple Automation Problems
+**Problem Types**: Basic deployment automation, simple monitoring, routine tasks
+**Appropriate Skills**: Basic Flux CronJobs, shell scripts, simple kubectl operations
+**When to Use**: Small teams, predictable workloads, single-cloud environments
+**Repository Path**: `infrastructure/tenants/3-workloads/` basic patterns
+
+### 🟡 Coordination Problems  
+**Problem Types**: Multi-cloud resource coordination, complex deployment sequencing, cross-environment management
+**Appropriate Skills**: Agent orchestration, consensus coordination, workflow management
+**When to Use**: Medium complexity, multi-cloud, multi-team environments
+**Repository Path**: `examples/complete-hub-spoke/agent-workflows/` selective adoption
+
+### 🔴 Complex Optimization Problems
+**Problem Types**: Large-scale cost optimization, predictive scaling, autonomous failure recovery, complex compliance management
+**Appropriate Skills**: Advanced AI agents, machine learning integration, self-organizing swarms
+**When to Use**: Large-scale infrastructure, complex multi-cloud, high-compliance requirements
+**Repository Path**: `examples/complete-hub-spoke/` full AI integration
+
+## 📋 Scenario-Specific Skill Implementation Guide
+
+### Greenfield Scenarios (New Infrastructure)
+
+**Problem**: New multi-cloud application requiring intelligent resource management
+**Skill Strategy**: Start with full AI capabilities from day one
+```yaml
+# Greenfield: Full AI from start
+apiVersion: v1
+kind: AgentSkillConfig
+metadata:
+  name: greenfield-ai-strategy
+spec:
+  scenario: "greenfield"
+  problem_complexity: "high"
+  skills:
+  - cost-optimizer
+  - security-validator  
+  - performance-tuner
+  - compliance-checker
+  implementation: "full-consensus-swarm"
+```
 
 ## Executive Summary: The AI Agents Sandbox Revolution
 
