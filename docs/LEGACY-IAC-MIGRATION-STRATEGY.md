@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the strategy for migrating existing workloads from Terraform, Blueprints, CDK, CloudFormation, Bicep, and ARM to the GitOps Infrastructure Control Plane. The approach prioritizes minimal disruption and gradual adoption.
+This document outlines the strategy for migrating existing workloads from Terraform, Blueprints, CDK, CloudFormation, Bicep, and ARM to the GitOps Infrastructure Control Plane. The approach uses a hybrid strategy: industry-standard CLIs for initial cluster bootstrap, then transitions to continuous reconciliation for ongoing infrastructure management.
 
 ## Migration Philosophy
 

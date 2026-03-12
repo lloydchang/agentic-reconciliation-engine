@@ -13,8 +13,8 @@ The GitOps approach fundamentally differs from push-based IaC tools:
 
 ## Migration Requirements
 
-### No Direct Compatibility
-Existing IaC workloads cannot be directly imported or executed within this GitOps framework. The repository explicitly avoids push-based tools in favor of declarative, controller-managed infrastructure.
+### Hybrid Compatibility
+Existing IaC workloads can be gradually migrated to this GitOps framework. The repository uses industry-standard CLIs for initial cluster bootstrap, then transitions to declarative, controller-managed infrastructure for ongoing operations.
 
 ### No Built-in Conversion Tools
 The repository does not contain automated migration utilities. Conversion must be performed manually or with external assistance.
