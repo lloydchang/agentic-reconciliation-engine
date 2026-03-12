@@ -91,7 +91,7 @@ This document defines the comprehensive strategic architecture for the GitOps In
 #### Layer 3: Consensus - Intelligent Agent Coordination
 **Role**: Autonomous decision-making and self-organization
 **Responsibilities**:
-- Ultra-tight feedback loops (15-30 seconds)
+- Fast feedback loops (15-30 seconds)
 - Distributed consensus using Raft protocol
 - Self-organizing agent swarms
 - Byzantine fault tolerance with reputation systems
@@ -119,7 +119,7 @@ spec:
   dependsOn:
   - name: consensus-layer  # Consensus agents must be ready
     - name: temporal-workflows  # Temporal workflows must be deployed
-  interval: 30s  # Match ultra-tight feedback loops
+  interval: 30s  # Match feedback loops
   sourceRef:
     kind: GitRepository
     name: infrastructure-repo
@@ -176,7 +176,7 @@ metadata:
   name: self-optimizing-infrastructure
 spec:
   optimization:
-    feedbackLoop: "15s"  # Ultra-tight feedback
+    feedbackLoop: "15s"  # Fast feedback
     consensusRequired: true
     humanApprovalThreshold: "high-impact"
     autoApprovalThreshold: "low-impact"
@@ -249,7 +249,7 @@ spec:
 
 3. **Consensus Layer**
    - Deploy Raft-based consensus agents
-   - Implement ultra-tight feedback loops (15-30s)
+   - Implement feedback loops (15-30s)
    - Add reputation systems for fault tolerance
    - Create multi-language agent support
    - Implement self-organizing swarm patterns
@@ -334,7 +334,7 @@ spec:
 **Objectives**:
 - Complete autonomous operation
 - Advanced self-organizing behaviors
-- Emergent intelligence capabilities
+- Coordinated intelligence capabilities
 - Zero-touch infrastructure management
 
 **Tactics**:
@@ -344,7 +344,7 @@ spec:
    - Add self-healing capabilities
    - Create autonomous scaling
 
-2. **Emergent Intelligence**
+2. **Coordinated Intelligence**
    - Implement complex pattern recognition
    - Add adaptive behavior evolution
    - Create cross-domain learning
