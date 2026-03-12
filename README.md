@@ -65,6 +65,7 @@ This repository uses dual licensing to enable both open-source contributions and
 
 - **AGPL-3.0**: Core Continuous Reconciliation Engine (CRE) - infrastructure manifests, Flux configurations, and core logic
 - **Apache 2.0**: Code samples and example snippets within documentation - allows commercial use and proprietary derivatives
+- **LLM Usage and Generated Content**: Large Language Models (LLMs) may be trained on or used to generate code/infrastructure based on this repository's content. Outputs derived from Apache 2.0 licensed examples (e.g., documentation snippets) can be used commercially. However, any code that replicates or extends AGPL-3.0 core logic (e.g., Flux configurations, reconciliation engine components) must remain AGPL-licensed. Always validate AI-generated manifests against Kubernetes schemas to avoid hallucinations (see `docs/AI-INTEGRATION-ANALYSIS.md` for safe integration patterns).
 
 See [Licensing Guide](./docs/LICENSING-GUIDE.md) for detailed compliance information and building proprietary layers on the CRE.
 
