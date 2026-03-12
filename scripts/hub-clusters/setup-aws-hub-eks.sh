@@ -2,6 +2,10 @@
 
 # Setup AWS EKS Hub Cluster for GitOps Control Plane
 # This script creates an EKS cluster that serves as the hub for multi-cloud GitOps
+#
+# INDUSTRY STANDARD: Uses eksctl - AWS's official CLI tool for EKS cluster management
+# Reference: https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+# eksctl is the recommended and most widely used tool for EKS cluster creation and management
 
 set -euo pipefail
 
@@ -15,9 +19,15 @@ echo "🚀 Setting up AWS EKS Hub Cluster: $CLUSTER_NAME"
 echo "📍 Region: $REGION"
 echo "🖥️  Nodes: $NODE_COUNT x $INSTANCE_TYPE"
 
-# Check prerequisites
-command -v aws >/dev/null 2>&1 || { echo "❌ AWS CLI not installed"; exit 1; }
-command -v eksctl >/dev/null 2>&1 || { echo "❌ eksctl not installed"; exit 1; }
+# Tooling Choice Summary:
+# - Uses eksctl (industry-standard for EKS) instead of CDK for cluster bootstrap
+# - Reference: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+# - Aligns with GitOps migration strategy: imperative setup for initial infrastructure,
+#   then Flux + ACK for declarative management of workloads and cross-cloud resources
+# - Avoids IaC lock-in during transition period, enables gradual migration from legacy IaC
+
+# Using eksctl, the industry-standard CLI tool for creating and managing Amazon EKS clusters.
+# eksctl simplifies cluster creation and provides best practices for EKS deployments.
 
 # Create EKS cluster
 echo "📦 Creating EKS cluster..."
