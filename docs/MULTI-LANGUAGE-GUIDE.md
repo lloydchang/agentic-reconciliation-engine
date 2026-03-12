@@ -44,7 +44,7 @@ The GitOps Infrastructure Control Plane supports **multi-language consensus-base
 ## Key Capabilities
 
 ### Autonomous Agent Swarms
-- **Self-Organization**: Emergent intelligence from local interactions
+- **Self-Organization**: Coordinated behavior from local interactions
 - **Distributed Consensus**: Raft-based coordination without single points of failure
 - **Local Optimization**: Agents make decisions based on local state
 - **Global Coherence**: Lightweight consensus protocols maintain system-wide optimization
