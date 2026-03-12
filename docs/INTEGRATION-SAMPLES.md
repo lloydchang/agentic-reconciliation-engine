@@ -52,7 +52,207 @@ check_deployment_status() {
 ### Licensing Justification:
 Since samples are **incomplete by definition** and require significant user adaptation, they can be **Apache 2.0 licensed** without triggering AGPL derivative work requirements. Users create their own complete implementations using these patterns.
 
-## Licensing for Examples
+## How Users Adapt Samples into Executable Code
+
+**Important**: Samples are **NOT fully executable** - they are **patterns requiring user adaptation** into complete, production-ready implementations.
+
+### User Workflow for Building Proprietary Layers:
+
+#### Step 1: Copy Sample Patterns
+```bash
+# User copies sample pattern from documentation
+cp docs/INTEGRATION-SAMPLES.md ~/my-project/
+# Extract code snippets and adapt them
+```
+
+#### Step 2: Create Complete Executable Scripts
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# User's complete implementation (Apache 2.0 licensed)
+# Adapted from CRE integration samples
+
+# Add user's environment configuration
+readonly GCP_PROJECT_ID="my-production-project"
+readonly TENANT_PREFIX="prod"
+readonly LOG_LEVEL="INFO"
+
+# Add user's authentication/authorization
+authenticate_user() {
+    local user_token="$1"
+    # User's proprietary auth logic
+    curl -s "https://my-auth-service.com/validate?token=$user_token"
+}
+
+# Add user's monitoring and alerting
+send_alert() {
+    local message="$1"
+    # User's proprietary alerting
+    curl -X POST "https://my-alerts.com/webhook" \
+         -d "{\"message\": \"$message\", \"severity\": \"info\"}"
+}
+
+# Adapted from CRE sample - now complete and executable
+deploy_gcp_infrastructure() {
+    local tenant_id="$1"
+    local user_token="$2"
+    
+    # User's auth check
+    if ! authenticate_user "$user_token"; then
+        echo "ERROR: Authentication failed"
+        send_alert "Unauthorized infrastructure deployment attempt by tenant $tenant_id"
+        exit 1
+    fi
+    
+    log "Starting GCP deployment for tenant $tenant_id"
+    send_alert "Starting infrastructure deployment for $tenant_id"
+    
+    # Adapted sample pattern with user's specific configuration
+    deploy_gcp_network "$tenant_id" "$GCP_PROJECT_ID"
+    deploy_gcp_gke "$tenant_id" "$GCP_PROJECT_ID"
+    
+    # User's monitoring and validation
+    monitor_deployment "$tenant_id"
+    
+    log "GCP deployment completed for tenant $tenant_id"
+    send_alert "Infrastructure deployment completed for $tenant_id"
+}
+
+# User's complete monitoring implementation
+monitor_deployment() {
+    local tenant_id="$1"
+    local max_attempts=30
+    local attempt=1
+    
+    while (( attempt <= max_attempts )); do
+        if kubectl get containercluster "${tenant_id}-gke" -n flux-system >/dev/null 2>&1; then
+            log "GKE cluster ${tenant_id}-gke is ready"
+            send_alert "GKE cluster ready for tenant $tenant_id"
+            return 0
+        fi
+        
+        log "Waiting for GKE cluster... (attempt $attempt/$max_attempts)"
+        sleep 30
+        ((attempt++))
+    done
+    
+    log "ERROR: GKE deployment timed out for tenant $tenant_id"
+    send_alert "CRITICAL: GKE deployment failed for tenant $tenant_id"
+    return 1
+}
+
+# Main execution with user's CLI interface
+main() {
+    local tenant_id="$1"
+    local user_token="${2:-$USER_TOKEN}"
+    
+    log "Starting proprietary infrastructure deployment service"
+    
+    if [[ -z "$tenant_id" ]]; then
+        echo "Usage: $0 <tenant-id> [user-token]"
+        exit 1
+    fi
+    
+    deploy_gcp_infrastructure "$tenant_id" "$user_token"
+}
+
+main "$@"
+```
+
+#### Step 3: Test in Tight Feedback Loops
+```bash
+# User's development workflow
+chmod +x deploy-gcp.sh
+
+# Test with development environment
+./deploy-gcp.sh "test-tenant-123"
+
+# Monitor CRE status in real-time
+kubectl get containerclusters -n flux-system -w
+
+# Validate deployment
+kubectl get pods -n tenant-test-tenant-123
+
+# Iterate quickly with tight feedback
+# Make changes, re-deploy, validate - all within minutes
+```
+
+#### Step 4: Build Proprietary Layers
+```python
+# User's proprietary SaaS API built on CRE samples
+# Complete implementation using adapted patterns
+
+from flask import Flask, request, jsonify
+from cre_client import CREInfrastructureClient  # Adapted from sample
+
+app = Flask(__name__)
+
+class ProprietaryInfrastructureAPI:
+    def __init__(self):
+        self.cre_client = CREInfrastructureClient()
+        self.billing_service = ProprietaryBillingService()
+        self.audit_logger = ProprietaryAuditLogger()
+    
+    def deploy_tenant_infrastructure(self, tenant_id, user_id, config):
+        # User's business logic
+        self.audit_logger.log(user_id, f"Deploying infrastructure for tenant {tenant_id}")
+        
+        # Check billing/quota
+        if not self.billing_service.check_quota(tenant_id, config):
+            raise Exception("Billing quota exceeded")
+        
+        # Use adapted CRE sample patterns
+        deployment_id = self.cre_client.deploy_infrastructure(tenant_id, config)
+        
+        # User's post-deployment processing
+        self.billing_service.charge_for_deployment(tenant_id, config)
+        
+        return deployment_id
+
+# REST API for proprietary SaaS offering
+@app.route('/api/v1/infrastructure/deploy', methods=['POST'])
+def deploy_infrastructure():
+    data = request.get_json()
+    
+    # User's proprietary validation
+    tenant_id = data.get('tenant_id')
+    user_id = get_current_user()  # User's auth
+    
+    # Use adapted CRE patterns
+    api = ProprietaryInfrastructureAPI()
+    deployment_id = api.deploy_tenant_infrastructure(tenant_id, user_id, data['config'])
+    
+    return jsonify({'deployment_id': deployment_id, 'status': 'deploying'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+```
+
+### Key Differences: Samples vs. User's Executable Code
+
+| Aspect | CRE Samples (Apache 2.0) | User's Code (Proprietary) |
+|--------|-------------------------|---------------------------|
+| **Completeness** | Incomplete patterns | Complete, executable implementations |
+| **Configuration** | Placeholder variables | Real environment values |
+| **Business Logic** | Missing | User's proprietary logic |
+| **Authentication** | Not implemented | User's auth systems |
+| **Monitoring** | Basic logging | Full observability stack |
+| **Error Handling** | Basic patterns | Comprehensive recovery |
+| **Testing** | Not executable | Tested in tight feedback loops |
+| **Licensing** | Apache 2.0 (permissive) | User's license choice |
+
+### Tight Feedback Loop Development
+
+Users develop proprietary layers using **rapid iteration cycles**:
+
+1. **Copy Sample Pattern** → Adapt to user's environment
+2. **Add Business Logic** → Authentication, billing, monitoring
+3. **Test Integration** → Deploy to CRE and validate
+4. **Iterate Quickly** → Make changes, redeploy, retest (minutes)
+5. **Scale Up** → Move from development to production environments
+
+This enables building sophisticated proprietary infrastructure platforms while leveraging the CRE's continuous reconciliation capabilities.
 
 **Important**: All integration examples in this documentation are provided under the **Apache License 2.0** (permissive open-source license). This allows you to:
 
