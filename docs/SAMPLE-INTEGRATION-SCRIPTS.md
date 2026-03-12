@@ -1,4 +1,4 @@
-# Sample Integration Scripts
+# Sample Integration Scripts and Examples
 
 This directory contains sample scripts demonstrating how to integrate with the Continuous Reconciliation Engine (CRE).
 
@@ -9,6 +9,7 @@ scripts/
 ├── integration-examples/
 │   ├── python-api-client/
 │   ├── go-webhook-handler/
+│   ├── shell-integration/
 │   ├── terraform-wrapper/
 │   ├── jenkins-pipeline/
 │   └── kubernetes-job/
@@ -21,6 +22,20 @@ scripts/
     ├── enterprise-infrastructure-console/  # Internal enterprise management tool
     └── customer-infrastructure-portal/     # Customer-facing infrastructure UI
 ```
+
+These examples demonstrate safe, AGPL-compliant integration patterns that maintain clear separation between the CRE core and your proprietary business logic.
+
+## Licensing for Sample Scripts
+
+**Important**: All sample scripts in this documentation are provided under the **Apache License 2.0** (permissive open-source license). This allows you to:
+
+- Use the code commercially
+- Modify and distribute
+- Use privately without restrictions
+- Include in proprietary software
+- Patent protection for contributors
+
+The samples are **NOT** licensed under AGPL-3.0 because they demonstrate integration patterns, not modifications of the CRE core. You can adapt these samples into your proprietary applications while maintaining AGPL compliance.
 
 ## Python API Client Example
 
