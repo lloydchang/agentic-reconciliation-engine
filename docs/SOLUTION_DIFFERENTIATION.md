@@ -1,10 +1,20 @@
 # Why Our Multi-Cloud GitOps Solution is Differentiated
 
-This document analyzes what makes our Flux + Controllers approach unique compared to other multi-cloud GitOps implementations.
+This document analyzes what makes our Flux + Controllers approach unique compared to other multi-cloud and hybrid cloud GitOps implementations.
+
+## Definitions and Citations
+
+**Multi-Cloud:** "Involves two or more cloud computing platforms or cloud vendors to handle various business tasks" - TechTarget, 2024
+
+**Hybrid Cloud:** "Merges a private cloud, on-premises infrastructure or both with a public cloud environment" - TechTarget, 2024
+
+**NIST Standard:** "Composition of two or more distinct cloud infrastructures (private, community, or public) that remain unique entities" - NIST SP 800-145
+
+Our solution focuses on **multi-cloud** (AWS + Azure + GCP) only. It does not include hybrid cloud (on-premises + cloud) scenarios.
 
 ## Solution Overview
 
-Our implementation uses **Flux CD + Cloud Controllers (ACK/ASO/KCC)** in a hub-and-spoke architecture to create a **GitOps Infrastructure Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies.
+Our implementation uses **Flux CD + Cloud Controllers (ACK/ASO/KCC)** in a hub-and-spoke architecture to create a **GitOps Infrastructure Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies across multiple public cloud providers.
 
 ```
 Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spoke Clusters
@@ -21,8 +31,8 @@ Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spo
    Git → EKS + Flux → Crossplane → Multi-Cluster Resources
    ```
    - **Exists:** [AWS Blog: Multi-Cluster GitOps with EKS, Flux, and Crossplane](https://aws.amazon.com/blogs/containers/part-1-build-multi-cluster-gitops-using-amazon-eks-flux-cd-and-crossplane/)
-   - **Focus:** Application deployments, not infrastructure orchestration
-   - **Dependencies:** Basic ordering, not true DAGs
+   - **Focus:** Application deployments within single cloud provider, not cross-cloud infrastructure orchestration
+   - **Dependencies:** Basic ordering, not true multi-cloud DAGs
 
 2. **Crossplane Multi-Cloud Control Planes**:
    ```
@@ -34,8 +44,8 @@ Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spo
 
 3. **Flux Multi-Cluster Patterns**:
    - **Exists:** Flux CD documentation, community examples
-   - **Focus:** Basic multi-cluster deployments
-   - **Limitation:** Rarely include cross-cloud infrastructure dependencies
+   - **Focus:** Basic multi-cluster deployments within single cloud or hybrid scenarios
+   - **Limitation:** Rarely include cross-cloud infrastructure dependencies between different public cloud providers
 
 #### **Key Differentiators:**
 
@@ -50,10 +60,10 @@ dependsOn:
 ```
 
 **Why Better:**
-- **Most alternatives:** Use wave-based ordering or no explicit dependencies
-- **Our solution:** Creates actual **directed acyclic graphs** with cross-cloud relationships
+- **Most alternatives:** Use wave-based ordering or no explicit dependencies across cloud providers
+- **Our solution:** Creates actual **directed acyclic graphs** with **cross-cloud relationships** between different public cloud providers
 - **Example:** AWS Certificate Manager → Azure/GCP SSL workloads
-- **Impact:** Ensures proper sequencing (networks → clusters → workloads) across clouds
+- **Impact:** Ensures proper sequencing (networks → clusters → workloads) across multiple public clouds
 
 **Evidence:** Our `generate-dag-visualization.sh` script dynamically validates DAG integrity and visualizes cross-cloud dependencies.
 
@@ -79,8 +89,8 @@ dependsOn:
 - Certificate Manager providing SSL to multiple clouds
 
 **Why Better:**
-- **Many solutions:** Single-cloud or basic multi-cluster (same cloud, different regions)
-- **Our solution:** True **multi-cloud dependencies** (different providers)
+- **Many solutions:** Single-cloud deployments or basic multi-cluster within same provider
+- **Our solution:** True **multi-cloud dependencies** between different public cloud providers
 - **Example:** Azure Entra ID service dependency for AWS and GCP applications
 
 **Evidence:** Our test examples demonstrate Azure → AWS and Azure → GCP authentication flows.
@@ -103,14 +113,14 @@ dependsOn:
 ### **✅ Better Scenarios:**
 
 1. **Enterprise Multi-Cloud Infrastructure:**
-   - Need strict dependency ordering across clouds
-   - Require infrastructure lifecycle management
-   - Want single source of truth for infra + apps
+   - Need strict dependency ordering across multiple public cloud providers
+   - Require infrastructure lifecycle management across AWS, Azure, GCP
+   - Want single source of truth for cross-cloud infra + apps
 
 2. **Complex Cross-Cloud Dependencies:**
-   - Services in one cloud depend on another cloud's resources
-   - Identity/authentication spans multiple providers
-   - Certificate/secret management across clouds
+   - Services in one public cloud depend on another cloud's resources
+   - Identity/authentication spans multiple public cloud providers
+   - Certificate/secret management across multiple public clouds
 
 3. **Production-Grade Orchestration:**
    - Need DAG visualization and validation
@@ -128,8 +138,9 @@ dependsOn:
 3. **Platform Abstraction:**
    - Use Crossplane XRDs for complex resource composition
 
-4. **Single Cloud:**
+4. **Single Public Cloud:**
    - Overkill for single-provider deployments
+   - Better to use native cloud GitOps tools for single-cloud scenarios
 
 ## Novelty Assessment
 
