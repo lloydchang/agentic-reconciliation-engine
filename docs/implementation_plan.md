@@ -1,11 +1,11 @@
 # implementation_plan.md: GitOps Infrastructure Control Plane
 
-**Objective:** Implement a zero-Terraform, zero-Blueprints, zero-Crossplane, pull-based multi-cloud Infrastructure as Code (IaC) control plane. All infrastructure—from VPCs to Kubernetes clusters—is managed as native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
+**Objective:** Implement a hybrid multi-cloud Infrastructure as Code (IaC) control plane. Initial cluster bootstrap uses industry-standard CLIs (eksctl, az, gcloud), then transitions to pull-based GitOps for ongoing management. All infrastructure—from VPCs to Kubernetes clusters—is managed as native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
 
 **Prerequisites:** Before beginning, review the architectural topology diagram in [README.md](./README.md). The implementation assumes a hub-and-spoke model where the Hub Cluster manages the lifecycle of all Spoke Clusters.
 
 ## 1. Architectural Mandates
-* No Push-Based IaC: No Terraform, Blueprints, CDK, CloudFormation, Bicep, or ARM.
+* Hybrid Approach: Industry-standard CLIs (eksctl, az, gcloud) for initial cluster bootstrap, then native Kubernetes operators for declarative management.
 * No Abstraction Layers: No Crossplane or custom intent-synthesis engines. Communicate directly with the Cloud Providers' official Kubernetes controllers.
 * No Centralized State: The state is the live Cloud API, reconciled by the local controller.
 
@@ -37,4 +37,4 @@ The implementation must verify:
 3. Observe the controller detecting drift and reverting cloud state to Git manifest within minutes.
 
 **Completion Criteria:**
-The repository must contain zero Terraform, Blueprints, CDK, CloudFormation, Bicep, ARM, or abstraction code. It must be a complete, self-healing, Git-driven infrastructure platform where every layer is pulled and reconciled by native Kubernetes controllers under the GNU Affero General Public License v3.0 (AGPL-3.0).
+The repository must contain a complete, self-healing, Git-driven infrastructure platform where every layer is pulled and reconciled by native Kubernetes controllers under the GNU Affero General Public License v3.0 (AGPL-3.0), with industry-standard CLIs used only for initial cluster bootstrap.
