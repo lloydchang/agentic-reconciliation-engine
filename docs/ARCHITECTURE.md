@@ -1,10 +1,47 @@
 # GitOps Infrastructure Control Plane - Architecture
 
-This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management.
+> **🎯 Problem-First Architecture**: This architecture adapts to your specific problems, not vice-versa. Start with [Strategic Framework](./STRATEGIC-FRAMEWORK.md) to determine your needs.
+
+This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management, with **scenario-specific adaptability**.
+
+## 🏗️ Adaptive Architecture: Problem-Specific Implementation
+
+### Core Principle: Start Simple, Add Complexity as Needed
+
+This architecture is **modular by design** - you implement only what solves your specific problems:
+
+```yaml
+# Architecture adapts to your scenario
+greenfield-simple:
+  - flux-core
+  - basic-monitoring
+  
+brownfield-complex:
+  - flux-core
+  - temporal-workflows
+  - migration-automation
+  
+multi-cloud-enterprise:
+  - flux-core
+  - temporal-workflows
+  - consensus-agents
+  - ai-optimization
+```
 
 ## Revolutionary Architecture: Consensus-Based Agent Swarms
 
-Based on analysis of the **ai-agents-sandbox** repository and distributed consensus research, this architecture implements a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops.
+> **⚠️ Advanced Feature**: Consensus agents are ONLY for complex, multi-cloud scenarios. Most users should stop at Layer 2.
+
+Based on analysis of **ai-agents-sandbox** repository and distributed consensus research, this architecture implements a paradigm shift from centralized orchestration to **bottom-up, self-organizing agent networks** that achieve the tightest possible feedback loops **when justified by complexity**.
+
+### When to Use Each Architectural Layer
+
+| Scenario | Layer 1 (Flux) | Layer 2 (Temporal) | Layer 3 (Consensus) | Justification |
+|-----------|-------------------|-------------------|-------------------|---------------|
+| **Greenfield + Small** | ✅ Essential | ❌ Overkill | ❌ Definitely Not | Simple GitOps sufficient |
+| **Brownfield + Medium** | ✅ Essential | ✅ For Migration | ⚠️ Maybe Later | Migration complexity justifies Temporal |
+| **Hybrid Local/Cloud** | ✅ Essential | ✅ For Coordination | ⚠️ Maybe | Environment coordination needs |
+| **Multi-cloud + Large** | ✅ Essential | ✅ For Workflows | ✅ Essential | Cross-cloud complexity requires all layers |
 
 ### Key Architectural Innovations
 
