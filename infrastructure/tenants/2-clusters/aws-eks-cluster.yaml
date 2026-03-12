@@ -4,6 +4,9 @@ kind: Role
 metadata:
   name: eks-cluster-role
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/description: "Foundation IAM role for EKS cluster"
 spec:
   description: "EKS Cluster Service Role"
   assumeRolePolicyDocument: |
@@ -25,6 +28,10 @@ kind: Policy
 metadata:
   name: eks-cluster-policy
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/role: "eks-cluster-role"
+    dependsOn.fluxcd.io/description: "IAM policy depends on cluster role"
 spec:
   description: "EKS Cluster Policy"
   policyDocument: |
@@ -60,6 +67,11 @@ kind: RolePolicyAttachment
 metadata:
   name: eks-cluster-service-policy
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "3"
+    dependsOn.fluxcd.io/role: "eks-cluster-role"
+    dependsOn.fluxcd.io/policy: "eks-cluster-policy"
+    dependsOn.fluxcd.io/description: "Role policy attachment depends on role and policy"
 spec:
   policyARN: "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   roleNameRef:
@@ -70,6 +82,12 @@ kind: Cluster
 metadata:
   name: gitops-eks-cluster
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "4"
+    dependsOn.fluxcd.io/iam-role: "eks-cluster-role"
+    dependsOn.fluxcd.io/vpc: "gitops-vpc"
+    dependsOn.fluxcd.io/subnets: "gitops-public-subnet-1a,gitops-public-subnet-1b,gitops-private-subnet-1a,gitops-private-subnet-1b"
+    dependsOn.fluxcd.io/description: "EKS cluster depends on IAM role and network subnets"
 spec:
   roleARN: "arn:aws:iam::ACCOUNT_ID:role/eks-cluster-role"
   resourcesVPCConfig:
@@ -94,6 +112,11 @@ kind: Nodegroup
 metadata:
   name: gitops-eks-nodegroup
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "5"
+    dependsOn.fluxcd.io/cluster: "gitops-eks-cluster"
+    dependsOn.fluxcd.io/subnets: "gitops-private-subnet-1a,gitops-private-subnet-1b"
+    dependsOn.fluxcd.io/description: "EKS nodegroup depends on cluster and private subnets"
 spec:
   clusterName: gitops-eks-cluster
   subnets:

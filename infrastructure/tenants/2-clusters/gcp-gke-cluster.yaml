@@ -4,6 +4,9 @@ kind: IAMServiceAccount
 metadata:
   name: gke-node-sa
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/description: "Foundation service account for GKE nodes"
 spec:
   displayName: "GKE Node Service Account"
   projectId: PROJECT_ID
@@ -13,6 +16,12 @@ kind: ContainerCluster
 metadata:
   name: gitops-gke-cluster
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/service-account: "gke-node-sa"
+    dependsOn.fluxcd.io/network: "gitops-network"
+    dependsOn.fluxcd.io/subnet: "gitops-subnet-1"
+    dependsOn.fluxcd.io/description: "GKE cluster depends on service account and network resources"
 spec:
   location: us-central1
   initialNodeCount: 1
@@ -46,6 +55,11 @@ kind: ContainerNodePool
 metadata:
   name: gitops-gke-nodepool
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "3"
+    dependsOn.fluxcd.io/cluster: "gitops-gke-cluster"
+    dependsOn.fluxcd.io/service-account: "gke-node-sa"
+    dependsOn.fluxcd.io/description: "GKE node pool depends on cluster and service account"
 spec:
   location: us-central1
   clusterRef:
@@ -80,6 +94,10 @@ kind: IAMPolicyMember
 metadata:
   name: gke-node-sa-logging
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "4"
+    dependsOn.fluxcd.io/service-account: "gke-node-sa"
+    dependsOn.fluxcd.io/description: "IAM policy for logging depends on service account"
 spec:
   member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
   role: roles/logging.logWriter
@@ -93,6 +111,10 @@ kind: IAMPolicyMember
 metadata:
   name: gke-node-sa-monitoring
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "4"
+    dependsOn.fluxcd.io/service-account: "gke-node-sa"
+    dependsOn.fluxcd.io/description: "IAM policy for monitoring depends on service account"
 spec:
   member: serviceAccount:gke-node-sa@PROJECT_ID.iam.gserviceaccount.com
   role: roles/monitoring.metricWriter

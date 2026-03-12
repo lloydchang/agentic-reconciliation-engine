@@ -4,6 +4,10 @@ kind: UserAssignedIdentity
 metadata:
   name: gitops-aks-identity
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "1"
+    dependsOn.fluxcd.io/resource-group: "gitops-resource-group"
+    dependsOn.fluxcd.io/description: "User assigned identity depends on resource group"
 spec:
   location: eastus
   owner:
@@ -17,6 +21,12 @@ kind: ManagedCluster
 metadata:
   name: gitops-aks-cluster
   namespace: flux-system
+  annotations:
+    dependsOn.fluxcd.io/order: "2"
+    dependsOn.fluxcd.io/resource-group: "gitops-resource-group"
+    dependsOn.fluxcd.io/identity: "gitops-aks-identity"
+    dependsOn.fluxcd.io/vnet: "gitops-vnet"
+    dependsOn.fluxcd.io/description: "AKS cluster depends on resource group, identity, and virtual network"
 spec:
   location: eastus
   owner:
