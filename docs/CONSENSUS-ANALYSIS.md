@@ -164,11 +164,6 @@ spec:
 - **Global Optimization**: Continuous learning and adaptation
 - **Million-Decisions/Second**: 1000+ local decisions per agent
 
-### 2. **Extreme Fault Tolerance**
-- **Byzantine Protection**: Handle up to 1/3 malicious agents
-- **Reputation Systems**: Automatically identify and isolate unreliable agents
-- **Hierarchical Recovery**: Multi-level fallback mechanisms
-- **Global Consensus**: Cross-cloud coordination with weighted voting
 
 ### 3. **Massive Scalability**
 - **Linear Agent Scaling**: Add agents without architectural changes
