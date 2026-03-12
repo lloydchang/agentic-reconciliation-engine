@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file documents dependency management within the Flux declarative layer of our hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Implementing DAG-based dependency management for infrastructure orchestration.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # GitOps Infrastructure Control Plane - DAG Architecture
 
 ## Overview

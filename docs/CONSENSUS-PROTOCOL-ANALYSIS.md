@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file analyzes consensus protocols for the consensus layer implementation of our hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Analyzing consensus protocol options for fault-tolerant agent coordination.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Consensus Protocol Analysis: Raft vs Paxos and Alternatives
 
 ## Executive Summary

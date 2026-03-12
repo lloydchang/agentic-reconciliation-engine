@@ -1,3 +1,17 @@
+# Strategic Architecture Context
+
+**Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach**
+
+This file documents configuration drift challenges and solutions within the Flux declarative layer of our hybrid architecture.
+
+**North Star Vision**: Establish the definitive reference implementation for autonomous, self-organizing infrastructure management.
+
+**Current Status**: Documenting configuration drift detection and remediation strategies.
+
+**Strategic Plan**: See [docs/STRATEGIC-ARCHITECTURE.md](docs/STRATEGIC-ARCHITECTURE.md) for comprehensive roadmap.
+
+---
+
 # Configuration Drift: The Invisible Problem That Costs More Than You Think
 
 ## The Skeptic's Starting Position

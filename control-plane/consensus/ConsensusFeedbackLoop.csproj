@@ -1,3 +1,9 @@
+<!-- Strategic Architecture: Flux + Temporal + Consensus Hybrid Approach -->
+<!-- This project implements consensus feedback loops for the consensus layer -->
+<!-- North Star: Definitive reference implementation for autonomous infrastructure management -->
+<!-- Current Status: Core consensus layer implementation -->
+<!-- Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md -->
+
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
