@@ -36,7 +36,7 @@ The GitOps Infrastructure Control Plane supports **multi-language consensus-base
 - **Resource Efficiency**: Shared cluster resources
 
 ### Hybrid Architecture
-- **Performance-Critical**: Rust components for ultra-fast loops
+- **Performance-Critical**: Rust components for fast loops
 - **AI/ML Processing**: Python for machine learning and analytics
 - **Enterprise Integration**: C#/Java for large-scale systems
 - **Real-Time Coordination**: TypeScript for event-driven monitoring
