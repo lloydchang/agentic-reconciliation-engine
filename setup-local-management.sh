@@ -2,7 +2,7 @@
 # Local Hub Cluster Setup Script
 # Sets up a local Kubernetes cluster to emulate cloud hub clusters
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Setting up Local Hub Cluster"
 echo "======================================"

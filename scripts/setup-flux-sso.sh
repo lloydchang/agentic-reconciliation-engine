@@ -3,7 +3,7 @@
 # Flux Status Page SSO Setup Script
 # This script configures SSO and authentication for the Flux Status Page
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

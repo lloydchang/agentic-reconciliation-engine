@@ -3,7 +3,7 @@
 # Comprehensive Testing Framework for GitOps Infrastructure Control Plane
 # This script implements a complete testing framework for validation
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -37,7 +37,7 @@ cat > tests/unit/flux-components.test.sh << 'EOF'
 #!/bin/bash
 
 # Unit Tests for Flux Components
-set -e
+set -euxo pipefail
 
 # Test Flux controller availability
 test_flux_controllers() {
@@ -128,7 +128,7 @@ cat > tests/integration/gitops-integration.test.sh << 'EOF'
 #!/bin/bash
 
 # Integration Tests for GitOps Workflows
-set -e
+set -euxo pipefail
 
 # Test dependency chain execution
 test_dependency_chains() {
@@ -296,7 +296,7 @@ cat > tests/e2e/full-gitops-pipeline.test.sh << 'EOF'
 #!/bin/bash
 
 # End-to-End Tests for Full GitOps Pipeline
-set -e
+set -euxo pipefail
 
 # Test complete GitOps pipeline
 test_complete_pipeline() {
@@ -451,7 +451,7 @@ cat > tests/performance/performance-benchmarks.test.sh << 'EOF'
 #!/bin/bash
 
 # Performance Tests and Benchmarks
-set -e
+set -euxo pipefail
 
 # Test Flux reconciliation performance
 test_flux_reconciliation_performance() {
@@ -564,7 +564,7 @@ cat > tests/security/security-compliance.test.sh << 'EOF'
 #!/bin/bash
 
 # Security and Compliance Tests
-set -e
+set -euxo pipefail
 
 # Test RBAC configuration
 test_rbac_configuration() {
@@ -715,7 +715,7 @@ cat > scripts/run-all-tests.sh << 'EOF'
 #!/bin/bash
 
 # Comprehensive Test Runner
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

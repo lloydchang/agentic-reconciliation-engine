@@ -2,7 +2,7 @@
 # Complete End-to-End Test Suite
 # Validates the entire GitOps infrastructure control plane from bootstrap to teardown
 
-set -e
+set -euxo pipefail
 
 # Configuration
 REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"

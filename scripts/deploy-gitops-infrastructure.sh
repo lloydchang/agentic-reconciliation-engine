@@ -3,7 +3,7 @@
 # Complete Deployment Automation Script
 # This script automates the entire GitOps Infrastructure Control Plane deployment
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

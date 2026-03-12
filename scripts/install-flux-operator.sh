@@ -3,7 +3,7 @@
 # Flux Operator Installation Script
 # This script installs the Flux Operator and sets up the GitOps Infrastructure Control Plane
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

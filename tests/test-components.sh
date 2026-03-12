@@ -2,7 +2,7 @@
 # Individual Component Test Scripts
 # Run specific tests for components you're working with
 
-set -e
+set -euxo pipefail
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

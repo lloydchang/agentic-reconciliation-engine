@@ -1,7 +1,7 @@
 #!/bin/bash
 # Local drift test using LocalStack and manual reconciliation simulation
 
-set -e
+set -euxo pipefail
 
 # Configuration
 AWS_REGION="us-west-2"

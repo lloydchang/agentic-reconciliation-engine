@@ -2,7 +2,7 @@
 # Complete GitOps Infrastructure Control Plane Bootstrap Script
 # Deploys the entire enterprise platform from scratch
 
-set -e
+set -euxo pipefail
 
 # Configuration
 REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"

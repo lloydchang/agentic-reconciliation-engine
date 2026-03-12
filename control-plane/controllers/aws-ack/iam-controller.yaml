@@ -24,12 +24,16 @@ spec:
       serviceAccountName: ack-iam-controller
       containers:
       - name: ack-iam-controller
-        image: public.ecr.aws/aws-controllers-k8s/iam-controller:v0.1.2
+        image: public.ecr.aws/aws-controllers-k8s/iam-controller:v0.0.1
         args:
-        - --aws-region=us-west-2
+        - --aws-region=us-east-1
         env:
         - name: AWS_REGION
-          value: us-west-2
+          value: us-east-1
+        - name: AWS_ENDPOINT_URL
+          value: "http://localstack.localstack.svc.cluster.local:4566"
+        - name: ACK_ENABLE_DEVELOPMENT_LOGGING
+          value: "true"
         resources:
           requests:
             cpu: 100m

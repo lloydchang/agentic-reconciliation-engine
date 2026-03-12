@@ -3,7 +3,7 @@
 # Secret Rotation Script for GitOps Infrastructure
 # This script automates the rotation of sealed secrets
 
-set -euo pipefail
+set -euxo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

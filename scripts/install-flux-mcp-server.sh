@@ -3,7 +3,7 @@
 # Flux MCP Server Installation Script
 # This script installs and configures the Flux MCP Server for Agentic GitOps
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

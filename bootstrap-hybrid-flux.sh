@@ -2,7 +2,7 @@
 # Bootstrap Hybrid Flux Architecture
 # Core Flux CD (Critical Path) + Flux Operator (Optional Add-on)
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Bootstrapping Hybrid Flux Architecture..."
 

@@ -3,7 +3,7 @@
 # Flux Status Page Setup Script
 # This script configures the Flux Status Page for the GitOps Infrastructure Control Plane
 
-set -e
+set -euxo pipefail
 
 # Colors for output
 RED='\033[0;31m'

@@ -3,7 +3,7 @@
 # GitOps Infrastructure Control Plane - Fixed Drift Test Script
 # Tests both controller installation AND infrastructure deployment
 
-set -e
+set -euxo pipefail
 
 echo "🚀 Starting GitOps Infrastructure Drift Test (Fixed)"
 echo "=================================================="

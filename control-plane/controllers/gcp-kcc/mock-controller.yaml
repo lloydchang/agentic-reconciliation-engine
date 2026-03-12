@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cnrm-controller-manager
+  namespace: cnrm-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cnrm-controller-manager-mock
+  namespace: cnrm-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cnrm-controller-manager-mock
+  template:
+    metadata:
+      labels:
+        app: cnrm-controller-manager-mock
+    spec:
+      serviceAccountName: cnrm-controller-manager
+      containers:
+      - name: mock-controller
+        image: nginx:alpine
+        command: ["sleep", "3600"]
+        env:
+        - name: GOOGLE_PROJECT
+          value: "mock-project-id"
+        - name: GOOGLE_REGION
+          value: "us-central1"
+        - name: GOOGLE_CREDENTIALS
+          value: "mock-credentials"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
