@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
 resources:
   - control-plane/
+  - infrastructure/
 labels:
   - pairs:
       managed-by: flux
