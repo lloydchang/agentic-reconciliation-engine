@@ -41,7 +41,6 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 - Multi-cloud infrastructure with complex coordination needs
 - Large-scale deployments requiring autonomous optimization
 - Brownfield migrations with gradual modernization requirements
-- Enterprise environments needing security and compliance features
 
 ### Not a Good Fit
 - Simple single-app deployments
