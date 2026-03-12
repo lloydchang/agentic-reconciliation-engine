@@ -208,7 +208,7 @@ Rather than forcing a single runtime choice, we support multiple languages simul
 - **Concurrency**: Excellent (async/await, actor model)
 
 **Consensus Role**: Performance optimization and critical paths
-- **High-Frequency Loops**: Ultra-tight feedback optimization
+- **High-Frequency Loops**: Fast feedback optimization
 - **Critical Path Optimization**: Performance-critical consensus decisions
 - **Memory-Efficient Processing**: Large-scale data processing
 - **WebAssembly Deployment**: Cross-platform consensus agents

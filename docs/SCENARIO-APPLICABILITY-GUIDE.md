@@ -98,7 +98,7 @@ spec:
 
 **Why This Architecture Fits**:
 - **Flux Declarative Management**: Perfect for single-cloud GitOps
-- **Consensus Overkill**: Ultra-tight feedback loops may be unnecessary complexity
+- **Consensus Overkill**: Fast feedback loops may be unnecessary complexity
 - **Temporal Optional**: Durable workflows valuable but not critical
 - **Multi-Language Support**: Choose based on team skills (Go recommended)
 
@@ -156,7 +156,7 @@ spec:
 **Why This Architecture Fits**:
 - **Flux Multi-Cloud**: Native support for multi-cloud deployments
 - **Temporal Coordination**: Essential for cross-cloud workflows
-- **Consensus Critical**: Ultra-tight feedback loops for multi-cloud optimization
+- **Consensus Critical**: Fast feedback loops for multi-cloud optimization
 - **Multi-Language Essential**: Different teams may need different runtimes
 
 #### Recommended Configuration
@@ -172,7 +172,7 @@ spec:
     - name: infrastructure-network
     - name: infrastructure-clusters
     - name: consensus-layer
-  interval: 30s  # Ultra-tight feedback loops
+  interval: 30s  # Fast feedback loops
   sourceRef:
     kind: GitRepository
     name: infrastructure-repo
@@ -271,7 +271,7 @@ spec:
 **Core Challenge**: "We need to host a simple static website with minimal maintenance overhead."
 
 **Why This Architecture is NOT Ideal**:
-- **Overkill**: Consensus agents and ultra-tight feedback loops unnecessary
+- **Overkill**: Consensus agents and fast feedback loops unnecessary
 - **Complexity**: Three-layer architecture adds unnecessary operational overhead
 - **Cost**: Higher infrastructure costs for simple needs
 - **Team Skills**: May require expertise team doesn't have
