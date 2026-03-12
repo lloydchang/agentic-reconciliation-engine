@@ -462,9 +462,11 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Content Summary**: Tutorial for proxying Claude Code CLI traffic through agentgateway in Kubernetes to intercept, inspect, and secure AI agent requests before reaching Anthropic's API. Covers setup with Gateway API, HTTPRoute, backend configuration with Anthropic provider, prompt guards for blocking sensitive content, and testing.
 
-**Applicability**: Directly enhances the control plane's security posture for AI-assisted operations. The GitOps repo could integrate agentgateway as part of the infrastructure/tenants/3-workloads/ to proxy Claude Code CLI usage by operators, ensuring compliance with prompt guards that block sensitive data (e.g., credentials, PII) before API calls. This fits the hub-spoke model by centralizing AI traffic governance in the Hub Cluster, aligning with the security mandates (no hardcoded secrets, RBAC).
+**Security Architecture**: Agentgateway uses traditional security techniques (pattern matching, content scanning) that avoid the catch-22 of needing AI to filter AI requests. It provides deterministic rule-based filtering similar to web application firewalls, not AI-powered content analysis. This approach ensures predictable behavior, low latency, and compliance-friendly auditing.
 
-**Safety Assessment**: Safe to use. The proxy adds security layers without compromising core functionality. Prompt guards prevent data exfiltration, and the tutorial emphasizes proper RBAC and network policies. No destructive operations; it's observational and filtering.
+**Applicability**: Directly enhances the control plane's security posture for AI-assisted operations. The GitOps repo could integrate agentgateway as part of the infrastructure/tenants/3-workloads/ to proxy Claude Code CLI usage by operators, ensuring compliance with rule-based prompt guards that block sensitive data (e.g., credentials, PII) before API calls. This fits the hub-spoke model by centralizing AI traffic governance in the Hub Cluster, aligning with the security mandates (no hardcoded secrets, RBAC).
+
+**Safety Assessment**: Safe to use. The proxy adds deterministic security layers without compromising core functionality. Rule-based prompt guards prevent obvious data exfiltration, and the tutorial emphasizes proper RBAC and network policies. No destructive operations; it's observational and filtering using traditional security patterns.
 
 **Integration Approach**: Add agentgateway to control-plane/controllers/kustomization.yaml as a HelmRelease. Configure HTTPRoute in infrastructure/tenants/3-workloads/ with dependsOn from cluster-infra. Use for operator-facing AI tools, integrating with existing monitoring (Prometheus/Grafana) for traffic observability. Avoid in core reconciliation loops to prevent complexity.
 
@@ -1219,11 +1221,56 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Content Summary**: Kagent is a cloud-native framework for orchestrating autonomous AI coding agents in Kubernetes. Supports primitives like TaskSpawner, agent chaining, and MCP servers for DevOps and platform engineering tasks.
 
-**Applicability**: High - Directly applicable for running AI agents in Kubernetes for infrastructure automation. Fits the control plane's Kubernetes-native approach for agent orchestration in multi-cloud setups.
+**Architecture and Capabilities**:
+- **TaskSpawner**: Advanced scheduling and task management beyond simple CronJobs
+- **Agent Chaining**: Complex multi-agent workflows with dependencies and conditional execution
+- **MCP Integration**: Built-in Model Context Protocol server support for standardized tool communication
+- **Kubernetes-Native**: Designed specifically for K8s environments with proper resource management
+- **Enterprise Support**: Production support available through Solo.io
 
-**Safety Assessment**: Safe - Kubernetes-native with isolation.
+**Applicability**: High - Directly applicable for running AI agents in Kubernetes for infrastructure automation. Fits the control plane's Kubernetes-native approach for agent orchestration in multi-cloud setups. Could replace current custom CronJob implementations with more sophisticated agent management.
 
-**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn.
+**Safety Assessment**: Safe - Kubernetes-native with isolation and proper resource management.
+
+**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn. Consider as evolution path from current basic agent orchestration to enterprise-grade agentic infrastructure.
+
+**Migration Path**:
+1. **Phase 1**: Deploy kagent alongside current implementation
+2. **Phase 2**: Migrate CronJobs to TaskSpawners for better scheduling
+3. **Phase 3**: Implement agent chaining for complex workflows
+4. **Phase 4**: Leverage MCP integration for standardized tool coordination
+
+**Example Integration**:
+```yaml
+# Replace current CronJobs with kagent TaskSpawner
+apiVersion: kagent.io/v1alpha1
+kind: TaskSpawner
+metadata:
+  name: infra-drift-analyzer
+  namespace: control-plane
+spec:
+  schedule: "0 */4 * * *"
+  agentChain:
+  - name: drift-analysis
+    target: claude-code
+    config:
+      mode: "comprehensive"
+  - name: validation
+    target: kubeconform
+    dependsOn: ["drift-analysis"]
+  - name: remediation
+    target: kubectl-apply
+    dependsOn: ["validation"]
+    condition: "policy-violation-detected"
+```
+
+**Benefits over Current Implementation**:
+- Sophisticated scheduling beyond simple CronJob patterns
+- Dynamic agent chaining that adapts to results
+- Built-in error handling and retry logic
+- Better resource optimization and lifecycle management
+- Standardized MCP protocol for agent-to-tool communication
+- Enterprise features: monitoring, auditing, scaling support
 
 ## 75. https://www.solo.io/resources/lab/introduction-to-agentregistry
 
