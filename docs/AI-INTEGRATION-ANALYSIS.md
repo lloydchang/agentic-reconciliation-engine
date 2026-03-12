@@ -2265,11 +2265,11 @@ spec:
 
 **Content Summary**: Agent Skills is a simple, open format for giving agents new capabilities and expertise. It provides a standardized way to create SKILL.md files that contain instructions, scripts, and resources that AI agents can load dynamically to improve performance on specialized tasks.
 
-**Applicability**: High - Represents the next evolution beyond MCP for AI agent orchestration in the GitOps control plane. Agent Skills could replace MCP-based tool integration with instruction-based skill learning, enabling more flexible, context-aware infrastructure automation that adapts to organizational best practices.
+**Applicability**: High - Represents an evolution beyond MCP for AI agent orchestration in the GitOps control plane. Agent Skills could replace MCP-based tool integration with instruction-based skill learning, enabling more flexible, context-aware infrastructure automation that adapts to organizational best practices.
 
 **Safety Assessment**: Safe - Open format with standardized skill definitions and built-in validation. Skills can be versioned, audited, and controlled through GitOps practices.
 
-**Integration Approach**: Consider as the next-level architecture for AI agent orchestration. Migrate from MCP tool registries to Agent Skills libraries for infrastructure management, security compliance, cost optimization, and disaster recovery. Skills can be developed, versioned, and deployed through the same GitOps pipeline used for infrastructure.
+**Integration Approach**: Consider as an advanced architecture for AI agent orchestration. Migrate from MCP tool registries to Agent Skills libraries for infrastructure management, security compliance, cost optimization, and disaster recovery. Skills can be developed, versioned, and deployed through the same GitOps pipeline used for infrastructure.
 
 ## 105. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md
 
@@ -2291,10 +2291,10 @@ spec:
 
 **Integration Approach**: Consider as reference implementation for consensus-based agent orchestration in GitOps control plane. The sandbox's architecture provides a blueprint for:
 - Distributed agent coordination without single points of failure
-- Tight feedback loops at multiple time scales (micro/meso/macro)
+- Fast feedback loops at multiple time scales (micro/meso/macro)
 - Self-organizing agent swarms using consensus algorithms
 - Local decision-making for rapid response times
-- Emergent intelligence through collective behavior
+- Coordinated behavior through collective behavior
 
 Key architectural patterns to adopt:
 1. **Consensus Protocol**: Raft-based agent coordination for infrastructure changes
