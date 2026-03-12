@@ -19,8 +19,18 @@ spec:
       AGENT_QUORUM: "3"
       FEEDBACK_INTERVAL: "30s"
       CONSENSUS_PROTOCOL: "raft"
+      TEMPORAL_HOST_PORT: "temporal-server.control-plane.svc.cluster.local:7233"
+      TASK_QUEUE: "consensus-task-queue"
   validation: client
   healthChecks:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: temporal-server
+    namespace: control-plane
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: consensus-agent-worker
+    namespace: control-plane
   - apiVersion: swarm.gitops.io/v1alpha1
     kind: AgentSwarm
     name: infrastructure-optimizers
