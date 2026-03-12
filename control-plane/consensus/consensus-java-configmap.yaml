@@ -1,0 +1,407 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consensus-java-scripts
+  namespace: control-plane
+data:
+  ConsensusFeedbackLoop.java: |
+    package com.gitops.consensus;
+
+    /**
+     * Consensus Feedback Loop - Java/OpenJDK/JVM Implementation
+     * Object-oriented consensus-based agent orchestration for infrastructure optimization.
+     * Leverages JVM concurrency, strong typing, and enterprise-grade reliability patterns.
+     */
+
+    import java.time.LocalDateTime;
+    import java.time.Duration;
+    import java.util.*;
+    import java.util.concurrent.*;
+    import java.util.stream.Collectors;
+
+    public class ConsensusFeedbackLoop {
+
+        // Data structures for consensus
+        public static class ConsensusProposal {
+            private final String id;
+            private final String agentType;
+            private final String description;
+            private final int priority;
+            private final LocalDateTime timestamp;
+            private final int votesRequired;
+            private boolean approved;
+
+            public ConsensusProposal(String id, String agentType, String description,
+                                   int priority, LocalDateTime timestamp, int votesRequired) {
+                this.id = id;
+                this.agentType = agentType;
+                this.description = description;
+                this.priority = priority;
+                this.timestamp = timestamp;
+                this.votesRequired = votesRequired;
+                this.approved = false;
+            }
+
+            // Getters
+            public String getId() { return id; }
+            public String getAgentType() { return agentType; }
+            public String getDescription() { return description; }
+            public int getPriority() { return priority; }
+            public LocalDateTime getTimestamp() { return timestamp; }
+            public int getVotesRequired() { return votesRequired; }
+            public boolean isApproved() { return approved; }
+            public void setApproved(boolean approved) { this.approved = approved; }
+        }
+
+        public static class ConsensusState {
+            private final int quorumSize;
+            private final String protocol;
+            private final Map<String, ConsensusProposal> activeProposals;
+            private LocalDateTime lastUpdate;
+
+            public ConsensusState(int quorumSize, String protocol) {
+                this.quorumSize = quorumSize;
+                this.protocol = protocol;
+                this.activeProposals = new ConcurrentHashMap<>();
+            }
+
+            // Getters
+            public int getQuorumSize() { return quorumSize; }
+            public String getProtocol() { return protocol; }
+            public Map<String, ConsensusProposal> getActiveProposals() { return activeProposals; }
+            public LocalDateTime getLastUpdate() { return lastUpdate; }
+            public void setLastUpdate(LocalDateTime lastUpdate) { this.lastUpdate = lastUpdate; }
+        }
+
+        // Agent interface
+        public interface ConsensusAgent {
+            CompletableFuture<ConsensusProposal> localOptimization(ConsensusState state);
+            CompletableFuture<Boolean> voteOnProposal(ConsensusProposal proposal);
+            CompletableFuture<Void> executeConsensus(ConsensusProposal proposal, List<Boolean> votes);
+        }
+
+        // Cost optimizer agent implementation
+        public static class CostOptimizerAgent implements ConsensusAgent {
+            private final ConsensusState state;
+
+            public CostOptimizerAgent(ConsensusState state) {
+                this.state = state;
+            }
+
+            @Override
+            public CompletableFuture<ConsensusProposal> localOptimization(ConsensusState state) {
+                return CompletableFuture.supplyAsync(() -> {
+                    try {
+                        // Simulate local optimization work
+                        Thread.sleep(1000);
+
+                        // Mock: Sometimes create a proposal (30% chance)
+                        if (Math.random() < 0.3) {
+                            return new ConsensusProposal(
+                                "proposal-" + System.currentTimeMillis(),
+                                "cost-optimizer",
+                                "Scale EKS node group from 3 to 5 nodes",
+                                2,
+                                LocalDateTime.now(),
+                                this.state.getQuorumSize()
+                            );
+                        }
+
+                        return null;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public CompletableFuture<Boolean> voteOnProposal(ConsensusProposal proposal) {
+                return CompletableFuture.supplyAsync(() -> {
+                    try {
+                        // Weighted voting based on agent type
+                        Thread.sleep(100); // Simulate voting deliberation
+
+                        if ("cost-optimizer".equals(proposal.getAgentType())) {
+                            return true; // Cost optimizer always approves cost-related proposals
+                        }
+
+                        // For other proposals, approve with 80% confidence
+                        return Math.random() < 0.8;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return false;
+                    }
+                });
+            }
+
+            @Override
+            public CompletableFuture<Void> executeConsensus(ConsensusProposal proposal, List<Boolean> votes) {
+                return CompletableFuture.runAsync(() -> {
+                    System.out.println("Executing consensus proposal: " + proposal.getDescription());
+
+                    try {
+                        // Simulate infrastructure change execution
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    System.out.println("Consensus change executed successfully");
+                });
+            }
+        }
+
+        // Main consensus feedback loop
+        private final ConsensusState consensusState;
+        private final List<ConsensusAgent> agents;
+        private final Duration feedbackInterval;
+        private final int quorumSize;
+        private volatile boolean running = true;
+        private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+        private final ExecutorService agentExecutor = Executors.newCachedThreadPool();
+
+        public ConsensusFeedbackLoop() {
+            // Read environment variables
+            this.consensusState = new ConsensusState(
+                Integer.parseInt(System.getenv().getOrDefault("AGENT_QUORUM", "3")),
+                System.getenv().getOrDefault("CONSENSUS_PROTOCOL", "raft")
+            );
+
+            this.feedbackInterval = Duration.ofSeconds(
+                Integer.parseInt(System.getenv().getOrDefault("FEEDBACK_INTERVAL", "30s").replace("s", ""))
+            );
+
+            this.quorumSize = consensusState.getQuorumSize();
+
+            // Initialize agents
+            this.agents = Arrays.asList(
+                new CostOptimizerAgent(consensusState)
+                // Add more agent types as needed
+            );
+
+            // Setup signal handling for graceful shutdown
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Received shutdown signal, terminating gracefully...");
+                running = false;
+                shutdown();
+            }));
+        }
+
+        public void runFeedbackLoop() throws Exception {
+            System.out.println("Starting Java consensus feedback loop");
+
+            while (running) {
+                try {
+                    // Phase 1: Local optimization (30 seconds)
+                    runLocalOptimizationPhase().get();
+
+                    // Phase 2: Consensus proposal submission
+                    runConsensusProposalPhase().get();
+
+                    // Phase 3: Vote collection
+                    runVoteCollectionPhase().get();
+
+                    // Phase 4: Consensus execution
+                    runConsensusExecutionPhase().get();
+
+                    // Wait for next iteration
+                    Thread.sleep(Duration.ofMinutes(1).minus(feedbackInterval).toMillis());
+                } catch (Exception e) {
+                    System.err.println("Error in feedback loop iteration: " + e.getMessage());
+                    Thread.sleep(10000);
+                }
+            }
+        }
+
+        private CompletableFuture<Void> runLocalOptimizationPhase() {
+            System.out.println("Starting local optimization phase");
+
+            List<CompletableFuture<ConsensusProposal>> optimizationTasks = agents.stream()
+                .map(agent -> agent.localOptimization(consensusState)
+                    .orTimeout(feedbackInterval.toMillis(), TimeUnit.MILLISECONDS)
+                    .exceptionally(ex -> {
+                        System.err.println("Local optimization failed: " + ex.getMessage());
+                        return null;
+                    }))
+                .collect(Collectors.toList());
+
+            return CompletableFuture.allOf(optimizationTasks.toArray(new CompletableFuture[0]))
+                .thenAccept(v -> {
+                    optimizationTasks.forEach(task -> {
+                        try {
+                            ConsensusProposal proposal = task.get();
+                            if (proposal != null) {
+                                consensusState.getActiveProposals().put(proposal.getId(), proposal);
+                                System.out.println("Created consensus proposal: " + proposal.getId());
+                            }
+                        } catch (Exception e) {
+                            // Already handled in exceptionally
+                        }
+                    });
+                });
+        }
+
+        private CompletableFuture<Void> runConsensusProposalPhase() {
+            if (consensusState.getActiveProposals().isEmpty()) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            List<CompletableFuture<Void>> proposalTasks = consensusState.getActiveProposals()
+                .values().stream()
+                .map(proposal -> submitToConsensus(proposal)
+                    .thenAccept(v -> System.out.println("Submitted proposal " + proposal.getId() + " to consensus"))
+                    .exceptionally(ex -> {
+                        System.err.println("Failed to submit proposal " + proposal.getId() + ": " + ex.getMessage());
+                        return null;
+                    }))
+                .collect(Collectors.toList());
+
+            return CompletableFuture.allOf(proposalTasks.toArray(new CompletableFuture[0]));
+        }
+
+        private CompletableFuture<Void> runVoteCollectionPhase() {
+            List<CompletableFuture<Void>> voteTasks = consensusState.getActiveProposals()
+                .entrySet().stream()
+                .map(entry -> collectVotes(entry.getValue())
+                    .thenAccept(votes -> {
+                        long approveCount = votes.stream().filter(Boolean::booleanValue).count();
+                        if (approveCount >= entry.getValue().getVotesRequired()) {
+                            entry.getValue().setApproved(true);
+                            System.out.println("Proposal " + entry.getKey() + " reached quorum");
+                        } else if (!votes.isEmpty()) {
+                            System.out.println("Proposal " + entry.getKey() + " has " + approveCount + " votes");
+                        }
+                    })
+                    .exceptionally(ex -> {
+                        System.err.println("Failed to collect votes for proposal " + entry.getKey() + ": " + ex.getMessage());
+                        return null;
+                    }))
+                .collect(Collectors.toList());
+
+            return CompletableFuture.allOf(voteTasks.toArray(new CompletableFuture[0]));
+        }
+
+        private CompletableFuture<Void> runConsensusExecutionPhase() {
+            List<CompletableFuture<Void>> executionTasks = consensusState.getActiveProposals()
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().isApproved())
+                .map(entry -> collectVotes(entry.getValue())
+                    .thenCompose(finalVotes -> agents.get(0).executeConsensus(entry.getValue(), finalVotes))
+                    .thenAccept(v -> {
+                        consensusState.getActiveProposals().remove(entry.getKey());
+                        System.out.println("Executed approved proposal: " + entry.getKey());
+                    })
+                    .exceptionally(ex -> {
+                        System.err.println("Failed to execute proposal " + entry.getKey() + ": " + ex.getMessage());
+                        return null;
+                    }))
+                .collect(Collectors.toList());
+
+            return CompletableFuture.allOf(executionTasks.toArray(new CompletableFuture[0]));
+        }
+
+        private CompletableFuture<Void> submitToConsensus(ConsensusProposal proposal) {
+            return CompletableFuture.runAsync(() -> {
+                try {
+                    // Simulate consensus protocol submission
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, agentExecutor);
+        }
+
+        private CompletableFuture<List<Boolean>> collectVotes(ConsensusProposal proposal) {
+            return CompletableFuture.supplyAsync(() -> {
+                List<CompletableFuture<Boolean>> voteTasks = agents.stream()
+                    .map(agent -> agent.voteOnProposal(proposal)
+                        .exceptionally(ex -> {
+                            System.err.println("Agent voting failed: " + ex.getMessage());
+                            return false;
+                        }))
+                    .collect(Collectors.toList());
+
+                return voteTasks.stream()
+                    .map(CompletableFuture::join)
+                    .collect(Collectors.toList());
+            }, agentExecutor);
+        }
+
+        private void shutdown() {
+            scheduler.shutdown();
+            agentExecutor.shutdown();
+            try {
+                if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+                if (!agentExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    agentExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+                agentExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        public static void main(String[] args) {
+            ConsensusFeedbackLoop loop = new ConsensusFeedbackLoop();
+
+            try {
+                loop.runFeedbackLoop();
+            } catch (Exception e) {
+                System.err.println("Consensus feedback loop failed: " + e.getMessage());
+                System.exit(1);
+            }
+        }
+    }
+  pom.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                                 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <modelVersion>4.0.0</modelVersion>
+
+        <groupId>com.gitops.consensus</groupId>
+        <artifactId>consensus-feedback-loop</artifactId>
+        <version>1.0.0</version>
+        <packaging>jar</packaging>
+
+        <name>Consensus Feedback Loop</name>
+        <description>Java implementation of consensus-based agent feedback loops</description>
+
+        <properties>
+            <maven.compiler.source>17</maven.compiler.source>
+            <maven.compiler.target>17</maven.compiler.target>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        </properties>
+
+        <dependencies>
+            <!-- No external dependencies needed for basic implementation -->
+        </dependencies>
+
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <source>17</source>
+                        <target>17</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <mainClass>com.gitops.consensus.ConsensusFeedbackLoop</mainClass>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </project>

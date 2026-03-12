@@ -1,0 +1,348 @@
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+use tokio::time::{sleep, timeout};
+use tokio::sync::mpsc;
+use serde::{Deserialize, Serialize};
+
+// Data structures for consensus
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConsensusProposal {
+    pub id: String,
+    pub agent_type: String,
+    pub description: String,
+    pub priority: i32,
+    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub votes_required: i32,
+    pub approved: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct ConsensusState {
+    pub quorum_size: i32,
+    pub protocol: String,
+    pub active_proposals: HashMap<String, ConsensusProposal>,
+    pub last_update: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+impl ConsensusState {
+    pub fn new(quorum_size: i32, protocol: String) -> Self {
+        Self {
+            quorum_size,
+            protocol,
+            active_proposals: HashMap::new(),
+            last_update: None,
+        }
+    }
+}
+
+// Agent trait
+#[async_trait::async_trait]
+pub trait ConsensusAgent: Send + Sync {
+    async fn local_optimization(&self, state: Arc<Mutex<ConsensusState>>) -> Option<ConsensusProposal>;
+    async fn vote_on_proposal(&self, proposal: &ConsensusProposal) -> bool;
+    async fn execute_consensus(&self, proposal: &ConsensusProposal, votes: &[bool]);
+}
+
+// Cost optimizer agent implementation
+pub struct CostOptimizerAgent {
+    state: Arc<Mutex<ConsensusState>>,
+}
+
+impl CostOptimizerAgent {
+    pub fn new(state: Arc<Mutex<ConsensusState>>) -> Self {
+        Self { state }
+    }
+}
+
+#[async_trait::async_trait]
+impl ConsensusAgent for CostOptimizerAgent {
+    async fn local_optimization(&self, state: Arc<Mutex<ConsensusState>>) -> Option<ConsensusProposal> {
+        // Simulate local optimization work
+        sleep(Duration::from_millis(1000)).await;
+
+        // Mock: Sometimes create a proposal (30% chance)
+        if rand::random::<f64>() < 0.3 {
+            let state_guard = state.lock().unwrap();
+            Some(ConsensusProposal {
+                id: format!("proposal-{}", chrono::Utc::now().timestamp_millis()),
+                agent_type: "cost-optimizer".to_string(),
+                description: "Scale EKS node group from 3 to 5 nodes".to_string(),
+                priority: 2,
+                timestamp: chrono::Utc::now(),
+                votes_required: state_guard.quorum_size,
+                approved: false,
+            })
+        } else {
+            None
+        }
+    }
+
+    async fn vote_on_proposal(&self, proposal: &ConsensusProposal) -> bool {
+        // Weighted voting based on agent type
+        sleep(Duration::from_millis(100)).await; // Simulate voting deliberation
+
+        if proposal.agent_type == "cost-optimizer" {
+            return true; // Cost optimizer always approves cost-related proposals
+        }
+
+        // For other proposals, approve with 80% confidence
+        rand::random::<f64>() < 0.8
+    }
+
+    async fn execute_consensus(&self, proposal: &ConsensusProposal, _votes: &[bool]) {
+        println!("Executing consensus proposal: {}", proposal.description);
+
+        // Simulate infrastructure change execution
+        sleep(Duration::from_millis(500)).await;
+
+        println!("Consensus change executed successfully");
+    }
+}
+
+// Main consensus feedback loop
+pub struct ConsensusFeedbackLoop {
+    consensus_state: Arc<Mutex<ConsensusState>>,
+    agents: Vec<Box<dyn ConsensusAgent>>,
+    feedback_interval: Duration,
+    quorum_size: i32,
+    running: Arc<Mutex<bool>>,
+}
+
+impl ConsensusFeedbackLoop {
+    pub fn new() -> Self {
+        // Read environment variables
+        let quorum_size = std::env::var("AGENT_QUORUM")
+            .unwrap_or_else(|_| "3".to_string())
+            .parse::<i32>()
+            .unwrap_or(3);
+
+        let protocol = std::env::var("CONSENSUS_PROTOCOL")
+            .unwrap_or_else(|_| "raft".to_string());
+
+        let feedback_interval_seconds = std::env::var("FEEDBACK_INTERVAL")
+            .unwrap_or_else(|_| "30s".to_string())
+            .trim_end_matches('s')
+            .parse::<u64>()
+            .unwrap_or(30);
+
+        let consensus_state = Arc::new(Mutex::new(ConsensusState::new(quorum_size, protocol)));
+        let running = Arc::new(Mutex::new(true));
+
+        // Initialize agents
+        let agents: Vec<Box<dyn ConsensusAgent>> = vec![
+            Box::new(CostOptimizerAgent::new(Arc::clone(&consensus_state))),
+            // Add more agent types as needed
+        ];
+
+        Self {
+            consensus_state,
+            agents,
+            feedback_interval: Duration::from_secs(feedback_interval_seconds),
+            quorum_size,
+            running,
+        }
+    }
+
+    pub async fn run_feedback_loop(&self) -> Result<(), Box<dyn std::error::Error>> {
+        println!("Starting Rust consensus feedback loop");
+
+        // Setup signal handling for graceful shutdown
+        let running = Arc::clone(&self.running);
+        tokio::spawn(async move {
+            tokio::signal::ctrl_c().await.expect("Failed to listen for Ctrl+C");
+            println!("Received shutdown signal, terminating gracefully...");
+            *running.lock().unwrap() = false;
+        });
+
+        while *self.running.lock().unwrap() {
+            let start_time = Instant::now();
+
+            // Phase 1: Local optimization (30 seconds)
+            if let Err(e) = self.run_local_optimization_phase().await {
+                eprintln!("Local optimization phase failed: {}", e);
+            }
+
+            // Phase 2: Consensus proposal submission
+            if let Err(e) = self.run_consensus_proposal_phase().await {
+                eprintln!("Consensus proposal phase failed: {}", e);
+            }
+
+            // Phase 3: Vote collection
+            if let Err(e) = self.run_vote_collection_phase().await {
+                eprintln!("Vote collection phase failed: {}", e);
+            }
+
+            // Phase 4: Consensus execution
+            if let Err(e) = self.run_consensus_execution_phase().await {
+                eprintln!("Consensus execution phase failed: {}", e);
+            }
+
+            // Wait for next iteration (remaining time in minute)
+            let elapsed = start_time.elapsed();
+            let remaining_time = Duration::from_secs(60).saturating_sub(elapsed + self.feedback_interval);
+
+            if remaining_time > Duration::ZERO {
+                sleep(remaining_time).await;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn run_local_optimization_phase(&self) -> Result<(), Box<dyn std::error::Error>> {
+        println!("Starting local optimization phase");
+
+        let mut optimization_tasks = Vec::new();
+
+        for agent in &self.agents {
+            let state = Arc::clone(&self.consensus_state);
+            let task = timeout(
+                self.feedback_interval,
+                agent.local_optimization(state)
+            );
+            optimization_tasks.push(task);
+        }
+
+        let optimization_results = futures::future::join_all(optimization_tasks).await;
+
+        for result in optimization_results {
+            match result {
+                Ok(Some(proposal)) => {
+                    let mut state = self.consensus_state.lock().unwrap();
+                    state.active_proposals.insert(proposal.id.clone(), proposal.clone());
+                    println!("Created consensus proposal: {}", proposal.id);
+                }
+                Ok(None) => {} // No proposal created
+                Err(_) => eprintln!("Local optimization timed out"),
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn run_consensus_proposal_phase(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let active_proposals: Vec<_> = {
+            let state = self.consensus_state.lock().unwrap();
+            state.active_proposals.keys().cloned().collect()
+        };
+
+        if active_proposals.is_empty() {
+            return Ok(());
+        }
+
+        for proposal_id in active_proposals {
+            if let Some(proposal) = {
+                let state = self.consensus_state.lock().unwrap();
+                state.active_proposals.get(&proposal_id).cloned()
+            } {
+                match self.submit_to_consensus(&proposal).await {
+                    Ok(_) => println!("Submitted proposal {} to consensus", proposal_id),
+                    Err(e) => eprintln!("Failed to submit proposal {}: {}", proposal_id, e),
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn run_vote_collection_phase(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let active_proposals: Vec<_> = {
+            let state = self.consensus_state.lock().unwrap();
+            state.active_proposals.clone()
+        };
+
+        for (proposal_id, proposal) in active_proposals {
+            match self.collect_votes(&proposal).await {
+                Ok(votes) => {
+                    let approve_count = votes.iter().filter(|&&v| v).count() as i32;
+                    if approve_count >= proposal.votes_required {
+                        let mut state = self.consensus_state.lock().unwrap();
+                        if let Some(p) = state.active_proposals.get_mut(&proposal_id) {
+                            p.approved = true;
+                        }
+                        println!("Proposal {} reached quorum", proposal_id);
+                    } else if !votes.is_empty() {
+                        println!("Proposal {} has {} votes", proposal_id, approve_count);
+                    }
+                }
+                Err(e) => eprintln!("Failed to collect votes for proposal {}: {}", proposal_id, e),
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn run_consensus_execution_phase(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let approved_proposals: Vec<_> = {
+            let state = self.consensus_state.lock().unwrap();
+            state.active_proposals.iter()
+                .filter(|(_, p)| p.approved)
+                .map(|(id, p)| (id.clone(), p.clone()))
+                .collect()
+        };
+
+        for (proposal_id, proposal) in approved_proposals {
+            match self.collect_votes(&proposal).await {
+                Ok(final_votes) => {
+                    match self.agents[0].execute_consensus(&proposal, &final_votes).await {
+                        Ok(_) => {
+                            let mut state = self.consensus_state.lock().unwrap();
+                            state.active_proposals.remove(&proposal_id);
+                            println!("Executed approved proposal: {}", proposal_id);
+                        }
+                        Err(e) => eprintln!("Failed to execute proposal {}: {}", proposal_id, e),
+                    }
+                }
+                Err(e) => eprintln!("Failed to collect final votes for proposal {}: {}", proposal_id, e),
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn submit_to_consensus(&self, _proposal: &ConsensusProposal) -> Result<(), Box<dyn std::error::Error>> {
+        // Simulate consensus protocol submission
+        sleep(Duration::from_millis(100)).await;
+        Ok(())
+    }
+
+    async fn collect_votes(&self, proposal: &ConsensusProposal) -> Result<Vec<bool>, Box<dyn std::error::Error>> {
+        let mut vote_tasks = Vec::new();
+
+        for agent in &self.agents {
+            let agent = &**agent;
+            let proposal = proposal.clone();
+            let task = tokio::spawn(async move {
+                agent.vote_on_proposal(&proposal).await
+            });
+            vote_tasks.push(task);
+        }
+
+        let mut votes = Vec::new();
+        for task in vote_tasks {
+            match task.await {
+                Ok(vote) => votes.push(vote),
+                Err(e) => {
+                    eprintln!("Agent voting failed: {}", e);
+                    votes.push(false); // Default to false on error
+                }
+            }
+        }
+
+        Ok(votes)
+    }
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let loop_instance = ConsensusFeedbackLoop::new();
+
+    match loop_instance.run_feedback_loop().await {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            eprintln!("Consensus feedback loop failed: {}", e);
+            Err(e)
+        }
+    }
+}
