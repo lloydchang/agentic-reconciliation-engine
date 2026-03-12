@@ -335,7 +335,7 @@ spec:
 - Complete autonomous operation
 - Advanced self-organizing behaviors
 - Coordinated intelligence capabilities
-- Zero-touch infrastructure management
+- Automated infrastructure management
 
 **Tactics**:
 1. **Self-Organization**
