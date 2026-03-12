@@ -1,0 +1,355 @@
+# Pixie eBPF Observability Integration
+# Deploys Pixie for real-time, full-fidelity application and infrastructure observability
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: observability
+
+---
+# Pixie Deployment Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-config
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: config
+data:
+  # Pixie cluster configuration
+  cluster-config.yaml: |
+    # Pixie cluster configuration for GitOps deployment
+    # This configures Pixie to collect telemetry without requiring manual CLI setup
+    
+    # Cluster metadata
+    cluster_name: "gitops-hub-cluster"
+    cluster_type: "K8S"
+    
+    # Data collection settings
+    data_collection:
+      # Enable all data collectors for comprehensive observability
+      enable_http_tracing: true
+      enable_mysql_profiling: true
+      enable_postgres_profiling: true
+      enable_redis_profiling: true
+      enable_node_stats: true
+      enable_process_stats: true
+      
+      # Collection intervals (in seconds)
+      http_trace_sampling_rate: 0.1  # 10% sampling for HTTP traces
+      stats_collection_interval: 30
+      trace_collection_interval: 60
+    
+    # Resource limits for Pixie components
+    resource_limits:
+      vizier:
+        memory_limit: "2Gi"
+        cpu_limit: "1000m"
+        memory_request: "1Gi"
+        cpu_request: "500m"
+      pem:
+        memory_limit: "1Gi"
+        cpu_limit: "500m"
+        memory_request: "512Mi"
+        cpu_request: "200m"
+
+  # Deployment script for Pixie
+  deploy-pixie.sh: |
+    #!/bin/bash
+    # Pixie eBPF Deployment Script for GitOps Infrastructure
+    
+    set -e
+    
+    echo "🔮 Deploying Pixie eBPF observability..."
+    
+    # Check if cluster supports eBPF
+    echo "🔍 Checking eBPF support..."
+    if ! kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kernelVersion}' | grep -E "^[4-5]\." > /dev/null 2>&1; then
+      echo "⚠️  Warning: Kernel version may not support eBPF. Pixie requires kernel 4.14+"
+    fi
+    
+    # Install Pixie using Helm (recommended for GitOps)
+    echo "📦 Adding Pixie Helm repository..."
+    helm repo add pixie https://pixie-io.github.io/pixie-charts
+    helm repo update
+    
+    # Deploy Pixie with custom configuration
+    echo "🚀 Deploying Pixie Vizier..."
+    helm upgrade --install pixie pixie/pixie-chart \
+      --namespace pl \
+      --set clusterName="gitops-hub-cluster" \
+      --set deployKey.enabled=false \
+      --set cloudAddr="with.px.dev:443" \
+      --set pem.memoryLimit="1Gi" \
+      --set pem.cpuLimit="500m" \
+      --set vizier.memoryLimit="2Gi" \
+      --set vizier.cpuLimit="1000m" \
+      --set etcd.memoryLimit="1Gi" \
+      --set etcd.cpuLimit="500m"
+    
+    # Wait for deployment to be ready
+    echo "⏳ Waiting for Pixie deployment..."
+    kubectl wait --for=condition=ready pod -l app=vizier -n pl --timeout=600s
+    kubectl wait --for=condition=ready pod -l app=pem -n pl --timeout=600s
+    
+    # Verify deployment
+    echo "✅ Verifying Pixie deployment..."
+    if kubectl get pods -n pl | grep -q "vizier\|pem"; then
+      echo "✅ Pixie deployment successful!"
+      echo "📊 Access Pixie UI: https://work.withpixie.ai"
+      echo "🔍 Check cluster status: px cluster list"
+    else
+      echo "❌ Pixie deployment failed"
+      exit 1
+    fi
+
+  # Health check script for Pixie
+  pixie-health-check.sh: |
+    #!/bin/bash
+    # Pixie eBPF Health Check Script
+    
+    echo "🔮 Checking Pixie eBPF observability..."
+    
+    # Check Pixie namespace
+    echo "📦 Pixie Namespace:"
+    if kubectl get namespace pl >/dev/null 2>&1; then
+      echo "  ✅ Namespace: pl exists"
+    else
+      echo "  ❌ Namespace: pl not found"
+      exit 1
+    fi
+    
+    # Check Vizier (Pixie control plane)
+    echo ""
+    echo "🎯 Vizier (Control Plane):"
+    if kubectl get pods -n pl -l app=vizier | grep -q "Running"; then
+      echo "  ✅ Vizier: Running"
+      vizier_status=$(kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.phase}')
+      echo "  📊 Status: $vizier_status"
+    else
+      echo "  ❌ Vizier: Not running"
+      kubectl get pods -n pl -l app=vizier
+    fi
+    
+    # Check PEMs (Pixie eBPF agents)
+    echo ""
+    echo "🔧 PEMs (eBPF Agents):"
+    if kubectl get pods -n pl -l app=pem | grep -q "Running"; then
+      echo "  ✅ PEMs: Running"
+      running_count=$(kubectl get pods -n pl -l app=pem --field-selector=status.phase=Running | wc -l)
+      total_count=$(kubectl get pods -n pl -l app=pem | grep -c "pem")
+      echo "  📈 Status: $running_count/$total_count agents running"
+      
+      # Check if PEMs are on all nodes
+      node_count=$(kubectl get nodes --no-headers | wc -l)
+      if [ "$running_count" -eq "$node_count" ]; then
+        echo "  ✅ Coverage: All nodes instrumented"
+      else
+        echo "  ⚠️  Coverage: $running_count/$node_count nodes instrumented"
+      fi
+    else
+      echo "  ❌ PEMs: Not running"
+      kubectl get pods -n pl -l app=pem
+    fi
+    
+    # Check data collection
+    echo ""
+    echo "📊 Data Collection:"
+    if kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' | grep -q "True"; then
+      echo "  ✅ Data Collection: Active"
+      echo "  🔍 Available data: HTTP traces, application metrics, system calls, network traffic"
+    else
+      echo "  ❌ Data Collection: Inactive"
+    fi
+    
+    # Check eBPF functionality
+    echo ""
+    echo "🔍 eBPF Functionality:"
+    if kubectl logs -n pl -l app=pem --tail=10 2>/dev/null | grep -q "eBPF programs loaded"; then
+      echo "  ✅ eBPF: Programs loaded successfully"
+    else
+      echo "  ⚠️  eBPF: Check kernel compatibility and permissions"
+    fi
+    
+    echo ""
+    echo "🔮 Pixie Health Check Complete"
+
+---
+# Service Account for Pixie
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pixie
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: serviceaccount
+
+---
+# RBAC permissions for Pixie
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pixie
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: rbac
+rules:
+  # Core permissions for Pixie eBPF instrumentation
+  - apiGroups: [""]
+    resources: ["pods", "nodes", "services", "endpoints", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  # Process and system call monitoring
+  - apiGroups: [""]
+    resources: ["nodes/proxy"]
+    verbs: ["get"]
+  # Network monitoring
+  - apiGroups: [""]
+    resources: ["services/status"]
+    verbs: ["get"]
+  # Application metadata
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  # Extended permissions for comprehensive monitoring
+  - apiGroups: ["extensions"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pixie
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pixie
+subjects:
+  - kind: ServiceAccount
+    name: pixie
+    namespace: pl
+
+---
+# Pixie Monitoring Dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixie-monitoring
+  namespace: pl
+  labels:
+    app.kubernetes.io/name: pixie
+    app.kubernetes.io/component: monitoring
+data:
+  # Sample Pixie scripts for common GitOps monitoring
+  gitops-monitoring-scripts.yaml: |
+    # Pixie scripts for GitOps infrastructure monitoring
+    
+    # Flux deployment monitoring
+    flux_deployment_health: |
+      #import px
+      
+      df = px.DataFrame('http_events')
+      df = df[df['service'] == 'flux-system']
+      df = df.groupby(['service', 'remote_addr']).agg(
+          latency=('latency_ns', px.mean),
+          requests=('time_', px.count)
+      )
+      df = df.sort('latency', descending=True)
+      df.head(10)
+    
+    # Application performance monitoring
+    app_performance_metrics: |
+      #import px
+      
+      df = px.DataFrame('http_events')
+      df = df[df['http_resp_status'] < 500]  # Filter out server errors
+      df = df.groupby(['service', 'http_resp_status']).agg(
+          latency=('latency_ns', px.mean),
+          requests=('time_', px.count),
+          error_rate=('http_resp_status', px.mean)
+      )
+      df = df.sort('requests', descending=True)
+      df.head(20)
+    
+    # Network traffic analysis
+    network_traffic_analysis: |
+      #import px
+      
+      df = px.DataFrame('network_flow')
+      df = df.groupby(['src_addr', 'dst_addr', 'protocol']).agg(
+          bytes_sent=('bytes_sent', px.sum),
+          bytes_received=('bytes_received', px.sum),
+          connections=('time_', px.count)
+      )
+      df = df.sort('bytes_sent', descending=True)
+      df.head(15)
+    
+    # Container resource usage
+    container_resource_usage: |
+      #import px
+      
+      df = px.DataFrame('process_stats')
+      df = df.groupby(['pod_name', 'container_name']).agg(
+          cpu_usage=('cpu_usage_ns', px.mean),
+          memory_usage=('memory_usage_bytes', px.mean),
+          fd_count=('fd_count', px.mean)
+      )
+      df = df.sort('cpu_usage', descending=True)
+      df.head(20)
+
+  # Quick start guide
+  quick-start.md: |
+    # Pixie eBPF Quick Start for GitOps
+    
+    ## Access Pixie UI
+    1. Open https://work.withpixie.ai
+    2. Select your cluster: gitops-hub-cluster
+    3. Start exploring with pre-built scripts
+    
+    ## Monitor GitOps Components
+    
+    ### Flux Health Monitoring
+    ```bash
+    # In Pixie UI, run: px/http_data
+    # Filter by service: flux-system
+    ```
+    
+    ### Application Performance
+    ```bash
+    # Run: px/http_data
+    # Group by service to see performance across all applications
+    ```
+    
+    ### Network Analysis
+    ```bash
+    # Run: px/network_flow
+    # See traffic patterns between services
+    ```
+    
+    ### Container Resources
+    ```bash
+    # Run: px/container_stats
+    # Monitor resource usage across all containers
+    ```
+    
+    ## Custom Scripts
+    Create custom scripts in the Pixie UI or use the predefined scripts in the gitops-monitoring-scripts configmap.
+    
+    ## Integration with Existing Monitoring
+    Pixie complements existing monitoring (Honeycomb, Loki) by providing:
+    - Full-fidelity traces without code instrumentation
+    - System call level visibility
+    - Network traffic analysis
+    - Real-time container metrics

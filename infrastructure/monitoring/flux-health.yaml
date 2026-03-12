@@ -81,6 +81,54 @@ data:
     
     echo ""
     echo "🍯 Honeycomb Observability Check Complete"
+    
+    echo ""
+    echo "🔮 Checking Pixie eBPF Observability..."
+    
+    # Check Pixie namespace
+    echo "📦 Pixie Namespace:"
+    if kubectl get namespace pl 2>/dev/null >/dev/null; then
+      echo "  ✅ Namespace: pl exists"
+      
+      # Check Vizier (Pixie control plane)
+      echo ""
+      echo "🎯 Vizier (Control Plane):"
+      if kubectl get pods -n pl -l app=vizier 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ Vizier: Running"
+        vizier_status=$(kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
+        echo "  📊 Status: $vizier_status"
+      else
+        echo "  ⚠️  Vizier: Not running (observability optional)"
+      fi
+      
+      # Check PEMs (Pixie eBPF agents)
+      echo ""
+      echo "🔧 PEMs (eBPF Agents):"
+      if kubectl get pods -n pl -l app=pem 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ PEMs: Running"
+        running_count=$(kubectl get pods -n pl -l app=pem --field-selector=status.phase=Running 2>/dev/null | wc -l)
+        total_count=$(kubectl get pods -n pl -l app=pem 2>/dev/null | grep -c "pem" || echo "0")
+        echo "  📈 Status: $running_count/$total_count agents running"
+      else
+        echo "  ⚠️  PEMs: Not running (observability optional)"
+      fi
+      
+      # Check data collection
+      echo ""
+      echo "📊 Data Collection:"
+      if kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null | grep -q "True" 2>/dev/null; then
+        echo "  ✅ Data Collection: Active"
+        echo "  🔍 Available: HTTP traces, application metrics, system calls, network traffic"
+      else
+        echo "  ⚠️  Data Collection: Inactive"
+      fi
+      
+    else
+      echo "  ⚠️  Pixie Namespace: Not found (observability optional)"
+    fi
+    
+    echo ""
+    echo "🔮 Pixie eBPF Observability Check Complete"
   
   incident-response.md: |
     # Flux Incident Response Procedures
