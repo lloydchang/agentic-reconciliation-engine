@@ -130,32 +130,69 @@ The GitOps Infrastructure Control Plane now supports **comprehensive multi-langu
 - **Load Balancing**: Distributed decision making across all agents
 - **Fault Recovery**: Automatic failover and state recovery
 
-### 🎯 **Getting Started**
+### �️ Modular Architecture & DAG
 
-#### **Quick Start with Rust Performance**
-```bash
-# Deploy ultra-fast Rust-based agents
-kubectl apply -f examples/complete-hub-spoke-consensus/
+This control plane is built with **explicit dependency management** using Flux's `dependsOn` feature, creating a true Directed Acyclic Graph (DAG) for infrastructure deployment.
+
+### Core DAG Structure
+```
+Level 0: flux-system (GitRepository)
+Level 1: infrastructure-controllers, monitoring-alerts
+Level 2: aws/azure/gcp-network
+Level 3: aws/azure/gcp-clusters  
+Level 4: aws/azure/gcp-workloads
+Level 5: Enhanced services (AI, auth, certificates)
 ```
 
-#### **Python AI/ML Integration**
+### 📋 Quick Start
+
+#### 1. **Open Source Deployment**
 ```bash
-# Deploy Python agents with machine learning
-kubectl apply -f examples/complete-hub-spoke-kagent/
+./scripts/variant-swapper.sh opensource
 ```
 
-#### **Multi-Language Swarm**
+#### 2. **Enterprise Deployment**
 ```bash
-# Deploy hybrid multi-language agent team
-kubectl apply -f examples/complete-hub-spoke/
+./scripts/variant-swapper.sh enterprise
 ```
 
-### 📚 **Documentation**
+#### 3. **Language Ecosystem Variants**
+```bash
+# Python/ML Stack
+./scripts/variant-swapper.sh languages python
 
-- **[AI Integration Analysis](./docs/AI-INTEGRATION-ANALYSIS.md)**: Comprehensive multi-language runtime support
-- **[Agent Architecture](./docs/ARCHITECTURE.md)**: Consensus-based orchestration design
-- **[Agent Skills](./docs/AGENT-SKILLS-NEXT-LEVEL.md)**: Self-organizing swarm patterns
-- **[Examples](./examples/)**: Complete implementation examples for all languages
+# Go/Cloud Native Stack
+./scripts/variant-swapper.sh languages go
+
+# Rust/WasmCloud Stack
+./scripts/variant-swapper.sh languages rust
+
+# TypeScript/Node.js Stack
+./scripts/variant-swapper.sh languages typescript
+
+# C#/.NET Stack
+./scripts/variant-swapper.sh languages csharp
+
+# Java/JVM Stack
+./scripts/variant-swapper.sh languages java
+```
+
+### 🔧 DAG Visualization
+```bash
+# Generate dependency graph
+python3 scripts/dag-visualizer.py . --format mermaid --output docs/diagrams/current-dag.md
+
+# Check for circular dependencies
+python3 scripts/dag-visualizer.py . --format report
+```
+
+### 📚 Documentation
+- **[DAG Architecture](docs/DAG-ARCHITECTURE.md)** - Complete dependency management guide
+- **[Variant Management](variants/)** - Deployment variant configurations
+- **[Examples](examples/)** - Complete deployment scenarios
+- **[AI Integration Analysis](docs/AI-INTEGRATION-ANALYSIS.md)**: Comprehensive multi-language runtime support
+- **[Agent Architecture](docs/ARCHITECTURE.md)**: Consensus-based orchestration design
+- **[Agent Skills](docs/AGENT-SKILLS-NEXT-LEVEL.md)**: Self-organizing swarm patterns
 
 ---
 
