@@ -19,7 +19,7 @@ releaseTag = ''
 pipeline {
     agent {
         kubernetes { 
-            yamlFile "jenkins/docker-pod.yaml" 
+            yamlFile "ci-cd/ci/jenkins/docker-pod.yaml" 
             defaultContainer 'docker'
         }
     }

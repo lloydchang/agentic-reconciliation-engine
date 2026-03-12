@@ -1,0 +1,129 @@
+---
+# Failover Configuration
+# Centralized configuration for Git repository failover behavior
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: failover-config
+  namespace: flux-system
+data:
+  failover.yaml: |
+    # Git Repository Failover Configuration
+    
+    repositories:
+      primary:
+        name: "gitops-infra-primary"
+        url: "https://github.com/antigravity/gitops-infra-control-plane.git"
+        priority: 1
+        timeout: "60s"
+        retry_interval: "2m"
+        
+      secondary:
+        name: "gitops-infra-secondary"
+        url: "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+        priority: 2
+        timeout: "60s"
+        retry_interval: "2m"
+        
+      tertiary:
+        name: "gitops-infra-tertiary"
+        url: "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+        priority: 3
+        timeout: "60s"
+        retry_interval: "2m"
+    
+    failover:
+      health_check_interval: "30s"
+      failure_threshold: 3
+      success_threshold: 2
+      auto_failover: true
+      auto_recovery: true
+      
+      # Offline mode configuration
+      offline:
+        enabled: true
+        cache_url: "http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"
+        max_offline_duration: "24h"
+        queue_changes: true
+        
+    notifications:
+      slack:
+        enabled: true
+        webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+        channel: "#gitops-alerts"
+        
+      email:
+        enabled: false
+        smtp_server: "smtp.company.com"
+        recipients: ["admin@company.com"]
+        
+  health-check-script.sh: |
+    #!/bin/bash
+    
+    # Health check script for Git repositories
+    
+    check_repository() {
+      local repo_name=$1
+      local repo_url=$2
+      
+      echo "Checking $repo_name..."
+      
+      # Test repository connectivity
+      if timeout 30 git ls-remote "$repo_url" &>/dev/null; then
+        echo "✅ $repo_name is healthy"
+        kubectl label gitrepository "$repo_name" gitrepo.fluxcd.io/healthy=true --overwrite -n flux-system
+        return 0
+      else
+        echo "❌ $repo_name is unhealthy"
+        kubectl label gitrepository "$repo_name" gitrepo.fluxcd.io/healthy=false --overwrite -n flux-system
+        return 1
+      fi
+    }
+    
+    # Check all repositories
+    check_repository "gitops-infra-primary" "https://github.com/antigravity/gitops-infra-control-plane.git"
+    check_repository "gitops-infra-secondary" "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+    check_repository "gitops-infra-tertiary" "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+    
+  failover-script.sh: |
+    #!/bin/bash
+    
+    # Failover script for Git repositories
+    
+    PRIMARY_REPO="gitops-infra-primary"
+    SECONDARY_REPO="gitops-infra-secondary"
+    TERTIARY_REPO="gitops-infra-tertiary"
+    
+    # Get repository health status
+    PRIMARY_HEALTHY=$(kubectl get gitrepository $PRIMARY_REPO -n flux-system -l gitrepo.fluxcd.io/healthy=true --no-headers | wc -l)
+    SECONDARY_HEALTHY=$(kubectl get gitrepository $SECONDARY_REPO -n flux-system -l gitrepo.fluxcd.io/healthy=true --no-headers | wc -l)
+    TERTIARY_HEALTHY=$(kubectl get gitrepository $TERTIARY_REPO -n flux-system -l gitrepo.fluxcd.io/healthy=true --no-headers | wc -l)
+    
+    echo "Primary healthy: $PRIMARY_HEALTHY"
+    echo "Secondary healthy: $SECONDARY_HEALTHY"
+    echo "Tertiary healthy: $TERTIARY_HEALTHY"
+    
+    # Current source
+    CURRENT_SOURCE=$(kubectl get kustomization infrastructure -n flux-system -o jsonpath='{.spec.sourceRef.name}' 2>/dev/null || echo "unknown")
+    echo "Current source: $CURRENT_SOURCE"
+    
+    # Failover logic
+    if [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -eq 0 && $TERTIARY_HEALTHY -eq 0 ]]; then
+      echo "🚨 All repositories failed - enabling offline mode"
+      kubectl patch gitrepository $PRIMARY_REPO -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
+      kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
+      
+    elif [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$SECONDARY_REPO" ]]; then
+      echo "🔄 Failing over to secondary repository"
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+      
+    elif [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -eq 0 && $TERTIARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$TERTIARY_REPO" ]]; then
+      echo "🔄 Failing over to tertiary repository"
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-tertiary"}}}' --type=merge
+      
+    elif [[ $PRIMARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$PRIMARY_REPO" ]]; then
+      echo "✅ Primary repository recovered - switching back"
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-primary"}}}' --type=merge
+      kubectl annotate kustomization infrastructure fluxcd.io/offline-mode- --overwrite -n flux-system
+    fi
