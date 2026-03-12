@@ -1,0 +1,13 @@
+[package]
+name = "consensus-feedback-loop"
+version = "0.1.0"
+edition = "2021"
+description = "Rust implementation of consensus-based agent feedback loops for infrastructure optimization"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8"
+async-trait = "0.1"
+futures = "0.3"
