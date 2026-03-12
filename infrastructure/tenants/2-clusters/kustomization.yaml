@@ -7,3 +7,11 @@ resources:
   - aws-eks-cluster.yaml
   - azure-aks-cluster.yaml
   - gcp-gke-cluster.yaml
+dependsOn:
+  - network-infra
+labels:
+  - pairs:
+      managed-by: flux
+      component: cluster-infra
+      tier: compute
+      platform: multi-cluster-gitops

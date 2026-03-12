@@ -2,16 +2,34 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: workload-infra
-  namespace: default
+  namespace: flux-system
 resources:
-  - sample-apps/
+  # Core workloads that can be swapped based on ecosystem needs
+  - cert-manager/
   - monitoring/
   - networking/
   - security/
-  - argo-cd/
-  - argo-workflows/
-  - camunda/
-  - temporal/
-  - backstage/
-  - honeycomb/
-  - pixie-spoke-config.yaml
+  # Ecosystem-specific workloads (comment/uncomment based on needs)
+  # Python/uv ecosystem
+  # - apache-airflow/
+  # Go ecosystem
+  # - argo-workflows/
+  # TypeScript/Node.js ecosystem
+  # - backstage/
+  # Java/JVM ecosystem
+  # - camunda/
+  # - temporal/
+  # C#/.NET ecosystem
+  # - app-dynamics/
+  # Rust ecosystem
+  # Add rust-specific workloads here
+  # Shell/Bash ecosystem
+  # Add shell-specific workloads here
+dependsOn:
+  - cluster-infra
+labels:
+  - pairs:
+      managed-by: flux
+      component: workload-infra
+      tier: application
+      platform: multi-cluster-gitops

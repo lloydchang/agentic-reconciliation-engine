@@ -4,13 +4,13 @@ metadata:
   name: gitops-infra-control-plane
   namespace: flux-system
 resources:
-  - flux/gotk-components.yaml
-  - flux/gotk-sync.yaml
-  - flux/image-update-automation.yaml
-  - flux/image-policy.yaml
+  - flux/
   - controllers/
   - karmada/
   - monitoring/
+  - consensus/
+dependsOn:
+  - flux
 labels:
   - pairs:
       managed-by: flux
