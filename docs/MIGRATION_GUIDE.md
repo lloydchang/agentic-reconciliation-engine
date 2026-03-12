@@ -6,10 +6,11 @@ This guide documents the approach for handling existing workloads built with pus
 
 ## Core Philosophy
 
-The GitOps approach provides capabilities fundamentally unavailable in traditional IaC tools:
+The GitOps approach employs a hybrid strategy: push-based tools for initial cluster bootstrap, transitioning to continuous reconciliation for ongoing infrastructure management.
 
-- **Traditional IaC (Terraform, CDK, etc.)**: Execute once, create state files, require manual re-runs or external orchestration for changes.
-- **GitOps Control Plane**: Continuous reconciliation using native Kubernetes controllers (ACK/ASO/KCC), 24/7 automated drift detection and repair, no state files, Flux `dependsOn` for DAG dependencies.
+- **Phased Migration**: Use industry-standard CLIs (eksctl, az, gcloud) for initial Hub cluster creation, then leverage native Kubernetes controllers (ACK/ASO/KCC) for declarative, self-healing infrastructure management.
+- **Push-Based IaC (Terraform, CDK, etc.)**: Execute once, create state files, require external orchestration for dependencies - used only for initial bootstrap.
+- **GitOps Control Plane**: Continuous reconciliation using native Kubernetes controllers (ACK/ASO/KCC), no state files, Flux `dependsOn` for DAG dependencies - used for ongoing management.
 
 **Key Advantage**: Self-healing infrastructure that automatically maintains desired state without human intervention.
 
