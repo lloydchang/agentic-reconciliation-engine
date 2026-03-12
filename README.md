@@ -4,7 +4,9 @@ GitOps Infra Control Plane: Continuous Reconciliation Engine for Multi-Cloud Inf
 
 ---
 
-## Strategic Architecture:
+# Steps: From 0 to 1
+
+## Strategic Architecture and Tactical Planning:
 
 Problem-Focused GitOps with Flexible Deployment Patterns
 
