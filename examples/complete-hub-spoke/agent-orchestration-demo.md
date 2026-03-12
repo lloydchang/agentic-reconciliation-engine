@@ -29,12 +29,25 @@
 
 This example demonstrates the **full consensus architecture**, but you can use components individually:
 
-### **Extract Individual Components:**
-```yaml
-# Option 1: Flux + Temporal Only (No Consensus)
-components: ["flux-core", "temporal-workflows"]
+### 📋 **Component-Level Adaptation**
 
-# Option 2: Basic Agent Coordination (No AI)
+#### For **Brownfield Migration** (Existing Infrastructure Modernization)
+```yaml
+brownfield_migration:
+  use_components:
+    - "Consensus decision making for migration coordination"
+    - "AI agents for infrastructure analysis and optimization"
+    - "Human-in-the-loop for critical migration decisions"
+    - "30-second feedback loops for continuous improvement"
+  skip_components:
+    - "Multi-cloud scatter/gather (if single cloud migration)"
+    - "Advanced AI features (if not needed for migration)"
+    - "Complex consensus protocols (if simple migration)"
+  implementation:
+    - "Start with consensus-agent-swarm/README.md"
+    - "Add infrastructure discovery skills"
+    - "Implement migration-specific workflows"
+    - "Focus on analysis and optimization of existing resources"
 components: ["flux-core", "basic-consensus"]
 
 # Option 3: Local + Cloud Optimization

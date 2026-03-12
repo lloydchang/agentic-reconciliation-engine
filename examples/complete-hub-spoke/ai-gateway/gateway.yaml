@@ -136,6 +136,156 @@ spec:
     targetPort: 8080
     protocol: TCP
 ---
+# Claude Code Gateway: Secure AI Traffic Management
+
+## 🎯 Scenario Applicability
+
+### ✅ **BEST FOR: Hybrid Scenarios**
+**When to Use**: Local development with cloud deployment requiring AI assistance
+- **Use Case**: Development teams need AI help but require security and governance
+- **Environment**: Local development + cloud production with AI API access
+- **Team Scale**: Medium to large teams (5-50 engineers) with AI expertise
+- **Security Needs**: High security, compliance, and audit requirements
+- **AI Integration**: Using Claude Code or other AI tools in development workflow
+
+**Why It Fits**:
+- Gateway provides secure proxy for AI traffic from local to cloud
+- Prompt guards prevent sensitive data exposure in hybrid environments
+- Centralized control of AI API usage and costs
+- Audit trails for compliance and governance
+- Integration with existing cloud security model
+
+### ⚠️ **CONSIDER FOR: Brownfield Scenarios**
+**When to Use**: Existing infrastructure needing AI-enhanced operations
+- **Use Case**: Legacy systems where AI can help with modernization
+- **Integration**: Add AI gateway to existing infrastructure
+- **Security**: Enhance security posture for AI-driven operations
+- **Migration**: AI-assisted analysis and migration planning
+
+**Why Consider**:
+- Can add AI capabilities to existing infrastructure without disruption
+- Provides secure AI integration for legacy environments
+- Helps with knowledge transfer and documentation generation
+- Enables gradual AI adoption in brownfield environments
+
+### ❌ **NOT RECOMMENDED: Greenfield Scenarios**
+**Why Not**: Over-engineering for new projects
+- **Problem**: Adding gateway complexity to new, clean projects
+- **Alternative**: Direct AI integration without gateway for simpler setups
+- **Risk**: Additional complexity may slow down initial development
+- **Recommendation**: Use gateway only when security/compliance requirements demand it
+
+## 📋 **Implementation by Scenario**
+
+### For Hybrid Development (Primary Use Case)
+```yaml
+hybrid_implementation:
+  deployment:
+    - "Deploy gateway in cloud production environment"
+    - "Configure local development to route through gateway"
+    - "Set up prompt guards for data protection"
+    - "Implement audit logging and monitoring"
+  configuration:
+    - " Claude API integration with workload identity"
+    - "Prompt templates for infrastructure queries"
+    - "Access control based on team roles"
+    - "Rate limiting and cost controls"
+  benefits:
+    - "Secure AI access from local development"
+    - "Centralized governance and compliance"
+    - "Cost optimization through caching and pooling"
+    - "Audit trail for all AI interactions"
+```
+
+### For Brownfield Enhancement (Secondary Use Case)
+```yaml
+brownfield_enhancement:
+  integration:
+    - "Add gateway to existing cloud infrastructure"
+    - "Configure for AI-assisted operations"
+    - "Set up compliance filters and audit trails"
+    - "Implement gradual adoption for teams"
+  migration_support:
+    - "AI-powered infrastructure analysis"
+    - "Automated documentation generation"
+    - "Security vulnerability scanning"
+    - "Cost optimization recommendations"
+  value:
+    - "Enhances existing infrastructure with AI capabilities"
+    - "Provides secure AI integration path"
+    - "Supports gradual modernization"
+```
+
+## 🔄 **Component Adaptation**
+
+### Minimal Gateway Setup (Simple Hybrid)
+```yaml
+minimal_setup:
+  components:
+    - "examples/complete-hub-spoke/ai-gateway/gateway.yaml"
+    - "Basic Flux integration for gateway management"
+  features:
+    - "Basic prompt guards for PII/credential filtering"
+    - "Simple audit logging"
+    - "Rate limiting"
+  skip:
+    - "Advanced consensus features"
+    - "Multi-cloud coordination"
+    - "Complex AI workflows"
+```
+
+### Full Gateway Setup (Complex Hybrid/Brownfield)
+```yaml
+full_setup:
+  components:
+    - "examples/complete-hub-spoke/ai-gateway/gateway.yaml"
+    - "examples/complete-hub-spoke-temporal/security/temporal-rbac.yaml"
+    - "examples/complete-hub-spoke-temporal/monitoring/"
+  features:
+    - "Advanced prompt guards and content scanning"
+    - "Multi-model AI support (Claude, GPT, etc.)"
+    - "Human approval workflows for sensitive operations"
+    - "Comprehensive audit and compliance reporting"
+```
+
+## 📊 **Success Metrics by Scenario**
+
+### Hybrid Development Success Indicators
+```yaml
+hybrid_success_metrics:
+  security:
+    - "Zero credential exposure incidents"
+    - "100% AI traffic through gateway"
+    - "Prompt guard effectiveness: >95%"
+    - "Compliance audit score: >98%"
+  productivity:
+    - "AI-assisted development velocity: +30%"
+    - "Code quality improvement: +25%"
+    - "Documentation coverage: >90%"
+  cost:
+    - "AI API cost optimization: >20%"
+    - "Gateway resource efficiency: >85%"
+```
+
+### Brownfield Enhancement Success Indicators
+```yaml
+brownfield_success_metrics:
+  adoption:
+    - "Team AI adoption rate: >80%"
+    - "Gateway utilization: >90%"
+    - "Security compliance improvement: >40%"
+  operational:
+    - "Infrastructure analysis accuracy: >85%"
+    - "Automation of manual tasks: >60%"
+    - "Migration risk reduction: >50%"
+  value:
+    - "Legacy system modernization"
+    - "Knowledge transfer and retention"
+    - "Improved operational efficiency"
+```
+
+---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
