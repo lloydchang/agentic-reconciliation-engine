@@ -1,0 +1,48 @@
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: NodePool
+metadata:
+  name: gcp-default
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: gcp-default
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - karpenter.gcp.io/machine-family
+          operator: In
+          values: ["e2", "n2", "n2d", "c2", "c2d"]
+        - karpenter.gcp.io/preemptible
+          operator: In
+          values: ["true", "false"]
+      expireAfter: 720h # 30 days
+  limits:
+    cpu: "1000"
+    memory: 1000Gi
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h # 30 days
+    budgets:
+    - nodes: "10"
+---
+apiVersion: karpenter.gcp.io/v1alpha1
+kind: GCPNodeClass
+metadata:
+  name: gcp-default
+spec:
+  machineFamily: ["e2", "n2", "n2d", "c2", "c2d"]
+  locations: ["us-central1", "us-east1", "us-west1", "europe-west1"]
+  projectID: "your-gcp-project-id" # This should be overridden per cluster
+  requirements:
+  - key: karpenter.gcp.io/machine-family
+    operator: In
+    values: ["e2", "n2", "n2d", "c2", "c2d"]
+  - key: karpenter.gcp.io/preemptible
+    operator: In
+    values: ["true", "false"]

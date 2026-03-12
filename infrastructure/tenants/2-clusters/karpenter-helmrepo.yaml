@@ -1,0 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: karpenter
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: karpenter
+    app.kubernetes.io/component: core
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  interval: 10m
+  url: https://charts.karpenter.sh

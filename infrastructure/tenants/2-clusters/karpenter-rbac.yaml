@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: karpenter
+  namespace: karpenter
+  annotations:
+    iam.amazonaws.com/role: "KarpenterControllerRole-${CLUSTER_NAME}" # This should be overridden per cluster
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: karpenter
+rules:
+- apiGroups: [""]
+  resources: ["events", "pods", "nodes", "persistentvolumes", "persistentvolumeclaims"]
+  verbs: ["create", "patch", "delete", "get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["karpenter.sh"]
+  resources: ["nodepools", "nodeclaims"]
+  verbs: ["create", "patch", "delete", "get", "list", "watch"]
+- apiGroups: ["karpenter.k8s.aws"]
+  resources: ["ec2nodeclasses"]
+  verbs: ["create", "patch", "delete", "get", "list", "watch"]
+- apiGroups: ["karpenter.azure.com"]
+  resources: ["aksnodeclasses"]
+  verbs: ["create", "patch", "delete", "get", "list", "watch"]
+- apiGroups: ["karpenter.gcp.io"]
+  resources: ["gcpnodeclasses"]
+  verbs: ["create", "patch", "delete", "get", "list", "watch"]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["create", "get", "list", "update"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["create", "delete", "get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: karpenter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: karpenter
+subjects:
+- kind: ServiceAccount
+  name: karpenter
+  namespace: karpenter

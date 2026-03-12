@@ -1,53 +1,106 @@
 # GitOps Infrastructure Control Plane
 
-## Continuous Reconciliation Engine for Multi-Cloud Infra
+Continuous Reconciliation Engine for Multi-Cloud Infrastructure
 
----
+## Core Advantage
 
-# Steps: From 0 to 1
+Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. We provide **24/7 continuous reconciliation** that automatically detects and repairs configuration drift.
 
-## Strategic Architecture and Tactical Planning:
+| Approach | Traditional IaC | Continuous Reconciliation |
+|----------|----------------|---------------------------|
+| Operation | Run once → Exit | Monitor 24/7 → Auto-heal |
+| Drift Detection | Manual `plan` runs | Automatic within minutes |
+| Emergency Fix | Manual process | Git commit → Auto-deploy |
+| State Management | State files (corruption risk) | Live cloud API (no files) |
 
-Problem-Focused GitOps with Flexible Deployment Patterns
+## Architecture Overview
 
-## 🎯 Critical First Question: Is This the Right Solution?
+Hub-and-spoke model with continuous reconciliation:
 
-**⚠️ IMPORTANT**: This repository solves specific infrastructure problems. Before proceeding, **clearly define your problem** to determine if this solution is appropriate.
+```
+GIT REPOSITORY (Source of Truth)
+        ↓
+Flux Pulls Manifests
+        ↓
++--------------------------+
+|      HUB CLUSTER         |
+| Flux | ACK | ASO | KCC  |
++--------------------------+
+    ↓       ↓       ↓
+SPOKE 1   SPOKE 2   SPOKE 3
+(EKS)     (AKS)     (GKE)
+```
 
-> **📖 Start Here**: Complete our [Strategic Framework Assessment](./docs/STRATEGIC-FRAMEWORK.md) for systematic problem definition.
+## Quick Start
 
-### 🤔 Problem Definition Framework
+### Prerequisites
+- Kubernetes cluster (v1.24+) with RBAC
+- Git repository with infrastructure manifests
+- Cloud provider credentials
 
-Ask yourself these critical questions:
+### Basic Deployment
+```bash
+# Install Flux
+flux install
 
-1. **What is your primary infrastructure challenge?**
-   - ❌ Manual deployment processes?
-   - ❌ Configuration drift across environments?
-   - ❌ Multi-cloud complexity?
-   - ❌ Lack of automated recovery?
-   - ❌ High operational overhead?
+# Deploy infrastructure
+kubectl apply -f examples/complete-hub-spoke/
 
-2. **What is your deployment context?**
-   - 🟢 **Greenfield**: Starting from scratch, no existing infrastructure
-   - 🟡 **Brownfield**: Existing infrastructure to be gradually migrated
-   - 🟠 **Hybrid**: Local development + cloud operations
-   - 🔴 **Multi-cloud**: Operations across multiple cloud providers
+# Verify deployment
+flux get kustomizations
+```
 
-3. **What is your organizational scale?**
-   - 🟢 **Small Team**: 1-5 engineers, simple workloads
-   - 🟡 **Medium Team**: 5-50 engineers, moderate complexity
-   - 🟠 **Large Enterprise**: 50+ engineers, complex compliance needs
+## When to Use This Solution
 
-## 🎯 Solution-Problem Fit Matrix
+### ✅ Good Fit
+- **Multi-cloud infrastructure** with complex coordination needs
+- **Large-scale deployments** requiring autonomous optimization
+- **Brownfield migrations** with gradual modernization requirements
+- **Enterprise environments** needing security and compliance features
 
-| Scenario | Problem Type | Recommended Approach | When This Repository Helps |
-|----------|--------------|---------------------|--------------------------|
-| **Greenfield + Small Team** | Starting new project | **Simplified Flux only** | Use basic Flux patterns, skip complex consensus |
-| **Brownfield + Medium Team** | Migrating existing infra | **Hybrid approach** | Use migration guides, adopt incrementally |
-| **Hybrid Local/Cloud** | Dev-to-prod pipeline | **Local development patterns** | Focus on local dev + cloud deployment |
-| **Multi-cloud + Enterprise** | Cross-cloud complexity | **Full consensus architecture** | Use complete feature set |
-| **Single Cloud + Large Team** | Scale and reliability | **Enhanced monitoring + automation** | Skip multi-cloud, use consensus |
+### ❌ Not a Good Fit
+- **Simple single-app deployments** (use basic GitOps)
+- **Time-critical migrations** (<3 months timeline)
+- **Small teams** with basic infrastructure needs
+- **Cost-sensitive projects** with limited budget
 
+> **Important**: This repository solves specific infrastructure problems. Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md) before implementation.
+
+## Key Features
+
+- **Continuous Reconciliation**: 24/7 drift detection and auto-repair
+- **Multi-Cloud Support**: AWS, Azure, GCP with native controllers
+- **DAG Dependencies**: Explicit dependency management with Flux
+- **Agent Orchestration**: Optional AI-enhanced consensus agents
+- **Multi-Language Support**: Go, Python, Rust, TypeScript, C#, Java
+- **Security-First**: Zero-trust networking and comprehensive auditing
+
+## Documentation
+
+### Essential Reading (In Order)
+1. **[Problem-Solution Fit](./docs/PROBLEM-SOLUTION-FIT.md)** - When and how to use this solution
+2. **[Architecture](./docs/ARCHITECTURE.md)** - Technical architecture overview
+3. **[Implementation Plan](./docs/implementation_plan.md)** - Step-by-step deployment guide
+
+### Implementation Examples
+- **[Complete Hub-Spoke](./examples/complete-hub-spoke/)** - Full deployment with all features
+- **[Agent Orchestration](./examples/complete-hub-spoke/agent-orchestration-demo.md)** - Autonomous agent coordination
+- **[Variants](./variants/)** - Deployment variations for different scenarios
+
+### Advanced Topics
+- **[AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md)** - Intelligent automation patterns
+- **[Consensus Protocols](./docs/CONSENSUS-PROTOCOL-ANALYSIS.md)** - Distributed decision-making
+- **[Migration Strategy](./docs/LEGACY-IAC-MIGRATION-STRATEGY.md)** - Converting from traditional IaC
+
+## Contributing
+
+This repository uses dual licensing:
+- **AGPL-3.0**: Core infrastructure manifests and logic
+- **Apache 2.0**: Documentation and example snippets
+
+## License
+
+GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file.
 ## 🚀 Architecture Overview
 
 We provide a **layered, modular approach** that can be adopted based on your specific needs:
