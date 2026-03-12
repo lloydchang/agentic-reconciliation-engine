@@ -4216,6 +4216,16 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Reference for production-ready orchestration architectures.
 
+## 29. https://www.resolute.sh/docs
+
+**Content Summary**: Resolute is a Go framework for "AgentOrchestration as Code" providing type-safe workflows, fluent API, built-in patterns (compensation/saga, pagination, rate limiting), and provider ecosystem (Jira, Confluence, Ollama, Qdrant). Supports multi-model LLM integration, agent child workflows, and observability features.
+
+**Applicability**: Provides Go-native agent orchestration framework applicable to infrastructure automation in the GitOps control plane. Could enhance agent swarms with type-safe workflow definitions and built-in reliability patterns for consensus-based distributed orchestration.
+
+**Safety Assessment**: ✅ **SAFE** - Type-safe generics prevent runtime errors, built-in compensation patterns ensure reliability, and containerized execution model aligns with Kubernetes security practices.
+
+**Integration Approach**: Reference in examples/complete-hub-spoke-kagent/ for Go-based agent workflow development. Could serve as alternative to Kelos for Kubernetes-native orchestration with stronger typing and built-in enterprise patterns.
+
 These references collectively support the evolution from traditional top-down Flux orchestration to bottom-up consensus-based agent swarms, enabling tighter feedback loops (sub-second to minute intervals), distributed decision-making, and self-organizing infrastructure optimization while maintaining the security and reliability standards of the GitOps control plane.
 
 ---
