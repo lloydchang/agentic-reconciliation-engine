@@ -2,6 +2,28 @@
 
 This guide explains how to legally build proprietary software layers on top of the AGPL-3.0 licensed Continuous Reconciliation Engine (CRE).
 
+## Dual Licensing Structure
+
+This repository uses a **dual licensing approach** to support both open-source development and commercial usage:
+
+### AGPL-3.0 Core Components
+- **What**: The Continuous Reconciliation Engine (CRE) core
+- **Files**: All infrastructure manifests, Flux configurations, scripts, and core logic
+- **License**: GNU Affero General Public License v3.0 (AGPL-3.0)
+- **Requirements**: Derivative works must be AGPL-licensed
+
+### Apache 2.0 Documentation & Examples
+- **What**: Integration examples, tutorials, and documentation
+- **Files**: All `.md` documentation files, code examples, and sample implementations
+- **License**: Apache License 2.0 (permissive)
+- **Requirements**: Commercial use allowed, no copyleft restrictions
+
+### Why This Works
+- **Clean Separation**: Documentation/examples don't modify or link to AGPL core
+- **Network Communication**: Examples demonstrate safe integration via APIs/network
+- **Educational Purpose**: Examples show integration patterns, not core modifications
+- **Commercial Enablement**: Allows users to build proprietary software using examples
+
 ## AGPL-3.0 Key Concepts
 
 **AGPL-3.0** is a copyleft license that requires derivative works to be licensed under the same terms. However, it contains provisions that allow building proprietary software on top.

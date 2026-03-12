@@ -59,6 +59,15 @@ We utilize Flux over Argo CD because Flux is architecturally optimized for infra
 - Refer to .gitignore to ensure no local secrets or state artifacts are ever committed.
 - All code is subject to the GNU Affero General Public License v3.0 (AGPL-3.0) (see [LICENSE](https://github.com/lloydchang/gitops-infra-control-plane/blob/main/LICENSE) file).
 
+## Dual Licensing for Commercial Use
+
+This repository uses dual licensing to enable both open-source contributions and commercial usage:
+
+- **AGPL-3.0**: Core Continuous Reconciliation Engine (CRE) - infrastructure manifests, Flux configurations, and core logic
+- **Apache 2.0**: Documentation, integration samples, and examples - allows commercial use and proprietary derivatives
+
+See [Licensing Guide](./docs/LICENSING-GUIDE.md) for detailed compliance information and building proprietary layers on the CRE.
+
 ## Open-source Software
 https://github.com/lloydchang/gitops-infra-control-plane
 
