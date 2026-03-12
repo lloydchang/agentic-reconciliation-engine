@@ -1,24 +1,45 @@
 # AI Integration Analysis: Problem-First Approach for GitOps Infrastructure Control Plane
 
-## Executive Summary
+## 🚨 Executive Summary: Problem-First Technology Selection
 
-> **🎯 Problem-First Warning**: This document analyzes AI integration patterns, but AI is NOT always the answer. Start with [Strategic Framework](./STRATEGIC-FRAMEWORK.md) to determine if AI solves your specific problem.
+**This document analyzes AI integration patterns for SPECIFIC PROBLEM SCENARIOS**. AI is NOT always the answer - use the [Problem Definition Guide](./PROBLEM-DEFINITION-GUIDE.md) to determine if AI solves YOUR specific problem.
 
-This document analyzes 103+ resources covering AI integration patterns, agent frameworks, and Kubernetes-native approaches for **selective application** to the GitOps Infrastructure Control Plane. The analysis focuses on **problem-solution fit**, safety, security, and practical applicability based on deployment scenarios.
+This document analyzes 103+ resources covering AI integration patterns, agent frameworks, and Kubernetes-native approaches for **scenario-appropriate application** to GitOps Infrastructure Control Plane. The analysis focuses on **problem-solution fit**, safety, security, and avoiding the "solution looking for problems" anti-pattern.
 
-## 🚨 Critical: When NOT to Use AI
+## 🎯 Scenario-Based Integration Framework
+
+### 🟢 Greenfield Scenarios (New Infrastructure)
+**When to Apply**: Starting from scratch with no legacy constraints
+**Common Problems**: Multi-cloud coordination from day one, complex new applications
+**AI Applicability**: ✅ HIGH - Full AI integration provides maximum flexibility
+**Repository Path**: `examples/complete-hub-spoke/` → Complete deployment
+
+### 🟡 Brownfield Scenarios (Existing Infrastructure)  
+**When to Apply**: Migrating from existing IaC or legacy systems
+**Common Problems**: Migration complexity, legacy system integration, gradual modernization
+**AI Applicability**: ⚠️ MEDIUM - Start with core Flux, add AI incrementally
+**Repository Path**: `control-plane/` → `infrastructure/tenants/` → selective AI components
+
+### 🟡 Hybrid Scenarios (Local + Cloud)
+**When to Apply**: Development teams with local infrastructure needing cloud integration
+**Common Problems**: Local-cloud coordination, progressive migration, multi-environment management
+**AI Applicability**: ✅ HIGH - Hybrid AI integration bridges local and cloud
+**Repository Path**: `variants/` configurations with selective component adoption
+
+## 🚨 Critical Guidance: When NOT to Use AI
 
 ### ❌ AI is Overkill For:
-- **Simple deployment automation** (use basic Flux)
+- **Simple deployment automation** (use basic Flux CronJobs)
 - **Single-cloud environments** (use native cloud controllers)
-- **Small teams with simple workloads** (use basic GitOps)
-- **Infrastructure with predictable patterns** (use standard automation)
+- **Small teams with simple workloads** (use standard GitOps patterns)
+- **Infrastructure with predictable patterns** (use rule-based automation)
 
 ### ✅ AI is Valuable For:
 - **Multi-cloud optimization complexity** (cross-cloud decision making)
 - **Large-scale infrastructure** (human-scale coordination challenges)
 - **Rapid failure recovery** (autonomous healing needs)
 - **Cost optimization at scale** (complex optimization patterns)
+- **Dynamic workload management** (requires intelligent adaptation)
 
 ## Repository Context Analysis
 

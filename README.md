@@ -165,12 +165,11 @@ Your infrastructure needs will evolve. This repository is designed to evolve wit
 ### 1. Understanding the Strategic Architecture
 📖 **[STRATEGIC-ARCHITECTURE.md](./docs/STRATEGIC-ARCHITECTURE.md)** - Complete strategic vision and technical roadmap
 
-### 2. Implementation Guides
-📖 **[AI-INTEGRATION-ANALYSIS.md](./docs/AI-INTEGRATION-ANALYSIS.md)** - Comprehensive analysis of all integration approaches
-📖 **[MULTI-LANGUAGE-CONSENSUS-GUIDE.md](./docs/MULTI-LANGUAGE-CONSENSUS-GUIDE.md)** - Multi-language runtime support guide
-📖 **[CONSENSUS-PROTOCOL-ANALYSIS.md](./docs/CONSENSUS-PROTOCOL-ANALYSIS.md)** - Protocol selection analysis and justification
-
 ### 3. Core Documentation
+📖 **[PROBLEM-DEFINITION-GUIDE.md](./docs/PROBLEM-DEFINITION-GUIDE.md)** - **🚨 CRITICAL**: Problem-first framework and scenario-based guidance
+📖 **[AI-INTEGRATION-ANALYSIS.md](./docs/AI-INTEGRATION-ANALYSIS.md)** - Scenario-appropriate AI integration analysis
+📖 **[MULTI-LANGUAGE-CONSENSUS-GUIDE.md](./docs/MULTI-LANGUAGE-CONSENSUS-GUIDE.md)** - Multi-language runtime support
+📖 **[CONSENSUS-PROTOCOL-ANALYSIS.md](./docs/CONSENSUS-PROTOCOL-ANALYSIS.md)** - Protocol selection analysis and justification
 📖 **[AGENT-SKILLS-NEXT-LEVEL.md](./docs/AGENT-SKILLS-NEXT-LEVEL.md)** - Agent skills evolution and consensus-based orchestration
 📖 **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Technical architecture with consensus integration
 📖 **[REVOLUTIONARY-CONSENSUS-ANALYSIS.md](./docs/REVOLUTIONARY-CONSENSUS-ANALYSIS.md)** - Revolutionary consensus analysis
@@ -286,13 +285,15 @@ This repository serves as the **definitive reference implementation** for:
 
 ```
 docs/
+├── PROBLEM-DEFINITION-GUIDE.md         # 🚨 CRITICAL: Problem-first framework
 ├── STRATEGIC-ARCHITECTURE.md          # 🎯 Strategic vision and roadmap
-├── AI-INTEGRATION-ANALYSIS.md        # 📖 Comprehensive integration analysis
+├── AI-INTEGRATION-ANALYSIS.md        # 📖 Scenario-appropriate AI integration analysis
 ├── MULTI-LANGUAGE-CONSENSUS-GUIDE.md  # 🌐 Multi-language runtime support
 ├── CONSENSUS-PROTOCOL-ANALYSIS.md      # 🔬 Protocol selection analysis
 ├── AGENT-SKILLS-NEXT-LEVEL.md          # 🤖 Agent skills evolution
 ├── ARCHITECTURE.md                     # 🏗️ Technical architecture
-└── REVOLUTIONARY-CONSENSUS-ANALYSIS.md # 🚀 Revolutionary consensus analysis
+├── REVOLUTIONARY-CONSENSUS-ANALYSIS.md # 🚀 Revolutionary consensus analysis
+└── LEGACY-IAC-MIGRATION-STRATEGY.md   # 🔄 Legacy migration guidance
 
 examples/
 ├── complete-hub-spoke/
@@ -536,11 +537,16 @@ python3 scripts/dag-visualizer.py . --format report
 ```
 
 ### 📚 Documentation
+
+> **🎯 Problem-First Documentation**: All documentation assumes you've completed the [Strategic Framework Assessment](./docs/STRATEGIC-FRAMEWORK.md) and are implementing based on defined problems.
+
+- **[STRATEGIC-FRAMEWORK.md](docs/STRATEGIC-FRAMEWORK.md)** - Systematic problem definition and solution fit analysis
+- **[PROBLEM-DEFINITION-TEMPLATES.md](docs/PROBLEM-DEFINITION-TEMPLATES.md)** - Structured templates and decision matrices
 - **[DAG Architecture](docs/DAG-ARCHITECTURE.md)** - Complete dependency management guide
 - **[Variant Management](variants/)** - Deployment variant configurations
 - **[Examples](examples/)** - Complete deployment scenarios
-- **[AI Integration Analysis](docs/AI-INTEGRATION-ANALYSIS.md)**: Comprehensive multi-language runtime support
-- **[Agent Architecture](docs/ARCHITECTURE.md)**: Consensus-based orchestration design
+- **[AI Integration Analysis](docs/AI-INTEGRATION-ANALYSIS.md)**: Scenario-specific AI integration guidance
+- **[Agent Architecture](docs/ARCHITECTURE.md)**: Adaptive architecture with scenario considerations
 - **[Agent Skills](docs/AGENT-SKILLS-NEXT-LEVEL.md)**: Self-organizing swarm patterns
 - **[Brownfield vs Greenfield Analysis](docs/BROWNFIELD-GREENFIELD-ANALYSIS.md)**: Problem-first scenario guidance
 - **[Examples](examples/)**: Complete implementation examples for all languages
