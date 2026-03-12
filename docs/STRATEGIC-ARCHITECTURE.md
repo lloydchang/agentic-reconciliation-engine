@@ -105,6 +105,8 @@ This document defines the comprehensive strategic architecture for the GitOps In
 
 ## Strategic Integration Patterns
 
+> **🎯 Problem-First Approach**: Before implementing any pattern, consult the **[SCENARIO-APPLICABILITY-GUIDE.md](./docs/SCENARIO-APPLICABILITY-GUIDE.md)** to ensure this architecture fits your specific problem, constraints, and success criteria.
+
 ### Pattern 1: Infrastructure Deployment with AI Validation
 
 ```yaml
@@ -218,7 +220,7 @@ spec:
     scatterGatherPattern: true
     crossCloudWorkflow: "multi-cloud-optimization"
     faultTolerance: "byzantine"
-    consensusTimeout: "60s"
+    consensusTimeout: "120s"
 ```
 
 ## Technical Roadmap
