@@ -8,3 +8,4 @@ resources:
   - azure-aso/
   - gcp-kcc/
   - sealed-secrets/
+  - karpenter/

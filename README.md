@@ -91,6 +91,9 @@ flux get kustomizations
 - **[AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md)** - Intelligent automation patterns
 - **[Consensus Protocols](./docs/CONSENSUS-PROTOCOL-ANALYSIS.md)** - Distributed decision-making
 - **[Migration Strategy](./docs/LEGACY-IAC-MIGRATION-STRATEGY.md)** - Converting from traditional IaC
+- **[Detailed Architecture](./docs/DETAILED-ARCHITECTURE.md)** - Complete architectural analysis
+- **[Feature Comparison](./docs/FEATURE-COMPARISON.md)** - Detailed capability comparisons
+- **[Multi-Language Guide](./docs/MULTI-LANGUAGE-GUIDE.md)** - Multi-language implementation details
 
 ## Contributing
 
