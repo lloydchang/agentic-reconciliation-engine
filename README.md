@@ -44,8 +44,8 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 - Enterprise environments needing security and compliance features
 
 ### Not a Good Fit
-- Simple single-app deployments (use basic GitOps)
-- Time-critical migrations (<3 months timeline)
+- Simple single-app deployments
+- Time-critical migrations
 - Small teams with basic infrastructure needs
 - Cost-sensitive projects with limited budget
 
