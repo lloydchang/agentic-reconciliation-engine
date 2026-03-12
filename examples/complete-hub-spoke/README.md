@@ -30,15 +30,15 @@ The example implements **problem-specific deployment patterns** for different in
 **Problem Types**: Local-cloud coordination, progressive migration, multi-environment management
 **Components**: Hybrid variants + selective AI + edge computing integration
 
-## Revolutionary Architecture: Self-Organizing Agent Swarms
+## Architecture: Self-Organizing Agent Swarms
 
-The example implements **bottom-up orchestration** through distributed consensus, achieving unprecedented response times and fault tolerance:
+The example implements **bottom-up orchestration** through distributed consensus for improved response times and fault tolerance:
 
 ### Key Innovations from AI Agents Sandbox
-- **30-Second Feedback Loops**: Ultra-tight local optimization vs minutes/hours traditional
+- **30-Second Feedback Loops**: Local optimization vs traditional approaches
 - **Distributed Consensus**: Raft-based coordination eliminates single points of failure  
-- **Self-Organizing Swarms**: Emergent intelligence from local agent interactions
-- **Linear Scalability**: Performance scales with agent count, not controller capacity
+- **Self-Organizing Swarms**: Coordination from local agent interactions
+- **Linear Scalability**: Performance scales with agent count
 - **Fault Tolerance**: System continues despite individual agent failures
 
 ## Architecture Overview
@@ -198,31 +198,31 @@ configMapGenerator:
   - BYZANTINE_TOLERANCE=disabled
 ```
 
-## Revolutionary Benefits Achieved
+## Benefits
 
-### Unprecedented Response Times
-- **Local Decisions**: 15-30 seconds (vs minutes/hours traditional)
-- **Consensus Decisions**: 1-2 minutes (vs hours/days traditional) 
+### Response Times
+- **Local Decisions**: 15-30 seconds
+- **Consensus Decisions**: 1-2 minutes
 - **Global Optimization**: Continuous learning and adaptation
-- **Million-Decisions/Second**: 1000+ local decisions per agent
+- **Local Decisions**: 1000+ decisions per agent
 
-### Extreme Fault Tolerance
+### Fault Tolerance
 - **Byzantine Protection**: Handle up to 1/3 malicious agents
-- **Reputation Systems**: Automatically identify and isolate unreliable agents
+- **Reputation Systems**: Identify and isolate unreliable agents
 - **Hierarchical Recovery**: Multi-level fallback mechanisms
 - **Global Consensus**: Cross-cloud coordination with weighted voting
 
-### Massive Scalability
+### Scalability
 - **Linear Agent Scaling**: Add agents without architectural changes
 - **Distributed Load**: Decision making across all agents
 - **Cross-Cloud Coordination**: Global optimization across providers
-- **Swarm Intelligence**: Complex behavior from simple local rules
+- **Swarm Coordination**: Complex behavior from local rules
 
-### Autonomous Self-Organization
-- **Emergent Intelligence**: Complex global behavior from local interactions
-- **Adaptive Learning**: Continuous improvement without human intervention
-- **Cost Optimization**: Autonomous resource efficiency management
-- **Zero-Touch Operations**: Full automation with human oversight only
+### Autonomous Organization
+- **Coordinated Behavior**: Global behavior from local interactions
+- **Adaptive Learning**: Continuous improvement with human oversight
+- **Cost Optimization**: Resource efficiency management
+- **Automated Operations**: Automation with human oversight
 
 ## Architecture Limitations
 
@@ -400,22 +400,22 @@ To switch between consensus deployment modes:
 - **Consensus for Critical**: Only 20% require full consensus
 - **Cost-Effective Balance**: Optimal performance vs resource usage
 
-## Performance Benchmarks
+## Performance Characteristics
 
 ### Response Times (Average)
-| Operation | Traditional | Consensus-Based | Improvement |
-|-----------|-------------|------------------|-------------|
-| **Local Decision** | 5-15 minutes | 15-30 seconds | **20-50x faster** |
-| **Consensus Decision** | 1-4 hours | 1-2 minutes | **60-120x faster** |
-| **Global Optimization** | 1-2 days | 5-10 minutes | **200-500x faster** |
-| **Fault Recovery** | 30-60 minutes | 30-60 seconds | **30-60x faster** |
+| Operation | Consensus-Based |
+|-----------|------------------|
+| **Local Decision** | 15-30 seconds |
+| **Consensus Decision** | 1-2 minutes |
+| **Global Optimization** | 5-10 minutes |
+| **Fault Recovery** | 30-60 seconds |
 
-### Resource Efficiency
-| Metric | Traditional | Consensus-Based | Improvement |
-|--------|-------------|------------------|-------------|
-| **CPU Utilization** | 40-60% | 70-90% | **1.5-2x better** |
-| **Memory Efficiency** | 50-70% | 80-95% | **1.3-1.9x better** |
-| **Network Traffic** | High (centralized) | Low (distributed) | **3-5x reduction** |
-| **API Call Reduction** | 100% baseline | 30-50% less | **2-3x savings** |
+### Resource Requirements
+| Metric | Consensus-Based |
+|--------|------------------|
+| **CPU Utilization** | 70-90% |
+| **Memory Efficiency** | 80-95% |
+| **Network Traffic** | Low (distributed) |
+| **API Call Pattern** | 30-50% local optimization |
 
-This consensus-based example provides revolutionary improvements in response time, fault tolerance, scalability, and cost efficiency while maintaining enterprise-grade security and reliability for GitOps infrastructure management.
+This consensus-based example provides improvements in response time, fault tolerance, scalability, and cost efficiency while maintaining enterprise-grade security and reliability for GitOps infrastructure management.

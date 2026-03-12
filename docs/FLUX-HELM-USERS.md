@@ -2,7 +2,7 @@
 
 ## Welcome Helm Users!
 
-We think Flux's Helm Controller is the best way to do Helm according to GitOps principles, and we're dedicated to doing what we can to help you feel the same way.
+We think Flux's Helm Controller is a good way to do Helm according to GitOps principles, and we're dedicated to doing what we can to help you feel the same way.
 
 ## What Does Flux Add to Helm?
 

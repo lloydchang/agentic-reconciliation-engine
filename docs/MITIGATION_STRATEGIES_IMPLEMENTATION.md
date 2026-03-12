@@ -136,7 +136,7 @@ kubectl create test-pod --dry-run=client -o yaml | grep correlation-id
 ```
 
 #### Practical Soundness: ✅ **EXCELLENT**
-- **Pros**: Complete observability, production-ready, industry standard
+- **Pros**: Complete observability, production-ready, standard approach
 - **Cons**: Resource intensive, complex setup
 - **Best For**: Production environments requiring comprehensive monitoring
 

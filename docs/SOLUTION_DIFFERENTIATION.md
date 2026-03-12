@@ -153,7 +153,7 @@ dependsOn:
 - **Infrastructure focus** with cross-cloud DAGs is more comprehensive
 - **Dynamic visualization** and validation is unique
 - **Real-world examples** (Entra ID, Certificate Manager, Vertex AI) are practical
-- **Complete reference implementation** with testing is rare
+- **Complete implementation** with testing is rare
 
 ### **Value Proposition:**
 We've created a **production-ready synthesis** of existing tools that solves real multi-cloud infrastructure challenges better than most alternatives. While not revolutionary, it's a **comprehensive, tested approach** that demonstrates how to do enterprise-grade multi-cloud GitOps reliably.
