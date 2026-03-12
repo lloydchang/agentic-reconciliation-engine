@@ -1,8 +1,8 @@
 # GitOps Infrastructure Control Plane - Architecture
 
-> **🎯 Problem-First Architecture**: This architecture adapts to your specific problems, not vice-versa. Start with [Strategic Framework](./STRATEGIC-FRAMEWORK.md) to determine your needs.
+> **🎯 Problem-First Architecture**: This architecture adapts to your specific problems, not vice-versa. Start with [Strategic Framework](./docs/STRATEGIC-FRAMEWORK.md) to determine your needs.
 
-**⚠️ CRITICAL**: Before reading this architecture document, complete the [Problem Definition Guide](./PROBLEM-DEFINITION-GUIDE.md) to ensure this solution fits YOUR specific infrastructure challenges. This architecture is designed to be modular and adaptable - you implement only what solves your problems.
+> **⚠️ Critical Self-Assessment**: Before implementing, review [Solution Fit Analysis](docs/SOLUTION-FIT-ANALYSIS.md) to ensure this architectural approach is right for your situation.
 
 This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management, with **scenario-specific adaptability**.
 
