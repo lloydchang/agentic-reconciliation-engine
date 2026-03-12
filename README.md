@@ -1,6 +1,12 @@
 # GitOps Infrastructure Control Plane
 
-**Strategic Architecture: Problem-Focused GitOps with Flexible Deployment Patterns**
+GitOps Infra Control Plane: Continuous Reconciliation Engine for Multi-Cloud Infra
+
+---
+
+## Strategic Architecture:
+
+Problem-Focused GitOps with Flexible Deployment Patterns
 
 ## 🎯 Critical First Question: Is This the Right Solution?
 
