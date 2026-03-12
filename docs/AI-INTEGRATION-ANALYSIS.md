@@ -3298,7 +3298,230 @@ spec:
 5. **Actor Model**: Natural fit for distributed agent coordination
 6. **Zero-Cost Abstractions**: Predictable performance without GC pauses
 
-This Rust-based approach provides the ultimate performance option for consensus-based agent orchestration while maintaining memory safety and supporting WebAssembly deployment for universal agent execution.
+## Consensus Protocol Selection: Raft vs Paxos for Agent Orchestration
+
+### Why Raft Over Paxos for Distributed Agent Consensus
+
+#### **Decision Criteria for Agent Systems**
+
+**1. Understandability and Implementation Simplicity**
+- **Raft**: Designed to be more understandable than Paxos
+- **Clear Separation of Concerns**: Leader election, log replication, state machine
+- **Simpler State Machine**: Fewer edge cases and corner cases
+- **Implementation Accessibility**: Easier to implement correctly in agent systems
+
+**2. Leader-Based Architecture for Agent Coordination**
+- **Natural Fit**: Agent swarms naturally coordinate around a leader
+- **Clear Decision Flow**: Leader proposes, followers vote, leader commits
+- **Failure Recovery**: Leader election provides automatic failover
+- **Reduced Communication**: Followers only communicate with leader, not all-to-all
+
+**3. Performance Characteristics for Tight Feedback Loops**
+- **Lower Latency**: Leader-based decisions reduce communication overhead
+- **Predictable Timing**: Leader election intervals are deterministic
+- **Faster Convergence**: Single point of coordination speeds up consensus
+- **Optimized for 30-Second Loops**: Raft's efficiency matches tight feedback requirements
+
+**4. Fault Tolerance and Recovery**
+- **Leader Election**: Automatic leader replacement on failures
+- **Log Replication**: Consistent state across agent restarts
+- **Network Partitions**: Handles split-brain scenarios gracefully
+- **Membership Changes**: Dynamic agent addition/removal without system disruption
+
+#### **Raft Protocol Advantages for Agent Systems**
+
+**1. Simplicity and Correctness**
+```go
+// Raft state machine - clear and understandable
+type AgentState int
+
+const (
+    Follower AgentState = iota
+    Candidate
+    Leader
+)
+
+// Clear transition rules
+func (s AgentState) canBecomeLeader() bool {
+    return s == Follower || s == Candidate
+}
+```
+
+**2. Leader-Based Agent Coordination**
+```go
+// Natural leader-follower pattern for agent swarms
+type AgentSwarm struct {
+    leader      string
+    followers   []string
+    term        int64
+    log         []ConsensusEntry
+}
+
+func (as *AgentSwarm) proposeChange(change InfrastructureChange) error {
+    if as.leader == as.currentAgentID {
+        // Leader can immediately propose
+        return as.broadcastProposal(change)
+    } else {
+        // Followers forward to leader
+        return as.forwardToLeader(change)
+    }
+}
+```
+
+**3. Efficient Log Replication**
+```go
+// Raft log for consensus state persistence
+type ConsensusLog struct {
+    entries []LogEntry
+    committed int64
+    term     int64
+}
+
+// Efficient append-only log for agent decisions
+func (cl *ConsensusLog) append(entry LogEntry) error {
+    cl.entries = append(cl.entries, entry)
+    return cl.persist()
+}
+```
+
+#### **Why Not Paxos for Agent Systems**
+
+**1. Complexity and Implementation Challenges**
+- **Two-Phase Commit**: More complex phases (prepare, accept, learn)
+- **Multiple Quorums**: Can have overlapping quorums causing confusion
+- **Leaderless Coordination**: All agents must communicate with all others
+- **Higher Message Overhead**: More complex message patterns increase latency
+
+**2. Performance Issues for Tight Feedback Loops**
+- **Higher Latency**: Complex consensus rounds take longer
+- **Indeterminate Timing**: No clear leader for coordination
+- **Message Explosion**: All-to-all communication scales poorly
+- **Difficult Debugging**: Complex protocol interactions hard to troubleshoot
+
+**3. Agent System Mismatch**
+- **Natural Leader Model**: Paxos doesn't specify leader election clearly
+- **Dynamic Membership**: Adding/removing agents is more complex
+- **Recovery Complexity**: Handling failures requires complex state recovery
+- **Operational Overhead**: Higher computational and network costs
+
+#### **Raft Implementation for Agent Orchestration**
+
+**1. Core Components**
+```yaml
+# Raft-based consensus configuration for agents
+apiVersion: consensus.gitops.io/v1alpha1
+kind: RaftConfig
+metadata:
+  name: agent-consensus-config
+spec:
+  protocol: "raft"
+  electionTimeout: "10s"
+  heartbeatInterval: "5s"
+  logReplicationFactor: 3
+  snapshotInterval: "1h"
+  agents:
+  - name: "consensus-coordinator"
+    id: "coordinator-1"
+    role: "leader"
+    voteWeight: 2
+  - name: "cost-optimizer"
+    id: "optimizer-1"
+    role: "voter"
+    voteWeight: 1
+  - name: "security-validator"
+    id: "security-1"
+    role: "voter"
+    voteWeight: 2  # Higher weight for security
+```
+
+**2. Agent State Machine**
+```go
+// Simplified Raft state machine for agents
+type RaftAgent struct {
+    id        string
+    state     AgentState
+    term      int64
+    leader    string
+    log       []ConsensusEntry
+    commitIndex int64
+}
+
+func (ra *RaftAgent) runConsensusLoop() {
+    for {
+        select {
+        case <-time.After(ra.electionTimeout):
+            ra.startElection()
+            
+        case proposal := <-ra.proposalChannel:
+            if ra.state == Leader {
+                ra.handleProposalAsLeader(proposal)
+            } else {
+                ra.voteForProposal(proposal)
+            }
+            
+        case <-time.After(ra.heartbeatInterval):
+            ra.sendHeartbeat()
+            
+        case <-ra.commitChannel:
+            ra.commitToLog(entry)
+        }
+    }
+}
+```
+
+**3. Performance Optimization for 30-Second Loops**
+```go
+// Optimized Raft for ultra-tight feedback loops
+func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
+    // Fast path for local-only decisions
+    if proposal.isLocalOnly() {
+        return ra.executeImmediately(proposal)
+    }
+    
+    // Raft consensus for distributed decisions
+    votes := ra.collectVotesWithTimeout(proposal, 5*time.Second)
+    
+    if ra.reachesQuorum(votes) {
+        return ra.commitConsensus(proposal, votes)
+    }
+    
+    return errors.New("consensus timeout")
+}
+```
+
+#### **Alternative Consensus Protocols Considered**
+
+**1. PBFT (Practical Byzantine Fault Tolerance)**
+- **Pros**: Handles malicious agents, 3f+1 fault tolerance
+- **Cons**: Higher computational overhead, complex implementation
+- **Use Case**: Only for high-security environments with trust issues
+
+**2. Tendermint**
+- **Pros**: Byzantine fault tolerance with good performance
+- **Cons**: Complex, blockchain-oriented, overkill for most agent systems
+
+**3. Snowball**
+- **Pros**: No leader election, completely decentralized
+- **Cons**: High message overhead, slow convergence, not suitable for tight loops
+
+#### **Final Recommendation: Raft for Agent Systems**
+
+**Why Raft is the Clear Choice**:
+
+1. **Simplicity**: Easier to implement and debug correctly
+2. **Performance**: Leader-based coordination fits tight feedback loop requirements
+3. **Reliability**: Proven in production systems (etcd, Consul)
+4. **Agent Model**: Natural leader-follower pattern for swarm coordination
+5. **Ecosystem**: Strong Go implementation, extensive documentation and tooling
+6. **Recovery**: Clear leader election and failover mechanisms
+
+**Implementation Strategy**:
+- **Phase 1**: Implement basic Raft for agent consensus
+- **Phase 2**: Add performance optimizations for 30-second loops
+- **Phase 3**: Enhance with dynamic membership and load balancing
+- **Phase 4**: Consider PBFT only if security requirements demand Byzantine fault tolerance
+
+This Raft-based approach provides the optimal balance of simplicity, performance, and reliability for consensus-based agent orchestration while supporting the tight feedback loops required for autonomous infrastructure optimization.
 
 ### OpsLevel - Internal Developer Platform Management
 
