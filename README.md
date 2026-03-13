@@ -3,24 +3,51 @@
 Continuous Reconciliation Engine for Multi-Cloud Infrastructure
 
 ```text
-                       GIT REPOSITORY
-                     (Source of Truth)
-                             |
-                  -> Flux Pulls Manifests
-                /            |
-              /              v
-      +---------------------------------------------+
-      |     Flux     |  HUB CLUSTER  |     Talos    |---
-      |---------------------------------------------|    \
-      |     ACK      |      ASO      |      KCC     |     \
-      +---------------------------------------------+      \
-             |               |               |              \ 
-             v               v               v               v
-      +-------------+ +-------------+ +-------------+ +-------------+
-      |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   | |   SPOKE 4   |
-      |   (EKS)     | |   (AKS)     | |   (GKE)     | |   (Talos)   |
-      |   CLUSTER   | |   CLUSTER   | |   CLUSTER   | |   CLUSTER   |
-      +-------------+ +-------------+ +-------------+ +-------------+
+                         Declarative Source of Truth
+     +-------------------> Git Repository [Tier 0]
+     |                                |
+     |                        Flux pulls manifests
+     |                                |
+     |                                v
++----|-------------------------------------------------------------------------+
+|    |             Hub Cluster (any Kubernetes distribution)    [Tier 1]       |
+|    | Flux self-manages hub after one-time manual bootstrap                   |
+|----+-------------------------------------------------------------------------|
+|  +-+------------+  +----------------+  +----------------+  +--------------+  |
+|  | +-Flux       |  | Operators      |  | Sealed Secrets |  | Cluster API  |  |
+|  | GitOps       |  | ACK  (AWS)     |  | controller     |  | Kubeadm      |  |
+|  | reconcile    |  | ASO  (Azure)   |  | encrypts for   |  | provider     |  |
+|  | Git → hub    |  | KCC  (GCP)     |  | Git commit     |  | own recon    |  |
+|  | delivers ops |  | own recon loops|  | or ESO + cloud |  | Infra prov   |  |
+|  +--------------+  +----------------+  +----------------+  +--------------+  |
++------------------------------------------------------------------------------+
+         |               |                |                   |
+       (ACK)           (ASO)            (KCC)              (CAPI)
+         |               |                |                   |
+         v               v                v                   v
++------------------------------------------------------------------------------+
+|                         Spoke clusters [Tier 2]                              |
+|------------------------------------------------------------------------------|
+| +-------------+  +-------------+  +-------------+  +-------------------+     |
+| | EKS         |  | AKS         |  | GKE         |  | Kubeadm (on-prem) |     |
+| | AWS managed |  | Azure mgd   |  | GCP managed |  | Self-managed      |     |
+| | Managed HA  |  | Managed HA  |  | Managed HA  |  | Lifecycle via     |     |
+| | via ACK     |  | via ASO     |  | via KCC     |  | CAPI + infra prov |     |
+| | Sealed Sec  |  | Sealed Sec  |  | Sealed Sec  |  | Sealed Sec        |     |
+| +-------------+  +-------------+  +-------------+  +-------------------+     |
++------------------------------------------------------------------------------+
+  Each cluster holds its own Sealed Secrets controller and decryption key
+
+Secrets strategy:
+  Primary:     Sealed Secrets (self-contained, decryption key per cluster)
+  Alternative: ESO + Azure Key Vault | AWS Secrets Manager | GCP Secret Manager
+
+Notes:
+- Hub distribution is TBD (any conformant Kubernetes cluster)
+- Flux bootstrapped manually once; thereafter self-managed via Git
+- Circular dependency: Flux manages the hub it runs on (by design)
+- Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
+- CRITICAL: Back up each cluster's Sealed Secrets decryption key separately
 ```
 
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
