@@ -237,6 +237,6 @@ A migration phase is complete when:
 
 - [Architecture](./ARCHITECTURE.md) — component details and Crossplane Composition guide
 - [Implementation Plan](./implementation_plan.md) — step-by-step deployment
-- [Flux CD documentation](https://fluxcd.io/docs/)
+- [Flux documentation](https://fluxcd.io/docs/)
 - [Crossplane documentation](https://docs.crossplane.io/)
 - [External Secrets Operator documentation](https://external-secrets.io/latest/)
