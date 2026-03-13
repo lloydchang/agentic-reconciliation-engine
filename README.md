@@ -38,7 +38,9 @@ Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
          |  | SOPS        |  | SOPS        |  | SOPS        |  | SOPS              |   |
          |  +-------------+  +-------------+  +-------------+  +-------------------+   |
          +-----------------------------------------------------------------------------+
-SOPS age key lives on hub • back up once • Flux decrypts at apply time • spokes receive plain Secrets
+              SOPS age key lives on hub • back up once
+                                        • Flux decrypts at apply time
+                                        • spokes receive plain Secrets
 
 Secrets strategy (SOPS: Secrets OPerationS):
   - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
