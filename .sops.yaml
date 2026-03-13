@@ -24,9 +24,11 @@ creation_rules:
 
 # Key groups for different environments (for team collaboration)
 key_groups:
-  # Primary age key for the control plane
+  # Primary age key for control plane
   - age:
       - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Primary key - store securely
+      - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Backup key 1
+      - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Backup key 2
   
   # Backup keys for disaster recovery (optional)
   # - age:
