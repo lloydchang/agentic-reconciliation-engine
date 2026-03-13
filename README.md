@@ -52,7 +52,7 @@ Notes:
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
   - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
 ```
-![Hub Spoke Diagram](hub_spoke_v8.svg)
+<img width="680" height="570" alt="Image" src="https://github.com/user-attachments/assets/1e4f420f-2a68-4c98-9891-46f533ed6149" />
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
 ## Core Advantage
