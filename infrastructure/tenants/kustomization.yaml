@@ -11,3 +11,11 @@ resources:
   - name: 3-workloads/
     dependsOn:
       - 2-clusters
+  # SOPS-encrypted secrets (will be decrypted by Flux)
+  - database-credentials.secret.yaml
+  - registry-credentials.secret.yaml
+  - tls-certificate.secret.yaml
+  - external-api-keys.secret.yaml
+  # Flux Kustomizations for secret management
+  - tenant-secrets-kustomization.yaml
+  - 3-workloads/secrets-kustomization.yaml
