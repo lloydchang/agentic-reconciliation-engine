@@ -1,93 +1,111 @@
-<svg width="100%" viewBox="0 0 680 570" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-    <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-</defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="600" viewBox="0 0 680 600">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
 
-<text x="26" y="56" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="11" fill="#888">[Tier 0]</text>
+  <!-- white background -->
+  <rect x="0" y="0" width="680" height="600" fill="#ffffff"/>
 
-<rect x="215" y="30" width="250" height="54" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-<text x="340" y="50" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#633806">Git repository</text>
-<text x="340" y="68" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#854F0B">declarative source of truth</text>
+  <!-- Tier labels -->
+  <text x="26" y="58" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 0]</text>
+  <text x="26" y="218" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 1]</text>
+  <text x="26" y="455" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 2]</text>
 
-<line x1="340" y1="84" x2="340" y2="114" stroke="#888" stroke-width="1.5" marker-end="url(#a)"/>
-<text x="348" y="99" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#888">Flux pulls manifests</text>
+  <!-- Git repository -->
+  <rect x="215" y="30" width="250" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+  <text x="340" y="54" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#633806">Git repository</text>
+  <text x="340" y="72" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">declarative source of truth</text>
 
-<text x="26" y="218" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="11" fill="#888">[Tier 1]</text>
+  <!-- Git to Hub arrow -->
+  <line x1="340" y1="86" x2="340" y2="116" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="348" y="102" font-family="sans-serif" font-size="12" fill="#888888">Flux pulls manifests</text>
 
-<rect x="50" y="114" width="580" height="206" rx="16" fill="none" stroke="#7F77DD" stroke-dasharray="6 4" stroke-width="1"/>
-<text x="340" y="136" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">Hub cluster</text>
-<text x="340" y="154" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">any Kubernetes distribution · Flux self-manages hub after bootstrap</text>
+  <!-- Hub cluster border (dashed) -->
+  <rect x="50" y="116" width="580" height="210" rx="14" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="340" y="138" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Hub cluster</text>
+  <text x="340" y="156" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">any Kubernetes distribution · Flux self-manages hub after bootstrap</text>
 
-<rect x="60" y="166" width="148" height="136" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-<text x="134" y="200" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">Flux</text>
-<text x="134" y="218" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">GitOps reconciliation</text>
-<text x="134" y="236" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">Git → hub cluster</text>
-<text x="134" y="254" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">SOPS/age decryption</text>
-<text x="134" y="272" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">at apply time</text>
-<path d="M 60 302 C 28 302, 28 166, 60 166" fill="none" stroke="#7F77DD" stroke-dasharray="4 3" stroke-width="1" marker-end="url(#a)"/>
+  <!-- Flux box -->
+  <rect x="62" y="168" width="148" height="134" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="136" y="196" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Flux</text>
+  <text x="136" y="214" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">GitOps reconciliation</text>
+  <text x="136" y="230" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Git &#8594; hub cluster</text>
+  <text x="136" y="246" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">SOPS/age decryption</text>
+  <text x="136" y="262" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">at apply time</text>
+  <!-- self-loop -->
+  <path d="M62 302 C30 302 30 168 62 168" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
 
-<rect x="220" y="166" width="180" height="136" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-<text x="310" y="200" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">Operators</text>
-<text x="310" y="218" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">ACK · ASO · KCC</text>
-<text x="310" y="236" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">own reconciliation</text>
-<text x="310" y="254" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">loops</text>
+  <!-- Operators box -->
+  <rect x="222" y="168" width="178" height="134" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="311" y="196" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Operators</text>
+  <text x="311" y="214" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">ACK · ASO · KCC</text>
+  <text x="311" y="230" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">own reconciliation</text>
+  <text x="311" y="246" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">loops</text>
 
-<rect x="412" y="166" width="206" height="136" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-<text x="515" y="200" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">Cluster API</text>
-<text x="515" y="218" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">Kubeadm provider</text>
-<text x="515" y="236" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">own reconciliation loop</text>
-<text x="515" y="254" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">Infra provider</text>
-<text x="515" y="272" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">(Metal3/CAPV/CAPO)</text>
+  <!-- Cluster API box -->
+  <rect x="412" y="168" width="206" height="134" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="515" y="196" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Cluster API</text>
+  <text x="515" y="214" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Kubeadm provider</text>
+  <text x="515" y="230" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">own reconciliation loop</text>
+  <text x="515" y="246" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Infra provider</text>
+  <text x="515" y="262" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">(Metal3 / CAPV / CAPO)</text>
 
-<line x1="115" y1="320" x2="115" y2="366" stroke="#888" stroke-width="1.5" marker-end="url(#a)"/>
-<text x="121" y="344" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#888">ACK</text>
-<line x1="268" y1="320" x2="268" y2="366" stroke="#888" stroke-width="1.5" marker-end="url(#a)"/>
-<text x="274" y="344" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#888">ASO</text>
-<line x1="418" y1="320" x2="418" y2="366" stroke="#888" stroke-width="1.5" marker-end="url(#a)"/>
-<text x="424" y="344" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#888">KCC</text>
-<line x1="560" y1="320" x2="560" y2="366" stroke="#888" stroke-width="1.5" marker-end="url(#a)"/>
-<text x="566" y="344" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#888">CAPI</text>
+  <!-- Hub to Spoke arrows -->
+  <line x1="112" y1="326" x2="112" y2="374" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="118" y="352" font-family="sans-serif" font-size="11" fill="#888888">ACK</text>
+  <line x1="264" y1="326" x2="264" y2="374" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="270" y="352" font-family="sans-serif" font-size="11" fill="#888888">ASO</text>
+  <line x1="416" y1="326" x2="416" y2="374" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="422" y="352" font-family="sans-serif" font-size="11" fill="#888888">KCC</text>
+  <line x1="558" y1="326" x2="558" y2="374" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="564" y="352" font-family="sans-serif" font-size="11" fill="#888888">CAPI</text>
 
-<text x="26" y="450" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="11" fill="#888">[Tier 2]</text>
+  <!-- Spoke clusters border (dashed) -->
+  <rect x="50" y="374" width="580" height="168" rx="14" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="340" y="394" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">Spoke clusters</text>
 
-<rect x="50" y="366" width="580" height="168" rx="16" fill="none" stroke="#1D9E75" stroke-dasharray="6 4" stroke-width="1"/>
-<text x="340" y="386" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">Spoke clusters</text>
+  <!-- EKS -->
+  <rect x="62" y="406" width="124" height="122" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="124" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">EKS</text>
+  <text x="124" y="448" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">AWS managed</text>
+  <text x="124" y="464" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
+  <text x="124" y="480" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via ACK</text>
+  <text x="124" y="496" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">secrets via SOPS</text>
 
-<rect x="62" y="398" width="124" height="120" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="124" y="428" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">EKS</text>
-<text x="124" y="448" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">AWS managed</text>
-<text x="124" y="466" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Managed HA</text>
-<text x="124" y="484" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">via ACK</text>
-<text x="124" y="502" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">secrets via SOPS</text>
+  <!-- AKS -->
+  <rect x="200" y="406" width="124" height="122" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="262" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">AKS</text>
+  <text x="262" y="448" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Azure managed</text>
+  <text x="262" y="464" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
+  <text x="262" y="480" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via ASO</text>
+  <text x="262" y="496" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">secrets via SOPS</text>
 
-<rect x="200" y="398" width="124" height="120" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="262" y="428" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">AKS</text>
-<text x="262" y="448" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Azure managed</text>
-<text x="262" y="466" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Managed HA</text>
-<text x="262" y="484" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">via ASO</text>
-<text x="262" y="502" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">secrets via SOPS</text>
+  <!-- GKE -->
+  <rect x="338" y="406" width="124" height="122" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="400" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">GKE</text>
+  <text x="400" y="448" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">GCP managed</text>
+  <text x="400" y="464" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
+  <text x="400" y="480" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via KCC</text>
+  <text x="400" y="496" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">secrets via SOPS</text>
 
-<rect x="338" y="398" width="124" height="120" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="400" y="428" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">GKE</text>
-<text x="400" y="448" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">GCP managed</text>
-<text x="400" y="466" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Managed HA</text>
-<text x="400" y="484" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">via KCC</text>
-<text x="400" y="502" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">secrets via SOPS</text>
+  <!-- Kubeadm -->
+  <rect x="476" y="406" width="142" height="122" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+  <text x="547" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#712B13">Kubeadm</text>
+  <text x="547" y="448" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">On-prem</text>
+  <text x="547" y="464" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Self-managed</text>
+  <text x="547" y="480" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">via CAPI</text>
+  <text x="547" y="496" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">secrets via SOPS</text>
 
-<rect x="476" y="398" width="142" height="120" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
-<text x="547" y="428" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#712B13">Kubeadm</text>
-<text x="547" y="448" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#993C1D">On-prem</text>
-<text x="547" y="466" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#993C1D">Self-managed</text>
-<text x="547" y="484" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#993C1D">via CAPI</text>
-<text x="547" y="502" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#993C1D">secrets via SOPS</text>
+  <!-- Legend -->
+  <rect x="148" y="556" width="10" height="10" rx="2" fill="#1D9E75"/>
+  <text x="163" y="565" font-family="sans-serif" font-size="11" fill="#555555">Cloud managed</text>
+  <rect x="270" y="556" width="10" height="10" rx="2" fill="#D85A30"/>
+  <text x="285" y="565" font-family="sans-serif" font-size="11" fill="#555555">On-prem</text>
+  <rect x="362" y="556" width="10" height="10" rx="2" fill="#7F77DD"/>
+  <text x="377" y="565" font-family="sans-serif" font-size="11" fill="#555555">Hub operators</text>
 
-<rect x="148" y="548" width="10" height="10" rx="2" fill="#1D9E75"/>
-<text x="163" y="553" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#444">Cloud managed</text>
-<rect x="283" y="548" width="10" height="10" rx="2" fill="#D85A30"/>
-<text x="298" y="553" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#444">On-prem</text>
-<rect x="390" y="548" width="10" height="10" rx="2" fill="#7F77DD"/>
-<text x="405" y="553" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#444">Hub operators</text>
-<text x="340" y="568" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="11" fill="#888">SOPS age key lives on hub · back up once · Flux decrypts at apply time · spokes receive plain Secrets</text>
+  <!-- Bottom note -->
+  <text x="340" y="586" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">SOPS age key lives on hub · back up once · Flux decrypts at apply time · spokes receive plain Secrets</text>
 </svg>
