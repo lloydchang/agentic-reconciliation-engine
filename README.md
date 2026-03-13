@@ -6,22 +6,21 @@ Continuous Reconciliation Engine for Multi-Cloud Infrastructure
                        GIT REPOSITORY
                      (Source of Truth)
                              |
-                    Flux Pulls Manifests
-                             |
-                             v
-      +------------------------------------------+
-      |                HUB CLUSTER               |
-      |------------------------------------------|
-      | Flux | ACK        | ASO           | KCC  |
-      +------------------------------------------+
-             |               |               |
-   Provisions/Manages Provisions/Manages Provisions/Manages
-             |               |               |
-      +-------------+ +-------------+ +-------------+
-      |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   |
-      |   (EKS)     | |   (AKS)     | |   (GKE)     |
-      |   CLUSTER   | |   CLUSTER   | |   CLUSTER   |
-      +-------------+ +-------------+ +-------------+
+                  -> Flux Pulls Manifests
+                /            |
+              /              v
+      +---------------------------------------------+
+      |     Flux     |  HUB CLUSTER  |     Talos    |---
+      |---------------------------------------------|    \
+      |     ACK      |      ASO      |      KCC     |     \
+      +---------------------------------------------+      \
+             |               |               |              \ 
+             v               v               v               v
+      +-------------+ +-------------+ +-------------+ +-------------+
+      |   SPOKE 1   | |   SPOKE 2   | |   SPOKE 3   | |   SPOKE 4   |
+      |   (EKS)     | |   (AKS)     | |   (GKE)     | |   (Talos)   |
+      |   CLUSTER   | |   CLUSTER   | |   CLUSTER   | |   CLUSTER   |
+      +-------------+ +-------------+ +-------------+ +-------------+
 ```
 
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
