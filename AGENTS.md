@@ -332,6 +332,53 @@ const status = await get_compliance_status({
 });
 ```
 
+```rust
+// Rust-based compliance checking with high performance
+use tokio::time::{sleep, Duration};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComplianceRequest {
+    pub target_resource: String,
+    pub compliance_type: ComplianceType,
+    pub priority: Priority,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ComplianceType {
+    SOC2,
+    GDPR,
+    HIPAA,
+    FullScan,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Priority {
+    Low,
+    High,
+    Critical,
+}
+
+pub async fn start_compliance_check(request: ComplianceRequest) -> Result<ComplianceWorkflow, Box<dyn std::error::Error>> {
+    // High-performance compliance validation
+    let workflow = ComplianceWorkflow::new(request).await?;
+    
+    // Fast feedback loop for compliance checks
+    tokio::spawn(async move {
+        loop {
+            let status = workflow.check_status().await?;
+            if status.is_completed() {
+                break;
+            }
+            sleep(Duration::from_secs(10)).await;
+        }
+        Ok::<(), Box<dyn std::error::Error>>(())
+    });
+    
+    Ok(workflow)
+}
+```
+
 #### Security Analysis
 ```javascript
 // Start security scan
@@ -360,6 +407,54 @@ const cost = await start_cost_analysis({
 const recommendations = await get_cost_recommendations({
   workflowId: cost.workflowId
 });
+```
+
+```rust
+// Rust-based cost optimization with memory safety and performance
+use std::collections::HashMap;
+use tokio::sync::RwLock;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CostAnalysisRequest {
+    pub target_resource: String,
+    pub analysis_type: AnalysisType,
+    pub timeframe: u32, // days
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AnalysisType {
+    Usage,
+    Optimization,
+    Forecast,
+    Full,
+}
+
+pub struct CostOptimizer {
+    state: Arc<RwLock<OptimizerState>>,
+    feedback_interval: Duration,
+}
+
+impl CostOptimizer {
+    pub async fn start_analysis(&self, request: CostAnalysisRequest) -> Result<CostWorkflow, CostError> {
+        let workflow = CostWorkflow::new(request, Arc::clone(&self.state)).await?;
+        
+        // High-frequency cost optimization loop
+        let state = Arc::clone(&self.state);
+        let interval = self.feedback_interval;
+        tokio::spawn(async move {
+            let mut ticker = tokio::time::interval(interval);
+            loop {
+                ticker.tick().await;
+                let mut state_guard = state.write().await;
+                if let Err(e) = state_guard.optimize_costs().await {
+                    eprintln!("Cost optimization failed: {}", e);
+                }
+            }
+        });
+        
+        Ok(workflow)
+    }
+}
 ```
 
 #### Workflow Management

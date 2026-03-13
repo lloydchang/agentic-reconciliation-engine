@@ -1,0 +1,26 @@
+---
+# Flux UI Authentication - SOPS Encrypted
+# This file contains encrypted authentication credentials for Flux UI
+# Template for SOPS-encrypted secret (alternative to SealedSecrets)
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flux-ui-auth
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux-operator
+    app.kubernetes.io/component: ui
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+type: Opaque
+stringData:
+  # Generate with: echo "admin:$(openssl passwd -apr1 your-secure-password)"
+  # Or use your preferred authentication method
+  auth: "admin:$(openssl passwd -apr1 your-secure-password)"
+  
+  # Alternative: Use separate username and password
+  # username: "admin"
+  # password: "$(openssl passwd -apr1 your-secure-password)"
+  
+  # Alternative: Use token-based authentication
+  # token: "your-ui-auth-token"

@@ -1,0 +1,246 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sops-monitoring-config
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: sops-monitoring
+    app.kubernetes.io/component: monitoring
+    gitops-infra-control-plane.io/managed-by: "flux"
+data:
+  # Prometheus monitoring rules for SOPS operations
+  sops-rules.yaml: |
+    groups:
+    - name: sops.rules
+      rules:
+      # Alert for SOPS decryption failures
+      - alert: SOPSDecryptionFailure
+        expr: increase(flux_reconciliation_failed_total{kind="Kustomization"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: sops
+        annotations:
+          summary: "SOPS decryption failure detected"
+          description: "Flux kustomize-controller has failed to decrypt SOPS encrypted secrets in the last 5 minutes. Check the secret configuration and SOPS keys."
+          runbook_url: "https://github.com/getsops/sops#troubleshooting"
+      
+      # Alert for missing SOPS keys
+      - alert: SOPSKeyMissing
+        expr: kube_secret_missing{secret="sops-age", namespace="flux-system"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          component: sops
+        annotations:
+          summary: "SOPS decryption key is missing"
+          description: "The sops-age secret containing the age private key is missing from the flux-system namespace. Flux cannot decrypt encrypted secrets without this key."
+          runbook_url: "https://fluxcd.io/flux/guides/sops/"
+      
+      # Alert for expired or invalid SOPS keys
+      - alert: SOPSKeyInvalid
+        expr: flux_kustomize_decrypt_errors_total[5m] > 0
+        for: 3m
+        labels:
+          severity: critical
+          component: sops
+        annotations:
+          summary: "SOPS key validation failure"
+          description: "Flux kustomize-controller is experiencing decryption errors. The SOPS key may be invalid, expired, or mismatched with the encrypted secrets."
+          runbook_url: "https://fluxcd.io/flux/guides/sops/"
+      
+      # Alert for high number of encrypted secrets
+      - alert: SOPSManySecrets
+        expr: count(kube_secret{namespace=~".*"}) > 100
+        for: 10m
+        labels:
+          severity: info
+          component: sops
+        annotations:
+          summary: "High number of secrets detected"
+          description: "There are {{ $value }} secrets in the cluster. Consider reviewing if all secrets are necessary and properly managed."
+      
+      # Alert for SOPS configuration drift
+      - alert: SOPSConfigurationDrift
+        expr: increase(flux_kustomize_build_errors_total[10m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: sops
+        annotations:
+          summary: "SOPS configuration drift detected"
+          description: "Flux kustomize-controller is experiencing build errors. This may indicate SOPS configuration issues or malformed encrypted files."
+      
+      # Alert for secret age (old secrets that might need rotation)
+      - alert: SOPSSecretAgeHigh
+        expr: kube_secret_created > time() - 86400 * 90  # 90 days
+        for: 1h
+        labels:
+          severity: info
+          component: sops
+        annotations:
+          summary: "Old secret detected"
+          description: "Secret {{ $labels.secret }} in namespace {{ $labels.namespace }} is older than 90 days. Consider rotating the secret if it contains sensitive data."
+
+  # Grafana dashboard configuration
+  grafana-dashboard-sops.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "SOPS Operations Monitoring",
+        "tags": ["sops", "flux", "secrets", "gitops"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "SOPS Decryption Success Rate",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "rate(flux_reconciliation_success_total{kind=\"Kustomization\"}[5m]) / (rate(flux_reconciliation_success_total{kind=\"Kustomization\"}[5m]) + rate(flux_reconciliation_failed_total{kind=\"Kustomization\"}[5m])) * 100",
+                "legendFormat": "Success Rate %"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 90},
+                    {"color": "green", "value": 95}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "SOPS Decryption Failures",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "increase(flux_reconciliation_failed_total{kind=\"Kustomization\"}[5m])",
+                "legendFormat": "Failed Reconciliations"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Encrypted Secrets by Namespace",
+            "type": "piechart",
+            "targets": [
+              {
+                "expr": "count(kube_secret) by (namespace)",
+                "legendFormat": "{{ namespace }}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "SOPS Key Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "kube_secret_info{secret=\"sops-age\", namespace=\"flux-system\"}",
+                "legendFormat": "SOPS Key Status"
+              }
+            ],
+            "gridPos": {"h": 4, "w": 12, "x": 12, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "Secret Creation Timeline",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "increase(kube_secret_created[1h])",
+                "legendFormat": "New Secrets"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "5s"
+      }
+    }
+
+---
+# PrometheusRule for SOPS monitoring
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sops-monitoring-rules
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: sops-monitoring
+    app.kubernetes.io/component: monitoring
+    gitops-infra-control-plane.io/managed-by: "flux"
+spec:
+  groups:
+  - name: sops.rules
+    rules:
+    # SOPS decryption failure alert
+    - alert: SOPSDecryptionFailure
+      expr: increase(flux_reconciliation_failed_total{kind="Kustomization"}[5m]) > 0
+      for: 2m
+      labels:
+        severity: warning
+        component: sops
+      annotations:
+        summary: "SOPS decryption failure detected"
+        description: "Flux kustomize-controller has failed to decrypt SOPS encrypted secrets in the last 5 minutes."
+        runbook_url: "https://github.com/getsops/sops#troubleshooting"
+    
+    # SOPS key missing alert
+    - alert: SOPSKeyMissing
+      expr: absent(kube_secret_info{secret="sops-age", namespace="flux-system"})
+      for: 1m
+      labels:
+        severity: critical
+        component: sops
+      annotations:
+        summary: "SOPS decryption key is missing"
+        description: "The sops-age secret containing the age private key is missing from the flux-system namespace."
+    
+    # SOPS decryption error rate
+    - alert: SOPSDecryptionErrorRate
+      expr: rate(flux_kustomize_decrypt_errors_total[5m]) > 0.1
+      for: 3m
+      labels:
+        severity: warning
+        component: sops
+      annotations:
+        summary: "High SOPS decryption error rate"
+        description: "SOPS decryption error rate is {{ $value | humanizePercentage }} in the last 5 minutes."
+
+---
+# ServiceMonitor for Flux components (SOPS-related)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flux-sops-metrics
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux-metrics
+    app.kubernetes.io/component: sops
+    gitops-infra-control-plane.io/managed-by: "flux"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kustomize-controller
+  namespaceSelector:
+    matchNames:
+    - flux-system
+  endpoints:
+  - port: http-prom
+    interval: 30s
+    path: /metrics
+    honorLabels: true

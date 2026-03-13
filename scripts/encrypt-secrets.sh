@@ -13,11 +13,12 @@ NC='\033[0m' # No Color
 
 # Configuration
 SECRETS_DIR="${SECRETS_DIR:-$(pwd)/infrastructure/tenants}"
+FLUX_SECRETS_DIR="${FLUX_SECRETS_DIR:-$(pwd)/control-plane/flux/secrets}"
 AGE_KEY="${AGE_KEY:-}"
 SOPS_CONFIG="${SOPS_CONFIG:-$(pwd)/.sops.yaml}"
 
 echo -e "${GREEN}🔐 SOPS Secret Encryption${NC}"
-echo "This script will encrypt all .secret.yaml files in the infrastructure/tenants directory."
+echo "This script will encrypt all .secret.yaml and .sops.yaml files in the infrastructure and flux directories."
 echo
 
 # Check if SOPS is installed
@@ -51,20 +52,22 @@ if [[ ! -d "${SECRETS_DIR}" ]]; then
     exit 1
 fi
 
-# Find all .secret.yaml files
+# Find all .secret.yaml and .sops.yaml files
 SECRET_FILES=$(find "${SECRETS_DIR}" -name "*.secret.yaml" -type f)
+SOPS_FILES=$(find "${FLUX_SECRETS_DIR}" -name "*.sops.yaml" -type f)
+ALL_FILES="${SECRET_FILES} ${SOPS_FILES}"
 
-if [[ -z "${SECRET_FILES}" ]]; then
-    echo -e "${YELLOW}⚠️  No .secret.yaml files found in ${SECRETS_DIR}${NC}"
+if [[ -z "${ALL_FILES}" ]]; then
+    echo -e "${YELLOW}⚠️  No secret files found in ${SECRETS_DIR} or ${FLUX_SECRETS_DIR}${NC}"
     exit 0
 fi
 
 echo -e "${GREEN}📝 Found secret files to encrypt:${NC}"
-echo "${SECRET_FILES}"
+echo "${ALL_FILES}"
 echo
 
 # Encrypt each secret file
-for file in $SECRET_FILES; do
+for file in $ALL_FILES; do
     echo -e "${YELLOW}🔒 Encrypting: ${file}${NC}"
     
     # Check if file is already encrypted

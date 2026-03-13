@@ -141,6 +141,7 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 - **RethinkDB**: Database with Raft consensus
 - **Temporal**: Workflow engine with Raft-inspired design
 - **Numerous Go libraries**: Well-tested implementations
+- **Rust implementations**: High-performance consensus with memory safety
 
 **Paxos Ecosystem**:
 - **Academic implementations**: More theoretical than practical

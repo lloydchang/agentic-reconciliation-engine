@@ -3749,6 +3749,49 @@ func (cl *ConsensusLog) append(entry LogEntry) error {
 }
 ```
 
+**4. Rust High-Performance Implementation**
+```rust
+// Raft state machine with memory safety and performance
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AgentState {
+    Follower,
+    Candidate,
+    Leader,
+}
+
+impl AgentState {
+    pub fn can_become_leader(&self) -> bool {
+        matches!(self, AgentState::Follower | AgentState::Candidate)
+    }
+}
+
+// High-performance agent swarm with async coordination
+use tokio::sync::{Arc, Mutex};
+use std::collections::HashMap;
+
+pub struct AgentSwarm {
+    leader: Arc<Mutex<Option<String>>>,
+    followers: Arc<Mutex<Vec<String>>>,
+    term: Arc<Mutex<u64>>,
+    log: Arc<Mutex<Vec<ConsensusEntry>>>,
+}
+
+impl AgentSwarm {
+    pub async fn propose_change(&self, change: InfrastructureChange) -> Result<(), ConsensusError> {
+        let leader = self.leader.lock().await;
+        if leader.as_ref() == Some(&self.current_agent_id) {
+            // Leader can immediately propose
+            drop(leader);
+            self.broadcast_proposal(change).await
+        } else {
+            // Followers forward to leader
+            drop(leader);
+            self.forward_to_leader(change).await
+        }
+    }
+}
+```
+
 #### **Why Not Paxos for Agent Systems**
 
 **1. Complexity and Implementation Challenges**
@@ -3877,7 +3920,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 2. **Performance**: Leader-based coordination fits tight feedback loop requirements
 3. **Reliability**: Proven in production systems (etcd, Consul)
 4. **Agent Model**: Natural leader-follower pattern for swarm coordination
-5. **Ecosystem**: Strong Go implementation, extensive documentation and tooling
+5. **Ecosystem**: Strong Go implementation, extensive documentation and tooling. Rust provides high-performance alternatives with memory safety.
 6. **Recovery**: Clear leader election and failover mechanisms
 
 **Implementation Strategy**:
@@ -3989,7 +4032,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 **Primary Choice: Raft**
 - **Understandability**: Critical for complex agent systems
 - **Performance**: Leader-based coordination fits tight feedback loops
-- **Ecosystem**: Strong Go implementations and Kubernetes integration
+- **Ecosystem**: Strong Go implementations and Kubernetes integration. Rust offers ultra-high performance consensus implementations.
 - **Community**: Active development and support
 
 **Secondary Consideration: Paxos**
