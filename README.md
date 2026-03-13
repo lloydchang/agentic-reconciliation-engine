@@ -55,7 +55,8 @@ Secrets strategy (SOPS: Secrets OPerationS):
       - Whereas with Sealed Secrets you're managing 5 separate key pairs (hub + 4 spokes)
         - and 5 separate backup obligations.
 Alt 1: sealed-secrets: Sealed Secrets for Kubernetes with a controller in each cluster
-Alt 2: external secrets operator (ESO) + Azure Key Vault / AWS Secrets Manager / GCP Secret Manager
+Alt 2: external secrets operator (ESO)
+       + Azure Key Vault / AWS Secrets Manager / GCP Secret Manager
 
 TBD notes:
   - Hub distribution is TBD (any conformant Kubernetes cluster)
