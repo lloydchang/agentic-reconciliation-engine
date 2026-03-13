@@ -24,7 +24,7 @@ and bootstraps each spoke. This enables **automatic drift reconciliation**, not 
 self-healing, because runtime failures outside Git-managed resources are handled by Kubernetes
 controllers and platform automation separately.
 
-![hub_spoke_v2.svg](docs/hub_spoke_v2.svg)
+![hub spoke diagram](docs/hub_spoke_v2.svg)
 
 ```text
 [Tier 0]   Git repository — declarative source of truth
@@ -126,19 +126,35 @@ SOPS fallback age key: back up to cloud key vault → Flux decrypts at apply tim
 
 ## When to Use This Solution
 
+The premise of this architecture is to *reduce* human toil, not to create a permanent staffing
+obligation. In steady state, Flux, Crossplane, and CAPI reconcile continuously with no human
+involvement. The hub is a managed Kubernetes control plane — EKS, AKS, or GKE — so the cloud
+provider operates the control plane nodes. Humans intervene for incidents and planned upgrades,
+the same as any other managed service.
+
+The real cost is front-loaded: getting the hub stood up, authoring the initial Crossplane
+Compositions, configuring CAPI providers, and wiring per-spoke ESO workload identity takes
+focused engineering time. The right question is whether that upfront investment pays off against
+the problem you are solving.
+
 ### Good Fit
-- Multi-cloud infrastructure (2+ clouds in production) requiring coordinated operations
-- Platform engineering team of 3+ engineers who will own and operate the hub
-- Large-scale deployments where infrastructure drift is already a recurring production incident
-- Organisations with existing Kubernetes operational depth across multiple clusters
-- Brownfield migrations consolidating from multiple IaC tools and pipelines
+- Multi-cloud infrastructure (2+ clouds in production) where configuration drift is already
+  causing production incidents, manual remediation, or audit failures
+- Environments where the hub runs on a managed Kubernetes control plane (EKS, AKS, GKE) — the
+  cloud provider operates the nodes; you operate what runs on them
+- Teams with existing Kubernetes operational depth who can read controller logs and CRD status
+  fields when a reconcile loop stalls
+- Brownfield environments consolidating from multiple IaC tools where eliminating ongoing manual
+  drift remediation justifies the upfront adoption cost
 
 ### Not a Good Fit
-- Single-cloud or single-region deployments — evaluate GKE Enterprise, Azure Arc, or EKS Anywhere
-- Teams under 10 engineers — platform engineering overhead dominates capacity
-- Teams without Kubernetes operational depth — failure modes are opaque without it
-- Emergency migrations without runway — this is a target state, not a migration tool
-- Cost-sensitive projects without budget for hub HA, bootstrap cluster, and per-spoke vault infra
+- Single-cloud or single-region deployments — GKE Enterprise, Azure Arc, and EKS Anywhere cover
+  most of this at lower adoption cost; evaluate them first
+- Environments without Kubernetes operational depth — failure modes of stuck controllers are
+  opaque without it, and the adoption phase will take significantly longer than estimated
+- Emergency migrations without runway — this is a target state architecture, not a migration tool
+- Environments where the problem being solved (drift, multi-cloud coordination) does not yet
+  exist at a scale that justifies the upfront adoption investment
 
 > Important: Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md)
 > before implementation.
@@ -188,12 +204,12 @@ Before building this architecture, evaluate whether a managed product meets your
 | Azure Arc | Azure + connected K8s, GitOps, policy | Azure-centric; AWS/GCP limited |
 | EKS Anywhere | On-prem EKS with Flux GitOps | AWS-centric; no native Azure/GCP |
 | Crossplane only | Cloud resource management, unified XRDs | No cluster lifecycle, no fleet GitOps |
-| This architecture | Full multi-cloud, self-hosted, cluster + resource lifecycle | Hub operational cost; you own everything |
+| This architecture | Full multi-cloud, self-hosted, cluster + resource lifecycle | Upfront adoption cost; you own the controllers |
 
 ## Known Limitations
 
 - No full plan equivalent: the CI gate validates and guards but does not diff current cloud state
-- Crossplane Composition authoring requires platform team investment before spoke teams can use XRDs
+- Crossplane Composition authoring requires upfront investment before spoke teams can use XRDs
 - Multi-cluster progressive rollout requires external coordination; Flux + CAPI do not provide
   rollout gating equivalent to single-cluster progressive delivery
 - CAPI provisions a minimal cluster; CNI, CSI, ingress, autoscaler, and monitoring must be layered
