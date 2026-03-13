@@ -24,7 +24,7 @@ commonLabels:
   app.kubernetes.io/managed-by: flux
 
 # Namespace configuration
-namespace: monitoring
+# namespace: monitoring
 
 # Patches for configuration
 patches:
@@ -92,12 +92,12 @@ patchesJson6902:
             cpu: "200m"
 
 # Health check configurations
-healthChecks:
-  - kind: Deployment
-    name: otel-collector-cluster
-    namespace: honeycomb
-    timeout: 300s
-  - kind: DaemonSet
-    name: otel-collector-daemonset
-    namespace: honeycomb
-    timeout: 300s
+# healthChecks:
+#   - kind: Deployment
+#     name: otel-collector-cluster
+#     namespace: honeycomb
+#     timeout: 300s
+#   - kind: DaemonSet
+#     name: otel-collector-daemonset
+#     namespace: honeycomb
+#     timeout: 300s
