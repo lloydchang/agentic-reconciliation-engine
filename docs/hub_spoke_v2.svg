@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="680" height="724" viewBox="0 0 680 724">
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="742" viewBox="0 0 680 742">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M2 1L8 5L2 9" fill="none" stroke="#888888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -74,55 +74,62 @@
   <text x="554" y="437" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">CAPI</text>
 
   <!-- Spoke clusters border -->
-  <rect x="50" y="454" width="580" height="200" rx="14" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <rect x="50" y="454" width="580" height="220" rx="14" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="7 4"/>
   <text x="340" y="474" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">Spoke clusters</text>
   <text x="340" y="492" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">own Flux agent &#183; ESO + workload identity &#183; operationally independent of hub</text>
 
-  <!-- EKS -->
+  <!-- EKS
+       Lines: AWS managed / via provider-aws / ESO + IRSA / &#8594; AWS SM / Flux agent -->
   <rect x="62" y="504" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
   <text x="124" y="524" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">EKS</text>
   <text x="124" y="542" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">AWS managed</text>
-  <text x="124" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
-  <text x="124" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Crossplane</text>
-  <text x="124" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + IRSA</text>
-  <text x="124" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AWS SM</text>
+  <text x="124" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via provider-aws</text>
+  <text x="124" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + IRSA</text>
+  <text x="124" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AWS SM</text>
+  <text x="124" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux agent</text>
 
-  <!-- AKS -->
+  <!-- AKS
+       Lines: Azure managed / via provider-azure / ESO + MI / &#8594; AKV / Flux agent -->
   <rect x="200" y="504" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
   <text x="262" y="524" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">AKS</text>
   <text x="262" y="542" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Azure managed</text>
-  <text x="262" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
-  <text x="262" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Crossplane</text>
-  <text x="262" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + MI</text>
-  <text x="262" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AKV</text>
+  <text x="262" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via provider-azure</text>
+  <text x="262" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + MI</text>
+  <text x="262" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AKV</text>
+  <text x="262" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux agent</text>
 
-  <!-- GKE -->
+  <!-- GKE
+       Lines: GCP managed / via provider-gcp / ESO + WI / &#8594; GCP SM / Flux agent -->
   <rect x="338" y="504" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
   <text x="400" y="524" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">GKE</text>
   <text x="400" y="542" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">GCP managed</text>
-  <text x="400" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed HA</text>
-  <text x="400" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Crossplane</text>
-  <text x="400" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + WI</text>
-  <text x="400" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; GCP SM</text>
+  <text x="400" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">via provider-gcp</text>
+  <text x="400" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO + WI</text>
+  <text x="400" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; GCP SM</text>
+  <text x="400" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux agent</text>
 
-  <!-- Kubeadm -->
-  <rect x="476" y="504" width="142" height="134" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+  <!-- Kubeadm
+       Lines: On-prem / via CAPI / Metal3 / CAPV / CAPO / ESO + Vault
+       Slightly taller card (150) to fit 6 content lines -->
+  <rect x="476" y="504" width="142" height="162" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
   <text x="547" y="524" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#712B13">Kubeadm</text>
   <text x="547" y="542" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">On-prem</text>
-  <text x="547" y="559" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Self-managed</text>
-  <text x="547" y="576" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">via CAPI</text>
-  <text x="547" y="593" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">ESO + Vault</text>
-  <text x="547" y="610" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Flux agent</text>
+  <text x="547" y="558" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">via CAPI</text>
+  <text x="547" y="574" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Metal3 (bare metal)</text>
+  <text x="547" y="590" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">CAPV (vSphere)</text>
+  <text x="547" y="606" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">CAPO (OpenStack)</text>
+  <text x="547" y="622" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">ESO + HashiCorp Vault</text>
+  <text x="547" y="638" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Flux agent</text>
 
   <!-- Legend -->
-  <rect x="148" y="662" width="10" height="10" rx="2" fill="#1D9E75"/>
-  <text x="163" y="671" font-family="sans-serif" font-size="11" fill="#555555">Cloud managed</text>
-  <rect x="270" y="662" width="10" height="10" rx="2" fill="#D85A30"/>
-  <text x="285" y="671" font-family="sans-serif" font-size="11" fill="#555555">On-prem</text>
-  <rect x="362" y="662" width="10" height="10" rx="2" fill="#7F77DD"/>
-  <text x="377" y="671" font-family="sans-serif" font-size="11" fill="#555555">Hub operators (Crossplane &#183; CAPI)</text>
+  <rect x="148" y="686" width="10" height="10" rx="2" fill="#1D9E75"/>
+  <text x="163" y="695" font-family="sans-serif" font-size="11" fill="#555555">Cloud managed</text>
+  <rect x="270" y="686" width="10" height="10" rx="2" fill="#D85A30"/>
+  <text x="285" y="695" font-family="sans-serif" font-size="11" fill="#555555">On-prem</text>
+  <rect x="362" y="686" width="10" height="10" rx="2" fill="#7F77DD"/>
+  <text x="377" y="695" font-family="sans-serif" font-size="11" fill="#555555">Hub operators (Crossplane &#183; CAPI)</text>
 
   <!-- Bottom notes -->
-  <text x="340" y="692" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Crossplane unified XRDs replace ACK &#183; ASO &#183; KCC &#183; ESO + workload identity replaces hub SOPS push</text>
-  <text x="340" y="710" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Bootstrap cluster (1&#8211;3 nodes, external) provides hub cold-start recovery &#183; not shown</text>
+  <text x="340" y="716" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Spoke Flux agent pulls from Git directly &#183; ESO + workload identity per spoke &#183; hub not in secrets path</text>
+  <text x="340" y="732" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Bootstrap cluster (1&#8211;3 nodes, external) provides hub cold-start recovery &#183; not shown</text>
 </svg>
