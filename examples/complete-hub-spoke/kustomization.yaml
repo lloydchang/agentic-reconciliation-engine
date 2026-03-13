@@ -213,7 +213,7 @@ labels:
       ai-enhanced: "true"
       consensus-orchestration: "true"
       variant: enterprise
-# Deployment mode configuration
+# Consensus-based agent orchestration configuration
 configMapGenerator:
 - name: ai-deployment-config
   literals:
@@ -231,3 +231,7 @@ configMapGenerator:
   - DECISION_THRESHOLD_CRITICAL=1.0
   - HEARTBEAT_INTERVAL=10s
   - CONSENSUS_TIMEOUT=30s
+  - SWARM_INTELLIGENCE_ENABLED=true
+  - MULTI_SCALE_FEEDBACK=true
+  - LOCAL_OPTIMIZATION_INTERVAL=30s
+  - GLOBAL_COORDINATION_INTERVAL=1h
