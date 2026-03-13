@@ -1,0 +1,12 @@
+# Patch applied by Flux to the ESO HelmRelease for GKE spokes.
+# Replace PROJECT_ID and GSA_NAME with your values.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-secrets
+  namespace: external-secrets
+spec:
+  values:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: GSA_NAME@PROJECT_ID.iam.gserviceaccount.com
