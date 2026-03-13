@@ -1,0 +1,58 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-azure
+  labels:
+    provider: azure
+    platform.example.com/xrd: xdatabase
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  writeConnectionSecretsToNamespace: crossplane-system
+  resources:
+    - name: azure-db-server
+      base:
+        apiVersion: dbforpostgresql.azure.jet.crossplane.io/v1alpha2
+        kind: FlexibleServer
+        spec:
+          forProvider:
+            location: eastus
+            skuName: GP_Standard_D2s_v3   # patched by size
+            version: "15"
+            administratorLogin: pgadmin
+            administratorPasswordSecretRef:
+              namespace: crossplane-system
+              name: azure-db-admin-password
+              key: password
+            storageMb: 32768
+            backupRetentionDays: 7
+            geoRedundantBackup: Disabled
+          providerConfigRef:
+            name: azure-provider
+          writeConnectionSecretToRef:
+            namespace: crossplane-system
+            name: ""
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.size
+          toFieldPath: spec.forProvider.skuName
+          transforms:
+            - type: map
+              map:
+                small:  GP_Standard_D2s_v3
+                medium: GP_Standard_D4s_v3
+                large:  MO_Standard_E8ds_v4
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.version
+          toFieldPath: spec.forProvider.version
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-conn"
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.fqdn
+          toFieldPath: status.endpoint
