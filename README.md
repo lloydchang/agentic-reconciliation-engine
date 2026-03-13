@@ -2,6 +2,10 @@
 
 Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 
+<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
+
+![Hub Spoke Diagram](docs/hub_spoke_v8.svg)
+
 ```text
 Declarative Source of Truth
                               Git Repository                          [Tier 0]
@@ -52,8 +56,6 @@ Notes:
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
   - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
 ```
-![Hub Spoke Diagram](docs/hub_spoke_v8.svg)
-<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
 ## Core Advantage
 
