@@ -123,7 +123,7 @@ https://github.com/lloydchang/gitops-infra-control-plane/pulls
 ## License
 
 This repository uses dual licensing:
-- AGPL-3.0: Core infrastructure manifests, logic, documentation, and examples
+- AGPL-3.0: Core infrastructure manifests, logic, documentation, examples, and more
   - GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
-- Apache 2.0: Sample snippets requiring user adaptations
+- Apache 2.0: Specific sample snippets requiring user adaptations
   - Apache License, Version 2.0 - see https://www.apache.org/licenses/LICENSE-2.0
