@@ -15,4 +15,4 @@ dependsOn:
 decryption:
   provider: sops
   secretRef:
-    name: sops-age-key
+    name: sops-age
