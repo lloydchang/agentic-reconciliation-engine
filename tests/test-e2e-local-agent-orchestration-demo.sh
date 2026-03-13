@@ -967,13 +967,44 @@ demo_monitoring() {
     if kubectl get deployment prometheus -n monitoring &>/dev/null; then
         print_status "Prometheus monitoring available"
 
+        # Set up dashboard port-forwards automatically
+        print_info "Setting up dashboard access..."
+        
+        # Check if dashboard is available and set up port-forward
+        if kubectl get svc agent-dashboard -n monitoring &>/dev/null; then
+            print_status "Agent dashboard found - setting up access"
+            
+            # Check if port-forward is already running
+            if ! lsof -i :8084 &>/dev/null; then
+                print_info "Starting dashboard port-forward in background..."
+                kubectl port-forward svc/agent-dashboard 8084:80 -n monitoring &
+                sleep 2
+                print_status "✅ Dashboard available at: http://localhost:8084/"
+            else
+                print_status "✅ Dashboard already running at: http://localhost:8084/"
+            fi
+        fi
+        
+        # Set up API port-forward
+        if kubectl get svc dashboard-api -n monitoring &>/dev/null; then
+            if ! lsof -i :5000 &>/dev/null; then
+                print_info "Starting API port-forward in background..."
+                kubectl port-forward svc/dashboard-api 5000:5000 -n monitoring &
+                sleep 2
+                print_status "✅ API available at: http://localhost:5000/api/cluster-status"
+            else
+                print_status "✅ API already running at: http://localhost:5000/api/cluster-status"
+            fi
+        fi
+
         # Show monitoring commands
         echo ""
-        print_info "Monitoring Commands:"
+        print_info "Additional Monitoring Commands:"
         echo "• View agent metrics: kubectl port-forward svc/prometheus 9090:9090 -n monitoring"
         echo "• Check agent logs: kubectl logs -f deployment/agent-swarm-leader -n control-plane"
         echo "• View consensus decisions: kubectl get agentproposals -n control-plane"
         echo "• Monitor Flux reconciliation: flux get all"
+        echo "• Stop port-forwards: pkill -f 'kubectl port-forward.*agent-dashboard'"
         echo ""
 
         # Show current Flux status

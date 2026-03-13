@@ -9,3 +9,4 @@ resources:
   - image-update-automation.yaml
   - image-policy.yaml
   - jenkins-image-automation.yaml
+  - secrets/
