@@ -2,8 +2,8 @@
 # This file contains the public age key for team collaboration
 # Team members can use this key to encrypt new secrets
 
-# Public key - generated 2026-03-13T07:13:02-07:00
-age18j4aqud8dycs64kuf7uqdkf5ayslhstjpr8nuqn2dpreysfqxs3q220ncn
+# Public key - generated 2026-03-13T09:39:00-07:00
+age17plgtv2e2w0z8mqhh3fnxxtte2ktpnwuxav6qm27re9hapcqyg0q650q0l
 
 # Instructions for team members:
 # 1. Import this key: age-keygen -i .sops.pub.age
