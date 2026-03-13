@@ -1,35 +1,37 @@
+```text
+# gitops_infra_control_plane.md
+
 # GitOps Infra Control Plane
 
 Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 
 ## Core Advantage
 
-Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. Kubernetes operators, such as Flux, ACK, ASO, KCC, can provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
+Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit. They do not continuously enforce infrastructure state. Kubernetes operators, such as Flux, ACK, ASO, and KCC, provide 24/7 continuous reconciliation that detects and repairs configuration drift automatically.
 
 | Approach | Traditional IaC | Continuous Reconciliation |
 |----------|----------------|---------------------------|
-| Operation | Run once → Exit | Monitor 24/7 → Auto-self-healing |
+| Operation | Run once -> Exit | Monitor 24/7 -> Automatic drift correction |
 | Drift Detection | Manual `plan` runs | Automatic within minutes |
 
-GitOps enables self-healing in Kubernetes by using a Git repository as the single source of truth for the desired system state. Tools like Flux continuously monitors the cluster's live state and automatically correct any deviations, ensuring it always matches the configuration defined in Git. This approach enables self-healing because continuous delivery (CD) tools running within the cluster automatically detect and correct any deviations from the configuration specified in Git.
+GitOps enforces configuration drift correction in Kubernetes by using a Git repository as the declarative source of truth for system state. Tools like Flux periodically reconcile Git-managed resources and restore any drift to match the Git configuration. This enables **automatic drift reconciliation**, not full operational self-healing, because runtime failures outside of Git-managed resources are handled by Kubernetes controllers and platform automation.
 
-<img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
+[IMAGE](https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911)
 
-![Hub Spoke Diagram](docs/hub_spoke_v8.svg)
+[Hub Spoke Diagram](docs/hub_spoke_v8.svg)
 
-```text
 [Tier 0]                               Git repository
                                declarative source of truth
                                               | Flux pulls manifests
                                               v
          +------------------------------------------------------------------------------+
 [Tier 1] |                               Hub cluster                                    |
-         |  any Kubernetes distribution • Flux self-manages hub after bootstrap         |
+         |  any Kubernetes distribution • Flux self-manages hub after bootstrap          |
          |------------------------------------------------------------------------------|
      _->-+--+-------------------+  +------------------+  +---------------------------+  |
     /    |  | Flux              |  | Operators        |  | Cluster API (CAPI)        |  |
    /     |  | GitOps reconcile  |  | ACK (AWS)        |  | Kubeadm provider          |  |
-  |      |  | Git → hub cluster |  | ASO (Azure)      |  | own reconciliation loop   |  |
+  |      |  | Git -> hub cluster|  | ASO (Azure)      |  | own reconciliation loop   |  |
    \     |  | SOPS/age decrypt  |  | KCC (GCP)        |  | Infra provider            |  |
     \    |  | at apply time     |  | own recon loops  |  | (Metal3 / CAPV / CAPO)    |  |
      `---+--+-------------------+  +------------------+  +---------------------------+  |
@@ -49,39 +51,34 @@ GitOps enables self-healing in Kubernetes by using a Git repository as the singl
          |  | SOPS        |  | SOPS        |  | SOPS        |  | SOPS              |   |
          |  +-------------+  +-------------+  +-------------+  +-------------------+   |
          +-----------------------------------------------------------------------------+
-              SOPS age key lives on hub • back up once
-                                        • Flux decrypts at apply time
-                                        • spokes receive plain Secrets
+              SOPS age key lives on hub -> back up once
+                                        -> Flux decrypts at apply time
+                                        -> spokes receive plain Secrets
 
 Secrets strategy (SOPS: Secrets OPerationS):
-  - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
+  - Back up the SOPS age private key in a key vault or secrets manager
   - Secrets encrypted in Git using age public key
-  - Flux decrypts at apply time using age private key (lives on hub)
-  - Spokes receive plain Kubernetes Secret objects — no controller needed in spokes
-    - One age key to back up (vs one key pair per cluster with Sealed Secrets)
-    - And the key reason SOPS remains worth keeping in mind: 
-      - With SOPS + a single age key stored in your key vault,
-        - it's one key, one backup,
-        - and Flux handles decryption natively without any controller in any cluster.
-      - Whereas with Sealed Secrets you're managing 5 separate key pairs (hub + 4 spokes)
-        - and 5 separate backup obligations.
-Alt 1: sealed-secrets: Sealed Secrets for Kubernetes with a controller in each cluster
-Alt 2: external secrets operator (ESO)
-       + Azure Key Vault / AWS Secrets Manager / GCP Secret Manager
+  - Flux decrypts at apply time using age private key (hub-only)
+  - Spokes receive plain Kubernetes Secret objects without requiring a controller
+    - Single age key simplifies backup vs multiple Sealed Secrets keys
+    - Flux handles decryption natively
+
+Alternative options:
+  - Sealed Secrets: controller in each cluster
+  - External Secrets Operator (ESO) with [Azure Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/), [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/), or [GCP Secret Manager](https://cloud.google.com/secret-manager)
 
 TBD notes:
-  - Hub distribution is TBD (any conformant Kubernetes cluster)
+  - Hub distribution is flexible (any conformant Kubernetes cluster)
     - Flux bootstrapped manually once; thereafter self-managed via Git
-    - Circular dependency: Flux manages the hub it runs on (by design)
+    - Circular dependency: Flux manages the hub cluster it runs on (by design)
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
-```
 
 ## When to Use This Solution
 
 ### Good Fit
-- Multi-cloud infrastructure with complex coordination needs
-- Large-scale deployments requiring autonomous optimization
-- Brownfield migrations with gradual modernization requirements
+- Multi-cloud infrastructure requiring coordinated operations
+- Large-scale deployments needing autonomous optimization
+- Brownfield migrations with gradual modernization
 
 ### Not a Good Fit
 - Simple single-app deployments
@@ -89,11 +86,11 @@ TBD notes:
 - Small teams with basic infrastructure needs
 - Cost-sensitive projects with limited budget
 
-> Important: This repository solves specific infrastructure problems. Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md) before implementation.
+> Important: Complete the [Problem-Solution Fit Assessment](./docs/PROBLEM-SOLUTION-FIT.md) before implementation.
 
 ## Key Features
 
-- Continuous Reconciliation: 24/7 drift detection and auto-repair
+- Continuous Reconciliation: 24/7 drift detection and correction
 - Multi-Cloud Integrations: AWS, Azure, GCP with native controllers
 - DAG Dependencies: Explicit dependency management with Flux
 - Agent Orchestration: Optional AI-enhanced consensus agents
@@ -101,7 +98,7 @@ TBD notes:
 
 ## Documentation
 
-### Essential Reading (In Order)
+### Essential Reading
 1. [Problem-Solution Fit](./docs/PROBLEM-SOLUTION-FIT.md) - When and how to use this solution
 2. [Architecture](./docs/ARCHITECTURE.md) - Technical architecture overview
 3. [Implementation Plan](./docs/implementation_plan.md) - Step-by-step deployment guide
@@ -118,12 +115,13 @@ TBD notes:
 
 ## Contributing
 
-https://github.com/lloydchang/gitops-infra-control-plane/pulls
+[Pull Requests](https://github.com/lloydchang/gitops-infra-control-plane/pulls)
 
 ## License
 
 This repository uses dual licensing:
 - `AGPL-3.0`: Core infrastructure manifests, logic, documentation, examples, and more
-  - GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
+  - See [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
 - `Apache-2.0`: Specific sample snippets requiring user adaptations
-  - Apache License, Version 2.0 - see https://www.apache.org/licenses/LICENSE-2.0
+  - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
+```
