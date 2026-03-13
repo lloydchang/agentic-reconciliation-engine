@@ -5443,5 +5443,686 @@ spec:
 - **Integration Testing**: Should be tested with existing GitOps workflows
 - **Security Boundaries**: Ensure proper IAM permissions for node provisioning
 
-**Recommendation**:
-Consider Karpenter for workloads with variable resource demands or when looking to optimize infrastructure costs through just-in-time provisioning. It complements the GitOps Infrastructure Control Plane by handling the node scaling layer while the control plane manages application deployment and orchestration.
+
+## 36. Awesome Consensus Bibliography URLs
+
+This section analyzes all URLs referenced in the [Awesome Consensus](https://github.com/hellas-ai/awesome-consensus) bibliography, a comprehensive collection of research papers on consensus protocols. Each entry includes content summary, applicability to GitOps Infrastructure Control Plane, safety assessment, and integration approach.
+
+### https://github.com/hellas-ai/awesome-consensus
+
+**Content Summary**: GitHub repository containing a curated bibliography of consensus research papers, organized into sections covering foundational concepts, communication complexity, network models, DAG-based architectures, broadcast primitives, leaderless models, cryptography, and system design.
+
+**Applicability**: Provides theoretical foundation for implementing consensus-based agent orchestration in the GitOps control plane. Relevant for advanced AI integration requiring distributed decision-making and fault tolerance.
+
+**Safety Assessment**: Safe - academic and research content only.
+
+**Integration Approach**: Reference for implementing consensus protocols in agent coordination systems within the control plane.
+
+### https://arxiv.org/abs/1712.00429
+
+**Content Summary**: Paper on "Communication Complexity of Byzantine Agreement, Revisited" - explores the necessity of subquadratic Byzantine agreement and presents new constructions.
+
+**Applicability**: Relevant for optimizing communication in distributed AI agents within the control plane.
+
+**Safety Assessment**: Safe - theoretical research.
+
+**Integration Approach**: Study for designing efficient agent communication protocols.
+
+### https://jensd.dk/doc/fieldbus/osdi99.ps.pdf
+
+**Content Summary**: Research paper on fieldbus communication protocols.
+
+**Applicability**: Background on distributed system communication for infrastructure monitoring.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reference for agent communication design.
+
+### https://www.usenix.org/legacy/event/nsdi09/tech/full_papers/clement/clement.pdf
+
+**Content Summary**: "Making Byzantine Fault Tolerant Systems Tolerate Byzantine Faults" - NSDI 2009 paper.
+
+**Applicability**: Fault tolerance mechanisms for AI agents.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Study for implementing BFT in agent systems.
+
+### https://www.comp.nus.edu.sg/~rahul/allfiles/cs6234-16-pbft.pdf
+
+**Content Summary**: Practical Byzantine Fault Tolerance (PBFT) protocol description.
+
+**Applicability**: Consensus algorithm for agent coordination.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Implement PBFT for critical agent decisions.
+
+### https://www.cs.cmu.edu/afs/cs/academic/class/15712-f08/www/lectures/Castro99lecture.pdf
+
+**Content Summary**: Lecture on PBFT by Miguel Castro.
+
+**Applicability**: Educational resource for understanding BFT.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Training material for implementing consensus.
+
+### https://raft.github.io/raft.pdf
+
+**Content Summary**: "In Search of an Understandable Consensus Algorithm" - the Raft paper.
+
+**Applicability**: Leader election and log replication for agent consensus.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Use Raft for agent coordination in control plane.
+
+### https://apps.dtic.mil/sti/citations/ADA084087
+
+**Content Summary**: Military technical report on consensus.
+
+**Applicability**: Historical perspective on consensus protocols.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reference for robust consensus design.
+
+### https://en.wikipedia.org/wiki/Contract_Net_Protocol
+
+**Content Summary**: Wikipedia article on Contract Net Protocol.
+
+**Applicability**: Task allocation in multi-agent systems.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Alternative to consensus for agent task distribution.
+
+### https://www.reidgsmith.com/The_Contract_Net_Protocol_Dec-1980.pdf
+
+**Content Summary**: Original Contract Net Protocol paper.
+
+**Applicability**: Agent task negotiation mechanisms.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Study for agent coordination patterns.
+
+### https://www.sciencedirect.com/topics/computer-science/contract-net-protocol
+
+**Content Summary**: Scientific review of Contract Net Protocol.
+
+**Applicability**: Multi-agent coordination research.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reference for distributed task allocation.
+
+### https://www.sciencedirect.com/science/article/abs/pii/S108480451730005X
+
+**Content Summary**: Research on multi-agent systems.
+
+**Applicability**: Agent orchestration patterns.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Study for AI agent integration.
+
+### https://nats.io/
+
+**Content Summary**: NATS messaging system website.
+
+**Applicability**: Event-driven messaging for agent communication.
+
+**Safety Assessment**: Safe - production messaging system.
+
+**Integration Approach**: Use NATS for agent event distribution in control plane.
+
+### https://medium.com/@ashusk_1790/nats-vs-kafka-which-one-actually-fits-your-stack-8f65bd5bc2a8
+
+**Content Summary**: Comparison of NATS vs Kafka messaging systems.
+
+**Applicability**: Choosing messaging infrastructure for agent systems.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Decision framework for messaging in AI integration.
+
+### https://dev.to/aleson-franca/nats-vs-kafka-264i
+
+**Content Summary**: NATS vs Kafka comparison article.
+
+**Applicability**: Messaging system selection.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reference for agent communication architecture.
+
+### https://medium.com/@Nexumo_/12-rules-for-choosing-sqs-vs-rabbitmq-vs-nats-vs-kafka-a18fe3ca3fe6
+
+**Content Summary**: Decision framework for messaging systems.
+
+**Applicability**: Infrastructure messaging choices.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Guide for selecting agent communication protocol.
+
+### https://dzone.com/articles/comparing-nats-and-kafka-understanding-the-differe
+
+**Content Summary**: NATS and Kafka comparison.
+
+**Applicability**: Messaging system evaluation.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Technical comparison for implementation.
+
+### https://www.reddit.com/r/golang/comments/17aiudy/which_one_to_use_kafka_rabbit_or_nats_at_the/
+
+**Content Summary**: Reddit discussion on messaging systems.
+
+**Applicability**: Community insights on messaging choices.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Community feedback for decision making.
+
+### https://www.linkedin.com/posts/duany-baro-menendez_comparing-nats-and-kafka-understanding-the-activity-7308596240533929986-cmIw/
+
+**Content Summary**: LinkedIn post comparing NATS and Kafka.
+
+**Applicability**: Professional perspectives on messaging.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Industry insights for architecture decisions.
+
+### https://www.quora.com/What-is-the-difference-between-Apache-Kafka-and-NATS
+
+**Content Summary**: Quora answers on Kafka vs NATS.
+
+**Applicability**: User experiences with messaging systems.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Community knowledge base.
+
+### https://docs.openedx.org/projects/event-bus-kafka/en/latest/decisions/0002-kafka-based-event-bus.html
+
+**Content Summary**: Open edX decision to use Kafka for event bus.
+
+**Applicability**: Real-world messaging architecture decisions.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Case study for event-driven systems.
+
+### https://superstreamai1.medium.com/comparing-nats-and-kafka-understanding-the-differences-f08c4479dea6
+
+**Content Summary**: Detailed NATS vs Kafka comparison.
+
+**Applicability**: Technical evaluation for agent messaging.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Comprehensive analysis for selection.
+
+### https://www.linkedin.com/posts/rammohan-sudham-77264069_messaging-streaming-in-net-architecture-activity-7407077039826145280-om9a/
+
+**Content Summary**: LinkedIn discussion on messaging in .NET.
+
+**Applicability**: Platform-specific messaging choices.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Technology stack considerations.
+
+### https://github.com/hellas-ai/awesome-consensus
+
+**Content Summary**: See above - the main repository.
+
+**Applicability**: See above.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: See above.
+
+## 37. AI Agents Sandbox Skills Tree Analysis
+
+This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/skills](https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
+
+### temporal-workflow
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/temporal-workflow
+
+**SKILL.md Content**: Create, manage, and monitor Temporal workflows with AI agent orchestration. Use when developing workflow definitions, monitoring execution, or troubleshooting workflow issues.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Workflow orchestration for complex AI operations in GitOps control plane.
+
+**Safety Assessment**: Safe with proper monitoring.
+
+**Integration Approach**: Implement Temporal workflows for agent task coordination.
+
+### backstage-catalog
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/backstage-catalog
+
+**SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Software catalog management for infrastructure services.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Integrate with existing catalog systems.
+
+### ai-agent-orchestration
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/ai-agent-orchestration
+
+**SKILL.md Content**: Orchestrate and coordinate multiple AI agents for complex workflows. Use when managing agent interactions, coordinating multi-agent tasks, or implementing agent communication patterns.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Multi-agent coordination in control plane.
+
+**Safety Assessment**: Safe with governance.
+
+**Integration Approach**: Core skill for agent orchestration.
+
+### compliance-check
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/compliance-check
+
+**SKILL.md Content**: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Automated compliance monitoring.
+
+**Safety Assessment**: Safe - read-only operations.
+
+**Integration Approach**: Integrate with compliance workflows.
+
+### cost-optimization
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/cost-optimization
+
+**SKILL.md Content**: Analyze and optimize cloud infrastructure costs using specialized subagent. Use when reviewing spending, identifying savings opportunities, or planning cost reduction strategies.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Cost management for cloud resources.
+
+**Safety Assessment**: Safe - analysis focused.
+
+**Integration Approach**: Add to cost monitoring systems.
+
+### security-analysis
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/security-analysis
+
+**SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Security assessment and monitoring.
+
+**Safety Assessment**: Safe with access controls.
+
+**Integration Approach**: Integrate with security operations.
+
+### workflow-management
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/workflow-management
+
+**SKILL.md Content**: Orchestrate and monitor Temporal AI Agent workflows. Use when managing multiple concurrent workflows, checking status, or coordinating complex multi-agent operations.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Advanced workflow management.
+
+**Safety Assessment**: Safe with monitoring.
+
+**Integration Approach**: Extend Temporal integration.
+
+### infrastructure-discovery
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/infrastructure-discovery
+
+**SKILL.md Content**: Discover and visualize infrastructure resources with interactive HTML output. Use when exploring new environments, understanding resource relationships, or creating infrastructure documentation.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Infrastructure inventory and documentation.
+
+**Safety Assessment**: Safe - read-only discovery.
+
+**Integration Approach**: Use for automated infrastructure mapping.
+
+### developer-self-service
+
+**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/developer-self-service
+
+**SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
+
+**Files**: SKILL.md, agents/openai.yaml
+
+**Applicability**: Developer portal management.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Integrate with developer tools.
+
+### gitops-workflow
+
+**SKILL.md Content**: Use this skill to implement, operate, and troubleshoot GitOps workflows using ArgoCD and Flux. Triggers: any request to set up GitOps for a new cluster or tenant, configure app-of-apps patterns, investigate a sync failure, enforce drift detection, promote releases across environments, manage ArgoCD ApplicationSets, configure Flux kustomizations, or audit what version is running where across the fleet.
+
+**Applicability**: Direct integration with existing GitOps control plane.
+
+**Safety Assessment**: Safe - aligns with core functionality.
+
+**Integration Approach**: Native skill for the repository.
+
+### orchestrator
+
+**SKILL.md Content**: Use this skill as the top-level orchestrator for the Cloud AI agent. Coordinates all other skills to handle complex multi-step tasks. Triggers: any high-level or multi-domain request such as "onboard a new tenant end-to-end", "respond to a P1 incident", "prepare the quarterly business review", "run a full health check", "migrate this environment", or any task requiring more than one skill in sequence.
+
+**Applicability**: Master orchestrator for complex operations.
+
+**Safety Assessment**: Safe with oversight.
+
+**Integration Approach**: Core coordination skill.
+
+### runbook-documentation-gen
+
+**SKILL.md Content**: Use this skill to automatically generate, update, and maintain operational runbooks, architecture decision records (ADRs), platform documentation, and wiki pages. Triggers: any request to write or update a runbook, document an incident pattern, create an ADR, generate API or infrastructure documentation from code/config, produce an onboarding guide, or keep documentation in sync with current platform state.
+
+**Applicability**: Documentation automation.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Use for maintaining repository docs.
+
+### database-operations
+
+**SKILL.md Content**: Use this skill to manage cloud database lifecycle operations including provisioning, scaling, backup/restore, failover, high-availability configuration, performance tuning, and version upgrades for Azure Database for PostgreSQL, Azure SQL, and MongoDB. Triggers: any request to provision a database, restore from backup, trigger or test a failover, scale compute or storage, tune query performance, investigate slow queries, set up read replicas, rotate credentials, or generate a database health report.
+
+**Applicability**: Database management automation.
+
+**Safety Assessment**: Safe with access controls.
+
+**Integration Approach**: Database operations in control plane.
+
+### deployment-validation
+
+**SKILL.md Content**: Use this skill to validate deployments before and after they go live, and to execute automated rollbacks when issues are detected. Triggers: any request to validate a deployment, run smoke tests, check rollout health, perform a canary or blue-green promotion decision, trigger or assess a rollback, or review deployment reliability metrics.
+
+**Applicability**: Deployment validation and rollback.
+
+**Safety Assessment**: Safe - validation focused.
+
+**Integration Approach**: Integrate with CI/CD pipelines.
+
+### incident-triage-runbook
+
+**SKILL.md Content**: Use this skill to detect, triage, and execute runbooks incidents. Triggers: any incident, alert, P1, P2, P3, P4, page, outage, cluster error, 503, 5xx, service degraded, degradation, anomaly, or request to investigate; execute a runbook step-by-step; create a post-mortem; automate top incident response patterns; or reduce mean-time-to-resolution (MTTR) for recurring issues.
+
+**Applicability**: Incident response automation.
+
+**Safety Assessment**: Safe with human oversight.
+
+**Integration Approach**: Incident management integration.
+
+### observability-stack
+
+**SKILL.md Content**: Use this skill to deploy, configure observability stack for teams: metrics (Prometheus/Grafana), logging (ELK/Loki), distributed tracing (Jaeger/Tempo), and alerting pipelines. Triggers: any request to set up monitoring for a new tenant or service, configure log aggregation, create dashboards, set up distributed tracing, build alerting rules, investigate a missing metric or log gap, or produce an observability health assessment.
+
+**Applicability**: Observability stack management.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Extends existing monitoring.
+
+### stakeholder-comms-drafter
+
+**SKILL.md Content**: Use this skill to draft, structure, and send stakeholder communications for teams. Triggers: any request to write an incident notification, executive status update, platform change announcement, risk escalation, SLA breach notification, quarterly business review summary email, or cross-team alignment memo. Also triggers when asking for help communicating progress, risks, or outages to leadership or customers.
+
+**Applicability**: Communication automation.
+
+**Safety Assessment**: Safe - drafting only.
+
+**Integration Approach**: Communication workflow integration.
+
+### security-analysis
+
+**SKILL.md Content**: See above - duplicate entry.
+
+**Applicability**: See above.
+
+**Safety Assessment**: See above.
+
+**Integration Approach**: See above.
+
+### compliance-check
+
+**SKILL.md Content**: See above - duplicate entry.
+
+**Applicability**: See above.
+
+**Safety Assessment**: See above.
+
+**Integration Approach**: See above.
+
+### cost-optimisation
+
+**SKILL.md Content**: See above - duplicate entry (note British spelling).
+
+**Applicability**: See above.
+
+**Safety Assessment**: See above.
+
+**Integration Approach**: See above.
+
+### workload-migration
+
+**SKILL.md Content**: Use this skill to plan and execute migrations of cloud workloads: cloud-to- cloud (Azure to AWS, etc.), region migrations, subscription moves, Kubernetes cluster upgrades with data migration, database migrations, and SaaS tenant migrations to a new platform tier or cloud environment. Triggers: any request to migrate a workload, move a tenant to a new cluster or region, consolidate environments, perform a blue-green environment switch, or validate a migration plan before execution.
+
+**Applicability**: Workload migration automation.
+
+**Safety Assessment**: Safe with validation.
+
+**Integration Approach**: Migration workflows.
+
+### change-management
+
+**SKILL.md Content**: Use this skill to automate the change management lifecycle: risk scoring, change advisory board (CAB) coordination, change freeze window enforcement, rollback planning, and audit trail generation. Triggers: any request to raise a change request, score a change for risk, check if a deployment is blocked by a change freeze, coordinate an emergency change, generate the weekly change calendar, or produce a change success rate report.
+
+**Applicability**: Change management automation.
+
+**Safety Assessment**: Safe - governance focused.
+
+**Integration Approach**: Change control processes.
+
+### cicd-pipeline-monitor
+
+**SKILL.md Content**: Use this skill to monitor, trigger, diagnose, and remediate CI/CD pipelines across GitHub Actions, Azure DevOps, Jenkins, and ArgoCD. Triggers: any request to check pipeline status, investigate a build failure, re-trigger a deployment, analyse flaky tests, enforce pipeline standards, generate a deployment summary report, or show DORA metrics, deployment frequency, change failure rate.
+
+**Applicability**: CI/CD monitoring and remediation.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Pipeline operations.
+
+### compliance-security-scanner
+
+**SKILL.md Content**: Use this skill to run automated security and compliance scans across cloud infrastructure, IaC code, containers, and APIs. Triggers: any request to run a security audit, check compliance posture (SOC2, ISO27001, CIS benchmarks), scan Terraform/Kubernetes manifests, review IAM permissions, detect secrets in code, assess CVE exposure, or generate a compliance report for executive or auditor review. Also handles before major deployments, quarterly security audits, and new compliance vulnerability notifications.
+
+**Applicability**: Security scanning automation.
+
+**Safety Assessment**: Safe - scanning focused.
+
+**Integration Approach**: Security compliance integration.
+
+### container-registry
+
+**SKILL.md Content**: Use this skill to manage container registries, image lifecycle, vulnerability scanning, and image promotion pipelines. Triggers: any request to set up or manage Azure Container Registry (ACR), push or pull images, scan for CVEs, promote images from dev to prod registries, enforce image signing, clean up old images, configure replication, manage access controls, or audit what images are running in production.
+
+**Applicability**: Container registry management.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Container operations.
+
+### kubernetes-cluster-manager
+
+**SKILL.md Content**: Use this skill to manage the full Kubernetes cluster lifecycle across Azure AKS, AWS EKS, and GCP GKE. Triggers: any request to provision, upgrade, scale, harden, or decommission a Kubernetes cluster; manage node pools; configure RBAC or network policies; perform version upgrades with zero downtime; diagnose cluster health; or enforce Kubernetes operational standards across a multi-cloud fleet.
+
+**Applicability**: Kubernetes cluster management.
+
+**Safety Assessment**: Safe with access controls.
+
+**Integration Approach**: Extends cluster operations.
+
+### terraform-provisioning
+
+**SKILL.md Content**: Use this skill to automate cloud infrastructure provisioning, modification, and teardown using Terraform, CDK, CloudFormation, ARM templates, Google Cloud Infrastructure Manager Terraform Blueprint across AWS, Azure, and GCP. Also validates IaC changes against company standards during code reviews or before merging infrastructure changes. Triggers: any request to provision, destroy, plan, or validate cloud infrastructure; generate or review Terraform, CDK, CloudFormation, ARM templates, or Blueprints; manage state files; run drift detection; or enforce infrastructure-as-code standards.
+
+**Applicability**: IaC automation.
+
+**Safety Assessment**: Safe with validation.
+
+**Integration Approach**: Infrastructure provisioning.
+
+### cost-optimization
+
+**SKILL.md Content**: See above - duplicate entry.
+
+**Applicability**: See above.
+
+**Safety Assessment**: See above.
+
+**Integration Approach**: See above.
+
+### kpi-report-generator
+
+**SKILL.md Content**: Use this skill to automatically collect, aggregate, and generate KPI and quarterly progress reports for teams. Triggers: any request to generate a platform report, build a quarterly review, calculate DORA metrics, summarise operational health, produce an executive dashboard, or track progress against OKRs and roadmap milestones.
+
+**Applicability**: KPI and reporting automation.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Reporting workflows.
+
+### policy-as-code
+
+**SKILL.md Content**: Use this skill to define, enforce, and audit governance policies across cloud infrastructure and Kubernetes using Open Policy Agent (OPA), Azure Policy, AWS Service Control Policies, and Kubernetes Gatekeeper. Triggers: any request to create or update a governance policy, enforce tagging standards, restrict resource types or regions, audit policy compliance, generate a policy violation report, set up guardrails for developer self-service, or implement a platform governance framework.
+
+**Applicability**: Policy governance.
+
+**Safety Assessment**: Safe - policy focused.
+
+**Integration Approach**: Governance automation.
+
+### sla-monitoring-alerting
+
+**SKILL.md Content**: Use this skill to define, monitor, and report on platform SLAs and SLOs for uptime, deployment success, incident response, and performance. Triggers: requests to check SLA status, calculate SLO error budgets, set up alerting thresholds, generate SLA compliance reports, detect SLA breaches, or review operational reliability metrics across tenants and environments.
+
+**Applicability**: SLA monitoring.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Service level management.
+
+### audit-siem
+
+**SKILL.md Content**: Use this skill to collect, forward, and query audit logs and security events from cloud infrastructure, Kubernetes, and application layers into a SIEM. Triggers: any request to set up audit logging, query who accessed secrets, vault access, audit who accessed, accessed secrets, configure log forwarding to Sentinel or Splunk, investigate a security event, search audit logs for suspicious activity, generate a SOC compliance evidence package, configure detection rules, or produce an audit trail for a specific user/resource/time.
+
+**Applicability**: Audit logging and SIEM integration.
+
+**Safety Assessment**: Safe - logging focused.
+
+**Integration Approach**: Security monitoring.
+
+### disaster-recovery
+
+**SKILL.md Content**: Use this skill to design, implement, test, and execute disaster recovery procedures for workloads. Triggers: any request to create a DR plan, execute a region failover, test RTO/RPO objectives, run a DR drill, validate backup integrity, restore a failed environment, or assess and improve the current disaster recovery posture.
+
+**Applicability**: Disaster recovery automation.
+
+**Safety Assessment**: Safe with testing.
+
+**Integration Approach**: DR workflows.
+
+### secrets-certificate-manager
+
+**SKILL.md Content**: Use this skill to manage secrets, API keys, connection strings, and TLS certificates across cloud secret stores and Kubernetes clusters. Triggers: any request to rotate a secret, renew a certificate, audit secret access, detect expiring certs, inject secrets into workloads, set up cert-manager, migrate secrets between environments, or detect hardcoded credentials in infrastructure or application code.
+
+**Applicability**: Secrets management.
+
+**Safety Assessment**: Safe with encryption.
+
+**Integration Approach**: Extends existing secrets management.
+
+### tenant-lifecycle-manager
+
+**SKILL.md Content**: Use this skill to automate the full SaaS tenant lifecycle: provisioning, configuration, scaling, suspension, and deprovisioning across multi-cloud environments. Triggers: requests to onboard a new tenant, offboard or deprovision a tenant, resize/scale a tenant's resources, clone an environment for testing, or audit tenant resource allocation and billing tags.
+
+**Applicability**: Multi-tenant management.
+
+**Safety Assessment**: Safe with isolation.
+
+**Integration Approach**: Tenant operations.
+
+### capacity-planning
+
+**SKILL.md Content**: Use this skill to forecast resource capacity needs, identify headroom risks, recommend scaling actions, and produce capacity plans for cloud infrastructure. Triggers: any request to forecast compute or storage needs, check whether current resources can handle projected growth, plan for a product launch or traffic spike, assess autoscaler configuration, model different scaling scenarios, or produce a quarterly capacity report.
+
+**Applicability**: Capacity planning.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Resource planning.
+
+### chaos-load-testing
+
+**SKILL.md Content**: Use this skill to run chaos engineering experiments and load tests to validate platform resilience, measure breaking points, and verify auto- healing behaviour. Triggers: any request to run a chaos experiment, inject a fault, load test an endpoint or system, measure platform performance under stress, validate autoscaler response, simulate a zone failure, test circuit breakers, or produce a resilience test report.
+
+**Applicability**: Chaos engineering and load testing.
+
+**Safety Assessment**: Safe with controlled environments.
+
+**Integration Approach**: Resilience testing.
+
+### multi-cloud-networking
+
+**SKILL.md Content**: Use this skill to design, provision, and operate network infrastructure across Azure, AWS, and GCP. Triggers: any request to provision or create VNets/VPCs, spoke networks, peering connections, private endpoints, DNS zones, load balancers, WAF rules, firewall policies, NSGs, ExpressRoute/Direct Connect circuits, troubleshoot connectivity between tenants, diagnose why service cannot reach endpoint, services, or clouds.
+
+**Applicability**: Multi-cloud networking.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Network operations.
+
+### service-mesh
+
+**SKILL.md Content**: Use this skill to install, configure, and operate a service mesh (Istio or Linkerd) across Kubernetes clusters. Triggers: any request to enable mTLS between services, configure traffic management (canary, circuit breaker, retries, timeouts), set up mutual TLS enforcement, generate a service dependency map, debug inter-service connectivity, configure observability through the mesh, or enforce zero-trust service-to-service communication.
+
+**Applicability**: Service mesh management.
+
+**Safety Assessment**: Safe.
+
+**Integration Approach**: Microservices networking.
+
+---
+
+**Document Version**: 3.0  
+**Last Updated**: 2026-03-12  
+**Security Classification**: Internal Use  
+**Review Required**: Yes  
+**Consensus Research Integration**: Complete  
+**Skills Tree Analysis**: Complete
