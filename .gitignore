@@ -62,7 +62,13 @@ flux-system/
 
 # Go workspace files
 go.work
+go.work.sum
+*.sum
 vendor/
+
+# Rust build artifacts
+target/
+Cargo.lock
 
 # Test output
 coverage.out
