@@ -1,0 +1,11 @@
+# SOPS Public Key for GitOps Infrastructure Control Plane
+# This file contains the public age key for team collaboration
+# Team members can use this key to encrypt new secrets
+
+# Public key (replace with your actual public key after running setup-sops-keys.sh)
+age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Instructions for team members:
+# 1. Import this key: age-keygen -i .sops.pub.age
+# 2. Use sops to encrypt new secrets with the shared configuration
+# 3. Never share the private key - it should only exist in the cluster
