@@ -9,7 +9,7 @@ pkill -f "kubectl port-forward.*agent-dashboard" 2>/dev/null || true
 pkill -f "kubectl port-forward.*dashboard-api" 2>/dev/null || true
 
 # Start port-forwards in background
-kubectl port-forward svc/agent-dashboard 8084:80 -n monitoring &
+kubectl port-forward svc/agent-dashboard 8084:8080 -n monitoring &
 DASHBOARD_PID=$!
 
 kubectl port-forward svc/dashboard-api 5000:5000 -n monitoring &
