@@ -24,6 +24,8 @@ and bootstraps each spoke. This enables **automatic drift reconciliation**, not 
 self-healing, because runtime failures outside Git-managed resources are handled by Kubernetes
 controllers and platform automation separately.
 
+![gitops_infra_control_plane_v2.svg](docs/gitops_infra_control_plane_v2.svg)
+
 ```text
 [Tier 0]   Git repository — declarative source of truth
                 |
