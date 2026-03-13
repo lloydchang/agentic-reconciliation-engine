@@ -13,9 +13,9 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 
 GitOps enforces configuration drift correction in Kubernetes by using a Git repository as the declarative source of truth for system state. Tools like Flux periodically reconcile Git-managed resources and restore any drift to match the Git configuration. This enables **automatic drift reconciliation**, not full operational self-healing, because runtime failures outside of Git-managed resources are handled by Kubernetes controllers and platform automation.
 
-[IMAGE](https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911)
+<img width="1024" height="1024" alt="gitops-infra-control-plane diagram" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
-[Hub Spoke Diagram](docs/hub_spoke_v8.svg)
+![hub spoke diagram](docs/hub_spoke_v8.svg)
 
 ```text
 [Tier 0]                               Git repository
