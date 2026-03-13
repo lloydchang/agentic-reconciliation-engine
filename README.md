@@ -8,8 +8,10 @@ Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and 
 
 | Approach | Traditional IaC | Continuous Reconciliation |
 |----------|----------------|---------------------------|
-| Operation | Run once → Exit | Monitor 24/7 → Auto-heal |
+| Operation | Run once → Exit | Monitor 24/7 → Auto-self-healing |
 | Drift Detection | Manual `plan` runs | Automatic within minutes |
+
+GitOps enables self-healing in Kubernetes by using a Git repository as the single source of truth for the desired system state. Tools like Flux continuously monitors the cluster's live state and automatically correct any deviations, ensuring it always matches the configuration defined in Git. This approach enables self-healing because continuous delivery (CD) tools running within the cluster automatically detect and correct any deviations from the configuration specified in Git.
 
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
