@@ -393,7 +393,7 @@ Why not have it all: `${branch}-${sha}-${ts}` – this is the suggestion given i
 
 ## Repository Integration
 
-This GitHub Actions workflow is designed to work seamlessly with the GitOps Infrastructure Control Plane. The generated manifests can be applied directly by Flux's kustomize-controller from the target Git repository branch.
+This GitHub Actions workflow is designed to work seamlessly with the GitOps Infra Control Plane. The generated manifests can be applied directly by Flux's kustomize-controller from the target Git repository branch.
 
 ### Integration with Flux
 

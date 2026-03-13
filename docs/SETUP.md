@@ -12,9 +12,9 @@ This file provides setup instructions for the complete infrastructure control pl
 
 ---
 
-# GitOps Infrastructure Control Plane - Setup Guide
+# GitOps Infra Control Plane - Setup Guide
 
-This guide provides step-by-step instructions to set up the complete GitOps Infrastructure Control Plane.
+This guide provides step-by-step instructions to set up the complete GitOps Infra Control Plane.
 
 ## Prerequisites
 

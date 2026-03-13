@@ -418,11 +418,11 @@ The health checking feature is called Health Checks in the [Flux Kustomization A
 
 ## Repository Integration
 
-This end-to-end documentation provides the foundation for understanding how Flux processes changes through the GitOps Infrastructure Control Plane. The platform integrates all the concepts described here with comprehensive tooling and automation.
+This end-to-end documentation provides the foundation for understanding how Flux processes changes through the GitOps Infra Control Plane. The platform integrates all the concepts described here with comprehensive tooling and automation.
 
 ### Integration with Control Plane
 
-The GitOps Infrastructure Control Plane implements the complete Flux workflow described above, providing:
+The GitOps Infra Control Plane implements the complete Flux workflow described above, providing:
 
 - **Automated Bootstrapping**: Complete Flux installation and configuration
 - **Multi-Source Support**: Git, Helm, OCI, S3, and other artifact sources

@@ -1,6 +1,6 @@
 # Flux Operator Complete Implementation Guide
 
-This comprehensive guide covers the complete implementation of Flux Operator for the GitOps Infrastructure Control Plane, including installation, configuration, advanced features, and best practices.
+This comprehensive guide covers the complete implementation of Flux Operator for the GitOps Infra Control Plane, including installation, configuration, advanced features, and best practices.
 
 ## Overview
 
@@ -1314,7 +1314,7 @@ data:
 
 ## Conclusion
 
-This comprehensive guide provides everything needed to successfully implement and operate Flux Operator for the GitOps Infrastructure Control Plane. The Flux Operator simplifies Flux CD management while providing powerful features for advanced GitOps operations.
+This comprehensive guide provides everything needed to successfully implement and operate Flux Operator for the GitOps Infra Control Plane. The Flux Operator simplifies Flux CD management while providing powerful features for advanced GitOps operations.
 
 Key benefits of using Flux Operator:
 

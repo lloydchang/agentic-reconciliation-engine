@@ -1,6 +1,6 @@
 # FluxInstance Configurations
 
-This directory contains FluxInstance CRD configurations for different deployment scenarios of the GitOps Infrastructure Control Plane.
+This directory contains FluxInstance CRD configurations for different deployment scenarios of the GitOps Infra Control Plane.
 
 ## Basic FluxInstance
 

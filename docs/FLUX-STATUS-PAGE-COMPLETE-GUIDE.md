@@ -1,6 +1,6 @@
 # Flux Status Page Complete Implementation Guide
 
-This comprehensive guide covers the complete implementation of the Flux Status Page for the GitOps Infrastructure Control Plane, including setup, configuration, authentication, user management, and best practices.
+This comprehensive guide covers the complete implementation of the Flux Status Page for the GitOps Infra Control Plane, including setup, configuration, authentication, user management, and best practices.
 
 ## Overview
 
@@ -104,7 +104,7 @@ metadata:
 data:
   config.yaml: |
     ui:
-      title: "GitOps Infrastructure Control Plane"
+      title: "GitOps Infra Control Plane"
       logo: "/static/logo.png"
       theme: "light"
       refreshInterval: "30s"

@@ -5,6 +5,37 @@ use tokio::time::{sleep, timeout};
 use tokio::sync::mpsc;
 use serde::{Deserialize, Serialize};
 
+// A2A (Agent-to-Agent) Protocol Structures
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct A2AMessage {
+    pub sender: String,
+    pub recipient: String,
+    pub message_type: String,
+    pub payload: serde_json::Value,
+    pub timestamp: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug)]
+pub struct A2ACommunicator {
+    sender: mpsc::UnboundedSender<A2AMessage>,
+    receiver: mpsc::UnboundedReceiver<A2AMessage>,
+}
+
+impl A2ACommunicator {
+    pub fn new() -> Self {
+        let (sender, receiver) = mpsc::unbounded_channel();
+        Self { sender, receiver }
+    }
+
+    pub fn send_message(&self, message: A2AMessage) {
+        let _ = self.sender.send(message);
+    }
+
+    pub async fn receive_message(&mut self) -> Option<A2AMessage> {
+        self.receiver.recv().await
+    }
+}
+
 // Data structures for consensus
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConsensusProposal {
@@ -141,6 +172,7 @@ impl ConsensusFeedbackLoop {
             feedback_interval: Duration::from_secs(feedback_interval_seconds),
             quorum_size,
             running,
+            a2a_communicator: A2ACommunicator::new(),
         }
     }
 
@@ -345,4 +377,5 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(e)
         }
     }
+}
 }

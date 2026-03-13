@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how to integrate Karpenter for just-in-time node scaling with the GitOps Infrastructure Control Plane. Karpenter complements the control plane by providing dynamic node provisioning that works alongside Flux-based GitOps workflows.
+This guide explains how to integrate Karpenter for just-in-time node scaling with the GitOps Infra Control Plane. Karpenter complements the control plane by providing dynamic node provisioning that works alongside Flux-based GitOps workflows.
 
 ## Architecture
 
@@ -342,7 +342,7 @@ kubectl get events -n karpenter --sort-by='.lastTimestamp'
 
 ## Integration with GitOps Workflows
 
-Karpenter integrates seamlessly with GitOps Infrastructure Control Plane:
+Karpenter integrates seamlessly with GitOps Infra Control Plane:
 
 - **Declarative Configuration**: All Karpenter resources managed through Git
 - **Automated Deployment**: Flux handles installation and updates

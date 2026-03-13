@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Testing Framework for GitOps Infrastructure Control Plane
+# Comprehensive Testing Framework for GitOps Infra Control Plane
 # This script implements a complete testing framework for validation
 
 set -euxo pipefail
@@ -737,7 +737,7 @@ mkdir -p $REPORT_DIR
 
 # Initialize report
 cat > $REPORT_FILE << EOF
-GitOps Infrastructure Control Plane - Test Report
+GitOps Infra Control Plane - Test Report
 Generated: $(date)
 ===============================================
 
@@ -816,7 +816,7 @@ echo "Success rate: $(((total_suites - failed_suites) * 100 / total_suites))%"
 
 if [[ $failed_suites -eq 0 ]]; then
     echo -e "${GREEN}🎉 All tests passed!${NC}"
-    echo -e "${GREEN}✅ GitOps Infrastructure Control Plane is ready for production${NC}"
+    echo -e "${GREEN}✅ GitOps Infra Control Plane is ready for production${NC}"
     exit 0
 else
     echo -e "${RED}❌ Some tests failed${NC}"
@@ -918,4 +918,4 @@ echo "  ✅ Security and compliance"
 echo "  ✅ Performance and scalability"
 echo ""
 echo -e "${GREEN}🎉 Testing framework setup complete!${NC}"
-echo -e "${BLUE}📊 Run 'scripts/run-all-tests.sh' to validate your GitOps Infrastructure Control Plane${NC}"
+echo -e "${BLUE}📊 Run 'scripts/run-all-tests.sh' to validate your GitOps Infra Control Plane${NC}"

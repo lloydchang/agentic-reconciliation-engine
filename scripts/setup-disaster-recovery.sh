@@ -87,7 +87,7 @@ data:
         severity: "critical"
         channels: ["slack", "email", "pagerduty"]
         message: |
-          Git repository outage detected in GitOps Infrastructure Control Plane.
+          Git repository outage detected in GitOps Infra Control Plane.
           
           Status: {{.Status}}
           Affected Repositories: {{.AffectedRepos}}
@@ -139,7 +139,7 @@ data:
         severity: "warning"
         channels: ["slack", "email", "pagerduty"]
         message: |
-          GitOps Infrastructure Control Plane has entered offline mode.
+          GitOps Infra Control Plane has entered offline mode.
           
           Reason: All Git repositories unavailable
           Time: {{.Timestamp}}

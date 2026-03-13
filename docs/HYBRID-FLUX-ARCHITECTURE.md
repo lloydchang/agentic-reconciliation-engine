@@ -2,7 +2,7 @@
 
 ## Overview
 
-This GitOps Infrastructure Control Plane now implements a **Hybrid Flux Architecture** that combines the reliability of standard Flux CD with the enhanced features of Flux Operator.
+This GitOps Infra Control Plane now implements a **Hybrid Flux Architecture** that combines the reliability of standard Flux CD with the enhanced features of Flux Operator.
 
 ## Architecture
 

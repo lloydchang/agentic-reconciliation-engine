@@ -1,10 +1,10 @@
-# GitOps Infrastructure Control Plane - Architecture
+# GitOps Infra Control Plane - Architecture
 
 > **🎯 Problem-First Architecture**: This architecture adapts to your specific problems, not vice-versa. Start with [Strategic Framework](./docs/STRATEGIC-FRAMEWORK.md) to determine your needs.
 
 > **⚠️ Critical Self-Assessment**: Before implementing, review [Solution Fit Analysis](docs/SOLUTION-FIT-ANALYSIS.md) to ensure this architectural approach is right for your situation.
 
-This document provides detailed architectural information about the GitOps Infrastructure Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management, with **scenario-specific adaptability**.
+This document provides detailed architectural information about the GitOps Infra Control Plane implementation, including **consensus-based agent orchestration** and **tight feedback loops** for autonomous infrastructure management, with **scenario-specific adaptability**.
 
 ## 🏗️ Adaptive Architecture: Problem-Specific Implementation
 
@@ -85,7 +85,7 @@ Based on analysis of **ai-agents-sandbox** repository and distributed consensus 
 
 ## Overview
 
-The GitOps Infrastructure Control Plane implements a zero-Terraform, multi-cloud infrastructure management system using native Kubernetes controllers and GitOps principles. The system treats infrastructure as a living, self-healing process rather than a one-time deployment, enhanced with **self-organizing agent swarms** that achieve local optimization through distributed consensus.
+The GitOps Infra Control Plane implements a zero-Terraform, multi-cloud infrastructure management system using native Kubernetes controllers and GitOps principles. The system treats infrastructure as a living, self-healing process rather than a one-time deployment, enhanced with **self-organizing agent swarms** that achieve local optimization through distributed consensus.
 
 ## Core Components
 
@@ -584,7 +584,7 @@ class FlockAlignment:
 - **Cost Optimization**: Autonomous resource efficiency management
 - **Automated Operations**: Automation with human oversight
 
-### Integration with GitOps Infrastructure Control Plane
+### Integration with GitOps Infra Control Plane
 
 #### Enhanced Flux Integration
 ```yaml

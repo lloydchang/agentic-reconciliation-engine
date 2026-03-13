@@ -1,6 +1,6 @@
 # Flux GitHub Action Implementation Guide
 
-This guide explains the implementation of Flux GitHub Action workflows for the GitOps Infrastructure Control Plane, providing automated operations for Flux management, OCI artifact handling, and comprehensive testing.
+This guide explains the implementation of Flux GitHub Action workflows for the GitOps Infra Control Plane, providing automated operations for Flux management, OCI artifact handling, and comprehensive testing.
 
 ## Overview
 
@@ -216,7 +216,7 @@ nodes:
 
 ### Prerequisites
 
-1. **GitHub Repository**: GitOps Infrastructure Control Plane
+1. **GitHub Repository**: GitOps Infra Control Plane
 2. **Container Registry**: GitHub Container Registry enabled
 3. **Permissions**: Required GitHub Actions permissions
 4. **Flux CLI**: Available in workflows via action

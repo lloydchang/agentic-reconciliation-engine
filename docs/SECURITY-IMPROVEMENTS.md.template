@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive security improvements implemented to address the secret exposure vulnerability identified in the GitOps Infrastructure Control Plane.
+This document outlines the comprehensive security improvements implemented to address the secret exposure vulnerability identified in the GitOps Infra Control Plane.
 
 ## 🚨 Security Incident Summary
 

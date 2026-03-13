@@ -1,4 +1,4 @@
-# Consensus-Based Agent Swarm for GitOps Infrastructure Control Plane
+# Consensus-Based Agent Swarm for GitOps Infra Control Plane
 # This file demonstrates self-organizing agent swarms using distributed consensus
 
 apiVersion: swarm.gitops.io/v1alpha1

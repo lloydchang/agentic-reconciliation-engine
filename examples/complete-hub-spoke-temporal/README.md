@@ -1,4 +1,4 @@
-# Phase 1-3: Complete Temporal Integration for GitOps Infrastructure Control Plane
+# Phase 1-3: Complete Temporal Integration for GitOps Infra Control Plane
 
 This example implements all three phases of Temporal integration with comprehensive AI-enhanced GitOps operations.
 

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides a **strategic framework** for determining when and how to apply the GitOps Infrastructure Control Plane, ensuring we solve real problems rather than pushing solutions looking for problems. We emphasize **accountability**, **problem-first thinking**, and **adaptive solutions** that evolve with your needs.
+This document provides a **strategic framework** for determining when and how to apply the GitOps Infra Control Plane, ensuring we solve real problems rather than pushing solutions looking for problems. We emphasize **accountability**, **problem-first thinking**, and **adaptive solutions** that evolve with your needs.
 
 ## 🎯 Problem Definition Framework
 

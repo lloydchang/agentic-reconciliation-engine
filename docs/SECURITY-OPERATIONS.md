@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive security operations procedures for the GitOps Infrastructure Control Plane, including monitoring, incident response, and ongoing security maintenance.
+This guide provides comprehensive security operations procedures for the GitOps Infra Control Plane, including monitoring, incident response, and ongoing security maintenance.
 
 ## 🔍 Security Monitoring
 

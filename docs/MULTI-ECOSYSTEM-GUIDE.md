@@ -2,7 +2,7 @@
 
 ## Overview
 
-The GitOps Infrastructure Control Plane provides comprehensive support for multiple programming language ecosystems. Each ecosystem can be swapped in/out while maintaining the same DAG structure through Flux dependsOn relationships.
+The GitOps Infra Control Plane provides comprehensive support for multiple programming language ecosystems. Each ecosystem can be swapped in/out while maintaining the same DAG structure through Flux dependsOn relationships.
 
 ## Supported Ecosystems
 

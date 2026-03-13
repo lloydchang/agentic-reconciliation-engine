@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive disaster recovery procedures specifically for Git repository outages in the GitOps Infrastructure Control Plane. These procedures ensure continued operations and rapid recovery when Git repositories become unavailable.
+This document provides comprehensive disaster recovery procedures specifically for Git repository outages in the GitOps Infra Control Plane. These procedures ensure continued operations and rapid recovery when Git repositories become unavailable.
 
 ## Table of Contents
 
@@ -462,6 +462,6 @@ Git repository recovered?
 
 ## Conclusion
 
-This disaster recovery plan provides comprehensive procedures for handling Git repository outages in the GitOps Infrastructure Control Plane. Regular testing and updates to these procedures ensure the system remains resilient and can quickly recover from Git-related disruptions.
+This disaster recovery plan provides comprehensive procedures for handling Git repository outages in the GitOps Infra Control Plane. Regular testing and updates to these procedures ensure the system remains resilient and can quickly recover from Git-related disruptions.
 
 The combination of automated failover, offline mode capabilities, state persistence, and comprehensive monitoring provides multiple layers of protection against Git repository failures, ensuring continuous operations even during extended outages.

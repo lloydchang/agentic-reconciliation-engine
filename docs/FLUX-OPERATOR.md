@@ -173,7 +173,7 @@ Set up [Prometheus metrics and alerting](https://fluxoperator.dev/docs/monitorin
 
 ## Repository Integration
 
-The Flux Operator integrates seamlessly with the GitOps Infrastructure Control Plane, providing an enterprise-ready way to deploy and manage Flux instances.
+The Flux Operator integrates seamlessly with the GitOps Infra Control Plane, providing an enterprise-ready way to deploy and manage Flux instances.
 
 ### Integration with Control Plane
 

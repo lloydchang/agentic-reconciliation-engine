@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This guide provides critical context for applying the GitOps Infrastructure Control Plane to different infrastructure scenarios. **The most important consideration is not the technology itself, but whether you actually have a problem that this solution solves.** We advocate strongly for clear problem definition before adopting any infrastructure management approach.
+This guide provides critical context for applying the GitOps Infra Control Plane to different infrastructure scenarios. **The most important consideration is not the technology itself, but whether you actually have a problem that this solution solves.** We advocate strongly for clear problem definition before adopting any infrastructure management approach.
 
 ## Problem Definition First - The Accountability Principle
 
@@ -30,7 +30,7 @@ Before considering any infrastructure management solution, **you must clearly de
 
 ### When Greenfield Makes Sense
 
-Greenfield scenarios are where the GitOps Infrastructure Control Plane provides maximum value:
+Greenfield scenarios are where the GitOps Infra Control Plane provides maximum value:
 
 - **Cloud-native startups** building multi-cloud from day one
 - **Enterprise digital transformations** with budget for full modernization
@@ -128,7 +128,7 @@ Even without multi-cloud, these components provide value:
 
 ### ❌ Hard Stop: Solution Cannot Solve Your Problem
 
-There are scenarios where this GitOps Infrastructure Control Plane **cannot be adapted** to solve your infrastructure problems, no matter how much you modify it. These are fundamental mismatches between the solution's capabilities and your requirements.
+There are scenarios where this GitOps Infra Control Plane **cannot be adapted** to solve your infrastructure problems, no matter how much you modify it. These are fundamental mismatches between the solution's capabilities and your requirements.
 
 #### 1. **Simple Infrastructure Scenarios**
 **Problem**: You have a single cloud, stable infrastructure with minimal change frequency.
@@ -363,7 +363,7 @@ Infrastructure problems change over time. The solution must be flexible enough t
 
 **The success of any infrastructure management solution depends entirely on whether it solves real problems you actually have.** Don't adopt complex solutions because they're "future-proof" or "best practice" - adopt them because they address specific pain points in your current reality.
 
-The GitOps Infrastructure Control Plane is powerful, but it's not universally applicable. Use this guide to determine if it's right for your specific context and problems.
+The GitOps Infra Control Plane is powerful, but it's not universally applicable. Use this guide to determine if it's right for your specific context and problems.
 
 ## Next Steps
 

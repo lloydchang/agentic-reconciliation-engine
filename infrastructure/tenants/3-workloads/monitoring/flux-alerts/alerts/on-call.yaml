@@ -5,7 +5,7 @@ metadata:
   name: on-call-alerts
   namespace: flux-system
 spec:
-  summary: "GitOps Infrastructure Control Plane"
+  summary: "GitOps Infra Control Plane"
   eventMetadata:
     env: "production"
     cluster: "gitops-control-plane"

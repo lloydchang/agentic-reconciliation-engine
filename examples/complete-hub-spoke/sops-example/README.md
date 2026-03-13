@@ -1,6 +1,6 @@
 # SOPS Example Deployment
 
-This example demonstrates how to use SOPS-encrypted secrets in the GitOps Infrastructure Control Plane with a complete WordPress deployment.
+This example demonstrates how to use SOPS-encrypted secrets in the GitOps Infra Control Plane with a complete WordPress deployment.
 
 ## Overview
 
@@ -271,7 +271,7 @@ kubectl port-forward service/grafana 3000:3000
 - [SOPS Documentation](https://github.com/getsops/sops)
 - [Flux SOPS Guide](https://fluxcd.io/flux/guides/sops/)
 - [Age Encryption](https://github.com/FiloSottile/age)
-- [GitOps Infrastructure Control Plane](../../README.md)
+- [GitOps Infra Control Plane](../../README.md)
 
 ---
 

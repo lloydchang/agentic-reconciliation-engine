@@ -212,7 +212,7 @@ spec:
 
 ## Repository Integration
 
-This Jenkins + Flux integration works seamlessly with the GitOps Infrastructure Control Plane. The platform provides comprehensive CI/CD integration capabilities.
+This Jenkins + Flux integration works seamlessly with the GitOps Infra Control Plane. The platform provides comprehensive CI/CD integration capabilities.
 
 ### Integration Benefits
 - **Separation of Concerns**: CI (Jenkins) builds and tests, CD (Flux) deploys

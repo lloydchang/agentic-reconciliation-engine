@@ -1,8 +1,8 @@
-# eBPF Pixie Integration for GitOps Infrastructure Control Plane
+# eBPF Pixie Integration for GitOps Infra Control Plane
 
 ## Overview
 
-Pixie provides real-time, full-fidelity observability using eBPF technology, enabling deep insights into application and infrastructure performance without requiring code instrumentation. This integration adds Pixie to both hub and spoke clusters in the GitOps Infrastructure Control Plane.
+Pixie provides real-time, full-fidelity observability using eBPF technology, enabling deep insights into application and infrastructure performance without requiring code instrumentation. This integration adds Pixie to both hub and spoke clusters in the GitOps Infra Control Plane.
 
 ## Architecture
 

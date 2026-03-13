@@ -1,6 +1,6 @@
 # Flux Architecture Diagrams
 
-This document contains architectural diagrams and visual representations of Flux CD components and data flows for the GitOps Infrastructure Control Plane.
+This document contains architectural diagrams and visual representations of Flux CD components and data flows for the GitOps Infra Control Plane.
 
 ## System Architecture Overview
 
@@ -607,4 +607,4 @@ flowchart TD
     class RESOLVED success
 ```
 
-These diagrams provide comprehensive visual representations of Flux CD architecture, data flows, and operational patterns for the GitOps Infrastructure Control Plane. They can be used for documentation, training, and troubleshooting purposes.
+These diagrams provide comprehensive visual representations of Flux CD architecture, data flows, and operational patterns for the GitOps Infra Control Plane. They can be used for documentation, training, and troubleshooting purposes.

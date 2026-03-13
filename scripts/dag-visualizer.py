@@ -11,7 +11,7 @@ Current Status: Core Flux dependency visualization and DAG analysis
 Strategic Plan: See docs/STRATEGIC-ARCHITECTURE.md for roadmap
 
 GitOps DAG Visualization Tool
-Generates interactive dependency graphs for GitOps Infrastructure Control Plane
+Generates interactive dependency graphs for GitOps Infra Control Plane
 """
 
 import json

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitOps Infrastructure Control Plane - Drift Test Script
+# GitOps Infra Control Plane - Drift Test Script
 # This script validates the continuous reconciliation capability for AWS, Azure, and GCP
 
 set -euxo pipefail

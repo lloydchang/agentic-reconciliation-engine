@@ -139,7 +139,7 @@ Visualize the deployment workflow
 
 ## Integration with Control Plane
 
-The Flux MCP Server integrates seamlessly with the GitOps Infrastructure Control Plane, providing AI-powered operations for the complete enterprise platform.
+The Flux MCP Server integrates seamlessly with the GitOps Infra Control Plane, providing AI-powered operations for the complete enterprise platform.
 
 ### Enterprise Benefits
 - **Accelerated Troubleshooting**: Reduce MTTR with AI-assisted analysis

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Flux Operator Installation Script
-# This script installs the Flux Operator and sets up the GitOps Infrastructure Control Plane
+# This script installs the Flux Operator and sets up the GitOps Infra Control Plane
 
 set -euxo pipefail
 
@@ -139,7 +139,7 @@ kubectl get pods -n $FLUX_INSTANCE_NAMESPACE -l app.kubernetes.io/name=flux
 # Check CRDs
 kubectl get crds | grep fluxcd || echo "Flux CRDs not yet available"
 
-# Create sync configuration for GitOps Infrastructure Control Plane
+# Create sync configuration for GitOps Infra Control Plane
 echo -e "${YELLOW}🔄 Creating sync configuration...${NC}"
 
 cat > flux-sync.yaml << EOF

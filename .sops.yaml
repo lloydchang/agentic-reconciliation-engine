@@ -1,4 +1,4 @@
-# SOPS Configuration for GitOps Infrastructure Control Plane
+# SOPS Configuration for GitOps Infra Control Plane
 # This file defines how to encrypt/decrypt secrets in this repository
 
 creation_rules:

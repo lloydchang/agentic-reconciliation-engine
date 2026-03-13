@@ -21,7 +21,7 @@ This document outlines the strategy for enhancing existing workloads from Terraf
 ## Migration Philosophy
 
 ### No Big-Bang Migration Required
-The GitOps Infrastructure Control Plane is designed to **coexist with existing infrastructure**. Organizations can maintain their current IaC tools while gradually adopting the new GitOps approach.
+The GitOps Infra Control Plane is designed to **coexist with existing infrastructure**. Organizations can maintain their current IaC tools while gradually adopting the new GitOps approach.
 
 ### Three-Tier Migration Approach
 
@@ -281,7 +281,7 @@ ai-convert-terraform-to-ack --debug --input terraform.tfstate --output debug.yam
 
 ## Conclusion
 
-The GitOps Infrastructure Control Plane provides a flexible, low-risk migration path from legacy IaC tools. By following the gradual migration approach, organizations can:
+The GitOps Infra Control Plane provides a flexible, low-risk migration path from legacy IaC tools. By following the gradual migration approach, organizations can:
 
 - **Minimize disruption** to existing operations
 - **Build confidence** in the new system gradually

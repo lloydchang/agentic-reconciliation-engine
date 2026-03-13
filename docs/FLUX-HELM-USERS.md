@@ -192,7 +192,7 @@ spec:
 
 ## Repository Integration
 
-This Helm integration is designed to work seamlessly with the GitOps Infrastructure Control Plane. The platform provides comprehensive Helm chart management capabilities.
+This Helm integration is designed to work seamlessly with the GitOps Infra Control Plane. The platform provides comprehensive Helm chart management capabilities.
 
 ### Integration with GitOps Control Plane
 

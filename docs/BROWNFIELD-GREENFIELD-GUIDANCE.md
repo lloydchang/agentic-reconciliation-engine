@@ -4,7 +4,7 @@
 
 > **🎯 Critical Principle**: This repository is designed to solve **specific problems**, not push technology. Your implementation approach must be driven by your **actual context and constraints**, not by a desire to use all features.
 
-This document provides detailed guidance for **scenario-specific implementation** of the GitOps Infrastructure Control Plane, ensuring you adopt only what solves your real problems.
+This document provides detailed guidance for **scenario-specific implementation** of the GitOps Infra Control Plane, ensuring you adopt only what solves your real problems.
 
 ## 🟢 Greenfield Scenarios: Starting Fresh
 

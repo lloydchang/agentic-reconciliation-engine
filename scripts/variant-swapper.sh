@@ -1,5 +1,5 @@
 #!/bin/bash
-# Variant Swapping Tool for GitOps Infrastructure Control Plane
+# Variant Swapping Tool for GitOps Infra Control Plane
 # Allows switching between different deployment variants
 
 set -euo pipefail
@@ -25,7 +25,7 @@ print_color() {
 # Function to show usage
 show_usage() {
     cat << EOF
-GitOps Infrastructure Control Plane - Variant Swapper
+GitOps Infra Control Plane - Variant Swapper
 
 Usage: $0 [OPTIONS] <variant-type> <variant-name>
 

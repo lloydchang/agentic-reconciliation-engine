@@ -1,8 +1,8 @@
-# 📊 GitOps Infrastructure Control Plane - Monitoring Setup Guide
+# 📊 GitOps Infra Control Plane - Monitoring Setup Guide
 
 ## 🎯 Overview
 
-This guide explains how to configure and use the comprehensive monitoring and alerting system implemented for the GitOps Infrastructure Control Plane.
+This guide explains how to configure and use the comprehensive monitoring and alerting system implemented for the GitOps Infra Control Plane.
 
 ---
 
@@ -272,7 +272,7 @@ kubectl get events -n flux-system --field-selector reason=ReconciliationFailed
 
 ## 🎉 **Production Readiness**
 
-Your GitOps Infrastructure Control Plane now includes:
+Your GitOps Infra Control Plane now includes:
 
 ✅ **Real-time alerting** via Slack and GitHub
 ✅ **Automated workflows** for upgrades and testing  

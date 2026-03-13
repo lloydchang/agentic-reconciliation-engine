@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-This document defines the comprehensive strategic architecture for the GitOps Infrastructure Control Plane, establishing a **hybrid approach** that combines Flux's declarative infrastructure management, Temporal's durable workflow execution, and consensus-based agent orchestration to achieve **production-ready autonomous infrastructure management**.
+This document defines the comprehensive strategic architecture for the GitOps Infra Control Plane, establishing a **hybrid approach** that combines Flux's declarative infrastructure management, Temporal's durable workflow execution, and consensus-based agent orchestration to achieve **production-ready autonomous infrastructure management**.
 
 ## Strategic Vision: The North Star
 
 ### Vision Statement
 
-**To provide a GitOps Infrastructure Control Plane for autonomous infrastructure management through the combination of declarative GitOps, durable workflow orchestration, and consensus-based agent coordination.**
+**To provide a GitOps Infra Control Plane for autonomous infrastructure management through the combination of declarative GitOps, durable workflow orchestration, and consensus-based agent coordination.**
 
 ### Current Situation Analysis
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Enhanced Monitoring and Observability Setup
-# This script sets up comprehensive monitoring for the GitOps Infrastructure Control Plane
+# This script sets up comprehensive monitoring for the GitOps Infra Control Plane
 
 set -euxo pipefail
 

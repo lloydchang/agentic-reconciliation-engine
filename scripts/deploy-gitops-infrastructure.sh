@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Complete Deployment Automation Script
-# This script automates the entire GitOps Infrastructure Control Plane deployment
+# This script automates the entire GitOps Infra Control Plane deployment
 
 set -euxo pipefail
 
@@ -18,7 +18,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LOG_FILE="$ROOT_DIR/deployment.log"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-echo -e "${BLUE}🚀 GitOps Infrastructure Control Plane Deployment${NC}"
+echo -e "${BLUE}🚀 GitOps Infra Control Plane Deployment${NC}"
 echo "=================================================="
 
 # Initialize logging
@@ -286,7 +286,7 @@ generate_deployment_report() {
     local report_file="$ROOT_DIR/deployment-report-$TIMESTAMP.md"
     
     cat > $report_file << EOF
-# GitOps Infrastructure Control Plane Deployment Report
+# GitOps Infra Control Plane Deployment Report
 
 **Generated:** $(date)  
 **Environment:** $(kubectl config current-context)  
@@ -426,7 +426,7 @@ EOF
 # Function to display completion message
 display_completion_message() {
     echo ""
-    echo -e "${GREEN}🎉 GitOps Infrastructure Control Plane Deployment Complete!${NC}"
+    echo -e "${GREEN}🎉 GitOps Infra Control Plane Deployment Complete!${NC}"
     echo "============================================================"
     echo ""
     echo -e "${BLUE}📊 Deployment Summary:${NC}"
@@ -461,12 +461,12 @@ display_completion_message() {
     echo "  Run: ./scripts/validate-hub-spoke-architecture.sh"
     echo "  Run: ./scripts/run-all-tests.sh"
     echo ""
-    echo -e "${GREEN}✨ Your GitOps Infrastructure Control Plane is ready!${NC}"
+    echo -e "${GREEN}✨ Your GitOps Infra Control Plane is ready!${NC}"
 }
 
 # Main deployment function
 main() {
-    log "Starting GitOps Infrastructure Control Plane deployment"
+    log "Starting GitOps Infra Control Plane deployment"
     
     # Check prerequisites
     check_prerequisites
@@ -489,13 +489,13 @@ main() {
     # Display completion message
     display_completion_message
     
-    log "GitOps Infrastructure Control Plane deployment completed successfully"
+    log "GitOps Infra Control Plane deployment completed successfully"
 }
 
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "GitOps Infrastructure Control Plane Deployment Script"
+        echo "GitOps Infra Control Plane Deployment Script"
         echo ""
         echo "Usage: $0 [options]"
         echo ""

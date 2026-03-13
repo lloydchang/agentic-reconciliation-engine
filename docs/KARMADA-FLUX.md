@@ -221,7 +221,7 @@ podinfo-68979685bc-dz9f6   1/1     Running   0          7m42s
 
 ## Repository Integration
 
-This Karmada + Flux integration is designed to work seamlessly with the GitOps Infrastructure Control Plane. The combination enables:
+This Karmada + Flux integration is designed to work seamlessly with the GitOps Infra Control Plane. The combination enables:
 
 1. **Multi-Cluster Management**: Centralized control of Flux resources across multiple Kubernetes clusters
 2. **GitOps at Scale**: GitOps principles applied to multi-cluster deployments

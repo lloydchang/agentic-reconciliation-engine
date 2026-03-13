@@ -2,7 +2,7 @@
 
 ## 🎯 Purpose: Avoid Solution-Looking-for-Problem Pitfalls
 
-This framework helps you determine if the GitOps Infrastructure Control Plane is the **right solution** for your specific problem. We believe in **problem-first, solution-second** approach.
+This framework helps you determine if the GitOps Infra Control Plane is the **right solution** for your specific problem. We believe in **problem-first, solution-second** approach.
 
 ## 🤔 Step 1: Define Your Problem Clearly
 
@@ -308,7 +308,7 @@ If the solution doesn't fit your evolving needs:
 
 ## Conclusion: Problem-Driven Adoption
 
-**The GitOps Infrastructure Control Plane is not a one-size-fits-all solution**. Its strength lies in its adaptability - it can be molded to fit your specific infrastructure challenges, whether you're managing legacy systems, building new applications, operating in single or multi-cloud environments, or maintaining local development workflows.
+**The GitOps Infra Control Plane is not a one-size-fits-all solution**. Its strength lies in its adaptability - it can be molded to fit your specific infrastructure challenges, whether you're managing legacy systems, building new applications, operating in single or multi-cloud environments, or maintaining local development workflows.
 
 **Key Success Factors**:
 1. **Clear Problem Definition**: Understand your needs before adopting

@@ -1,4 +1,4 @@
-# GitOps Infrastructure Control Plane - Fallback Resources Strategy
+# GitOps Infra Control Plane - Fallback Resources Strategy
 
 ## Overview
 For resources not directly supported by native cloud controllers (ACK/ASO/KCC), follow this hierarchical fallback strategy:

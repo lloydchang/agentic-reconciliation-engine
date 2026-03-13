@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide documents the approach for handling existing workloads built with push-based Infrastructure as Code (IaC) tools such as Terraform, AWS CloudFormation/CDK, Azure Blueprints/ARM/Bicep, and GCP Deployment Manager when adopting the GitOps Infrastructure Control Plane using Flux + Cloud Controllers (ACK/ASO/KCC).
+This guide documents the approach for handling existing workloads built with push-based Infrastructure as Code (IaC) tools such as Terraform, AWS CloudFormation/CDK, Azure Blueprints/ARM/Bicep, and GCP Deployment Manager when adopting the GitOps Infra Control Plane using Flux + Cloud Controllers (ACK/ASO/KCC).
 
 ## Core Philosophy
 

@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-echo "🔧 Setting up Offline Mode for GitOps Infrastructure Control Plane"
+echo "🔧 Setting up Offline Mode for GitOps Infra Control Plane"
 
 # Create namespace if it doesn't exist
 kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -

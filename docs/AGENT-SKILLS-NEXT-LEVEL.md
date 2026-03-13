@@ -1288,7 +1288,7 @@ Agent Skills represent an evolution in AI agent orchestration, moving from proto
 3. **Enhanced Reliability**: Built-in validation and error handling
 4. **Improved Scalability**: Distributed development and knowledge sharing
 
-For the GitOps Infrastructure Control Plane, Agent Skills would enable more sophisticated, context-aware infrastructure automation that can adapt to changing requirements and organizational best practices while maintaining the reliability and security needed for production environments.
+For the GitOps Infra Control Plane, Agent Skills would enable more sophisticated, context-aware infrastructure automation that can adapt to changing requirements and organizational best practices while maintaining the reliability and security needed for production environments.
 
 The migration from MCP to Agent Skills represents a significant architectural shift but provides substantial benefits in terms of flexibility, maintainability, and overall system intelligence.
 
@@ -1455,7 +1455,7 @@ class FlockAlignment:
 - **Cost Optimization**: Autonomous resource efficiency management
 - **Automated Operations**: Automation with human oversight
 
-### Integration with GitOps Infrastructure Control Plane
+### Integration with GitOps Infra Control Plane
 
 #### Enhanced Flux Integration
 ```yaml

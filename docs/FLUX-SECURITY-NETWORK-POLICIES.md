@@ -1,6 +1,6 @@
 # Flux Security and Network Policies
 
-This comprehensive guide covers security configurations, network policies, and best practices for securing Flux CD in the GitOps Infrastructure Control Plane.
+This comprehensive guide covers security configurations, network policies, and best practices for securing Flux CD in the GitOps Infra Control Plane.
 
 ## Security Overview
 
@@ -1139,4 +1139,4 @@ kubectl scale deployment -n flux-system --replicas=1
 
 ---
 
-This comprehensive security guide provides the foundation for securing Flux CD operations in the GitOps Infrastructure Control Plane, covering all aspects of network security, authentication, authorization, secret management, and compliance.
+This comprehensive security guide provides the foundation for securing Flux CD operations in the GitOps Infra Control Plane, covering all aspects of network security, authentication, authorization, secret management, and compliance.
