@@ -1,55 +1,58 @@
 # GitOps Infrastructure Control Plane
 
-Continuous Reconciliation Engine for Multi-Cloud Infrastructure
+Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 
 ```text
-                         Declarative Source of Truth
-     +-------------------> Git Repository [Tier 0]
-     |                                |
-     |                        Flux pulls manifests
-     |                                |
-     |                                v
-+----|-------------------------------------------------------------------------+
-|    |             Hub Cluster (any Kubernetes distribution)    [Tier 1]       |
-|    | Flux self-manages hub after one-time manual bootstrap                   |
-|----+-------------------------------------------------------------------------|
-|  +-+------------+  +----------------+  +----------------+  +--------------+  |
-|  | +-Flux       |  | Operators      |  | Sealed Secrets |  | Cluster API  |  |
-|  | GitOps       |  | ACK  (AWS)     |  | controller     |  | Kubeadm      |  |
-|  | reconcile    |  | ASO  (Azure)   |  | encrypts for   |  | provider     |  |
-|  | Git → hub    |  | KCC  (GCP)     |  | Git commit     |  | own recon    |  |
-|  | delivers ops |  | own recon loops|  | or ESO + cloud |  | Infra prov   |  |
-|  +--------------+  +----------------+  +----------------+  +--------------+  |
+Declarative Source of Truth
+                              Git Repository                          [Tier 0]
+                                    |
+                             Flux pulls manifests
+                                    |
+                                    v
++------------------------------------------------------------------------------+
+|                 Hub Cluster (any Kubernetes distribution)           [Tier 1] |
+|  Flux self-manages hub after one-time manual bootstrap                       |
+|------------------------------------------------------------------------------|
+|  +-------------------+  +------------------+  +---------------------------+  |
+|  |<--Flux            |  | Operators        |  | Cluster API (CAPI)        |  |
+|  | GitOps reconcile  |  | ACK  (AWS)       |  | Kubeadm provider          |  |
+|  | Git → hub cluster |  | ASO  (Azure)     |  | own reconciliation loop   |  |
+|  | SOPS/age decrypt  |  | KCC  (GCP)       |  | Infra provider            |  |
+|  | at apply time     |  | own recon loops  |  | (Metal3 / CAPV / CAPO)    |  |
+|  +-------------------+  +------------------+  +---------------------------+  |
 +------------------------------------------------------------------------------+
          |               |                |                   |
        (ACK)           (ASO)            (KCC)              (CAPI)
          |               |                |                   |
          v               v                v                   v
-+------------------------------------------------------------------------------+
-|                         Spoke clusters [Tier 2]                              |
-|------------------------------------------------------------------------------|
-| +-------------+  +-------------+  +-------------+  +-------------------+     |
-| | EKS         |  | AKS         |  | GKE         |  | Kubeadm (on-prem) |     |
-| | AWS managed |  | Azure mgd   |  | GCP managed |  | Self-managed      |     |
-| | Managed HA  |  | Managed HA  |  | Managed HA  |  | Lifecycle via     |     |
-| | via ACK     |  | via ASO     |  | via KCC     |  | CAPI + infra prov |     |
-| | Sealed Sec  |  | Sealed Sec  |  | Sealed Sec  |  | Sealed Sec        |     |
-| +-------------+  +-------------+  +-------------+  +-------------------+     |
-+------------------------------------------------------------------------------+
-  Each cluster holds its own Sealed Secrets controller and decryption key
++-----------------------------------------------------------------------------+
+|                    Spoke clusters                                  [Tier 2] |
+|-----------------------------------------------------------------------------|
+|  +-------------+  +-------------+  +-------------+  +-------------------+   |
+|  | EKS         |  | AKS         |  | GKE         |  | Kubeadm (on-prem) |   |
+|  | AWS managed |  | Azure mgd   |  | GCP managed |  | Self-managed      |   |
+|  | Managed HA  |  | Managed HA  |  | Managed HA  |  | Lifecycle via     |   |
+|  | via ACK     |  | via ASO     |  | via KCC     |  | CAPI + infra prov |   |
+|  | secrets via |  | secrets via |  | secrets via |  | secrets via       |   |
+|  | SOPS        |  | SOPS        |  | SOPS        |  | SOPS              |   |
+|  +-------------+  +-------------+  +-------------+  +-------------------+   |
++-----------------------------------------------------------------------------+
 
-Secrets strategy:
-  Primary:     Sealed Secrets (self-contained, decryption key per cluster)
-  Alternative: ESO + Azure Key Vault | AWS Secrets Manager | GCP Secret Manager
+Secrets strategy (SOPS):
+  - Secrets encrypted in Git using age public key
+  - Flux decrypts at apply time using age private key (lives on hub)
+  - Spokes receive plain Kubernetes Secret objects — no controller needed in spokes
+  - One age key to back up (vs one key pair per cluster with Sealed Secrets)
+  - Alternative: ESO + Azure Key Vault | AWS Secrets Manager | GCP Secret Manager
 
 Notes:
-- Hub distribution is TBD (any conformant Kubernetes cluster)
-- Flux bootstrapped manually once; thereafter self-managed via Git
-- Circular dependency: Flux manages the hub it runs on (by design)
-- Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
-- CRITICAL: Back up each cluster's Sealed Secrets decryption key separately
+  - Hub distribution is TBD (any conformant Kubernetes cluster)
+  - Flux bootstrapped manually once; thereafter self-managed via Git
+  - Circular dependency: Flux manages the hub it runs on (by design)
+  - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
+  - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
 ```
-
+<img width="680" height="570" alt="Image" src="https://github.com/user-attachments/assets/1e4f420f-2a68-4c98-9891-46f533ed6149" />
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
 ## Core Advantage
