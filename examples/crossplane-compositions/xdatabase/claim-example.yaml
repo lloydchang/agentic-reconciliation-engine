@@ -1,0 +1,28 @@
+# Spoke team writes this — cloud-agnostic, no provider-specific fields.
+# compositionSelector.matchLabels.provider determines which Composition fulfils the claim.
+apiVersion: platform.example.com/v1alpha1
+kind: Database
+metadata:
+  name: orders-db
+  namespace: orders-team
+  labels:
+    team: orders
+    env: production
+    cost-center: platform
+  annotations:
+    # Required annotation on all stateful resources.
+    # CI deletion guard will block any PR that removes this resource
+    # unless platform.example.com/allow-deletion: 'true' is added.
+    platform.example.com/allow-deletion: "false"
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws          # change to azure or gcp to target a different cloud
+  engine: postgres
+  version: "15"
+  size: medium
+  region: us-east-1
+  deletionPolicy: Orphan
+  writeConnectionSecretToRef:
+    name: orders-db-connection
+    namespace: orders-team
