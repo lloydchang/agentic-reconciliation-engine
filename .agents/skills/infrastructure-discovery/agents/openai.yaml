@@ -1,0 +1,29 @@
+interface:
+  display_name: "Infrastructure Discovery"
+  short_description: "Discover and visualize infrastructure resources"
+  icon_small: "./assets/infra-icon.svg"
+  icon_large: "./assets/infra-icon-large.png"
+  brand_color: "#9b59b6"
+  default_prompt: "Discover infrastructure for"
+
+policy:
+  allow_implicit_invocation: true
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "temporal-agents"
+      description: "Temporal AI Agents MCP server"
+      transport: "http"
+      url: "http://localhost:8082"
+    - type: "api"
+      value: "cloud-providers"
+      description: "Multi-cloud provider APIs"
+      transport: "https"
+      url: "https://api.clouds.example.com"
+    - type: "cli"
+      value: "python"
+      description: "Python for visualization generation"
+    - type: "cli"
+      value: "webbrowser"
+      description: "Open visualizations in browser"

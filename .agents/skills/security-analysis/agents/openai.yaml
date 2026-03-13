@@ -1,0 +1,29 @@
+interface:
+  display_name: "Security Analyzer"
+  short_description: "Advanced security analysis with real-time threat intelligence"
+  icon_small: "./assets/security-icon.svg"
+  icon_large: "./assets/security-icon-large.png"
+  brand_color: "#e74c3c"
+  default_prompt: "Analyze security for"
+
+policy:
+  allow_implicit_invocation: true
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "temporal-agents"
+      description: "Temporal AI Agents MCP server"
+      transport: "http"
+      url: "http://localhost:8082"
+    - type: "api"
+      value: "threat-intelligence"
+      description: "Threat intelligence feeds"
+      transport: "https"
+      url: "https://api.threatintel.example.com"
+    - type: "cli"
+      value: "nmap"
+      description: "Network scanning tool"
+    - type: "cli"
+      value: "nikto"
+      description: "Web vulnerability scanner"

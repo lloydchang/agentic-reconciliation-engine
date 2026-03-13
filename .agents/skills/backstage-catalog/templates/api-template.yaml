@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${API_NAME}
+  description: ${API_DESCRIPTION}
+  tags:
+    - api
+    - ${TECH_STACK}
+    - ${API_TYPE}
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    api.spec.format: ${SPEC_FORMAT}
+    api.spec.url: ${SPEC_URL}
+spec:
+  type: ${API_TYPE}
+  lifecycle: ${LIFECYCLE}
+  owner: ${OWNER_TEAM}
+  definition:
+    $text: |
+      ${OPENAPI_SPEC}
