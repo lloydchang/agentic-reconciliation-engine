@@ -1,0 +1,61 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: temporal-worker-service
+  description: Go backend service for Temporal workflow execution
+  annotations:
+    github.com/project-slug: backstage-temporal/backstage-temporal
+    backstage.io/techdocs-ref: dir:./backend
+spec:
+  type: service
+  lifecycle: experimental
+  owner: backstage-team
+  providesApis:
+    - temporal-workflow-api
+  dependsOn:
+    - component:temporal-server
+    - resource:postgresql-db
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: temporal-server
+  description: Temporal workflow orchestration server
+  annotations:
+    github.com/project-slug: backstage-temporal/backstage-temporal
+spec:
+  type: service
+  lifecycle: experimental
+  owner: backstage-team
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: postgresql-db
+  description: PostgreSQL database for Temporal persistence
+  annotations:
+    github.com/project-slug: backstage-temporal/backstage-temporal
+spec:
+  type: database
+  lifecycle: experimental
+  owner: backstage-team
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage-frontend
+  description: Backstage frontend application with Temporal plugin
+  annotations:
+    github.com/project-slug: backstage-temporal/backstage-temporal
+    backstage.io/techdocs-ref: dir:./frontend
+spec:
+  type: website
+  lifecycle: experimental
+  owner: backstage-team
+  providesApis:
+    - backstage-temporal-api
+  dependsOn:
+    - component:temporal-worker-service

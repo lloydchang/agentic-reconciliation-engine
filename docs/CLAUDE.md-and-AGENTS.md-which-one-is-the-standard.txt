@@ -1,0 +1,471 @@
+CLAUDE.md and AGENTS.md ? which one is the standard?
+
+Identified configuration file standards for AI coding agents
+
+The user is asking about CLAUDE.md vs AGENTS.md - which is the standard configuration file for AI coding agents.
+
+Both are real, but they serve slightly different purposes:
+
+CLAUDE.md is Anthropic's standard — it's the configuration file that Claude Code reads automatically when you open a project. It tells Claude about the codebase, conventions, commands to run, and anything else you want it to know. Anthropic defined and documented this format.
+
+AGENTS.md emerged more as a community/multi-agent convention — the idea being a more generic, tool-agnostic name that any AI coding agent (not just Claude) could read. It gained traction as people wanted a single file that works across Claude, Cursor, Copilot, etc.
+
+In practice:
+
+• Use CLAUDE.md if you're primarily using Claude Code — it's the officially supported format
+
+• Use AGENTS.md if you want something more tool-agnostic or are working in a multi-agent setup
+
+• Some projects include both, or just pick one and commit
+
+Claude Code will read CLAUDE.md by default. There's no single industry-wide standard yet — it's still a bit of a wild west as AI coding tools evolve. OpenAI's Codex also recently started supporting AGENTS.md, which has given that name more momentum as a cross-tool convention.
+
+Short answer: CLAUDE.md is Anthropic's official standard for Claude Code. AGENTS.md is the emerging community convention for tool-agnostic agent instructions.
+
+
+
+can i create a symlink between them?
+
+Affirmed symlink feasibility for dual file references
+
+Yes, they can create a symlink so both names point to the same file.
+
+
+Yes, absolutely. Just pick which one you want as the "source of truth" and symlink the other to it:
+
+If CLAUDE.md is your primary file:
+
+bash
+
+ln -s CLAUDE.md AGENTS.md
+
+If AGENTS.md is your primary file:
+
+bash
+
+ln -s AGENTS.md CLAUDE.md
+
+This way you only maintain one file but both names resolve to it. Works great if you want cross-tool compatibility without duplicating content.
+
+Just make sure to commit the symlink to git — git handles symlinks fine, so your teammates will get the same setup.
+
+
+does the above symlink approach for AGENTS.md and CLAUDE.md work on all operating systems? windows? mac? linux? others? does the approach work for all coding agents? does it work for all ai agents beyond coding?
+
+Examined symlink compatibility across operating systems and agent types
+
+Good questions about symlink compatibility across OS and agents.
+
+Great set of questions. Let me break it down:
+
+Operating Systems
+
+Linux ✅ — Symlinks are native, work perfectly everywhere.
+
+macOS ✅ — Symlinks work natively, no issues.
+
+Windows ⚠️ — Complicated:
+
+NTFS supports symlinks, but creating them requires Developer Mode enabled or running as Administrator
+
+ln -s works in WSL, but the symlink may not be visible/followed by native Windows tools
+
+Git on Windows has symlink issues — by default, git clone replaces symlinks with plain text files containing the target path, unless git config core.symlinks true is set
+
+This is the biggest risk if teammates are on Windows
+
+Others (BSD, etc.) ✅ — Generally fine, symlinks are standard Unix.
+
+
+AI Coding Agents
+
+Agent | Reads | Symlink likely works?
+
+Claude Code | CLAUDE.md | ✅
+OpenAI Codex | AGENTS.md |✅ on Unix
+Cursor | Various / .cursorrules | Irrelevant — different file
+Copilot | No equivalent file yet |N/A
+Aider | CONVENTIONS.md / custom | Irrelevant
+Gemini CLI | Emerging | Unknown
+
+The symlink works as long as the agent uses standard filesystem reads — which they all do.
+
+
+AI Agents Beyond Coding
+
+For general-purpose agents (AutoGPT, LangChain agents, CrewAI, etc.) — these files aren't a convention they follow at all, so the symlink question is moot. Those agents don't look for CLAUDE.md or AGENTS.md by default.
+
+
+Better Alternative for Cross-Platform Teams
+
+If Windows compatibility is a concern, consider a hard link instead:
+
+bash
+
+ln CLAUDE.md AGENTS.md
+
+```
+Or just a simple copy step in a setup script. Some teams also use a short "pointer" file:
+```
+
+# AGENTS.md
+
+See CLAUDE.md
+
+...though that only works if the agent is smart enough to follow the redirect, which most aren't.
+
+Bottom line: The symlink approach is solid for Mac/Linux-only teams. For Windows teams, test carefully or use a different strategy.
+
+
+ Copilot | No equivalent file yet | N/A
+
+Research Internet and web. Are there any way to make Copilot use AGENTS.md and/or CLAUDE.md files for SKILLS.md and more? Any workarounds? Why doesn't Copilot support them yet? Doesn't Copilot use the same LLMs such as Claude and Codex?
+
+
+
+Synthesized recent findings to construct comprehensive response
+Synthesized recent findings to construct comprehensive response
+Let me search for current information about GitHub Copilot support for AGENTS.md, CLAUDE.md, and similar instruction files.
+
+
+GitHub Copilot AGENTS.md CLAUDE.md support 2025
+
+
+Copilot coding agent now supports AGENTS.md custom instructions - GitHub Changelog
+github.blog
+
+[February 2026 Latest] GitHub Copilot & Claude Code Multi-Agent Collaboration: Latest Features, Pricing & Usage Strategy - SmartScope
+smartscope.blog
+
+GitHub Copilot now supports Agent Skills - GitHub Changelog
+github.blog
+
+Using Claude Code with GitHub Copilot: A Guide | by Anders Sveen | Medium
+anderssv.medium.com
+
+Adding repository custom instructions for GitHub Copilot - GitHub Docs
+docs.github.com
+
+Using Claude Code with GitHub Copilot: A Guide – Dazed & Confused
+blog.f12.no
+
+November 2025 Copilot Roundup · community · Discussion #180828
+github.com
+
+GitHub previews support for Claude and Codex coding agents | InfoWorld
+www.infoworld.com
+
+Third-party agents in Visual Studio Code
+code.visualstudio.com
+
+Claude and Codex are now available in public preview on GitHub - GitHub Changelog
+github.blog
+
+Great, lots of recent info. Let me summarize the key findings clearly.Done
+
+
+My previous answer was outdated — things have moved fast. Here's the current picture:
+
+
+Copilot NOW Supports AGENTS.md and CLAUDE.md
+
+As of August 2025, the Copilot coding agent officially supports AGENTS.md custom instructions. You can create a single AGENTS.md in the root of your repo, or nested AGENTS.md files that apply to specific subdirectories. Alongside that, Copilot also reads CLAUDE.md and GEMINI.md files, as well as its own .github/copilot-instructions.md format. GitHub
+
+So the "N/A" in my earlier table was wrong — Copilot now supports all three.
+
+
+Copilot Also Supports SKILLS.md
+
+As of December 2025, Copilot supports Agent Skills. When Copilot determines a skill is relevant to a task, it loads the instructions and follows them — including resources in the skill directory. Critically, if you've already set up skills for Claude Code in the .claude/skills directory in your repository, Copilot will pick them up automatically.
+
+GitHub
+
+This means Claude Code skills and Copilot skills are now interoperable.
+
+
+Does Copilot Use Claude and Codex?
+
+Yes — and it goes beyond just the underlying LLMs:
+
+As of February 4, 2026, Claude by Anthropic and OpenAI Codex are available as full coding agents within Copilot for Pro+ and Enterprise customers, with no additional subscription required. You can assign issues directly to @claude or @codex alongside @copilot.
+
+GitHub
+
+In VS Code, Claude agent sessions provide agentic coding capabilities powered by Anthropic's Claude Agent SDK directly, operating autonomously to plan, execute, and iterate on coding tasks with its own set of tools.
+
+Visual Studio Code
+
+
+Updated Compatibility Table
+
+File
+
+Claude Code | Copilot | OpenAI Codex
+CLAUDE.md | ✅ Native | ✅ Supported | ✅ Supported
+AGENTS.md | ✅ Supported | ✅ Native | ✅ Native
+GEMINI.md | ❌ | ✅ Supported | ❌
+.github/copilot-instructions.md | ❌ | ✅ Native | ❌
+.claude/skills/ | ✅ Native | ✅ Auto-detected | ❌
+
+Bottom line: The ecosystem has converged significantly since mid-2025. The symlink between CLAUDE.md and AGENTS.md is still useful for broad compatibility, but Copilot now natively reads both — so you may not even need the symlink anymore if you're primarily targeting these three tools.
+
+
+
+2026? you researched 2025 on Internet and web. what about 2026? did you research that yet?
+
+
+Thinking about my knowledge cutoff and limitations regarding future year predictions
+
+
+The user is pointing out that I only searched for "2025" in my query but the current date is March 10, 2026. Let me search for more recent 2026 information.
+
+Done
+
+Fair point — let me search specifically for 2026 updates.
+
+Assembled comprehensive 2026 data for thorough response
+
+GitHub Copilot AGENTS.md CLAUDE.md 2026
+
+10 results
+
+
+Claude and Codex now available for Copilot Business & Pro users - GitHub Changelog
+github.blog
+
+Claude and Codex are now available in public preview on GitHub - GitHub Changelog
+github.blog
+
+[February 2026 Latest] GitHub Copilot & Claude Code Multi-Agent Collaboration: Latest Features, Pricing & Usage Strategy - SmartScope
+smartscope.blog
+
+Adding repository custom instructions for GitHub Copilot - GitHub Docs
+docs.github.com
+
+GitHub Copilot · Agents on GitHub
+github.com
+
+Claude Code vs GitHub Copilot (2026): Terminal Agent vs Multi-Model Platform
+www.morphllm.com
+
+Your Home for Multi-Agent Development
+code.visualstudio.com
+
+Use custom instructions in VS Code
+code.visualstudio.com
+
+Copilot coding agent now supports AGENTS.md custom instructions - GitHub Changelog
+github.blog
+
+GitHub previews support for Claude and Codex coding agents | InfoWorld
+www.infoworld.com
+
+
+Good, now I have comprehensive 2026 data. Let me also search for any newer 2026 updates beyond February.
+
+
+GitHub Copilot AGENTS.md CLAUDE.md updates March 2026
+
+10 results
+
+
+
+Claude and Codex are now available in public preview on GitHub - GitHub Changelog
+github.blog
+
+Claude and Codex now available for Copilot Business & Pro users - GitHub Changelog
+github.blog
+
+Copilot coding agent now supports AGENTS.md custom instructions - GitHub Changelog
+github.blog
+
+Pick your agent: Use Claude and Codex on Agent HQ - The GitHub Blog
+github.blog
+
+GitHub Copilot · Agents on GitHub
+github.com
+
+Agents.md in Copilot code reviews · community · Discussion #174058
+github.com
+
+GitHub Copilot CLI is now generally available - GitHub Changelog
+github.blog
+
+Best of 2025: GitHub Copilot Evolves: Agent Mode and Multi-Model Support Transform DevOps Workflows - DevOps.com
+devops.com
+
+GitHub previews support for Claude and Codex coding agents | InfoWorld
+www.infoworld.com
+
+
+🎉 December 2025 Copilot Roundup · community · Discussion #183537
+github.com
+
+
+Now I have comprehensive 2026 data. Let me compile a thorough answer.
+
+Done
+
+Good call — here's the full up-to-date picture through March 2026:
+
+
+What's Changed in 2026
+
+February 4, 2026 — Claude by Anthropic and OpenAI Codex became available as coding agents for Copilot Pro+ and Copilot Enterprise customers, runnable from github.com, GitHub Mobile, and VS Code, with no additional subscription required. SmartScope
+
+February 25–26, 2026 — GitHub Copilot CLI reached general availability for all Copilot subscribers Visual Studio Code, and Claude and Codex were then expanded to Copilot Business and Pro customers as well. GitHub
+
+
+File Support — Current State (March 2026)
+
+GitHub's official docs now state you can use a single CLAUDE.md or GEMINI.md file stored in the root of the repository, or one or more AGENTS.md files stored anywhere within the repository — with the nearest AGENTS.md in the directory tree taking precedence.
+
+Medium
+
+
+So the full hierarchy Copilot now reads:
+
+• .github/copilot-instructions.md (Copilot-native)
+
+• .github/instructions/*.instructions.md (path-specific)
+
+• AGENTS.md (cross-agent standard)
+
+• CLAUDE.md (Claude-specific)
+
+• GEMINI.md (Gemini-specific)
+
+
+Agent Skills — Now Cross-Platform
+
+Copilot CLI ships with Agent Skills — markdown-based skill files that load automatically when relevant and work across Copilot coding agent, Copilot CLI, and VS Code.
+
+Visual Studio Code
+
+This means .claude/skills/ files from Claude Code are now picked up by Copilot too.
+
+
+
+One Caveat — Code Review Lags Behind
+
+AGENTS.md support is available in VS Code and for Copilot Chat/Coding Agents, but has not yet been extended to Copilot Code Review, which still uses copilot-instructions.md.
+
+Morph
+
+So if you rely on code review specifically, you still need that file separately.
+
+
+
+Bottom Line for Your Symlink Question
+
+As of today (March 10, 2026), the symlink between CLAUDE.md and AGENTS.md is largely redundant for the major tools — Copilot natively reads both. The only remaining edge case is Copilot Code Review, which still only reads .github/copilot-instructions.md.
+
+
+
+
+what happened to
+Cursor | Various/ .cursorrules | Irrelevant — different file
+that you mentioned earlier? are they legacy after introduction of SKILLS.md? or are .cursorrules still in active use? 2026? how do they compare to SKILLS.md ?
+
+
+Investigated .cursorrules legacy status and SKILLS.md comparison
+
+The user wants to know about Cursor's .cursorrules file status in 2026, whether it's been superseded by AGENTS.md/SKILLS.md, and how they compare. Let me search for this.
+
+Done
+
+
+Good follow-up — let me research the current state of Cursor specifically.
+
+
+Synthesized comprehensive findings on file evolution
+
+Cursor .cursorrules deprecated 2025 2026 AGENTS.md support
+
+10 results
+
+
+Cursor Rules vs Agent Skills: I Tested Both. Here's When Each One Actually Works. - DEV Community
+dev.to
+
+GitHub - digitalchild/cursor-best-practices: Best practices when using Cursor the AI editor. · GitHub
+github.com
+
+GitHub - murataslan1/cursor-ai-tips: Cursor AI IDE tips, tricks & best practices - Keyboard shortcuts, Composer mode, .cursorrules examples, and Reddit community wisdom · GitHub
+github.com
+
+awesome-cursor-rules-mdc/cursor-rules-reference.md at main · sanjeed5/awesome-cursor-rules-mdc
+github.com
+
+Cursor Release Notes - March 2026 Latest Updates - Releasebot
+releasebot.io
+
+Changelog · Cursor
+cursor.com
+
+/Generate Cursor Rules created a deprecated .cursorrules file? - Bug Reports - Cursor - Community Forum
+forum.cursor.com
+
+Cursor – Rules
+docs.cursor.com
+
+Rules | Cursor Docs
+cursor.com
+
+Keep your AGENTS.md in sync — One Source of Truth for AI Instructions - Kaushik Gopal's Website
+kau.sh
+
+Good, comprehensive results. Let me synthesize this clearly.
+
+Done
+
+
+Here's the full picture:
+
+.cursorrules Status in 2026: Officially Deprecated (But Not Dead)
+
+Cursor's own docs now say .cursorrules is "still supported but will be deprecated" and explicitly recommend migrating to Project Rules for more control, flexibility, and visibility. 
+InfoWorld
+
+Cursor's official recommendation as of now is to migrate to either Project Rules (.cursor/rules/ as .mdc files) or AGENTS.md. 
+Medium
+
+So .cursorrules is in a zombie state — works, but officially on its way out.
+
+The Cursor File Hierarchy (2026)
+
+There are now three distinct layers in Cursor:
+
+1. .cursor/rules/*.mdc — Project Rules (the new native format) Project rules are stored in .cursor/rules/ as .mdc files, version-controlled per project, and evaluated in this priority order: Local (manual) → Auto Attached → Agent Requested → Always Apply. Legacy .cursorrules is still supported but deprecated. 
+SmartScope
+
+2. AGENTS.md — Cross-tool standard AGENTS.md is a plain markdown file for defining agent instructions — supported in the project root and subdirectories. Unlike Project Rules, it has no metadata or complex configurations, making it perfect for simple, readable instructions without overhead. 
+Medium
+
+3. .cursorrules — Legacy, deprecated Still read, but Cursor won't generate new ones. There's even a bug report where Cursor's own /Generate Cursor Rules command accidentally created a .cursorrules file instead of the new .mdc format — confirming the old format is being phased out even internally. 
+GitHub
+
+.cursorrules vs SKILLS.md — How Do They Compare?
+
+.cursorrules | .cursor/rules/*.mdc | AGENTS.md | SKILLS.md
+Status | Deprecated	| Active native	| Active standard |	Active
+Scope | Always-on, whole project | Scoped, conditional | Simple always-on | Loaded on-demand
+Format | Plain markdown | MDC with metadata | Plain markdown | Plain markdown
+Cross-tool | ❌ Cursor only | ❌ Cursor only | ✅ All major tools | ✅ Growing support
+Context window | Always loaded | Loaded when matched | Always loaded | Only when relevant
+Best for | Legacy migration | Fine-grained rules | Simple shared instructions | Procedural how-to workflows
+
+The key distinction between rules and skills is this: rules with alwaysApply: true are great for coding style, error handling, and framework conventions — they load every time. Skills are better for multi-step workflows and deployment procedures because they keep the context window clean by only loading when needed. Rules are not deprecated by skills — they do different things. 
+GitHub
+
+One Important Caveat on Cross-Tool Skills
+
+Cursor's docs claim it auto-discovers skills from .claude/skills/ and .codex/skills/ for cross-tool compatibility — but independent testing found that a skill placed in .claude/skills/ did not load in Cursor. It may only work with .cursor/skills/. The "put it in .claude/skills/ and every tool finds it" claim doesn't hold up in practice yet. 
+GitHub
+
+The Community Consensus (Feb 2026)
+
+Most coding tools have consolidated around AGENTS.md as the cross-tool standard. The recommended setup is: AGENTS.md in the project root for shared instructions, tool-specific rules files for advanced per-tool configuration, and skills for procedural workflows. 
+GitHub
+
+Bottom line: .cursorrules is legacy — migrate away from it. AGENTS.md is the cross-tool winner for simple instructions. .cursor/rules/*.mdc is Cursor's own advanced format for fine-grained control. SKILLS.md complements all of them for on-demand procedural context.

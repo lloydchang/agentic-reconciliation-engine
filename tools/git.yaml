@@ -1,0 +1,60 @@
+# Git Tool Configuration
+# Safe Git operations for AI agents
+
+allowed_commands:
+  - git status
+  - git diff
+  - git diff --cached
+  - git log
+  - git log --oneline
+  - git branch
+  - git branch -r
+  - git show
+  - git blame
+  - git ls-files
+  - git grep
+  - git rev-parse
+  - git config --list
+
+blocked_commands:
+  - git push --force
+  - git push --force-with-lease
+  - git reset --hard
+  - git reset --soft
+  - git reset --mixed
+  - git clean -fd
+  - git clean -f
+  - git rm -rf
+  - git rm --cached
+  - git commit --amend
+  - git rebase
+  - git rebase --interactive
+  - git cherry-pick
+  - git merge --no-ff
+  - git tag --delete
+  - git branch -D
+  - git branch -d
+
+allowed_file_patterns:
+  - "**/*.go"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+  - "**/*.py"
+  - "**/*.md"
+  - "**/*.yaml"
+  - "**/*.yml"
+  - "**/*.json"
+  - "**/*.sql"
+  - "**/*.tf"
+  - "**/*.hcl"
+
+blocked_file_patterns:
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/.*"
+
+timeout_seconds: 60
