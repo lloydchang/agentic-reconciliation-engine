@@ -2,6 +2,15 @@
 
 Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 
+## Core Advantage
+
+Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. Kubernetes operators, such as Flux, ACK, ASO, KCC, can provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
+
+| Approach | Traditional IaC | Continuous Reconciliation |
+|----------|----------------|---------------------------|
+| Operation | Run once → Exit | Monitor 24/7 → Auto-heal |
+| Drift Detection | Manual `plan` runs | Automatic within minutes |
+
 <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/e6b4bec7-3855-4532-a06c-daadffed4911" />
 
 ![Hub Spoke Diagram](docs/hub_spoke_v8.svg)
@@ -64,15 +73,6 @@ TBD notes:
     - Circular dependency: Flux manages the hub it runs on (by design)
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
 ```
-
-## Core Advantage
-
-Traditional IaC tools (Terraform, CDK, CloudFormation, Bicep, ARM) run once and exit - they cannot continuously maintain infrastructure state. Kubernetes operators, such as Flux, ACK, ASO, KCC, can provide 24/7 continuous reconciliation that automatically detects and repairs configuration drift.
-
-| Approach | Traditional IaC | Continuous Reconciliation |
-|----------|----------------|---------------------------|
-| Operation | Run once → Exit | Monitor 24/7 → Auto-heal |
-| Drift Detection | Manual `plan` runs | Automatic within minutes |
 
 ## When to Use This Solution
 
