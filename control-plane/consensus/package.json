@@ -1,0 +1,21 @@
+{
+  "name": "consensus-feedback-loop",
+  "version": "1.0.0",
+  "description": "TypeScript/Node.js implementation of consensus-based agent feedback loops",
+  "main": "dist/consensus-feedback-loop.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/consensus-feedback-loop.js",
+    "dev": "ts-node src/consensus-feedback-loop.ts"
+  },
+  "dependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
