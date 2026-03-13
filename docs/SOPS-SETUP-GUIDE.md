@@ -223,7 +223,7 @@ spec:
   decryption:
     provider: sops
     secretRef:
-      name: sops-age
+      name: sops-age-key
 ```
 
 ### Verification

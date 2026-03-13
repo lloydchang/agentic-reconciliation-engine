@@ -24,9 +24,10 @@ The GitOps Infrastructure Control Plane supports **multi-language consensus-base
 ## Integration Options
 
 ### Temporal-Based Orchestration
-- **Multi-Language SDKs**: Go, Python, TypeScript, C#, Java support
+- **Multi-Language SDKs**: Go, Python, TypeScript, C#, Java, Rust support
 - **Durable Workflows**: Persistent consensus state across failures
 - **Go-Based Performance**: Native Kubernetes integration
+- **Rust-Based Performance**: Ultra-high performance consensus loops
 - **Enterprise Features**: Advanced error handling and monitoring
 
 ### Kubernetes-Native Workflows
@@ -60,7 +61,10 @@ The GitOps Infrastructure Control Plane supports **multi-language consensus-base
 ### Rust Performance Agent
 ```rust
 // Ultra-fast consensus loop (10-15 seconds)
-async fn consensus_loop() -> Result<(), ConsensusError> {
+use tokio::time::{sleep, Duration};
+use std::sync::Arc;
+
+async fn consensus_loop() -> Result<(), Box<dyn std::error::Error>> {
     let mut raft = RaftNode::new(config);
     
     loop {

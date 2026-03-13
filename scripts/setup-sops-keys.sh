@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 KEY_DIR="${KEY_DIR:-$(pwd)/.sops-keys}"
 CLUSTER_NAME="${CLUSTER_NAME:-gitops-infra-control-plane}"
 NAMESPACE="${NAMESPACE:-flux-system}"
-SECRET_NAME="${SECRET_NAME:-sops-age}"
+SECRET_NAME="${SECRET_NAME:-sops-age-key}"
 
 echo -e "${GREEN}🔐 SOPS Age Key Generation and Setup${NC}"
 echo "This script will generate age keys and create Kubernetes secrets for SOPS decryption."

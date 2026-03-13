@@ -1,21 +1,18 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: tenants-infra
+  name: tenant-infrastructure
   namespace: flux-system
 resources:
   - 1-network/
-  - name: 2-clusters/
-    dependsOn:
-      - 1-network
-  - name: 3-workloads/
-    dependsOn:
-      - 2-clusters
-  # SOPS-encrypted secrets (will be decrypted by Flux)
-  - database-credentials.secret.yaml
-  - registry-credentials.secret.yaml
-  - tls-certificate.secret.yaml
-  - external-api-keys.secret.yaml
-  # Flux Kustomizations for secret management
-  - tenant-secrets-kustomization.yaml
-  - 3-workloads/secrets-kustomization.yaml
+  - 2-clusters/
+  - 3-workloads/
+  - example-database-credentials.secret.yaml
+  - example-api-keys.secret.yaml
+dependsOn:
+  - 1-network
+# SOPS configuration for secret decryption
+decryption:
+  provider: sops
+  secretRef:
+    name: sops-age-key

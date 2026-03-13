@@ -31,3 +31,10 @@ spec:
     enabled: true
   mcpServer:
     enabled: true
+  # SOPS configuration for secret decryption
+  sops:
+    enabled: true
+    provider: age
+    secretRef:
+      name: sops-age-key
+      namespace: flux-system

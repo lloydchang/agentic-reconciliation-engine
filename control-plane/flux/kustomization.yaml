@@ -10,3 +10,8 @@ resources:
   - image-policy.yaml
   - jenkins-image-automation.yaml
   - secrets/
+# SOPS configuration for secret decryption
+decryption:
+  provider: sops
+  secretRef:
+    name: sops-age-key
