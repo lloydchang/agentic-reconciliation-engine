@@ -1,0 +1,19 @@
+# SOPS Configuration for GitOps Infrastructure Control Plane
+# This file defines how to encrypt/decrypt secrets in this repository
+
+creation_rules:
+  # Default rule for YAML files containing sensitive data
+  - path_regex: .*.yaml$
+    age: age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  # More specific rules can be added for different environments
+  # - path_regex: secrets/.*\.yaml$
+  #   age: age1yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+  #   encrypted_regex: '^(data|stringData)$'
+
+# Key groups for different environments (optional)
+# key_groups:
+#   - age:
+#     - age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # hub cluster key
+#   - age:
+#     - age1yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy  # spoke clusters key
