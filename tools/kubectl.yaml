@@ -1,0 +1,79 @@
+# Kubernetes Tool Configuration
+# Safe kubectl operations for AI agents
+
+allowed_commands:
+  - kubectl get
+  - kubectl describe
+  - kubectl logs
+  - kubectl logs --tail=100
+  - kubectl logs --since=1h
+  - kubectl logs --follow=false
+  - kubectl get pods
+  - kubectl get services
+  - kubectl get deployments
+  - kubectl get configmaps
+  - kubectl get secrets
+  - kubectl get namespaces
+  - kubectl get nodes
+  - kubectl get events
+  - kubectl get ingress
+  - kubectl describe pod
+  - kubectl describe service
+  - kubectl describe deployment
+  - kubectl describe node
+  - kubectl top pods
+  - kubectl top nodes
+  - kubectl api-resources
+  - kubectl api-versions
+  - kubectl cluster-info
+  - kubectl version --client
+
+blocked_commands:
+  - kubectl delete
+  - kubectl delete pod
+  - kubectl delete service
+  - kubectl delete deployment
+  - kubectl delete namespace
+  - kubectl delete configmap
+  - kubectl delete secret
+  - kubectl delete ingress
+  - kubectl apply
+  - kubectl create
+  - kubectl replace
+  - kubectl patch
+  - kubectl edit
+  - kubectl scale
+  - kubectl rollout restart
+  - kubectl rollout undo
+  - kubectl set
+  - kubectl annotate
+  - kubectl label
+  - kubectl taint
+  - kubectl cordon
+  - kubectl uncordon
+  - kubectl drain
+  - kubectl top
+  - kubectl attach
+  - kubectl exec
+  - kubectl port-forward
+  - kubectl proxy
+  - kubectl run
+  - kubectl expose
+  - kubectl autoscale
+  - kubectl certificate
+  - kubectl cluster-info dump
+  - kubectl config
+  - kubectl plugin
+
+allowed_namespaces:
+  - default
+  - kube-system
+  - kube-public
+  - kube-node-lease
+
+blocked_namespaces:
+  - all
+
+timeout_seconds: 120
+
+context_validation: true

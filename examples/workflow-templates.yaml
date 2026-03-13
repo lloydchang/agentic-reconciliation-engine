@@ -1,0 +1,360 @@
+# Workflow Templates for Compliance Scenarios
+# These templates define reusable workflow configurations for common compliance use cases
+
+apiVersion: v1
+kind: WorkflowTemplate
+metadata:
+  name: security-compliance-scan
+  description: Comprehensive security compliance scanning workflow
+spec:
+  workflowType: ai-orchestration
+  parameters:
+    - name: targetResource
+      type: string
+      description: Target infrastructure resource to scan
+      required: true
+    - name: complianceStandards
+      type: array
+      description: Compliance standards to check against
+      default: ["SOC2", "GDPR", "HIPAA"]
+    - name: scanDepth
+      type: string
+      description: Depth of security scan
+      default: "comprehensive"
+      enum: ["basic", "comprehensive", "deep"]
+  steps:
+    - name: infrastructure-discovery
+      type: infrastructure
+      config:
+        targetResource: "${targetResource}"
+        emulateMode: true
+    - name: security-analysis
+      type: agent
+      config:
+        agentType: "security"
+        scanType: "${scanDepth}"
+        includeVulnerabilityScan: true
+        includeComplianceCheck: true
+    - name: compliance-validation
+      type: agent
+      config:
+        agentType: "compliance"
+        standards: "${complianceStandards}"
+        requireHumanReview: true
+    - name: cost-analysis
+      type: agent
+      config:
+        agentType: "cost-optimization"
+        analyzeResourceUsage: true
+        suggestOptimizations: true
+    - name: result-aggregation
+      type: aggregation
+      config:
+        aggregationMethod: "weighted-score"
+        weights:
+          security: 0.4
+          compliance: 0.4
+          cost: 0.2
+    - name: human-approval
+      type: human
+      config:
+        required: true
+        approvers: ["security-team", "compliance-officer"]
+        timeout: "24h"
+        escalationPolicy: "auto-approve-if-score-above-90"
+
+---
+
+apiVersion: v1
+kind: WorkflowTemplate
+metadata:
+  name: multi-cloud-compliance
+  description: Multi-cloud compliance validation across AWS, Azure, and GCP
+spec:
+  workflowType: multi-agent-collaboration
+  parameters:
+    - name: cloudProviders
+      type: array
+      description: Cloud providers to validate
+      default: ["aws", "azure", "gcp"]
+    - name: resourceType
+      type: string
+      description: Type of resources to validate
+      default: "all"
+      enum: ["all", "compute", "storage", "network", "database"]
+    - name: region
+      type: string
+      description: Geographic region to focus on
+      default: "global"
+  steps:
+    - name: primary-security-analysis
+      type: agent
+      config:
+        agentType: "security"
+        isPrimary: true
+        scope: "multi-cloud"
+        providers: "${cloudProviders}"
+    - name: cross-cloud-validation
+      type: agent
+      config:
+        agentTypes: ["compliance", "cost-optimization", "governance"]
+        consensusType: "majority"
+        validationScope: "cross-cloud"
+    - name: consensus-building
+      type: aggregation
+      config:
+        consensusThreshold: 0.7
+        conflictResolution: "human-escalation"
+        votingMechanism: "weighted-by-expertise"
+
+---
+
+apiVersion: v1
+kind: WorkflowTemplate
+metadata:
+  name: continuous-compliance-monitoring
+  description: Continuous compliance monitoring with automated remediation
+spec:
+  workflowType: human-in-the-loop
+  parameters:
+    - name: monitoringFrequency
+      type: string
+      description: How often to run compliance checks
+      default: "daily"
+      enum: ["hourly", "daily", "weekly"]
+    - name: autoRemediation
+      type: boolean
+      description: Enable automatic remediation for minor issues
+      default: false
+    - name: notificationChannels
+      type: array
+      description: Channels for compliance notifications
+      default: ["email", "slack"]
+  steps:
+    - name: scheduled-scan
+      type: agent
+      config:
+        agentType: "compliance"
+        schedule: "${monitoringFrequency}"
+        autoApproveThreshold: 0.95
+        baselineComparison: true
+    - name: issue-classification
+      type: agent
+      config:
+        agentType: "security"
+        classifyBy: "severity"
+        autoRemediate: "${autoRemediation}"
+        remediationRules:
+          - pattern: "missing-encryption"
+            action: "enable-encryption"
+          - pattern: "outdated-patches"
+            action: "schedule-update"
+    - name: human-review-gate
+      type: human
+      config:
+        decisionType: "approve-reject"
+        timeout: "4h"
+        requiredFor: ["critical", "high-severity"]
+        notificationChannels: "${notificationChannels}"
+    - name: compliance-reporting
+      type: aggregation
+      config:
+        generateReport: true
+        reportFormat: ["pdf", "json"]
+        distribution: ["stakeholders", "audit-team"]
+        archiveIn: "compliance-database"
+
+---
+
+apiVersion: v1
+kind: WorkflowTemplate
+metadata:
+  name: incident-response-compliance
+  description: Compliance-focused incident response workflow
+spec:
+  workflowType: ai-orchestration
+  parameters:
+    - name: incidentSeverity
+      type: string
+      description: Severity level of the incident
+      required: true
+      enum: ["low", "medium", "high", "critical"]
+    - name: incidentType
+      type: string
+      description: Type of security incident
+      required: true
+      enum: ["data-breach", "unauthorized-access", "malware", "ddos", "misconfiguration"]
+    - name: affectedSystems
+      type: array
+      description: List of affected systems or resources
+      required: true
+  steps:
+    - name: incident-assessment
+      type: agent
+      config:
+        agentType: "security"
+        assessmentType: "immediate"
+        scope: "${affectedSystems}"
+        severity: "${incidentSeverity}"
+    - name: compliance-impact-analysis
+      type: agent
+      config:
+        agentType: "compliance"
+        analyzeRegulatoryImpact: true
+        assessBreachNotification: true
+        calculateRiskScore: true
+    - name: containment-strategy
+      type: agent
+      config:
+        agentType: "security"
+        generateContainmentPlan: true
+        prioritizeBusinessContinuity: true
+        minimizeComplianceImpact: true
+    - name: stakeholder-notification
+      type: human
+      config:
+        required: true
+        approvers: ["incident-commander", "compliance-officer", "legal-counsel"]
+        notificationTemplate: "security-incident"
+        regulatoryBodies: true
+    - name: remediation-approval
+      type: human
+      config:
+        decisionType: "approve-reject-modify"
+        approvers: ["security-team", "infrastructure-team"]
+        requireDocumentation: true
+        auditTrail: true
+
+---
+
+apiVersion: v1
+kind: WorkflowTemplate
+metadata:
+  name: vendor-risk-assessment
+  description: Automated vendor risk assessment workflow
+spec:
+  workflowType: multi-agent-collaboration
+  parameters:
+    - name: vendorName
+      type: string
+      description: Name of the vendor to assess
+      required: true
+    - name: vendorType
+      type: string
+      description: Type of vendor service
+      required: true
+      enum: ["saas", "infrastructure", "consulting", "managed-services"]
+    - name: riskLevel
+      type: string
+      description: Initial risk classification
+      default: "medium"
+      enum: ["low", "medium", "high", "critical"]
+  steps:
+    - name: vendor-data-collection
+      type: infrastructure
+      config:
+        collectSecurityDocs: true
+        collectComplianceCerts: true
+        collectFinancialInfo: true
+        automatedDataGathering: true
+    - name: security-evaluation
+      type: agent
+      config:
+        agentType: "security"
+        evaluationFramework: "NIST-800-53"
+        checkCertifications: ["SOC2", "ISO27001", "PCI-DSS"]
+        assessSecurityPosture: true
+    - name: compliance-validation
+      type: agent
+      config:
+        agentType: "compliance"
+        validateGDPR: true
+        validateSOX: true
+        validateHIPAA: "${vendorType === 'healthcare'}"
+        assessDataProcessing: true
+    - name: risk-scoring
+      type: agent
+      config:
+        agentType: "risk-assessment"
+        scoringModel: "weighted-criteria"
+        criteria:
+          security: 0.3
+          compliance: 0.3
+          financial: 0.2
+          operational: 0.2
+    - name: consensus-review
+      type: aggregation
+      config:
+        consensusType: "unanimous-for-high-risk"
+        votingParticipants: ["security-team", "compliance-team", "legal-team", "procurement"]
+        escalationPolicy: "executive-review-for-critical"
+
+---
+
+# Configuration for different compliance standards and their requirements
+apiVersion: v1
+kind: ComplianceStandard
+metadata:
+  name: SOC2-Type-II
+spec:
+  description: "SOC2 Type II compliance requirements"
+  requirements:
+    - category: "Security"
+      controls:
+        - id: "CC1.1"
+          description: "Control Environment"
+          automation: true
+        - id: "CC6.1"
+          description: "Logical Access Controls"
+          automation: true
+        - id: "CC7.1"
+          description: "System Operations"
+          automation: true
+    - category: "Availability"
+      controls:
+        - id: "A1.1"
+          description: "Availability Objectives"
+          automation: true
+        - id: "A2.1"
+          description: "System Monitoring"
+          automation: true
+    - category: "Confidentiality"
+      controls:
+        - id: "C1.1"
+          description: "Data Classification"
+          automation: true
+        - id: "C2.1"
+          description: "Data Protection"
+          automation: true
+
+---
+
+apiVersion: v1
+kind: ComplianceStandard
+metadata:
+  name: GDPR
+spec:
+  description: "General Data Protection Regulation requirements"
+  requirements:
+    - category: "Data Protection"
+      controls:
+        - id: "Art.32"
+          description: "Security of Processing"
+          automation: true
+        - id: "Art.33"
+          description: "Notification of Personal Data Breach"
+          automation: true
+        - id: "Art.35"
+          description: "Data Protection Impact Assessment"
+          automation: true
+    - category: "Individual Rights"
+      controls:
+        - id: "Art.16"
+          description: "Right to Rectification"
+          automation: true
+        - id: "Art.17"
+          description: "Right to Erasure"
+          automation: true
+        - id: "Art.21"
+          description: "Right to Object"
+          automation: true

@@ -1,0 +1,69 @@
+# Docker Tool Configuration
+# Safe Docker operations for AI agents
+
+allowed_commands:
+  - docker ps
+  - docker ps -a
+  - docker images
+  - docker logs
+  - docker logs --tail=100
+  - docker inspect
+  - docker stats
+  - docker stats --no-stream
+  - docker top
+  - docker port
+  - docker exec
+  - docker exec -it
+  - docker diff
+  - docker history
+  - docker version
+  - docker info
+  - docker system df
+  - docker system info
+  - docker network ls
+  - docker volume ls
+
+blocked_commands:
+  - docker run
+  - docker run -d
+  - docker run --rm
+  - docker build
+  - docker build -t
+  - docker pull
+  - docker push
+  - docker tag
+  - docker create
+  - docker start
+  - docker stop
+  - docker restart
+  - docker kill
+  - docker rm
+  - docker rmi
+  - docker prune
+  - docker system prune
+  - docker volume rm
+  - docker volume prune
+  - docker network rm
+  - docker network prune
+  - docker container prune
+  - docker image prune
+  - docker builder prune
+
+allowed_images:
+  - temporalio/auto-setup
+  - postgres
+  - redis
+  - nginx
+  - node
+  - golang
+  - python
+
+blocked_images:
+  - "*"
+
+container_limits:
+  memory: "512m"
+  cpu: "0.5"
+  timeout: 300
+
+network_restrictions: true

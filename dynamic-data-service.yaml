@@ -198,6 +198,306 @@ spec:
           def health():
               return jsonify({"status": "healthy", "timestamp": datetime.datetime.utcnow().isoformat()})
 
+          html_template = """
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>AI Agent Orchestration Dashboard</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      margin: 0;
+                      padding: 20px;
+                      min-height: 100vh;
+                  }
+                  .container {
+                      max-width: 1400px;
+                      margin: 0 auto;
+                      background: rgba(255, 255, 255, 0.95);
+                      border-radius: 20px;
+                      padding: 30px;
+                      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                  }
+                  .header {
+                      text-align: center;
+                      margin-bottom: 40px;
+                  }
+                  .header h1 {
+                      color: #2c3e50;
+                      font-size: 2.5rem;
+                      margin-bottom: 10px;
+                  }
+                  .header p {
+                      color: #7f8c8d;
+                      font-size: 1.1rem;
+                  }
+                  #timestamp {
+                      color: #3498db;
+                      font-weight: bold;
+                      margin-top: 10px;
+                  }
+                  .stats-grid {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                      gap: 20px;
+                      margin-bottom: 40px;
+                  }
+                  .stat-card {
+                      background: white;
+                      border-radius: 12px;
+                      padding: 20px;
+                      text-align: center;
+                      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                      border-left: 4px solid #3498db;
+                  }
+                  .stat-value {
+                      font-size: 2rem;
+                      font-weight: bold;
+                      color: #2c3e50;
+                      margin-bottom: 5px;
+                  }
+                  .stat-label {
+                      color: #7f8c8d;
+                      font-size: 0.9rem;
+                  }
+                  .agent-grid {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                      gap: 25px;
+                  }
+                  .agent-card {
+                      background: white;
+                      border-radius: 15px;
+                      padding: 25px;
+                      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                      transition: transform 0.3s ease, box-shadow 0.3s ease;
+                      position: relative;
+                      overflow: hidden;
+                  }
+                  .agent-card::before {
+                      content: '';
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 4px;
+                      background: linear-gradient(90deg, #3498db, #9b59b6);
+                  }
+                  .agent-card:hover {
+                      transform: translateY(-5px);
+                      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+                  }
+                  .agent-card h3 {
+                      margin: 0 0 10px 0;
+                      color: #2c3e50;
+                      font-size: 1.3rem;
+                  }
+                  .agent-type {
+                      color: #9b59b6;
+                      font-weight: bold;
+                      margin-bottom: 15px;
+                      font-size: 0.9rem;
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                  }
+                  .status {
+                      display: inline-block;
+                      padding: 5px 15px;
+                      border-radius: 20px;
+                      color: white;
+                      font-size: 0.8rem;
+                      font-weight: bold;
+                      text-transform: uppercase;
+                      margin-bottom: 15px;
+                  }
+                  .status.Active {
+                      background: linear-gradient(45deg, #27ae60, #2ecc71);
+                  }
+                  .status.Inactive {
+                      background: linear-gradient(45deg, #e74c3c, #c0392b);
+                  }
+                  .description {
+                      color: #34495e;
+                      margin-bottom: 20px;
+                      line-height: 1.5;
+                  }
+                  .metrics {
+                      display: grid;
+                      grid-template-columns: 1fr 1fr;
+                      gap: 10px;
+                      margin-bottom: 15px;
+                  }
+                  .metric {
+                      background: #f8f9fa;
+                      padding: 10px;
+                      border-radius: 8px;
+                      text-align: center;
+                  }
+                  .metric strong {
+                      color: #3498db;
+                      display: block;
+                      font-size: 0.8rem;
+                      margin-bottom: 2px;
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                  }
+                  .metric-value {
+                      color: #2c3e50;
+                      font-size: 1.1rem;
+                      font-weight: bold;
+                  }
+                  .last-activity {
+                      color: #7f8c8d;
+                      font-size: 0.9rem;
+                      font-style: italic;
+                      text-align: center;
+                      margin-top: 15px;
+                      padding-top: 15px;
+                      border-top: 1px solid #ecf0f1;
+                  }
+                  .swarm-metrics {
+                      background: white;
+                      border-radius: 15px;
+                      padding: 25px;
+                      margin-top: 30px;
+                      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                  }
+                  .swarm-metrics h2 {
+                      color: #2c3e50;
+                      margin-bottom: 20px;
+                      text-align: center;
+                  }
+                  .swarm-grid {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                      gap: 15px;
+                  }
+                  .swarm-metric {
+                      text-align: center;
+                      padding: 15px;
+                      background: #f8f9fa;
+                      border-radius: 10px;
+                  }
+                  .swarm-metric strong {
+                      color: #9b59b6;
+                      display: block;
+                      font-size: 0.9rem;
+                      margin-bottom: 5px;
+                  }
+                  .swarm-metric .value {
+                      font-size: 1.2rem;
+                      font-weight: bold;
+                      color: #2c3e50;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="header">
+                      <h1>🚀 AI Agent Orchestration Dashboard</h1>
+                      <p>Live monitoring of autonomous AI agents and their probabilistic decision-making outcomes</p>
+                      <div id="timestamp">Loading...</div>
+                  </div>
+                  
+                  <div class="stats-grid">
+                      <div class="stat-card">
+                          <div class="stat-value" id="agent-pods">-</div>
+                          <div class="stat-label">Active Agent Pods</div>
+                      </div>
+                      <div class="stat-card">
+                          <div class="stat-value" id="total-nodes">-</div>
+                          <div class="stat-label">Cluster Nodes</div>
+                      </div>
+                      <div class="stat-card">
+                          <div class="stat-value" id="total-pods">-</div>
+                          <div class="stat-label">Total Pods</div>
+                      </div>
+                      <div class="stat-card">
+                          <div class="stat-value" id="deployments">-</div>
+                          <div class="stat-label">Deployments</div>
+                      </div>
+                  </div>
+                  
+                  <div class="agent-grid" id="agents"></div>
+                  
+                  <div class="swarm-metrics">
+                      <h2>🤝 Swarm Intelligence Metrics</h2>
+                      <div class="swarm-grid" id="swarm-metrics"></div>
+                  </div>
+              </div>
+              
+              <script>
+                  function updateDashboard() {
+                      fetch('/api/cluster-status')
+                          .then(response => {
+                              if (!response.ok) {
+                                  throw new Error('Network response was not ok');
+                              }
+                              return response.json();
+                          })
+                          .then(data => {
+                              // Update timestamp
+                              const timestamp = new Date(data.timestamp);
+                              document.getElementById('timestamp').textContent = `Last updated: ${timestamp.toLocaleString()} (${Math.floor((Date.now() - timestamp) / 1000)}s ago)`;
+                              
+                              // Update stats
+                              document.getElementById('agent-pods').textContent = data.agent_pods;
+                              document.getElementById('total-nodes').textContent = data.nodes;
+                              document.getElementById('total-pods').textContent = data.pods;
+                              document.getElementById('deployments').textContent = data.deployments;
+                              
+                              // Update agents
+                              const agentsDiv = document.getElementById('agents');
+                              agentsDiv.innerHTML = data.agents.map(agent => `
+                                  <div class="agent-card">
+                                      <h3>${agent.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                                      <div class="agent-type">${agent.type}</div>
+                                      <span class="status ${agent.status}">${agent.status}</span>
+                                      <p class="description">${agent.description}</p>
+                                      <div class="metrics">
+                                          ${Object.entries(agent.metrics).map(([key, value]) => `
+                                              <div class="metric">
+                                                  <strong>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                                                  <div class="metric-value">${value}</div>
+                                              </div>
+                                          `).join('')}
+                                      </div>
+                                      <div class="last-activity">⏰ ${agent.last_activity}</div>
+                                  </div>
+                              `).join('');
+                              
+                              // Update swarm metrics
+                              const swarmDiv = document.getElementById('swarm-metrics');
+                              swarmDiv.innerHTML = Object.entries(data.swarm_metrics).map(([key, value]) => `
+                                  <div class="swarm-metric">
+                                      <strong>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                                      <div class="value">${value}</div>
+                                  </div>
+                              `).join('');
+                          })
+                          .catch(error => {
+                              console.error('Error updating dashboard:', error);
+                              document.getElementById('timestamp').textContent = 'Error loading data...';
+                          });
+                  }
+                  
+                  // Initial load
+                  updateDashboard();
+                  
+                  // Update every 3 seconds for live experience
+                  setInterval(updateDashboard, 3000);
+              </script>
+          </body>
+          </html>
+          """
+
+          @app.route('/')
+          def index():
+              return html_template
+
           if __name__ == '__main__':
               app.run(host='0.0.0.0', port=5000, debug=False)
 

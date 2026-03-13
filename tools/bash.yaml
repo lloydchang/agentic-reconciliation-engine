@@ -1,0 +1,63 @@
+# Bash Tool Configuration
+# Defines safe execution environment for AI agents
+
+allowed_commands:
+  - npm
+  - node
+  - git
+  - docker
+  - kubectl
+  - psql
+  - terraform
+  - aws
+  - az
+  - gcloud
+  - npm test
+  - npm run build
+  - npm run lint
+  - git status
+  - git diff
+  - git log
+  - docker ps
+  - docker logs
+  - kubectl get
+  - kubectl describe
+  - kubectl logs
+  - terraform plan
+  - terraform validate
+
+blocked_commands:
+  - rm -rf /
+  - rm -rf *
+  - rm -rf .
+  - shutdown
+  - reboot
+  - halt
+  - poweroff
+  - systemctl
+  - service
+  - killall
+  - pkill
+  - dd
+  - mkfs
+  - fdisk
+  - mount
+  - umount
+  - chmod 777
+  - chown root
+  - su
+  - sudo
+  - passwd
+
+working_directory_restrictions:
+  - allow: ["**/services/**", "**/infra/**", "**/docs/**", "**/workflows/**"]
+  - deny: ["**/dist/**", "**/build/**", "**/node_modules/**", "/"]
+
+timeout_seconds: 300
+
+environment_variables:
+  - NODE_ENV
+  - CI
+  - GITHUB_ACTIONS
+  - HOME
+  - PATH

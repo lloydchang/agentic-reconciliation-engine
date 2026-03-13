@@ -1,0 +1,61 @@
+# Terraform Tool Configuration
+# Safe Terraform operations for AI agents
+
+allowed_commands:
+  - terraform init
+  - terraform validate
+  - terraform plan
+  - terraform plan -out=tfplan
+  - terraform show
+  - terraform show tfplan
+  - terraform graph
+  - terraform output
+  - terraform state list
+  - terraform state show
+  - terraform providers
+  - terraform workspace list
+  - terraform workspace show
+  - terraform fmt --check
+  - terraform fmt
+  - terraform version
+
+blocked_commands:
+  - terraform apply
+  - terraform apply tfplan
+  - terraform apply -auto-approve
+  - terraform destroy
+  - terraform destroy -auto-approve
+  - terraform import
+  - terraform state rm
+  - terraform state mv
+  - terraform state replace-provider
+  - terraform workspace new
+  - terraform workspace select
+  - terraform workspace delete
+  - terraform force-unlock
+  - terraform taint
+  - terraform untaint
+  - terraform refresh
+
+allowed_file_patterns:
+  - "**/*.tf"
+  - "**/*.tfvars"
+  - "**/*.tfstate"
+  - "**/*.tfstate.backup"
+  - "**/.terraform.lock.hcl"
+
+blocked_file_patterns:
+  - "**/terraform.tfstate"
+  - "**/*.tfstate.backup"
+  - "**/terraform.tfvars"
+  - "**/secrets.tfvars"
+
+working_directories:
+  - allow: ["infra/terraform/**", "infrastructure/**"]
+  - deny: ["**"]
+
+timeout_seconds: 600
+
+backend_validation: true
+
+provider_validation: true
