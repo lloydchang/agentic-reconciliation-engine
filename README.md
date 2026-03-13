@@ -15,8 +15,14 @@ or failure.
 |---|---|---|
 | Operation | Run once → exit | Monitor 24/7 → automatic drift correction |
 | Drift detection | Manual `plan` runs | Automatic within minutes |
-| Multi-cloud API | Per-provider CLI/SDK | Unified Crossplane XRDs |
+| Multi-cloud API | Per-provider CLI/SDK (Terraform, AWS CDK, CloudFormation, Azure Bicep, ARM, GCP Terraform Blueprints) | Unified Crossplane XRDs |
 | Spoke resilience | N/A | Spokes run on last-applied state during hub outage |
+
+Note: Terraform fits under the "Per-provider CLI/SDK" column because it is a traditional IaC tool that:
+- Interacts directly with each cloud provider via plugins
+- Runs as a CLI tool using HCL configurations
+- Requires explicit `plan` and `apply` for state enforcement
+- Does not generate Crossplane XRDs or provide continuous reconciliation. In this architecture, Terraform is useful for initial provisioning or migration but ongoing multi-cloud operations rely on Crossplane and Flux for automated drift detection and correction.
 
 GitOps enforces configuration drift correction by using a Git repository as the declarative source
 of truth. A CI policy gate validates and guards all changes before merge. Flux reconciles the hub
