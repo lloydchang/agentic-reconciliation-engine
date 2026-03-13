@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # bootstrap_sops.sh
 # Minimal SOPS bootstrap for a fresh clone
 
