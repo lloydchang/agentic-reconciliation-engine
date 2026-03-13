@@ -4,31 +4,29 @@
 creation_rules:
   # Default rule for all YAML files - use age encryption
   - path_regex: .*.yaml$
-    age: age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5
+    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
     encrypted_regex: '^(data|stringData)$'
   
   # Specific rules for secrets directories
   - path_regex: secrets/.*\.yaml$
-    age: age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5
+    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
     encrypted_regex: '^(data|stringData)$'
   
   # Rules for infrastructure secrets
   - path_regex: infrastructure/.*\.secret\.yaml$
-    age: age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5
+    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
     encrypted_regex: '^(data|stringData)$'
   
   # Rules for tenant-specific secrets
   - path_regex: infrastructure/tenants/.*/.*\.secret\.yaml$
-    age: age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5
+    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
     encrypted_regex: '^(data|stringData)$'
 
 # Key groups for different environments (for team collaboration)
 key_groups:
   # Primary age key for control plane
   - age:
-      - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Primary key - store securely
-      - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Backup key 1
-      - age155tvd5znk3vm5hch0lr3yj6sn7p8khtwh4vxvhvl8se59a06adus2n4km5  # Backup key 2
+      - age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5  # Primary key - store securely
   
   # Backup keys for disaster recovery (optional)
   # - age:
