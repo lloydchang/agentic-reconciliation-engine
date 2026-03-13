@@ -85,7 +85,7 @@ TBD notes:
 
 ### Not a Good Fit
 - Simple single-app deployments
-- Time-critical migrations
+- Emergency migrations without runway
 - Small teams with basic infrastructure needs
 - Cost-sensitive projects with limited budget
 
