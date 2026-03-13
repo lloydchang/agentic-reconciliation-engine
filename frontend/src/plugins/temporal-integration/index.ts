@@ -1,1 +1,0 @@
-export { TemporalIntegrationPage } from './plugin';
