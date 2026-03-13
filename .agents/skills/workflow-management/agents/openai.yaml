@@ -1,0 +1,28 @@
+interface:
+  display_name: "Workflow Manager"
+  short_description: "Orchestrate and monitor AI agent workflows"
+  icon_small: "./assets/workflow-icon.svg"
+  icon_large: "./assets/workflow-icon-large.png"
+  brand_color: "#3498db"
+  default_prompt: "Manage workflows for"
+
+policy:
+  allow_implicit_invocation: true
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "temporal-agents"
+      description: "Temporal AI Agents MCP server"
+      transport: "http"
+      url: "http://localhost:8082"
+    - type: "api"
+      value: "workflow-engine"
+      description: "Temporal workflow engine API"
+      transport: "http"
+      url: "http://localhost:8081"
+    - type: "api"
+      value: "monitoring"
+      description: "Workflow monitoring dashboard"
+      transport: "https"
+      url: "https://monitor.example.com"

@@ -1,0 +1,43 @@
+interface:
+  display_name: "Compliance Checker"
+  short_description: "Automated SOC2, GDPR, HIPAA compliance validation"
+  icon_small: "./assets/compliance-icon.svg"
+  icon_large: "./assets/compliance-icon-large.png"
+  brand_color: "#2c3e50"
+  default_prompt: "Check compliance for"
+
+policy:
+  allow_implicit_invocation: true
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "temporal-agents"
+      description: "Temporal AI Agents MCP server"
+      transport: "http"
+      url: "http://localhost:8082"
+    - type: "api"
+      value: "compliance-api"
+      description: "Compliance validation API"
+      transport: "https"
+      url: "https://api.compliance.example.com"
+
+# OpenAI Codex Integration Configuration
+# The following is the original OpenAI Codex configuration that has been integrated:
+#
+# interface:
+#   display_name: "Compliance Checker"
+#   short_description: "Perform automated compliance checks and policy validation"
+#   icon_small: "./assets/compliance-icon.svg"
+#   icon_large: "./assets/compliance-logo.png"
+#   brand_color: "#E53E3E"
+#   default_prompt: "Help me check compliance and policies"
+# policy:
+#   allow_implicit_invocation: true
+# dependencies:
+#   tools:
+#     - type: "mcp"
+#       value: "compliance"
+#       description: "Compliance checking tools"
+#       transport: "streamable_http"
+#       url: "http://localhost:9090"
