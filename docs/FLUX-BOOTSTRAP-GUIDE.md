@@ -1,6 +1,6 @@
 # Flux Bootstrap and Setup Guide
 
-This comprehensive guide covers the complete process of bootstrapping and setting up Flux CD for the GitOps Infrastructure Control Plane, including various installation methods, configuration options, and best practices.
+This comprehensive guide covers the complete process of bootstrapping and setting up Flux CD for the GitOps Infra Control Plane, including various installation methods, configuration options, and best practices.
 
 ## Prerequisites
 
@@ -897,4 +897,4 @@ gitops-infra-control-plane/
 
 ---
 
-This comprehensive bootstrap and setup guide provides everything needed to successfully install, configure, and operate Flux CD for the GitOps Infrastructure Control Plane with modern best practices and security considerations.
+This comprehensive bootstrap and setup guide provides everything needed to successfully install, configure, and operate Flux CD for the GitOps Infra Control Plane with modern best practices and security considerations.

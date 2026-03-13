@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides comprehensive guidance on how the GitOps Infrastructure Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + cloud operations). Each scenario requires different approaches, components, and success metrics.
+This document provides comprehensive guidance on how the GitOps Infra Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + cloud operations). Each scenario requires different approaches, components, and success metrics.
 
 ## 🎯 Scenario Definition Framework
 

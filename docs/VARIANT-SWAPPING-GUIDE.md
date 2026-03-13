@@ -2,7 +2,7 @@
 
 ## Overview
 
-The GitOps Infrastructure Control Plane supports three main variants that can be swapped based on organizational needs and requirements. Each variant maintains the same DAG structure while providing different levels of functionality and complexity.
+The GitOps Infra Control Plane supports three main variants that can be swapped based on organizational needs and requirements. Each variant maintains the same DAG structure while providing different levels of functionality and complexity.
 
 ## Variant Types
 

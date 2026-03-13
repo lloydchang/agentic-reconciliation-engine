@@ -1,6 +1,6 @@
 # Multi-Language Consensus-Based Agent Orchestration
 
-The GitOps Infrastructure Control Plane supports **multi-language consensus-based agent orchestration**, enabling coordinated agent operations across various programming paradigms.
+The GitOps Infra Control Plane supports **multi-language consensus-based agent orchestration**, enabling coordinated agent operations across various programming paradigms.
 
 ## Supported Languages & Runtimes
 

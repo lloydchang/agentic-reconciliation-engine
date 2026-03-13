@@ -228,7 +228,7 @@ echo "Passed: $PASSED_TESTS/$TOTAL_TESTS tests"
 if [ $PASSED_TESTS -eq $TOTAL_TESTS ]; then
     print_status "🎉 ALL TESTS PASSED!"
     print_status "✅ Local end-to-end test successful"
-    print_status "✅ GitOps Infrastructure Control Plane working locally"
+    print_status "✅ GitOps Infra Control Plane working locally"
     exit 0
 else
     print_warning "⚠️ $((TOTAL_TESTS - PASSED_TESTS)) tests failed"

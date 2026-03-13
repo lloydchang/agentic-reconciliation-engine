@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SOPS Setup Script for GitOps Infrastructure Control Plane
+# SOPS Setup Script for GitOps Infra Control Plane
 # This script sets up SOPS encryption for Kubernetes secrets using age (recommended)
 # or GPG as alternatives.
 
@@ -253,7 +253,7 @@ update_flux_kustomization() {
 
 # Main execution
 main() {
-    echo "SOPS Setup Script for GitOps Infrastructure Control Plane"
+    echo "SOPS Setup Script for GitOps Infra Control Plane"
     echo "======================================================"
     echo "Cluster: $CLUSTER_NAME"
     echo "Namespace: $NAMESPACE"

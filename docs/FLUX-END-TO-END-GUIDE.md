@@ -14,7 +14,7 @@ This file provides end-to-end guidance for Flux implementation within the hybrid
 
 # Flux End-to-End Implementation Guide
 
-This guide provides a comprehensive overview of Flux CD's end-to-end architecture and implementation for the GitOps Infrastructure Control Plane, updated for Flux v2.0+ with modern practices and OCIRepository support.
+This guide provides a comprehensive overview of Flux CD's end-to-end architecture and implementation for the GitOps Infra Control Plane, updated for Flux v2.0+ with modern practices and OCIRepository support.
 
 ## Overview
 
@@ -804,4 +804,4 @@ gitops-infra-control-plane/
 
 ---
 
-This comprehensive guide provides the foundation for implementing Flux CD end-to-end in your GitOps Infrastructure Control Plane, covering all aspects from bootstrap to production operations with modern Flux v2.0+ features and best practices.
+This comprehensive guide provides the foundation for implementing Flux CD end-to-end in your GitOps Infra Control Plane, covering all aspects from bootstrap to production operations with modern Flux v2.0+ features and best practices.

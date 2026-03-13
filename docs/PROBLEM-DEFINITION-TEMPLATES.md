@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides **structured templates** for defining infrastructure problems and making **evidence-based decisions** about when and how to use the GitOps Infrastructure Control Plane. It ensures **accountability** and **problem-first thinking** throughout your implementation journey.
+This document provides **structured templates** for defining infrastructure problems and making **evidence-based decisions** about when and how to use the GitOps Infra Control Plane. It ensures **accountability** and **problem-first thinking** throughout your implementation journey.
 
 ## 🎯 Problem Definition Template
 

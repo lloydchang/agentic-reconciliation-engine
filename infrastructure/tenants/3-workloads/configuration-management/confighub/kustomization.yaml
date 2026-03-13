@@ -53,7 +53,7 @@ metadata:
 data:
   application.properties: |
     # ConfigHub-managed configuration
-    app.name=GitOps Infrastructure Control Plane
+    app.name=GitOps Infra Control Plane
     app.version=1.0.0
     feature.flags.enabled=true
     database.url=${confighub:db.connection.url}

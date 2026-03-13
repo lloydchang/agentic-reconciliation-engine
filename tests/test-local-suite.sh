@@ -1,5 +1,5 @@
 #!/bin/bash
-# Comprehensive Local Testing Suite for GitOps Infrastructure Control Plane
+# Comprehensive Local Testing Suite for GitOps Infra Control Plane
 # Tests infrastructure, workloads, security, and observability locally
 
 set -euxo pipefail

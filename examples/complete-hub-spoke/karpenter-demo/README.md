@@ -2,7 +2,7 @@
 
 ## Overview
 
-This example demonstrates Karpenter integration with the GitOps Infrastructure Control Plane for dynamic node provisioning across multiple cloud providers.
+This example demonstrates Karpenter integration with the GitOps Infra Control Plane for dynamic node provisioning across multiple cloud providers.
 
 ## Architecture
 
@@ -220,7 +220,7 @@ kubectl delete -f ../../infrastructure/tenants/2-clusters/karpenter-*.yaml
 
 ## Integration with Control Plane
 
-This demo shows how Karpenter complements the GitOps Infrastructure Control Plane:
+This demo shows how Karpenter complements the GitOps Infra Control Plane:
 
 - **Declarative Management**: Karpenter resources managed through Git
 - **Automated Deployment**: Flux handles installation and configuration

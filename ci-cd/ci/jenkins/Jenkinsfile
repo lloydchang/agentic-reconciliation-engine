@@ -1,4 +1,4 @@
-// Jenkins Pipeline for GitOps Infrastructure Control Plane
+// Jenkins Pipeline for GitOps Infra Control Plane
 // This pipeline builds OCI images and integrates with Flux for continuous deployment
 
 // Configuration - adjust these values for your environment

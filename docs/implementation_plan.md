@@ -1,4 +1,4 @@
-# implementation_plan.md: GitOps Infrastructure Control Plane
+# implementation_plan.md: GitOps Infra Control Plane
 
 **Objective:** Implement continuous reconciliation for multi-cloud infrastructure that traditional IaC tools cannot provide. While Terraform, CDK, CloudFormation, Bicep, and ARM run once and exit, our approach provides 24/7 automated drift detection and repair. Initial Hub cluster setup uses industry-standard CLIs (eksctl, az, gcloud), then transitions to continuous reconciliation for all ongoing infrastructure management via native Kubernetes Custom Resources (CRs) using AWS ACK, Azure ASO, and GCP KCC, orchestrated by Flux.
 

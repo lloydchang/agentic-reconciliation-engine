@@ -386,7 +386,7 @@ generate_test_report() {
 main() {
     echo "🧪 Complete End-to-End Test Suite"
     echo "=================================="
-    echo "Testing: GitOps Infrastructure Control Plane"
+    echo "Testing: GitOps Infra Control Plane"
     echo "Repository: $REPO_URL"
     echo "Timeout: ${TEST_TIMEOUT}s"
     echo ""

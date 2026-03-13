@@ -2,7 +2,7 @@
 
 ## Problem-Solution Fit Matrix
 
-This matrix provides clear alternatives when the GitOps Infrastructure Control Plane is not appropriate for your infrastructure problems. **Remember: This repository solves specific problems - if you don't have those problems, use simpler solutions.**
+This matrix provides clear alternatives when the GitOps Infra Control Plane is not appropriate for your infrastructure problems. **Remember: This repository solves specific problems - if you don't have those problems, use simpler solutions.**
 
 ## Decision Flow
 
@@ -19,7 +19,7 @@ Do you have multi-cloud complexity?
 
 ## Matrix Overview
 
-### When to Reject GitOps Infrastructure Control Plane
+### When to Reject GitOps Infra Control Plane
 
 | Problem Type | Rejection Criteria | Better Alternatives |
 |--------------|-------------------|-------------------|

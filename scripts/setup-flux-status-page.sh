@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Flux Status Page Setup Script
-# This script configures the Flux Status Page for the GitOps Infrastructure Control Plane
+# This script configures the Flux Status Page for the GitOps Infra Control Plane
 
 set -euxo pipefail
 
@@ -97,7 +97,7 @@ data:
   config.yaml: |
     # Flux Status Page Configuration
     ui:
-      title: "GitOps Infrastructure Control Plane"
+      title: "GitOps Infra Control Plane"
       logo: "/static/logo.png"
       theme: "light"
       refreshInterval: "30s"

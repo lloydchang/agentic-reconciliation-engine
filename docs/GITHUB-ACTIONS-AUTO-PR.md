@@ -77,7 +77,7 @@ This way you can automatically push changes to a staging branch and require revi
 
 ## Repository Integration
 
-This auto PR workflow is designed to work seamlessly with the GitOps Infrastructure Control Plane. The platform includes comprehensive image update automation and policy-based deployment controls.
+This auto PR workflow is designed to work seamlessly with the GitOps Infra Control Plane. The platform includes comprehensive image update automation and policy-based deployment controls.
 
 ### Integration with GitOps Control Plane
 

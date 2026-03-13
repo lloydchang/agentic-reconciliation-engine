@@ -12,11 +12,11 @@ This file documents dependency management within the Flux declarative layer of o
 
 ---
 
-# GitOps Infrastructure Control Plane - DAG Architecture
+# GitOps Infra Control Plane - DAG Architecture
 
 ## Overview
 
-This document outlines the Directed Acyclic Graph (DAG) architecture of the GitOps Infrastructure Control Plane, leveraging Flux's `dependsOn` feature for explicit dependency management.
+This document outlines the Directed Acyclic Graph (DAG) architecture of the GitOps Infra Control Plane, leveraging Flux's `dependsOn` feature for explicit dependency management.
 
 ## Core DAG Structure
 

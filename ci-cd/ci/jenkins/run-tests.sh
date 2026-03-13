@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test script for Jenkins CI pipeline
-# This script runs various tests to validate the GitOps Infrastructure Control Plane
+# This script runs various tests to validate the GitOps Infra Control Plane
 
 set -euxo pipefail
 

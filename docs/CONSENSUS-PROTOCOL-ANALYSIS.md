@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive analysis of consensus protocol choices for the GitOps Infrastructure Control Plane, explaining when distributed decision-making is appropriate versus when simpler coordination mechanisms should be used instead. The analysis focuses on **problem-solution fit**, implementation complexity, and practical applicability based on deployment scenarios.
+This document provides a comprehensive analysis of consensus protocol choices for the GitOps Infra Control Plane, explaining when distributed decision-making is appropriate versus when simpler coordination mechanisms should be used instead. The analysis focuses on **problem-solution fit**, implementation complexity, and practical applicability based on deployment scenarios.
 
 ## 🎯 When Consensus is NOT the Right Solution
 

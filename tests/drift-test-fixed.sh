@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitOps Infrastructure Control Plane - Fixed Drift Test Script
+# GitOps Infra Control Plane - Fixed Drift Test Script
 # Tests both controller installation AND infrastructure deployment
 
 set -euxo pipefail

@@ -207,7 +207,7 @@ A complete e2e testing workflow is available here: [flux2-kustomize-helm-example
 
 ## Repository Integration
 
-The Flux GitHub Action integrates seamlessly with the GitOps Infrastructure Control Plane for automated CI/CD workflows.
+The Flux GitHub Action integrates seamlessly with the GitOps Infra Control Plane for automated CI/CD workflows.
 
 ### Integration with Control Plane
 

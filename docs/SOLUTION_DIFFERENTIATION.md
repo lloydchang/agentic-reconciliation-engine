@@ -14,7 +14,7 @@ Our solution focuses on **multi-cloud** (AWS + Azure + GCP) only. It does not in
 
 ## Solution Overview
 
-Our implementation uses **Flux CD + Cloud Controllers (ACK/ASO/KCC)** in a hub-and-spoke architecture to create a **GitOps Infrastructure Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies across multiple public cloud providers.
+Our implementation uses **Flux CD + Cloud Controllers (ACK/ASO/KCC)** in a hub-and-spoke architecture to create a **GitOps Infra Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies across multiple public cloud providers.
 
 ```
 Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spoke Clusters

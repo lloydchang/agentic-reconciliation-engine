@@ -206,4 +206,4 @@ kubectl get crd | grep -E "(eks|aks|gke)"
 kubectl get kustomization -n flux-system
 ```
 
-This comprehensive test validates that the GitOps Infrastructure Control Plane can properly provision and manage multi-cloud spoke clusters using native Kubernetes controllers.
+This comprehensive test validates that the GitOps Infra Control Plane can properly provision and manage multi-cloud spoke clusters using native Kubernetes controllers.

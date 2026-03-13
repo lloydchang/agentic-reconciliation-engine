@@ -1,4 +1,4 @@
-# Comprehensive Testing Suite for GitOps Infrastructure Control Plane
+# Comprehensive Testing Suite for GitOps Infra Control Plane
 
 This directory contains all testing scripts and documentation for validating the GitOps infrastructure platform locally and in CI/CD pipelines.
 

@@ -1,6 +1,6 @@
 # Jenkins + Flux Integration Guide
 
-This guide explains how to integrate Jenkins CI with Flux CD for a complete GitOps workflow in the GitOps Infrastructure Control Plane.
+This guide explains how to integrate Jenkins CI with Flux CD for a complete GitOps workflow in the GitOps Infra Control Plane.
 
 ## Overview
 

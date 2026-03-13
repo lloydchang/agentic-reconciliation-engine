@@ -54,7 +54,7 @@ echo "Public key found: ${PUBLIC_KEY}"
 
 # Create team member's local SOPS config
 cat > "${REPO_ROOT}/.sops.yaml" << EOF
-# SOPS Configuration for GitOps Infrastructure Control Plane
+# SOPS Configuration for GitOps Infra Control Plane
 # Team member configuration - uses shared public key
 
 creation_rules:

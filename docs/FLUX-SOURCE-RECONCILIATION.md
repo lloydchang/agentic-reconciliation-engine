@@ -1,6 +1,6 @@
 # Flux Source and Reconciliation Workflows
 
-This guide covers Flux CD source management and reconciliation workflows, including detailed explanations of how sources work, reconciliation patterns, and best practices for the GitOps Infrastructure Control Plane.
+This guide covers Flux CD source management and reconciliation workflows, including detailed explanations of how sources work, reconciliation patterns, and best practices for the GitOps Infra Control Plane.
 
 ## Source Types Overview
 
@@ -1060,4 +1060,4 @@ spec:
 
 ---
 
-This comprehensive guide covers all aspects of Flux source management and reconciliation workflows, providing the foundation for robust and efficient GitOps operations in the GitOps Infrastructure Control Plane.
+This comprehensive guide covers all aspects of Flux source management and reconciliation workflows, providing the foundation for robust and efficient GitOps operations in the GitOps Infra Control Plane.

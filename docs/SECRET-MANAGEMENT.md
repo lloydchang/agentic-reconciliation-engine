@@ -1,8 +1,8 @@
-# Secret Management in GitOps Infrastructure Control Plane
+# Secret Management in GitOps Infra Control Plane
 
 ## Overview
 
-This document outlines the secure secret management practices implemented in the GitOps Infrastructure Control Plane to prevent secret exposure and ensure compliance with security best practices.
+This document outlines the secure secret management practices implemented in the GitOps Infra Control Plane to prevent secret exposure and ensure compliance with security best practices.
 
 ## Security Incident Response
 

@@ -1,4 +1,4 @@
-# GitOps Infrastructure Control Plane
+# GitOps Infra Control Plane
 
 Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 

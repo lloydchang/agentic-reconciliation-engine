@@ -68,7 +68,7 @@ Configure [Single Sign-On using Dex and OIDC](https://fluxoperator.dev/docs/web-
 
 ## Repository Integration
 
-The Flux Status Page integrates seamlessly with the GitOps Infrastructure Control Plane, providing comprehensive monitoring and management capabilities.
+The Flux Status Page integrates seamlessly with the GitOps Infra Control Plane, providing comprehensive monitoring and management capabilities.
 
 ### Integration Benefits
 - **Unified Dashboard**: Single pane of glass for all GitOps operations

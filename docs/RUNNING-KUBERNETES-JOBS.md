@@ -143,7 +143,7 @@ This configuration works best when the Jobs are using the same image and tag as 
 
 ## Repository Integration
 
-This Job management pattern is designed to work seamlessly with the GitOps Infrastructure Control Plane. The platform includes comprehensive job scheduling and dependency management capabilities.
+This Job management pattern is designed to work seamlessly with the GitOps Infra Control Plane. The platform includes comprehensive job scheduling and dependency management capabilities.
 
 ### Integration with GitOps Control Plane
 

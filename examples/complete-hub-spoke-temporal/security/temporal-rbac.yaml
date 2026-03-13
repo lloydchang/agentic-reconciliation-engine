@@ -1,4 +1,4 @@
-# Temporal Security and RBAC Configuration for GitOps Infrastructure Control Plane
+# Temporal Security and RBAC Configuration for GitOps Infra Control Plane
 # This file defines security policies, network policies, and access controls
 # for Temporal workflows and AI agents in the control plane
 

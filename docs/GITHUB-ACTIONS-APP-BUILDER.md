@@ -237,7 +237,7 @@ This is one good fundamental approach to reduce build times. On the topic of cac
 
 ## Repository Integration
 
-This GitHub Actions workflow is designed to work seamlessly with the GitOps Infrastructure Control Plane. The generated image tags are compatible with Flux's ImageUpdateAutomation and ImagePolicy resources for automated image updates and policy-based deployments.
+This GitHub Actions workflow is designed to work seamlessly with the GitOps Infra Control Plane. The generated image tags are compatible with Flux's ImageUpdateAutomation and ImagePolicy resources for automated image updates and policy-based deployments.
 
 ### Integration with Flux
 

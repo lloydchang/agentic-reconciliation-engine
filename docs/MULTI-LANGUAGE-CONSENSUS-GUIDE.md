@@ -392,4 +392,4 @@ Multi-language consensus-based agent orchestration provides flexibility with the
 5. **Simple Automation**: Use Bash for lightweight coordination
 6. **Gradual Migration**: Adopt new runtimes without complete rewrites
 
-This approach provides the GitOps Infrastructure Control Plane for flexible, production-ready consensus-based agent orchestration across multiple programming languages and runtimes.
+This approach provides the GitOps Infra Control Plane for flexible, production-ready consensus-based agent orchestration across multiple programming languages and runtimes.

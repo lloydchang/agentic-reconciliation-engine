@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitOps Infrastructure Control Plane - Local Drift Test Script
+# GitOps Infra Control Plane - Local Drift Test Script
 # Tests Flux reconciliation without requiring cloud credentials
 
 set -euxo pipefail

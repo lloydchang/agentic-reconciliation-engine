@@ -12,7 +12,7 @@ NAMESPACE="flux-system"
 GIT_REPO="${GIT_REPO:-https://github.com/your-org/gitops-infra-control-plane}"
 BRANCH="${BRANCH:-main}"
 
-echo "🚀 Setting up Multi-Hub Architecture for GitOps Infrastructure Control Plane"
+echo "🚀 Setting up Multi-Hub Architecture for GitOps Infra Control Plane"
 
 # Function to setup individual hub
 setup_hub() {

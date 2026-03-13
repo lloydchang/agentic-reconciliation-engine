@@ -57,7 +57,7 @@ data:
     
     ## Overview
     
-    The GitOps Infrastructure Control Plane includes comprehensive health monitoring for all Git repositories to ensure high availability and early detection of issues.
+    The GitOps Infra Control Plane includes comprehensive health monitoring for all Git repositories to ensure high availability and early detection of issues.
     
     ## Components
     

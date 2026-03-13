@@ -1,6 +1,6 @@
 # Honeycomb Observability Setup
 
-This guide explains how to integrate Honeycomb observability into the GitOps Infrastructure Control Plane using OpenTelemetry collectors.
+This guide explains how to integrate Honeycomb observability into the GitOps Infra Control Plane using OpenTelemetry collectors.
 
 ## Overview
 

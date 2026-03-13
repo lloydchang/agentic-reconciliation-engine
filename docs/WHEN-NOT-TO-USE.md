@@ -1,10 +1,10 @@
-# When NOT to Use the GitOps Infrastructure Control Plane
+# When NOT to Use the GitOps Infra Control Plane
 
 ## ⚠️ **Critical Decision Framework**
 
 **Before considering this solution, ask yourself: "Do I actually need continuous reconciliation and autonomous infrastructure management?"**
 
-This document provides **unbiased guidance** on when this GitOps Infrastructure Control Plane is fundamentally **not the right fit** and cannot be adapted to solve your problem, even with significant customization. We emphasize **problem definition accountability** - the wrong tool for the job will cause more harm than good.
+This document provides **unbiased guidance** on when this GitOps Infra Control Plane is fundamentally **not the right fit** and cannot be adapted to solve your problem, even with significant customization. We emphasize **problem definition accountability** - the wrong tool for the job will cause more harm than good.
 
 ---
 
