@@ -1,35 +1,3 @@
-# SOPS Configuration for GitOps Infra Control Plane
-# This file defines how to encrypt/decrypt secrets in this repository
-
 creation_rules:
-  # Default rule for all YAML files - use age encryption
-  - path_regex: .*.yaml$
-    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
-    encrypted_regex: '^(data|stringData)$'
-  
-  # Specific rules for secrets directories
-  - path_regex: secrets/.*\.yaml$
-    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
-    encrypted_regex: '^(data|stringData)$'
-  
-  # Rules for infrastructure secrets
-  - path_regex: infrastructure/.*\.secret\.yaml$
-    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
-    encrypted_regex: '^(data|stringData)$'
-  
-  # Rules for tenant-specific secrets
-  - path_regex: infrastructure/tenants/.*/.*\.secret\.yaml$
-    age: age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5
-    encrypted_regex: '^(data|stringData)$'
-
-# Key groups for different environments (for team collaboration)
-key_groups:
-  # Primary age key for control plane
-  - age:
-      - age1e5fvadf7vyaam0yufdjjanasmh899ytvgzws4wva740xqds9wursgxnte5  # Primary key - store securely
-  
-  # Backup keys for disaster recovery (optional)
-  # - age:
-  #     - age1yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy  # Backup key 1
-  # - age:
-  #     - age1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz  # Backup key 2
+  - path_regex: .*\.secret\.yaml
+    age: age1kayv5w9q5vqm2e7e0fxe3q3nr7psrlnuht7nnuqzt92ljtfr7sms59sat6
