@@ -1,6 +1,3 @@
-```text
-# gitops_infra_control_plane.md
-
 # GitOps Infra Control Plane
 
 Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
@@ -20,6 +17,7 @@ GitOps enforces configuration drift correction in Kubernetes by using a Git repo
 
 [Hub Spoke Diagram](docs/hub_spoke_v8.svg)
 
+```text
 [Tier 0]                               Git repository
                                declarative source of truth
                                               | Flux pulls manifests
@@ -72,6 +70,7 @@ TBD notes:
     - Flux bootstrapped manually once; thereafter self-managed via Git
     - Circular dependency: Flux manages the hub cluster it runs on (by design)
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
+```
 
 ## When to Use This Solution
 
@@ -124,4 +123,3 @@ This repository uses dual licensing:
   - See [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
 - `Apache-2.0`: Specific sample snippets requiring user adaptations
   - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
-```
