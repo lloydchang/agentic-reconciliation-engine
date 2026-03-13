@@ -200,3 +200,16 @@ spec:
 
           if __name__ == '__main__':
               app.run(host='0.0.0.0', port=5000, debug=False)
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamic-data-service
+  namespace: monitoring
+spec:
+  selector:
+    app: dynamic-data-service
+  ports:
+  - port: 5000
+    targetPort: 5000
