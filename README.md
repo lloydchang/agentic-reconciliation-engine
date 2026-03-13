@@ -7,54 +7,59 @@ Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 ![Hub Spoke Diagram](docs/hub_spoke_v8.svg)
 
 ```text
-Declarative Source of Truth
-                              Git Repository                          [Tier 0]
-                                    |
-                             Flux pulls manifests
-                                    |
-                                    v
-+------------------------------------------------------------------------------+
-|                 Hub Cluster (any Kubernetes distribution)           [Tier 1] |
-|  Flux self-manages hub after one-time manual bootstrap                       |
-|------------------------------------------------------------------------------|
-|  +-------------------+  +------------------+  +---------------------------+  |
-|  |<--Flux            |  | Operators        |  | Cluster API (CAPI)        |  |
-|  | GitOps reconcile  |  | ACK  (AWS)       |  | Kubeadm provider          |  |
-|  | Git → hub cluster |  | ASO  (Azure)     |  | own reconciliation loop   |  |
-|  | SOPS/age decrypt  |  | KCC  (GCP)       |  | Infra provider            |  |
-|  | at apply time     |  | own recon loops  |  | (Metal3 / CAPV / CAPO)    |  |
-|  +-------------------+  +------------------+  +---------------------------+  |
-+------------------------------------------------------------------------------+
-         |               |                |                   |
-       (ACK)           (ASO)            (KCC)              (CAPI)
-         |               |                |                   |
-         v               v                v                   v
-+-----------------------------------------------------------------------------+
-|                    Spoke clusters                                  [Tier 2] |
-|-----------------------------------------------------------------------------|
-|  +-------------+  +-------------+  +-------------+  +-------------------+   |
-|  | EKS         |  | AKS         |  | GKE         |  | Kubeadm (on-prem) |   |
-|  | AWS managed |  | Azure mgd   |  | GCP managed |  | Self-managed      |   |
-|  | Managed HA  |  | Managed HA  |  | Managed HA  |  | Lifecycle via     |   |
-|  | via ACK     |  | via ASO     |  | via KCC     |  | CAPI + infra prov |   |
-|  | secrets via |  | secrets via |  | secrets via |  | secrets via       |   |
-|  | SOPS        |  | SOPS        |  | SOPS        |  | SOPS              |   |
-|  +-------------+  +-------------+  +-------------+  +-------------------+   |
-+-----------------------------------------------------------------------------+
+[Tier 0]                               Git repository
+                               declarative source of truth
+                                              | Flux pulls manifests
+                                              v
+         +------------------------------------------------------------------------------+
+[Tier 1] |                               Hub cluster                                    |
+         |  any Kubernetes distribution • Flux self-manages hub after bootstrap         |
+         |------------------------------------------------------------------------------|
+     _->-+--+-------------------+  +------------------+  +---------------------------+  |
+    /    |  | Flux              |  | Operators        |  | Cluster API (CAPI)        |  |
+   /     |  | GitOps reconcile  |  | ACK (AWS)        |  | Kubeadm provider          |  |
+  |      |  | Git → hub cluster |  | ASO (Azure)      |  | own reconciliation loop   |  |
+   \     |  | SOPS/age decrypt  |  | KCC (GCP)        |  | Infra provider            |  |
+    \    |  | at apply time     |  | own recon loops  |  | (Metal3 / CAPV / CAPO)    |  |
+     `---+--+-------------------+  +------------------+  +---------------------------+  |
+         +------------------------------------------------------------------------------+
+                  |               |                |                   |
+                  | ACK           | ASO            | KCC               | CAPI
+                  v               v                v                   v
+         +-----------------------------------------------------------------------------+
+[Tier 2] |                             Spoke clusters                                  |
+         |-----------------------------------------------------------------------------|
+         |  +-------------+  +-------------+  +-------------+  +-------------------+   |
+         |  | EKS         |  | AKS         |  | GKE         |  | Kubeadm           |   |
+         |  | AWS managed |  | Azure mgd   |  | GCP managed |  | On-prem           |   |
+         |  | Managed HA  |  | Managed HA  |  | Managed HA  |  | Self-managed      |   |
+         |  | via ACK     |  | via ASO     |  | via KCC     |  | via CAPI          |   |
+         |  | secrets via |  | secrets via |  | secrets via |  | secrets via       |   |
+         |  | SOPS        |  | SOPS        |  | SOPS        |  | SOPS              |   |
+         |  +-------------+  +-------------+  +-------------+  +-------------------+   |
+         +-----------------------------------------------------------------------------+
+SOPS age key lives on hub • back up once • Flux decrypts at apply time • spokes receive plain Secrets
 
-Secrets strategy (SOPS):
+Secrets strategy (SOPS: Secrets OPerationS):
+  - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
   - Secrets encrypted in Git using age public key
   - Flux decrypts at apply time using age private key (lives on hub)
   - Spokes receive plain Kubernetes Secret objects — no controller needed in spokes
-  - One age key to back up (vs one key pair per cluster with Sealed Secrets)
-  - Alternative: ESO + Azure Key Vault | AWS Secrets Manager | GCP Secret Manager
+    - One age key to back up (vs one key pair per cluster with Sealed Secrets)
+    - And the key reason SOPS remains worth keeping in mind: 
+      - With SOPS + a single age key stored in your key vault,
+        - it's one key, one backup,
+        - and Flux handles decryption natively without any controller in any cluster.
+      - Whereas with Sealed Secrets you're managing 5 separate key pairs (hub + 4 spokes)
+        - and 5 separate backup obligations.
+Alternative 1: sealed-secrets: Sealed Secrets for Kubernetes with a controller in each cluster
+Alternative 2: external secrets operator (ESO) + Azure Key Vault / AWS Secrets Manager / GCP Secret Manager
 
-Notes:
+TBD notes:
   - Hub distribution is TBD (any conformant Kubernetes cluster)
-  - Flux bootstrapped manually once; thereafter self-managed via Git
-  - Circular dependency: Flux manages the hub it runs on (by design)
+    - Flux bootstrapped manually once; thereafter self-managed via Git
+    - Circular dependency: Flux manages the hub it runs on (by design)
   - Spoke 4 infra provider TBD: Metal3 (bare metal), CAPV (vSphere), CAPO (OpenStack)
-  - CRITICAL: Back up the SOPS age private key — store in a key vault or secrets manager
 ```
 
 ## Core Advantage
