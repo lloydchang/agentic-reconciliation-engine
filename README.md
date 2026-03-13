@@ -31,7 +31,7 @@ controllers and platform automation separately.
                 |
                 |  Pull request
                 v
-           CI policy gate (Conftest / OPA)
+[CI]       CI policy gate (Conftest / OPA)
            · Schema validation (kubeconform)
            · Deletion guard: stateful XRDs require explicit approval annotation
            · Policy checks: naming, tagging, cost guardrails
