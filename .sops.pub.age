@@ -1,9 +1,9 @@
-# SOPS Public Key for GitOps Infra Control Plane
+# SOPS Public Key for GitOps Infrastructure Control Plane
 # This file contains the public age key for team collaboration
 # Team members can use this key to encrypt new secrets
 
-# Public key - generated 2026-03-13T06:31:42-07:00
-age1flc7ff4p8k3qyz4ks7dhyk9srx2h2g5n4q2qz4q2qz4q2qz4q2qz
+# Public key - generated 2026-03-13T07:13:02-07:00
+age18j4aqud8dycs64kuf7uqdkf5ayslhstjpr8nuqn2dpreysfqxs3q220ncn
 
 # Instructions for team members:
 # 1. Import this key: age-keygen -i .sops.pub.age
