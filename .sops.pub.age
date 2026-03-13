@@ -1,4 +1,4 @@
-# SOPS Public Key for GitOps Infrastructure Control Plane
+# SOPS Public Key for GitOps Infra Control Plane
 # This file contains the public age key for team collaboration
 # Team members can use this key to encrypt new secrets
 
