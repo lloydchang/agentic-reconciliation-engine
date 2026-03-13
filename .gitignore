@@ -68,7 +68,6 @@ vendor/
 
 # Rust build artifacts
 target/
-Cargo.lock
 
 # Test output
 coverage.out

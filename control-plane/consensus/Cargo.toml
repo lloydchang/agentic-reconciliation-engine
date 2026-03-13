@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2021"
 description = "Rust implementation of consensus-based agent feedback loops for infrastructure optimization"
 
+[lib]
+name = "consensus_feedback_loop"
+path = "src/lib.rs"
+
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
