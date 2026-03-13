@@ -310,8 +310,45 @@ dist-storybook/
 **/.venv/
 **/.ruff_cache/
 
-# Ignoring AI agent files
-.agents/
+# Go specific patterns
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteAgent
+*.out
+
+# Code coverage profiles and other test artifacts
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+
+# Dependency directories (uncomment to include)
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Build artifacts
+dist/
+build/
+bin/
+
+# AI Agent specific binaries
+ai-agent
+skill-service
+temporal-*
+
+# Local development
+*.local
 
 # Go specific patterns
 # Binaries for programs and plugins
