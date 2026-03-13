@@ -1,6 +1,6 @@
 # GitOps Infrastructure Control Plane
 
-Continuous Reconciliation Engine for Multi-Cloud Infrastructure
+Continuous Reconciliation Engine (CRE) for Multi-Cloud Infra
 
 ```text
 Declarative Source of Truth
