@@ -65,9 +65,15 @@ if [ "$API_RESPONSE" = "FAILED" ]; then
     exit 1
 fi
 
-# Parse JSON response
-AGENT_COUNT=$(echo "$API_RESPONSE" | grep -o '"agent_pods":[0-9]*' | cut -d: -f2 || echo "0")
-AGENT_DATA=$(echo "$API_RESPONSE" | grep -o '"agents":\[[^]]*\]' || echo "null")
+# Parse JSON response using proper JSON parsing
+if command -v jq >/dev/null 2>&1; then
+    AGENT_COUNT=$(echo "$API_RESPONSE" | jq -r '.agent_pods // 0' 2>/dev/null || echo "0")
+    AGENT_DATA=$(echo "$API_RESPONSE" | jq -r '.agents // null' 2>/dev/null || echo "null")
+else
+    # Fallback to grep for systems without jq
+    AGENT_COUNT=$(echo "$API_RESPONSE" | grep -o '"agent_pods":[0-9]*' | cut -d: -f2 | tr -d ',' || echo "0")
+    AGENT_DATA=$(echo "$API_RESPONSE" | grep -o '"agents":\[[^]]*\]' || echo "null")
+fi
 
 print_success "API endpoint responding"
 echo "  - Agent pods: $AGENT_COUNT"
