@@ -51,7 +51,10 @@ spec:
     # Grafana Configuration
     grafana:
       enabled: true
-      adminPassword: "admin123"
+      # Use secret management for admin password
+      # adminPassword: "admin123"  # REMOVED - Use external secret management
+      adminPasswordSecret: grafana-admin
+      adminPasswordKey: password
       service:
         type: LoadBalancer
       persistence:
