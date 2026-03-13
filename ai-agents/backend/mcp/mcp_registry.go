@@ -276,7 +276,7 @@ func (mr *MCPRegistry) LoadDefaultMCPClients() error {
 		Endpoint:    "https://api.stripe.com/v1",
 		Enabled:     true,
 		Config: map[string]interface{}{
-			"api_key": "sk_test_...",
+			"api_key": "{{ .STRIPE_API_KEY }}",  // Use environment variable or secret
 		},
 		Tools: []MCPTool{
 			{

@@ -593,7 +593,7 @@ export AWS_REGION=us-east-1
 export GOOGLE_REGION=us-central1
 export CLOUD_ML_REGION=us-central1
 export GITHUB_ORG=your-org
-export GITHUB_TOKEN=ghp_...
+export GITHUB_TOKEN=${GITHUB_TOKEN}  # Use environment variable
 ```
 
 ### API Endpoints & Configuration
