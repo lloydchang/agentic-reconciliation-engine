@@ -4,13 +4,13 @@ Continuous Reconciliation Engine for Multi-Cloud Infrastructure
 
 ```text
 Declarative Source of Truth
-                              Git Repository              [Tier 0]
+                              Git Repository                          [Tier 0]
                                     |
                              Flux pulls manifests
                                     |
                                     v
 +------------------------------------------------------------------------------+
-|                 Hub Cluster (any Kubernetes distribution)    [Tier 1]        |
+|                 Hub Cluster (any Kubernetes distribution)           [Tier 1] |
 |  Flux self-manages hub after one-time manual bootstrap                       |
 |------------------------------------------------------------------------------|
 |  +-------------------+  +------------------+  +---------------------------+  |
@@ -26,7 +26,7 @@ Declarative Source of Truth
          |               |                |                   |
          v               v                v                   v
 +-----------------------------------------------------------------------------+
-|                    Spoke clusters                            [Tier 2]       |
+|                    Spoke clusters                                  [Tier 2] |
 |-----------------------------------------------------------------------------|
 |  +-------------+  +-------------+  +-------------+  +-------------------+   |
 |  | EKS         |  | AKS         |  | GKE         |  | Kubeadm (on-prem) |   |
