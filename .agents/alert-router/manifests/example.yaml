@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-router-config
+data:
+  example: "placeholder for alert-router"
+
