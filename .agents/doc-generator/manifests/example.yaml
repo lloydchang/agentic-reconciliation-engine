@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: doc-generator-config
+data:
+  example: "placeholder for doc-generator"
+
