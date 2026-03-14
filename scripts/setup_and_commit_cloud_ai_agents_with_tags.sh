@@ -5,7 +5,7 @@
 set -e
 
 # Root directory of your local repo
-REPO_DIR=".."  # <-- update this path
+REPO_DIR="$(dirname $0)/.."  # <-- update this path
 AGENTS_DIR="$REPO_DIR/.agents"
 
 mkdir -p "$AGENTS_DIR"
