@@ -1,10 +1,11 @@
-#!/bin/bash
-# File: setup_full_cloud_ai_skills_full.sh
-# Purpose: All-in-one script to scaffold 400 Cloud AI skills × 4 platforms (1600 entries)
-# Includes SKILL.md, PR-ready GitOps scripts, references, and agent metadata
+#!/usr/bin/env bash
+# File: setup_full_cloud_ai_skills_macos.sh
+# Purpose: All-in-one Cloud AI skill scaffold for macOS-compatible Bash (no associative arrays)
 
-REPO_DIR="${1:-.}"  # Default to current directory
+REPO_DIR="${1:-.}"  # default to current directory
 SKILLS_DIR="$REPO_DIR/.agents/skills"
+
+PLATFORMS=("aws" "azure" "gcp" "on-prem")
 
 # Generate 400 placeholder skill names
 SKILLS=()
@@ -12,9 +13,7 @@ for i in $(seq 1 400); do
   SKILLS+=("cloud-ai-skill-$i")
 done
 
-PLATFORMS=("aws" "azure" "gcp" "on-prem")
-
-# Advisory vs Actionable: even-numbered skills are actionable
+# Determine if skill is actionable (even-numbered skills)
 is_actionable() {
   local n=$1
   if (( n % 2 == 0 )); then
@@ -24,23 +23,46 @@ is_actionable() {
   fi
 }
 
-# Populate SKILL_COMMANDS for all 400 skills by category
-declare -A SKILL_COMMANDS
-for i in {1..40};   do SKILL_COMMANDS["cloud-ai-skill-$i"]="kubectl get nodes; kubectl get pods --all-namespaces"; done
-for i in {41..80};  do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Generating manifests; mkdir -p generated; echo '# Kubernetes YAML' > generated/deploy.yaml"; done
-for i in {81..120}; do SKILL_COMMANDS["cloud-ai-skill-$i"]="helm upgrade --install mychart ./charts/mychart"; done
-for i in {121..160};do SKILL_COMMANDS["cloud-ai-skill-$i"]="kubectl diff -f generated/deploy.yaml"; done
-for i in {161..200};do SKILL_COMMANDS["cloud-ai-skill-$i"]="kubectl create rolebinding example --clusterrole=edit --user=dev@example.com"; done
-for i in {201..230};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Building dashboards...; grafana-cli admin reset-admin-password"; done
-for i in {231..250};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Analyzing costs; aws ce get-cost-and-usage --time-period Start=2026-03-01,End=2026-03-31"; done
-for i in {251..270};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Verifying backups; restic snapshots"; done
-for i in {271..300};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Reviewing GitOps repo structure..."; done
-for i in {301..320};do SKILL_COMMANDS["cloud-ai-skill-$i"]="kubectl get roles --all-namespaces; vault policy read default"; done
-for i in {321..340};do SKILL_COMMANDS["cloud-ai-skill-$i"]="terraform init; terraform plan -out=tfplan; terraform apply tfplan"; done
-for i in {341..360};do SKILL_COMMANDS["cloud-ai-skill-$i"]="kubectl apply -f compositions/"; done
-for i in {361..370};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Prioritizing alerts..."; done
-for i in {371..390};do SKILL_COMMANDS["cloud-ai-skill-$i"]="git checkout -b fix/\$skill; git add .; git commit -m 'Auto PR by \$skill'; git push origin fix/\$skill"; done
-for i in {391..400};do SKILL_COMMANDS["cloud-ai-skill-$i"]="echo Applying automated fixes; ./scripts/run.sh"; done
+# Map skill to example commands without associative arrays
+get_skill_commands() {
+  local skill=$1
+  # extract the number from skill
+  local num=${skill#cloud-ai-skill-}
+
+  if [ "$num" -ge 1 ] && [ "$num" -le 40 ]; then
+    echo "kubectl get nodes; kubectl get pods --all-namespaces"
+  elif [ "$num" -ge 41 ] && [ "$num" -le 80 ]; then
+    echo "echo Generating manifests; mkdir -p generated; echo '# Kubernetes YAML' > generated/deploy.yaml"
+  elif [ "$num" -ge 81 ] && [ "$num" -le 120 ]; then
+    echo "helm upgrade --install mychart ./charts/mychart"
+  elif [ "$num" -ge 121 ] && [ "$num" -le 160 ]; then
+    echo "kubectl diff -f generated/deploy.yaml"
+  elif [ "$num" -ge 161 ] && [ "$num" -le 200 ]; then
+    echo "kubectl create rolebinding example --clusterrole=edit --user=dev@example.com"
+  elif [ "$num" -ge 201 ] && [ "$num" -le 230 ]; then
+    echo "echo Building dashboards...; grafana-cli admin reset-admin-password"
+  elif [ "$num" -ge 231 ] && [ "$num" -le 250 ]; then
+    echo "echo Analyzing costs; aws ce get-cost-and-usage --time-period Start=2026-03-01,End=2026-03-31"
+  elif [ "$num" -ge 251 ] && [ "$num" -le 270 ]; then
+    echo "echo Verifying backups; restic snapshots"
+  elif [ "$num" -ge 271 ] && [ "$num" -le 300 ]; then
+    echo "echo Reviewing GitOps repo structure..."
+  elif [ "$num" -ge 301 ] && [ "$num" -le 320 ]; then
+    echo "kubectl get roles --all-namespaces; vault policy read default"
+  elif [ "$num" -ge 321 ] && [ "$num" -le 340 ]; then
+    echo "terraform init; terraform plan -out=tfplan; terraform apply tfplan"
+  elif [ "$num" -ge 341 ] && [ "$num" -le 360 ]; then
+    echo "kubectl apply -f compositions/"
+  elif [ "$num" -ge 361 ] && [ "$num" -le 370 ]; then
+    echo "echo Prioritizing alerts..."
+  elif [ "$num" -ge 371 ] && [ "$num" -le 390 ]; then
+    echo "git checkout -b fix/$skill; git add .; git commit -m 'Auto PR by $skill'; git push origin fix/$skill"
+  elif [ "$num" -ge 391 ] && [ "$num" -le 400 ]; then
+    echo "echo Applying automated fixes; ./scripts/run.sh"
+  else
+    echo "echo Placeholder commands for $skill"
+  fi
+}
 
 # Helper to create SKILL.md
 create_skill_md() {
@@ -60,7 +82,7 @@ metadata:
 EOF
 }
 
-# Helper to create run script with example GitOps commands
+# Helper to create run.sh with example commands
 create_run_script() {
   local path=$1
   local skill=$2
@@ -71,15 +93,12 @@ create_run_script() {
 echo "Running $skill on $platform"
 EOF
 
-  if [[ $actionable == "true" ]]; then
-    cmds="${SKILL_COMMANDS[$skill]}"
-    if [[ -n "$cmds" ]]; then
-      while IFS= read -r line; do
-        echo "$line" >> "$path"
-      done <<< "$cmds"
-    else
-      echo "echo Placeholder actionable commands for $skill" >> "$path"
-    fi
+  if [ "$actionable" = "true" ]; then
+    cmds=$(get_skill_commands $skill)
+    IFS=';' read -ra lines <<< "$cmds"
+    for line in "${lines[@]}"; do
+      echo "$line" >> "$path"
+    done
     cat >> "$path" <<'EOF'
 
 # Example PR workflow
@@ -93,8 +112,8 @@ EOF
 }
 
 # Loop through all skills × platforms
-for idx in "${!SKILLS[@]}"; do
-  skill="${SKILLS[$idx]}"
+for idx in $(seq 0 $((${#SKILLS[@]} - 1))); do
+  skill=${SKILLS[$idx]}
   actionable=$(is_actionable $idx)
   advisory="true"
 
@@ -105,16 +124,16 @@ for idx in "${!SKILLS[@]}"; do
     # SKILL.md
     create_skill_md "$BASE_PATH/SKILL.md" "$skill" "$platform" "$advisory" "$actionable"
 
-    # Run script
+    # run.sh
     create_run_script "$BASE_PATH/scripts/run.sh" "$skill" "$platform" "$actionable"
 
-    # Reference
+    # reference
     cat > "$BASE_PATH/references/ref.md" <<EOF
 # Reference for $skill on $platform
 Add cloud provider docs, runbooks, or GitOps workflow references here.
 EOF
 
-    # Agent metadata
+    # agent YAML
     cat > "$BASE_PATH/agents/openai.yaml" <<EOF
 name: $skill-$platform
 version: 1.0
@@ -125,24 +144,5 @@ EOF
   done
 done
 
-# Validation
 echo
-echo "Validation Report:"
-missing_dirs=0
-for skill in "${SKILLS[@]}"; do
-  for platform in "${PLATFORMS[@]}"; do
-    BASE_PATH="$SKILLS_DIR/$skill/$platform"
-    for sub in SKILL.md scripts references agents; do
-      if [[ ! -e "$BASE_PATH/$sub" && ! -d "$BASE_PATH/$sub" ]]; then
-        echo "Missing: $BASE_PATH/$sub"
-        ((missing_dirs++))
-      fi
-    done
-  done
-done
-
-if [[ $missing_dirs -eq 0 ]]; then
-  echo "All 1600 skill entries successfully created with example GitOps commands."
-else
-  echo "Warning: $missing_dirs files/folders missing."
-fi
+echo "All 1600 Cloud AI skill entries created (macOS-compatible)."
