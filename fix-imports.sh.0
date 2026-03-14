@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+echo "🔍 Fixing Go import paths to match module structure..."
+
+# 1. Fix the typo: mc -> mcp
+find . -name "*.go" -type f -exec sed -i '' 's|internal/mc"|internal/mcp"|g' {} +
+
+# 2. Fix the backend/service reference to point to internal/service
+find . -name "*.go" -type f -exec sed -i '' 's|backend/service|ai-agents/internal/service|g' {} +
+
+# 3. Clean up any remaining legacy references that are clearly local
+# (Assuming your root module is github.com/lloydchang/gitops-infra-control-plane)
+MOD_PATH="github.com/lloydchang/gitops-infra-control-plane"
+find . -name "*.go" -type f -exec sed -i '' "s|github.com/lloydchang/backstage-temporal/backend|$MOD_PATH/ai-agents/internal|g" {} +
+
+echo "✅ Import paths updated."
+echo "📦 Running go mod tidy..."
+go mod tidy
