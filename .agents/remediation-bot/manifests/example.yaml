@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: remediation-bot-config
+data:
+  example: "placeholder for remediation-bot"
+
