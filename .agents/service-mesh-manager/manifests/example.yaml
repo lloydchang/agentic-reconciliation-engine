@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-mesh-manager-config
+data:
+  example: "placeholder for service-mesh-manager"
+
