@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-validator-config
+data:
+  example: "placeholder for backup-validator"
+
