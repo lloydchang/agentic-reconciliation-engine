@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rollback-assistant-config
+data:
+  example: "placeholder for rollback-assistant"
+
