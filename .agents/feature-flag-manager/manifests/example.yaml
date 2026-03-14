@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-flag-manager-config
+data:
+  example: "placeholder for feature-flag-manager"
+
