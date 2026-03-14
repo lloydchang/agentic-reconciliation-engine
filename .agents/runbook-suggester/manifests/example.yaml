@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: runbook-suggester-config
+data:
+  example: "placeholder for runbook-suggester"
+
