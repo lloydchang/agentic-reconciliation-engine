@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dependency-checker-config
+data:
+  example: "placeholder for dependency-checker"
+
