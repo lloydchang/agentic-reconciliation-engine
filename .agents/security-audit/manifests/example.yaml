@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-audit-config
+data:
+  example: "placeholder for security-audit"
+
