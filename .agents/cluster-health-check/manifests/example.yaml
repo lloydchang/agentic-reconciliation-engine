@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-health-check-config
+data:
+  example: "placeholder for cluster-health-check"
+
