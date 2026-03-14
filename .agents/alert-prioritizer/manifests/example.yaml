@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-prioritizer-config
+data:
+  example: "placeholder for alert-prioritizer"
+
