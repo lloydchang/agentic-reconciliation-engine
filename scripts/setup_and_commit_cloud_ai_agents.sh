@@ -1,6 +1,6 @@
 #!/bin/bash
-# File: setup_and_commit_cloud_ai_agents_with_tags.sh
-# macOS-compatible script to create .agents Cloud AI skills, git commit, and tag each skill
+# File: setup_and_commit_cloud_ai_agents.sh
+# macOS-compatible script to create .agents Cloud AI skills, git commit
 
 set -e
 
@@ -147,9 +147,6 @@ for skill in "${SKILLS[@]}"; do
     # Git add & commit
     git add "$SKILL_DIR"
     git commit -m "Add Cloud AI skill #$SKILL_INDEX: $skill"
-
-    # Tag the commit
-    git tag -a "skill-$SKILL_INDEX" -m "Skill #$SKILL_INDEX: $skill"
 
     echo "Created, committed, and tagged skill #$SKILL_INDEX: '$skill'"
 
