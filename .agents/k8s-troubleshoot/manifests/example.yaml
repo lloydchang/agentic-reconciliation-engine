@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-troubleshoot-config
+data:
+  example: "placeholder for k8s-troubleshoot"
+
