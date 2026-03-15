@@ -228,6 +228,8 @@ The following 39 skills are available for automated operations. Each skill follo
 | audit, SIEM, Sentinel, log query, compliance evidence | `audit-siem` | Suspicious/high-severity responses |
 | Backstage catalog, component, API, metadata, template | `backstage-catalog` | Production catalog changes |
 | capacity, forecast, headroom, growth | `capacity-planning` | No (analysis only) |
+| scenario modeling, headroom validation, capacity alerts | `capacity-planner` | Human gate when production impact |
+| autoscaler tuning, HPA/VPA/KEDA, scale recommendations | `autoscaler-advisor` | Human gate when production impact |
 | change request, CAB, freeze, risk score | `change-management` | Major/emergency changes |
 | chaos, load test, resilience, stun, autoscaler | `chaos-load-testing` | Any prod chaos |
 | pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
@@ -235,6 +237,7 @@ The following 39 skills are available for automated operations. Each skill follo
 | container, image, sign, scan, promote | `container-registry` | Prod registry push |
 | cost, spend, waste, FinOps, savings | `cost-optimization` | Resource deletion |
 | database, PostgreSQL, backup, failover, restore | `database-operations` | PITR restore/failover |
+| backup health, retention, disaster recovery drills | `backup-validator` | Human gate for production restores |
 | deploy, rollout, smoke test, canary, gate | `deployment-validation` | GO/NO-GO in prod |
 | onboarding, scaffold, catalog, portal, templates | `developer-self-service` | Enterprise resource prep |
 | disaster recovery, DR, failover, RTO, RPO | `disaster-recovery` | Any prod failover |
@@ -1382,6 +1385,7 @@ find .agents/skills -name "SKILL.md" | wc -l
 - **incident-triage-runbook**: "P0/P1/P2/P3 alert", "outage", "degraded service"
 - **sla-monitoring-alerting**: "error budget", "SRE metrics", "Four Golden Signals"
 - **observability-stack**: "set up monitoring", "Grafana dashboard", "Prometheus scrape"
+- **autoscaler-advisor**: "validate autoscaler", "recommend scaling", "forecast exhaustion"
 - **chaos-load-testing**: "chaos experiment", "load test", "fault injection"
 - **disaster-recovery**: "failover", "DR drill", "RPO/RTO", "restore failed region"
 - **alert-prioritizer**: "score alerts", "correlate signals", "escalate high risk" 
@@ -1389,6 +1393,7 @@ find .agents/skills -name "SKILL.md" | wc -l
 
 ### Data & Security
 - **database-operations**: "restore database", "scale DB", "slow queries", "failover DB"
+- **backup-validator**: "validate backups", "run DR drill", "verify retention compliance"
 - **secrets-certificate-manager**: "rotate secret", "cert expiry", "Key Vault", "leaked credential"
 - **compliance-security-scanner**: "CVE scan", "checkov", "SOC2 report", "compliance posture"
 - **policy-as-code**: "enforce policy", "OPA/Gatekeeper", "tagging standard", "governance"
@@ -1397,6 +1402,7 @@ find .agents/skills -name "SKILL.md" | wc -l
 ### Cost & Capacity
 - **cost-optimisation**: "cloud spend", "idle resources", "right-size", "RI coverage"
 - **capacity-planning**: "headroom", "forecast capacity", "will we hit limits?"
+- **capacity-planner**: "simulate launches", "validate headroom", "publish alerts"
 
 ### Tenant & Developer Experience
 - **tenant-lifecycle-manager**: "onboard tenant", "offboard tenant", "scale tenant tier"
