@@ -7,5 +7,7 @@ resources:
   - nginx-app.yaml
   - redis-app.yaml
   - valkey-app.yaml
+  - mysql-secrets.yaml
   - mysql.yaml
+  - postgres-secrets.yaml
   - postgres.yaml

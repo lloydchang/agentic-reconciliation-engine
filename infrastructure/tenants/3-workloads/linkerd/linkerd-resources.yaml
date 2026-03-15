@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: linkerd-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkerd-controller
+  namespace: linkerd-system
+  labels:
+    app: linkerd-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-controller
+  template:
+    metadata:
+      labels:
+        app: linkerd-controller
+    spec:
+      containers:
+        - name: linkerd-controller
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - sleep 3600
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "20m"
+              memory: "64Mi"

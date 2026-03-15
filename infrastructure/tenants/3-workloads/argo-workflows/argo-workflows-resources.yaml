@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argo-workflows
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+  labels:
+    app: argo-workflows-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argo-workflows-controller
+  template:
+    metadata:
+      labels:
+        app: argo-workflows-controller
+    spec:
+      containers:
+        - name: argo-workflows-controller
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - sleep 3600
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "20m"
+              memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+spec:
+  selector:
+    app: argo-workflows-controller
+  ports:
+    - port: 2746
+      targetPort: 2746

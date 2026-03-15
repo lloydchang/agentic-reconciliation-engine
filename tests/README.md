@@ -18,8 +18,11 @@ Comprehensive end-to-end validation of the entire GitOps platform locally:
 - **CI/CD Tests**: Argo CD, Argo Workflows, Kong API Gateway
 
 ```bash
-# Run the complete local test suite
+# Run the complete local test suite (auto-detects docker-desktop/minikube/kind)
 ./tests/test-local-suite.sh
+
+# Force cluster type if needed
+CLUSTER_TYPE=minikube ./tests/test-local-suite.sh
 ```
 
 #### `test-components.sh` - Individual Component Testing

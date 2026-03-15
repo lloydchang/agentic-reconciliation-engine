@@ -1,25 +1,5 @@
-# kong-gateway - Enterprise tool implementation
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
-  name: kong-gateway
-  namespace: default
-spec:
-  interval: 10m0s
-  url: https://charts.example.com  # Replace with actual Helm repo URL
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: kong-gateway
-  namespace: default
-spec:
-  interval: 10m0s
-  chart:
-    spec:
-      chart: kong-gateway
-      version: "1.0.0"
-      sourceRef:
-        kind: HelmRepository
-        name: kong-gateway
-      interval: 10m0s
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: api-gateway
+resources:
+  - kong-gateway-resources.yaml

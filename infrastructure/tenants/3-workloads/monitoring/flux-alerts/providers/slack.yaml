@@ -1,10 +1,5 @@
 # Slack Notification Provider
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: flux-system
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: slack-bot-token
