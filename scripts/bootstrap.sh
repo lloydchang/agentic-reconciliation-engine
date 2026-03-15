@@ -220,8 +220,8 @@ check_env() {
 }
 
 # Azure
-check_env "AZURE_SUBSCRIPTION_ID"
-check_env "AZURE_TENANT_ID"
+check_env "AZURE_SUBSCRIPTION_ID" "false"
+check_env "AZURE_TENANT_ID" "false"
 
 # Kubernetes
 check_env "KUBECONFIG" "false"

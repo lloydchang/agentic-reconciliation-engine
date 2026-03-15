@@ -60,4 +60,4 @@ spec:
   - port: 4567
     targetPort: 4567
     name: azure
-  type: ClusterIP
+  type: NodePort
