@@ -5,6 +5,19 @@ Resource Optimizer Script
 Multi-cloud automation for resource utilization analysis and rightsizing across AWS, Azure, GCP, and on-premise environments.
 """
 
+# /// script
+# dependencies = [
+#   "boto3>=1.26.0",
+#   "azure-mgmt-compute>=29.0.0",
+#   "google-cloud-compute>=1.8.0",
+#   "kubernetes>=25.0.0",
+#   "pydantic>=1.10.0",
+#   "requests>=2.28.0",
+#   "pandas>=1.5.0",
+#   "numpy>=1.24.0"
+# ]
+# ///
+
 import json
 import sys
 import argparse
