@@ -18,25 +18,96 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
 ensure_wsl_sanity "scripts/bootstrap.sh" warn info
 
+# ── Cross-Platform Support ─────────────────────────────────────────────────────
+detect_platform() {
+  local uname_out
+  uname_out="$(uname -s 2>/dev/null || echo 'Unknown')"
+  case "${uname_out}" in
+    Linux*)
+      if [[ -f /proc/version ]] && grep -qi microsoft /proc/version; then
+        echo "wsl"
+      else
+        echo "linux"
+      fi
+      ;;
+    Darwin*)
+      echo "macos"
+      ;;
+    CYGWIN*|MINGW32*|MSYS*|MINGW*)
+      echo "windows"
+      ;;
+    *)
+      echo "unknown"
+      ;;
+  esac
+}
+
+PLATFORM="$(detect_platform)"
+info "Detected platform: ${PLATFORM}"
+
+# Package manager detection
+detect_package_manager() {
+  case "$PLATFORM" in
+    macos)
+      if command -v brew &>/dev/null; then
+        echo "brew"
+      else
+        echo "none"
+      fi
+      ;;
+    linux)
+      if command -v apt-get &>/dev/null; then
+        echo "apt"
+      elif command -v yum &>/dev/null; then
+        echo "yum"
+      elif command -v dnf &>/dev/null; then
+        echo "dnf"
+      elif command -v pacman &>/dev/null; then
+        echo "pacman"
+      else
+        echo "none"
+      fi
+      ;;
+    wsl)
+      if command -v apt-get &>/dev/null; then
+        echo "apt"
+      elif command -v yum &>/dev/null; then
+        echo "yum"
+      elif command -v dnf &>/dev/null; then
+        echo "dnf"
+      elif command -v pacman &>/dev/null; then
+        echo "pacman"
+      else
+        echo "none"
+      fi
+      ;;
+    windows)
+      if command -v choco &>/dev/null; then
+        echo "choco"
+      elif command -v winget &>/dev/null; then
+        echo "winget"
+      else
+        echo "none"
+      fi
+      ;;
+    *)
+      echo "none"
+      ;;
+  esac
+}
+
+PKG_MANAGER="$(detect_package_manager)"
+info "Detected package manager: ${PKG_MANAGER}"
+
 ERRORS=0
 WARNINGS=0
-SKILL_DIR="${SKILL_DIR:-./.agents/skills}"
-REQUIRED_SKILLS=(
-  infrastructure-provisioning       cicd-pipeline-monitor
-  incident-triage-runbook      tenant-lifecycle-manager
-  compliance-security-scanner  sla-monitoring-alerting
-  deployment-validation        kpi-report-generator
-  runbook-documentation-gen    stakeholder-comms-drafter
-  kubernetes-cluster-manager   cost-optimisation
-  secrets-certificate-manager  workload-migration
-  policy-as-code               capacity-planning
-  observability-stack          orchestrator
-  multi-cloud-networking       database-operations
-  disaster-recovery            gitops-workflow
-  service-mesh                 container-registry
-  developer-self-service       audit-siem
-  change-management            chaos-load-testing
-)
+SKILL_DIR="${SKILL_DIR:-./.agents}"
+# Discover all skills dynamically
+REQUIRED_SKILLS=()
+while IFS= read -r skill_path; do
+  skill_name="$(basename "$(dirname "$skill_path")")"
+  REQUIRED_SKILLS+=("$skill_name")
+done < <(find "${SKILL_DIR}" -name "SKILL.md" -type f | sort)
 
 # ── Header ───────────────────────────────────────────────────────────────────
 echo ""
