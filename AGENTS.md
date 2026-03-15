@@ -233,12 +233,18 @@ The following 39 skills are available for automated operations. Each skill follo
 | change request, CAB, freeze, risk score | `change-management` | Major/emergency changes |
 | chaos, load test, resilience, stun, autoscaler | `chaos-load-testing` | Any prod chaos |
 | pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
+| release coordination, pipeline trigger, artifact validation | `ci-cd-integrator` | Automated gating requires human review |
 | compliance, policy, scan, CVE, checkov, trivy | `compliance-security-scanner` | No (scan only) |
+| evidence, reports, governance, compliance | `compliance-reporter` | Human gate for exec reports |
 | container, image, sign, scan, promote | `container-registry` | Prod registry push |
 | cost, spend, waste, FinOps, savings | `cost-optimization` | Resource deletion |
+| idling, rightsizing, approvals | `cost-optimizer` | Human gate for prod savings |
 | database, PostgreSQL, backup, failover, restore | `database-operations` | PITR restore/failover |
+| SBOM, CVE, dependency graph, supply chain | `dependency-checker` | Human gate for critical CVEs |
 | backup health, retention, disaster recovery drills | `backup-validator` | Human gate for production restores |
 | deploy, rollout, smoke test, canary, gate | `deployment-validation` | GO/NO-GO in prod |
+| release planning, gates, status | `release-manager` | Human gate for exec-level launches |
+| release strategy, model, validation | `deployment-strategy` | Human gate for prod strategy changes |
 | onboarding, scaffold, catalog, portal, templates | `developer-self-service` | Enterprise resource prep |
 | disaster recovery, DR, failover, RTO, RPO | `disaster-recovery` | Any prod failover |
 | GitOps, ArgoCD, Flux, sync, ApplicationSet | `gitops-workflow` | Prod promotion |
@@ -249,14 +255,20 @@ The following 39 skills are available for automated operations. Each skill follo
 | Kubernetes cluster, AKS/EKS/GKE, upgrade, node pool | `kubernetes-cluster-manager` | Prod cluster changes |
 | log classification, summary, context, severity | `log-classifier` | Critical remediation actions |
 | manifest, Helm, K8s config, policy validation | `manifest-generator` | High-risk manifests |
+| config lint, policy validation, drift detection | `config-validator` | Human gate for production policy failures |
 | route, deliver notification, pagerduty/slack/channel | `alert-router` | Channel outages require human oversight |
 | multi-cloud networking, VNet, VPC, DNS, peering | `multi-cloud-networking` | Hub firewall changes |
+| path tracing, DNS, firewall, latency | `network-diagnostics` | Human gate for prod networks |
+| pod/service diagnostics, dns, control plane | `k8s-troubleshoot` | Human gate for prod clusters |
 | node scaling, autoscaler, capacity, forecast | `node-scale-assistant` | Production-scale decisions |
 | observability, Prometheus, Grafana, alerting | `observability-stack` | Prod alerting changes |
+| cluster health, control plane, nodes, workloads | `cluster-health-check` | Human gate for cluster-impact changes |
 | alert, incident signal, risk score, automation | `alert-prioritizer` | Human review for high-risk escalations |
 | orchestration, multi-skill, workflow, gating | `orchestrator` | Composite human gates |
 | policy, OPA, Gatekeeper, governance, tagging | `policy-as-code` | Deny-all policy changes |
 | runbook, ADR, postmortem, docs | `runbook-documentation-gen` | Sensitive narrative |
+| feature flag rollout, rollback, gating | `feature-flag-manager` | Human gate for production flags |
+| incident notes, change logs, compliance briefs | `doc-generator` | Human gate for exec/compliance docs |
 | secrets, certificates, rotation, Key Vault, TLS | `secrets-certificate-manager` | Root CA rotation |
 | vulnerability, threat, posture, AI hunt | `security-analysis` | High-impact detections |
 | service mesh, Istio, traffic split, mTLS | `service-mesh` | Production traffic policy |
@@ -1378,18 +1390,30 @@ find .agents/skills -name "SKILL.md" | wc -l
 ### Deployment & Delivery
 - **cicd-pipeline-monitor**: "why did the build fail?", "DORA metrics", "re-trigger pipeline"
 - **deployment-validation**: "validate this deploy", "smoke test", "is it safe to go to prod?"
+- **deployment-strategy**: "model strategy", "validate releases", "escalate rollbacks"
+- **release-manager**: "plan release", "approve gate", "wrap up"
 - **gitops-workflow**: "ArgoCD out of sync", "Flux out of sync", "promote to prod"
 - **service-mesh**: "enable mTLS", "canary split", "circuit breaker", "service dependency map"
 
 ### Operations & Reliability
-- **incident-triage-runbook**: "P0/P1/P2/P3 alert", "outage", "degraded service"
+- **incident-triage-runbook**: "P0/P1/P2/P3 alert"
+- **incident-history**: "record incident", "trend analysis", "lessons learned", "outage", "degraded service"
 - **sla-monitoring-alerting**: "error budget", "SRE metrics", "Four Golden Signals"
 - **observability-stack**: "set up monitoring", "Grafana dashboard", "Prometheus scrape"
 - **autoscaler-advisor**: "validate autoscaler", "recommend scaling", "forecast exhaustion"
+- **cluster-health-check**: "control plane health", "node pressure", "maintenance planning"
+- **network-diagnostics**: 'trace path', 'DNS check', 'firewall rule'
 - **chaos-load-testing**: "chaos experiment", "load test", "fault injection"
 - **disaster-recovery**: "failover", "DR drill", "RPO/RTO", "restore failed region"
-- **alert-prioritizer**: "score alerts", "correlate signals", "escalate high risk" 
+- **alert-prioritizer**: "score alerts", "correlate signals", "escalate high risk"
 - **alert-router**: "route alerts", "deliver notification", "cancel/reschedule alert"
+- **ci-cd-integrator**: "monitor pipelines", "trigger releases", "remediate failures"
+- **feature-flag-manager**: "manage feature flags", "rollout", "rollback"
+- **doc-generator**: "runbook", "change doc", "compliance summary"
+- **dependency-checker**: "scan SBOM", "CVE audit", "dependency graph"
+- **incident-summary**: "draft update", "status change", "follow-up action"
+- **incident-predictor**: "forecast incidents", "trend analysis", "escalate early"
+- **k8s-troubleshoot**: "pod diagnostics", "service issues", "control plane health"
 
 ### Data & Security
 - **database-operations**: "restore database", "scale DB", "slow queries", "failover DB"
@@ -1400,7 +1424,8 @@ find .agents/skills -name "SKILL.md" | wc -l
 - **audit-siem**: "who accessed X?", "audit trail", "Sentinel alert", "security event"
 
 ### Cost & Capacity
-- **cost-optimisation**: "cloud spend", "idle resources", "right-size", "RI coverage"
+- **cost-optimisation**: "cloud spend"
+- **cost-optimizer**: "scan waste", "recommend actions", "review approvals", "idle resources", "right-size", "RI coverage"
 - **capacity-planning**: "headroom", "forecast capacity", "will we hit limits?"
 - **capacity-planner**: "simulate launches", "validate headroom", "publish alerts"
 
