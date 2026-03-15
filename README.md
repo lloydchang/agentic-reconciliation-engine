@@ -192,6 +192,7 @@ the problem you are solving.
 - [ESO Workload Identity](./docs/ESO-WORKLOAD-IDENTITY.md) - Per-spoke secret delivery setup
 - [CI Policy Gate](./docs/CI-POLICY-GATE.md) - Deletion guard, schema validation, OPA policies
 - [Controller Runbooks](./docs/CONTROLLER-RUNBOOKS.md) - Per-controller failure playbooks
+- [Windows Compatibility Guide](./docs/WINDOWS-COMPATIBILITY.md) - How to run this repo with WSL/Git Bash so it works the same on Windows, macOS, and Linux
 
 ### Implementation Examples
 - [Complete Hub-Spoke](./examples/complete-hub-spoke/) - Full deployment with all features
@@ -212,10 +213,26 @@ the problem you are solving.
 - [Bitbucket Cloud Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `BITBUCKET_USER`+`BITBUCKET_TOKEN` and uses the Bitbucket Cloud PR API.
 - [AWS CodeCommit Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the standard HTTPS git helper; PRs must be opened via the AWS console because there is no unified CLI for it.
 - [GCP Secure Source Manager Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the gcloud git credential helper; clone/push run via git and PRs opened through the Cloud Console.
- - [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - After connectors that can’t create PRs spin up (CodeCommit, Secure Source Manager), this script prints the AWS or GCP console URL for manual PR creation.
+- [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - After connectors that can’t create PRs spin up (CodeCommit, Secure Source Manager), this script prints the AWS or GCP console URL for manual PR creation.
 - [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL so you can create the pull request manually.
 - [Apply Overlay Order Helper](./scripts/apply-overlay-order.sh) - Reorders `control-plane/flux/kustomization.yaml` per `control-plane/flux/overlay-order.txt`.
 - [Overlay Logician](./scripts/overlay-logician.py) - Validates that every ordered overlay exists before you run the migration wizard.
+- [Emulator Follow-On Runner](./scripts/run-emulator-then-cloud.sh) - Runs `scripts/migration_wizard.py` twice: first with `--emulator=enable`, then `--emulator=disable` so you can validate the local emulator before the real overlay takes over.
+- [Zero-Touch Azure Emulator Run](./scripts/run-local-automation.sh) - Executes `scripts/bootstrap.sh` and then `scripts/migration_wizard.py` with `--connector=github`, `--overlay-order=bootstrap hub emulator-azure spoke-local`, and `--emulator=azure` so you can validate the workflow entirely on your Azure emulator/GitHub mirror without pressing any buttons.
+- [Windows Compatibility Guide](./docs/WINDOWS-COMPATIBILITY.md) - How to run this repo with WSL/Git Bash so it works the same on Windows, macOS, and Linux.
+- [macOS Compatibility Guide](./docs/MAC-COMPATIBILITY.md) - Install Homebrew/Python/Flux and run every script from your Terminal shell for zero-touch verification.
+- [Linux Compatibility Guide](./docs/LINUX-COMPATIBILITY.md) - The reference platform; lists package installs plus validation steps for running the automation exactly as written.
+- [Shell Compatibility Guide](./docs/SHELL-COMPATIBILITY.md) - Lists the required POSIX/batch features (`bash`, `set -euo pipefail`, `mkdir`, `tee`, etc.) and explains how Linux/zsh/WSL/Git Bash satisfy them.
+
+### Zero-Touch Automation Options
+
+- `scripts/run-local-automation.sh [--connector CONNECTOR] [--emulator-action enable|disable] [--overlay-order overlay-1,overlay-2,...]` executes the bootstrap checks, migration wizard, and CI gate without any interactive steps. Defaults target GitHub with the Azure emulator overlay order (`./bootstrap`, `./hub`, `./emulator-azure`, `./spoke-local`) and uses `scripts/local-ci-gate.sh` to run `conftest` + `kubeconform`.
+- The script writes logs under `logs/local-automation/` and produces a JSON report (`summary-*.json`) that captures the start/end times, connector, emulator action, overlay order, helper scripts, CI gate command, and paths to the bootstrap/wizard logs.
+- Override the defaults to exercise other connectors/emulators (e.g., `--connector=azure-devops --overlay-order ./bootstrap,./hub,./cloud-aks,./spoke-local`). Each run still runs the same zero-touch CI gate and summary reporting.
+- Use `.github/workflows/run-local-automation.yml` to trigger the same wrapper via GitHub Actions (runs on `ubuntu-latest`, installs `conftest`/`kubeconform`, and uploads the logs/summary as artifacts). Supply `connector`, `overlay_order`, and `emulator_action` inputs to target GitHub Enterprise Cloud/Server, Azure DevOps, or other hosts on demand. – [GitHub Action file](./.github/workflows/run-local-automation.yml)
+- Use `azure-pipelines-zero-touch.yml` as a template for Azure Pipelines/job-based runs; it installs the same policy tooling, runs the wrapper with pipeline parameters, and publishes the `logs/local-automation/` directory as an artifact for post-run verification. – [Azure Pipelines template](./azure-pipelines-zero-touch.yml)
+- Both pipelines now call `scripts/publish-summary.sh` after the automation completes; set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post the generated `latest-summary.json` to your dashboard/archive service, and set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`. The script reads `logs/local-automation/latest-summary.json`, posts it to the endpoint, and issues a failure notification only when requested.
+- `scripts/publish-summary.sh` also generates a Markdown report (`logs/local-automation/latest-summary.md`) that mirrors the JSON summary, lists the connector, overlay order, emulator action, helper scripts, CI gate command, and log locations, and can be archived alongside the logs for review by wider audiences.
 
 ## Comparison with Managed Alternatives
 
