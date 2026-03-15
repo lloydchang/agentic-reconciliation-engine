@@ -1,0 +1,23 @@
+apiVersion: containerservice.azure.com/v1beta20231001
+kind: ManagedCluster
+metadata:
+  name: workload-cluster
+spec:
+  location: eastus
+  owner:
+    name: platform-rg
+  sku:
+    name: Standard_Flex
+    tier: Paid
+  networkProfile:
+    networkPlugin: azure
+    networkPolicy: calico
+    serviceCidr: 10.10.0.0/16
+    dnsServiceIP: 10.10.0.10
+    dockerBridgeCidr: 172.17.0.1/16
+  agentPoolProfiles:
+    - name: agentpool
+      count: 3
+      vmSize: Standard_D2s_v3
+      osType: Linux
+      mode: System

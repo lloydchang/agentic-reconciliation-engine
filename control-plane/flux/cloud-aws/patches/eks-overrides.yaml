@@ -1,0 +1,20 @@
+apiVersion: eks.services.k8s.aws/v1alpha1
+kind: Cluster
+metadata:
+  name: workload-cluster
+spec:
+  name: workload-cluster
+  roleArn: arn:aws:iam::123456789012:role/eks-service-role
+  version: "1.27"
+  resourcesVpcConfig:
+    subnetIds:
+      - subnet-11111111
+      - subnet-22222222
+    endpointPrivateAccess: true
+    endpointPublicAccess: true
+  logging:
+    clusterLogging:
+      - types:
+          - api
+          - audit
+        enabled: true

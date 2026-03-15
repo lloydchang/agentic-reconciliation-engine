@@ -1,12 +1,25 @@
 # Azure Cloud Overlay
 
-This overlay activates Azure-specific manifests when Flux reconciles `./cloud-azure`.
+# Azure Cloud Overlay
 
-## Contents
-- `kustomization.yaml` – includes the Azure network, cluster, workloads, and Entra identity manifests.
-- Add patches under this directory to adjust resource group names, CIDRs, or secret references.
+This overlay brings up the Azure-specific infrastructure when Flux includes `./cloud-azure` in `control-plane/flux/kustomization.yaml`.
 
-## Usage
-1. Customize the referenced manifests in `control-plane/flux/` for your tenant/subscription.
-2. Flux deploys them when `./cloud-azure` is listed in `control-plane/flux/kustomization.yaml`.
-3. Remove the entry to clean up all Azure resources.
+## Structure
+- `kustomization.yaml` pulls the tenant-level network, clusters, and workload directories and applies the patch files in `patches/`.
+- `patches/vnet-overrides.yaml` overrides the placeholder VNet metadata (location, owner tags).
+- `patches/aks-overrides.yaml` adjusts cluster settings such as resource group, node pool size, and network CIDRs.
+
+## Customizing
+1. Review the placeholder values inside `patches/` and change them to your resource group, location, and service CIDR needs.
+2. Use `kustomize build control-plane/flux/cloud-azure` to verify the generated manifests.
+3. Enable the overlay via `scripts/enable-cloud.sh azure` and reconcile Flux (`flux reconcile kustomization control-plane --with-source`).
+
+## Local emulator
+If you want to test locally without provisioning real Azure resources, enable the local emulator overlay.
+
+1. Ensure the emulator prerequisites are running (Azurite, SQL emulator, etc.).
+2. Uncomment the `- local-emulator` entry in `control-plane/flux/cloud-azure/kustomization.yaml`.
+3. Flux will then deploy the modules defined in `infrastructure/tenants/azure/localstack`.
+4. Remove the entry and reconcile Flux to clean up the emulator resources.
+
+Flux will automatically prune the overlay when you remove `./cloud-azure` from the parent kustomization.

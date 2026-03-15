@@ -1,12 +1,15 @@
 # AWS Cloud Overlay
 
-This overlay brings AWS-specific control-plane manifests online when Flux includes `./cloud-aws` in `control-plane/flux/kustomization.yaml`.
+# AWS Cloud Overlay
 
-## Contents
-- `kustomization.yaml` – aggregates the existing AWS network, cluster, CA, and workload manifests.
-- Add additional patches beneath this directory (e.g., `patches/` or `overlays/`) to tailor CIDRs, IAM roles, and Argo CD/Flux registrations for your account.
+This overlay groups the AWS-specific network, cluster, and workload manifests that Flux deploys when `./cloud-aws` is listed in `control-plane/flux/kustomization.yaml`.
 
-## Usage
-1. Customize the manifests referenced in `kustomization.yaml` (network, clusters, workloads) to match your VPC/CNI needs.
-2. Flux will deploy the overlay when you enable `./cloud-aws` in the parent Kustomization. Disabling the resource removes the AWS-specific objects.
-3. Refer to `docs/CLOUD-OVERLAY-STRUCTURE.md` for the migration playbook and automation guidance.
+## Structure
+- `kustomization.yaml` pulls the tenant-level directories and applies `patches/` for per-environment overrides.
+- `patches/vpc-overrides.yaml` updates the VPC CIDR and tags (e.g., apply your account tag strategy).
+- `patches/eks-overrides.yaml` overrides cluster metadata such as the role ARN, networking, and node pool sizing.
+
+## Customizing
+1. Update the patch files to match your AWS account IDs, CIDRs, and IAM roles.
+2. Build the overlay locally (`kustomize build control-plane/flux/cloud-aws`) to verify the generated resources.
+3. Run `scripts/enable-cloud.sh aws` and `flux reconcile kustomization control-plane --with-source` to apply it.

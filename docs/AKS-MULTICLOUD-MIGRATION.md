@@ -79,3 +79,8 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 - [ ] Argo CD apps stay healthy and sync to the new cluster contexts.
 - [ ] Overlay changes (flux reconciliation) succeed without errors.
 - [ ] Provider-specific patches are tracked in `control-plane/flux/cloud-azure/`.
+If you are using a local Azure emulator rather than a real subscription, include the optional emulator overlay before you enable the full cloud overlay:
+
+1. Uncomment `- local-emulator` inside `control-plane/flux/cloud-azure/kustomization.yaml`.
+2. Apply the overlay to spin up the emulator resources via Flux.
+3. When you are ready to target a real AKS cluster, remove the emulator entry and re-run the Azure overlay.

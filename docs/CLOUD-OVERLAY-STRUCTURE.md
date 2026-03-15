@@ -55,8 +55,8 @@ The `resources` block is the only place that changes when you onboard a new clou
 
 ## Enabling an overlay
 
-1. Copy or extend the template overlay (e.g., `control-plane/flux/cloud-aws/kustomization.yaml`) and customize network/cluster values for your environment.
-2. Run `scripts/enable-cloud.sh <provider>` (or manually add `./cloud-<provider>` to `control-plane/flux/kustomization.yaml`) so Flux includes that overlay.
+1. Copy or extend the template overlay (e.g., `control-plane/flux/cloud-aws/kustomization.yaml`) and customize network/cluster values for your environment by editing the `patches/` overrides in the same directory.
+2. Run `scripts/enable-cloud.sh <provider>` (or manually add `./cloud-<provider>` to `control-plane/flux/kustomization.yaml`) so Flux includes that overlay. When using the Azure emulator, also uncomment `- local-emulator` inside `control-plane/flux/cloud-azure/kustomization.yaml` so Flux deploys `infrastructure/tenants/azure/localstack`.
 3. Run `flux reconcile kustomization control-plane --with-source` to force a sync and validate the overlay resources reach `Ready`. Inspect Crossplane `Composition` and `Managed` resources as the overlay provisions infra.
 4. Register any new clusters created by Crossplane with Argo CD (`argocd cluster add ...`), so application workloads can be graduated to the new target.
 5. Monitor Flux/Argo CD health; you can remove the overlay entry later if you need to roll back (Flux will cascade-delete the overlay resources).
