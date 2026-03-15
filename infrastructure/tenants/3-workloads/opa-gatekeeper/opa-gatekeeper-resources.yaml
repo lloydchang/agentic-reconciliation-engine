@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gatekeeper-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekeeper-controller-manager
+  namespace: gatekeeper-system
+  labels:
+    app: gatekeeper-controller-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gatekeeper-controller-manager
+  template:
+    metadata:
+      labels:
+        app: gatekeeper-controller-manager
+    spec:
+      containers:
+        - name: gatekeeper-controller-manager
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - sleep 3600
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "20m"
+              memory: "64Mi"

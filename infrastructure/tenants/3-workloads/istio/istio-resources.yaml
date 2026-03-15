@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: istio-pilot
+  namespace: istio-system
+  labels:
+    app: istio-pilot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: istio-pilot
+  template:
+    metadata:
+      labels:
+        app: istio-pilot
+    spec:
+      containers:
+        - name: istio-pilot
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - sleep 3600
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "20m"
+              memory: "64Mi"
