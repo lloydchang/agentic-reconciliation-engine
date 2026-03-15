@@ -1,6 +1,7 @@
 ---
 name: skill-name
-description: Template for creating new skills following agentskills.io specification. Replace this with a specific description of what your skill does and when to use it. Should be 1-1024 characters describing both what the skill does and when to use it.
+description: >
+  World-class multi-cloud enterprise automation skill that provides intelligent operations across AWS, Azure, GCP, and on-premise environments with comprehensive validation and compliance workflows.
 license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
@@ -9,41 +10,11 @@ metadata:
   risk-level: medium
   autonomy: conditional
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
-allowed-tools: Bash Read Write Grep
----
-
-# Skill Template — agentskills.io Specification Compliant
-
-> **Instructions**: Copy this template to create a new skill directory.
-> 1. Create new directory: `.agents/your-skill-name/`
-> 2. Copy this file to: `.agents/your-skill-name/SKILL.md`
-> 3. Replace `skill-name` with your actual skill name (must match directory name)
-> 4. Update the description to explain what your skill does and when to use it
-> 5. Adjust optional fields as needed
-
-## Purpose
-Template for creating new skills that follow the agentskills.io specification. This template includes all required fields and common optional fields for enterprise multi-cloud automation skills.
-
-## When to Use
-- **Creating new skills**: Use this as a starting point for any new skill
-- **Ensuring compliance**: This template follows the agentskills.io specification
-- **Best practices**: Includes recommended fields and structure
-
-## Template Fields Explained
-
-### Required Fields (must be present):
-- **name**: Skill identifier (lowercase, numbers, hyphens only, max 64 chars)
-- **description**: What the skill does and when to use it (1-1024 chars)
-
-### Optional Fields (recommended):
-- **license**: License for the skill (e.g., Apache-2.0)
-- **metadata**: Additional key-value metadata
-- **compatibility**: Environment requirements (max 500 chars)
-- **allowed-tools**: Space-delimited list of pre-approved tools
-
-## Next Steps
-Replace the content below with your skill-specific implementation:
-
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Grep
 ---
 
 # Skill Name — World-class Multi-Cloud Enterprise Automation Platform

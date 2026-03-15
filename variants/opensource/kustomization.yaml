@@ -42,7 +42,7 @@ commonLabels:
   variant: open-source
   tier: community
   support: community
-  license: apache-2.0
+  license: AGPLv3
 # Resource constraints for open source
 patchesStrategicMerge:
 - resource-limits/opensource-limits.yaml

@@ -232,7 +232,7 @@ spec:
 ---
 name: infrastructure-manager
 description: Manages Kubernetes infrastructure deployments, drift detection, and remediation using consensus-based decision making. Use when infrastructure changes are needed, drift is detected, or consensus decisions are required.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-control-plane
   version: "3.0"

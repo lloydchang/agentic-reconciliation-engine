@@ -268,7 +268,7 @@ spec:
 ---
 name: infrastructure-manager
 description: Manages Kubernetes infrastructure deployments, drift detection, and remediation using GitOps best practices. Use when infrastructure changes are needed, drift is detected, or compliance issues arise.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-control-plane
   version: "1.0"
@@ -716,7 +716,7 @@ Create comprehensive skills for infrastructure management:
 ---
 name: gitops-automation
 description: Automates GitOps workflows including flux reconciliation, manifest validation, and deployment sequencing. Use when GitOps operations are needed.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-control-plane
   version: "1.0"
@@ -1044,7 +1044,7 @@ spec:
 ---
 name: infrastructure-manager
 description: Complete infrastructure management for multi-cloud Kubernetes environments including deployment, monitoring, security, and cost optimization. Use when any infrastructure operation is needed.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-control-plane
   version: "2.0"

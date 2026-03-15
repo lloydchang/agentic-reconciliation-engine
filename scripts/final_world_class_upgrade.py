@@ -12,7 +12,7 @@ def create_skill_content(skill_name):
 name: {skill_name}
 description: >
   World-class enterprise automation skill that provides intelligent operations, comprehensive validation, and compliance workflows for optimized business processes.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
   version: "1.0"
