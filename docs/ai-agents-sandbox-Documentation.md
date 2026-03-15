@@ -39,7 +39,7 @@ If you're new to the AI Agents Sandbox:
 ## 🎯 Key Features
 
 - **28 Specialized Skills** - From infrastructure provisioning to compliance monitoring
-- **Multi-Agent Orchestration** - Coordinate complex workflows across cloud platforms
+- **Multi-Agent Orchestration** - Coordinate complex workflows across Cloud Providers
 - **Safe Execution Environment** - Isolated tool boundaries prevent unintended consequences
 - **Human-in-the-Loop Controls** - Critical decisions require human approval
 - **Multiple Interfaces** - REST APIs, CLI, WebMCP, and direct AI assistant integration
