@@ -1,276 +1,152 @@
 ---
 name: security-analysis
-description: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
+description: >
+  Execute vulnerability scanning, threat hunting, and posture analysis using AI-intelligence, dynamic context, and dispatcher events.
 argument-hint: "[targetResource] [scanType] [priority]"
 context: fork
 agent: Explore
-allowed-tools: 
-  - "Bash(nmap *, nikto *, sqlmap *, metasploit *, curl *, wget *)"
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Security Analysis Skill
+# Security Analysis — World-class Threat Detection Playbook
 
-Advanced security analysis with dynamic context injection and real-time threat intelligence. This skill uses command injection to gather live security data before analysis.
+Performs AI-enhanced security assessments (vulnerability, configuration, runtime) with real-time intelligence ingestion, structured outputs, and dispatchable signals to downstream remediation/workflow skills. Trigger when investigating incidents, verifying posture, or responding to dispatcher risk alerts.
 
-## Usage
+## When to invoke
+- Critical/high priority vulnerability scans (external/internal resources).
+- Configuration and runtime posture reviews after deployments or changes.
+- Incident response or dispatcher alerts (`riskScore ≥ 70`, `policy-risk`, `incident-ready`).
+- Regular security hygiene (weekly scans, compliance checkpoints, secrets assurance).
+
+## Capabilities
+- Dynamic target discovery and recon context (threat feeds, CVE lookup, port/service enumeration).
+- AI-informed risk scoring + remediation prioritization plus threat correlation.
+- Automation-safe post-scan intelligence (POC reproduction, IOC highlights) for other skills.
+- Shared context integration `shared-context://memory-store/security/<scanId>` for dispatcher/incident use.
+- Human gate guidance for intrusive or high-risk scans.
+
+## Invocation patterns
+
 ```bash
-/security-analysis web-server-001 vulnerability high
-/security-analysis network-infrastructure full critical
-/security-analysis database-cluster configuration normal
+/security-analysis scan --targetResource=web-server-001 --scanType=vulnerability --priority=critical
+/security-analysis scan --targetResource=network-infra --scanType=configuration --priority=high
+/security-analysis scan --targetResource=database-cluster --scanType=runtime --priority=normal
+/security-analysis monitor --targetResource=all --scanType=full --priority=high --timeframe=7d
 ```
 
-## Dynamic Context Injection
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `targetResource` | Resource/app stack to analyze. | `web-server-001` |
+| `scanType` | `vulnerability|malware|configuration|full|runtime`. | `full` |
+| `priority` | Criticality affecting resource allocation. | `critical` |
+| `timeframe` | Lookback period for telemetry/context. | `7d` |
+| `context` | Additional context store to enrich detection. | `shared-context://memory-store/capacity/` |
 
-This skill uses the `!`command`` syntax to inject real-time security data:
+## Output contract
 
-### Pre-Analysis Intelligence Gathering
-- **Current Threat Landscape**: !`curl -s https://cve.circl.lu/api/last | jq -r '.[0:5] | .[].id'`
-- **Active IP Reputation**: !`curl -s "https://api.abuseipdb.com/api/v2/check?ip=$TARGET_IP&maxAgeInDays=7" -H "Key: $ABUSEIPDB_KEY"`
-- **Port Scan Results**: !`nmap -sS -O -oX - $TARGET_IP 2>/dev/null | head -50`
-- **Web Application Headers**: !`curl -s -I https://$TARGET_DOMAIN | head -20`
-
-### Real-time Security Feeds
-- **Malware Hashes**: !`curl -s https://hashdb.openanalysis.net/hash | head -20`
-- **CISA Alerts**: !`curl -s https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json | jq -r '.vulnerabilities[0:10] | .[].cveID'`
-- **Security Blogs**: !`curl -s https://feeds.feedburner.com/TheHackersNews | head -10`
-
-## Analysis Workflow
-
-### 1. Target Identification & Reconnaissance
-```bash
-# Dynamic target discovery
-TARGET_RESOURCE="$1" || "all-resources"
-SCAN_TYPE="$2" || "full"
-PRIORITY="$3" || "normal"
-
-# Extract target details from infrastructure emulator
-TARGET_DETAILS=!`curl -s "http://localhost:8081/api/v1/resources/$TARGET_RESOURCE" | jq -r '.'`
-
-# Network mapping
-NETWORK_MAP=!`nmap -sn 192.168.1.0/24 2>/dev/null | grep "Nmap scan report"`
+```json
+{
+  "scanId": "SEC-2026-0315-01",
+  "targetResource": "web-server-001",
+  "scanType": "vulnerability",
+  "status": "completed|failed",
+  "riskScore": 0.78,
+  "insights": [
+    {
+      "cve": "CVE-2024-12345",
+      "severity": "critical",
+      "vector": "network",
+      "description": "Remote code execution via outdated library"
+    }
+  ],
+  "threatIntelligence": [
+    "Active exploit observed in the wild",
+    "IOC: 192.0.2.44 communicating with malicious C2"
+  ],
+  "aiRemediation": [
+    {
+      "id": "REMED-001",
+      "action": "patch",
+      "resource": "web-server-001",
+      "confidence": 0.92,
+      "impact": "High",
+      "effort": "Low"
+    }
+  ],
+  "decisionContext": "redis://memory-store/security/SEC-2026-0315-01",
+  "logs": "shared-context://memory-store/security/SEC-2026-0315-01"
+}
 ```
 
-### 2. Vulnerability Assessment
-```bash
-# CVE database lookup
-CVE_DATA=!`curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=$SERVICE_NAME" | jq -r '.vulnerabilities[0:10] | .[].cve.id'`
+## World-class workflow templates
 
-# Service enumeration
-SERVICES=!`nmap -sV -oX - $TARGET_IP 2>/dev/null | xpath '//service[@product]' 2>/dev/null`
+### AI-assisted security scan
+1. Discover targets via infrastructure APIs and Recon data.
+2. Ingest threat feeds (CVE, abuse IP DB, malware hashes, CISA alerts) and combine with telemetry.
+3. Run vulnerability/malware/configuration scans using dynamic context, capturing findings.
+4. Score each finding by `riskScore`, produce remediation guidance, emit `security-scan` event.
 
-# Web application analysis
-WEB_HEADERS=!`curl -s -I -L https://$TARGET_DOMAIN 2>/dev/null`
-```
+### Intelligence-driven incident enrichment
+1. Correlate findings with past incidents, attackers, and behavior patterns.
+2. Add logs/traces/alerts (shared context) so incident runbook or compliance skills can act.
+3. Emit `incident-ready` or `policy-risk` events for dispatcher orchestration.
 
-### 3. Threat Intelligence Integration
-```bash
-# IOC (Indicators of Compromise) checking
-IOC_CHECK=!`curl -s "https://api.threatintelligenceplatform.com/v1/ioc?ip=$TARGET_IP" -H "Authorization: Bearer $TI_API_KEY"`
+### Predictive posture & anomaly monitoring
+1. Scan runtime telemetry (logs, metrics, traces) for anomalies (suspicious commands, authentication failures).
+2. Forecast risk using AI patterns and forward to `incident-triage-runbook` or `sla-monitoring-alerting`.
+3. Provide enriched report linking anomalies to vulnerabilities/policies.
 
-# Malware analysis
-MALWARE_SCAN=!`clamscan --no-summary --detect-pua=yes /path/to/scanned/files 2>/dev/null | head -20`
-```
+## AI intelligence highlights
+- **AI Risk Assessment**: weighs CVSS, exploitation context, asset criticality, and compliance impact to determine `riskScore`.
+- **Smart Remediation Prioritization**: ranks fixes by impact/effort/confidence.
+- **Intelligent Violation Analysis**: articulates attack path, exploit theory, and related regulatory controls.
+- **Predictive Threat Forecasting**: uses anomaly detection plus threat intelligence to predict emergent threats.
 
-### 4. Security Posture Analysis
-```bash
-# Configuration review
-CONFIG_AUDIT=!`find /etc -name "*.conf" -exec grep -l "password\|secret\|key" {} \; 2>/dev/null | head -10`
+## Memory agent & dispatcher integration
+- Emit to shared store `shared-context://memory-store/security/<scanId>` with all findings, riskScore, recommended actions.
+- Generate events: `security-scan-complete`, `security-anomaly`, `policy-risk`, `incident-ready`.
+- Consume dispatcher events (e.g., `policy-risk`, `cost-anomaly`) to adjust scanning scope or priority.
+- Tag records with `decisionId`, `tenant`, `riskScore`, `confidence`.
 
-# Permission analysis
-PERMISSION_AUDIT=!`find /var/www -type f -perm /o+w 2>/dev/null | head -20`
+## Communication protocols
+- Primary: CLI-driven scan commands producing JSON artifacts; wrappers call security tooling (nmap, trivy, scanning APIs).
+- Secondary: Event bus (Kafka/NATS) for `security-*` signals.
+- Fallback: Persistent artifacts `artifact-store://security/<scanId>.json`.
 
-# Log analysis for suspicious activity
-LOG_ANALYSIS=!`grep -i "failed\|error\|attack\|intrusion" /var/log/auth.log | tail -20`
-```
+## Observability & telemetry
+- Metrics: scans per period, findings severity distribution, AI confidence, scan duration, false-positive rate.
+- Logs: structured `log.event="security.scan"` with `scanId`, `riskScore`, `priority`.
+- Dashboards: integrate `/security-analysis metrics --format=prometheus` for posture trending.
+- Alerts: riskScore ≥ 0.85, critical findings > 5, scan failures > threshold.
 
-## Scan Types
+## Failure handling & retries
+- Retry temporary failures (network, API) up to 2× with exponential backoff.
+- On tool failure, switch to fallback scanner (secondary tool) and emit `security-scan-fallback`.
+- Persist scans, context, logs until downstream ack for audit; never delete data prematurely.
 
-### Vulnerability Scan
-- CVE matching against NVD database
-- Service version enumeration
-- Configuration weakness detection
-- Patch level assessment
+## Human gates
+- Required when:
+ 1. Scans risk interfering with production services (workloads critical, high priority).
+ 2. High-impact findings (riskScore ≥ 0.9) require manual verification before remediation.
+ 3. Dispatcher requests manual review after repeated scan failures.
+- Use standard human gate template to capture impact/reversibility.
 
-### Malware Scan
-- File signature analysis
-- Behavioral pattern detection
-- Memory analysis for rootkits
-- Network traffic analysis
+## Testing & validation
+- Dry-run: `/security-analysis scan --targetResource=canary --scanType=vulnerability --dry-run`.
+- Unit tests: `backend/security/analysis` ensures scoring and parsing logic operate per expectation.
+- Integration: `scripts/validate-security-analysis.sh` runs scans in emulator mode and emits events for downstream skills.
+- Regression: nightly `scripts/nightly-security-smoke.sh` keeps telemetry thresholds, alert volumes, and AI scoring stable.
 
-### Configuration Scan
-- Security setting validation
-- Policy compliance checking
-- Hardening assessment
-- Best practice verification
+## References
+- Templates: `templates/security-report.md`.
+- Scripts: `scripts/vulnerability-scanner.sh`, `scripts/incident-response.sh`.
+- Threat config: `assets/threat-integration.json`.
 
-### Full Scan
-- Comprehensive analysis including all scan types
-- Deep system inspection
-- Advanced persistent threat detection
-- Complete security posture assessment
-
-## Priority Levels
-
-### Critical
-- Immediate execution with maximum resources
-- Real-time threat intelligence integration
-- Automated incident response triggers
-- Executive notification
-
-### High
-- Priority queue with enhanced scanning
-- Detailed vulnerability analysis
-- Comprehensive reporting
-- Security team notification
-
-### Normal
-- Standard scanning procedures
-- Balanced resource usage
-- Regular reporting format
-
-### Low
-- Background execution with minimal impact
-- Basic security checks
-- Summary reporting only
-
-## Output Format
-
-### Executive Summary
-- Risk Level: Critical/High/Medium/Low
-- Vulnerabilities Found: X critical, Y high, Z medium
-- Overall Security Score: X/100
-- Immediate Actions Required: Y
-
-### Technical Details
-- Vulnerability list with CVSS scores
-- Affected systems and services
-- Exploitation difficulty assessment
-- Recommended patches and mitigations
-
-### Threat Intelligence
-- Active threats targeting similar systems
-- Recent CVEs affecting detected services
-- IOCs found in environment
-- Attack surface analysis
-
-### Remediation Plan
-- Immediate actions (0-24 hours)
-- Short-term fixes (1-7 days)
-- Long-term improvements (1-30 days)
-- Continuous monitoring recommendations
-
-## Integration with Temporal AI Agents
-
-### API Endpoints Used
-- `start_security_scan`: Initiates security analysis workflow
-- `get_security_report`: Retrieves detailed security findings
-- `request_human_review`: Escalates critical findings
-- `discover_resources`: Identifies targets for analysis
-
-### Workflow Orchestration
-1. **Discovery Phase**: Identify target resources and attack surface
-2. **Scanning Phase**: Execute selected scan type with dynamic context
-3. **Analysis Phase**: Correlate findings with threat intelligence
-4. **Reporting Phase**: Generate comprehensive security report
-5. **Response Phase**: Trigger automated or manual response actions
-
-## Advanced Features
-
-### Machine Learning Integration
-- Anomaly detection in system behavior
-- Pattern recognition for attack identification
-- Predictive threat analysis
-- Automated risk scoring
-
-### Real-time Monitoring
-- Continuous security posture monitoring
-- Automated alert generation
-- Dynamic threat adaptation
-- Live dashboard integration
-
-### Compliance Integration
-- SOC2 security control validation
-- GDPR data protection verification
-- HIPAA security safeguards assessment
-- Industry-specific compliance checking
-
-## Error Handling & Fallbacks
-
-### Network Connectivity Issues
-- Fallback to cached threat intelligence
-- Local vulnerability database usage
-- Offline scanning capabilities
-- Queued analysis when connectivity restored
-
-### API Rate Limiting
-- Exponential backoff implementation
-- Multiple threat intelligence sources
-- Local caching strategies
-- Graceful degradation of features
-
-### Resource Constraints
-- Adaptive scanning based on available resources
-- Prioritized analysis of critical assets
-- Background processing for non-critical scans
-- Resource usage monitoring and optimization
-
-## Security Considerations
-
-### Data Protection
-- Encrypted storage of scan results
-- Secure transmission of sensitive data
-- Access control for security findings
-- Audit trail of all security activities
-
-### Safe Scanning Practices
-- Non-destructive scanning methods
-- Rate limiting to avoid service disruption
-- Backup and rollback procedures
-- Isolated scanning environments
-
-### Ethical Considerations
-- Authorization verification before scanning
-- Responsible disclosure of vulnerabilities
-- Compliance with legal requirements
-- Privacy protection during analysis
-
-## Supporting Files
-
-- [templates/security-report.md](templates/security-report.md): Security analysis report template
-- [scripts/vulnerability-scanner.sh](scripts/vulnerability-scanner.sh): Automated vulnerability scanning
-- [assets/threat-integration.json](assets/threat-integration.json): Threat intelligence configuration
-- [scripts/incident-response.sh](scripts/incident-response.sh): Automated response procedures
-
-## Examples
-
-### Critical Vulnerability Scan
-```bash
-/security-analysis production-web-server vulnerability critical
-```
-
-### Full Security Assessment
-```bash
-/security-analysis entire-infrastructure full high
-```
-
-### Configuration Security Review
-```bash
-/security-analysis database-cluster configuration normal
-```
-
-## Related Skills
-
-- `/compliance-check`: Regulatory compliance validation
-- `/infrastructure-discovery`: Asset identification and classification
-- `/workflow-management`: Security workflow orchestration
-- `/cost-optimization`: Security cost-benefit analysis
-
-## Best Practices
-
-1. **Authorization**: Always ensure proper authorization before scanning
-2. **Impact Assessment**: Understand potential impact of security scans
-3. **Documentation**: Maintain detailed records of all security activities
-4. **Continuous Monitoring**: Implement ongoing security monitoring
-5. **Regular Updates**: Keep security tools and threat intelligence current
-6. **Incident Response**: Have clear response procedures for critical findings
-7. **Compliance Alignment**: Ensure security activities support compliance requirements
+## Related skills
+- `/incident-triage-runbook`: triggers remediation for critical detections.
+- `/compliance-security-scanner`: cross-references compliance violations with vulnerabilities.
+- `/workflow-management`: orchestrates scans, retries, and follow-up actions.
