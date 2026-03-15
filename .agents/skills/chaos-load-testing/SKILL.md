@@ -1,326 +1,138 @@
 ---
 name: chaos-load-testing
 description: >
-  Use this skill to run chaos engineering experiments and load tests to
-  validate platform resilience, measure breaking points, and verify auto-
-  healing behaviour. Triggers: any request to run a chaos experiment, inject
-  a fault, load test an endpoint or system, measure platform performance under
-  stress, validate autoscaler response, simulate a zone failure, test circuit
-  breakers, or produce a resilience test report.
-tools:
-  - bash
-  - computer
+  Run chaos experiments and load tests with AI safety guardrails, telemetry, and dispatcher-ready outputs.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Chaos & Load Testing Skill
+# Chaos & Load Testing — World-class Resilience Playbook
 
-Proactively test platform resilience using chaos engineering (Chaos Mesh,
-LitmusChaos) and load testing (k6, Locust) to find weaknesses before they
-cause production incidents.
+Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) and load tests (k6, Locust), providing structured outputs, AI scoring, and safety rails. Trigger for experiments, load tests, autoscaler validation, or resilience reports.
 
----
+## When to invoke
+- Execute chaos experiments (pod kill, network latency, zone failure) or load tests (HTTP stress, spike).
+- Test autoscaler response and circuit breakers.
+- Diagnose resilience metrics or produce quarterly reports.
+- Respond to dispatcher alerts (`incident-ready`, `capacity-alert`) by replaying relevant chaos scenarios.
 
-## Chaos Engineering Framework
+## Capabilities
+- Chaos Mesh/LitmusChaos experiments, Azure Chaos failovers, and k6/Locust load tests.
+- AI guardrails assessing riskScore, SLO impact, and blast radius before autorun.
+- Autoscaler validation and predictive resilience insights.
+- Shared context `shared-context://memory-store/chaos/<experimentId>`.
+- Human gates for production experiments or high-risk tests.
 
-### Principles
-1. Define steady state (baseline metrics)
-2. Hypothesize: "If X fails, Y should happen"
-3. Run experiment in non-prod first, then prod
-4. Observe blast radius — automated abort if SLOs breach
-5. Learn and fix gaps
-
-### Tools
-
-| Tool         | Scope                    | Config format  |
-|--------------|--------------------------|----------------|
-| Chaos Mesh   | Kubernetes-native faults  | CRD YAML       |
-| LitmusChaos  | K8s + cloud faults        | ChaosEngine    |
-| Azure Chaos  | Azure resource faults     | ARM / CLI      |
-| k6           | HTTP load testing         | JS scripts     |
-| Locust       | Python-based load         | Python         |
-
----
-
-## Chaos Mesh Installation
+## Invocation patterns
 
 ```bash
-helm repo add chaos-mesh https://charts.chaos-mesh.org
-helm upgrade --install chaos-mesh chaos-mesh/chaos-mesh \
-  --namespace chaos-testing --create-namespace \
-  --set chaosDaemon.runtime=containerd \
-  --set chaosDaemon.socketPath=/run/containerd/containerd.sock
+/chaos-load-testing run --experiment=pod-kill --target=payments-api --duration=10m
+/chaos-load-testing load --script=k6/stress.js --env=tenant-42 --duration=30m
+/chaos-load-testing diagnostics --auto --retry=2 --threshold=0.1
+/chaos-load-testing report --type=quarterly --format=markdown
+/chaos-load-testing autoscaler --cluster=aks-tenant-42 --validate=true
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `experiment` | Chaos experiment type. | `network-latency` |
+| `target` | Service/namespace to affect. | `payments-api` |
+| `duration` | Experiment duration (s/m). | `10m` |
+| `script` | k6 or Locust script path. | `k6/load-test.js` |
+| `env` | Target environment/tenant. | `tenant-42` |
+| `threshold` | SLO threshold for autoscale. | `0.1` |
 
-## Experiment Library
-
-### 1. Pod Kill (single pod failure)
-```yaml
-apiVersion: chaos-mesh.org/v1alpha1
-kind: PodChaos
-metadata:
-  name: pod-kill-${APP}
-  namespace: chaos-testing
-spec:
-  action: pod-kill
-  mode: one
-  selector:
-    namespaces:
-      - ${TENANT_NAMESPACE}
-    labelSelectors:
-      app: ${APP}
-  scheduler:
-    cron: "@every 10m"
-```
-
-### 2. Network Latency Injection
-```yaml
-apiVersion: chaos-mesh.org/v1alpha1
-kind: NetworkChaos
-metadata:
-  name: network-delay-${APP}
-  namespace: chaos-testing
-spec:
-  action: delay
-  mode: all
-  selector:
-    namespaces: [${TENANT_NAMESPACE}]
-    labelSelectors:
-      app: ${APP}
-  delay:
-    latency: "200ms"
-    correlation: "25"
-    jitter: "50ms"
-  direction: to
-  target:
-    selector:
-      namespaces: [${TENANT_NAMESPACE}]
-      labelSelectors:
-        app: database-proxy
-    mode: all
-  duration: "5m"
-```
-
-### 3. CPU / Memory Stress
-```yaml
-apiVersion: chaos-mesh.org/v1alpha1
-kind: StressChaos
-metadata:
-  name: cpu-stress-${APP}
-  namespace: chaos-testing
-spec:
-  mode: all
-  selector:
-    namespaces: [${TENANT_NAMESPACE}]
-    labelSelectors:
-      app: ${APP}
-  stressors:
-    cpu:
-      workers: 4
-      load: 80
-    memory:
-      workers: 2
-      size: "512MB"
-  duration: "10m"
-```
-
-### 4. Zone Failure (Azure Chaos)
-```bash
-# Stop all VMs in a specific AZ using Azure Chaos Studio
-az rest --method PUT \
-  --url "https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.Chaos/experiments/zone-failure/start?api-version=2023-04-15-preview" \
-  --body "{
-    \"targets\": [{
-      \"type\": \"ChaosTarget\",
-      \"id\": \"${AKS_ID}\",
-      \"roles\": [\"Reader\"]
-    }],
-    \"steps\": [{
-      \"name\": \"Zone1 failure\",
-      \"branches\": [{
-        \"name\": \"zone-1\",
-        \"actions\": [{
-          \"type\": \"continuous\",
-          \"name\": \"urn:csci:microsoft:virtualMachineScaleSet:shutdown/1.0\",
-          \"parameters\": [{\"key\":\"abruptShutdown\",\"value\":\"true\"}],
-          \"duration\": \"PT10M\"
-        }]
-      }]
-    }]
-  }"
-```
-
-### 5. Database Connection Exhaustion
-```bash
-# Simulate connection pool exhaustion
-for i in $(seq 1 200); do
-  psql -h "$DB_HOST" -U "$DB_USER" \
-    -c "SELECT pg_sleep(300);" &
-done
-# Monitor: alert should fire at 80% connection threshold
-```
-
----
-
-## Automated Abort Guard
-
-```bash
-run_chaos_with_guard() {
-  local experiment=$1
-  local slo_check_interval=30  # seconds
-  local max_duration=600        # 10 min max
-
-  # Baseline: snapshot current error rate
-  BASELINE_ERROR_RATE=$(query_prometheus \
-    "sum(rate(http_requests_total{status=~'5..'}[5m])) / sum(rate(http_requests_total[5m]))")
-
-  # Start experiment
-  kubectl apply -f "chaos/${experiment}.yaml" -n chaos-testing
-  EXPERIMENT_START=$(date +%s)
-
-  # Guard loop
-  while true; do
-    sleep $slo_check_interval
-
-    CURRENT_ERROR_RATE=$(query_prometheus \
-      "sum(rate(http_requests_total{status=~'5..'}[2m])) / sum(rate(http_requests_total[2m]))")
-
-    # Abort if error rate > 5× baseline or > 10% absolute
-    RATIO=$(echo "$CURRENT_ERROR_RATE / $BASELINE_ERROR_RATE" | bc -l)
-    if (( $(echo "$RATIO > 5" | bc -l) || $(echo "$CURRENT_ERROR_RATE > 0.10" | bc -l) )); then
-      echo "ABORT: Error rate ${CURRENT_ERROR_RATE} exceeds threshold"
-      kubectl delete -f "chaos/${experiment}.yaml" -n chaos-testing
-      create_incident "chaos-abort" "Experiment $experiment aborted due to SLO breach"
-      return 1
-    fi
-
-    # Auto-complete after max duration
-    ELAPSED=$(( $(date +%s) - EXPERIMENT_START ))
-    [[ $ELAPSED -ge $max_duration ]] && break
-  done
-
-  kubectl delete -f "chaos/${experiment}.yaml" -n chaos-testing
-  echo "Experiment complete: $experiment"
-}
-```
-
----
-
-## Load Testing with k6
-
-### Basic Ramp-Up Load Test
-```javascript
-// k6/load-test.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { Rate } from 'k6/metrics';
-
-export const errorRate = new Rate('errors');
-
-export const options = {
-  stages: [
-    { duration: '2m', target: 10 },    // warm up
-    { duration: '5m', target: 100 },   // ramp to normal load
-    { duration: '5m', target: 100 },   // hold
-    { duration: '2m', target: 500 },   // stress
-    { duration: '2m', target: 1000 },  // spike
-    { duration: '2m', target: 0 },     // cool down
-  ],
-  thresholds: {
-    http_req_duration: ['p(95)<500', 'p(99)<1500'],
-    errors: ['rate<0.01'],
-    http_req_failed: ['rate<0.01'],
-  },
-};
-
-const BASE_URL = __ENV.BASE_URL;
-
-export default function () {
-  const res = http.get(`${BASE_URL}/api/health`);
-  check(res, {
-    'status 200': (r) => r.status === 200,
-    'response time < 500ms': (r) => r.timings.duration < 500,
-  });
-  errorRate.add(res.status !== 200);
-  sleep(1);
-}
-```
-
-```bash
-# Run load test
-k6 run \
-  --env BASE_URL="https://${TENANT_ID}.app.example.com" \
-  --out influxdb=http://localhost:8086/k6 \
-  k6/load-test.js
-```
-
----
-
-## Resilience Test Plan (Quarterly)
-
-| Experiment                      | Hypothesis                                | Pass criterion             |
-|---------------------------------|-------------------------------------------|----------------------------|
-| Kill 1 pod (HPA workload)       | New pod starts within 60s                 | 0 user-visible errors      |
-| Kill all pods in 1 replica set  | Service recovers within 2 min             | Error rate returns to baseline |
-| Network latency 500ms to DB     | Timeouts trigger retries, no data loss    | P99 < 2s, 0 errors         |
-| Zone failure (AZ1 down)         | Traffic shifts to AZ2/3 within 2 min      | < 30s service disruption   |
-| CPU stress 80% for 10 min       | Autoscaler triggers, latency bounded      | Latency < 2× baseline      |
-| DB connection exhaustion        | Alert fires, pool rejects gracefully      | Alert in < 5 min           |
-| Inject DNS failure              | Service degrades gracefully, cached DNS   | Error rate < 5%            |
-
----
-
-## Resilience Report
-
-```
-Chaos & Load Testing Report — Q[N] [Year]
-──────────────────────────────────────────
-
-Experiments Run: 14
-  Passed: 12 ✅
-  Failed (SLO breached): 2 ❌
-    - Zone failure: recovery took 4.2 min (target < 2 min) → ticket: T-1092
-    - DB exhaustion: alert fired at 7.3 min (target < 5 min) → ticket: T-1098
-
-Load Test Highlights (peak: 1,000 req/s)
-  P95 latency:   312ms  ✅  (target < 500ms)
-  P99 latency:   847ms  ✅  (target < 1500ms)
-  Error rate:    0.4%   ✅  (target < 1%)
-  Autoscaler:    Triggered at 68% CPU, scaled to 12 nodes in 3.2 min ✅
-
-Blast Radius Control: 14/14 experiments stayed within tenant boundaries ✅
-Abort triggered:      1 time (CPU stress experiment in prod — auto-aborted)
-```
-
----
-
-## Examples
-
-- "Run the pod-kill chaos experiment on the payments-api in staging"
-- "Load test the tenant-42 environment to find the breaking point"
-- "Simulate a zone failure on AZ1 in East US and measure recovery time"
-- "Has the circuit breaker for the inventory service been tested recently?"
-- "Generate the Q2 chaos and resilience test report"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "experiment_id": "string",
-  "type": "pod-kill|network-latency|cpu-stress|zone-failure|load-test",
-  "target": "string",
-  "hypothesis": "string",
+  "experimentId": "CHAOS-2026-0315-01",
+  "type": "pod-kill|network-latency|zone-failure|load-test",
   "status": "passed|failed|aborted",
-  "abort_reason": null,
-  "slo_breached": false,
+  "target": "payments-api",
+  "riskScore": 0.38,
+  "sloBreached": false,
   "metrics": {
-    "error_rate_pct": 0.0,
-    "p99_latency_ms": 0,
-    "recovery_time_seconds": 0
+    "errorRatePct": 0.4,
+    "p99LatencyMs": 847,
+    "recoveryTimeSeconds": 60
   },
-  "rto_achieved_seconds": 0
+  "abortReason": null,
+  "events": [
+    { "name": "plot-kill-aborted", "timestamp": "2026-03-15T08:12:00Z" }
+  ],
+  "logs": "shared-context://memory-store/chaos/CHAOS-2026-0315-01",
+  "decisionContext": "redis://memory-store/chaos/CHAOS-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Chaos experiment lifecycle
+1. Define steady-state metrics (error rate, latency, autoscaler status).
+2. Evaluate AI riskScore and human gate before running.
+3. Launch experiment (Chaos Mesh/LitmusChaos/Azure Chaos) with guard loop aborting on SLO breach.
+4. Emit `chaos-experiment` events and log metrics in shared context.
+
+### Load testing
+1. Execute k6/Locust scripts with staged traffic and thresholds.
+2. Monitor error rates/latency; automatically abort if thresholds exceed (p99, error rate > threshold).
+3. Emit `load-test` event with metrics and recommended actions.
+
+### Autoscaler validation
+1. Simulate load or drop to test autoscaler scaling decisions.
+2. Verify response time, queue depth, and event log.
+3. Emit `autoscaler-validated` event with findings.
+
+## AI intelligence highlights
+- **AI Risk Scoring**: combines target criticality, environment, SLOs, and history to determine safe experiments.
+- **Predictive Alerts**: warns when load or chaos might breach thresholds before execution.
+- **Intelligent Remediation**: suggests next steps (scale nodes, restart, rollback) when tests fail/breach.
+
+## Memory agent & dispatcher integration
+- Store experiment metadata at `shared-context://memory-store/chaos/<experimentId>`.
+- Emit events: `chaos-start`, `chaos-aborted`, `load-test-complete`, `autoscaler-issue`.
+- Respond to dispatcher alerts (incident-ready, capacity-alert) by auto-triggering pre-defined experiments or remediation actions.
+- Tag records with `decisionId`, `tenant`, `riskScore`.
+
+## Communication protocols
+- Primary: CLI commands for Chaos Mesh, LitmusChaos, Azure Chaos, k6, Locust.
+- Secondary: Event bus for `chaos-*` signals consumed by orchestrators and incident skills.
+- Fallback: JSON artifacts stored at `artifact-store://chaos/<experimentId>.json`.
+
+## Observability & telemetry
+- Metrics: experiments run, passes/failures, SLO breach counts, autoscaler reactions.
+- Logs: structured `log.event="chaos.operation"` with `experiment`, `decisionId`.
+- Dashboards: integrate `/chaos-load-testing metrics --format=prometheus`.
+- Alerts: aborts due to SLO breach > threshold, autoscaler not reacting, repeated experiment failures.
+
+## Failure handling & retries
+- Retry experiments up to 2× on transient infra errors; abort automatically when SLO breach threshold hit.
+- On failure, emit `chaos-operation-failed` and escalate to `incident-triage-runbook`.
+- Preserve experiment artifacts/logs until downstream ack.
+
+## Human gates
+- Required when:
+ 1. Experiments affect production or >20 tenants.
+ 2. RiskScore ≥ 0.7 or SLO thresholds threatened.
+ 3. Dispatcher requests manual review after retries.
+- Use standard human gate template documenting impact and reversibility.
+
+## Testing & validation
+- Dry-run: `/chaos-load-testing run --experiment=pod-kill --dry-run`.
+- Unit tests: `backend/chaos/` ensures guard logic and risk scoring behave correctly.
+- Integration: `scripts/validate-chaos-load.sh` runs experiments in emulator and checks guard responses.
+- Regression: nightly `scripts/nightly-chaos-smoke.sh` ensures automation, metrics, and alerts are stable.
+
+## References
+- Scripts: `scripts/chaos/`.
+- Templates: `templates/chaos-experiment.yaml`.
+- Reports: `monitoring/reports/chaos`.
+
+## Related skills
+- `/incident-triage-runbook`: triggered when chaos exposes incidents.
+- `/capacity-planning`: tests autoscaler capacity headroom.
+- `/ai-agent-orchestration`: combines chaos/load tests into larger workflows.
