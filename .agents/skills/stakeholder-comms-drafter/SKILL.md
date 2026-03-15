@@ -1,243 +1,134 @@
 ---
 name: stakeholder-comms-drafter
 description: >
-  Use this skill to draft, structure, and send stakeholder
-  communications for teams. Triggers: any request to write an
-  incident notification, executive status update, platform change announcement,
-  risk escalation, SLA breach notification, quarterly business review summary
-  email, or cross-team alignment memo. Also triggers when asking for help
-  communicating progress, risks, or outages to leadership or customers.
-tools:
-  - bash
-  - computer
+  Draft tactical and executive communications with AI-assisted narratives and formal structured output for incidents, reports, and notifications.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Stakeholder Communications Drafter Skill
+# Stakeholder Communications Drafter — World-class Narrative Playbook
 
-Generate clear, appropriately pitched communications for every stakeholder
-audience — from real-time incident Slack updates to executive QBR summaries.
-Drafts are produced instantly; a human always reviews and sends.
+Creates incident updates, resolution summaries, change announcements, SLA notifications, risk escalations, and executive reports. Combines audience-specific tones, data pulls, AI-assisted summaries, and dispatcher integration.
 
----
+## When to invoke
+- Incident notifications (Slack/Teams/email) for P1–P4 events.
+- Resolution notices, exec status updates, change announcements, or SLA breach communications.
+- QBR reports or risk escalations requiring leadership attention.
+- Incorporate KPI data/incident metrics from dispatcher events.
 
-## Audience Profiles
+## Capabilities
+- Audience-specific templates (exec, engineering, customers, security).
+- AI risk scoring to tailor tone and highlight key facts.
+- Compose structured communications from triggers.
+- Shared context `shared-context://memory-store/comms/<operationId>`.
+- Human review factor (must not auto-send).
 
-| Audience           | Tone              | Detail level | Primary concern              |
-|--------------------|-------------------|--------------|------------------------------|
-| Executive / C-suite| Concise, decisive | Low          | Business impact, risk, cost  |
-| Engineering leads  | Technical, direct | High         | Root cause, fix, timeline    |
-| Product teams      | Collaborative     | Medium       | Impact on features/customers |
-| Customers / tenants| Empathetic, clear | Low-medium   | Impact, ETA, workarounds     |
-| Security / audit   | Formal, precise   | High         | Compliance, evidence         |
-| Operations team    | Tactical, fast    | High         | Actions, who does what       |
+## Invocation patterns
 
----
-
-## Communication Templates
-
-### 1. Incident Status Update (Slack / Teams)
-
-```
-🔴 [P{SEVERITY} INCIDENT] {TITLE}
-────────────────────────────────
-Time detected:  {HH:MM UTC}
-Affected:       {tenants / services / regions}
-Impact:         {user-visible description}
-Current status: {Investigating | Identified | Mitigating | Resolved}
-
-What we know:   {1-2 sentence summary}
-Next update:    {HH:MM UTC} or when status changes
-
-Incident lead:  @{name}
-Bridge:         {link}
+```bash
+/stakeholder-comms-drafter incident --severity=P2 --audience=engineering --context=shared-context://memory-store/incident/INC-2026-0315-01
+/stakeholder-comms-drafter resolution --incident=INC-2026-0315-01 --format=markdown
+/stakeholder-comms-drafter exec --report=KPI-2026-0315-01 --audience=executive
+/stakeholder-comms-drafter change --changeId=CR-2026-0315-01 --audience=ops
+/stakeholder-comms-drafter sla-breach --tenant=tenant-42 --audience=customer
 ```
 
-Update cadence:
-- P1: every 15 minutes until resolved
-- P2: every 30 minutes
-- P3/P4: on status change only
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `severity` | Incident severity (P1–P4). | `P2` |
+| `audience` | Audience type (executive, engineering, ops, customer, security). | `executive` |
+| `incident` | Incident identifier. | `INC-2026-0315-01` |
+| `report` | KPI or QBR report linking. | `KPI-2026-0315-01` |
+| `changeId` | Change request ID. | `CR-2026-0315-01` |
+| `tenant` | Tenant name for SLA breach. | `tenant-42` |
 
-### 2. Incident Resolution Summary
-
-```
-✅ [RESOLVED] {TITLE} — INC-{ID}
-────────────────────────────────
-Duration:       {X hours Y minutes}
-Root cause:     {1-2 sentences}
-Impact:         {tenants/users affected, data loss Y/N}
-Resolution:     {what fixed it}
-SLA status:     {Within SLA | Breach — {minutes over}}
-
-Immediate actions taken:
-  • {action 1}
-  • {action 2}
-
-Next steps (permanent fix):
-  • {action} — Owner: {name} — Due: {date}
-
-Post-mortem:    {link} (draft within 24 hr)
-```
-
-### 3. Executive Weekly Status Email
-
-Subject: `Cloud AI — Weekly Status [Date]`
-
-```
-Summary: {GREEN | AMBER | RED} — {one-line headline}
-
-Platform Health
-  Uptime:               {X.XX%} (target {X.XX%}) {✅|⚠️|🔴}
-  Deployments:          {N} ({N} success, {N} failed)
-  Incidents:            {N} total — MTTR avg {N} min
-  Error budget:         {N}% remaining
-
-Key Achievements This Week
-  • {achievement 1}
-  • {achievement 2}
-
-Risks & Issues
-  • {risk 1} — Mitigation: {description}
-
-Next Week Priorities
-  1. {priority}
-  2. {priority}
-
-[Full dashboard] {link}
-```
-
-### 4. Platform Change Announcement
-
-Subject: `[Action Required / FYI] {Change Title} — {Date}`
-
-```
-Hi {team/audience},
-
-We are {deploying | migrating | retiring} {component} on {date} at {time} UTC.
-
-What's changing:
-  {description}
-
-Impact on your team:
-  {specific impact — "no action needed" or "you need to..."}
-
-Timeline:
-  {date time} — Maintenance window begins
-  {date time} — Expected completion
-  {date time} — Rollback decision point (if issues arise)
-
-What to do:
-  {clear action items, if any}
-
-Questions? Reach us at #{slack-channel} or reply to this email.
-
-{Name}, Team
-```
-
-### 5. SLA Breach Notification (Customer-facing)
-
-```
-Subject: Service Disruption Report — {Tenant/Product} — {Date}
-
-Dear {Customer Name},
-
-We are writing to inform you of a service disruption that affected your
-environment on {date}.
-
-Duration:    {HH:MM UTC} – {HH:MM UTC} ({X minutes})
-Impact:      {description of what was unavailable or degraded}
-Root cause:  {brief, non-technical explanation}
-
-This incident resulted in {X minutes} of downtime against your {SLA tier}
-SLA of {X}% monthly uptime.
-
-Actions we have taken:
-  • {action 1}
-  • {action 2}
-
-Preventive measures:
-  • {measure 1} — Expected completion: {date}
-
-Your SLA credit, if applicable, will be applied to your next invoice
-per the terms of your service agreement.
-
-We sincerely apologise for the disruption and are committed to the
-reliability standards your business depends on.
-
-{Name}
-{Organization}
-```
-
-### 6. Risk Escalation to Leadership
-
-```
-Subject: [Risk Escalation] {Risk Title} — Decision Required by {Date}
-
-Context:
-  {2-3 sentence background}
-
-Risk:
-  {Clear description of the risk and what could happen if unaddressed}
-
-Probability:  {Low | Medium | High}
-Impact:       {Low | Medium | High | Critical}
-Time horizon: {when the risk materialises}
-
-Options:
-  Option A: {description} — Cost: ${X} — Timeline: {X weeks}
-  Option B: {description} — Cost: ${X} — Timeline: {X weeks}
-  Option C: Accept risk — Rationale: {description}
-
-Recommendation:
-  {Option X} because {justification}
-
-Decision needed by: {date}
-Owner if approved: {name}
-```
-
----
-
-## Communication Workflow
-
-1. **Generate draft** using the appropriate template above
-2. **Populate** from incident/deployment/report data automatically
-3. **Tone-match** to audience profile
-4. **Flag for review** — never auto-send
-5. **Log** the communication in the incident or project record
-
----
-
-## Writing Rules
-
-- Lead with impact, not process
-- Use plain numbers: "12 minutes of downtime" not "an extended disruption event"
-- One ask per communication
-- No jargon for customer-facing content
-- Always include a next-update time for ongoing incidents
-- Link to dashboards/tickets — don't embed everything in the email
-- 3 bullet max for exec summaries; full detail available on request
-
----
-
-## Examples
-
-- "Draft a P2 incident update for Slack — the AKS cluster in East US is degraded"
-- "Write the resolution email for last night's database outage to send to affected tenants"
-- "Generate the weekly executive status email from this week's KPI data"
-- "Draft the change announcement for the Kubernetes 1.29 upgrade next Tuesday"
-- "Write a risk escalation memo about our single-region deployment for the CTO"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "comm_type": "incident_update|resolution|executive_status|change_announcement|sla_breach|risk_escalation",
-  "audience": "string",
+  "operationId": "COMM-2026-0315-01",
+  "commType": "incident_update|resolution|executive_status|change_announcement|sla_breach|risk_escalation",
+  "audience": "executive",
+  "channel": "email",
   "subject": "string",
   "body": "string",
-  "channel": "email|slack|teams",
-  "review_required": true,
-  "sent": false
+  "reviewRequired": true,
+  "sent": false,
+  "aiInsights": {
+    "riskScore": 0.4,
+    "summary": "Focus on uptime, deployments, and mitigation"
+  },
+  "decisionContext": "redis://memory-store/comms/COMM-2026-0315-01",
+  "logs": "shared-context://memory-store/comms/COMM-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Incident updates
+1. Pull data from incident runbook/context (severity, impacted services, timeline).
+2. Format Slack/Teams message with tone per severity/audience.
+3. Emit `comm-drafted` event; human reviews before sending.
+
+### Resolution summary
+1. Summarize root cause, resolution steps, and SLAs.
+2. Attach postmortem link, action items, next steps.
+3. Emit `comm-resolution`.
+
+### Executive status & risk notes
+1. Combine KPI metrics, risk insights, cost items into high-level summary.
+2. Provide decisions/recommendations for execs.
+3. Emit `comm-exec`.
+
+## AI intelligence highlights
+- **AI Risk Scoring**: tailors message urgency/ tone via riskScore from incident data.
+- **Intelligent Narrative**: distills complex metrics into readable bullet points with 3–4 lines.
+- **Predictive Channel Suggestion**: determines best delivery medium (Slack vs email).
+
+## Memory agent & dispatcher integration
+- Persist communications under `shared-context://memory-store/comms/<operationId>`.
+- Emit events: `comm-drafted`, `comm-ready`, `comm-escalation`.
+- Subscribe to dispatcher alerts to auto-generate updates or risk escalations.
+- Tag with `decisionId`, `audience`, `riskScore`.
+
+## Communication protocols
+- Primary: CLI/templating referencing incident DB/observability.
+- Secondary: Event bus for `comm-*` events.
+- Fallback: JSON artifact in `artifact-store://comms/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: comms drafted per type, review-to-send time, manual overrides.
+- Logs: structured `log.event="comm.operation"`.
+- Dashboards: integrate `/stakeholder-comms-drafter metrics --format=prometheus`.
+- Alerts: comms delayed > threshold, unmanaged riskScore > 0.85.
+
+## Failure handling & retries
+- Retry data fetches up to 2×; log errors and escalate on persistent issues.
+- If template generation fails, fallback to simplified message and notify on-call.
+ - Do not auto-send until human confirms; log `reviewRequired`.
+
+## Human gates
+- Required when:
+ 1. Severity critical or impacts exec-level decisions.
+ 2. Communications mention sensitive data or strategic moves.
+ 3. Dispatcher requests manual approval after repeated generation failures.
+- Use standard human gate confirmation template.
+
+## Testing & validation
+- Dry-run: `/stakeholder-comms-drafter incident --severity=P3 --dry-run`.
+- Unit tests: `backend/comms/` ensures templates and AI narrative logic.
+- Integration: `scripts/validate-stakeholder-comms.sh` simulates incidents, change events, and verifies outputs.
+- Regression: nightly `scripts/nightly-comms-smoke.sh` ensures message generation, AI scoring, and logs stay stable.
+
+## References
+- Templates: `templates/communications/`.
+- Scripts: `scripts/comms/`.
+- Documentation: `docs/COMMUNICATION_GUIDELINES.md`.
+
+## Related skills
+- `/incident-triage-runbook`: needs messages for incidents.
+- `/stakeholder-comms-drafter`: uses runbook outputs for clarity.
+- `/workflow-management`: includes comm steps in workflows.
