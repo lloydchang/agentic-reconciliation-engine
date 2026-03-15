@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: observability-aggregator-config
-data:
-  example: "placeholder for observability-aggregator"
-

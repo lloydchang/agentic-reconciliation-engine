@@ -25,10 +25,25 @@ Two complementary layers coexist:
 6. Testing, Validation & Troubleshooting
 7. Appendices
 
+<<<<<<< HEAD
    * A: Skill Index Mapping (Temporal vs GitOps-specific)
    * B: Environment Variables & Configurations
    * C: Human Gate Reference Table
    * D: Composite Workflows & Autonomy Rules
+=======
+## Repository Structure
+```
+repo/
+├── .agents/[skill]SKILL.md # AI assistant skill definitions
+├── AGENTS.md               # This file - agent operating rules
+├── ai-agents/
+    ├── backend/            # Go Temporal workflows and activities
+    ├── frontend/           # React dashboard and WebMCP client
+    ├── cli/                # Command-line interface
+    └── tools/              # Tool permissions and configurations
+├── docs/                   # Documentation and interface specs
+```
+>>>>>>> e6e1afb6 (Reorganize agent skills and consolidate duplicates)
 
 ---
 
