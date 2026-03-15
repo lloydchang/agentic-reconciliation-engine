@@ -7,6 +7,7 @@ This document outlines the secure secret management practices implemented in the
 ## Security Incident Response
 
 ### Recent Fix
+
 A security incident was identified where hardcoded passwords were exposed in the Prometheus HelmRelease configuration. The following actions were taken:
 
 1. **Identified exposed secrets:**
@@ -23,12 +24,15 @@ A security incident was identified where hardcoded passwords were exposed in the
 ## Secret Management Architecture
 
 ### SealedSecrets Controller
+
 We use Bitnami's SealedSecrets controller for secure secret management:
+
 - Secrets are encrypted at rest in Git
 - Only the cluster with the private key can decrypt secrets
 - Prevents secret exposure in version control
 
 ### Secret Structure
+
 ```yaml
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
@@ -48,10 +52,12 @@ spec:
 ## Best Practices
 
 ### 1. Never Hardcode Secrets
+
 - ❌ `password: admin123`
 - ✅ `passwordFromSecret: true`
 
 ### 2. Use Secret References in HelmReleases
+
 ```yaml
 env:
   - name: DATABASE_PASSWORD
@@ -62,6 +68,7 @@ env:
 ```
 
 ### 3. Encrypt Secrets Before Commit
+
 ```bash
 # Create a regular secret first
 kubectl create secret generic app-secrets \
@@ -73,16 +80,19 @@ kubeseal --format yaml < secret.yaml > sealed-secret.yaml
 ```
 
 ### 4. Validate Secret References
+
 Ensure all secret references in HelmReleases point to existing SealedSecrets.
 
 ## Secret Rotation
 
 ### Regular Rotation Schedule
+
 - Database passwords: Every 90 days
 - Service accounts: Every 180 days
 - API keys: Immediately upon compromise
 
 ### Rotation Process
+
 1. Generate new credentials
 2. Update SealedSecret with new values
 3. Apply to cluster
@@ -92,11 +102,13 @@ Ensure all secret references in HelmReleases point to existing SealedSecrets.
 ## Monitoring and Alerting
 
 ### Secret Access Monitoring
+
 - Monitor Kubernetes audit logs for secret access
 - Alert on unusual secret access patterns
 - Track secret creation and deletion events
 
 ### Compliance Checks
+
 - Regular scans for hardcoded secrets in Git
 - Automated validation of secret references
 - Security policy enforcement
@@ -104,6 +116,7 @@ Ensure all secret references in HelmReleases point to existing SealedSecrets.
 ## Emergency Procedures
 
 ### If Secrets Are Exposed
+
 1. **Immediate Actions:**
    - Rotate all exposed secrets immediately
    - Revoke any compromised credentials
@@ -122,6 +135,7 @@ Ensure all secret references in HelmReleases point to existing SealedSecrets.
 ## Tools and Commands
 
 ### Creating SealedSecrets
+
 ```bash
 # Install kubeseal
 go install github.com/bitnami-labs/sealed-secrets/v2/cmd/kubeseal@latest
@@ -133,6 +147,7 @@ kubectl create secret generic my-secret \
 ```
 
 ### Validating Secret References
+
 ```bash
 # Check for hardcoded secrets
 grep -r "password\|secret\|key" --include="*.yaml" --include="*.yml" .
@@ -144,9 +159,10 @@ kubectl get sealedsecrets --all-namespaces
 ## Contact and Support
 
 For security incidents or questions about secret management:
-- Security Team: security@company.com
-- DevOps Team: devops@company.com
-- Incident Response: incidents@company.com
+
+- Security Team: <security@company.com>
+- DevOps Team: <devops@company.com>
+- Incident Response: <incidents@company.com>
 
 ## References
 

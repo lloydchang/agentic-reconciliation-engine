@@ -11,6 +11,7 @@ This document analyzes the complementary nature of A2A (Agent-to-Agent Protocol)
 **Core Purpose:** Standardized communication protocol for AI agents to interact and collaborate across different frameworks.
 
 **Key Features:**
+
 - **Interoperability:** Enables agents built with different frameworks (BeeAI, LangChain, etc.) to communicate
 - **Direct Communication:** Agent-to-agent messaging without requiring centralized consensus
 - **Framework Agnostic:** Works with any agent implementation that supports the protocol
@@ -19,6 +20,7 @@ This document analyzes the complementary nature of A2A (Agent-to-Agent Protocol)
 - **Security:** Built-in authentication and authorization for agent communications
 
 **Missing in Raft:**
+
 - Distributed consensus algorithms
 - Leader election and log replication
 - Strong consistency guarantees
@@ -29,6 +31,7 @@ This document analyzes the complementary nature of A2A (Agent-to-Agent Protocol)
 **Core Purpose:** Distributed consensus algorithm for reliable agreement on state changes across a cluster.
 
 **Key Features:**
+
 - **Leader Election:** Automatic selection of cluster leader
 - **Log Replication:** Ensures all nodes have consistent log entries
 - **Fault Tolerance:** Tolerates up to (n-1)/2 node failures
@@ -37,6 +40,7 @@ This document analyzes the complementary nature of A2A (Agent-to-Agent Protocol)
 - **Safety Guarantees:** No conflicting decisions, committed entries persist
 
 **Missing in A2A:**
+
 - Direct agent-to-agent communication frameworks
 - Interoperability between heterogeneous agents
 - Standardized message passing without consensus requirements
@@ -47,18 +51,21 @@ This document analyzes the complementary nature of A2A (Agent-to-Agent Protocol)
 A2A and Raft serve different but complementary purposes in multi-agent systems:
 
 ### Communication Layer (A2A)
+
 - Handles **how** agents talk to each other
 - Enables **interoperability** across agent frameworks
 - Provides **messaging protocols** for agent interactions
 - Supports **direct peer-to-peer communication**
 
 ### Consensus Layer (Raft)
+
 - Handles **what** decisions are made and agreed upon
 - Ensures **consistency** across distributed state
 - Provides **fault tolerance** for critical decisions
 - Manages **coordination** of complex operations
 
 ### Integration Benefits
+
 - **Hybrid Architecture:** Agents can communicate via A2A for flexibility, while using Raft for critical consensus decisions
 - **Scalability:** A2A enables efficient agent communication, Raft ensures reliable coordination
 - **Flexibility:** Mix of direct communication and consensus-based coordination
@@ -67,6 +74,7 @@ A2A and Raft serve different but complementary purposes in multi-agent systems:
 ## Integration Plan
 
 ### Phase 1: Foundation (Week 1-2)
+
 1. **Research A2A Protocol Implementation**
    - Analyze A2A specification and available libraries
    - Identify compatible Rust/Python/Java implementations
@@ -83,6 +91,7 @@ A2A and Raft serve different but complementary purposes in multi-agent systems:
    - Add A2A protocol handlers for consensus messages
 
 ### Phase 2: Integration (Week 3-4)
+
 1. **Modify Consensus Logic**
    - Integrate A2A channels into Raft consensus flow
    - Add A2A-based agent discovery and communication
@@ -99,6 +108,7 @@ A2A and Raft serve different but complementary purposes in multi-agent systems:
    - Implement A2A-Raft coordination metrics
 
 ### Phase 3: Dashboard Integration (Week 5-6)
+
 1. **Extend Dynamic Data Service**
    - Add A2A protocol status to cluster status API
    - Implement A2A communication metrics collection
@@ -115,6 +125,7 @@ A2A and Raft serve different but complementary purposes in multi-agent systems:
    - Create A2A communication debugging tools
 
 ### Phase 4: Testing and Validation (Week 7-8)
+
 1. **Unit and Integration Testing**
    - Test A2A protocol implementation in each language
    - Validate A2A-Raft integration scenarios
@@ -150,16 +161,19 @@ A2A and Raft serve different but complementary purposes in multi-agent systems:
 ### Code Structure Changes
 
 **Rust Implementation (consensus-feedback-loop.rs):**
+
 - Add A2A communication structs and traits
 - Implement A2A message handlers in consensus loop
 - Add A2A channel integration with Raft state machine
 
 **Python Implementation (consensus_feedback_loop.py):**
+
 - Add A2A protocol client/server classes
 - Implement A2A message routing and discovery
 - Integrate A2A with existing consensus logic
 
 **Java/C# Implementations:**
+
 - Add A2A protocol support following same patterns
 - Ensure cross-language interoperability via A2A
 
@@ -181,6 +195,7 @@ a2a:
 ### API Extensions
 
 **New Endpoints:**
+
 - `/api/a2a/status` - A2A protocol status
 - `/api/a2a/agents` - Discovered A2A agents
 - `/api/a2a/messages` - A2A message statistics
@@ -189,11 +204,13 @@ a2a:
 ## Migration Strategy
 
 ### Backward Compatibility
+
 - Existing Raft-only deployments continue to work unchanged
 - A2A features are opt-in via configuration
 - Gradual rollout with feature flags
 
 ### Upgrade Path
+
 1. Deploy A2A-enabled consensus nodes alongside existing nodes
 2. Enable A2A communication gradually per agent
 3. Migrate critical coordination to hybrid A2A-Raft
@@ -202,11 +219,13 @@ a2a:
 ## Risk Assessment
 
 ### Technical Risks
+
 - **Protocol Complexity:** A2A adds communication layer complexity
 - **Performance Impact:** Additional messaging overhead
 - **Security Surface:** Expanded attack surface with A2A ports
 
 ### Mitigation Strategies
+
 - **Incremental Implementation:** Feature flags for gradual rollout
 - **Comprehensive Testing:** Extensive integration and performance testing
 - **Security Hardening:** TLS encryption and authentication for A2A

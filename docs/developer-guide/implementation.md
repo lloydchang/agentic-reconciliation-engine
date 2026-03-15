@@ -73,12 +73,14 @@ The AI Agents Sandbox implements a multi-layered architecture designed for safe 
 The backend is built using Go and the Temporal workflow engine:
 
 #### Core Components
+
 - **Temporal Worker**: Processes workflow tasks and activity executions
 - **Workflow Definitions**: Durable workflow orchestration logic
 - **Activity Implementations**: Individual task execution units
 - **HTTP API Layer**: REST endpoints for external integration
 
 #### Key Workflows
+
 ```go
 // HelloBackstageWorkflow - Entry point workflow
 func HelloBackstageWorkflow(ctx workflow.Context, name string) (string, error) {
@@ -113,6 +115,7 @@ func HelloBackstageWorkflow(ctx workflow.Context, name string) (string, error) {
 ```
 
 #### Activity Implementation
+
 ```go
 // FetchDataActivity - Data retrieval activity
 func FetchDataActivity(ctx context.Context, name string) (string, error) {
@@ -182,12 +185,14 @@ func getWorkflowStatusHandler(w http.ResponseWriter, r *http.Request) {
 The frontend is built using the Backstage developer portal framework:
 
 #### Key Components
+
 - **Agent Dashboard**: Visual workflow management interface
 - **Skills Management**: Configure and monitor available skills
 - **Temporal Integration Plugin**: Native workflow orchestration UI
 - **Real-time Updates**: Live status monitoring via polling/WebSocket
 
 #### Plugin Architecture
+
 ```typescript
 // TemporalIntegrationPlugin
 export const TemporalIntegrationPage = () => {
@@ -245,6 +250,7 @@ export const TemporalIntegrationPage = () => {
 ### Docker Configuration
 
 #### Backend Dockerfile
+
 ```dockerfile
 FROM golang:1.21-alpine AS builder
 
@@ -265,6 +271,7 @@ CMD ["./main"]
 ```
 
 #### Docker Compose Setup
+
 ```yaml
 version: '3.8'
 services:
@@ -303,11 +310,13 @@ volumes:
 ### Development Tooling
 
 #### Automated Scripts
+
 - **dev.sh**: Orchestrates infrastructure startup and service initialization
 - **build.sh**: Creates production Docker images for all components
 - **validate.sh**: Comprehensive environment and integration testing
 
 #### Testing Strategy
+
 ```bash
 # Backend unit tests
 cd backend && go test ./...
@@ -388,12 +397,14 @@ Skill logic and workflow definition go here...
 ## Monitoring & Observability
 
 ### Temporal UI Integration
+
 - **Workflow Visualization**: Real-time workflow execution graphs
 - **Activity Monitoring**: Individual activity status and logs
 - **Performance Metrics**: Execution times, retry counts, error rates
 - **Historical Analysis**: Past workflow execution patterns
 
 ### Logging Architecture
+
 ```go
 // Structured logging implementation
 type Logger struct {
@@ -427,12 +438,14 @@ func (l *Logger) LogActivityExecution(activityName string, input interface{}, ou
 ## Security Implementation
 
 ### Sandbox Boundaries
+
 - **Tool Execution Limits**: Configurable blast radius for each skill
 - **Network Isolation**: Restricted external connectivity
 - **Resource Quotas**: CPU, memory, and storage limits
 - **Audit Logging**: Comprehensive action tracking
 
 ### Authentication & Authorization
+
 - **API Key Management**: Secure token-based authentication
 - **Role-Based Access**: Permission levels for different operations
 - **Session Management**: Secure session handling and timeouts
@@ -440,12 +453,14 @@ func (l *Logger) LogActivityExecution(activityName string, input interface{}, ou
 ## Scaling & Performance
 
 ### Horizontal Scaling
+
 - **Worker Pool Management**: Multiple Temporal workers for load distribution
 - **Database Sharding**: Workflow state distribution across multiple PostgreSQL instances
 - **Caching Layer**: Redis integration for frequently accessed data
 - **Load Balancing**: Distribute requests across multiple backend instances
 
 ### Performance Optimization
+
 - **Workflow Optimization**: Minimize activity overhead and network calls
 - **Batch Processing**: Group similar operations for efficiency
 - **Async Processing**: Non-blocking operations for better responsiveness
@@ -454,12 +469,14 @@ func (l *Logger) LogActivityExecution(activityName string, input interface{}, ou
 ## Deployment Patterns
 
 ### Development Environment
+
 ```bash
 # Local development setup
 ./scripts/dev.sh  # Starts all services locally
 ```
 
 ### Production Deployment
+
 ```bash
 # Build production images
 ./scripts/build.sh
@@ -469,6 +486,7 @@ kubectl apply -f k8s/
 ```
 
 ### Cloud Deployment Options
+
 - **AWS ECS/Fargate**: Containerized deployment with load balancing
 - **Azure Container Apps**: Serverless container platform
 - **Google Cloud Run**: Managed container execution

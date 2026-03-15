@@ -29,7 +29,7 @@ These examples demonstrate safe, AGPL-compliant integration patterns that mainta
 
 **Important**: The integration samples are **intentionally incomplete patterns** embedded as code snippets in documentation. They require user adaptation and are **NOT** complete, executable implementations.
 
-### Why Samples Are Incomplete:
+### Why Samples Are Incomplete
 
 - **Environment-Specific Configuration**: Require user-defined variables (project IDs, credentials, endpoints)
 - **Business Logic Integration**: Users must add their own authentication, monitoring, and error handling
@@ -37,7 +37,8 @@ These examples demonstrate safe, AGPL-compliant integration patterns that mainta
 - **Security Requirements**: Users must implement their own security hardening and compliance checks
 - **Production Readiness**: Samples demonstrate patterns, not production-deployable code
 
-### Sample Usage Pattern:
+### Sample Usage Pattern
+
 ```bash
 # Sample shows the pattern - user must provide actual values
 deploy_gcp_network "$tenant_id" "$GCP_PROJECT_ID"  # User provides GCP_PROJECT_ID
@@ -49,16 +50,18 @@ check_deployment_status() {
 }
 ```
 
-### Licensing Justification:
+### Licensing Justification
+
 Since samples are **incomplete by definition** and require significant user adaptation, they can be **Apache 2.0 licensed** without triggering AGPL derivative work requirements. Users create their own complete implementations using these patterns.
 
 ## How Users Adapt Samples into Executable Code
 
 **Important**: Samples are **NOT fully executable** - they are **patterns requiring user adaptation** into complete, production-ready implementations.
 
-### User Workflow for Building Proprietary Layers:
+### User Workflow for Building Proprietary Layers
 
 #### Step 1: Copy Sample Patterns
+
 ```bash
 # User copies sample pattern from documentation
 cp docs/INTEGRATION-SAMPLES.md ~/my-project/
@@ -66,6 +69,7 @@ cp docs/INTEGRATION-SAMPLES.md ~/my-project/
 ```
 
 #### Step 2: Create Complete Executable Scripts
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -161,6 +165,7 @@ main "$@"
 ```
 
 #### Step 3: Test in Tight Feedback Loops
+
 ```bash
 # User's development workflow
 chmod +x deploy-gcp.sh
@@ -179,6 +184,7 @@ kubectl get pods -n tenant-test-tenant-123
 ```
 
 #### Step 4: Build Proprietary Layers
+
 ```python
 # User's proprietary SaaS API built on CRE samples
 # Complete implementation using adapted patterns
@@ -586,6 +592,7 @@ EOF
 ## Usage Examples for Each Platform
 
 ### AWS Usage
+
 ```bash
 # Deploy complete AWS infrastructure stack
 deploy_aws_vpc "tenant-123"
@@ -597,6 +604,7 @@ kubectl get cluster tenant-123-cluster -w
 ```
 
 ### Azure Usage  
+
 ```bash
 # Deploy complete Azure infrastructure stack
 deploy_azure_resource_group "tenant-456"
@@ -608,6 +616,7 @@ kubectl get kubernetescluster tenant-456-aks -w
 ```
 
 ### GCP Usage
+
 ```bash
 # Deploy complete GCP infrastructure stack
 deploy_gcp_network "tenant-789" "my-gcp-project"
@@ -619,6 +628,7 @@ kubectl get containercluster tenant-789-gke -w
 ```
 
 ### Local Usage
+
 ```bash
 # Deploy local Kubernetes resources
 deploy_local_namespace "tenant-local"
@@ -673,6 +683,7 @@ deploy_multi_cloud "$1" "$2"
 ```
 
 These samples demonstrate how the CRE provides unified infrastructure management across AWS, Azure, GCP, and local Kubernetes environments using consistent GitOps patterns and network-based communication.
+
 ```python
 #!/usr/bin/env python3
 """
@@ -781,6 +792,7 @@ if __name__ == "__main__":
 ```
 
 ### requirements.txt
+
 ```txt
 requests>=2.28.0
 pyyaml>=6.0
@@ -790,6 +802,7 @@ python-dotenv>=0.19.0
 ## Go Webhook Handler Example
 
 ### webhook_handler.go
+
 ```go
 package main
 
@@ -890,6 +903,7 @@ func main() {
 ```
 
 ### go.mod
+
 ```go
 module github.com/your-org/cre-webhook-handler
 
@@ -903,6 +917,7 @@ require (
 ## Terraform Wrapper Example
 
 ### cre_terraform_wrapper.tf
+
 ```hcl
 # Example of wrapping CRE with Terraform for brownfield migration
 
@@ -973,6 +988,7 @@ output "cre_deployment_commit" {
 ## Jenkins Pipeline Example
 
 ### Jenkinsfile
+
 ```groovy
 pipeline {
     agent any
@@ -1084,12 +1100,14 @@ pipeline {
 ## Usage Instructions
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/lloydchang/gitops-infra-control-plane.git
    cd gitops-infra-control-plane
    ```
 
 2. **Run Python example**
+
    ```bash
    cd scripts/integration-examples/python-api-client
    pip install -r requirements.txt
@@ -1097,6 +1115,7 @@ pipeline {
    ```
 
 3. **Run Go webhook handler**
+
    ```bash
    cd scripts/integration-examples/go-webhook-handler
    go mod tidy
@@ -1104,6 +1123,7 @@ pipeline {
    ```
 
 4. **Test Terraform wrapper**
+
    ```bash
    cd scripts/integration-examples/terraform-wrapper
    terraform init

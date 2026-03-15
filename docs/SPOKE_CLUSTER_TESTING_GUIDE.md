@@ -35,36 +35,43 @@ This comprehensive test validates the complete hub-and-spoke architecture with l
 ### What It Tests
 
 #### 1. **Crossplane + CAPA for Spoke 1 (EKS)**
+
 - ✅ Validates provider-aws readiness
 - ✅ Creates XCluster claim for EKS
 - ✅ CAPI provisions the EKS spoke via CAPA
 
 #### 2. **Crossplane + CAPZ for Spoke 2 (AKS)**
+
 - ✅ Validates provider-azure readiness  
 - ✅ Creates XCluster claim for AKS
 - ✅ CAPI provisions the AKS spoke via CAPZ
 
 #### 3. **Crossplane + CAPG for Spoke 3 (GKE)**
+
 - ✅ Validates provider-gcp readiness
 - ✅ Creates XCluster claim for GKE
 - ✅ CAPI provisions the GKE spoke via CAPG
 
 #### 4. **Flux Dependency Chains**
+
 - ✅ Creates proper `dependsOn` relationships
 - ✅ Validates dependency ordering: network → clusters → workloads
 - ✅ Tests Flux Kustomization reconciliation
 
 #### 5. **Multi-Cloud Resource Management**
+
 - ✅ Validates all spoke namespaces exist
 - ✅ Checks ConfigMaps and Secrets for each spoke
 - ✅ Verifies resource isolation between spokes
 
 #### 6. **Hub-Spoke Communication Architecture**
+
 - ✅ Validates hub namespace (`flux-system`)
 - ✅ Checks spoke namespace separation
 - ✅ Counts resources in hub and spoke namespaces
 
 #### 7. **Cloud Controller Integration**
+
 - ✅ Tests Crossplane providers can create cloud resources
 - ✅ Tests CAPI can create spoke clusters
 
@@ -81,6 +88,7 @@ chmod +x tests/test-spoke-provisioning-validation.sh
 ## Expected Results
 
 ### ✅ **Successful Test Output**
+
 ```
 🚀 Crossplane + CAPI Spoke Cluster Provisioning Validation
 =========================================================================
@@ -112,6 +120,7 @@ Test 3: Crossplane + CAPG for Spoke 3 (GKE)
 ```
 
 ### ⚠️ **Expected Warnings with Emulators**
+
 ```
 [WARN] ⚠️ provider-aws not ready
 [WARN] ⚠️ provider-azure not ready  
@@ -124,22 +133,26 @@ These warnings are **expected** when using local emulators instead of real cloud
 ## Key Components Tested
 
 ### **Namespaces Created**
+
 - `flux-system` - Hub cluster management
 - `spoke-1` - EKS cluster resources
 - `spoke-2` - AKS cluster resources  
 - `spoke-3` - GKE cluster resources
 
 ### **ConfigMaps Created**
+
 - `spoke-1-eks-config` - EKS cluster configuration
 - `spoke-2-aks-config` - AKS cluster configuration
 - `spoke-3-gke-config` - GKE cluster configuration
 
 ### **Secrets Created**
+
 - `spoke-1-aws-credentials` - AWS access credentials
 - `spoke-2-azure-credentials` - Azure service credentials
 - `spoke-3-gcp-credentials` - GCP service account
 
 ### **Kustomizations Created**
+
 - `network-infrastructure` - Foundation layer
 - `spoke-cluster-infrastructure` - Spoke clusters (depends on network)
 - `spoke-workload-infrastructure` - Workloads (depends on clusters)
@@ -149,16 +162,19 @@ These warnings are **expected** when using local emulators instead of real cloud
 The test works with the local emulators deployed in this repository:
 
 ### **AWS Services (LocalStack)**
+
 - Endpoint: `http://localstack.localstack.svc.cluster.local:4566`
 - Services: EC2, EKS, IAM
 - Namespace: `localstack`
 
 ### **Azure Services (LocalStack Azure)**
+
 - Endpoint: `http://localstack-azure.localstack.svc.cluster.local:4567`
 - Services: Virtual Networks, Storage, Functions
 - Namespace: `localstack`
 
 ### **GCP Services (GCS Emulator)**
+
 - Endpoint: `http://gcs-emulator.default.svc.cluster.local:9023`
 - Services: Compute Engine, Storage, Pub/Sub
 - Namespace: `default`
@@ -183,12 +199,14 @@ The test works with the local emulators deployed in this repository:
 ## Troubleshooting
 
 ### **Common Issues**
+
 - **Permission denied**: Check RBAC and service accounts
 - **Controller not ready**: Wait for deployment to complete
 - **CRD not found**: Install cloud provider CRDs first
 - **Network timeouts**: Verify emulator connectivity
 
 ### **Debug Commands**
+
 ```bash
 # Check controller status
 kubectl get deployments -n ack-system

@@ -1,6 +1,6 @@
 # Flux for Helm Users
 
-## Welcome Helm Users!
+## Welcome Helm Users
 
 We think Flux's Helm Controller is a good way to do Helm according to GitOps principles, and we're dedicated to doing what we can to help you feel the same way.
 
@@ -26,7 +26,7 @@ Additional benefits Flux adds to Helm include:
 
 The simplest way to explain is by example. Let's translate imperative Helm commands to Flux Helm Controller Custom Resources:
 
-### Helm Client Commands:
+### Helm Client Commands
 
 ```bash
 helm repo add traefik https://helm.traefik.io/traefik
@@ -35,7 +35,7 @@ helm install my-traefik traefik/traefik \
   --namespace traefik
 ```
 
-### Flux Client Commands:
+### Flux Client Commands
 
 ```bash
 flux create source helm traefik --url https://helm.traefik.io/traefik --namespace traefik
@@ -49,7 +49,7 @@ The main difference is that the Flux client will not imperatively create resourc
 
 Let's check out what the Custom Resource files look like:
 
-### HelmRepository Resource:
+### HelmRepository Resource
 
 ```yaml
 # /flux/boot/traefik/helmrepo.yaml
@@ -63,7 +63,7 @@ spec:
   url: https://helm.traefik.io/traefik
 ```
 
-### HelmRelease Resource:
+### HelmRelease Resource
 
 ```yaml
 # /flux/boot/traefik/helmrelease.yaml
@@ -139,7 +139,7 @@ For full SemVer range syntax, see [Masterminds/semver](https://github.com/Master
 
 The Helm Controller offers an extensive set of configuration options to remediate when a Helm release fails, using `spec.install.remediation`, `spec.upgrade.remediation`, `spec.rollback` and `spec.uninstall`. Features include the option to remediate with an uninstall after an upgrade failure, and the option to keep a failed release for debugging purposes when it has run out of retries.
 
-### Install Remediation Example:
+### Install Remediation Example
 
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -163,7 +163,7 @@ spec:
     keepHistory: false
 ```
 
-### Upgrade Remediation and Rollback Example:
+### Upgrade Remediation and Rollback Example
 
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -238,21 +238,25 @@ spec:
 ## Benefits for Helm Users
 
 ### Declarative Management
+
 - Define Helm releases as code in Git
 - Automatic reconciliation and drift detection
 - Version control for all Helm operations
 
 ### Multi-Environment Support
+
 - Consistent Helm release management across environments
 - Environment-specific value overrides
 - Automated promotion workflows
 
 ### Enterprise Features
+
 - Audit trails for all Helm operations
 - Role-based access control integration
 - Automated rollback and remediation
 
 ### GitOps Integration
+
 - Helm releases as part of GitOps pipelines
 - Automated testing and validation
 - Compliance and governance controls

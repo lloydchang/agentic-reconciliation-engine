@@ -893,17 +893,20 @@ kubectl logs -n flux-system deployment/helm-controller
 ### From Traditional Flux
 
 1. **Backup Current Configuration**
+
    ```bash
    flux get sources all -o yaml > current-sources.yaml
    flux get kustomizations all -o yaml > current-kustomizations.yaml
    ```
 
 2. **Install Flux Operator**
+
    ```bash
    ./scripts/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**
+
    ```yaml
    apiVersion: fluxcd.controlplane.io/v1
    kind: FluxInstance
@@ -929,6 +932,7 @@ kubectl logs -n flux-system deployment/helm-controller
    ```
 
 4. **Migrate to ResourceSet**
+
    ```yaml
    apiVersion: fluxcd.controlplane.io/v1
    kind: ResourceSet
@@ -953,6 +957,7 @@ kubectl logs -n flux-system deployment/helm-controller
    ```
 
 5. **Verify Migration**
+
    ```bash
    kubectl get fluxinstance -n flux-system
    kubectl get resourceset -n flux-system
@@ -962,6 +967,7 @@ kubectl logs -n flux-system deployment/helm-controller
 ### From Other GitOps Tools
 
 1. **Export Current Configuration**
+
    ```bash
    # Export from ArgoCD
    argocd app list -o yaml > argocd-apps.yaml
@@ -971,11 +977,13 @@ kubectl logs -n flux-system deployment/helm-controller
    ```
 
 2. **Install Flux Operator**
+
    ```bash
    ./scripts/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**
+
    ```yaml
    apiVersion: fluxcd.controlplane.io/v1
    kind: FluxInstance
@@ -1001,6 +1009,7 @@ kubectl logs -n flux-system deployment/helm-controller
    ```
 
 4. **Migrate Applications**
+
    ```yaml
    apiVersion: fluxcd.controlplane.io/v1
    kind: ResourceSet

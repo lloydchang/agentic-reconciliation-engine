@@ -14,6 +14,7 @@ The bootstrap cluster solves two specific problems:
    not depend on hub availability.
 
 The bootstrap cluster does **not**:
+
 - Reconcile spokes (spokes pull from Git directly)
 - Manage cloud resources (Crossplane runs on the hub, not here)
 - Participate in the data path for application workloads

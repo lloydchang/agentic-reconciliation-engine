@@ -25,19 +25,23 @@ Dynamic Node Provisioning
 ### 1. Core Karpenter Resources
 
 **karpenter-namespace.yaml**
+
 - Creates dedicated namespace for Karpenter components
 - Applies consistent labels for GitOps management
 
 **karpenter-rbac.yaml**
+
 - Service account with cloud provider IAM integration
 - ClusterRole and ClusterRoleBinding for Karpenter permissions
 - Multi-cloud RBAC support
 
 **karpenter-helmrepo.yaml**
+
 - Helm repository configuration for Karpenter charts
 - Managed by Flux for automated updates
 
 **karpenter-helmrelease.yaml**
+
 - HelmRelease for Karpenter controller deployment
 - Configurable values for different cloud providers
 - Dependency management with Flux system
@@ -45,16 +49,19 @@ Dynamic Node Provisioning
 ### 2. Cloud-Specific Configurations
 
 **karpenter.yaml** (AWS)
+
 - EC2NodeClass for AWS instance types
 - NodePool with AWS-specific requirements
 - Subnet and security group selectors
 
 **karpenter-azure.yaml** (Azure)
+
 - AKSNodeClass for Azure VM families
 - NodePool with Azure-specific requirements
 - Location and subnet configuration
 
 **karpenter-gcp.yaml** (GCP)
+
 - GCPNodeClass for Google Cloud machine families
 - NodePool with GCP-specific requirements
 - Project and location settings
@@ -116,6 +123,7 @@ resources:
 Create patches for each cluster to customize Karpenter settings:
 
 **patches/aws-cluster-name.yaml**
+
 ```yaml
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
@@ -154,6 +162,7 @@ spec:
 Customize instance families based on workload requirements:
 
 **Compute-Optimized**
+
 ```yaml
 requirements:
   - key: karpenter.k8s.aws/instance-category
@@ -166,6 +175,7 @@ instanceTypes:
 ```
 
 **Memory-Optimized**
+
 ```yaml
 requirements:
   - key: karpenter.k8s.aws/instance-category
@@ -178,6 +188,7 @@ instanceTypes:
 ```
 
 **General Purpose**
+
 ```yaml
 requirements:
   - key: karpenter.k8s.aws/instance-category
@@ -231,6 +242,7 @@ Create Grafana dashboard for Karpenter monitoring:
 Ensure proper IAM permissions for Karpenter:
 
 **AWS IAM Policy**
+
 ```json
 {
   "Version": "2012-10-17",

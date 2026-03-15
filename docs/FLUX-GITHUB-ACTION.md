@@ -242,16 +242,19 @@ jobs:
 ### Benefits
 
 #### Automated Upgrades
+
 - Keep Flux components up-to-date without manual intervention
 - Schedule regular updates for security patches
 - Automate pull request creation for review and approval
 
 #### OCI Artifact Management
+
 - Publish Kubernetes manifests as signed OCI artifacts
 - Enable secure distribution of configuration
 - Support for supply chain security with Cosign signing
 
 #### Testing Integration
+
 - Run Flux in isolated Kind clusters for CI testing
 - Validate manifests before production deployment
 - Integrate with existing CI pipelines

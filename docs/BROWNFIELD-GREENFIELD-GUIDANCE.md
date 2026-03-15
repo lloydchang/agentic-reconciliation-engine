@@ -9,9 +9,11 @@ This document provides detailed guidance for **scenario-specific implementation*
 ## 🟢 Greenfield Scenarios: Starting Fresh
 
 ### Definition
+
 **Greenfield**: No existing infrastructure constraints, starting from scratch with complete freedom to choose architecture.
 
 ### When This Applies
+
 - New companies or projects
 - Complete infrastructure overhaul
 - Migration from on-premises to cloud-native
@@ -75,11 +77,13 @@ phase3_intelligence: # Months 6+ (Only if justified)
 ### Greenfield Anti-Patterns to Avoid
 
 ❌ **Technology-First Implementation**
+
 - Don't add AI agents "because they're cool"
 - Don't implement multi-cloud if you only need one
 - Don't use consensus for simple applications
 
 ✅ **Problem-First Implementation**
+
 - Add Temporal only when workflows become complex
 - Add AI only when optimization is critical
 - Add multi-cloud only when you actually use multiple clouds
@@ -87,9 +91,11 @@ phase3_intelligence: # Months 6+ (Only if justified)
 ## 🟡 Brownfield Scenarios: Existing Infrastructure
 
 ### Definition
+
 **Brownfield**: Existing infrastructure with constraints, legacy systems, and established operational patterns.
 
 ### When This Applies
+
 - Companies with established infrastructure
 - Gradual modernization projects
 - Hybrid cloud adoption strategies
@@ -173,6 +179,7 @@ phase4_legacy_decommission: # Weeks 25-36 (Clean Transition)
 ### Success Metrics by Scenario
 
 #### Greenfield Success Metrics
+
 ```yaml
 greenfield_kpis:
   deployment_frequency: "daily+"
@@ -183,6 +190,7 @@ greenfield_kpis:
 ```
 
 #### Brownfield Success Metrics
+
 ```yaml
 brownfield_kpis:
   migration_success_rate: ">95%"

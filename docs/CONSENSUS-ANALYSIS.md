@@ -26,6 +26,7 @@ This document provides a comprehensive analysis of the consensus-based agent orc
 **Consensus-Based Swarms**: 15-30 seconds for local optimization, 1-2 minutes for consensus decisions
 
 **Implementation**:
+
 ```python
 class FeedbackLoop:
     def __init__(self):
@@ -50,6 +51,7 @@ class FeedbackLoop:
 ```
 
 **Benefits**:
+
 - **1000+ decisions/second** per agent locally
 - **100+ decisions/second** across swarm consensus
 - **Continuous optimization** rather than periodic adjustments
@@ -60,6 +62,7 @@ class FeedbackLoop:
 **From Research Paper Analysis**: Advanced reputation systems for agent reliability
 
 **Reputation Algorithm**:
+
 ```python
 class ReputationSystem:
     def calculate_reputation_reward(self, node_i, rewards_i, R_i, h, S_count, T_resp, T_actual):
@@ -74,6 +77,7 @@ class ReputationSystem:
 ```
 
 **Benefits**:
+
 - **Handle up to 1/3 malicious agents** through Byzantine fault tolerance
 - **Automatic identification** of unreliable agents
 - **Reputation-weighted voting** for consensus decisions
@@ -82,6 +86,7 @@ class ReputationSystem:
 ### 3. Self-Organizing Intelligence Patterns
 
 #### Ant Colony Optimization
+
 ```python
 class AntColonyOptimizer:
     def optimize_resource(self, resource_id):
@@ -98,6 +103,7 @@ class AntColonyOptimizer:
 ```
 
 #### Flock Alignment for Coordination
+
 ```python
 class FlockAlignment:
     def coordinate_agents(self, agents):
@@ -111,6 +117,7 @@ class FlockAlignment:
 ```
 
 **Benefits**:
+
 - **Coordinated behavior** from simple local rules
 - **Complex global behavior** without central control
 - **Adaptive learning** from environmental feedback
@@ -119,6 +126,7 @@ class FlockAlignment:
 ### 4. Hierarchical Consensus (3-Level)
 
 **Multi-Level Consensus Architecture**:
+
 ```yaml
 apiVersion: consensus.gitops.io/v1alpha1
 kind: HierarchicalConsensus
@@ -151,6 +159,7 @@ spec:
 ```
 
 **Benefits**:
+
 - **Local decisions**: 15-30 seconds
 - **Regional consensus**: 30-60 seconds  
 - **Global coordination**: 60-120 seconds
@@ -159,19 +168,21 @@ spec:
 ## Benefits
 
 ### 1. **Response Times**
+
 - **Local Decisions**: 15-30 seconds
 - **Consensus Decisions**: 1-2 minutes
 - **Global Optimization**: Continuous learning and adaptation
 - **Local Decisions**: 1000+ decisions per agent
 
-
 ### 3. **Scalability**
+
 - **Linear Agent Scaling**: Add agents without architectural changes
 - **Distributed Load**: Decision making across all agents
 - **Cross-Cloud Coordination**: Global optimization across providers
 - **Swarm Coordination**: Complex behavior from local rules
 
 ### 4. **Autonomous Organization**
+
 - **Coordinated Behavior**: Global behavior from local interactions
 - **Adaptive Learning**: Continuous improvement with human oversight
 - **Cost Optimization**: Resource efficiency management
@@ -180,6 +191,7 @@ spec:
 ## Integration with GitOps Infra Control Plane
 
 ### Enhanced Flux Integration
+
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
@@ -208,6 +220,7 @@ spec:
 ```
 
 ### Multi-Cloud Agent Coordination
+
 ```yaml
 apiVersion: consensus.gitops.io/v1alpha1
 kind: MultiCloudConsensus
@@ -239,6 +252,7 @@ spec:
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (0-3 months)
+
 1. **Deploy Basic Consensus Layer**
    - Raft-based agent coordination
    - 30-second feedback loops
@@ -250,6 +264,7 @@ spec:
    - Consensus decision making
 
 ### Phase 2: Advanced Features (3-9 months)
+
 1. **Hierarchical Consensus**
    - Multi-level consensus hierarchy
    - Cross-cloud coordination
@@ -261,6 +276,7 @@ spec:
    - Knowledge transfer
 
 ### Phase 3: Production Optimization (9-18 months)
+
 1. **Enterprise Features**
    - Advanced security models
    - Compliance integration
@@ -274,6 +290,7 @@ spec:
 ## Security and Safety Enhancements
 
 ### Agent Isolation and Sandboxing
+
 ```yaml
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
@@ -301,6 +318,7 @@ spec:
 ```
 
 ### Network Security for Agent Communication
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

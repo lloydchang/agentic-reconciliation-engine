@@ -14,6 +14,7 @@ Skills are AI agent capabilities that automate specific operational tasks. Each 
 ## Skill Invocation
 
 ### Natural Language
+
 Simply describe what you want in plain English:
 
 ```
@@ -23,11 +24,13 @@ Simply describe what you want in plain English:
 ```
 
 ### CLI
+
 ```bash
 ./cli skill invoke /compliance-check vm-web-server-001 SOC2
 ```
 
 ### REST API
+
 ```bash
 curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
   -d '{"target": "vm-web-server-001", "standard": "SOC2"}'

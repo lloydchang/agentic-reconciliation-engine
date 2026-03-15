@@ -302,22 +302,27 @@ success_metrics:
 ## 🚨 Common Decision Traps
 
 ### Trap 1: Technology-First Thinking
+
 **Symptom**: "We need AI agents because they're cool"
 **Solution**: "What specific problem requires AI agents?"
 
 ### Trap 2: One-Size-Fits-All
+
 **Symptom**: "Everyone must use the full stack"
 **Solution**: "What does each team actually need?"
 
 ### Trap 3: Big-Bang Migration
+
 **Symptom**: "Let's migrate everything at once"
 **Solution**: "What's the minimum viable migration?"
 
 ### Trap 4: Ignoring Team Capabilities
+
 **Symptom**: "Just follow the reference implementation"
 **Solution**: "What can our team realistically implement?"
 
 ### Trap 5: Success Theater
+
 **Symptom**: "We deployed it, so we're successful"
 **Solution**: "What metrics prove we solved the original problem?"
 

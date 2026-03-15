@@ -6,9 +6,11 @@ This repository’s automation is fully compatible with macOS as long as you use
 
 - **Homebrew**: Install Homebrew if you haven’t already (`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`).
 - **Required CLI tools** via Homebrew:
+
   ```bash
   brew install az awscli gh git jq yq kubectl helm fluxcd/tap/flux
   ```
+
 - **Python 3**: macOS ships with Python 2; install Python 3 if you don’t already (`brew install python`), and ensure `python` resolves to Python 3 (`brew link python --overwrite`).
 
 ## 2. Environment setup

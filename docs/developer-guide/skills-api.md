@@ -9,6 +9,7 @@ The Skills API allows programmatic access to 28 specialized AI agent capabilitie
 ## System Architecture
 
 The skills system consists of:
+
 - **Temporal Workflow Engine**: Durable orchestration of AI agent workflows
 - **Multi-Agent Framework**: Specialized agents for compliance, security, and cost analysis
 - **REST APIs**: Programmatic access to workflow management
@@ -24,6 +25,7 @@ Authorization: Bearer YOUR_API_KEY
 ```
 
 Configure your API key:
+
 ```bash
 export AI_AGENTS_API_KEY="your-production-api-key"
 export AI_AGENTS_API_URL="http://localhost:8081"
@@ -34,16 +36,19 @@ export AI_AGENTS_API_URL="http://localhost:8081"
 ### Compliance Management Skills
 
 #### `start_compliance_check`
+
 Starts a compliance check workflow for a target resource.
 
 **Endpoint:** `POST /api/skills/compliance-check/execute`
 
 **Parameters:**
+
 - `targetResource` (string, required): The resource to check (e.g., "vm-web-server-001")
 - `complianceType` (string, optional): Type of compliance check - "SOC2", "GDPR", "HIPAA", "full-scan" (default: "full-scan")
 - `priority` (string, optional): Priority level - "low", "normal", "high", "critical" (default: "normal")
 
 **Returns:**
+
 ```json
 {
   "workflowId": "uuid",
@@ -55,6 +60,7 @@ Starts a compliance check workflow for a target resource.
 ```
 
 **Example:**
+
 ```bash
 curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
   -H "Authorization: Bearer $AI_AGENTS_API_KEY" \
@@ -63,14 +69,17 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 ```
 
 #### `get_compliance_status`
+
 Retrieves the current status of a compliance workflow.
 
 **Endpoint:** `GET /workflow/status?id={workflowId}`
 
 **Parameters:**
+
 - `workflowId` (string, required): The workflow ID to check
 
 **Returns:**
+
 ```json
 {
   "workflowId": "uuid",
@@ -85,16 +94,19 @@ Retrieves the current status of a compliance workflow.
 ### Security Analysis Skills
 
 #### `start_security_scan`
+
 Initiates a security analysis workflow.
 
 **Endpoint:** `POST /api/skills/security-scan/execute`
 
 **Parameters:**
+
 - `targetResource` (string, required): Resource to scan
 - `scanType` (string, optional): Scan type - "vulnerability", "malware", "configuration", "full" (default: "full")
 - `priority` (string, optional): Priority level (default: "normal")
 
 **Returns:**
+
 ```json
 {
   "workflowId": "uuid",
@@ -106,14 +118,17 @@ Initiates a security analysis workflow.
 ```
 
 #### `get_security_report`
+
 Retrieves security analysis results.
 
 **Endpoint:** `GET /workflow/status?id={workflowId}`
 
 **Parameters:**
+
 - `workflowId` (string, required): Security workflow ID
 
 **Returns:**
+
 ```json
 {
   "vulnerabilities": [
@@ -128,16 +143,19 @@ Retrieves security analysis results.
 ### Cost Optimization Skills
 
 #### `start_cost_analysis`
+
 Begins cost optimization analysis.
 
 **Endpoint:** `POST /api/skills/cost-analysis/execute`
 
 **Parameters:**
+
 - `targetResource` (string, required): Resource to analyze
 - `analysisType` (string, optional): Analysis type - "usage", "optimization", "forecast", "full" (default: "full")
 - `timeframe` (string, optional): Analysis period - "7d", "30d", "90d" (default: "30d")
 
 **Returns:**
+
 ```json
 {
   "workflowId": "uuid",
@@ -148,14 +166,17 @@ Begins cost optimization analysis.
 ```
 
 #### `get_cost_recommendations`
+
 Retrieves cost optimization recommendations.
 
 **Endpoint:** `GET /workflow/status?id={workflowId}`
 
 **Parameters:**
+
 - `workflowId` (string, required): Cost analysis workflow ID
 
 **Returns:**
+
 ```json
 {
   "currentCost": 12500.00,
@@ -169,14 +190,17 @@ Retrieves cost optimization recommendations.
 ### Workflow Management Skills
 
 #### `list_active_workflows`
+
 Lists all currently running workflows.
 
 **Endpoint:** `GET /workflows/active?type={workflowType}`
 
 **Parameters:**
+
 - `workflowType` (string, optional): Filter by type ("compliance", "security", "cost-analysis")
 
 **Returns:**
+
 ```json
 {
   "workflows": [
@@ -186,14 +210,17 @@ Lists all currently running workflows.
 ```
 
 #### `get_workflow_details`
+
 Gets detailed information about a specific workflow.
 
 **Endpoint:** `GET /workflow/status?id={workflowId}`
 
 **Parameters:**
+
 - `workflowId` (string, required): Workflow identifier
 
 **Returns:**
+
 ```json
 {
   "workflowId": "wf-123",
@@ -206,15 +233,18 @@ Gets detailed information about a specific workflow.
 ```
 
 #### `cancel_workflow`
+
 Cancels a running workflow.
 
 **Endpoint:** `POST /workflow/signal/{workflowId}`
 
 **Parameters:**
+
 - `workflowId` (string, required): Workflow to cancel
 - `reason` (string, optional): Reason for cancellation
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -225,15 +255,18 @@ Cancels a running workflow.
 ### Infrastructure Discovery Skills
 
 #### `discover_resources`
+
 Discovers available infrastructure resources.
 
 **Endpoint:** `GET /emulator/resources?type={resourceType}&env={environment}`
 
 **Parameters:**
+
 - `resourceType` (string, optional): Filter by type - "vm", "database", "storage", "network", "all" (default: "all")
 - `environment` (string, optional): Filter by environment - "dev", "staging", "prod", "all" (default: "all")
 
 **Returns:**
+
 ```json
 {
   "resources": [
@@ -244,14 +277,17 @@ Discovers available infrastructure resources.
 ```
 
 #### `get_resource_details`
+
 Gets detailed information about a specific resource.
 
 **Endpoint:** `GET /emulator/resources/{resourceId}`
 
 **Parameters:**
+
 - `resourceId` (string, required): Resource identifier
 
 **Returns:**
+
 ```json
 {
   "resourceId": "vm-001",
@@ -265,17 +301,20 @@ Gets detailed information about a specific resource.
 ### Human-in-the-Loop Skills
 
 #### `request_human_review`
+
 Initiates a human review workflow for agent decisions.
 
 **Endpoint:** `POST /workflow/human-review`
 
 **Parameters:**
+
 - `workflowId` (string, required): Workflow requiring human review
 - `reviewType` (string, required): Type of review needed
 - `priority` (string, optional): Review priority ("low", "normal", "high", "critical")
 - `context` (object, optional): Additional context for reviewers
 
 **Returns:**
+
 ```json
 {
   "reviewId": "review-123",
@@ -285,14 +324,17 @@ Initiates a human review workflow for agent decisions.
 ```
 
 #### `get_review_status`
+
 Checks the status of a human review task.
 
 **Endpoint:** `GET /workflow/review/{reviewId}`
 
 **Parameters:**
+
 - `reviewId` (string, required): Review task identifier
 
 **Returns:**
+
 ```json
 {
   "status": "completed",
@@ -326,6 +368,7 @@ All skills return consistent error responses:
 ```
 
 Common error codes:
+
 - `VALIDATION_ERROR`: Invalid input parameters
 - `TIMEOUT`: Operation exceeded time limits
 - `RATE_LIMITED`: Too many requests
@@ -346,6 +389,7 @@ The MCP server exposes standardized tools for AI assistants:
 **Transport modes**: stdio, websocket, http
 
 **Available tools**:
+
 - `start_compliance_workflow`: Start compliance checks
 - `get_workflow_status`: Monitor workflow progress
 - `signal_workflow`: Send signals to workflows
@@ -354,6 +398,7 @@ The MCP server exposes standardized tools for AI assistants:
 ## Usage Examples
 
 ### Complete Compliance Workflow
+
 ```javascript
 // Start compliance check
 const complianceWorkflow = await start_compliance_check({
@@ -380,6 +425,7 @@ if (status.status === "completed") {
 ```
 
 ### Security Incident Response
+
 ```javascript
 // Start security scan
 const securityScan = await start_security_scan({
@@ -404,6 +450,7 @@ if (report.riskLevel === "critical") {
 ## Monitoring and Logging
 
 All skill executions generate comprehensive logs including:
+
 - Execution timestamps and duration
 - User/API key identification
 - Success/failure status and error details

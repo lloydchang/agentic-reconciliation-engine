@@ -10,14 +10,16 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 
 ## 🎯 When Consensus is NOT the Right Solution
 
-### ❌ Consensus is Overkill For:
+### ❌ Consensus is Overkill For
+
 - **Single-cloud environments** (use centralized coordination)
 - **Simple automation tasks** (use basic Flux CronJobs)
 - **Small teams with predictable workloads** (use standard GitOps)
 - **Low-latency requirements** (consensus adds overhead)
 - **Simple resource management** (use basic controllers)
 
-### ✅ Consensus is Valuable For:
+### ✅ Consensus is Valuable For
+
 - **Multi-cloud coordination complexity** (cross-cloud decision making)
 - **Large-scale distributed systems** (human-scale coordination challenges)
 - **Fault-tolerant requirements** (autonomous healing needs)
@@ -39,12 +41,14 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 ### When NOT to Use Consensus Protocols
 
 **Centralized Coordination** (Simpler & More Efficient):
+
 - **Single-cloud environments**: Direct controller coordination
 - **Small team operations**: Human decision-making is faster
 - **Simple automation workflows**: Basic Flux CronJobs suffice
 - **Low-latency requirements**: Consensus adds unnecessary overhead
 
 **Hierarchical Coordination** (Middle Ground):
+
 - **Regional deployments**: Regional coordinators with global oversight
 - **Multi-environment management**: Staging → Production coordination
 - **Team-based workflows**: Human approval for critical decisions
@@ -62,19 +66,25 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 ## Implementation Guidance by Scenario
 
 ### 🟢 Greenfield Scenarios
+
 **When to Use Full Consensus**: New large-scale multi-cloud deployments
+
 - **Problem**: Cross-cloud resource coordination from day one
 - **Team**: Large enterprise with distributed operations
 - **Implementation**: Complete consensus architecture from start
 
 ### 🟡 Brownfield Scenarios  
+
 **When to Use Gradual Consensus**: Existing infrastructure migration
+
 - **Problem**: Coordinating migration across multiple environments
 - **Team**: Medium to large with migration expertise
 - **Implementation**: Start with basic coordination, add consensus gradually
 
 ### 🟡 Hybrid Scenarios
+
 **When to Use Selective Consensus**: Local development + cloud AI
+
 - **Problem**: Coordinating across development and production environments
 - **Team**: Medium with distributed development
 - **Implementation**: Local coordination + cloud consensus where needed
@@ -82,6 +92,7 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 ## Why Raft Was Chosen: Context-Dependent Decision
 
 **Raft Implementation**:
+
 ```go
 // Raft leader election - relatively simple
 func (rf *Raft) startElection() {
@@ -96,6 +107,7 @@ func (rf *Raft) startElection() {
 ```
 
 **Paxos Implementation**:
+
 ```go
 // Paxos prepare phase - significantly more complex
 func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interface{}) {
@@ -116,18 +128,21 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 **Why Leadership Matters for Infrastructure**:
 
 **Single Decision Point**: Infrastructure changes need clear responsibility
+
 - **Accountability**: Clear who made which decision
 - **Rollback**: Clear authority to undo changes
 - **Compliance**: Audit trail with clear decision makers
 - **Performance**: Avoid concurrent conflicting changes
 
 **Raft's Strong Leadership**:
+
 - **Leader handles all client requests**: No conflicting proposals
 - **Simple linearizability**: Easy to reason about system state
 - **Efficient log replication**: Leader optimizes replication process
 - **Clear failure detection**: Leader failure is immediately obvious
 
 **Paxos Leaderless Complexity**:
+
 - **Multiple proposers can conflict**: Requires additional coordination
 - **Complex conflict resolution**: More rounds needed for consensus
 - **Difficult to reason about**: Hard to predict system behavior
@@ -136,6 +151,7 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 ### 4. Ecosystem and Tooling Support
 
 **Raft Ecosystem**:
+
 - **HashiCorp Consul**: Production-proven implementation
 - **etcd**: Kubernetes core component
 - **RethinkDB**: Database with Raft consensus
@@ -144,6 +160,7 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 - **Rust implementations**: High-performance consensus with memory safety
 
 **Paxos Ecosystem**:
+
 - **Academic implementations**: More theoretical than practical
 - **Limited production use cases**: Few large-scale deployments
 - **Complex tooling**: Harder to find production-ready libraries
@@ -152,12 +169,14 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 ### 5. Production Readiness and Battle Testing
 
 **Raft in Production**:
+
 - **Kubernetes etcd**: Core component running in millions of clusters
 - **HashiCorp Consul**: Used by thousands of companies
 - **Cloud provider services**: AWS, GCP, Azure use Raft variants
 - **Temporal**: Netflix, Stripe, and other large-scale users
 
 **Paxos in Production**:
+
 - **Google Spanner**: Custom Paxos variants, not standard Paxos
 - **Amazon DynamoDB**: Modified Paxos, significant complexity
 - **Academic use cases**: More research than production
@@ -168,6 +187,7 @@ func (px *Paxos) prepare(proposalNumber int) (promise bool, acceptedValue interf
 ### Technical Challenges
 
 **1. Complexity of Implementation**
+
 ```go
 // Paxos requires handling multiple complex scenarios
 type Paxos struct {
@@ -189,11 +209,13 @@ type Raft struct {
 ```
 
 **2. Leader Election Complexity**
+
 - **Paxos**: No built-in leader election, requires separate protocol
 - **Raft**: Built-in leader election with clear rules
 - **Result**: Raft provides complete consensus solution out of the box
 
 **3. Difficult Edge Cases**
+
 - **Dueling leaders**: Paxos requires complex resolution
 - **Split brain**: More complex to detect and resolve
 - **Network partitions**: Harder to handle correctly
@@ -202,12 +224,14 @@ type Raft struct {
 ### Practical Considerations
 
 **1. Team Expertise**
+
 - **Raft**: More developers have Raft experience
 - **Paxos**: Requires specialized distributed systems expertise
 - **Training**: Easier to train teams on Raft
 - **Hiring**: Larger talent pool for Raft implementations
 
 **2. Debugging and Operations**
+
 - **Raft**: Clear state transitions, easier to debug
 - **Paxos**: Complex state spaces, harder to troubleshoot
 - **Monitoring**: Raft provides clearer metrics
@@ -218,11 +242,13 @@ type Raft struct {
 ### 1. Practical Byzantine Fault Tolerance (PBFT)
 
 **Pros**:
+
 - **Byzantine fault tolerance**: Handle malicious nodes
 - **Deterministic**: Finality guarantees
 - **Financial industry proven**: Used in blockchain systems
 
 **Cons**:
+
 - **High communication overhead**: O(n²) messages per round
 - **Complex implementation**: Multiple phases and crypto
 - **Performance impact**: Slower than Raft for non-Byzantine scenarios
@@ -233,11 +259,13 @@ type Raft struct {
 ### 2. Tendermint
 
 **Pros**:
+
 - **Byzantine fault tolerance**: Handles malicious nodes
 - **High performance**: Optimized for blockchain use cases
 - **Strong finality**: Once committed, cannot be reversed
 
 **Cons**:
+
 - **Blockchain-focused**: Optimized for different use case
 - **Complex validator set**: Dynamic validator management
 - **Higher complexity**: More complex than Raft
@@ -248,11 +276,13 @@ type Raft struct {
 ### 3. HotStuff
 
 **Pros**:
+
 - **Linear communication**: O(n) messages per round
 - **Fast finality**: Quick consensus decisions
 - **Byzantine tolerance**: Handles malicious nodes
 
 **Cons**:
+
 - **New protocol**: Less production testing
 - **Limited implementations**: Few production-ready libraries
 - **Complex leader rotation**: More complex than Raft
@@ -263,12 +293,14 @@ type Raft struct {
 ### 4. Chain-Based Replication (CRDTs)
 
 **Pros**:
+
 - **Eventual consistency**: No coordination required for writes
 - **High availability**: Always available for writes
 - **Partition tolerance**: Works during network splits
 - **Simple conflict resolution**: Last-write-wins or merge functions
 
 **Cons**:
+
 - **Eventual consistency**: Not suitable for infrastructure changes
 - **Conflict resolution**: Complex for infrastructure state
 - **No strong consistency**: Cannot guarantee current state
@@ -281,18 +313,21 @@ type Raft struct {
 ### 1. Infrastructure Requirements
 
 **Strong Consistency Required**:
+
 - Infrastructure changes must be immediately visible
 - No conflicting changes to same resources
 - Clear ordering of operations
 - Deterministic rollback procedures
 
 **Performance Requirements**:
+
 - Sub-second consensus for local changes
 - Minimal overhead for coordination
 - Efficient resource utilization
 - Horizontal scalability
 
 **Operational Requirements**:
+
 - Easy to understand and debug
 - Clear failure modes and recovery
 - Comprehensive monitoring support
@@ -316,6 +351,7 @@ type Raft struct {
 ### Primary Choice: Raft
 
 **Reasoning**:
+
 1. **Best overall fit** for infrastructure management requirements
 2. **Strong ecosystem** with production-proven implementations
 3. **Understandable** for operations and development teams
@@ -325,24 +361,28 @@ type Raft struct {
 ### Hybrid Strategy: Protocol Selection Based on Use Case
 
 **Standard Infrastructure Changes**: Raft
+
 - Resource deployments
 - Configuration updates
 - Scaling operations
 - Standard maintenance
 
 **High-Security Scenarios**: PBFT
+
 - Multi-tenant environments
 - Cross-organization coordination
 - Regulatory compliance requirements
 - Scenarios with malicious node possibility
 
 **High-Performance Requirements**: HotStuff (Future)
+
 - Large-scale deployments
 - High-frequency changes
 - Performance-critical applications
 - When protocol matures
 
 **Eventual Consistency Use Cases**: CRDTs
+
 - Configuration dissemination
 - Status reporting
 - Analytics data collection
@@ -351,6 +391,7 @@ type Raft struct {
 ## Implementation Recommendations
 
 ### 1. Start with Raft
+
 ```yaml
 # Primary consensus implementation
 apiVersion: consensus.gitops.io/v1alpha1
@@ -366,6 +407,7 @@ spec:
 ```
 
 ### 2. Monitor Protocol Performance
+
 ```yaml
 # Protocol monitoring
 apiVersion: monitoring.gitops.io/v1alpha1
@@ -383,6 +425,7 @@ spec:
 ```
 
 ### 3. Protocol Migration Path
+
 ```yaml
 # Future protocol migration support
 apiVersion: consensus.gitops.io/v1alpha1
@@ -411,13 +454,16 @@ spec:
 **Raft was chosen as the primary consensus protocol** for scenarios where distributed decision-making is actually needed, but **consensus is NOT always the answer**.
 
 ### When Raft is the Right Choice
+
 Raft provides the best balance for:
+
 - **Large-scale multi-cloud coordination** requiring distributed decision-making
 - **Enterprise environments** with complex compliance and audit requirements
 - **Fault-tolerant systems** where autonomous recovery is critical
 - **Team-distributed operations** where no single entity has complete visibility
 
 ### When Simpler Approaches Are Better
+
 For many infrastructure problems, consensus adds unnecessary complexity:
 
 | Problem Type | Better Alternative | Why |

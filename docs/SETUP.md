@@ -19,6 +19,7 @@ This guide provides step-by-step instructions to set up the complete GitOps Infr
 ## Prerequisites
 
 ### Required Tools
+
 - `kubectl` v1.28+
 - `flux` CLI v2.2+
 - AWS CLI v2.0+
@@ -27,23 +28,27 @@ This guide provides step-by-step instructions to set up the complete GitOps Infr
 - `git` v2.30+
 
 ### Cloud Provider Accounts
+
 - AWS account with EKS, EC2, VPC, IAM permissions
 - Azure subscription with AKS, VNet permissions  
 - Google Cloud project with GKE, Compute Network permissions
 
 ### Hub Cluster
+
 - Kubernetes cluster (EKS/AKS/GKE) to serve as the control plane
 - Cluster admin access
 
 ## Quick Start
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/lloydchang/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 ```
 
 ### 2. Install Flux on Hub Cluster
+
 ```bash
 flux bootstrap git \
   --url=ssh://git@github.com/lloydchang/gitops-infra-control-plane \
@@ -55,6 +60,7 @@ flux bootstrap git \
 ### 3. Configure Cloud Provider Identities
 
 #### AWS - IAM Roles for Service Accounts (IRSA)
+
 ```bash
 # Replace ACCOUNT_ID, REGION, CLUSTER_ID with your values
 export AWS_ACCOUNT_ID="123456789012"
@@ -69,6 +75,7 @@ OIDC_PROVIDER=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "clust
 ```
 
 #### Azure - Workload Identity
+
 ```bash
 # Set Azure subscription and resource group
 export AZURE_SUBSCRIPTION_ID="your-subscription-id"
@@ -79,6 +86,7 @@ export AZURE_RESOURCE_GROUP="gitops-rg"
 ```
 
 #### Google Cloud - Workload Identity
+
 ```bash
 # Set project ID
 export GCP_PROJECT_ID="your-project-id"
@@ -90,6 +98,7 @@ export GCP_PROJECT_ID="your-project-id"
 ### 4. Update Configuration Files
 
 Replace placeholder values in the following files:
+
 - `control-plane/identity/irsa-setup.yaml` - Update `ACCOUNT_ID`, `REGION`, `CLUSTER_ID`
 - `control-plane/identity/azure-workload-identity.yaml` - Update `SUBSCRIPTION_ID`, `RESOURCE_GROUP`
 - `control-plane/identity/gcp-workload-identity.yaml` - Update `PROJECT_ID`
@@ -101,6 +110,7 @@ See `docs/operator-inputs.md` for a consolidated checklist.
 See `docs/EXECUTION-CHECKLIST.md` for the apply/validation sequence.
 
 ### 5. Commit and Push
+
 ```bash
 git add .
 git commit -m "Initial GitOps infrastructure setup"
@@ -108,6 +118,7 @@ git push origin main
 ```
 
 ### 6. Verify Deployment
+
 ```bash
 # Check Flux status
 flux get kustomizations
@@ -126,6 +137,7 @@ kubectl get clusters -A
 ### Crossplane Providers
 
 Crossplane providers manage cloud resources behind XRDs:
+
 - AWS: `provider-aws`
 - Azure: `provider-azure`
 - GCP: `provider-gcp`
@@ -133,6 +145,7 @@ Crossplane providers manage cloud resources behind XRDs:
 ### Cluster API Providers
 
 CAPI providers manage spoke cluster lifecycle:
+
 - AWS: CAPA
 - Azure: CAPZ
 - GCP: CAPG
@@ -140,14 +153,17 @@ CAPI providers manage spoke cluster lifecycle:
 ## Infrastructure Resources
 
 ### Network Layer (1-network/)
+
 - XNetwork claims mapped to provider resources by Crossplane
 
 ### Cluster Layer (2-clusters/)
+
 - **AWS**: EKS Cluster, Node Groups, IAM Roles
 - **Azure**: AKS Cluster, Managed Identities, Agent Pools
 - **GCP**: GKE Cluster, Node Pools, Service Accounts
 
 ### Workload Layer (3-workloads/)
+
 - Sample applications (Nginx, Redis)
 - Monitoring stack (Prometheus, Grafana)
 - Ingress configuration
@@ -155,12 +171,14 @@ CAPI providers manage spoke cluster lifecycle:
 ## Validation
 
 ### Run Drift Test
+
 ```bash
 # Execute the drift test to validate continuous reconciliation
 ./tests/drift-test.sh
 ```
 
 ### Manual Verification
+
 ```bash
 # Check resource status
 kubectl get vpc -n flux-system
@@ -193,6 +211,7 @@ kubectl logs -n ack-system deployment/ack-ec2-controller -f
    - Verify resource references
 
 ### Debug Commands
+
 ```bash
 # Flux status
 flux get kustomizations --watch
@@ -225,6 +244,7 @@ kubectl describe cluster gitops-eks-cluster -n flux-system
 ## Support
 
 For issues and questions:
+
 - Check the [implementation plan](./implementation_plan.md)
 - Review the drift test documentation in `tests/README.md`
 - Examine controller logs and Flux status

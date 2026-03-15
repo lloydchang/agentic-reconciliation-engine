@@ -9,6 +9,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 ### Backend (Go)
 
 #### Enhanced Types (`types/types.go`)
+
 - **Confidence Scoring**: Added confidence scores to agent results and aggregated results
 - **Enhanced Metadata**: Extended metadata fields for better tracking and auditability
 - **Monitoring Types**: Added comprehensive workflow metrics, stage metrics, and resource usage tracking
@@ -17,6 +18,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 - **Notification System**: Enhanced notification types with multiple channel support
 
 #### Enhanced Workflows (`workflows/enhanced_ai_workflows_v2.go`)
+
 - **Intelligent Review Decision**: Advanced logic for determining when human review is needed
 - **Dependency-Based Agent Execution**: Agents can now have dependencies and execution priorities
 - **Enhanced Aggregation**: ML-based scoring and consensus calculation
@@ -25,6 +27,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 - **Comprehensive Metrics**: Detailed tracking of workflow execution stages
 
 #### Enhanced API (`main_v2.go`)
+
 - **Multiple Signal Types**: Support for approval, rejection, and escalation signals
 - **Configurable Timeouts**: Priority-based timeout handling for human reviews
 - **Enhanced Endpoints**: New endpoints for approvals, human tasks, and monitoring
@@ -34,6 +37,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 ### Frontend (React/TypeScript)
 
 #### Enhanced Human Approvals Component (`HumanInTheLoopApprovals.tsx`)
+
 - **Auto-Approval Logic**: Intelligent auto-approval for high-confidence, low-risk findings
 - **Real-time Updates**: Automatic refresh with configurable intervals
 - **Enhanced UI**: Better visual indicators for risk levels and priorities
@@ -44,24 +48,28 @@ This implementation represents the second iteration of the Temporal AI Agents in
 ## Architectural Improvements
 
 ### 1. Intelligent Decision Making
+
 - **Consensus-Based Scoring**: Calculate agreement between multiple AI agents
 - **Risk-Based Routing**: Different handling based on risk levels
 - **Confidence Thresholds**: Auto-approval for high-confidence results
 - **Priority-Based Timeouts**: Faster response for critical items
 
 ### 2. Enhanced Observability
+
 - **Stage-by-Stage Metrics**: Track each phase of workflow execution
 - **Resource Usage Monitoring**: CPU, memory, and network tracking
 - **Alert System**: Real-time alerts for failures and timeouts
 - **Comprehensive Logging**: Detailed audit trails for compliance
 
 ### 3. Resilience and Recovery
+
 - **Circuit Breaker Pattern**: Prevent cascade failures
 - **Graceful Degradation**: Continue operation when optional components fail
 - **Timeout Handling**: Configurable timeouts with fallback logic
 - **Retry Strategies**: Intelligent retry policies for different failure types
 
 ### 4. Human-in-the-Loop Enhancements
+
 - **Multiple Decision Types**: Approve, reject, or escalate with detailed reasoning
 - **Parallel Reviews**: Support for multiple reviewers simultaneously
 - **Comment Integration**: Rich feedback capture for continuous improvement
@@ -70,6 +78,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 ## API Enhancements
 
 ### New Endpoints
+
 - `POST /approvals/{approvalId}/decide` - Submit approval decisions
 - `GET /approvals/pending` - List pending approvals with filtering
 - `GET /human-tasks/pending` - Get pending human tasks
@@ -78,6 +87,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 - `GET /health` - Comprehensive health check
 
 ### Enhanced Signal Handling
+
 - **Multi-Channel Signals**: Support for approval, rejection, and escalation
 - **Signal Routing**: Intelligent routing based on content and priority
 - **Signal History**: Track all signal communications for audit
@@ -85,6 +95,7 @@ This implementation represents the second iteration of the Temporal AI Agents in
 ## Configuration and Customization
 
 ### Workflow Configuration
+
 ```go
 type WorkflowConfig struct {
     Name                string        `json:"name"`
@@ -100,6 +111,7 @@ type WorkflowConfig struct {
 ```
 
 ### Auto-Approval Rules
+
 - **Score Threshold**: Auto-approve if score >= 95.0
 - **Risk Level**: Only auto-approve low-risk findings
 - **Priority**: Auto-approval only for low-priority items
@@ -108,6 +120,7 @@ type WorkflowConfig struct {
 ## Monitoring and Observability
 
 ### Metrics Collection
+
 - **Workflow Duration**: Track end-to-end execution time
 - **Stage Performance**: Individual stage metrics and bottlenecks
 - **Agent Performance**: Individual agent execution times and success rates
@@ -115,6 +128,7 @@ type WorkflowConfig struct {
 - **Error Rates**: Comprehensive error tracking and categorization
 
 ### Alert System
+
 - **Real-time Alerts**: Immediate notification of failures and timeouts
 - **Threshold-Based**: Alerts based on performance thresholds
 - **Escalation**: Automatic escalation for critical issues
@@ -123,6 +137,7 @@ type WorkflowConfig struct {
 ## Testing and Validation
 
 ### Test Scenarios
+
 - **Happy Path**: Normal workflow execution with all agents succeeding
 - **Agent Failures**: Handling of individual agent failures
 - **Human Review Timeouts**: Fallback behavior when humans don't respond
@@ -130,6 +145,7 @@ type WorkflowConfig struct {
 - **Network Issues**: Resilience to temporary connectivity problems
 
 ### Validation Rules
+
 - **Data Validation**: Comprehensive input validation at all stages
 - **Business Rules**: Enforcement of compliance and security policies
 - **Audit Requirements**: Full audit trail for regulatory compliance
@@ -138,12 +154,14 @@ type WorkflowConfig struct {
 ## Deployment Considerations
 
 ### Scaling
+
 - **Horizontal Scaling**: Support for multiple worker instances
 - **Load Balancing**: Intelligent distribution of workflow executions
 - **Resource Management**: Dynamic resource allocation based on load
 - **Performance Tuning**: Optimization for different workload patterns
 
 ### Security
+
 - **Authentication**: Secure access to approval endpoints
 - **Authorization**: Role-based access control for different operations
 - **Audit Logging**: Comprehensive security event logging
@@ -152,6 +170,7 @@ type WorkflowConfig struct {
 ## Future Enhancements
 
 ### Planned Features
+
 - **Machine Learning Integration**: ML models for improved decision making
 - **Advanced Analytics**: Predictive analytics for workflow optimization
 - **Multi-Cloud Support**: Support for cloud provider-specific integrations
@@ -159,6 +178,7 @@ type WorkflowConfig struct {
 - **Performance Optimization**: Further performance improvements and optimizations
 
 ### Integration Opportunities
+
 - **External AI Services**: Integration with Azure Foundry, OpenAI, and other AI platforms
 - **Compliance Frameworks**: Support for specific compliance standards (SOC2, HIPAA, GDPR)
 - **Monitoring Systems**: Integration with Prometheus, Grafana, and other monitoring tools

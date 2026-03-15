@@ -4,12 +4,14 @@ This repository now implements the GitOps Infra Control Plane as described in th
 implementation plan:
 
 ## Core Architecture
+
 - **Flux** for GitOps reconciliation (hub + spokes).
 - **Crossplane** XRDs/Compositions for cloud resources.
 - **CAPI** for spoke cluster lifecycle.
 - **ESO + workload identity** for per‑spoke secret delivery.
 
 ## Repository Structure (Active)
+
 ```
 control-plane/
   flux/
@@ -25,7 +27,9 @@ infrastructure/tenants/
 ```
 
 ## Fallbacks
+
 Deprecated raw provider manifests and SOPS kustomizations moved under:
+
 ```
 infrastructure/fallback/
   raw-controllers/
@@ -34,11 +38,14 @@ infrastructure/fallback/
 ```
 
 ## Operator Inputs
+
 See:
+
 - `control-plane/crossplane/README.md`
 - `control-plane/capi/README.md`
 - `docs/SETUP.md`
 
 ## CI Policy Gate
+
 GitHub Actions workflow added in `.github/workflows/ci-policy-gate.yaml` with
 deletion guard, schema validation, OPA policies, and Flux dry‑run.

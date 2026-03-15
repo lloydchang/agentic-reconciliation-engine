@@ -7,21 +7,27 @@ The Flux MCP Server connects AI assistants directly to your Kubernetes clusters,
 ## Capabilities
 
 ### Instant Understanding
+
 Quickly understand your Flux installation status, resource configurations, and deployment histories across environments.
 
 ### Environment Comparison
+
 Compare Flux configurations for applications and infrastructure between development, staging, and production.
 
 ### Faster Incident Response
+
 Reduce mean time to resolution (MTTR) during incidents with contextual analysis and actionable remediation steps.
 
 ### Root Cause Analysis
+
 Automatically correlate events, logs, and configuration changes to identify the source of failures in a GitOps pipeline.
 
 ### Pipeline Management
+
 Trigger reconciliations, suspend/resume Flux resources, and manage your delivery pipelines with simple requests.
 
 ### Visualization
+
 Generate diagrams that map out Flux dependencies, resource relationships, and delivery workflows across clusters.
 
 ## How It Works
@@ -53,6 +59,7 @@ The Flux MCP Server is designed with security in mind:
 ## Installation
 
 ### Prerequisites
+
 - Flux Operator installed and running
 - AI assistant that supports MCP (Claude, Cursor, etc.)
 - Valid kubeconfig with appropriate cluster access
@@ -111,6 +118,7 @@ The MCP server provides contextual analysis for common issues:
 ## Advanced Features
 
 ### Environment Comparison
+
 Compare configurations across environments:
 
 ```
@@ -120,6 +128,7 @@ Identify configuration drift between clusters
 ```
 
 ### Root Cause Analysis
+
 Automated analysis of failures:
 
 ```
@@ -129,6 +138,7 @@ Identify configuration changes that caused issues
 ```
 
 ### Pipeline Visualization
+
 Generate dependency diagrams:
 
 ```
@@ -142,6 +152,7 @@ Visualize the deployment workflow
 The Flux MCP Server integrates seamlessly with the GitOps Infra Control Plane, providing AI-powered operations for the complete enterprise platform.
 
 ### Enterprise Benefits
+
 - **Accelerated Troubleshooting**: Reduce MTTR with AI-assisted analysis
 - **Natural Interaction**: Use plain English to manage complex GitOps operations
 - **Contextual Insights**: Get intelligent recommendations and explanations
@@ -187,18 +198,21 @@ rules:
 ## Best Practices
 
 ### Security Considerations
+
 - Use read-only mode for initial exploration
 - Implement proper RBAC for AI-assisted operations
 - Regularly audit MCP server access logs
 - Keep kubeconfig files secure and rotated
 
 ### Performance Optimization
+
 - Configure appropriate timeouts for large clusters
 - Use filtering to limit result sets
 - Cache frequently accessed information
 - Monitor MCP server resource usage
 
 ### Operational Guidelines
+
 - Start with simple queries to learn capabilities
 - Use natural language descriptions for complex requests
 - Validate AI suggestions before applying changes

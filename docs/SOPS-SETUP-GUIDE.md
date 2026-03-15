@@ -46,6 +46,7 @@ chmod +x scripts/setup-sops-keys.sh
 ```
 
 This will:
+
 - Generate a new age key pair
 - Create the `sops-age` Kubernetes secret in the `flux-system` namespace
 - Update your `.sops.yaml` with the public key
@@ -103,6 +104,7 @@ chmod +x scripts/setup-team-member.sh
 ```
 
 This will:
+
 - Import the shared public key from `.sops.pub.age`
 - Configure local SOPS settings
 - Test the encryption/decryption workflow
@@ -119,13 +121,13 @@ kubectl create secret generic my-app-secret \
   --dry-run=client -o yaml > my-app-secret.yaml
 ```
 
-2. **Encrypt the secret:**
+1. **Encrypt the secret:**
 
 ```bash
 sops --encrypt --in-place my-app-secret.yaml
 ```
 
-3. **Add to Git:**
+1. **Add to Git:**
 
 ```bash
 git add my-app-secret.yaml
@@ -176,17 +178,20 @@ creation_rules:
 To rotate encryption keys:
 
 1. **Generate new age key:**
+
 ```bash
 age-keygen -o age-new.agekey
 ```
 
-2. **Update .sops.yaml** with the new key
-3. **Re-encrypt all secrets:**
+1. **Update .sops.yaml** with the new key
+2. **Re-encrypt all secrets:**
+
 ```bash
 find . -name "*.secret.yaml" -exec sops --encrypt --in-place {} \;
 ```
 
-4. **Update cluster secret:**
+1. **Update cluster secret:**
+
 ```bash
 cat age-new.agekey | kubectl create secret generic sops-age \
   --namespace=flux-system \

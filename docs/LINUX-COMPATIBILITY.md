@@ -5,15 +5,19 @@ Linux is the default development environment for this repo, and every script was
 ## 1. Install required packages
 
 - Debian/Ubuntu:
+
   ```bash
   sudo apt update
   sudo apt install -y bash curl git jq yq python3 python3-pip kubectl helm
   ```
+
 - RHEL/CentOS/Fedora:
+
   ```bash
   sudo yum install -y git jq curl python3 python3-pip
   sudo dnf install -y kubectl helm
   ```
+
 - After installing Python 3, ensure `python` resolves to Python 3 (use `ln -s $(which python3) ~/bin/python` or adjust your PATH).
 - Install `flux` (`curl -s https://fluxcd.io/install.sh | sudo bash`) if you plan to use the bootstrap CLI directly.
 

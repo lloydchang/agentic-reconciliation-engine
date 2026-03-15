@@ -20,18 +20,21 @@ This document provides comprehensive disaster recovery procedures specifically f
 ### Severity Levels
 
 #### Level 1 - Critical (Total Outage)
+
 - All Git repositories unavailable
 - No repository access for > 30 minutes
 - Impact: Complete loss of GitOps functionality
 - Response: Immediate activation of offline mode
 
 #### Level 2 - Major (Partial Outage)
+
 - Primary repository unavailable
 - Backup repositories accessible
 - Impact: Degraded GitOps functionality
 - Response: Automatic failover to backup repositories
 
 #### Level 3 - Minor (Performance Degradation)
+
 - Slow repository response times
 - Intermittent connectivity issues
 - Impact: Slower reconciliation times
@@ -40,16 +43,19 @@ This document provides comprehensive disaster recovery procedures specifically f
 ### Outage Types
 
 #### Provider Outage
+
 - GitHub/GitLab/Gitea platform-wide issues
 - Network connectivity to provider
 - Provider API rate limiting
 
 #### Repository-Specific Issues
+
 - Repository corruption
 - Authentication failures
 - Repository deletion
 
 #### Network Issues
+
 - DNS resolution failures
 - Firewall/proxy issues
 - Network connectivity problems
@@ -74,7 +80,8 @@ kubectl get service git-cache-service -n flux-system -L cache.fluxcd.io/healthy
 
 ### Step 2: Activate Response Plan (5-15 minutes)
 
-#### For Level 1 Outages:
+#### For Level 1 Outages
+
 ```bash
 # Enable offline mode immediately
 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
@@ -86,7 +93,8 @@ kubectl get kustomizations -n flux-system -l fluxcd.io/offline-mode=true
 kubectl get all --all-namespaces
 ```
 
-#### For Level 2 Outages:
+#### For Level 2 Outages
+
 ```bash
 # Check if automatic failover has occurred
 kubectl get kustomizations -n flux-system -o yaml | grep sourceRef
@@ -138,14 +146,16 @@ Automatic state recovery triggers when:
 
 ### Scenario 1: Complete Git Provider Outage
 
-#### Pre-requisites:
+#### Pre-requisites
+
 - Git cache is available
 - State backups exist
 - Critical infrastructure resources are running
 
-#### Recovery Steps:
+#### Recovery Steps
 
 1. **Verify Current State**
+
 ```bash
 # Check what's currently running
 kubectl get all --all-namespaces
@@ -157,7 +167,8 @@ kubectl get pods -n flux-system -l app=git-cache-manager
 kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-state
 ```
 
-2. **Enable Offline Mode**
+1. **Enable Offline Mode**
+
 ```bash
 # Force offline mode
 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
@@ -166,7 +177,8 @@ kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --over
 kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
 ```
 
-3. **Restore State if Needed**
+1. **Restore State if Needed**
+
 ```bash
 # Get latest backup
 LATEST_BACKUP=$(kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-state --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.labels.backup\.fluxcd\.io/timestamp}')
@@ -176,7 +188,8 @@ kubectl create job --from=cronjob/state-recovery-controller manual-recovery -n f
   --from-literal=BACKUP_TIMESTAMP="$LATEST_BACKUP"
 ```
 
-4. **Validate Operations**
+1. **Validate Operations**
+
 ```bash
 # Check Flux reconciliation
 kubectl get kustomizations -n flux-system
@@ -190,9 +203,10 @@ kubectl logs -n flux-system deployment/kustomize-controller --tail=50
 
 ### Scenario 2: Primary Repository Failure
 
-#### Recovery Steps:
+#### Recovery Steps
 
 1. **Verify Backup Repositories**
+
 ```bash
 # Check secondary repository health
 kubectl get gitrepository gitops-infra-secondary -n flux-system -L gitrepo.fluxcd.io/healthy
@@ -201,7 +215,8 @@ kubectl get gitrepository gitops-infra-secondary -n flux-system -L gitrepo.fluxc
 kubectl get gitrepository gitops-infra-tertiary -n flux-system -L gitrepo.fluxcd.io/healthy
 ```
 
-2. **Manual Failover**
+1. **Manual Failover**
+
 ```bash
 # Switch to secondary repository
 kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
@@ -210,7 +225,8 @@ kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRe
 kubectl get kustomizations -n flux-system -o yaml | grep sourceRef
 ```
 
-3. **Monitor Recovery**
+1. **Monitor Recovery**
+
 ```bash
 # Watch reconciliation progress
 kubectl get kustomizations -n flux-system -w
@@ -221,9 +237,10 @@ kubectl get events -n flux-system --field-selector type=Warning
 
 ### Scenario 3: Git Cache Failure
 
-#### Recovery Steps:
+#### Recovery Steps
 
 1. **Restart Cache Service**
+
 ```bash
 # Restart cache deployment
 kubectl rollout restart deployment/git-cache-manager -n flux-system
@@ -232,7 +249,8 @@ kubectl rollout restart deployment/git-cache-manager -n flux-system
 kubectl wait --for=condition=available deployment/git-cache-manager -n flux-system --timeout=300s
 ```
 
-2. **Rebuild Cache**
+1. **Rebuild Cache**
+
 ```bash
 # Trigger cache rebuild
 kubectl exec -n flux-system deployment/git-cache-manager -- git fetch --all
@@ -246,11 +264,13 @@ kubectl exec -n flux-system deployment/git-cache-manager -- ls -la /data/git-cac
 ### Internal Communication
 
 #### Immediate Notifications (0-15 minutes)
+
 - Engineering team via Slack/Teams
 - Operations team via email
 - Management team via incident management system
 
 #### Status Updates (Every 30 minutes)
+
 - Current outage status
 - Recovery actions in progress
 - Estimated recovery time
@@ -259,11 +279,13 @@ kubectl exec -n flux-system deployment/git-cache-manager -- ls -la /data/git-cac
 ### External Communication
 
 #### Customer Notifications (If applicable)
+
 - Service status page updates
 - Customer email notifications
 - Social media updates
 
 #### Vendor Communication
+
 - Contact Git provider support
 - Report outage details
 - Request ETA for resolution
@@ -273,6 +295,7 @@ kubectl exec -n flux-system deployment/git-cache-manager -- ls -la /data/git-cac
 ### Technical Validation
 
 1. **Repository Connectivity**
+
 ```bash
 # Test all repositories
 git ls-remote https://github.com/antigravity/gitops-infra-control-plane.git
@@ -280,7 +303,8 @@ git ls-remote https://gitlab.com/antigravity/gitops-infra-control-plane.git
 git ls-remote https://gitea.internal/antigravity/gitops-infra-control-plane.git
 ```
 
-2. **Flux Operations**
+1. **Flux Operations**
+
 ```bash
 # Check reconciliation status
 kubectl get kustomizations -n flux-system
@@ -293,7 +317,8 @@ git commit --allow-empty -m "Test commit after recovery"
 git push origin main
 ```
 
-3. **Infrastructure State**
+1. **Infrastructure State**
+
 ```bash
 # Verify all resources are present
 kubectl get all --all-namespaces
@@ -308,11 +333,13 @@ kubectl get pods --all-namespaces -o wide
 ### Business Validation
 
 1. **Application Functionality**
+
 - Verify all applications are running
 - Test critical user workflows
 - Check monitoring dashboards
 
-2. **Performance Validation**
+1. **Performance Validation**
+
 - Verify response times are normal
 - Check error rates are acceptable
 - Validate resource utilization
@@ -322,16 +349,19 @@ kubectl get pods --all-namespaces -o wide
 ### Architecture Improvements
 
 1. **Multi-Repository Strategy**
+
 - Primary: GitHub
 - Secondary: GitLab
 - Tertiary: Self-hosted Gitea
 
-2. **Local Git Cache**
+1. **Local Git Cache**
+
 - In-cluster repository cache
 - Automatic synchronization
 - Offline operation capability
 
-3. **State Persistence**
+1. **State Persistence**
+
 - Regular state backups
 - Multiple backup locations
 - Automated recovery procedures
@@ -339,11 +369,13 @@ kubectl get pods --all-namespaces -o wide
 ### Monitoring Improvements
 
 1. **Health Monitoring**
+
 - Repository health checks
 - Performance monitoring
 - Automated alerting
 
-2. **Capacity Planning**
+1. **Capacity Planning**
+
 - Resource utilization monitoring
 - Scalability testing
 - Performance optimization
@@ -351,11 +383,13 @@ kubectl get pods --all-namespaces -o wide
 ### Process Improvements
 
 1. **Regular Testing**
+
 - Monthly outage drills
 - Quarterly full recovery tests
 - Annual disaster recovery exercises
 
-2. **Documentation Updates**
+1. **Documentation Updates**
+
 - Regular procedure reviews
 - Contact list updates
 - Escalation path validation
@@ -365,12 +399,14 @@ kubectl get pods --all-namespaces -o wide
 ### Monthly Outage Drills
 
 #### Scenario 1: Primary Repository Outage
+
 1. Simulate primary repository failure
 2. Verify automatic failover to secondary
 3. Test manual recovery procedures
 4. Validate business continuity
 
 #### Scenario 2: Complete Git Outage
+
 1. Simulate all repository failures
 2. Activate offline mode
 3. Test state recovery procedures
@@ -379,12 +415,14 @@ kubectl get pods --all-namespaces -o wide
 ### Quarterly Full Recovery Tests
 
 #### Test Objectives
+
 - Validate all recovery procedures
 - Test communication protocols
 - Verify team readiness
 - Identify improvement opportunities
 
 #### Test Scenarios
+
 - Extended outage (4+ hours)
 - Multiple concurrent failures
 - Network connectivity issues
@@ -393,6 +431,7 @@ kubectl get pods --all-namespaces -o wide
 ### Annual Disaster Recovery Exercises
 
 #### Comprehensive Testing
+
 - Full system outage simulation
 - Cross-team coordination
 - External vendor interaction
@@ -401,16 +440,19 @@ kubectl get pods --all-namespaces -o wide
 ## Emergency Contacts
 
 ### Internal Contacts
+
 - **Technical Lead**: [Contact Information]
 - **Engineering Manager**: [Contact Information]
 - **Incident Commander**: [Contact Information]
 
 ### External Contacts
+
 - **GitHub Support**: [Contact Information]
 - **GitLab Support**: [Contact Information]
 - **Cloud Provider Support**: [Contact Information]
 
 ### Escalation Matrix
+
 | Severity | Response Time | Escalation Path |
 |----------|---------------|-----------------|
 | Critical | 15 minutes | Technical Lead → Engineering Manager → Director |
@@ -441,6 +483,7 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ### Decision Trees
 
 #### Repository Unavailable Decision Tree
+
 ```
 Is primary repository healthy?
 ├── No → Is secondary repository healthy?
@@ -452,6 +495,7 @@ Is primary repository healthy?
 ```
 
 #### Recovery Decision Tree
+
 ```
 Git repository recovered?
 ├── Yes → Is offline mode active?

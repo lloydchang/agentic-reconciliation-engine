@@ -3,6 +3,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Go 1.19+
 - Node.js 16+
 - Docker (optional for containerized deployment)
@@ -12,12 +13,14 @@
 ### Local Development Setup
 
 #### 1. Clone and Setup
+
 ```bash
 git clone https://github.com/lloydchang/ai-agents-sandbox.git
 cd ai-agents-sandbox
 ```
 
 #### 2. Backend Setup
+
 ```bash
 cd backend
 go mod tidy
@@ -25,6 +28,7 @@ go run verification_server.go
 ```
 
 #### 3. Frontend Setup
+
 ```bash
 cd frontend
 npm install
@@ -32,14 +36,16 @@ npm start
 ```
 
 #### 4. Access Services
-- Backend API: http://localhost:8081
-- Frontend: http://localhost:3000
+
+- Backend API: <http://localhost:8081>
+- Frontend: <http://localhost:3000>
 - WebSocket: ws://localhost:8081/ws
-- Health Check: http://localhost:8081/health
+- Health Check: <http://localhost:8081/health>
 
 ## 🐳 Docker Deployment
 
 ### Docker Compose Setup
+
 ```yaml
 # docker-compose.yml
 version: '3.8'
@@ -86,6 +92,7 @@ volumes:
 ```
 
 ### Deploy with Docker
+
 ```bash
 docker-compose up -d
 ```
@@ -95,6 +102,7 @@ docker-compose up -d
 ### AWS ECS Deployment
 
 #### 1. Build and Push Images
+
 ```bash
 # Backend
 docker build -t ai-agents-backend ./backend
@@ -108,6 +116,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 ```
 
 #### 2. ECS Task Definition
+
 ```json
 {
   "family": "ai-agents-sandbox",
@@ -153,6 +162,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 ### Kubernetes Deployment
 
 #### 1. Namespace and ConfigMaps
+
 ```yaml
 # k8s/namespace.yaml
 apiVersion: v1
@@ -174,6 +184,7 @@ data:
 ```
 
 #### 2. Backend Deployment
+
 ```yaml
 # k8s/backend-deployment.yaml
 apiVersion: apps/v1
@@ -236,6 +247,7 @@ spec:
 ```
 
 #### 3. Frontend Deployment
+
 ```yaml
 # k8s/frontend-deployment.yaml
 apiVersion: apps/v1
@@ -283,6 +295,7 @@ spec:
 ```
 
 #### 4. Ingress Configuration
+
 ```yaml
 # k8s/ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -321,6 +334,7 @@ spec:
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```bash
 # Backend Configuration
 TEMPORAL_HOST=temporal.namespace.id.tmprl.cloud:7233
@@ -335,6 +349,7 @@ REACT_APP_WS_URL=ws://localhost:8081/ws
 ```
 
 ### AWS Configuration
+
 ```bash
 # Configure AWS credentials for Bedrock
 aws configure
@@ -347,6 +362,7 @@ aws bedrock list-foundation-models --region us-west-2
 ```
 
 ### Temporal Configuration
+
 ```bash
 # For Temporal Cloud
 export TEMPORAL_HOST="temporal.namespace.id.tmprl.cloud:7233"
@@ -362,6 +378,7 @@ docker run --rm -it \
 ## 🔍 Monitoring & Observability
 
 ### Prometheus Metrics
+
 ```yaml
 # monitoring/prometheus.yml
 global:
@@ -380,6 +397,7 @@ scrape_configs:
 ```
 
 ### Grafana Dashboard
+
 ```json
 {
   "dashboard": {
@@ -421,6 +439,7 @@ scrape_configs:
 ```
 
 ### Log Aggregation
+
 ```yaml
 # logging/fluentd.yml
 <source>
@@ -441,6 +460,7 @@ scrape_configs:
 ## 🔒 Security Configuration
 
 ### Authentication
+
 ```go
 // middleware/auth.go
 func authMiddleware(next http.Handler) http.Handler {
@@ -466,6 +486,7 @@ func authMiddleware(next http.Handler) http.Handler {
 ```
 
 ### Rate Limiting
+
 ```go
 // middleware/ratelimit.go
 func rateLimitMiddleware() func(http.Handler) http.Handler {
@@ -484,6 +505,7 @@ func rateLimitMiddleware() func(http.Handler) http.Handler {
 ```
 
 ### Network Policies (Kubernetes)
+
 ```yaml
 # k8s/network-policy.yaml
 apiVersion: networking.k8s.io/v1
@@ -516,6 +538,7 @@ spec:
 ## 🚀 CI/CD Pipeline
 
 ### GitHub Actions
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy AI Agents Sandbox
@@ -582,6 +605,7 @@ jobs:
 ## 📊 Performance Tuning
 
 ### Backend Optimization
+
 ```go
 // config/performance.go
 func setupPerformanceConfig() {
@@ -603,6 +627,7 @@ func setupPerformanceConfig() {
 ```
 
 ### Frontend Optimization
+
 ```javascript
 // webpack.config.js
 module.exports = {
@@ -634,6 +659,7 @@ module.exports = {
 ### Common Issues
 
 #### 1. Temporal Connection Issues
+
 ```bash
 # Check Temporal status
 curl http://localhost:8233/api/v1/namespaces/default
@@ -643,6 +669,7 @@ telnet temporal.namespace.id.tmprl.cloud 7233
 ```
 
 #### 2. AWS Bedrock Access Issues
+
 ```bash
 # Check Bedrock model access
 aws bedrock get-foundation-model --model-id anthropic.claude-3-sonnet-20240229-v1:0 --region us-west-2
@@ -652,6 +679,7 @@ aws iam get-user
 ```
 
 #### 3. WebSocket Connection Issues
+
 ```javascript
 // Test WebSocket connection
 const ws = new WebSocket('ws://localhost:8081/ws');
@@ -660,6 +688,7 @@ ws.onerror = (error) => console.error('WebSocket error:', error);
 ```
 
 #### 4. Memory Issues
+
 ```bash
 # Monitor memory usage
 docker stats
@@ -669,6 +698,7 @@ docker run --memory="2g" ai-agents-backend
 ```
 
 ### Health Checks
+
 ```bash
 # Backend health
 curl http://localhost:8081/health
@@ -683,16 +713,19 @@ wscat -c ws://localhost:8081/ws
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [API Reference](./api-reference.md)
 - [Workflow Guide](./workflow-guide.md)
 - [Troubleshooting Guide](./troubleshooting.md)
 
 ### Support
+
 - GitHub Issues: [Create Issue](https://github.com/lloydchang/ai-agents-sandbox/issues)
 - Community Forum: [Discussions](https://github.com/lloydchang/ai-agents-sandbox/discussions)
-- Email Support: support@ai-agents-sandbox.com
+- Email Support: <support@ai-agents-sandbox.com>
 
 ### Training
+
 - [Getting Started Tutorial](./tutorials/getting-started.md)
 - [Advanced Configuration](./tutorials/advanced-config.md)
 - [Best Practices Guide](./tutorials/best-practices.md)
@@ -702,6 +735,7 @@ wscat -c ws://localhost:8081/ws
 ## 🎯 Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] All tests passing
 - [ ] Security scan completed
 - [ ] Performance benchmarks met
@@ -709,6 +743,7 @@ wscat -c ws://localhost:8081/ws
 - [ ] Backup strategy in place
 
 ### Deployment
+
 - [ ] Infrastructure provisioned
 - [ ] Secrets configured
 - [ ] Services deployed
@@ -716,6 +751,7 @@ wscat -c ws://localhost:8081/ws
 - [ ] Monitoring configured
 
 ### Post-Deployment
+
 - [ ] Smoke tests executed
 - [ ] Load testing performed
 - [ ] Monitoring alerts configured

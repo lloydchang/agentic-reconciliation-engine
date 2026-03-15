@@ -5,6 +5,7 @@ This guide explains how to integrate Jenkins CI with Flux CD for a complete GitO
 ## Overview
 
 The integration follows GitOps principles by separating concerns:
+
 - **Jenkins (CI)**: Builds, tests, and pushes container images
 - **Flux (CD)**: Deploys applications based on image updates
 
@@ -31,6 +32,7 @@ The integration follows GitOps principles by separating concerns:
 **File**: `jenkins/Jenkinsfile`
 
 A declarative pipeline that:
+
 - Builds OCI images using Docker
 - Runs tests in isolated containers
 - Pushes development and release tags
@@ -54,6 +56,7 @@ A declarative pipeline that:
 **File**: `control-plane/flux/jenkins-image-automation.yaml`
 
 Flux resources that:
+
 - Monitor container registry for new images
 - Apply update policies for development and production
 - Automatically update Git manifests with new image references
@@ -68,6 +71,7 @@ Flux resources that:
 **File**: `jenkins/docker-pod.yaml`
 
 Kubernetes pod configuration for Jenkins agents that:
+
 - Uses Docker-in-Docker (DinD) for container builds
 - Provides privileged access for Docker daemon
 - Includes Jenkins JNLP agent for communication
@@ -77,6 +81,7 @@ Kubernetes pod configuration for Jenkins agents that:
 **File**: `jenkins/run-tests.sh`
 
 Comprehensive test suite that validates:
+
 - Container environment and system commands
 - Project file structure and YAML syntax
 - Kubernetes manifests and Flux configuration
@@ -168,7 +173,7 @@ For production deployments, enable the GitHub Actions Auto PR workflow:
 1. **Developer pushes code** to feature branch
 2. **Jenkins triggers** build pipeline
 3. **Build stage**: Creates Docker image locally
-4. **Development stage**: 
+4. **Development stage**:
    - Pushes dev tag to registry
    - Runs tests in parallel
 5. **Flux detects** new development image
@@ -180,7 +185,7 @@ For production deployments, enable the GitHub Actions Auto PR workflow:
 2. **Jenkins triggers** release pipeline
 3. **Build stage**: Rebuilds image with cache
 4. **Test stage**: Runs full test suite
-5. **Release stage**: 
+5. **Release stage**:
    - Pushes SemVer tag
    - Pushes latest tag (for main branch)
 6. **Flux detects** new release image
@@ -206,6 +211,7 @@ jenkinsDockerSecret = 'ghcr-registry-account' // Jenkins credential ID
 Adjust Flux image policies based on your needs:
 
 #### Development Policy
+
 ```yaml
 filterTags:
   pattern: '^[a-zA-Z0-9_-]+-[a-fA-F0-9]{8}-[0-9]+$'
@@ -215,6 +221,7 @@ policy:
 ```
 
 #### Production Policy
+
 ```yaml
 filterTags:
   pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
@@ -261,6 +268,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
 #### Jenkins Build Failures
 
 1. **Docker Socket Issues**
+
    ```bash
    # Check Docker socket permissions
    ls -la /var/run/docker.sock
@@ -270,6 +278,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
    ```
 
 2. **Registry Authentication**
+
    ```bash
    # Test registry access
    docker login ghcr.io -u username -p token
@@ -279,6 +288,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
    ```
 
 3. **Resource Constraints**
+
    ```bash
    # Check pod resource usage
    kubectl top pods
@@ -289,6 +299,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
 #### Flux Image Update Issues
 
 1. **Image Repository Not Syncing**
+
    ```bash
    # Check image repository status
    kubectl get imagerepository gitops-infra-control-plane -n flux-system -o yaml
@@ -298,6 +309,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
    ```
 
 2. **Policy Not Matching**
+
    ```bash
    # Check available tags
    kubectl get image gitops-infra-control-plane -n flux-system -o yaml
@@ -307,6 +319,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
    ```
 
 3. **Git Push Failures**
+
    ```bash
    # Check git repository credentials
    kubectl get secret -n flux-system
