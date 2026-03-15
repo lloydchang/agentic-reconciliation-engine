@@ -13,6 +13,7 @@ This overlay brings up the Azure-specific infrastructure when Flux includes `./c
 1. Review the placeholder values inside `patches/` and change them to your resource group, location, and service CIDR needs.
 2. Use `kustomize build control-plane/flux/cloud-azure` to verify the generated manifests.
 3. Enable the overlay via `scripts/enable-cloud.sh azure` and reconcile Flux (`flux reconcile kustomization control-plane --with-source`).
+   * Append `--emulator=enable` or `--emulator=disable` to add or remove the `local-emulator` entry when you want to flip the Azure emulator stack on top of the real overlay.
 
 ## Local emulator
 If you want to test locally without provisioning real Azure resources, enable the local emulator overlay.
