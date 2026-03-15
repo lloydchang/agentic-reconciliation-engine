@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="950" viewBox="0 0 680 950">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="680" height="950" fill="#ffffff"/>
+
+  <!-- ── Tier labels ─────────────────────────────────────────────────── -->
+  <text x="26" y="60"  text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 0]</text>
+  <text x="26" y="142" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[CI]</text>
+  <text x="26" y="464" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 1]</text>
+  <text x="26" y="761" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999999">[Tier 2]</text>
+
+  <!-- ── Git repository ─────────────────────────────────────────────── -->
+  <rect x="215" y="32" width="250" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+  <text x="340" y="54"  text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#633806">Git repository</text>
+  <text x="340" y="72"  text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">declarative source of truth</text>
+
+  <!-- Git → CI arrow + label -->
+  <line x1="340" y1="88" x2="340" y2="112" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="350" y="104" font-family="sans-serif" font-size="11" fill="#888888">Pull request</text>
+
+  <!-- ── CI policy gate ─────────────────────────────────────────────── -->
+  <rect x="80" y="112" width="520" height="60" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+  <text x="340" y="135" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#444441">CI policy gate</text>
+  <text x="340" y="155" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">deletion guard &#183; schema validation (kubeconform) &#183; OPA policy checks</text>
+
+  <!-- CI → Bootstrap arrow + label -->
+  <line x1="340" y1="172" x2="340" y2="194" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="350" y="187" font-family="sans-serif" font-size="11" fill="#888888">Merge to main</text>
+
+  <!-- ── Bootstrap cluster ──────────────────────────────────────────── -->
+  <rect x="100" y="194" width="480" height="106" rx="8" fill="#FFF8E7" stroke="#B7860B" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="340" y="216" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#7A5A00">Bootstrap cluster</text>
+  <text x="340" y="234" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#B7860B">lightweight &#183; 1&#8211;3 nodes &#183; k3s or small managed cluster</text>
+  <text x="340" y="252" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#B7860B">&#183; Holds hub bootstrap config and manifests</text>
+  <text x="340" y="270" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#B7860B">&#183; Runs hub etcd backup schedule</text>
+  <text x="340" y="288" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#B7860B">&#183; Provides cold-start recovery anchor</text>
+
+  <!-- Bootstrap → Hub arrow + label -->
+  <line x1="340" y1="300" x2="340" y2="340" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="350" y="323" font-family="sans-serif" font-size="11" fill="#888888">bootstraps hub once; monitors hub health</text>
+
+  <!-- ── Hub cluster border ─────────────────────────────────────────── -->
+  <rect x="50" y="340" width="580" height="248" rx="14" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="340" y="362" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Hub cluster (HA)</text>
+  <text x="340" y="380" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">any Kubernetes distribution &#183; 3+ control plane nodes across AZs</text>
+  <text x="340" y="396" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">etcd backup to object storage &#183; Flux self-manages hub after bootstrap</text>
+
+  <!-- Flux box -->
+  <rect x="62" y="410" width="148" height="160" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="136" y="432" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Flux</text>
+  <text x="136" y="450" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">GitOps reconcile</text>
+  <text x="136" y="467" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Git &#8594; hub</text>
+  <text x="136" y="484" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Bootstraps spoke</text>
+  <text x="136" y="501" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Flux + ESO</text>
+  <text x="136" y="518" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">agents via CAPI</text>
+  <!-- Flux self-manages the hub it runs on (circular dependency) -->
+  <path d="M62 570 C30 570 30 410 62 410" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+  <!-- Crossplane box -->
+  <rect x="222" y="410" width="178" height="160" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="311" y="432" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Crossplane</text>
+  <text x="311" y="450" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Unified XRDs (cloud-agnostic)</text>
+  <text x="311" y="467" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">XDatabase, XNetwork, etc.</text>
+  <text x="311" y="484" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">provider-aws</text>
+  <text x="311" y="501" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">provider-azure</text>
+  <text x="311" y="518" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">provider-gcp</text>
+
+  <!-- Cluster API box -->
+  <rect x="412" y="410" width="206" height="160" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+  <text x="515" y="432" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#3C3489">Cluster API</text>
+  <text x="515" y="450" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Spoke lifecycle</text>
+  <text x="515" y="467" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Kubeadm</text>
+  <text x="515" y="484" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">Metal3</text>
+  <text x="515" y="501" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#534AB7">CAPV / CAPO</text>
+
+  <!-- ── Hub → Spoke arrows (3, function-labeled) ───────────────────── -->
+  <!-- Flux bootstraps spoke Flux + ESO -->
+  <line x1="136" y1="588" x2="136" y2="642" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="136" y="606" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">Flux bootstraps</text>
+  <text x="136" y="622" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">spoke Flux + ESO</text>
+
+  <!-- Crossplane creates cloud resources -->
+  <line x1="311" y1="588" x2="311" y2="642" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="311" y="606" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">Crossplane creates</text>
+  <text x="311" y="622" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">cloud resources</text>
+
+  <!-- CAPI provisions cluster lifecycle -->
+  <line x1="515" y1="588" x2="515" y2="642" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="515" y="606" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">CAPI provisions</text>
+  <text x="515" y="622" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888888">cluster lifecycle</text>
+
+  <!-- ── Spoke clusters border ──────────────────────────────────────── -->
+  <rect x="50" y="642" width="580" height="238" rx="14" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="340" y="662" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">Spoke clusters</text>
+  <text x="340" y="679" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Each spoke is operationally independent</text>
+  <text x="340" y="695" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#183; Flux agent pulls config from Git directly (pull model) &#183; ESO + workload identity</text>
+  <text x="340" y="711" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#183; Hub outage does not pause spoke reconciliation or secret delivery</text>
+
+  <!-- EKS -->
+  <rect x="62" y="724" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="124" y="745" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">EKS</text>
+  <text x="124" y="762" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">AWS managed</text>
+  <text x="124" y="778" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">IRSA</text>
+  <text x="124" y="794" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AWS SM</text>
+  <text x="124" y="810" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux</text>
+  <text x="124" y="826" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO</text>
+
+  <!-- AKS -->
+  <rect x="200" y="724" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="262" y="745" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">AKS</text>
+  <text x="262" y="762" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Azure managed</text>
+  <text x="262" y="778" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Managed Identity</text>
+  <text x="262" y="794" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; AKV</text>
+  <text x="262" y="810" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux</text>
+  <text x="262" y="826" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO</text>
+
+  <!-- GKE -->
+  <rect x="338" y="724" width="124" height="134" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="400" y="745" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#085041">GKE</text>
+  <text x="400" y="762" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">GCP managed</text>
+  <text x="400" y="778" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Workload Identity</text>
+  <text x="400" y="794" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">&#8594; GCP SM</text>
+  <text x="400" y="810" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">Flux</text>
+  <text x="400" y="826" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0F6E56">ESO</text>
+
+  <!-- Kubeadm / on-prem -->
+  <rect x="476" y="724" width="142" height="134" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+  <text x="547" y="745" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#712B13">Kubeadm / on-prem</text>
+  <text x="547" y="762" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">HashiCorp Vault /</text>
+  <text x="547" y="778" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">external vault</text>
+  <text x="547" y="810" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">Flux</text>
+  <text x="547" y="826" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#993C1D">ESO</text>
+
+  <!-- ── Legend ─────────────────────────────────────────────────────── -->
+  <rect x="148" y="896" width="10" height="10" rx="2" fill="#1D9E75"/>
+  <text x="163" y="905" font-family="sans-serif" font-size="11" fill="#555555">Cloud managed</text>
+  <rect x="270" y="896" width="10" height="10" rx="2" fill="#D85A30"/>
+  <text x="285" y="905" font-family="sans-serif" font-size="11" fill="#555555">On-prem</text>
+  <rect x="362" y="896" width="10" height="10" rx="2" fill="#7F77DD"/>
+  <text x="377" y="905" font-family="sans-serif" font-size="11" fill="#555555">Hub operators (Crossplane &#183; CAPI)</text>
+
+  <!-- ── Bottom notes ───────────────────────────────────────────────── -->
+  <text x="340" y="924" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Spoke Flux agent pulls from Git directly &#183; ESO + workload identity per spoke &#183; hub not in secrets path</text>
+  <text x="340" y="940" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999999">Bootstrap cluster (1&#8211;3 nodes, external) &#183; bootstraps hub once &#183; provides cold-start recovery anchor</text>
+</svg>
