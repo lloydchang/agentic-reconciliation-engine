@@ -6,7 +6,7 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 - [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
 - [Overview](./docs/OVERVIEW.md) — architecture narrative, operations references, zero-touch automation, and known limitations.
 - [Agent clients & Azure support](./docs/AGENT-CLIENTS.md) — the Azure Claude Code/Codex guidance plus the terminals (Antigravity, Windsurf, Cursor, VS Code Copilot) that surface POSIX shells on Windows.
-- [Compatibility guides](./docs/WINDOWS-COMPATIBILITY.md), [`docs/MAC-COMPATIBILITY.md`](./docs/MAC-COMPATIBILITY.md), [`docs/LINUX-COMPATIBILITY.md`](./docs/LINUX-COMPATIBILITY.md), [`docs/SHELL-COMPATIBILITY.md`](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
+- [`docs/WINDOWS-COMPATIBILITY.md`](./docs/WINDOWS-COMPATIBILITY.md), [`docs/MAC-COMPATIBILITY.md`](./docs/MAC-COMPATIBILITY.md), [`docs/LINUX-COMPATIBILITY.md`](./docs/LINUX-COMPATIBILITY.md), [`docs/SHELL-COMPATIBILITY.md`](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
 
 ## Getting started
