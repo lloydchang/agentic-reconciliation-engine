@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: node-maintenance-config
-data:
-  example: "placeholder for node-maintenance"
-
