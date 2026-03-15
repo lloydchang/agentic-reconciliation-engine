@@ -1,4 +1,4 @@
-# Agent clients: Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
+# Agent Runtime: Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
 
 This repo's automation is provider-agnostic, but many contributors run the scripts through an AI agent or coding assistant. Documented below are the six major agentic coding clients we support, along with platform-specific guidance for getting a POSIX shell in each environment.
 
@@ -14,7 +14,7 @@ This repo's automation is provider-agnostic, but many contributors run the scrip
 | **Windsurf** (Cognition AI) | ✅ x64 & ARM64 | ✅ Apple Silicon & Intel | ✅ x64 (.tar.gz, .deb) |
 | **Cursor** (Anysphere) | ✅ Windows 10+ | ✅ macOS 12+ | ✅ AppImage, Ubuntu 20.04+ |
 | **VS Code + Copilot** (Microsoft) | ✅ x64 & ARM64 | ✅ Universal (Intel + Silicon) | ✅ deb, rpm, tarball, snap |
-| **gitops-infra-control-plane** | experimental | yes | yes |
+| **gitops-infra-control-plane** | experimental | via containers | yes |
 
 > **Windows note:** Most POSIX shell requirements across these tools are best satisfied by WSL 2, Git Bash, or a Linux remote via VS Code Remote – SSH/WSL. See `docs/WINDOWS-COMPATIBILITY.md` for the fallback paths (GitHub Codespaces, Azure Linux VM) if WSL cannot be enabled locally.
 
