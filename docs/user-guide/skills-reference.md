@@ -59,6 +59,8 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
 | **incident-triage-runbook** | "P0/P1/P2/P3 alert", "outage", "degraded service", "runbook for X" | Novel P0/P1 decisions | 80% |
+| **alert-prioritizer** | "score alerts", "combine signals", "risk score", "auto-escalate" | Manual review for high-risk escalations | 75% |
+| **alert-router** | "route alert", "deliver to slack/pagerduty", "cancel notification" | Channel outages require human oversight | 70% |
 | **sla-monitoring-alerting** | "error budget", "SRE metrics", "Four Golden Signals", "latency", "traffic", "errors", "saturation", "Service Level Agreement", "SLA", "Service Level Objective", "SLO", "Service Level Indicator", "SLI", "SLO compliance", "SLA breach", "reliability metrics" | No (monitoring only) | 85% |
 | **observability-stack** | "set up monitoring", "Grafana dashboard", "Prometheus scrape", "log aggregation", "eBPF", "Pixie" | Prod alerting changes | 80% |
 | **chaos-load-testing** | "chaos experiment", "load test", "fault injection", "zone failure", "breaking point" | Any prod chaos | 75% |
