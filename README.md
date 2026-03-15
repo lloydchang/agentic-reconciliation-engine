@@ -202,6 +202,18 @@ the problem you are solving.
 ### Advanced Topics
 - [AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md) - Experimental automation patterns (research only)
 - [Migration Strategy](./docs/LEGACY-IAC-MIGRATION-STRATEGY.md) - Converting from traditional IaC
+- [Migration Wizard Architecture](./docs/MIGRATION-WIZARD-ARCHITECTURE.md) - Modular orchestrator for overlay ordering and multi-host connectors
+- [Azure DevOps Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Use the connector with `AZURE_DEVOPS_TOKEN`, `AZURE_DEVOPS_ORG`, `AZURE_DEVOPS_PROJECT`, and the Azure CLI to push migration branches/PRs via the wizard.
+- [GitHub Enterprise Server Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `GITHUB_ENTERPRISE_TOKEN` + `GITHUB_ENTERPRISE_HOST` and uses `gh pr create` for PR automation.
+- [GitHub Enterprise Cloud Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Use this connector even when you just use `github.com`; it is the same SaaS service (Enterprise Cloud), so set `GITHUB_ENTERPRISE_TOKEN` and run `gh pr create`.
+- [GitLab Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `GITLAB_TOKEN` (plus optional `GITLAB_HOST`) and hits the GitLab merge request API.
+- [GitLab on Google Cloud](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Set `GITLAB_HOST` to your Google Cloud hosted GitLab instance along with `GITLAB_TOKEN`.
+- [Bitbucket Data Center Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `BITBUCKET_DC_HOST`, `BITBUCKET_DC_USER`, `BITBUCKET_DC_TOKEN`, and uses the Bitbucket REST API for PRs.
+- [Bitbucket Cloud Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `BITBUCKET_USER`+`BITBUCKET_TOKEN` and uses the Bitbucket Cloud PR API.
+- [AWS CodeCommit Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the standard HTTPS git helper; PRs must be opened via the AWS console because there is no unified CLI for it.
+- [GCP Secure Source Manager Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the gcloud git credential helper; clone/push run via git and PRs opened through the Cloud Console.
+ - [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - After connectors that can’t create PRs spin up (CodeCommit, Secure Source Manager), this script prints the AWS or GCP console URL for manual PR creation.
+- [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL so you can create the pull request manually.
 
 ## Comparison with Managed Alternatives
 
