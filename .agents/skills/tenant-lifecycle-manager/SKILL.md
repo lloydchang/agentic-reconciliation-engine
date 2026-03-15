@@ -1,200 +1,140 @@
 ---
 name: tenant-lifecycle-manager
 description: >
-  Use this skill to automate the full SaaS tenant lifecycle: provisioning,
-  configuration, scaling, suspension, and deprovisioning across multi-cloud
-  environments. Triggers: requests to onboard a new tenant, offboard or
-  deprovision a tenant, resize/scale a tenant's resources, clone an environment
-  for testing, or audit tenant resource allocation and billing tags.
-tools:
-  - bash
-  - computer
+  Automate onboarding, scaling, suspension, and deprovisioning of tenants with AI-informed decisioning and shared-context signals.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Tenant Lifecycle Manager Skill
+# Tenant Lifecycle Manager — World-class Tenant Operations Playbook
 
-Automate every stage of the SaaS tenant lifecycle with idempotent, auditable
-operations across Azure, AWS, and GCP. All operations are tracked in the tenant
-registry and emit structured events for billing and compliance.
+Manages the entire SaaS tenant lifecycle across clouds: provisioning, configuration, scaling, suspension, and clean decommissioning. Use it when operating tenant tiers, responding to capacity/policy incidents, or generating billing/compliance events.
 
-# Tenant Lifecycle Manager Skill
+## When to invoke
+- Provision new tenants or clone environments.
+- Scale tenant resources (compute, storage, database).
+- Suspend or resume tenants (payment issues, security events).
+- Deprovision tenants with irreversible cleanup.
+- Respond to dispatcher flags (`policy-risk`, `capacity-alert`, `incident-ready`) requiring tenant actions.
 
-Automate every stage of the SaaS tenant lifecycle with idempotent, auditable
-operations across Azure, AWS, and GCP. All operations are tracked in the tenant
-registry and emit structured events for billing and compliance.
+## Capabilities
+- Multi-cloud provisioning templates per tier (starter/business/enterprise/critical).
+- Scaling automation with health validation and backup safeguards.
+- Suspension/resume flows preserving data and secrets.
+- Controlled deprovisioning with archived backups and billing updates.
+- AI risk scoring for destructive actions and shared context outputs.
 
-## Enhanced Tenant Lifecycle Automation
-
-### Automated Provisioning, Configuration, and Retirement
-Automate provisioning, configuration, and retirement of SaaS tenants.
-
-**Workflow:**
-1. Tenant creation - Set up new tenant environments
-2. Tenant configuration - Apply tenant-specific settings and templates
-3. Tenant scaling - Adjust resources based on tenant needs
-4. Tenant decommissioning - Clean removal of tenant resources
-
-**Process:**
-1. Receive tenant request with specifications
-2. Allocate infrastructure resources based on tier and requirements
-3. Apply configuration templates for the tenant environment
-4. Validate tenant health and functionality
-5. Monitor ongoing tenant operations
-
-**Output:** Tenant provisioning status and health reports.
-
----
-
-## Tenant States
-
-```
-REQUESTED → PROVISIONING → ACTIVE → SUSPENDED → DEPROVISIONING → DELETED
-                                 ↘ SCALING ↗
-```
-
----
-
-## Phase 1 — Provisioning (New Tenant Onboarding)
-
-### Inputs required
-```yaml
-tenant_id: "t-acme-prod"
-tier: "enterprise|business|starter"
-region: "eastus|westeurope|southeastasia"
-cloud: "azure|aws|gcp"
-owner_email: "ops@acme.com"
-data_residency: "us|eu|apac"
-```
-
-### Steps
-1. **Validate inputs** — check tenant_id uniqueness, region availability, quota
-2. **Create namespace / resource group**
-   ```bash
-   az group create --name "rg-${TENANT_ID}" --location $REGION \
-     --tags "tenant=$TENANT_ID" "tier=$TIER" "managed_by=tenant-lifecycle"
-   ```
-3. **Apply tier template** via Terraform module:
-   ```bash
-   terraform apply -var-file="tiers/${TIER}.tfvars" \
-     -var="tenant_id=$TENANT_ID" -var="region=$REGION"
-   ```
-4. **Configure identity** — create service principal / workload identity
-5. **Seed initial data** — apply database migrations, seed config
-6. **DNS registration** — create `${TENANT_ID}.app.example.com` CNAME
-7. **Secret injection** — populate tenant secrets in Key Vault / Secrets Manager
-8. **Health check** — poll `/health` endpoint until 200 OK (max 10 min)
-9. **Register in tenant registry** — write to central DB with full metadata
-10. **Notify** — send welcome email and ops confirmation
-
-### Tier Profiles
-
-| Resource         | Starter | Business | Enterprise |
-|------------------|---------|----------|------------|
-| AKS node count   | 1       | 3        | 5+         |
-| DB SKU           | Basic   | GP_S_2   | BC_8       |
-| Storage (GB)     | 50      | 500      | 5000       |
-| SLA target       | 99.5%   | 99.9%    | 99.99%     |
-| Backup retention | 7 days  | 30 days  | 90 days    |
-
----
-
-## Phase 2 — Scaling
-
-Triggered by: usage threshold, tier upgrade, or manual request.
+## Invocation patterns
 
 ```bash
-# Scale AKS node pool
-az aks nodepool scale --cluster-name "aks-${TENANT_ID}" \
-  --name workload --node-count $NEW_COUNT
-
-# Resize database
-az postgres flexible-server update --name "pg-${TENANT_ID}" \
-  --sku-name $NEW_SKU
-
-# Expand storage
-az disk update --name "disk-${TENANT_ID}" --size-gb $NEW_SIZE
+/tenant-lifecycle-manager provision --tenant=t-acme-prod --tier=enterprise --region=eastus
+/tenant-lifecycle-manager scale --tenant=t-acme-prod --nodeCount=5 --dbSku=D8s_v3
+/tenant-lifecycle-manager suspend --tenant=t-unpaid-001 --reason=payment-failure
+/tenant-lifecycle-manager failover --tenant=t-acme-prod --region=westeurope
+/tenant-lifecycle-manager deprovision --tenant=t-churned-co --confirm=true
 ```
 
-All scaling operations are:
-- Non-destructive by default
-- Preceded by a pre-scale snapshot/backup
-- Validated with a health check post-scale
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `tenant` | Tenant identifier. | `t-acme-prod` |
+| `tier` | SLA tier (starter/business/enterprise/critical). | `enterprise` |
+| `region` | Cloud region for provisioning. | `eastus` |
+| `nodeCount` | Node pool size for scaling. | `5` |
+| `dbSku` | Database SKU for scaling. | `Standard_D8s_v3` |
+| `reason` | Reason for suspension/failover. | `payment-failure` |
 
----
-
-## Phase 3 — Suspension
-
-Triggered by: payment failure, policy violation, or manual request.
-
-```bash
-# Scale down to zero but retain data
-az aks nodepool scale ... --node-count 0
-# Stop database (keeps storage, stops billing)
-az postgres flexible-server stop --name "pg-${TENANT_ID}"
-# Block DNS / set maintenance page
-```
-
-Suspension is **fully reversible** — resume with Phase 1 Step 8 onward.
-
----
-
-## Phase 4 — Deprovisioning
-
-**Requires explicit confirmation** with `--confirm-delete $TENANT_ID`.
-
-Steps:
-1. Export full data backup to cold storage (retain for 90 days by default)
-2. Revoke all service principals and rotate/delete secrets
-3. Destroy infrastructure via `terraform destroy`
-4. Deregister DNS
-5. Archive tenant record (never hard-delete the registry row)
-6. Emit `TENANT_DELETED` event to billing system
-
----
-
-## Tenant Registry
-
-Maintain a central registry entry per tenant:
-```json
-{
-  "tenant_id": "t-acme-prod",
-  "state": "ACTIVE",
-  "tier": "enterprise",
-  "cloud": "azure",
-  "region": "eastus",
-  "provisioned_at": "ISO8601",
-  "owner": "ops@acme.com",
-  "resource_group": "rg-t-acme-prod",
-  "health_endpoint": "https://t-acme-prod.app.example.com/health",
-  "last_health_check": "ISO8601",
-  "tags": {}
-}
-```
-
----
-
-## Examples
-
-- "Provision a new enterprise tenant for Acme Corp in East US on Azure"
-- "Upgrade tenant t-widgets-prod from Business to Enterprise tier"
-- "Suspend tenant t-unpaid-001 due to payment failure"
-- "Deprovision and archive all data for tenant t-churned-co"
-- "Show me all tenants in the provisioning state for longer than 30 minutes"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "tenant_id": "string",
-  "tier": "starter|business|enterprise|enterprise-plus",
-  "operation": "provision|scale|suspend|deprovision",
-  "previous_state": "string",
-  "new_state": "string",
-  "duration_seconds": 0,
+  "operationId": "TL-2026-0315-01",
+  "tenant": "t-acme-prod",
   "status": "success|failure|partial",
-  "errors": [],
-  "registry_url": "string"
+  "operation": "provision|scale|suspend|resume|deprovision|failover",
+  "tier": "enterprise",
+  "region": "eastus",
+  "riskScore": 0.41,
+  "events": [
+    { "name": "tenant-provisioned", "timestamp": "2026-03-15T08:12:00Z" }
+  ],
+  "logs": "shared-context://memory-store/tenant-lifecycle/TL-2026-0315-01",
+  "decisionContext": "redis://memory-store/tenant-lifecycle/TL-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Provisioning/onboarding
+1. Validate inputs (tenant uniqueness, quotas, region availability).
+2. Apply tier template (Terraform/ARM) drilling down resource groups, namespaces, secrets, DNS, and catalogs.
+3. Configure identity (service principals) and load data.
+4. Emit `tenant-provisioned` event with registry metadata and notify stakeholders.
+
+### Scaling & health
+1. Scale compute/storage/database per demand; pre-scale backup/snapshot.
+2. Run health probes/journals and verify pods/nodes.
+3. Update shared context and emit `tenant-scaled`.
+
+### Suspension/resume
+1. Scale down (nodepool to 0, stop databases) while retaining data.
+2. Replace DNS/traffic with maintenance view.
+3. Resume by scaling up and rotating secrets as needed; emit `tenant-resumed`.
+
+### Deprovisioning
+1. Confirm deletion (human gate required for production).
+2. Backup to cold storage (retain 90 days), destroy infra (terraform destroy), revoke identities.
+3. Archive registry entry; keep audit trail for compliance; emit `tenant-deprovisioned`.
+
+## AI intelligence highlights
+- **AI Risk Assessment**: models change size, tier impact, recent incidents to determine riskScore.
+- **Intelligent Scaling Suggestions**: recommends right-sizing actions using capacity and cost data.
+- **Predictive Suspension Alerts**: warns when payment/policy signals indicate scheduling suspension.
+- **Remediation Prioritization**: sequences provisioning/resume steps to minimize downtime.
+
+## Memory agent & dispatcher integration
+- Store lifecycle metadata at `shared-context://memory-store/tenant-lifecycle/<operationId>`.
+- Emit events: `tenant-provisioned`, `tenant-scaled`, `tenant-suspended`, `tenant-deprovisioned`.
+- Listen to dispatcher signals (`capacity-alert`, `policy-risk`, `incident-ready`) to automatically adjust tenants.
+- Tag metadata with `decisionId`, `tenant`, `tier`, `riskScore`.
+
+## Communication protocols
+- Primary: shell scripts/terraform pipelines for provisioning, scaling, suspension.
+- Secondary: Event bus for `tenant-lifecycle-*` events.
+- Fallback: JSON artifacts `artifact-store://tenant-lifecycle/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: tenants provisioned, scaling actions, suspension counts, failovers, riskScore distribution.
+- Logs: structured `log.event="tenant.lifecycle"` with `operation`, `tenant`, `decisionId`.
+- Dashboards: integrate `/tenant-lifecycle-manager metrics --format=prometheus`.
+- Alerts: riskScore ≥ 0.85, queue of pending onboarding requests > threshold, suspension/resume failure.
+
+## Failure handling & retries
+- Retry provisioning/scaling/failover calls up to 2× on transient cloud API failures.
+- Emit `tenant-operation-failed` when retries exhausted; escalate to incident runbook.
+- Preserve artifacts for auditing until downstream ack.
+
+## Human gates
+- Required when:
+ 1. Operations involve production-critical tenants or decommissioning.
+ 2. Tier changes affect SLAs or billing significantly.
+ 3. Dispatcher flags manual review after multiple failed operations.
+- Use standard confirmation template to capture Impact/Reversibility.
+
+## Testing & validation
+- Dry-run: `/tenant-lifecycle-manager provision --tenant=TL-DRY --dry-run`.
+- Unit tests: `backend/tenant-lifecycle/` ensures state transitions and scoring logic.
+- Integration: `scripts/validate-tenant-lifecycle.sh` exercises provision → scale → suspend → resume → decommission flows.
+- Regression: nightly `scripts/nightly-tenant-smoke.sh` keeps state transitions, metrics, and alerts stable.
+
+## References
+- Tier templates: `infrastructure/tenant/`.
+- Registry: `docs/tenant-registry.md`.
+- Onboarding docs: `docs/platform-onboarding.md`.
+
+## Related skills
+- `/workflow-management`: orchestrates lifecycle workflows with dependencies.
+- `/policy-as-code`: validates governance before provisioning/resume.
+- `/disaster-recovery`: coordinates failover and backup for tenants.
