@@ -1,7 +1,7 @@
 ---
 name: cicd-pipeline-monitor
 description: >
-  Monitor, diagnose, and safeguard CI/CD pipelines with AI-assisted alerts, remediation, and dispatcher telemetry.
+  Monitor, diagnose, and safeguard CI/CD pipelines with AI-assisted alerts, remediation, DORA telemetry, and dispatcher-ready context.
 allowed-tools:
   - Bash
   - Read
@@ -10,21 +10,21 @@ allowed-tools:
 
 # CI/CD Pipeline Monitor — World-class Delivery Gatekeeper
 
-Provides cross-platform CI/CD visibility (GitHub Actions, Azure DevOps, Jenkins, ArgoCD) plus intelligent diagnostics, safe re-runs, DORA reporting, and shared-context signals for orchestrators. Trigger when examining failures, rerunning builds, enforcing standards, or responding to dispatcher alerts tied to deployments, incidents, or policies.
+Provides cross-platform visibility (GitHub Actions, Azure DevOps, Jenkins, ArgoCD) plus intelligent diagnostics, safe reruns, DORA reporting, and shared-context signals for orchestrators.
 
 ## When to invoke
-- Query pipeline status, logs, DORA/KPI metrics.
-- Diagnose flake/infra/config errors and trigger safe re-runs.
-- Enforce pipeline standards, scans, secrets policies.
-- Generate deployment reports for leadership or compliance.
-- Respond to dispatcher events (`incident-ready`, `policy-risk`, `capacity-alert`) to evaluate delivery impact.
+- Query pipeline status, logs, DORA metrics, or pipeline health.
+- Diagnose flaky/infra/config failures and trigger safe reruns.
+- Enforce pipeline standards, secrets scans, or compliance policies.
+- Generate deployment reports for leadership, compliance, or retrospectives.
+- Respond to dispatcher events (`incident-ready`, `policy-risk`, `capacity-alert`) to assess delivery impact.
 
 ## Capabilities
-- Unified CI/CD monitoring across GitHub Actions, Azure DevOps, Jenkins, ArgoCD.
-- AI risk scoring for pipeline runs (failure type, impact, criticality, change owner).
-- Automatic remediation for flaky/infra failures, human-gated escalation for config/code failures.
-- Telemetry for DORA metrics, change failure rate, MTTR, queue depth.
-- Shared context output `shared-context://memory-store/cicd/<operationId>` for downstream skills.
+- **Multi-platform monitoring** across GitHub Actions, Azure DevOps, Jenkins, and ArgoCD.
+- **AI risk scoring** for pipeline runs (failure type, impact, criticality, owner).
+- **Intelligent remediation** that auto-retries flake/infra failures or escalates config issues.
+- **DORA/leadership telemetry** around deployment frequency, MTTR, change failure rate, and lead time.
+- **Shared context** outputs (`shared-context://memory-store/cicd/{operationId}`) consumed by downstream skills.
 
 ## Invocation patterns
 
@@ -40,9 +40,9 @@ Provides cross-platform CI/CD visibility (GitHub Actions, Azure DevOps, Jenkins,
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `tool` | Pipeline platform. | `github-actions` |
-| `workflow` | Workflow/pipeline name. | `deploy-prod` |
-| `runId` | Run identifier. | `gh123456` |
-| `priority` | Run priority (normal/high/critical). | `high` |
+| `workflow` | Pipeline/workflow name. | `deploy-prod` |
+| `runId` | Pipeline run identifier. | `gh123456` |
+| `priority` | Run priority (`normal|high|critical`). | `high` |
 | `window` | Reporting window (days). | `30d` |
 | `format` | Output format (`json|table`). | `json` |
 
@@ -84,59 +84,62 @@ Provides cross-platform CI/CD visibility (GitHub Actions, Azure DevOps, Jenkins,
 
 ### Monitoring & alerting
 1. Collect run metadata (status, duration, logs) across platforms.
-2. Compare against thresholds (consecutive failures, duration spikes, queue depth).
-3. Emit `pipeline-alert` events for dispatcher to trigger incident response or policy review.
+2. Compare to thresholds (consecutive failures, duration spikes, queue depth).
+3. Emit `pipeline-alert` events for dispatchers to trigger incident or policy workflows.
 
 ### Diagnosis & safe remediation
-1. Analyze failure logs, classify as flaky/infra/config.
-2. Automatically re-run flaky/infra runs (limit retries).
-3. For config/code failures, produce structured remediation summary, alert stakeholders, and optionally open ticket.
+1. Classify failure logs as flaky, infra, or config.
+2. Auto-rerun flaky/infra failures (limited retries with exponential backoff).
+3. For config/code failures, craft remediation summary, alert stakeholders, and optionally open tickets.
 
 ### Orchestration & DORA reporting
-1. Coordinate multi-stage orchestrations (security audit, compliance check) with dependencies.
-2. Calculate DORA metrics, change failure rate, MTTR, deployment frequency for specified window.
-3. Emit `deployment-report` event with metric summary.
+1. Coordinate multi-stage orchestrations (security audits, compliance sweeps, or multi-service releases).
+2. Compute DORA metrics (deployment frequency, lead time, MTTR, change failure rate) for requested windows.
+3. Emit `deployment-report` events with metric summaries for stakeholders.
 
 ## AI intelligence highlights
-- **AI Risk Assessment**: determines severity/risk of failures and whether auto-remediation is safe.
-- **Intelligent Retry Decisions**: distinguishes flake vs config failures to decide re-run actions.
-- **Predictive Load Handling**: forecasts queue saturation and scales watchers accordingly.
-- **Deployment Impact Forecasting**: correlates pipeline failures with incident metrics (policy/compliance/ops).
+- **AI Risk Assessment** evaluates failure severity, impact scope, and automation readiness.
+- **Intelligent Retry Decisions** differentiate flake vs config failures to decide rerun actions.
+- **Predictive Load Handling** forecasts queue saturation and scales watchers accordingly.
+- **Deployment Impact Forecasting** correlates pipeline failures with incidents/policy compliance.
 
 ## Memory agent & dispatcher integration
-- Persist monitoring data to `shared-context://memory-store/cicd/<operationId>`.
+- Persist monitoring data to `shared-context://memory-store/cicd/{operationId}` tagged with `decisionId`, `tool`, `tenant`, `workflow`, `riskScore`.
 - Emit events: `pipeline-started`, `pipeline-failed`, `pipeline-fixed`, `deployment-report`.
-- Respond to dispatcher signals (`incident-ready`, `policy-risk`) to escalate or pause pipelines.
-- Tag entries with `decisionId`, `tool`, `tenant`, `workflow`, `riskScore`.
-
-## Communication protocols
-- Primary: platform CLI/APIs (gh, az pipelines, azdo, jenkins, argocd) returning JSON.
-- Secondary: Event bus for `pipeline-*` events.
-- Fallback: Artifact store entries `artifact-store://cicd/<operationId>.json`.
+- Listen to dispatcher signals (`incident-ready`, `policy-risk`, `capacity-alert`) to pause/resume or escalate pipelines.
+- Provide fallback artifacts via `artifact-store://cicd/{operationId}.json` when event bus is unavailable.
 
 ## Observability & telemetry
-- Metrics: run success/failure counts, consecutive failure alerts, queue depth, DORA metrics.
-- Logs: structured `log.event="pipeline.status"` with `runId`, `workflow`, `decisionId`.
-- Dashboards: integrate `/cicd-pipeline-monitor metrics --format=prometheus`.
-- Alerts: change fail rate > 10%, MTTR spike, manual restart frequency > baseline.
+- Metrics: run success/failure counts, consecutive failure streaks, queue depth, DORA metrics.
+- Logs: structured `log.event="pipeline.status"` with `runId`, `workflow`, `decisionId` for traceability.
+- Dashboards: feed `/cicd-pipeline-monitor metrics --format=prometheus` into Grafana for SRE visibility.
+- Alerts: change failure rate >10%, MTTR spikes, repeated manual restarts, or automation gating.
 
 ## Failure handling & retries
-- Automatically retry underlaying runs up to 2× for flaky/infra failures with exponential backoff.
-- On repeated failures/human gate, escalate to `incident-triage-runbook` and pause pipeline.
-- Keep logs/traces until downstream ack; do not delete critical evidence for audits.
+- Automatically retry runs up to 2× for flaky or infra failures with exponential backoff.
+- On repeated failures or manual gates, escalate to `incident-triage-runbook` and pause the pipeline.
+- Retain logs/traces until downstream acknowledgments, avoiding deletion until auditing allows.
+- Notify on-call channels when remediation automation loops or human gates remain blocked.
 
 ## Human gates
 - Required when:
- 1. RiskScore ≥ 0.85 or critical production pipeline.
- 2. Manual deploys triggered by the skill affecting prod services.
- 3. Dispatcher requests manual intervention after retries/failures.
-- Use standard human gate confirmation template describing impact and reversibility.
+  1. `riskScore ≥ 0.85` or a critical production pipeline is involved.
+  2. Manual deploys triggered by the skill affect prod services.
+  3. Dispatcher requests manual intervention after retries/failures.
+- Confirmation template matches the orchestrator format:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/cicd-pipeline-monitor rerun --runId=gh-dry-run --dry-run`.
-- Unit tests: `backend/cicd/` ensures classification and metrics calculations align with expectations.
-- Integration: `scripts/validate-cicd-pipeline-monitor.sh` hits multiple pipelines, triggers alerts, checks remediation.
-- Regression: nightly `scripts/nightly-cicd-smoke.sh` ensures DORA metrics and alert levels remain stable.
+- Unit tests: `backend/cicd/` ensures classification, telemetry, and metrics calculations stay accurate.
+- Integration: `scripts/validate-cicd-pipeline-monitor.sh` hits multiple pipelines, triggers alerts, and verifies remediation actions.
+- Regression: nightly `scripts/nightly-cicd-smoke.sh` ensures DORA metrics and alert thresholds remain stable.
 
 ## References
 - Pipeline scripts: `scripts/cicd/`.
@@ -144,6 +147,7 @@ Provides cross-platform CI/CD visibility (GitHub Actions, Azure DevOps, Jenkins,
 - Templates: `templates/workflow-report.md`.
 
 ## Related skills
-- `/incident-triage-runbook`: triggered when pipeline errors escalate to incidents.
-- `/policy-as-code`: ensures pipeline configs comply with policies.
+- `/incident-triage-runbook`: remediates when pipeline errors become incidents.
+- `/policy-as-code`: enforces policies before pipelines run.
 - `/workflow-management`: orchestrates multi-pipeline operations.
+- `/deployment-validation`: gates deployments after pipeline completion.

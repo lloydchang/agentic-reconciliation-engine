@@ -10,21 +10,21 @@ allowed-tools:
 
 # Tenant Lifecycle Manager — World-class Tenant Operations Playbook
 
-Manages the entire SaaS tenant lifecycle across clouds: provisioning, configuration, scaling, suspension, and clean decommissioning. Use it when operating tenant tiers, responding to capacity/policy incidents, or generating billing/compliance events.
+Manages the SaaS tenant lifecycle across clouds: provisioning, scaling, suspension/resume, failover, and clean decommissioning with AI risk scoring and dispatcher telemetry.
 
 ## When to invoke
-- Provision new tenants or clone environments.
-- Scale tenant resources (compute, storage, database).
-- Suspend or resume tenants (payment issues, security events).
-- Deprovision tenants with irreversible cleanup.
-- Respond to dispatcher flags (`policy-risk`, `capacity-alert`, `incident-ready`) requiring tenant actions.
+- Provision new tenants or clone existing environments.
+- Scale compute, storage, or managed services per tenant demand.
+- Suspend/resume tenants for billing/security reasons.
+- Execute failovers or deprovision tenants with data retention requirements.
+- React to dispatcher signals (`policy-risk`, `capacity-alert`, `incident-ready`) affecting tenants.
 
 ## Capabilities
-- Multi-cloud provisioning templates per tier (starter/business/enterprise/critical).
-- Scaling automation with health validation and backup safeguards.
-- Suspension/resume flows preserving data and secrets.
-- Controlled deprovisioning with archived backups and billing updates.
-- AI risk scoring for destructive actions and shared context outputs.
+- **Multi-cloud provisioning** with tiered templates (starter/business/enterprise/critical) plus identity/secrets automation.
+- **AI risk scoring** for destructive actions (decommission, scale-down) balancing blast radius and recent incidents.
+- **Controlled scaling, suspension, failover** flows with validations, metrics, and guardrails.
+- **Shared-context propagation** at `shared-context://memory-store/tenant-lifecycle/{operationId}` for downstream skills.
+- **Human gating** for irreversible operations (deprovision, failover) and escalation-ready alerts.
 
 ## Invocation patterns
 
@@ -39,10 +39,10 @@ Manages the entire SaaS tenant lifecycle across clouds: provisioning, configurat
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `tenant` | Tenant identifier. | `t-acme-prod` |
-| `tier` | SLA tier (starter/business/enterprise/critical). | `enterprise` |
-| `region` | Cloud region for provisioning. | `eastus` |
-| `nodeCount` | Node pool size for scaling. | `5` |
+| `tenant` | Tenant/customer identifier. | `t-acme-prod` |
+| `tier` | SLA tier (`starter|business|enterprise|critical`). | `enterprise` |
+| `region` | Cloud region for operations. | `eastus` |
+| `nodeCount` | Node pool replica count for scaling. | `5` |
 | `dbSku` | Database SKU for scaling. | `Standard_D8s_v3` |
 | `reason` | Reason for suspension/failover. | `payment-failure` |
 
@@ -57,9 +57,7 @@ Manages the entire SaaS tenant lifecycle across clouds: provisioning, configurat
   "tier": "enterprise",
   "region": "eastus",
   "riskScore": 0.41,
-  "events": [
-    { "name": "tenant-provisioned", "timestamp": "2026-03-15T08:12:00Z" }
-  ],
+  "events": [ { "name": "tenant-provisioned", "timestamp": "2026-03-15T08:12:00Z" } ],
   "logs": "shared-context://memory-store/tenant-lifecycle/TL-2026-0315-01",
   "decisionContext": "redis://memory-store/tenant-lifecycle/TL-2026-0315-01"
 }
@@ -67,74 +65,69 @@ Manages the entire SaaS tenant lifecycle across clouds: provisioning, configurat
 
 ## World-class workflow templates
 
-### Provisioning/onboarding
-1. Validate inputs (tenant uniqueness, quotas, region availability).
-2. Apply tier template (Terraform/ARM) drilling down resource groups, namespaces, secrets, DNS, and catalogs.
-3. Configure identity (service principals) and load data.
-4. Emit `tenant-provisioned` event with registry metadata and notify stakeholders.
+### Provisioning & onboarding
+1. Validate tenant uniqueness, quotas, and region availability.
+2. Apply tier template (Terraform/ARM) to provision RGs, namespaces, secrets, DNS, and catalog entries.
+3. Configure identity/secrets, load data, and emit `tenant-provisioned` event.
 
-### Scaling & health
-1. Scale compute/storage/database per demand; pre-scale backup/snapshot.
-2. Run health probes/journals and verify pods/nodes.
-3. Update shared context and emit `tenant-scaled`.
+### Scaling & health validation
+1. Scale compute/storage/database with pre-snapshot/backups.
+2. Run health probes (pods/nodes) and check observability dashboards.
+3. Emit `tenant-scaled` and log scaling metadata.
 
-### Suspension/resume
-1. Scale down (nodepool to 0, stop databases) while retaining data.
-2. Replace DNS/traffic with maintenance view.
-3. Resume by scaling up and rotating secrets as needed; emit `tenant-resumed`.
+### Suspension/resume/failover
+1. Scale down or drain resources while retaining data/secrets; reroute traffic to maintenance pages.
+2. Resume by scaling up, rotating secrets if needed, and verifying connectivity.
+3. Fail over to DR regions by promoting replicas, updating DNS, and validating failback readiness.
+4. Emit `tenant-suspended`, `tenant-resumed`, or `tenant-failover` events.
 
 ### Deprovisioning
-1. Confirm deletion (human gate required for production).
-2. Backup to cold storage (retain 90 days), destroy infra (terraform destroy), revoke identities.
-3. Archive registry entry; keep audit trail for compliance; emit `tenant-deprovisioned`.
+1. Confirm destructive action with human gate for production tenants.
+2. Archive backups (90-day retention), destroy infrastructure, revoke identities, clean secrets.
+3. Emit `tenant-deprovisioned` event and keep auditable context for compliance.
 
 ## AI intelligence highlights
-- **AI Risk Assessment**: models change size, tier impact, recent incidents to determine riskScore.
-- **Intelligent Scaling Suggestions**: recommends right-sizing actions using capacity and cost data.
-- **Predictive Suspension Alerts**: warns when payment/policy signals indicate scheduling suspension.
-- **Remediation Prioritization**: sequences provisioning/resume steps to minimize downtime.
+- **AI risk assessment** considers change size, tier SLA, incidents, and tenant count to compute riskScore.
+- **Intelligent scaling suggestions** align with capacity/cost intelligence for right-sizing.
+- **Predictive suspension alerts** warn when payment/policy signals suggest upcoming suspensions.
+- **Remediation prioritization** sequences operations to minimize downtime.
 
 ## Memory agent & dispatcher integration
-- Store lifecycle metadata at `shared-context://memory-store/tenant-lifecycle/<operationId>`.
-- Emit events: `tenant-provisioned`, `tenant-scaled`, `tenant-suspended`, `tenant-deprovisioned`.
-- Listen to dispatcher signals (`capacity-alert`, `policy-risk`, `incident-ready`) to automatically adjust tenants.
-- Tag metadata with `decisionId`, `tenant`, `tier`, `riskScore`.
-
-## Communication protocols
-- Primary: shell scripts/terraform pipelines for provisioning, scaling, suspension.
-- Secondary: Event bus for `tenant-lifecycle-*` events.
-- Fallback: JSON artifacts `artifact-store://tenant-lifecycle/<operationId>.json`.
+- Store lifecycle metadata under `shared-context://memory-store/tenant-lifecycle/{operationId}`.
+- Emit events: `tenant-provisioned`, `tenant-scaled`, `tenant-suspended`, `tenant-resumed`, `tenant-deprovisioned`, `tenant-failover`.
+- React to dispatcher triggers (capacity, policy, incident) to auto-scale, suspend, or fail over tenants.
+- Tag context with `decisionId`, `tenant`, `tier`, `region`, `riskScore`.
 
 ## Observability & telemetry
-- Metrics: tenants provisioned, scaling actions, suspension counts, failovers, riskScore distribution.
-- Logs: structured `log.event="tenant.lifecycle"` with `operation`, `tenant`, `decisionId`.
-- Dashboards: integrate `/tenant-lifecycle-manager metrics --format=prometheus`.
-- Alerts: riskScore ≥ 0.85, queue of pending onboarding requests > threshold, suspension/resume failure.
+- Metrics: tenants provisioned, scaling actions, suspensions, failovers, deprovision counts, riskScore trends.
+- Logs: structured `log.event="tenant.lifecycle"` capturing `operation`, `tenant`, `decisionId`.
+- Dashboards: integrate `/tenant-lifecycle-manager metrics --format=prometheus` for fleet visibility.
+- Alerts: riskScore ≥ 0.85, pending onboarding backlog > threshold, suspension/resume failures.
 
 ## Failure handling & retries
-- Retry provisioning/scaling/failover calls up to 2× on transient cloud API failures.
-- Emit `tenant-operation-failed` when retries exhausted; escalate to incident runbook.
-- Preserve artifacts for auditing until downstream ack.
+- Retry cloud API calls for provisioning/scaling/failover up to 2× on transient errors.
+- Emit `tenant-operation-failed`, escalate to `incident-triage-runbook`, and preserve artifacts for audit.
+- Do not delete shared-context or logs until downstream acknowledgment completes.
 
 ## Human gates
 - Required when:
- 1. Operations involve production-critical tenants or decommissioning.
- 2. Tier changes affect SLAs or billing significantly.
- 3. Dispatcher flags manual review after multiple failed operations.
-- Use standard confirmation template to capture Impact/Reversibility.
+  1. Operations target production or critical-tier tenants.
+  2. Deprovisioning or suspension impacts billing, compliance, or secrets.
+  3. Dispatcher requests manual review after retries/failures.
+- Confirmation template matches orchestrator style (impact, reversibility).
 
 ## Testing & validation
 - Dry-run: `/tenant-lifecycle-manager provision --tenant=TL-DRY --dry-run`.
-- Unit tests: `backend/tenant-lifecycle/` ensures state transitions and scoring logic.
-- Integration: `scripts/validate-tenant-lifecycle.sh` exercises provision → scale → suspend → resume → decommission flows.
-- Regression: nightly `scripts/nightly-tenant-smoke.sh` keeps state transitions, metrics, and alerts stable.
+- Unit tests: `backend/tenant-lifecycle/` ensures transitions and scoring.
+- Integration: `scripts/validate-tenant-lifecycle.sh` runs provision → scale → suspend → resume → decommission.
+- Regression: nightly `scripts/nightly-tenant-smoke.sh` ensures transitions, metrics, and alerts remain stable.
 
 ## References
 - Tier templates: `infrastructure/tenant/`.
-- Registry: `docs/tenant-registry.md`.
-- Onboarding docs: `docs/platform-onboarding.md`.
+- Registry docs: `docs/tenant-registry.md`.
+- Onboarding guide: `docs/platform-onboarding.md`.
 
 ## Related skills
-- `/workflow-management`: orchestrates lifecycle workflows with dependencies.
-- `/policy-as-code`: validates governance before provisioning/resume.
-- `/disaster-recovery`: coordinates failover and backup for tenants.
+- `/workflow-management`: orchestrates lifecycle pipelines.
+- `/policy-as-code`: validates governance during provisioning/resume.
+- `/disaster-recovery`: coordinates failover plus backup tasks.

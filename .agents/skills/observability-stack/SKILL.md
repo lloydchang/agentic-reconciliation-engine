@@ -22,6 +22,7 @@ Delivers metrics, logs, tracing, and alerting with AI-powered anomaly detection,
 - Rapid Prometheus + Grafana deployment with tenant-aware scrape/autodiscovery.
 - Centralized logging (Loki/ELK) plus structured query templates for security, errors, and change events.
 - Distributed tracing (Tempo/Jaeger/OpenTelemetry) with tenant tagging.
+- Application-level observability (eBPF Pixie) for kernel-level insights and service mesh telemetry.
 - AI anomaly detection and predictive alerting layered on top of golden signals.
 - Shared-context integration (`shared-context://memory-store/observability`) for other skills to consume telemetry outputs.
 

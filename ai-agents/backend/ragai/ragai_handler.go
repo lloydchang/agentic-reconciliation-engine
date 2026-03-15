@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/lloydchang/ai-agents-sandbox/backend/mcp"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
 )
 
 // RagAIHandler handles RAG AI API endpoints

@@ -10,20 +10,20 @@ allowed-tools:
 
 # KPI Report Generator — World-class Insight Playbook
 
-Aggregates telemetry from observability, CI/CD, incidents, governance, and cost into weekly/monthly/quarterly executive reports (Markdown/PPTX/HTML) with AI risk insights, RAG indicators, and shared-context metadata. Use when summarizing health, DORA metrics, adoption, security posture, or cost/OKR progress.
+Aggregates telemetry from observability, CI/CD, incidents, governance, and cost into executive reports (weekly/monthly/quarterly) with AI insights, RAG scoring, and structured context for downstream automation.
 
 ## When to invoke
 - Generate weekly ops snapshots, monthly exec reports, QBR decks, or ad-hoc KPI summaries.
-- Calculate DORA metrics, reliability, adoption, compliance, and cost indicators.
-- Combine high-risk insights from dispatchers (`incident-ready`, `policy-risk`, `capacity-alert`).
-- Feed structured reports into leadership, auditing, or automation channels.
+- Calculate DORA metrics, reliability, adoption, security posture, and cost/OKR indicators.
+- Respond to dispatcher events (`incident-ready`, `policy-risk`, `capacity-alert`) by highlighting relevant metrics.
+- Feed structured reports into leadership, audit, or automation channels for evidence and follow-up.
 
 ## Capabilities
-- Pull data from Prometheus, Azure Monitor, CI/CD platforms, incident DB, compliance sources, and billing.
-- AI RAG scoring using historical trends and target baselines.
-- Export results to Markdown/HTML/PPTX with narrative, charts, and embedded links.
-- Shared context `shared-context://memory-store/kpi/<operationId>` for downstream workflows.
-- Human gates for sensitive executive distributions or strategic decisions.
+- **Cross-domain data aggregation** (Prometheus, Azure Monitor, CI/CD, incidents, compliance, billing).
+- **AI RAG scoring** against historical trends and objective baselines.
+- **Multi-format exports** (Markdown, HTML, PPTX) with narratives, charts, and citations.
+- **Shared-context propagation** via `shared-context://memory-store/kpi/{operationId}` for reuse.
+- **Human-gated distribution** for sensitive or strategic reports.
 
 ## Invocation patterns
 
@@ -37,12 +37,12 @@ Aggregates telemetry from observability, CI/CD, incidents, governance, and cost 
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `type` | Report type (weekly/monthly/quarterly). | `monthly` |
+| `type` | Report cadence (`weekly|monthly|quarterly`). | `monthly` |
 | `window` | Lookback window (days). | `30d` |
 | `format` | Output format (`markdown|html|pptx`). | `pptx` |
-| `include` | Metric subsets (dora, uptime, security). | `dora,security` |
+| `include` | Metric subsets (`dora,uptime,security`). | `dora,security` |
 | `period` | Time span for KPIs. | `90d` |
-| `focus` | Specific area (incident, cost, adoption). | `incident-metrics` |
+| `focus` | Specific area to highlight. | `incident-metrics` |
 
 ## Output contract
 
@@ -78,69 +78,69 @@ Aggregates telemetry from observability, CI/CD, incidents, governance, and cost 
 
 ## World-class workflow templates
 
-### Weekly ops snapshot (Markdown/Slack)
-1. Pull DORA, reliability, incident, adoption, security, cost metrics.
-2. Compute RAG statuses vs targets and include narrative on top trends.
-3. Export summary and push to Slack or email stakeholders.
-4. Emit `kpi-report-ready` event with links for dispatcher to react.
+### Weekly ops snapshot
+1. Pull DORA, reliability, incident, adoption, security, and cost metrics.
+2. Compute RAG statuses vs targets, draft narrative on top trends, and include action items.
+3. Export summary to Markdown/Slack/email and emit `kpi-report-ready` for follow-up.
 
-### Monthly executive report (PPTX/HTML)
-1. Compose slides covering executive summary, DORA, reliability, adoption, security, cost, roadmap.
-2. Include AI insights (riskScore, trend direction, anomalies).
-3. Attach supporting dashboards and evidence (KQL queries, cost exports).
-4. Emit structured JSON for automation and store context for follow-ups.
+### Monthly executive report
+1. Compose slides covering exec summary, DORA, reliability, adoption, security, cost, and roadmap.
+2. Embed AI insights (riskScore, anomalies, trend direction) and cite supporting dashboards.
+3. Emit structured metadata for automation and store context for leadership review cycles.
 
 ### Quarterly business review (QBR)
-1. Extend monthly content with OKR scoring, YTD trends, benchmarks, risk mitigation.
-2. Highlight top risks, incidents, capacity/cost callouts, and roadmap commitments.
-3. Notify leadership and update scoreboard documentation.
+1. Extend monthly content with OKR scoring, YTD trends, benchmarks, and risk mitigation updates.
+2. Highlight top incidents, capacity/cost impacts, and roadmap commitments.
+3. Notify leadership, update scoreboard docs, and link to `stakeholder-comms` templates.
 
 ## AI intelligence highlights
-- **AI Trend Detection**: spot deviations from expectations early and surface trend explanations.
-- **Risk Impact Scoring**: prioritize metric changes with business impact (e.g., uptime vs cost).
-- **Narrative Assistance**: suggest phrasing about key risks/resolutions for exec readability.
+- **AI trend detection** surfaces deviations early and explains what changed.
+- **Risk impact scoring** weighs metric shifts by business impact (e.g., uptime vs cost).
+- **Narrative assistance** suggests phrasing for exec clarity, referencing key insights.
 
 ## Memory agent & dispatcher integration
-- Store report summaries under `shared-context://memory-store/kpi/<operationId>`.
-- Emit events: `kpi-report-ready`, `kpi-metrics`, `kpi-anomaly`.
-- Subscribe to dispatcher signals (`incident-ready`, `policy-risk`) to include relevant metrics or escalate urgencies.
-- Tag context with `decisionId`, `reportType`, `riskScore`, `tenants`.
-
-## Communication protocols
-- Primary: Bash/python scripts hitting Prometheus/K8s/CI/CD/incident/observer APIs.
-- Secondary: Event bus for `kpi-*` signals.
-- Fallback: JSON exports to `artifact-store://kpi/<operationId>.json`.
+- Store report summaries under `shared-context://memory-store/kpi/{operationId}`.
+- Emit events: `kpi-report-ready`, `kpi-metrics`, `kpi-anomaly`, `kpi-followup`.
+- React to dispatcher alerts (`incident-ready`, `policy-risk`, `cost-anomaly`) by injecting relevant sections or escalation prompts.
+- Tag context with `decisionId`, `reportType`, `riskScore`, `tenants`, and `confidence`.
 
 ## Observability & telemetry
-- Metrics: report count, DORA metrics, trend direction, riskScore distribution.
-- Logs: structured `log.event="kpi.report"` containing `reportType`, `period`, `distance`.
-- Dashboards: integrate `/kpi-report-generator metrics --format=prometheus`.
-- Alerts: repeated report generation failures, rink ratio dropout, riskScore ≥ 0.8.
+- Metrics: report throughput, DORA metrics, trend directions, riskScore distribution.
+- Logs: structured `log.event="kpi.report"` capturing `reportType`, `period`, `operationId`.
+- Dashboards: expose `/kpi-report-generator metrics --format=prometheus` to leadership and ops.
+- Alerts: repeated report failures, riskScore ≥ 0.8 without review, or data gaps in inputs.
 
 ## Failure handling & retries
-- Retry data collection up to 3× on API/timeout errors; if still failing escalate to `incident-triage-runbook`.
-- Keep raw metric snapshots/logs until dispatcher/human acknowledges.
-- On repeated failures, trigger alert to platform ops for manual intervention.
+- Retry data collection up to 3× on API/timeouts before escalating to `incident-triage-runbook`.
+- Keep raw metric snapshots/logs until automation or humans acknowledge consumption.
+- Alert ops when repeated failures persist and escalate to manual reporting support.
 
 ## Human gates
 - Required when:
- 1. Reports include sensitive strategic data (M&A, cost war room).
- 2. RiskScore ≥ 0.9 and change fail rate indicates major disruption.
- 3. Dispatcher demands manual review after generated anomalies.
-- Use standard sentence template capturing impact and reversibility.
+  1. Reports include sensitive strategic data (M&A, cost war rooms).
+  2. RiskScore ≥ 0.9 and metrics indicate major disruption.
+  3. Dispatcher requests manual review after anomaly detection.
+- Use the standard confirmation template capturing impact/reversibility:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/kpi-report-generator report --type=weekly --format=json --dry-run`.
-- Unit tests: `backend/kpi/` ensures metric calculations and trend detection satisfy expectations.
-- Integration: `scripts/validate-kpi-report.sh` collects data from all sources and generates report exports.
-- Regression: nightly `scripts/nightly-kpi-smoke.sh` ensures report plumbing, metrics, and alerts are stable.
+- Unit tests: `backend/kpi/` ensures metric calculations and trend detection behave as expected.
+- Integration: `scripts/validate-kpi-report.sh` collects data from all sources and builds exports.
+- Regression: nightly `scripts/nightly-kpi-smoke.sh` validates plumbing, metrics, and alerts.
 
 ## References
-- Script templates: `scripts/kpi/`.
-- Dashboard examples: `monitoring/grafana/kpi`.
-- Evidence docs: `docs/EXECUTION-CHECKLIST.md`.
+- Automation scripts: `scripts/kpi/`.
+- Dashboards: `monitoring/grafana/kpi`.
+- Execution checklist: `docs/EXECUTION-CHECKLIST.md`.
 
 ## Related skills
 - `/workflow-management`: orchestrates report generation pipelines.
-- `/stakeholder-comms-drafter`: uses KPI output to craft narratives.
-- `/ai-agent-orchestration`: coordinates multi-skill report prep + follow-ups.
+- `/stakeholder-comms-drafter`: turns KPI outputs into narratives.
+- `/ai-agent-orchestration`: coordinates report prep plus follow-ups across skills.

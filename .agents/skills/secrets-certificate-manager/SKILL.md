@@ -1,7 +1,7 @@
 ---
 name: secrets-certificate-manager
 description: >
-  Manage secrets, API keys, certificates, and rotation pipelines with AI-driven policies, telemetry, and dispatcher integrations.
+  Manage secrets, API keys, certificates, and rotation pipelines with AI-guided policies, telemetry, and dispatcher integration.
 allowed-tools:
   - Bash
   - Read
@@ -10,20 +10,20 @@ allowed-tools:
 
 # Secrets & Certificate Manager — World-class Vault Operations Playbook
 
-Handles provisioning, rotation, injection, monitoring, and audit of secrets/certificates across Azure Key Vault, AWS Secrets Manager, HashiCorp Vault, Kubernetes, and GCP Secret Manager. Trigger when rotates, renews, audits, injects, or migrates secrets/certs and whenever policy or dispatcher signals require governance.
+Handles provisioning, rotation, injection, monitoring, and auditing for secrets and certificates across Azure Key Vault, AWS Secrets Manager, HashiCorp Vault, Kubernetes, and GCP Secret Manager while feeding risk-aware telemetry to orchestrators.
 
 ## When to invoke
-- Rotate secrets or certificates (API keys, passwords, TLS certs) on schedule or upon compromise.
+- Rotate secrets or certificates (API keys, TLS certs, connection strings) on schedule, threat response, or policy change.
 - Audit access, detect hardcoded credentials, validate certificates, or migrate secrets stores.
-- Respond to dispatcher signals such as `policy-risk`, `incident-ready`, `capacity-alert` (e.g., secrets used in new infrastructure).
-- Provision cert-manager and integrate TLS automation with cluster workloads.
+- Respond to dispatcher signals (`policy-risk`, `incident-ready`, `capacity-alert`) that expose new secret/cert dependencies.
+- Provision cert-manager and automatically reconcile TLS automation with workloads.
 
 ## Capabilities
-- Multi-backend support (Azure Key Vault, AWS Secrets Manager, Vault, Kubernetes, GCP Secret Manager).
-- AI risk scoring for rotation impacts, policy compliance, and disclosure exposure.
-- Smart remediation ordering (VIP secrets first, automated rotation scripts).
-- Predictive expiry alerts, certificate renewal automation, and audit trail ingestion.
-- Shared context integration `shared-context://memory-store/secrets/<operationId>` for other skills.
+- **Multi-backend rotation** for Azure Key Vault, AWS Secrets Manager, Vault, Kubernetes, and GCP Secret Manager.
+- **AI risk scoring** balancing rotation impact, policy compliance, and exposure to determine automation readiness.
+- **Smart remediation ordering** prioritizing critical secrets, automating rotations, and gating with human review when needed.
+- **Predictive expiry alerts** with proactive renewals and injection flows for certificates.
+- **Shared-context propagation** via `shared-context://memory-store/secrets/{operationId}` for downstream skills.
 
 ## Invocation patterns
 
@@ -39,11 +39,11 @@ Handles provisioning, rotation, injection, monitoring, and audit of secrets/cert
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `secret` | Secret/certificate identifier. | `db/password` |
-| `backend` | Secret backend (azure|aws|vault|k8s|gcp). | `azure` |
+| `backend` | Secret backend (`azure|aws|vault|k8s|gcp`). | `azure` |
 | `cluster` | Kubernetes cluster identifier. | `aks-tenant-42-prod` |
 | `certificate` | TLS certificate name. | `payments-api-tls` |
-| `deployment` | Workload that consumes secret/cert. | `payments-api` |
-| `scope` | Scope for audits (tenant, repo, all). | `all` |
+| `deployment` | Workload consuming the secret/cert. | `payments-api` |
+| `scope` | Audit scope (tenant, repo, all). | `all` |
 
 ## Output contract
 
@@ -70,62 +70,64 @@ Handles provisioning, rotation, injection, monitoring, and audit of secrets/cert
 ## World-class workflow templates
 
 ### Secret rotation pipeline
-1. Generate new secret via templated generator; validate with safe rollout (service health).
-2. Store new version in backend (Key Vault/Secrets Manager/Vault), keep overlapping versions for rollback.
-3. Inject secret into workloads (DFS operator, CSI driver) and trigger restarts as necessary.
-4. Emit `secret-rotated` event and log rotation metadata for auditing.
+1. Generate new secrets/certificates using templated generators or CA requests.
+2. Store new versions in backend stores (Key Vault/Secrets Manager/Vault) with overlapping versions for rollback.
+3. Inject secrets into workloads via CSI drivers, SecretProviderClass, or deployment updates.
+4. Emit `secret-rotated` events with rotation metadata for audit/tracing.
 
 ### Certificate lifecycle automation
-1. Provision cert-manager issuers (Let's Encrypt, Azure DNS, Vault CA).
-2. Create/renew certificates per tenant, set `renewBefore`, and monitor status.
-3. Alert when expiry within threshold (<30 days) and auto-renew.
-4. Emit `certificate-renewed` events for dispatcher downstream.
+1. Provision cert-manager issuers (ACME, Azure CA, Vault) with `renewBefore` and orientation.
+2. Renew certificates per tenant and monitor statuses, triggering auto-renew before expiry.
+3. Alert when expiries approach (<30 days) and verify TLS chain health.
+4. Emit `certificate-renewed` events so deployment/orchestration skills can re-deploy if needed.
 
 ### Hardcoded secret detection & remediation
-1. Run `gitleaks`, `trufflehog`, repo scans, and Kubernetes secret pattern checks.
-2. Classify findings, escalate high-risk detections, trigger rotations, and open tickets.
-3. Emit `hardcoded-secret-detected` events and link to remediation tasks.
+1. Run scanners (`gitleaks`, `trufflehog`, repo searches) plus Kubernetes manifest audits.
+2. Classify findings, escalate critical exposures, and trigger rotations or secret deletions.
+3. Emit `hardcoded-secret-detected` events with remediation steps attached.
 
 ## AI intelligence highlights
-- **AI Risk Assessment**: evaluates rotation impact, compliance, and production exposure to determine `riskScore`.
-- **Smart Remediation Prioritization**: sequences rotations/cert renewals by criticality and service dependencies.
-- **Intelligent Violation Analysis**: explains exposure (missing tags, public secrets) with suggestions.
-- **Predictive Expiry Alerts**: forecasts certificate expiration and secret rotation needs.
+- **AI Risk Assessment** quantifies impact and automation readiness for rotations/cert renewals.
+- **Smart Remediation Prioritization** sequences operations by criticality, service dependency, and compliance urgency.
+- **Intelligent Violation Analysis** explains exposures (public secrets, missing tags, policy gaps) with actionable remediation steps.
+- **Predictive Expiry Alerts** forecast when secrets/certs need rotation before thresholds breach.
 
 ## Memory agent & dispatcher integration
-- Store operations under `shared-context://memory-store/secrets/<operationId>` for other agents.
-- Emit events: `secret-rotated`, `certificate-renewed`, `secret-detected`, `rotation-required`.
-- Subscribe to dispatcher signals (`policy-risk`, `incident-ready`, `capacity-alert`) to adjust rotation priority.
-- Tag metadata with `decisionId`, `tenant`, `backend`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI commands (az keyvault, aws secretsmanager, vault, kubectl, kubeseal) producing JSON output.
-- Secondary: Event bus for `secrets-*` events consumed by dispatchers.
-- Fallback: Persist JSON artifacts to `artifact-store://secrets/<operationId>.json`.
+- Persist operations at `shared-context://memory-store/secrets/{operationId}` with tags (`decisionId`, `tenant`, `backend`, `riskScore`).
+- Emit events: `secret-rotated`, `certificate-renewed`, `secret-detected`, `rotation-required`, `certificate-warning`.
+- Subscribe to dispatcher signals (`policy-risk`, `incident-ready`, `capacity-alert`) to reprioritize rotations/injections.
+- Provide fallback artifacts via `artifact-store://secrets/{operationId}.json` when event buses are offline.
 
 ## Observability & telemetry
-- Metrics: rotations per backend, certificate renewals, hardcoded discovery counts, rotation success rate, riskScore trend.
+- Metrics: rotations per backend, certificate renewals, detection counts, rotation success rate, riskScore trends.
 - Logs: structured `log.event="secrets.rotation"` containing `operation`, `tenant`, `backend`, `decisionId`.
-- Dashboards: integrate `/secrets-certificate-manager metrics --format=prometheus` for vault operations.
-- Alerts: riskScore ≥ 0.85, rotation failure > 2 in 24h, certificates expiring < 7 days without auto-renew.
+- Dashboards: surface `/secrets-certificate-manager metrics --format=prometheus` for vault operations.
+- Alerts: riskScore ≥ 0.85, rotation failures >2 in 24h, certificates expiring within 7 days without auto-renew.
 
 ## Failure handling & retries
-- Retry secret/cert operations up to 2× on transient failures (API throttling) with exponential backoff.
-- On rotation failure, revert to previous secret version and emit `rotation-failed`.
-- Maintain audit trails/artifacts until downstream acknowledgements; do not delete immediately.
+- Retry secret/certificate commands up to 2× on transient API throttling with exponential backoff.
+- On rotation failure revert to previous secret version, emit `rotation-failed`, and escalate to incident skills.
+- Maintain audit artifacts until downstream acknowledgments confirm safe completion.
 
 ## Human gates
 - Required when:
- 1. Rotation affects production-critical secrets (DB passwords, master keys) or >20 services.
- 2. Certificates impact public endpoints or require DNS changes.
- 3. Dispatcher flags manual review after repeated failures or policy violations.
-- Use standard human gate confirmation template.
+  1. Rotations touch production-critical secrets (DB passwords, master keys) or >20 services.
+  2. Certificates affect public endpoints or require DNS changes.
+  3. Dispatcher demands manual review after repeated failures or policy violations.
+- Confirmation template matches the orchestrator standard:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/secrets-certificate-manager rotate --secret=db/password --dry-run`.
-- Unit tests: `backend/secrets/` verifies rotation logic and risk scoring.
-- Integration: `scripts/validate-secrets-rotation.sh` exercises rotation, injection, auditing flows.
-- Regression: nightly `scripts/nightly-secrets-smoke.sh` ensures rotation cadence, expiry alerts, detection thresholds stay stable.
+- Unit tests: `backend/secrets/` ensures rotation/injection logic and risk scoring operate correctly.
+- Integration: `scripts/validate-secrets-rotation.sh` exercises rotation, injection, auditing flows end to end.
+- Regression: nightly `scripts/nightly-secrets-smoke.sh` verifies rotation cadence, expiry alerts, and detection thresholds.
 
 ## References
 - Rotation scripts: `scripts/secrets/`.
@@ -133,6 +135,6 @@ Handles provisioning, rotation, injection, monitoring, and audit of secrets/cert
 - Detection templates: `templates/security-report.md`.
 
 ## Related skills
-- `/policy-as-code`: ensures secrets/certs comply with governance.
-- `/incident-triage-runbook`: escalates when secrets compromise detected.
+- `/policy-as-code`: validates secrets/certs against governance guardrails.
+- `/incident-triage-runbook`: escalates when secrets compromise arises.
 - `/workflow-management`: orchestrates rotation/drill workflows.

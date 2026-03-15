@@ -10,21 +10,21 @@ allowed-tools:
 
 # Runbook & Documentation Generator — World-class Knowledge Playbook
 
-Automates creation and upkeep of operational runbooks, ADRs, postmortems, API docs, and onboarding guides using logs, incidents, infra state, and policies. Provides structured outputs, AI narratives, and shared-context for downstream automation.
+Automates creation and upkeep of operational runbooks, ADRs, postmortems, API docs, and onboarding guides with AI narratives and shared context for downstream automation.
 
 ## When to invoke
-- Create or update runbooks for incidents or alerts.
-- Generate ADRs from decisions or proposals.
-- Compile documentation from OpenAPI/terraform/observability data.
-- Sync docs to Backstage, Confluence, or Notion.
-- Feed `incident-triage`, `stakeholder-comms`, or dispatcher follow-ups with narrative context.
+- Draft or update runbooks for incidents, alerts, or operational playbooks.
+- Generate ADRs or decision records from proposals or architecture changes.
+- Compile documentation from OpenAPI specs, Terraform manifests, observability outputs, or policy references.
+- Sync documentation to Backstage, Confluence, Notion, or internal portals.
+- Feed `incident-triage`, `stakeholder-comms-drafter`, or dispatcher follow-ups with narrative context.
 
 ## Capabilities
-- Parse logs/incidents to build repeatable runbooks.
-- Draft ADRs (MADR) and postmortems with timelines and action items.
-- Pull OpenAPI/terraform metadata for reference docs.
-- Publish to documentation stores (Backstage docs, Notion, Confluence).
-- Shared context `shared-context://memory-store/docs/<operationId>`.
+- **Runbook scripting** that extracts timelines, diagnostics, and remediation steps from incidents.
+- **ADR & decision capture** using MADR templates with options, decisions, and consequences.
+- **Reference doc generation** from OpenAPI/Terraform with diagram links and quality checks.
+- **Sync pipelines** that push docs to Backstage/Confluence/Notion plus metadata tracking.
+- **Shared-context propagation** at `shared-context://memory-store/docs/{operationId}` for other skills.
 
 ## Invocation patterns
 
@@ -41,10 +41,10 @@ Automates creation and upkeep of operational runbooks, ADRs, postmortems, API do
 |-----------|-------------|---------|
 | `incident` | Incident ID for runbook/postmortem. | `INC-2026-0315-01` |
 | `title` | Document title. | `Adopt Istio` |
-| `status` | ADR status. | `proposed` |
-| `spec` | OpenAPI/terraform spec path. | `apis/user.yaml` |
-| `format` | Output format (markdown/html). | `markdown` |
-| `target` | Sync destination (backstage, notion). | `confluence` |
+| `status` | ADR status (`proposed|accepted|deprecated`). | `proposed` |
+| `spec` | OpenAPI/Terraform spec path. | `apis/user.yaml` |
+| `format` | Output format (`markdown|html`). | `markdown` |
+| `target` | Sync destination (backstage, notion, confluence). | `confluence` |
 
 ## Output contract
 
@@ -61,7 +61,7 @@ Automates creation and upkeep of operational runbooks, ADRs, postmortems, API do
   "wikiUrl": "https://docs/platform/runbooks/podcrash",
   "aiInsights": {
     "riskScore": 0.28,
-    "summary": "Runbook covers incident steps, escalation, and postmortem action items."
+    "summary": "Runbook covers incident steps, escalation, and action items."
   },
   "decisionContext": "redis://memory-store/docs/DOC-2026-0315-01",
   "logs": "shared-context://memory-store/docs/DOC-2026-0315-01"
@@ -70,66 +70,67 @@ Automates creation and upkeep of operational runbooks, ADRs, postmortems, API do
 
 ## World-class workflow templates
 
-### Runbook generation from incidents
-1. Extract timeline, commands, diagnostics from incident logs.
-2. Format into runbook template (symptoms, impact, diagnostics, remediation, escalation).
-3. Store runbook with metadata and emit `runbook-created`.
+### Runbook generation
+1. Extract timelines, commands, diagnostics, and escalations from incident logs or telemetry.
+2. Structure content into the runbook template (symptoms, impact, diagnostics, remediation, rollback, owners).
+3. Persist metadata, emit `runbook-created`, and store context for reruns.
 
 ### ADR creation
-1. Capture context, drivers, options, decision, consequences in MADR.
-2. Publish to documentation store, notify stakeholders.
-3. Emit `adr-created`.
+1. Capture context, drivers, options, decision, and consequences using MADR.
+2. Notify stakeholders, publish to documentation stores, and annotate related tickets.
+3. Emit `adr-created` and track follow-up action items.
 
-### Documentation sync
-1. Generate docs from OpenAPI, terraform state, diagrams.
-2. Validate quality gates (links, spell-check).
-3. Sync to Backstage/Confluence/Notion with update logs.
-4. Emit `docs-synced`.
+### Reference doc & sync pipeline
+1. Ingest OpenAPI/Terraform/observability specs plus diagrams.
+2. Generate docs, validate quality gates (links, spell-check, policy alignment), and publish to Backstage/Confluence/Notion.
+3. Emit `docs-synced` with diff metadata so orchestrators can audit updates.
 
-### Postmortem automation
-1. Populate timeline from incident steps, metrics, SLO impact.
-2. Gather action items, owners, due dates.
-3. Produce postmortem report in Markdown/Notion and emit `postmortem-ready`.
+### Postmortem delivery
+1. Aggregate timeline, validation steps, impacted SLAs, and human actions from incidents.
+2. Format a postmortem (markdown/HTML), include action items, owners, due dates, and preventive measures.
+3. Emit `postmortem-ready` and notify follow-up systems (stakeholder comms, QA).
 
 ## AI intelligence highlights
-- **AI Narrative**: crafts coherent summaries and action recommendations.
-- **Intelligent Quality Control**: checks templates for completeness, policy compliance, and readability.
-- **Predictive Documentation Alerts**: notifies when docs stale vs infrastructure manifest.
+- **AI Narrative** crafts coherent summaries and recommended actions aligned to severity and audience.
+- **Intelligent Quality Control** checks templates for completeness, policy compliance, and readability, emitting alerts if thresholds fail.
+- **Predictive Documentation Alerts** warn when docs drift from infrastructure manifests or incidents spike.
 
 ## Memory agent & dispatcher integration
-- Store doc metadata in `shared-context://memory-store/docs/<operationId>`.
-- Emit events: `runbook-created`, `adr-created`, `postmortem-ready`, `docs-synced`.
-- React to dispatcher signals (`incident-ready`, `policy-risk`) to update relevant documentation automatically.
-- Tag entries with `decisionId`, `docType`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI/LLM integration to parse logs/specs and generate Markdown/HTML.
-- Secondary: Event bus for `docs-*` events.
-- Fallback: JSON artifacts `artifact-store://docs/<operationId>.json`.
+- Persist metadata under `shared-context://memory-store/docs/{operationId}` with tags (`decisionId`, `docType`, `riskScore`).
+- Emit events: `runbook-created`, `adr-created`, `postmortem-ready`, `docs-synced`, `policy-doc-gate`.
+- React to dispatcher signals (`incident-ready`, `policy-risk`, `cost-anomaly`) to refresh documentation automatically.
+- Tag entries with `decisionId`, `docType`, `riskScore`, `confidence`, `source`.
 
 ## Observability & telemetry
-- Metrics: docs generated per period, quality gate pass rate, summary distributions.
-- Logs: structured `log.event="docs.operation"` with `docType`, `operationId`.
-- Dashboards: integrate `/runbook-documentation-gen metrics --format=prometheus`.
-- Alerts: quality gate failures, outdated docs, LLM errors.
+- Metrics: docs generated per interval, quality gate pass rate, summary sentiment drift.
+- Logs: structured `log.event="docs.operation"` capturing `docType`, `operationId`, `status`.
+- Dashboards: integrate `/runbook-documentation-gen metrics --format=prometheus` into SRE/OPS views.
+- Alerts: quality gate failures, staleness beyond defined windows, LLM errors, sync failures.
 
 ## Failure handling & retries
-- Retry generation pipelines up to 2× on transient errors (LLM timeouts, API).
-- On repeated failure escalate to `incident-triage-runbook` and log user context.
-- Preserve generated artifacts until downstream ack.
+- Retry generation pipelines up to 2× on transient errors (LLM timeouts, API rate limits) before handing off to humans.
+- On repeated failure, emit `docs-failed`, escalate to `incident-triage-runbook`, and keep artifacts for the audit trail.
+- Preserve generated outputs until downstream acknowledgments confirm consumption.
 
 ## Human gates
 - Required when:
- 1. Documentation publishes sensitive strategic decisions (ADR with impact).
- 2. Runbooks propose destructive actions or escalate critical incidents.
- 3. Dispatcher requests manual review after automation failure.
-- Use standard human gate template capturing impact/reversibility.
+  1. Documentation publishes sensitive or strategic decisions (ADRs with enterprise impact).
+  2. Runbooks propose destructive actions (e.g., mass restarts) or critical incident escalations.
+  3. Dispatcher requests manual review after automation failures.
+- Confirmation template matches the orchestrator standard:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/runbook-documentation-gen runbook --incident=INC-DRY --dry-run`.
-- Unit tests: `backend/docs/` ensures template rendering works.
-- Integration: `scripts/validate-docs-gen.sh` pulls data, generates documents, syncs to Backstage.
-- Regression: nightly `scripts/nightly-docs-smoke.sh` ensures generation + sync pipelines stay healthy.
+- Unit tests: `backend/docs/` ensures templates render correctly and data joins function.
+- Integration: `scripts/validate-docs-gen.sh` ingests data, generates docs, and syncs to Backstage.
+- Regression: nightly `scripts/nightly-docs-smoke.sh` confirms generation, quality gates, and event emission.
 
 ## References
 - Templates: `templates/runbook`, `templates/adr`.
@@ -137,6 +138,6 @@ Automates creation and upkeep of operational runbooks, ADRs, postmortems, API do
 - Diagrams: `assets/diagrams/`.
 
 ## Related skills
-- `/incident-triage-runbook`: uses runbooks/postmortems.
-- `/stakeholder-comms-drafter`: consumes exec summaries + docs.
-- `/orchestrator`: triggers documentation updates as part of workflows.
+- `/incident-triage-runbook`: leverages runbooks/postmortems to shorten MTTR.
+- `/stakeholder-comms-drafter`: consumes exec summaries and documentation.
+- `/ai-agent-orchestration`: triggers documentation updates as part of composite workflows.
