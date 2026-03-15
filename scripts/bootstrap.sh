@@ -135,8 +135,8 @@ else
   fail "${MISSING} skills missing — run from the .agents/skills parent directory"
 fi
 
-# Verify CLAUDE.md exists
-[[ -f "CLAUDE.md" ]] && pass "CLAUDE.md found" || warn "CLAUDE.md not found — agent context will be limited"
+# Verify AGENTS.md exists
+[[ -f "AGENTS.md" ]] && pass "AGENTS.md found" || warn "AGENTS.md not found — agent context will be limited"
 
 echo ""
 
