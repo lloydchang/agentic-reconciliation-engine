@@ -2,7 +2,7 @@
 
 ## Preface
 
-This document defines a **world-class AI agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following [https://agentskills.io/home](https://agentskills.io/home) specifications.
+This document defines a **world-class AI agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following open standard specifications at https://agentskills.io/specification web page.
 
 Two complementary layers coexist:
 
@@ -223,4 +223,4 @@ autonomy: requires_PR
 * LLM decides *what*, deterministic system decides *how*.
 * Autonomy is explicitly defined per skill and risk level.
 * GitOps and Kubernetes reconciliation provide safety net for fully automated actions.
-* Document and skills follow [https://agentskills.io/home](https://agentskills.io/home) standards.
+* Document and skills follow open standard specifications at https://agentskills.io/specification web page.
