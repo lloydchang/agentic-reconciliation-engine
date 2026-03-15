@@ -30,6 +30,10 @@ This document records the migration wizard’s design so the tool can orchestrat
 5. Execute the CI policy gate locally.
 6. Ask the connector to push the branch and, if supported, open a merge request/PR; otherwise, print manual merge instructions.
 
+## Automation integration
+
+- Use `scripts/migration_wizard.py` directly from the EKS/AKS/GKE playbooks (or other migration runbooks) to keep overlay ordering, emulator toggles, and CI validation automated. Each runbook can call the wizard with the desired overlay order, helper scripts, CI gate command, and connector flag (e.g., `--connector=gitlab --overlay-order ./bootstrap ./hub ./cloud-azure ...`). Because the wizard reorders overlays itself and exposes the connector interface, it becomes the automation helper for every migration step, ensuring the documented flow executes in one guided session.
+
 ## Extensibility
 
 - Each Git host connector keeps implementation details isolated so the same wizard drive logic works for GitHub Enterprise, GitLab, Azure DevOps, Bitbucket, etc.

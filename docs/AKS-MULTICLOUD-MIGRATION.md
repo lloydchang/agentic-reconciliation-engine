@@ -72,6 +72,22 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 - Remove `./cloud-azure` from the Flux kustomization or revert the commit to cleanly remove the Azure overlay.
 - Keep the old AKS + Argo CD cluster running until you are certain the Flux-enabled control plane is stable.
 
+## Automation via migration wizard
+
+Invoke `scripts/migration_wizard.py` during this runbook to make the overlay ordering, emulator toggle, helper scripts, and CI gate part of an automated workflow. Sample command:
+
+```bash
+./scripts/migration_wizard.py \
+  --repo-url git@gitlab.example.com:org/gitops-infra-control-plane.git \
+  --branch migration-aks \
+  --connector gitlab \
+  --overlay-order ./bootstrap ./hub ./cloud-azure \
+  --ci-gate ./scripts/bootstrap.sh \
+  --helper-script ./scripts/enable-cloud.sh
+```
+
+Use `--connector=azure-devops` or another connector depending on your Git host, and pass `--emulator=enable` if you still need the local emulator while the real overlay is active. The wizard now orchestrates the entire automation flow described in this runbook.
+
 ## Validation checklist
 
 - [ ] Flux kustomization `control-plane` stays `Ready`.

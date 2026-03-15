@@ -214,6 +214,8 @@ the problem you are solving.
 - [GCP Secure Source Manager Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the gcloud git credential helper; clone/push run via git and PRs opened through the Cloud Console.
  - [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - After connectors that can’t create PRs spin up (CodeCommit, Secure Source Manager), this script prints the AWS or GCP console URL for manual PR creation.
 - [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL so you can create the pull request manually.
+- [Apply Overlay Order Helper](./scripts/apply-overlay-order.sh) - Reorders `control-plane/flux/kustomization.yaml` per `control-plane/flux/overlay-order.txt`.
+- [Overlay Logician](./scripts/overlay-logician.py) - Validates that every ordered overlay exists before you run the migration wizard.
 
 ## Comparison with Managed Alternatives
 
