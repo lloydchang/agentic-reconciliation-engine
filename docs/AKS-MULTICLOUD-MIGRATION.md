@@ -81,6 +81,6 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 - [ ] Provider-specific patches are tracked in `control-plane/flux/cloud-azure/`.
 If you are using a local Azure emulator rather than a real subscription, include the optional emulator overlay before you enable the full cloud overlay:
 
-1. Uncomment `- local-emulator` inside `control-plane/flux/cloud-azure/kustomization.yaml`.
+1. Run `scripts/enable-cloud.sh azure --emulator=enable` so Flux adds the `local-emulator` entry and applies the emulator resources.
 2. Apply the overlay to spin up the emulator resources via Flux.
-3. When you are ready to target a real AKS cluster, remove the emulator entry and re-run the Azure overlay.
+3. When you are ready to target a real AKS cluster, run `scripts/enable-cloud.sh azure --emulator=disable` (or edit `control-plane/flux/cloud-azure/kustomization.yaml`) and re-run the Azure overlay.
