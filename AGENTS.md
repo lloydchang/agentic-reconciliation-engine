@@ -29,15 +29,30 @@ Two complementary layers coexist:
 ## Repository Structure
 ```
 repo/
-├── .agents/[skill]SKILL.md # AI assistant skill definitions
-├── AGENTS.md               # This file - agent operating rules
-├── ai-agents/
-    ├── backend/            # Go Temporal workflows and activities
-    ├── frontend/           # React dashboard and WebMCP client
-    ├── cli/                # Command-line interface
-    └── tools/              # Tool permissions and configurations
-├── docs/                   # Documentation and interface specs
+├── .agents/                    # AI assistant skill definitions (agentskills.io compliant)
+│   └── [skill_name]/
+│       ├── SKILL.md          # Skill definition with YAML frontmatter
+│       ├── scripts/          # Optional executable code
+│       ├── references/       # Optional documentation
+│       └── assets/           # Optional templates/resources
+├── AGENTS.md                  # This file - agent operating rules
+├── ai-agents/                 # Temporal AI orchestration code
+│   ├── backend/              # Go Temporal workflows and activities
+│   ├── frontend/             # React dashboard and WebMCP client
+│   ├── cli/                  # Command-line interface
+│   └── tools/                # Tool permissions and configurations
+├── docs/                     # Documentation and interface specs
+├── scripts/                  # Utility scripts for validation and fixes
+└── gitops/                   # GitOps/Control-Plane workflows
 ```
+
+### Skills Directory
+The `.agents/` directory contains individual skill definitions that follow the [agentskills.io specification](https://agentskills.io/specification):
+
+- Each skill has a `SKILL.md` file with YAML frontmatter containing `name`, `description`, and optional fields
+- Skills define specific capabilities like `cost-optimizer`, `alert-prioritizer`, `cluster-health-check`
+- Agents discover and load skills based on task requirements and skill descriptions
+- All 72 skills have been validated to comply with the specification
 
 ---
 
@@ -61,32 +76,19 @@ Agents automate cloud workflows while preserving safety:
 * Structured output, logging, and monitoring
 * Risk-level assessment and human gating
 
-### Repository Structure
-
-```
-repo/
-├── .agents/
-│   └── [skill_name]/
-│       ├── SKILL.md          # Skill definition (agentskills.io compliant)
-│       ├── README.md          # Explains skill purpose and usage
-│       ├── input_schema.json  # Expected input format
-│       ├── output_schema.json # Structured output format
-│       └── tools/             # Optional supporting scripts or binaries
-├── ai-agents/                 # Temporal AI orchestration code
-├── backend/                    # Temporal workflows and activities (Go, Rust, Python)
-├── frontend/                   # Dashboard & WebMCP client
-├── cli/                        # CLI interface
-├── docs/                       # Documentation & interface specs
-├── AGENTS.md                   # This agent specification file
-├── tools/                      # Tool permissions & configurations
-└── gitops/                     # GitOps/Control-Plane workflows
-```
-
 ### Agent Behavior Rules
 
 * Temporal AI orchestrates multi-step workflows and decides action sequences.
 * GitOps layer executes structured plans deterministically.
 * Skills define autonomy level, risk, and human gate requirements.
+
+### Example Workflow: Cost Optimization
+1. **Temporal AI** receives request: "Optimize costs for production environment"
+2. **Skill Discovery**: AI identifies `cost-optimizer` skill based on description
+3. **Plan Generation**: AI creates structured plan using skill's input schema
+4. **Risk Assessment**: Plan marked as `medium` risk, `conditional` autonomy
+5. **GitOps Execution**: Plan executed via Flux or Argo CD with human approval gate
+6. **Results**: Cost savings report generated and monitored
 
 ### Skill System & Interfaces
 
@@ -115,7 +117,7 @@ repo/
 ### Workflows & Automation
 
 * Temporal workflows orchestrate general cloud operations.
-* GitOps workflows execute infrastructure changes via validated pipelines (ArgoCD/Flux).
+* GitOps workflows execute infrastructure changes via validated pipelines (Flux, Argo CD).
 * LLM output is never executed directly on clusters; only through structured plans.
 
 ---
@@ -131,7 +133,7 @@ repo/
 ### Key Workflows
 
 * Cluster Management: provision, upgrade, scale, troubleshoot nodes
-* GitOps Synchronization: PR validation, ArgoCD/Flux reconciliation
+* GitOps Synchronization: PR validation, Flux and Argo CD reconciliation
 * Deployment Validation: smoke tests, canary, blue-green
 * Secrets & Certificates: rotation and management
 * Multi-Cloud Orchestration: region-specific deployments, networking
@@ -196,24 +198,78 @@ autonomy: requires_PR
 
 ### A: Skill Index Mapping
 
-* Maps general-purpose Temporal skills to GitOps-specific skills.
-* Shows default execution layer and autonomy level.
+| Skill Category | Example Skills | Default Layer | Autonomy |
+| -------------- | -------------- | ------------- | -------- |
+| **Cost Management** | cost-optimizer, capacity-planning | Temporal AI | conditional |
+| **Monitoring** | alert-prioritizer, cluster-health-check | Temporal AI | conditional |
+| **Security** | compliance-scanner, security-analysis | GitOps | requires_PR |
+| **Deployment** | deployment-strategy, gitops-workflow | GitOps | conditional |
+| **Database** | database-maintenance, database-operations | GitOps | conditional |
 
 ### B: Environment Variables & Configurations
 
-* Cloud credentials, ArgoCD/Flux endpoints
-* Monitoring and alerting integrations
+```bash
+# Cloud Provider Credentials
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AZURE_CLIENT_ID=your_client_id
+GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
+
+# GitOps Endpoints
+ARGO_CD_SERVER=https://argocd.example.com
+FLUX_GIT_REPO=git@github.com:org/infrastructure.git
+
+# GitOps Configuration
+GITOPS_TOOL=flux # or argo_cd
+GITOPS_NAMESPACE=gitops-system
+
+# Monitoring Integration
+PROMETHEUS_URL=https://prometheus.example.com
+GRAFANA_API_KEY=your_grafana_key
+```
 
 ### C: Human Gate Reference Table
 
-* Lists all operations requiring approval
-* Separated by risk level and layer
+| Operation Type | Risk Level | Human Gate Required | Approval Method |
+| -------------- | ---------- | ------------------ | -------------- |
+| **Read Operations** | Low | No | N/A |
+| **Dev/Test Changes** | Low | No | N/A |
+| **Production Scaling** | Medium | Yes | PR approval |
+| **Security Changes** | High | Yes | PR + security review |
+| **Database Changes** | High | Yes | PR + DBA review |
+| **Network Changes** | High | Yes | PR + network review |
+| **Cost Optimization** | Medium | Conditional | Auto-approve < $100/day |
 
 ### D: Composite Workflows & Autonomy Rules
 
-* Example: Tenant onboarding with infrastructure changes
-* Temporal orchestrates multi-step workflow
-* GitOps executes infra changes according to autonomy rules
+#### Example: Tenant Onboarding Workflow
+```yaml
+workflow: tenant-onboarding
+steps:
+  1. create-infrastructure:
+     skill: infrastructure-provisioning
+     risk: medium
+     autonomy: conditional
+  2. setup-monitoring:
+     skill: observability-stack
+     risk: low
+     autonomy: fully_auto
+  3. configure-security:
+     skill: security-analysis
+     risk: high
+     autonomy: requires_PR
+  4. deploy-applications:
+     skill: deployment-strategy
+     risk: medium
+     autonomy: conditional
+```
+
+#### Autonomy Rules Matrix
+| Layer | Low Risk | Medium Risk | High Risk |
+| ----- | -------- | ----------- | --------- |
+| **Temporal AI** | fully_auto | conditional | requires_PR |
+| **GitOps** | fully_auto | conditional | requires_PR |
+| **Combined** | fully_auto | conditional | requires_PR |
 
 ---
 

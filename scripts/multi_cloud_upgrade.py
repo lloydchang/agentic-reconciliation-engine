@@ -12,7 +12,7 @@ def create_multi_cloud_skill_content(skill_name):
 name: {skill_name}
 description: >
   World-class multi-cloud enterprise automation skill that provides intelligent operations across AWS, Azure, GCP, and on-premise environments with comprehensive validation and compliance workflows.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
   version: "1.0"

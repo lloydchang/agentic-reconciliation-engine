@@ -99,7 +99,7 @@ class SkillsUpgrader:
 name: {skill_name}
 description: >
   World-class cost optimization automation that provides intelligent analysis, forecasting, and recommendations for enterprise cloud spend management with comprehensive compliance validation.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
   version: "1.0"
@@ -443,7 +443,7 @@ func (a *SkillExecutionActivities) Execute{skill_name.replace('-', '_').title().
 name: {skill_name}
 description: >
   World-class Kubernetes operations automation that provides intelligent cluster management, security validation, and compliance workflows for enterprise container orchestration.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
   version: "1.0"
@@ -807,7 +807,7 @@ kubectl ${{OPERATION}} ${{RESOURCE_TYPE}} --namespace ${{NAMESPACE}} -o yaml
 name: {skill_name}
 description: >
   World-class enterprise automation skill that provides intelligent operations, comprehensive validation, and compliance workflows for optimized business processes.
-license: Apache-2.0
+license: AGPLv3
 metadata:
   author: gitops-infra-control-plane
   version: "1.0"
