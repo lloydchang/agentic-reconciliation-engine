@@ -1,287 +1,149 @@
 ---
 name: database-operations
 description: >
-  Use this skill to manage cloud database lifecycle operations including
-  provisioning, scaling, backup/restore, failover, high-availability
-  configuration, performance tuning, and version upgrades for Azure Database
-  for PostgreSQL, Azure SQL, and MongoDB. Triggers: any request to provision
-  a database, restore from backup, trigger or test a failover, scale compute
-  or storage, tune query performance, investigate slow queries, set up
-  read replicas, rotate credentials, or generate a database health report.
-tools:
-  - bash
-  - computer
+  Provide AI-assisted database lifecycle operations (provision, backup, scale, failover, tune, upgrade) across managed cloud databases with telemetry and dispatcher signals.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Database Operations Skill
+# Database Operations — World-class Data Platform Playbook
 
-Full database lifecycle automation: provision → configure HA → backup →
-monitor → tune → scale → failover → restore → upgrade.
+Manages provisioning, high availability, backups, scaling, failovers, tuning, and upgrades for managed databases (Azure PostgreSQL/SQL, MongoDB, Redis) with AI-driven risk scoring, telemetry, and shared-context outputs. Use this skill for any lifecycle operation or when dispatchers signal incidents/policy risk requiring database action.
 
----
+## When to invoke
+- Provision or decommission managed databases per tenant.
+- Scale compute/storage or adjust connection parameters.
+- Execute backups, restores, failover, upgrade, or HA validation.
+- Perform diagnostics, slow query analysis, or replication checks.
+- Respond to dispatcher events (`incident-ready`, `policy-risk`, `capacity-alert`) that implicate databases.
 
-## Supported Engines
+## Capabilities
+- Multi-cloud database provisioning and scaling with tiered sizing guidelines.
+- AI risk scoring for destructive operations (failover, restore, upgrade).
+- Automated backup/restore management and failover drills.
+- Performance diagnostics (slow queries, bloat, replication lag) with remediation hints.
+- Shared context at `shared-context://memory-store/db/<operationId>` for other skills.
 
-| Engine              | Azure service                     | CLI               |
-|---------------------|-----------------------------------|-------------------|
-| PostgreSQL          | Azure Database for PostgreSQL Flexible | `az postgres flexible-server` |
-| SQL Server          | Azure SQL Database / Managed Instance | `az sql`      |
-| MongoDB             | Azure Cosmos DB (Mongo API)       | `az cosmosdb`     |
-| Redis               | Azure Cache for Redis             | `az redis`        |
-
----
-
-## Provisioning
-
-### PostgreSQL Flexible Server (per-tenant)
-```bash
-az postgres flexible-server create \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --location "$REGION" \
-  --sku-name "$DB_SKU" \
-  --tier "$DB_TIER" \
-  --storage-size "$STORAGE_GB" \
-  --version "16" \
-  --admin-user "$DB_ADMIN" \
-  --admin-password "$DB_PASSWORD" \
-  --high-availability ZoneRedundant \
-  --standby-zone 2 \
-  --zone 1 \
-  --backup-retention "$BACKUP_DAYS" \
-  --geo-redundant-backup Enabled \
-  --private-dns-zone "pg-${TENANT_ID}.private.postgres.database.azure.com" \
-  --vnet "vnet-spoke-${TENANT_ID}" \
-  --subnet "snet-data" \
-  --tags "tenant=${TENANT_ID}" "managed_by=db-operations"
-```
-
-### Tier Sizing Guide
-| Tier        | SKU                | vCores | Memory | Max Connections | Use case        |
-|-------------|-------------------|--------|--------|-----------------|-----------------|
-| Starter     | Standard_B2ms     | 2      | 8 GB   | 150             | Dev / small SaaS|
-| Business    | Standard_D4s_v3   | 4      | 16 GB  | 400             | Mid-size tenant |
-| Enterprise  | Standard_D8s_v3   | 8      | 32 GB  | 860             | High-volume     |
-| Enterprise+ | Standard_D16s_v3  | 16     | 64 GB  | 1740            | Supermajors     |
-
----
-
-## Backup & Restore
-
-### On-Demand Backup
-```bash
-az postgres flexible-server backup create \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --backup-name "manual-$(date +%Y%m%d-%H%M%S)"
-```
-
-### Point-in-Time Restore
-```bash
-# Restore to a new server at a specific timestamp
-az postgres flexible-server restore \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}-restored" \
-  --source-server "pg-${TENANT_ID}" \
-  --restore-time "$(date -d '-2 hours' +%Y-%m-%dT%H:%M:%SZ)"
-
-# Validate restored server
-psql -h "pg-${TENANT_ID}-restored.postgres.database.azure.com" \
-  -U "$DB_ADMIN" -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
-```
-
-### Backup Retention Policy
-| Tier        | Local retention | Geo-redundant backup | Point-in-time window |
-|-------------|----------------|----------------------|----------------------|
-| Starter     | 7 days         | No                   | 7 days               |
-| Business    | 30 days        | Yes                  | 30 days              |
-| Enterprise  | 35 days        | Yes                  | 35 days              |
-
----
-
-## High Availability & Failover
-
-### Check HA Status
-```bash
-az postgres flexible-server show \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --query "{
-    state: state,
-    ha: highAvailability.mode,
-    primaryZone: availabilityZone,
-    standbyZone: highAvailability.standbyAvailabilityZone,
-    haState: highAvailability.state
-  }" --output json
-```
-
-### Trigger Forced Failover (for DR testing)
-```bash
-# REQUIRES APPROVAL — causes brief interruption
-az postgres flexible-server restart \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --failover Forced
-```
-
-### Read Replica (for read-heavy tenants)
-```bash
-az postgres flexible-server replica create \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}-replica" \
-  --source-server "pg-${TENANT_ID}" \
-  --location "${REPLICA_REGION}"
-```
-
----
-
-## Scaling
+## Invocation patterns
 
 ```bash
-# Scale up compute (live — minimal interruption)
-az postgres flexible-server update \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --sku-name "Standard_D8s_v3" \
-  --tier GeneralPurpose
-
-# Expand storage (online, non-reversible)
-az postgres flexible-server update \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --storage-size 512
-
-# Adjust connection pool (PgBouncer)
-az postgres flexible-server parameter set \
-  --resource-group "rg-${TENANT_ID}" \
-  --server-name "pg-${TENANT_ID}" \
-  --name "max_connections" \
-  --value "400"
+/database-operations provision --engine=postgres --tenant=tenant-42 --tier=enterprise --region=eastus
+/database-operations backup --tenant=tenant-42 --type=manual --retention=35
+/database-operations failover --tenant=tenant-42 --humanGate=true
+/database-operations scale --tenant=tenant-42 --cpu=8 --storage=512
+/database-operations diagnose --tenant=tenant-42 --target=slow_queries
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `engine` | Database engine (`postgres|sql|mongodb|redis`). | `postgres` |
+| `tenant` | Tenant identifier. | `tenant-42` |
+| `tier` | SLA tier (starter/business/enterprise). | `enterprise` |
+| `region` | Cloud region. | `eastus` |
+| `operation` | Lifecycle step (provision, backup, failover, upgrade). | `failover` |
+| `humanGate` | Whether human approval needed for operation. | `true` |
 
-## Performance Diagnostics
-
-```sql
--- Top 10 slow queries (pg_stat_statements)
-SELECT query, calls, mean_exec_time, total_exec_time, rows
-FROM pg_stat_statements
-ORDER BY mean_exec_time DESC
-LIMIT 10;
-
--- Table bloat check
-SELECT relname AS table,
-  pg_size_pretty(pg_total_relation_size(oid)) AS total_size,
-  pg_size_pretty(pg_relation_size(oid)) AS table_size,
-  pg_size_pretty(pg_total_relation_size(oid) - pg_relation_size(oid)) AS index_size
-FROM pg_class WHERE relkind = 'r'
-ORDER BY pg_total_relation_size(oid) DESC
-LIMIT 20;
-
--- Lock waits
-SELECT pid, usename, pg_blocking_pids(pid) AS blocked_by, query
-FROM pg_stat_activity
-WHERE cardinality(pg_blocking_pids(pid)) > 0;
-
--- Index usage
-SELECT relname, indexrelname,
-  idx_scan, idx_tup_read, idx_tup_fetch
-FROM pg_stat_user_indexes
-ORDER BY idx_scan ASC
-LIMIT 20;
-```
-
-### Automated Tuning Recommendations
-```bash
-# Generate recommendations using Azure Intelligent Performance
-az postgres flexible-server show-recommendation \
-  --resource-group "rg-${TENANT_ID}" \
-  --server-name "pg-${TENANT_ID}" \
-  --output json | jq '.[] | {type: .type, detail: .details, impact: .impactedField}'
-```
-
----
-
-## Database Health Monitor
-
-```bash
-check_db_health() {
-  local tenant_id=$1
-
-  echo "=== Connection Pool ===" && \
-    psql -h "pg-${tenant_id}.postgres.database.azure.com" \
-      -c "SELECT count(*), state FROM pg_stat_activity GROUP BY state;"
-
-  echo "=== Replication Lag ===" && \
-    psql -c "SELECT now() - pg_last_xact_replay_timestamp() AS lag;" 2>/dev/null
-
-  echo "=== Database Sizes ===" && \
-    psql -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database ORDER BY pg_database_size(datname) DESC;"
-
-  echo "=== Long Running Queries ===" && \
-    psql -c "SELECT pid, now() - pg_stat_activity.query_start AS duration, query
-    FROM pg_stat_activity WHERE state = 'active' AND now() - query_start > interval '5 minutes';"
-}
-```
-
-### Alert Thresholds
-| Metric                        | Warning  | Critical |
-|-------------------------------|----------|----------|
-| Storage utilisation           | 75%      | 90%      |
-| CPU average (5-min)           | 80%      | 95%      |
-| Active connections / max      | 80%      | 95%      |
-| Replication lag               | 30s      | 5 min    |
-| Failed connections (per min)  | 10       | 50       |
-
----
-
-## Version Upgrades
-
-```bash
-# Major version upgrade (e.g., PG 15 → 16)
-# Step 1: Take backup
-az postgres flexible-server backup create \
-  --name "pg-${TENANT_ID}" -g "rg-${TENANT_ID}" \
-  --backup-name "pre-upgrade-$(date +%Y%m%d)"
-
-# Step 2: Run upgrade
-az postgres flexible-server upgrade \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "pg-${TENANT_ID}" \
-  --version 16
-
-# Step 3: Validate
-psql -h "pg-${TENANT_ID}.postgres.database.azure.com" \
-  -c "SELECT version();"
-```
-
----
-
-## Examples
-
-- "Provision a Business-tier PostgreSQL database for tenant-53 in East US"
-- "Restore tenant-42's database to 3 hours ago — they had a bad data migration"
-- "Scale up the enterprise database for tenant-91 to D8s_v3"
-- "Show me all slow queries on the payments service database"
-- "Test the failover for tenant-7's HA database and confirm recovery time"
-- "Which databases are using more than 80% of their storage?"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "operation": "provision|backup|restore|scale|failover|health-check|upgrade",
-  "tenant_id": "string",
-  "server_name": "string",
+  "operationId": "DB-2026-0315-01",
   "status": "success|failure|in_progress",
-  "ha_state": "Healthy|FailingOver|NotEnabled",
-  "storage_used_pct": 0,
-  "connection_used_pct": 0,
-  "slow_queries_count": 0,
-  "backup_name": "string",
-  "restore_point": "ISO8601"
+  "operation": "provision|backup|restore|scale|failover|diagnose|upgrade",
+  "tenant": "tenant-42",
+  "engine": "postgres",
+  "riskScore": 0.33,
+  "haState": "Healthy",
+  "metrics": {
+    "storageUsedPct": 63,
+    "cpuUsedPct": 54,
+    "replicationLagSeconds": 2
+  },
+  "issues": [],
+  "events": [
+    {
+      "name": "backup-completed",
+      "timestamp": "2026-03-15T08:12:00Z"
+    }
+  ],
+  "logs": "shared-context://memory-store/db/DB-2026-0315-01",
+  "decisionContext": "redis://memory-store/db/DB-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Provision & HA hardening
+1. Provision server (Azure PostgreSQL Flexible, Azure SQL, MongoDB, Redis) with specified tier and HA settings.
+2. Configure geo-redundant backups, private endpoints, and tags.
+3. Emit `db-provisioned` event with connection info stored in shared context.
+
+### Backup/restore/failover automation
+1. Trigger manual/automated backups and retention plan.
+2. Restore to point-in-time, measure RPO, log results.
+3. Perform failovers for DR or testing with human gate when impacting production.
+4. Emit `db-backup`, `db-restore`, `db-failover` events for dispatchers.
+
+### Scaling & tuning
+1. Adjust compute/storage (SKU, memory, storage size) per demand.
+2. Tune connection parameters, apply recommended performance configurations.
+3. Log scaling actions and emit `db-scaled`.
+
+### Diagnostics & upgrades
+1. Run slow query analysis, log bloat, high replication lag checks.
+2. Upgrade engine version with risk scoring and pre/post validation.
+3. Emit `db-upgrade` event and update shared context for downstream skills.
+
+## AI intelligence highlights
+- **AI Risk Scoring**: assesses failover/restore/upgrade risk based on change size, tenant impact, historical reliability.
+- **Intelligent Scheduling**: prioritizes operations based on capacity alerts and policy context.
+- **Predictive Diagnostics**: flags slow queries, replication lags, storage pressure before thresholds breach.
+- **Automated Remediation Suggestions**: recommends index tuning, scaling actions, or configuration changes.
+
+## Memory agent & dispatcher integration
+- Persist operations under `shared-context://memory-store/db/<operationId>` for other skills (incident, policy, capacity).
+- Emit dispatcher events: `db-backup`, `db-restore`, `db-failover`, `db-diagnostics`, `db-risk`.
+- Listen for dispatcher signals (`capacity-alert`, `incident-ready`) to initiate scaling or failovers.
+- Attach metadata (`decisionId`, `tenant`, `riskScore`, `engine`, `operation`).
+
+## Communication protocols
+- Primary: cloud CLIs (az postgres/sql/cosmos, gcloud, aws) and `kubectl` for connectivity; outputs parseable JSON.
+- Secondary: Event bus for `db-*` events consumed by dispatcher & skills.
+- Fallback: Persist JSON artifacts to `artifact-store://db/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: provisioning count, failover duration, backup success rate, diagnostics frequency, riskScore distribution.
+- Logs: structured `log.event="db.operation"` with `operation`, `tenant`, `decisionId`.
+- Dashboards: integrate `/database-operations metrics --format=prometheus` onto platform dashboards.
+- Alerts: riskScore ≥ 0.85, HA state degraded, replication lag > threshold, backup failure rate > 5%.
+
+## Failure handling & retries
+- Retry destructive operations (scale, failover, restore) up to 2× with exponential backoff on transient API errors.
+- On failure, log context, emit `db-operation-failed`, escalate to `incident-triage-runbook`.
+- Preserve artifacts/logs for audit; do not delete shared-context until ack.
+
+## Human gates
+- Required when:
+ 1. RiskScore ≥ 0.9, or operations impact production-critical data.
+ 2. Failover/restore involves >20 tenants or cross-region DNS changes.
+ 3. Dispatcher requests intervention after retries/failures.
+- Use standard confirmation template capturing impact/reversibility.
+
+## Testing & validation
+- Dry-run: `/database-operations diagnose --tenant=tenant-42 --target=slow_queries --dry-run`.
+- Unit tests: `backend/database/` ensures risk scoring and diagnostics logic works correctly.
+- Integration: `scripts/validate-database-operations.sh` runs provisioning → backup → failover sequence in emulator.
+- Regression: nightly `scripts/nightly-db-smoke.sh` checks backup success, replication lag, and alerting thresholds.
+
+## References
+- Provisioning scripts: `scripts/database/`.
+- Monitoring queries: `monitoring/queries/postgres`.
+- Templates: `templates/results/database-report.md`.
+
+## Related skills
+- `/disaster-recovery`: orchestrates DR failovers for databases.
+- `/incident-triage-runbook`: responds to database incidents.
+- `/capacity-planning`: aligns scaling actions with demand.
