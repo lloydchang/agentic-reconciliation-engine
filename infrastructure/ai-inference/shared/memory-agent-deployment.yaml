@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: memory-agent-pvc
+  namespace: ai-inference
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-agent-rust
+  namespace: ai-inference
+  labels:
+    component: memory-agent
+    language: rust
+    backend: llama-cpp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: memory-agent
+      language: rust
+  template:
+    metadata:
+      labels:
+        component: memory-agent
+        language: rust
+        backend: llama-cpp
+    spec:
+      initContainers:
+      - name: init-memory-db
+        image: alpine:latest
+        command: ["sh", "-c"]
+        args:
+        - |
+          if [ ! -f /data/memory.db ]; then
+            echo "Initializing empty memory.db"
+            touch /data/memory.db
+          else
+            echo "Using existing memory.db"
+          fi
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+      containers:
+      - name: memory-agent
+        image: memory-agent-rust:latest  # Build from rust-agent/
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_PATH
+          value: "/data/memory.db"
+        - name: INBOX_PATH
+          value: "/data/inbox"
+        - name: BACKEND_PRIORITY
+          value: "llama.cpp,ollama"
+        - name: LANGUAGE_PRIORITY
+          value: "rust,go,python"
+        - name: OLLAMA_URL
+          value: "http://ollama-service:11434"
+        - name: MODEL
+          value: "qwen2.5:0.5b"
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: memory-storage
+        persistentVolumeClaim:
+          claimName: memory-agent-pvc
