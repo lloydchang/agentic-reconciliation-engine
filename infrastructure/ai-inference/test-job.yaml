@@ -1,0 +1,89 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tinyllama-eval-job
+  namespace: ai-inference
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: evaluator
+        image: python:3.9-slim
+        command: ["python", "-c"]
+        args:
+        - |
+          import json
+          import requests
+          import os
+          
+          # Load test cases from ConfigMap
+          with open('/test-cases/test-cases.json', 'r') as f:
+              test_cases = json.load(f)
+          
+          ollama_url = "http://ollama-service:11434/api/chat"
+          
+          results = []
+          
+          for test_case in test_cases:
+              try:
+                  response = requests.post(ollama_url, json={
+                      "model": "tinyllama",
+                      "messages": [{"role": "user", "content": test_case["prompt"]}],
+                      "stream": False
+                  }, timeout=30)
+                  
+                  if response.status_code == 200:
+                      result = response.json()
+                      content = result.get("message", {}).get("content", "")
+                      
+                      # Simple evaluation: check if key criteria are present
+                      score = 0
+                      for criterion in test_case["criteria"]:
+                          if criterion.lower() in content.lower():
+                              score += 1
+                      
+                      evaluation = "PASS" if score >= len(test_case["criteria"]) * 0.5 else "FAIL"
+                      
+                      results.append({
+                          "test": test_case["name"],
+                          "prompt": test_case["prompt"],
+                          "response": content[:500] + "..." if len(content) > 500 else content,
+                          "score": score,
+                          "max_score": len(test_case["criteria"]),
+                          "evaluation": evaluation
+                      })
+                  else:
+                      results.append({
+                          "test": test_case["name"],
+                          "error": f"HTTP {response.status_code}",
+                          "evaluation": "ERROR"
+                      })
+                      
+              except Exception as e:
+                  results.append({
+                      "test": test_case["name"],
+                      "error": str(e),
+                      "evaluation": "ERROR"
+                  })
+          
+          # Print results
+          print(json.dumps(results, indent=2))
+          
+          # Overall assessment
+          total_tests = len(results)
+          passed = len([r for r in results if r.get("evaluation") == "PASS"])
+          
+          print(f"\n=== TinyLlama Evaluation Summary ===")
+          print(f"Total tests: {total_tests}")
+          print(f"Passed: {passed}")
+          print(f"Success rate: {passed/total_tests*100:.1f}%")
+          print(f"Verdict: {'GOOD ENOUGH' if passed/total_tests >= 0.6 else 'NEEDS IMPROVEMENT'}")
+          
+        volumeMounts:
+        - name: test-cases
+          mountPath: /test-cases
+      volumes:
+      - name: test-cases
+        configMap:
+          name: tinyllama-test-cases
