@@ -30,7 +30,7 @@ Flux reconciles the hub and bootstraps each spoke. This enables **automatic drif
 not full operational self-healing, because runtime failures outside Git-managed resources are
 handled by Kubernetes controllers and platform automation separately.
 
-![hub spoke diagram](docs/hub_spoke_v5.svg)
+![hub spoke diagram](hub_spoke_v5.svg)
 
 ```text
 [Tier 0]      Git repository — declarative source of truth
