@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: incident-predictor-config
-data:
-  example: "placeholder for incident-predictor"
-

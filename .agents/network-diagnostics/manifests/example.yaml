@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: network-diagnostics-config
-data:
-  example: "placeholder for network-diagnostics"
-
