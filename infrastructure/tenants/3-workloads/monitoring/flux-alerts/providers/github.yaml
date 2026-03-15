@@ -1,10 +1,5 @@
 # GitHub Commit Status Provider
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: flux-system
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: github-token
