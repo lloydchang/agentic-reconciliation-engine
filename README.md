@@ -182,6 +182,8 @@ the problem you are solving.
 1. [Problem-Solution Fit](./docs/PROBLEM-SOLUTION-FIT.md) - When and how to use this solution
 2. [Architecture](./docs/ARCHITECTURE.md) - Technical architecture including Crossplane Compositions
 3. [Implementation Plan](./docs/implementation_plan.md) - Step-by-step deployment guide
+4. [Implementation Summary](./docs/implementation-summary.md) - Current repo implementation map
+5. [Execution Checklist](./docs/EXECUTION-CHECKLIST.md) - Apply and validate sequence
 
 ### Operations
 - [Hub HA and Recovery](./docs/HUB-HA-RECOVERY.md) - Hub failure modes and cold-start recovery

@@ -6,7 +6,7 @@ This document compares various multi-cloud GitOps implementations, including our
 
 | Approach | Tool | Architecture | Key Features |
 |----------|------|-------------|--------------|
-| **Flux + Controllers** | Flux CD, ACK/ASO/KCC | Hub-and-spoke with controllers | Single source of truth, DAG dependencies, cross-cloud orchestration |
+| **Flux + Crossplane** | Flux CD, Crossplane, CAPI | Hub-and-spoke with controllers | Single source of truth, DAG dependencies, cross-cloud orchestration |
 | **Validated Patterns** | ArgoCD, OpenShift | Pattern-based templating | Pre-built patterns, OpenShift integration, community patterns |
 | **Crossplane** | Crossplane | Provider-agnostic control planes | Infrastructure as code, XRDs, composition |
 | **ArgoCD Multi-Cluster** | ArgoCD | ApplicationSet + cluster secrets | Declarative applications, UI-driven, agent-based |
@@ -19,7 +19,7 @@ This document compares various multi-cloud GitOps implementations, including our
 
 **Architecture:**
 ```
-Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spoke Clusters
+Git Repository → Flux (Hub) → Crossplane + CAPI → Cloud APIs → Spoke Clusters
 ```
 
 **Strengths:**
@@ -132,7 +132,7 @@ Git Repository → GitLab CI/CD → GitLab Agent → Kubernetes Clusters
 - **Validated Patterns:** Pattern-based implicit dependencies
 
 ### **Cloud Provider Integration**
-- **Flux + Controllers:** Native cloud APIs (ACK/ASO/KCC)
+- **Flux + Crossplane:** Native cloud APIs via Crossplane providers
 - **Crossplane:** Provider-agnostic with custom providers
 - **ArgoCD:** Cluster secrets + kubectl
 - **Validated Patterns:** OpenShift operators

@@ -64,7 +64,7 @@ export EKS_CLUSTER_NAME="gitops-management-cluster"
 # Get OIDC provider
 OIDC_PROVIDER=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
 
-# Create IAM roles for ACK controllers
+# Create IAM roles for Crossplane and CAPI controllers (IRSA)
 # See control-plane/identity/irsa-setup.yaml for detailed configuration
 ```
 
@@ -74,7 +74,7 @@ OIDC_PROVIDER=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "clust
 export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 export AZURE_RESOURCE_GROUP="gitops-rg"
 
-# Create managed identity for ASO
+# Create managed identity for Crossplane and CAPZ controllers
 # See control-plane/identity/azure-workload-identity.yaml
 ```
 
@@ -83,7 +83,7 @@ export AZURE_RESOURCE_GROUP="gitops-rg"
 # Set project ID
 export GCP_PROJECT_ID="your-project-id"
 
-# Configure workload identity for KCC
+# Configure workload identity for Crossplane and CAPG controllers
 # See control-plane/identity/gcp-workload-identity.yaml
 ```
 
@@ -93,8 +93,12 @@ Replace placeholder values in the following files:
 - `control-plane/identity/irsa-setup.yaml` - Update `ACCOUNT_ID`, `REGION`, `CLUSTER_ID`
 - `control-plane/identity/azure-workload-identity.yaml` - Update `SUBSCRIPTION_ID`, `RESOURCE_GROUP`
 - `control-plane/identity/gcp-workload-identity.yaml` - Update `PROJECT_ID`
-- `infrastructure/tenants/2-clusters/aws-eks-cluster.yaml` - Update `ACCOUNT_ID`
-- `infrastructure/tenants/2-clusters/gcp-gke-cluster.yaml` - Update `PROJECT_ID`
+- `control-plane/capi/infrastructure-providers.yaml` - Update workload identity annotations
+- `control-plane/capi/clusterclass-aws.yaml` - Update `region`, `sshKeyName`
+- `control-plane/capi/clusterclass-azure.yaml` - Update `subscriptionID`, `resourceGroup`
+- `control-plane/capi/clusterclass-gcp.yaml` - Update `project`, `region`
+See `docs/operator-inputs.md` for a consolidated checklist.
+See `docs/EXECUTION-CHECKLIST.md` for the apply/validation sequence.
 
 ### 5. Commit and Push
 ```bash
@@ -109,61 +113,34 @@ git push origin main
 flux get kustomizations
 
 # Check controller pods
-kubectl get pods -n ack-system
-kubectl get pods -n azureserviceoperator-system  
-kubectl get pods -n cnrm-system
+kubectl get pods -n crossplane-system
+kubectl get pods -n capi-system
 
 # Check infrastructure resources
-kubectl get vpc,subnet -n flux-system
-kubectl get cluster -n flux-system
+kubectl get managed -A
+kubectl get clusters -A
 ```
 
 ## Detailed Configuration
 
-### AWS ACK Controllers
+### Crossplane Providers
 
-The AWS Controllers for Kubernetes (ACK) provide native Kubernetes CRDs for AWS services.
+Crossplane providers manage cloud resources behind XRDs:
+- AWS: `provider-aws`
+- Azure: `provider-azure`
+- GCP: `provider-gcp`
 
-**Supported Services:**
-- EKS (Elastic Kubernetes Service)
-- EC2 (Elastic Compute Cloud)
-- IAM (Identity and Access Management)
+### Cluster API Providers
 
-**Controller Images:**
-- `public.ecr.aws/aws-controllers-k8s/eks-controller:v0.1.2`
-- `public.ecr.aws/aws-controllers-k8s/ec2-controller:v0.1.2`
-- `public.ecr.aws/aws-controllers-k8s/iam-controller:v0.1.2`
-
-### Azure ASO Controllers
-
-The Azure Service Operator provides native Kubernetes CRDs for Azure services.
-
-**Supported Services:**
-- AKS (Azure Kubernetes Service)
-- Virtual Networks
-- Resource Groups
-
-**Controller Image:**
-- `mcr.microsoft.com/azure-service-operator/aso-controller:v2.5.0`
-
-### Google Cloud KCC Controllers
-
-Kubernetes Config Connector (KCC) provides native Kubernetes CRDs for Google Cloud services.
-
-**Supported Services:**
-- GKE (Google Kubernetes Engine)
-- Compute Networks
-- Resource Manager
-
-**Controller Image:**
-- `gcr.io/k8s-staging-config-connector/cnrm-controller-manager:v1.114.0`
+CAPI providers manage spoke cluster lifecycle:
+- AWS: CAPA
+- Azure: CAPZ
+- GCP: CAPG
 
 ## Infrastructure Resources
 
 ### Network Layer (1-network/)
-- **AWS**: VPC, Subnets, Internet Gateway, Route Tables
-- **Azure**: Virtual Networks, Subnets, Resource Groups  
-- **GCP**: Compute Networks, Subnets with secondary ranges
+- XNetwork claims mapped to provider resources by Crossplane
 
 ### Cluster Layer (2-clusters/)
 - **AWS**: EKS Cluster, Node Groups, IAM Roles

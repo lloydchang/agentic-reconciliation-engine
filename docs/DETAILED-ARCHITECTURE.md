@@ -72,7 +72,7 @@ We use a **hub-and-spoke model** enhanced with consensus-based intelligence:
       +------------------------------------------+
       |                HUB CLUSTER               |
       |------------------------------------------|
-      | Flux | ACK        | ASO           | KCC  |
+      | Flux | Crossplane | CAPI          |
       +------------------------------------------+
              |               |               |
              v               v               v

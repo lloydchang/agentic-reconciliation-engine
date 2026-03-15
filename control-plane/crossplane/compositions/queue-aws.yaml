@@ -1,0 +1,25 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xqueue-aws
+  labels:
+    provider: aws
+    platform.example.com/xrd: xqueue
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XQueue
+  resources:
+    - name: sqs-queue
+      base:
+        apiVersion: sqs.aws.crossplane.io/v1beta1
+        kind: Queue
+        spec:
+          forProvider:
+            region: us-east-1
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region

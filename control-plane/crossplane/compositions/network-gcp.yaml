@@ -1,0 +1,92 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-gcp
+  labels:
+    provider: gcp
+    platform.example.com/xrd: xnetwork
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+    - name: vpc
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Network
+        spec:
+          forProvider:
+            autoCreateSubnetworks: false
+            routingConfig:
+              routingMode: REGIONAL
+            labels:
+              network-ref: placeholder
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.labels.network-ref
+    - name: subnet
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Subnetwork
+        spec:
+          forProvider:
+            region: us-central1
+            ipCidrRange: 10.0.1.0/24
+            network: ""
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[0]
+          toFieldPath: spec.forProvider.ipCidrRange
+    - name: subnet-2
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Subnetwork
+        spec:
+          forProvider:
+            region: us-central1
+            ipCidrRange: 10.0.2.0/24
+            network: ""
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[1]
+          toFieldPath: spec.forProvider.ipCidrRange
+    - name: subnet-3
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Subnetwork
+        spec:
+          forProvider:
+            region: us-central1
+            ipCidrRange: 10.0.3.0/24
+            network: ""
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[2]
+          toFieldPath: spec.forProvider.ipCidrRange

@@ -11,9 +11,8 @@
 ### 🧠 Hub Cluster (Management)
 - **Flux GitOps**: ✅ Installed and running
 - **Cloud Controllers**: ✅ All three providers installed
-  - **AWS ACK**: EKS, EC2, IAM controllers
-  - **Azure ASO**: Azure Service Operator
-  - **GCP KCC**: Config Connector
+  - **Crossplane Providers**: AWS, Azure, GCP
+  - **CAPI Providers**: CAPA, CAPZ, CAPG
 - **Git Repository**: ✅ Connected and syncing
 - **Dependency Management**: ✅ `dependsOn` chains working
 
@@ -47,9 +46,9 @@
 - **Drift Test**: Working as expected ✅
 
 ### ✅ Multi-Cloud Support
-- **AWS**: ACK controllers ready for EKS, VPC, IAM ✅
-- **Azure**: ASO controllers ready for AKS, VNet ✅
-- **GCP**: KCC controllers ready for GKE, Networks ✅
+- **AWS**: provider-aws + CAPA ready ✅
+- **Azure**: provider-azure + CAPZ ready ✅
+- **GCP**: provider-gcp + CAPG ready ✅
 
 ---
 

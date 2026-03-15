@@ -1,0 +1,19 @@
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: prod-network
+  namespace: platform
+  labels:
+    team: platform
+    env: prod
+    cost-center: core
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  cidr: 10.10.0.0/16
+  region: us-east-1
+  subnetCidrs:
+    - 10.10.1.0/24
+    - 10.10.2.0/24
+    - 10.10.3.0/24

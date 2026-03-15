@@ -1,0 +1,20 @@
+apiVersion: platform.example.com/v1alpha1
+kind: Cluster
+metadata:
+  name: prod-aks
+  namespace: platform
+  labels:
+    team: platform
+    env: prod
+    cost-center: core
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: capi-azure
+  nodeCount: 3
+  nodeSize: medium
+  kubernetesVersion: "1.30"
+  region: eastus
+  networkRef:
+    name: prod-network
+  deletionPolicy: Orphan

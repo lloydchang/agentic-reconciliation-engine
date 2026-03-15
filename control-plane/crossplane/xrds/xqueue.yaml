@@ -1,0 +1,43 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xqueues.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XQueue
+    plural: xqueues
+  claimNames:
+    kind: Queue
+    plural: queues
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [engine, region, size]
+              properties:
+                engine:
+                  type: string
+                  enum: [sqs, servicebus, pubsub]
+                  description: "Queue backend implementation"
+                region:
+                  type: string
+                  description: "Cloud region"
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                endpoint:
+                  type: string

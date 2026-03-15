@@ -1,0 +1,13 @@
+# Placeholder hub cluster config. Replace with provider-specific config:
+# - EKS: eksctl config file
+# - AKS: ARM/Bicep template
+# - GKE: gcloud cluster config
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: hub-cluster
+  region: us-east-1
+managedNodeGroups:
+  - name: hub-ng
+    instanceType: t3.large
+    desiredCapacity: 3

@@ -1,0 +1,42 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-gcp
+  labels:
+    provider: gcp
+    platform.example.com/xrd: xdatabase
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  writeConnectionSecretsToNamespace: crossplane-system
+  resources:
+    - name: cloudsql-instance
+      base:
+        apiVersion: sql.gcp.crossplane.io/v1beta1
+        kind: DatabaseInstance
+        spec:
+          forProvider:
+            region: us-central1
+            databaseVersion: POSTGRES_15
+            settings:
+              tier: db-custom-2-8192
+              dataDiskSizeGb: 20
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.size
+          toFieldPath: spec.forProvider.settings.tier
+          transforms:
+            - type: map
+              map:
+                small: db-custom-2-4096
+                medium: db-custom-2-8192
+                large: db-custom-4-16384
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.connectionName
+          toFieldPath: status.endpoint
