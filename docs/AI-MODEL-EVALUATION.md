@@ -648,20 +648,29 @@ spec:
     effect: NoSchedule
 ```
 
-#### Updated Recommendation: llama.cpp for Production
-**For 24/7 CPU-only operation:**
-- **Performance**: 10-20% better CPU utilization
-- **Cost**: Lower electricity costs for continuous operation  
-- **Simplicity**: No GPU complications in Kubernetes
+#### Updated Recommendation: Configurable Backend Architecture
+**For 24/7 CPU-only operation with development flexibility:**
+
+**Backend Priority:**
+- **Primary**: llama.cpp for production (CPU-optimized, minimal resources, 24/7 reliability)
+- **Fallback**: Ollama for development (easier setup, model management, GPU support when needed)
+
+**Language Priority:**
+- **Primary**: Rust for production (performance, memory safety, zero-cost abstractions)
+- **Fallback**: Go for compatibility (simpler deployment, established Kubernetes ecosystem)  
+- **Additional**: Python for prototyping (rapid development, rich AI ecosystem)
+
+**Implementation:**
+1. **Rust Agent**: Configurable backends with automatic fallback logic
+2. **CPU-Optimized**: llama.cpp builds without CUDA dependencies
+3. **Simple Deployment**: Standard Kubernetes CPU nodes, no GPU complications
+4. **Development Mode**: Ollama integration for local testing and rapid iteration
+
+**Architecture Benefits:**
+- **Performance**: llama.cpp's 10-20% efficiency gain compounds over 24/7 operation
+- **Cost**: Minimal electricity costs ($<1/month) with CPU-only deployment
 - **Reliability**: Fewer moving parts (no GPU drivers, CUDA dependencies)
-
-**Implementation Approach:**
-1. **Containerize llama.cpp** with your Rust agent
-2. **Use CPU-optimized builds** (no CUDA dependencies)
-3. **Simple Kubernetes deployment** on standard CPU node pools
-4. **Maintain Ollama for development** (easier local testing)
-
-**The 5-10% performance penalty becomes a 10-20% efficiency GAIN when operating 24/7 on CPU-only infrastructure.**
+- **Flexibility**: Configurable backends allow development/production optimization
 
 ## Conclusion
 

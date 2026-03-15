@@ -14,6 +14,7 @@ resources:
   - karpenter/
   - networking/
   - security/
+  - ollama.yaml
   # Ecosystem-specific workloads (comment/uncomment based on needs)
   # Python/uv ecosystem
   # - apache-airflow/

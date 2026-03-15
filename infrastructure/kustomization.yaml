@@ -6,6 +6,7 @@ metadata:
 resources:
   - control-plane/
   - infrastructure/
+  - ai-inference/
 labels:
   - pairs:
       managed-by: flux

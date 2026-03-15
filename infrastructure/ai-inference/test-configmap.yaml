@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tinyllama-test-cases
+  namespace: ai-inference
+data:
+  test-cases.json: |
+    [
+      {
+        "name": "incident-summary",
+        "prompt": "Summarize this Kubernetes alert: Service payments-api has 12% error rate, pods restarting 8 times, recent deployment 2 minutes ago",
+        "criteria": ["error rate", "deployment", "pods", "restart"]
+      },
+      {
+        "name": "kubectl-command",
+        "prompt": "Generate kubectl command to check pod status in namespace monitoring",
+        "criteria": ["kubectl get pods", "-n monitoring"]
+      },
+      {
+        "name": "runbook-steps",
+        "prompt": "Create runbook steps for handling node disk pressure alert",
+        "criteria": ["drain", "delete", "evicted", "autoscaler"]
+      },
+      {
+        "name": "manifest-generation",
+        "prompt": "Generate YAML for Deployment with 3 replicas, nginx image, port 80",
+        "criteria": ["apiVersion: apps/v1", "kind: Deployment", "replicas: 3", "nginx"]
+      },
+      {
+        "name": "policy-explanation",
+        "prompt": "Explain why OPA denied deployment: admission controller error on resource limits",
+        "criteria": ["policy", "limit", "admission", "denied"]
+      },
+      {
+        "name": "gitops-pr",
+        "prompt": "Write PR description for rolling back deployment to v1.2.3",
+        "criteria": ["rollback", "deployment", "v1.2.3", "revert"]
+      },
+      {
+        "name": "cost-optimization",
+        "prompt": "Suggest ways to reduce Kubernetes cluster costs",
+        "criteria": ["scale", "rightsizing", "idle", "reserved"]
+      },
+      {
+        "name": "disaster-recovery",
+        "prompt": "Explain RTO and RPO in disaster recovery",
+        "criteria": ["recovery time objective", "recovery point objective"]
+      }
+    ]
