@@ -1,0 +1,407 @@
+name: Agent Skills Coordination
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow_type:
+        required: true
+        type: choice
+        description: Type of coordinated workflow
+        options:
+          - provision-and-monitor
+          - optimize-and-health-check
+          - full-lifecycle
+          - disaster-recovery
+          - cost-optimization-cycle
+      environment:
+        required: true
+        type: choice
+        description: Target environment
+        options:
+          - development
+          - staging
+          - production
+      provider:
+        required: false
+        type: choice
+        description: Cloud provider
+        options:
+          - aws
+          - azure
+          - gcp
+          - all
+        default: all
+      auto_approve:
+        required: false
+        type: boolean
+        description: Auto-approve low-risk operations
+        default: false
+      dry_run:
+        required: false
+        type: boolean
+        description: Dry run mode for all operations
+        default: true
+
+  schedule:
+    # Daily health and optimization cycle
+    - cron: '0 4 * * *'
+    # Weekly full lifecycle check
+    - cron: '0 5 * * 0'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate-coordination:
+    name: Validate Coordination Plan
+    runs-on: ubuntu-latest
+    outputs:
+      workflow-plan: ${{ steps.plan.outputs.workflow-plan }}
+      risk-level: ${{ steps.risk.outputs.risk-level }}
+      requires-approval: ${{ steps.risk.outputs.requires-approval }}
+      estimated-duration: ${{ steps.plan.outputs.estimated-duration }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Coordination Plan
+        id: plan
+        run: |
+          # Generate workflow plan based on type
+          PLAN=""
+          DURATION="30"
+          
+          case "${{ github.event.inputs.workflow_type }}" in
+            "provision-and-monitor")
+              PLAN='[
+                {"skill": "infrastructure-provisioning", "action": "provision", "order": 1},
+                {"skill": "cluster-health-check", "action": "check", "order": 2},
+                {"skill": "cluster-health-check", "action": "monitor", "order": 3}
+              ]'
+              DURATION="45"
+              ;;
+            "optimize-and-health-check")
+              PLAN='[
+                {"skill": "cluster-health-check", "action": "check", "order": 1},
+                {"skill": "resource-optimizer", "action": "analyze", "order": 2},
+                {"skill": "resource-optimizer", "action": "optimize", "order": 3},
+                {"skill": "cluster-health-check", "action": "check", "order": 4}
+              ]'
+              DURATION="60"
+              ;;
+            "full-lifecycle")
+              PLAN='[
+                {"skill": "infrastructure-provisioning", "action": "status", "order": 1},
+                {"skill": "cluster-health-check", "action": "check", "order": 2},
+                {"skill": "resource-optimizer", "action": "analyze", "order": 3},
+                {"skill": "resource-optimizer", "action": "optimize", "order": 4},
+                {"skill": "cluster-health-check", "action": "check", "order": 5},
+                {"skill": "infrastructure-provisioning", "action": "rollback", "order": 6, "condition": "health_issues"}
+              ]'
+              DURATION="120"
+              ;;
+            "disaster-recovery")
+              PLAN='[
+                {"skill": "cluster-health-check", "action": "check", "order": 1},
+                {"skill": "infrastructure-provisioning", "action": "rollback", "order": 2, "condition": "critical_issues"},
+                {"skill": "infrastructure-provisioning", "action": "provision", "order": 3, "condition": "rollback_needed"},
+                {"skill": "cluster-health-check", "action": "check", "order": 4}
+              ]'
+              DURATION="90"
+              ;;
+            "cost-optimization-cycle")
+              PLAN='[
+                {"skill": "resource-optimizer", "action": "analyze", "order": 1},
+                {"skill": "resource-optimizer", "action": "optimize", "order": 2},
+                {"skill": "cluster-health-check", "action": "check", "order": 3},
+                {"skill": "resource-optimizer", "action": "report", "order": 4}
+              ]'
+              DURATION="75"
+              ;;
+          esac
+          
+          echo "workflow-plan=$PLAN" >> $GITHUB_OUTPUT
+          echo "estimated-duration=$DURATION" >> $GITHUB_OUTPUT
+          
+          echo "Workflow Plan Generated:"
+          echo "$PLAN" | jq .
+
+      - name: Risk Assessment
+        id: risk
+        run: |
+          # Assess risk based on workflow type and environment
+          RISK_LEVEL="low"
+          REQUIRES_APPROVAL="false"
+          
+          case "${{ github.event.inputs.workflow_type }}" in
+            "provision-and-monitor")
+              if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+                RISK_LEVEL="medium"
+                REQUIRES_APPROVAL="true"
+              fi
+              ;;
+            "optimize-and-health-check")
+              if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+                RISK_LEVEL="medium"
+                REQUIRES_APPROVAL="true"
+              fi
+              ;;
+            "full-lifecycle")
+              RISK_LEVEL="high"
+              REQUIRES_APPROVAL="true"
+              ;;
+            "disaster-recovery")
+              RISK_LEVEL="critical"
+              REQUIRES_APPROVAL="true"
+              ;;
+            "cost-optimization-cycle")
+              RISK_LEVEL="low"
+              REQUIRES_APPROVAL="false"
+              ;;
+          esac
+          
+          if [[ "${{ github.event.inputs.auto_approve }}" == "true" && "$RISK_LEVEL" != "critical" ]]; then
+            REQUIRES_APPROVAL="false"
+          fi
+          
+          echo "risk-level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+          echo "requires-approval=$REQUIRES_APPROVAL" >> $GITHUB_OUTPUT
+          
+          echo "Risk Level: $RISK_LEVEL"
+          echo "Requires Approval: $REQUIRES_APPROVAL"
+
+  human-approval:
+    name: Human Approval Required
+    runs-on: ubuntu-latest
+    needs: validate-coordination
+    if: needs.validate-coordination.outputs.requires-approval == 'true'
+    
+    steps:
+      - name: Request Human Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: team/infrastructure,team/sre
+          minimum-approvals: 2
+          issue-title: "Agent Skills Coordination Approval Required"
+          issue-body: |
+            ## Agent Skills Coordination Approval Request
+            
+            **Workflow Type:** ${{ github.event.inputs.workflow_type }}
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Provider:** ${{ github.event.inputs.provider }}
+            **Auto Approve:** ${{ github.event.inputs.auto_approve }}
+            **Dry Run:** ${{ github.event.inputs.dry_run }}
+            **Risk Level:** ${{ needs.validate-coordination.outputs.risk-level }}
+            **Estimated Duration:** ${{ needs.validate-coordination.outputs.estimated-duration }} minutes
+            
+            **Workflow Plan:**
+            ```json
+            ${{ needs.validate-coordination.outputs.workflow-plan }}
+            ```
+            
+            Please review and approve if this coordinated workflow is safe to proceed.
+
+  execute-coordination:
+    name: Execute Coordinated Workflow
+    runs-on: ubuntu-latest
+    needs: validate-coordination
+    if: needs.validate-coordination.outputs.requires-approval == 'false' || success()
+    
+    strategy:
+      matrix:
+        step: ${{ fromJson(needs.validate-coordination.outputs.workflow-plan) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure Cloud Credentials
+        run: |
+          # Configure credentials based on provider
+          if [[ "${{ github.event.inputs.provider }}" == "aws" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring AWS credentials..."
+            # AWS credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "azure" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring Azure credentials..."
+            # Azure credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "gcp" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring GCP credentials..."
+            # GCP credentials setup
+          fi
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute kubernetes prometheus-client
+          
+          # Install dependencies for all agent skills
+          cd .agents/infrastructure-provisioning/scripts && pip install -e .
+          cd ../cluster-health-check/scripts && pip install -e .
+          cd ../resource-optimizer/scripts && pip install -e .
+
+      - name: Execute Agent Skill Step
+        run: |
+          echo "Executing step ${{ matrix.step.order }}: ${{ matrix.step.skill }} - ${{ matrix.step.action }}"
+          
+          # Execute the specific agent skill
+          case "${{ matrix.step.skill }}" in
+            "infrastructure-provisioning")
+              cd .agents/infrastructure-provisioning/scripts
+              CMD="python main.py ${{ matrix.step.action }}"
+              ;;
+            "cluster-health-check")
+              cd .agents/cluster-health-check/scripts
+              CMD="python main.py ${{ matrix.step.action }}"
+              if [[ "${{ matrix.step.action }}" == "check" ]]; then
+                CMD="$CMD all-clusters"
+              fi
+              ;;
+            "resource-optimizer")
+              cd .agents/resource-optimizer/scripts
+              CMD="python main.py ${{ matrix.step.action }}"
+              if [[ "${{ matrix.step.action }}" == "analyze" ]]; then
+                CMD="$CMD --type all"
+              fi
+              ;;
+          esac
+          
+          # Add common parameters
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          CMD="$CMD --config ../../examples/config.template.json"
+          
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            CMD="$CMD --dry-run"
+          fi
+          
+          CMD="$CMD --verbose"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+
+      - name: Upload Step Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coordination-step-${{ matrix.step.order }}-${{ matrix.step.skill }}
+          path: |
+            *-results.json
+            *-results.log
+          retention-days: 7
+
+  aggregate-results:
+    name: Aggregate Coordination Results
+    runs-on: ubuntu-latest
+    needs: [validate-coordination, execute-coordination]
+    if: always() && needs.execute-coordination.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download All Results
+        uses: actions/download-artifact@v4
+        with:
+          path: ./results
+
+      - name: Aggregate Results
+        run: |
+          echo "Aggregating coordination results..."
+          
+          # Create summary report
+          cat > coordination-summary.json << EOF
+          {
+            "workflow_type": "${{ github.event.inputs.workflow_type }}",
+            "environment": "${{ github.event.inputs.environment }}",
+            "provider": "${{ github.event.inputs.provider }}",
+            "risk_level": "${{ needs.validate-coordination.outputs.risk-level }}",
+            "estimated_duration": "${{ needs.validate-coordination.outputs.estimated-duration }}",
+            "workflow_plan": ${{ needs.validate-coordination.outputs.workflow-plan }},
+            "execution_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "steps_executed": $(find ./results -name "*-results.json" | wc -l),
+            "status": "completed"
+          }
+          EOF
+          
+          echo "Coordination Summary:"
+          cat coordination-summary.json
+
+      - name: Upload Aggregated Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: coordination-summary
+          path: |
+            coordination-summary.json
+            results/
+          retention-days: 30
+
+      - name: Create Coordination Report
+        run: |
+          echo "# Agent Skills Coordination Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Workflow Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type:** ${{ github.event.inputs.workflow_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Provider:** ${{ github.event.inputs.provider }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Risk Level:** ${{ needs.validate-coordination.outputs.risk-level }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Duration:** ${{ needs.validate-coordination.outputs.estimated-duration }} minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Steps Executed:** $(find ./results -name "*-results.json" | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifacts:** Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+
+  notify-results:
+    name: Notify Coordination Results
+    runs-on: ubuntu-latest
+    needs: [validate-coordination, aggregate-results]
+    if: always()
+    
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#agent-coordination'
+          text: |
+            Agent Skills Coordination ${{ job.status }}
+            Workflow: ${{ github.event.inputs.workflow_type }}
+            Environment: ${{ github.event.inputs.environment }}
+            Risk Level: ${{ needs.validate-coordination.outputs.risk-level }}
+            Duration: ${{ needs.validate-coordination.outputs.estimated-duration }} minutes
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create Issue on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Agent Skills Coordination Failed',
+              body: `The coordinated agent skills workflow failed.
+              
+              **Workflow Type:** ${{ github.event.inputs.workflow_type }}
+              **Environment:** ${{ github.event.inputs.environment }}
+              **Provider:** ${{ github.event.inputs.provider }}
+              **Risk Level:** ${{ needs.validate-coordination.outputs.risk-level }}
+              **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              Please investigate and resolve the coordination failure.
+              
+              **Workflow Plan:** ${{ needs.validate-coordination.outputs.workflow-plan }}`,
+              labels: ['agent-skills', 'coordination', 'failed-action']
+            })

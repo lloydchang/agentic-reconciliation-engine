@@ -1,0 +1,285 @@
+name: Agent Skills - Infrastructure Provisioning
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        description: Action to perform
+        options:
+          - provision
+          - status
+          - rollback
+      resource_type:
+        required: false
+        type: string
+        description: Resource type (ec2, rds, lambda, etc.)
+      resource_name:
+        required: false
+        type: string
+        description: Resource name/identifier
+      provider:
+        required: false
+        type: choice
+        description: Cloud provider
+        options:
+          - aws
+          - azure
+          - gcp
+          - all
+        default: all
+      environment:
+        required: false
+        type: choice
+        description: Target environment
+        options:
+          - development
+          - staging
+          - production
+        default: production
+      dry_run:
+        required: false
+        type: boolean
+        description: Dry run mode
+        default: true
+      auto_approve:
+        required: false
+        type: boolean
+        description: Auto-approve (production requires manual approval)
+        default: false
+
+  push:
+    branches: [main]
+    paths:
+      - '.agents/infrastructure-provisioning/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      risk-level: ${{ steps.risk-assessment.outputs.risk-level }}
+      requires-approval: ${{ steps.risk-assessment.outputs.requires-approval }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer
+          cd .agents/infrastructure-provisioning/scripts
+          pip install -e .
+
+      - name: Risk Assessment
+        id: risk-assessment
+        run: |
+          # Determine risk level based on inputs
+          RISK_LEVEL="low"
+          REQUIRES_APPROVAL="false"
+          
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            RISK_LEVEL="high"
+            REQUIRES_APPROVAL="true"
+          elif [[ "${{ github.event.inputs.action }}" == "provision" ]]; then
+            RISK_LEVEL="medium"
+            REQUIRES_APPROVAL="true"
+          fi
+          
+          if [[ "${{ github.event.inputs.auto_approve }}" == "true" ]]; then
+            REQUIRES_APPROVAL="false"
+          fi
+          
+          echo "risk-level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+          echo "requires-approval=$REQUIRES_APPROVAL" >> $GITHUB_OUTPUT
+          
+          echo "Risk Level: $RISK_LEVEL"
+          echo "Requires Approval: $REQUIRES_APPROVAL"
+
+      - name: Validate Configuration
+        run: |
+          cd .agents/infrastructure-provisioning/scripts
+          python main.py validate-config --config ../../examples/config.template.json
+
+      - name: Test Connectivity
+        run: |
+          cd .agents/infrastructure-provisioning/scripts
+          python main.py test-connectivity --config ../../examples/config.template.json
+
+  human-approval:
+    name: Human Approval Required
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.requires-approval == 'true'
+    
+    steps:
+      - name: Request Human Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: team/infrastructure
+          minimum-approvals: 1
+          issue-title: "Infrastructure Provisioning Approval Required"
+          issue-body: |
+            ## Infrastructure Provisioning Approval Request
+            
+            **Action:** ${{ github.event.inputs.action }}
+            **Resource Type:** ${{ github.event.inputs.resource_type }}
+            **Resource Name:** ${{ github.event.inputs.resource_name }}
+            **Provider:** ${{ github.event.inputs.provider }}
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Dry Run:** ${{ github.event.inputs.dry_run }}
+            **Risk Level:** ${{ needs.validate.outputs.risk-level }}
+            
+            Please review and approve if this change is safe to proceed.
+
+  execute:
+    name: Execute Infrastructure Provisioning
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: needs.validate.outputs.requires-approval == 'false' || success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure AWS Credentials
+        if: contains(github.event.inputs.provider, 'aws') || github.event.inputs.provider == 'all'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Configure Azure Credentials
+        if: contains(github.event.inputs.provider, 'azure') || github.event.inputs.provider == 'all'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure GCP Credentials
+        if: contains(github.event.inputs.provider, 'gcp') || github.event.inputs.provider == 'all'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer boto3 azure-mgmt-compute google-cloud-compute
+          cd .agents/infrastructure-provisioning/scripts
+          pip install -e .
+
+      - name: Execute Infrastructure Action
+        run: |
+          cd .agents/infrastructure-provisioning/scripts
+          
+          # Build command based on inputs
+          CMD="python main.py ${{ github.event.inputs.action }}"
+          
+          if [[ "${{ github.event.inputs.resource_type }}" != "" ]]; then
+            CMD="$CMD --type ${{ github.event.inputs.resource_type }}"
+          fi
+          
+          if [[ "${{ github.event.inputs.resource_name }}" != "" ]]; then
+            CMD="$CMD --name ${{ github.event.inputs.resource_name }}"
+          fi
+          
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            CMD="$CMD --dry-run"
+          fi
+          
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: infrastructure-results
+          path: |
+            infrastructure-*.json
+            infrastructure-*.log
+          retention-days: 30
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: execute
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Security Scan
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-scan-results.sarif'
+
+      - name: Compliance Check
+        run: |
+          echo "Checking compliance for infrastructure changes..."
+          # Add compliance validation logic here
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [validate, execute]
+    if: always()
+    
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#infrastructure'
+          text: |
+            Infrastructure Provisioning ${{ job.status }}
+            Action: ${{ github.event.inputs.action }}
+            Environment: ${{ github.event.inputs.environment }}
+            Provider: ${{ github.event.inputs.provider }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create Issue on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Infrastructure Provisioning Failed',
+              body: `The infrastructure provisioning action failed.
+              
+              **Action:** ${{ github.event.inputs.action }}
+              **Environment:** ${{ github.event.inputs.environment }}
+              **Provider:** ${{ github.event.inputs.provider }}
+              **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              Please investigate and resolve the issue.`,
+              labels: ['infrastructure', 'failed-action']
+            })
