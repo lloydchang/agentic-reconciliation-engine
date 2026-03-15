@@ -1,5 +1,7 @@
 resources:
-  - ../aws-network.yaml
-  - ../aws-clusters.yaml
-  - ../aws-workloads.yaml
-  - ../aws-certificate-authority.yaml
+  - ../../infrastructure/tenants/aws/network
+  - ../../infrastructure/tenants/aws/clusters
+  - ../../infrastructure/tenants/aws/workloads
+patchesStrategicMerge:
+  - patches/vpc-overrides.yaml
+  - patches/eks-overrides.yaml
