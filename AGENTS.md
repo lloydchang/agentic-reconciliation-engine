@@ -1322,6 +1322,27 @@ async function executeSkillWithRetry(skillFunction, params, maxRetries = 3) {
 }
 ```
 
+## Execution Context & Skill Integrations
+
+### 1. Temporal + Skill Execution Context
+- Each `SKILL.md` lives next to the scripts or source code it documents inside `.agents/skills/<skill>/`. Follow the SKILL instructions verbatim: `cd` into the skill folder, run the listed shell/Python helpers (for example, `.agents/skills/<skill>/scripts/*`), and produce the structured JSON the SKILL schema expects. Those helpers are the explicit execution surface; no external runner automatically executes them.
+- Temporal is the durable workflow engine that executes those helpers. The mechanics live under `ai-agents/backend/` (see `workflows/`, `activities/`, `worker/main.go`) and the Temporal server pods run in Kubernetes (control-plane manifests such as `control-plane/consensus/feedback-loops.yaml` describe the stack). Skills run inside Temporal activities like `skill_execution_workflow.go` and `orchestration_workflow.go`, where state is persisted and retries/gates are enforced.
+- When a skill workflow starts (`/skill-name run …`), the dispatcher pulls the corresponding SKILL.md definition from the MCP registry, the workflow ingests that context, and the Temporal worker executes the referenced helpers; those scripts update the shared context URLs so telemetry, auditing, and structured outputs stay aligned with the JSON schema.
+
+### 2. Retrieval-Augmented Generation (RAG) & Qwen2.5B
+- RAG is implemented in `ai-agents/backend/ragai/ragai_handler.go`, which loads structured context from `shared-context://memory-store/*`, merges it with traces and previous outputs, and feeds the assembled prompt into Qwen2.5B (and any other configured models). The handler guarantees each invocation still receives the full SKILL.md definition so the model understands the expected commands, gating, and schema.
+- The frontend RAG UI (`ai-agents/frontend/src/plugins/rag-ai/components/RagAiPage.tsx`) is intended for engineers/QA to inspect what the RAG agent retrieved. It surfaces the same skill text, telemetry, and helper outputs that the backend sees, so you can confirm the context matches the agentskills.io schema documented under `ai-agents/docs/AI-INTEGRATION-ANALYSIS.md` and `docs/AGENT-SKILLS-NEXT-LEVEL.md`.
+- Qwen2.5B depends on this RAG layer because it has no innate knowledge of SKILL.md files; errant or stale skill documents will result in misaligned reasoning. Keep comparing the handler’s bundled context to the agentskills.io spec to ensure accuracy when updating or adding skills.
+
+### 3. Frontend & Dispatcher Roles
+- The “frontend browser” is simply the RAG interface. Human operators use it to audit what the agent sees; it does not drive the dispatcher. The dispatcher (Temporal plus the MCP/event bus) is the backend runtime that fires workflows and feeds telemetry into the MCP registry (`ai-agents/backend/workflows/orchestration_workflow.go`, `ai-agents/backend/worker/main.go`), while the UI surfaces the streaming context for debugging.
+- Every dispatch signal continues to execute from within Temporal activities. The RAG UI exists for engineers to confirm high-risk steps or review what an agent retrieved; it is not the agent’s execution surface. Document how these pieces interact by referencing the MCP registry definitions under `ai-agents/backend/mcp`.
+
+### 4. Repository References & Migration Path
+- The repo currently imports `github.com/lloydchang/ai-agents-sandbox/...` (check `ai-agents/backend/go.mod`, `infrastructure/go.mod`, and various `.go` files). To consolidate on `github.com/lloydchang/gitops-infra-control-plane`, copy the required sandbox packages (backend, MCP registry, RAG UI, etc.) into this repository, update the Go module paths and import statements accordingly, and run `go mod tidy` so builds resolve locally.
+- Update documentation (including `docs/deployment-guide.md`, `docs/api-reference.md`, and this file) to mention `gitops-infra-control-plane`. Where other docs still reference the sandbox repo, replicate the needed assets here, adjust the links, and ensure any Dockerfiles or Kubernetes manifests point to the new paths.
+- After migrating, re-run the build/test pipelines and the docs lint (see results below) to ensure the Temporal stack, MCP server, and RAG handler operate entirely from `gitops-infra-control-plane`. Use `rg "ai-agents-sandbox"` to confirm no references remain.
+
 ## Quick Diagnostic Commands
 
 ```bash

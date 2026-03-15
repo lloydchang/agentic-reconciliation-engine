@@ -81,22 +81,26 @@ Coordinates hub-and-spoke topologies, private connectivity, DNS, peering, firewa
 2. Provision spoke VNets/VPCs per tenant, apply NSG baseline (deny-all + allow hub), and configure DNS.
 3. Establish peerings, route propagation, and telemetry (Azure Network Watcher, Reachability Analyzer, Network Intelligence Center).
 4. Emit `network-hub-provisioned` with CIDR inventory and update shared context.
+5. Command stub: `/multi-cloud-networking provision --type=hub --region=us-east-1 --cloud=azure --cidr=10.0.0.0/16`.
 
 ### Private endpoint networking
 1. Create private endpoints (Azure SQL/Key Vault) or AWS PrivateLink/GCP Private Service Connect and register DNS records.
 2. Validate connectivity via `az network watcher test-connectivity`, AWS Reachability Analyzer, or GCP telnet tests.
-3. Emit `private-endpoint-ready` events with diagnostic outputs.
+3. Emit `private-endpoint-ready` events with diagnostic outputs and DNS confirmations.
+4. Command stub: `/multi-cloud-networking private-endpoint --resource=aks-sql --service=sql --tenant=tenant-42`.
 
 ### Traffic & resilience diagnostics
 1. Run path analysis (connectivity tests, NSG/firewall review, route table checks) for flagged issues.
 2. Identify misconfigurations (overlapping CIDRs, firewall rule holes, peering states).
 3. Recommend repairs with AI-calculated impact and rank them.
 4. Emit `network-diagnostics` events for downstream automation.
+5. Command stub: `/multi-cloud-networking diagnose --tenant=tenant-42 --issue=dns --duration=15m`.
 
 ### Predictive alerting & remediation
 1. Monitor peering saturation, VPN drift, and ExpressRoute/Direct Connect utilization.
 2. Forecast exhaustion using trend/anomaly models.
 3. Trigger `network-risk-alert` when `riskScore` crosses thresholds and link to `incident-triage-runbook` or `capacity-planning`.
+4. Command stub: `/multi-cloud-networking alert --event=capacity --riskScore=0.82 --tenant=tenant-42`.
 
 ## AI intelligence highlights
 - **AI Path Planning** determines failover-ready routes factoring latency, bandwidth, and compliance.

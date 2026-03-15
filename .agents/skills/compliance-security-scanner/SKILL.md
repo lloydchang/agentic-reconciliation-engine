@@ -88,20 +88,22 @@ Every execution emits structured JSON that captures findings, remediation guidan
 ## World-class workflow templates
 
 ### Full compliance sweep
-- Trigger: scheduled quarterly audit or `ai-agent-orchestration` dispatch event.
-- Steps: IaC lint (`checkov`, `tfsec`), container CVEs (`trivy`, `grype`), Kubernetes manifest hardening (`kube-bench`, `kubesec`, `polaris`), IAM posture reviews, secrets sweeps (`gitleaks`, `trufflehog`), runtime posture (Security Hub/Defender).
-- Output: normalized findings list, compliance scorecard, autopopulated remediation backlog, and integration-ready context.
-- Command stub: `/compliance-security-scanner run --scope=prod-terraform --framework=soc2,cis-azure --priority=critical`.
+1. Trigger: scheduled quarterly audit or `ai-agent-orchestration` dispatch event.
+2. Steps: IaC lint (`checkov`, `tfsec`), container CVEs (`trivy`, `grype`), Kubernetes manifest hardening (`kube-bench`, `kubesec`, `polaris`), IAM posture reviews, secrets sweeps (`gitleaks`, `trufflehog`), runtime posture (Security Hub/Defender).
+3. Output: normalized findings list, compliance scorecard, autopopulated remediation backlog, and integration-ready context.
+4. Command stub: `/compliance-security-scanner run --scope=prod-terraform --framework=soc2,cis-azure --priority=critical`.
 
 ### Secret & IAM drift guard
-- Trigger: memory agent flag (`secret_leak`, `privilege_escalation`) or periodic secrets review.
-- Steps: secrets scan (`gitleaks`, `trufflehog`), IAM interrogation (`az role assignment list`, `kubectl get clusterrolebindings`), auto-rotate via vault APIs when safe, emit tickets for manual updates otherwise.
-- Output: secret attribution log, IAM violations, rotation status, and `human-gate-required` events where automation stalls.
+1. Trigger: memory agent flag (`secret_leak`, `privilege_escalation`) or periodic secrets review.
+2. Steps: secrets scan (`gitleaks`, `trufflehog`), IAM interrogation (`az role assignment list`, `kubectl get clusterrolebindings`), auto-rotate via vault APIs when safe, emit tickets for manual updates otherwise.
+3. Output: secret attribution log, IAM violations, rotation status, and `human-gate-required` events where automation stalls.
+4. Command stub: `/compliance-security-scanner secrets --repo=payments-service --risk-threshold=medium`.
 
 ### Rapid incident triage
-- Trigger: findings surfaced by `incident-triage-runbook` or an urgent CVE.
-- Steps: attack path modeling, severity assignment, mitigation plan (NSG updates, patched image rollout, encryption fixes), and evidence bundling.
-- Launch command: `/compliance-security-scanner run --scope=critical-service --framework=iso27001 --priority=high --timeframe=7d`.
+1. Trigger: findings surfaced by `incident-triage-runbook` or an urgent CVE.
+2. Steps: attack path modeling, severity assignment, mitigation plan (NSG updates, patched image rollout, encryption fixes), and evidence bundling.
+3. Output: attack-path summary, prioritized mitigations, and evidence artifacts.
+4. Launch command: `/compliance-security-scanner run --scope=critical-service --framework=iso27001 --priority=high --timeframe=7d`.
 
 ## AI intelligence highlights
 - **AI Risk Assessment** contextualizes violations using threat scoring, tenancy impact, and business sensitivity to emit dynamic `riskScore`.
