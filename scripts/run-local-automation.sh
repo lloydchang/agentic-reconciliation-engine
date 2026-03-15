@@ -2,9 +2,13 @@
 # Helper to drive a fully automated, zero-touch local run using the migration wizard.
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
+ensure_wsl_sanity "$SCRIPT_NAME"
+
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOG_DIR="${ROOT_DIR}/logs/local-automation"
-SCRIPT_NAME="$(basename "$0")"
 START_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 CONNECTOR_DEFAULT="github"
