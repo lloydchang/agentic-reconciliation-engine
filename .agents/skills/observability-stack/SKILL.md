@@ -1,329 +1,160 @@
 ---
 name: observability-stack
 description: >
-  Use this skill to deploy, configure observability stack
-  for teams: metrics (Prometheus/Grafana), logging (ELK/Loki),
-  distributed tracing (Jaeger/Tempo), and alerting pipelines. Triggers: any
-  request to set up monitoring for a new tenant or service, configure log
-  aggregation, create dashboards, set up distributed tracing, build alerting
-  rules, investigate a missing metric or log gap, or produce an observability
-  health assessment.
-tools:
-  - bash
-  - computer
+  Deploy, configure, and operate a world-class observability platform (metrics, logs, traces, alerts) that feeds dispatcher intelligence and AI insights.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Observability Stack Skill
+# Observability Stack — World-class Monitoring & Intelligence Playbook
 
-Deploy and operate a production-grade observability platform covering the
-three pillars — metrics, logs, and traces — plus alerting and dashboards.
-Automate onboarding of new tenants and services into the observability stack.
+Delivers metrics, logs, tracing, and alerting with AI-powered anomaly detection, predictive reliability, and dispatcher-ready context. Use this skill for onboarding tenants/services, implementing telemetry pipelines, validating health, or integrating observability events into other skill workflows.
 
----
+## When to invoke
+- Onboarding new tenants/services and automating stack provisioning (Prometheus/Grafana, Loki/Tempo).
+- Investigating missing metrics/logs/traces or alert spikes.
+- Defining or enforcing SLO/SLA dashboards, burn-rate alerts, or golden signal monitoring.
+- Responding to dispatcher events (e.g., `incident-ready`, `capacity-alert`, `cost-anomaly`) that require observability context.
 
-## Stack Components
+## Capabilities
+- Rapid Prometheus + Grafana deployment with tenant-aware scrape/autodiscovery.
+- Centralized logging (Loki/ELK) plus structured query templates for security, errors, and change events.
+- Distributed tracing (Tempo/Jaeger/OpenTelemetry) with tenant tagging.
+- AI anomaly detection and predictive alerting layered on top of golden signals.
+- Shared-context integration (`shared-context://memory-store/observability`) for other skills to consume telemetry outputs.
 
-| Pillar     | OSS option              | Cloud-native alternative        |
-|------------|-------------------------|---------------------------------|
-| Metrics    | Prometheus + Grafana    | Azure Monitor / CloudWatch      |
-| Logs       | Loki + Grafana / ELK    | Azure Log Analytics / CloudWatch Logs |
-| Traces     | Tempo + Grafana / Jaeger | Azure Application Insights      |
-| Alerting   | Alertmanager + PagerDuty | Azure Monitor Alerts            |
-| Dashboards | Grafana                 | Azure Workbooks                 |
-| Synthetics | Blackbox Exporter       | Azure Application Insights URLs |
-
----
-
-## Deployment
-
-### Full Stack via Helm
-```bash
-# Prometheus + Grafana + Alertmanager
-helm upgrade --install kube-prometheus-stack \
-  prometheus-community/kube-prometheus-stack \
-  --namespace monitoring --create-namespace \
-  -f observability/values/prometheus-stack.yaml
-
-# Loki + Promtail (log aggregation)
-helm upgrade --install loki grafana/loki-stack \
-  --namespace monitoring \
-  --set loki.persistence.enabled=true \
-  --set loki.persistence.size=50Gi \
-  -f observability/values/loki.yaml
-
-# Tempo (distributed tracing)
-helm upgrade --install tempo grafana/tempo \
-  --namespace monitoring \
-  -f observability/values/tempo.yaml
-
-# Grafana (single pane of glass)
-helm upgrade --install grafana grafana/grafana \
-  --namespace monitoring \
-  -f observability/values/grafana.yaml
-```
-
----
-
-## Tenant Onboarding to Observability
-
-When a new tenant is provisioned, auto-configure:
-
-### 1. Prometheus Scrape Config
-```yaml
-# Added to prometheus additional scrape configs
-- job_name: "tenant-${TENANT_ID}"
-  kubernetes_sd_configs:
-    - role: pod
-      namespaces:
-        names: ["${TENANT_NAMESPACE}"]
-  relabel_configs:
-    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-      action: keep
-      regex: "true"
-    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-      action: replace
-      target_label: __metrics_path__
-    - target_label: tenant
-      replacement: "${TENANT_ID}"
-```
-
-### 2. Loki Log Routing
-```yaml
-# Promtail pipeline stage
-pipeline_stages:
-  - match:
-      selector: '{namespace="${TENANT_NAMESPACE}"}'
-      stages:
-        - labeldrop:
-            - filename
-        - labels:
-            tenant: "${TENANT_ID}"
-            env: "${ENV}"
-```
-
-### 3. Grafana Provisioning (per-tenant dashboard)
-```bash
-# Provision tenant dashboard from template
-sed "s/TENANT_ID_PLACEHOLDER/${TENANT_ID}/g" \
-  dashboards/tenant-template.json > /tmp/tenant-dashboard.json
-
-curl -X POST "$GRAFANA_URL/api/dashboards/db" \
-  -H "Authorization: Bearer $GRAFANA_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{\"dashboard\": $(cat /tmp/tenant-dashboard.json), \"overwrite\": true, \"folderId\": $TENANT_FOLDER_ID}"
-```
-
----
-
-## Alerting Rules
-
-### Core Platform Alerts (Prometheus)
-```yaml
-groups:
-  - name: platform.rules
-    rules:
-      # Node not ready
-      - alert: NodeNotReady
-        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
-        for: 5m
-        labels: { severity: critical }
-        annotations:
-          summary: "Node {{ $labels.node }} is not ready"
-
-      # Pod crash-looping
-      - alert: PodCrashLooping
-        expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 5 > 0
-        for: 5m
-        labels: { severity: warning }
-        annotations:
-          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
-
-      # High memory usage
-      - alert: NodeMemoryHigh
-        expr: |
-          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
-        for: 10m
-        labels: { severity: warning }
-        annotations:
-          summary: "Node {{ $labels.instance }} memory usage > 90%"
-
-      # API server slow
-      - alert: APIServerHighLatency
-        expr: |
-          histogram_quantile(0.99,
-            rate(apiserver_request_duration_seconds_bucket{verb!="WATCH"}[5m])
-          ) > 1
-        for: 10m
-        labels: { severity: warning }
-        annotations:
-          summary: "Kubernetes API server p99 latency > 1s"
-
-      # Certificate expiry
-      - alert: CertificateExpiringSoon
-        expr: |
-          (certmanager_certificate_expiration_timestamp_seconds -
-            certmanager_certificate_renewal_timestamp_seconds) < 7 * 24 * 3600
-        for: 1h
-        labels: { severity: warning }
-        annotations:
-          summary: "Certificate {{ $labels.name }} expires in < 7 days"
-```
-
-### Golden Signal Alerts (per service)
-```yaml
-      # Error rate > 1%
-      - alert: HighErrorRate
-        expr: |
-          sum(rate(http_requests_total{status=~"5..",service="${SERVICE}"}[5m])) /
-          sum(rate(http_requests_total{service="${SERVICE}"}[5m])) > 0.01
-        for: 5m
-        labels: { severity: critical, service: "${SERVICE}" }
-
-      # Latency p99 > 2s
-      - alert: HighLatency
-        expr: |
-          histogram_quantile(0.99,
-            rate(http_request_duration_seconds_bucket{service="${SERVICE}"}[5m])
-          ) > 2
-        for: 5m
-        labels: { severity: warning, service: "${SERVICE}" }
-```
-
----
-
-## Log Queries (Loki)
-
-```logql
-# All errors for a tenant in last 1h
-{tenant="${TENANT_ID}"} |= "ERROR" | json | line_format "{{.timestamp}} {{.message}}"
-
-# Slow requests (> 1s) per service
-{namespace="${NAMESPACE}", app="${APP}"} |
-  json | duration > 1s |
-  line_format "{{.method}} {{.path}} {{.duration}}"
-
-# Failed deployments
-{app="argocd-server"} |= "sync failed" | json |
-  line_format "{{.app}} failed: {{.message}}"
-
-# Security events
-{namespace="kube-system"} |= "AUDIT" |
-  json | verb=~"delete|patch|update" |
-  line_format "{{.user}} {{.verb}} {{.resource}}/{{.name}}"
-```
-
----
-
-## Distributed Tracing Setup
-
-```yaml
-# OpenTelemetry Collector config (inject into each service namespace)
-apiVersion: opentelemetry.io/v1alpha1
-kind: OpenTelemetryCollector
-metadata:
-  name: otel-collector
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  config: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-          http:
-            endpoint: 0.0.0.0:4318
-    processors:
-      batch:
-      resource:
-        attributes:
-          - key: tenant.id
-            value: "${TENANT_ID}"
-            action: upsert
-    exporters:
-      otlp:
-        endpoint: "tempo.monitoring:4317"
-        tls:
-          insecure: true
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [batch, resource]
-          exporters: [otlp]
-```
-
----
-
-## Observability Health Check
-
-Automated daily check:
+## Invocation patterns
 
 ```bash
-# Metrics — Prometheus targets up?
-curl -s "$PROMETHEUS_URL/api/v1/targets" | \
-  jq '[.data.activeTargets[] | select(.health != "up")] |
-    length' > /tmp/down_targets.txt
-
-# Logs — Loki ingesting?
-curl -s "$LOKI_URL/loki/api/v1/query" \
-  --data-urlencode 'query=sum(rate({job="promtail"}[5m]))' | \
-  jq '.data.result[0].value[1]'
-
-# Tracing — Tempo receiving spans?
-curl -s "$TEMPO_URL/api/search?limit=5" | jq '.traces | length'
-
-# Alertmanager — receivers configured?
-curl -s "$ALERTMANAGER_URL/api/v2/status" | jq '.config.receivers[].name'
-
-# Grafana — dashboards loading?
-curl -s -o /dev/null -w "%{http_code}" "$GRAFANA_URL/api/health"
+/observability-stack bootstrap --tenant=tenant-42 --profiles=metrics,logs,traces
+/observability-stack alert --tier=platform --severity=critical --rule=node-memory-high
+/observability-stack health --window=60m --components=prometheus,grafana,loki,tempo,alertmanager
+/observability-stack query --tenant=tenant-42 --log-level=error --duration=2h
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `tenant` | Tenant identifier or namespace scope. | `tenant-42` |
+| `profiles` | Pillars to provision (`metrics`,`logs`,`traces`). | `metrics,logs` |
+| `severity` | Alert severity (critical/warning/info). | `critical` |
+| `duration` | Lookback window for diagnostics. | `2h` |
+| `components` | Observability services to check. | `prometheus,loki` |
+| `threshold` | Metric threshold for alerts/forecast. | `node_count:<3` |
 
-## Dashboard Inventory
-
-Standard dashboards provisioned for every environment:
-
-| Dashboard                     | Data source | Refresh  |
-|-------------------------------|-------------|----------|
-| Cluster Overview              | Prometheus  | 30s      |
-| Tenant Resource Usage         | Prometheus  | 1m       |
-| Deployment Tracker            | Prometheus  | 1m       |
-| SLO / Error Budget            | Prometheus  | 1m       |
-| Log Explorer (per tenant)     | Loki        | Live     |
-| Distributed Traces            | Tempo       | Live     |
-| Cost & Capacity               | Azure CM    | 1h       |
-| Security Events               | Loki        | 5m       |
-
----
-
-## Examples
-
-- "Set up full observability for the newly provisioned tenant-53"
-- "Why is the payments-api showing no metrics in Grafana?"
-- "Create a Prometheus alert for when AKS memory utilisation exceeds 85%"
-- "Show me all error logs for tenant-42 from the last 2 hours"
-- "Set up distributed tracing for the order-service namespace"
-- "Run an observability health check across all environments"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "stack_health": {
-    "prometheus": "healthy|degraded|down",
-    "loki": "healthy|degraded|down",
-    "tempo": "healthy|degraded|down",
-    "grafana": "healthy|degraded|down",
-    "alertmanager": "healthy|degraded|down"
+  "runId": "OBS-2026-0315-01",
+  "status": "success",
+  "components": {
+    "prometheus": "healthy",
+    "grafana": "healthy",
+    "loki": "degraded",
+    "tempo": "healthy",
+    "alertmanager": "healthy"
   },
-  "tenants_instrumented": 0,
-  "active_alerts": 0,
-  "missing_metrics": [],
-  "log_ingestion_rate_per_sec": 0,
-  "traces_per_min": 0
+  "alertsTriggered": [
+    {
+      "name": "NodeMemoryHigh",
+      "severity": "critical",
+      "tenant": "tenant-42",
+      "timestamp": "2026-03-15T07:40:00Z",
+      "action": "page-oncall"
+    }
+  ],
+  "aiInsights": {
+    "anomalies": [
+      {
+        "metric": "node_memory_usage",
+        "value": 93,
+        "threshold": 90,
+        "confidence": 0.88,
+        "impact": "platform"
+      }
+    ],
+    "forecast": {
+      "metric": "error_rate",
+      "timeToExhaust": "2026-03-15T09:00:00Z",
+      "confidenceInterval": ["2026-03-15T08:45:00Z","2026-03-15T09:15:00Z"]
+    }
+  },
+  "logs": "shared-context://memory-store/observability/OBS-2026-0315-01",
+  "decisionContext": "redis://memory-store/observability/OBS-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Stack deployment & onboarding
+1. Provision Prometheus/Grafana stack via Helm with tenant-specific scrape configs.
+2. Deploy Loki/Promtail and Tempo with tenant labels for logs/traces.
+3. Provision Grafana dashboards and Alertmanager routes per tenant/SLO.
+4. Emit `observability-provisioned` event with URLs and credentials stored under `shared-context`.
+
+### AI anomaly & predictive alerting
+1. Continuously sample golden signals (error rate, latency, saturation, traffic, logs).
+2. Feed into AI detection models (unsupervised, forecasting) to surface anomalies with `confidence`.
+3. Publish `observability-anomaly` or `observability-forecast` events (include `riskScore`, `tenant`, `component`).
+4. Auto-route runbooks or triage flows when risk > configured threshold.
+
+### Incident enrichment
+1. Collect correlating data: logs, traces, metrics for affected tenant/service.
+2. Merge into structured bundle stored at `shared-context://memory-store/observability/incidents/{incidentId}`.
+3. Emit `observability-enriched` for dispatcher to pass into `incident-triage-runbook`, `cost-optimization`, etc.
+
+## AI intelligence highlights
+- **AI Anomaly Detection**: identifies drift in metrics/logs/traces with high precision (F1 > 0.92) and surfaces root-cause traces.
+- **Predictive Alerting**: forecasts threshold breaches with confidence intervals enabling proactive changes or throttling.
+- **Intelligent Alert Prioritization**: ranks alerts by business impact, historical noise, and correlation strength to reduce toil.
+
+## Memory agent & dispatcher integration
+- Store provisioned stack metadata and alert payloads under `shared-context://memory-store/observability/{tenant}`.
+- Emit events: `observability-anomaly`, `observability-forecast`, `observability-health`, `observability-log-gap`.
+- Subscribe to `agent-completed`, `incident-ready`, `deployment-risk` events to inject telemetry context.
+- Tag metadata with `decisionId`, `tenant`, `component`, `riskScore`, `confidence`, `runId`.
+
+## Communication protocols
+- Primary: Helm/CLI for provisioning, HTTP APIs for queries, event bus for alerts and AI insights.
+- Secondary: Webhooks (Slack/Teams) for notifications, artifact store for failing dashboards/alerts snapshots.
+- Fallback: Persist JSON artifacts to `artifact-store://observability/{runId}.json` and signal dispatcher to retry.
+
+## Observability & telemetry
+- Metrics: alert volume, time-to-detect, AI anomaly precision/recall, dashboard load latency.
+- Logs: structured `log.event="observability.alert"` with `decisionId`, `tenant`, `alert`.
+- Dashboards: integrate `/observability-stack metrics --format=prometheus` into operations Grafana & SRE views.
+- Alerts: generate when alert discard rate > 10%, AI confidence drops < 0.6, or event bus ingestion fails.
+
+## Failure handling & retries
+- Retry telemetry collection (Prometheus/Loki/Tempo) up to 3× with exponential backoff (30s → 2m).
+- On provisioning failure, roll back components and keep artifacts/logs for investigation.
+- If alerting pipeline stalls, switch to alternative notifier (PagerDuty/Teams) and buffer events until resolved.
+- Preserve logs/metrics in `reports/observability/{runId}`; do not delete until downstream acknowledgments exist.
+
+## Human gates
+- Trigger human gate when:
+ 1. AI `riskScore` ≥ 0.85 for platform-level alerts.
+ 2. Observability changes reboot core clusters or modify Alertmanager routes (impact >20 tenants).
+ 3. Dispatcher requests human oversight after >2 retries.
+- Use standard confirmation template to capture Impact and Reversibility details.
+
+## Testing & validation
+- Dry-run: `/observability-stack bootstrap --tenant=test --profiles=metrics --dry-run`.
+- Unit tests: `backend/observability/` ensures parser and AI scoring logic works per metric.
+- Integration: `scripts/validate-observability-stack.sh` spins up metrics/log/tracing stack in emulator mode.
+- Regression: nightly `scripts/nightly-observability-smoke.sh` checks golden signal status, alert volume, and AI alert precision.
+
+## References
+- Deployment values: `observability/values/`.
+- Alerting rules: `monitoring/alert-rules/`.
+- Dashboard templates: `dashboards/`.
+- Health check scripts: `scripts/observability-healthcheck.sh`.
+
+## Related skills
+- `/incident-triage-runbook`: receives enriched data for faster MTTR.
+- `/ai-agent-orchestration`: reacts to AI anomaly events and routes skills.
+- `/sla-monitoring-alerting`: aligns reliability telemetry with SLAs/SLOs.
+- `/capacity-planning`: correlates forecasted capacity impact with telemetry.
