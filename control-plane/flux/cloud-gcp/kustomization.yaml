@@ -1,0 +1,6 @@
+resources:
+  - ../gcp-network.yaml
+  - ../gcp-clusters.yaml
+  - ../gcp-workloads.yaml
+  - ../gcp-auth-workload.yaml
+  - ../gcp-vertex-ai-gemini.yaml

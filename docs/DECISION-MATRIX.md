@@ -223,7 +223,7 @@ Enterprise Scale: Full solution with consensus
 - **Tight deadlines** → Implementation time significant
 
 ### Definitely Consider
-- **Multi-cloud operations** → Essential for coordination
+- **Multi-cloud AI** → Essential for coordination
 - **Large teams (20+)** → Complexity justified
 - **High compliance requirements** → Governance features valuable
 - **High operational toil** → Automation ROI significant

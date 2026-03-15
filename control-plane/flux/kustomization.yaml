@@ -10,6 +10,9 @@ resources:
   - image-policy.yaml
   - jenkins-image-automation.yaml
   - secrets/
+  - ./cloud-aws
+  # - ./cloud-azure
+  # - ./cloud-gcp
 # SOPS configuration for secret decryption
 decryption:
   provider: sops

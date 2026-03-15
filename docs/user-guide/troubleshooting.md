@@ -161,7 +161,7 @@ cat .agents/skills/[skill-name]/SKILL.md | head -20
 
 ### AWS/Azure/GCP Authentication
 
-**Problem:** Cloud operations fail with auth errors
+**Problem:** Cloud AI fail with auth errors
 ```bash
 # AWS
 aws sts get-caller-identity

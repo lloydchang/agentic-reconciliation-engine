@@ -110,7 +110,7 @@ recommended_approach:
     - "Crossplane for multi-cloud abstraction"
     - "Flux for GitOps deployment"
     - "Cloud-specific controllers (ACK, ASO, KCC)"
-    - "Terraform Cloud Operator for complex resources"
+    - "Terraform Cloud AI for complex resources"
   temporal_components_to_reuse:
     - "Multi-cloud scatter/gather patterns"
     - "Cross-cloud resource discovery"
