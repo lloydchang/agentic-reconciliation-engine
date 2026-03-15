@@ -95,17 +95,20 @@ Delivers metrics, logs, tracing, and alerting with AI-powered anomaly detection,
 2. Deploy Loki/Promtail and Tempo with tenant labels for logs/traces.
 3. Provision Grafana dashboards and Alertmanager routes per tenant/SLO.
 4. Emit `observability-provisioned` event with URLs and credentials stored under `shared-context`.
+5. Command stub: `/observability-stack bootstrap --tenant=tenant-42 --profiles=metrics,logs,traces`.
 
 ### AI anomaly & predictive alerting
 1. Continuously sample golden signals (error rate, latency, saturation, traffic, logs).
 2. Feed into AI detection models (unsupervised, forecasting) to surface anomalies with `confidence`.
 3. Publish `observability-anomaly` or `observability-forecast` events (include `riskScore`, `tenant`, `component`).
 4. Auto-route runbooks or triage flows when risk > configured threshold.
+5. Command stub: `/observability-stack alert --tier=platform --severity=critical --rule=node-memory-high`.
 
 ### Incident enrichment
 1. Collect correlating data: logs, traces, metrics for affected tenant/service.
 2. Merge into structured bundle stored at `shared-context://memory-store/observability/incidents/{incidentId}`.
 3. Emit `observability-enriched` for dispatcher to pass into `incident-triage-runbook`, `cost-optimization`, etc.
+4. Command stub: `/observability-stack query --tenant=tenant-42 --log-level=error --duration=2h`.
 
 ## AI intelligence highlights
 - **AI Anomaly Detection**: identifies drift in metrics/logs/traces with high precision (F1 > 0.92) and surfaces root-cause traces.

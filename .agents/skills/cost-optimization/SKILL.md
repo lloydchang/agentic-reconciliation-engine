@@ -110,39 +110,39 @@ Uses specialized AI subagents to understand cost patterns, forecast spend, valid
 2. If risk > threshold, route to human gate via `/stakeholder-comms-drafter`.
 3. Otherwise, mark as `auto-approved` and forward to `/deployment-validation` or orchestration for execution.
 
-## Memory agent & dispatcher integration
-- Store normalized cost summaries under `shared-context://memory-store/cost/{workflowId}` for reuse.
-- Emit `cost-recommendation-ready`, `cost-anomaly`, `cost-forecast` events; subscribe to `agent-completed` events for context.
-- Tag telemetry with `decisionId`, `orchestrationId`, `tenant`, `riskScore`, `confidence`.
-
 ## AI intelligence highlights
-- **AI Cost Pattern Recognition**: uses historical/predictive models to spot waste, underutilized resources, and misconfigurations.
-- **Intelligent Forecasting**: ensembles deliver predicted spend with confidence intervals and explanations for the model’s trust.
-- **ROI Validation**: compares savings vs implementation/effort cost to deliver `roiMonths` and risk-adjusted gain.
-- **Risk-Benefit Analysis**: automatically weighs business impact, compliance exposure, and latency penalties before recommending changes.
+- **AI Cost Pattern Recognition** uses historical/predictive models to spot waste, underutilized resources, and misconfigurations at tenant/service granularity.
+- **Intelligent Forecasting** ensembles deliver predicted spend with confidence intervals, error metrics, and explainability signals for trust.
+- **ROI Validation** compares savings vs implementation/effort cost to produce `roiMonths`, `monthlySavings`, and risk-adjusted impact so stakeholders can prioritize.
+- **Risk-Benefit Analysis** weights business impact, compliance exposure, and latency penalties before recommending auto-approved actions or human gates.
+
+## Memory agent & dispatcher integration
+- Store normalized cost summaries under `shared-context://memory-store/cost/{workflowId}` for reuse across skills.
+- Emit `cost-recommendation-ready`, `cost-anomaly`, and `cost-forecast` events; subscribe to `agent-completed` and `human-gate-cleared` events for enrichment.
+- Tag telemetry with `decisionId`, `orchestrationId`, `tenant`, `riskScore`, `confidence`, and `modelVersion` so downstream listeners can reconstruct the rationale.
 
 ## Observability & telemetry
-- Export metrics: savings identified, forecast accuracy (MAPE), recommendations accepted, risk score distribution.
-- Logs: structured `log.event="cost.analysis"`, include `decisionId`, `model`, `confidence`.
-- Dashboards: hook `/cost-optimization metrics --format=prometheus` into Grafana panels.
-- Alerts: >5% daily forecast deviation, >3 consecutive rejected recommendations, dependency access failures.
+- Export metrics: savings identified, forecast accuracy (MAPE), recommendations accepted, risk score distribution, forecast deviation alerts.
+- Logs: structured `log.event="cost.analysis"` with `decisionId`, `model`, `confidence`, `tenant`, and `workflowId`.
+- Dashboards: hook `/cost-optimization metrics --format=prometheus` into Grafana panels and expose confidence/risk heatmaps.
+- Alerts: >5% daily forecast deviation, >3 consecutive rejected recommendations, missing billing exports, or dependency access failures.
 
 ## Failure handling & retries
-- Retry data collection/API failures with exponential backoff (1m → 5m) up to 3 attempts.
-- On persistent missing data, fall back to last-known baseline and flag for manual review.
-- Keep intermediate datasets for audit (`reports/cost/{workflowId}`) and avoid deleting until downstream ack.
+- Retry data collection/API failures with exponential backoff (1m → 5m) up to 3 attempts before flagging for manual review.
+- On persistent missing data, fall back to the last confirmed baseline, annotate the forecast with `dataIntegrity=false`, and notify stakeholders.
+- Preserve intermediate datasets for audits (`reports/cost/{workflowId}`) and avoid deletion until downstream workflows acknowledge completion.
 
 ## Human gates
 - Required when:
  1. `riskScore ≥ 70` or >20 tenants affected.
- 2. ROI period exceeds 12 months.
- 3. Recommendation touches production-critical services or security controls.
-- Confirmation template identical to orchestrator’s human gate.
+ 2. ROI period exceeds 12 months or business impact is production-critical.
+ 3. Recommendation touches sensitive controls (security, compliance, SLA).
+- Confirmation template matches the orchestrator human gate pattern and is stored in `shared-context://memory-store/human-gates/{workflowId}`.
 
 ## Testing & validation
 - Dry-run: `/cost-optimization analyze --target=test-cluster --analysisType=usage --dry-run=true`.
-- Unit tests: `backend/cost/models` ensures forecasting and ROI logic.
-- Integration: `scripts/validate-cost-workflow.sh` verifies dispatch events and human gate triggers.
+- Unit tests: `backend/cost/models` ensures forecasting accuracy, ROI logic, and risk thresholds.
+- Integration: `scripts/validate-cost-workflow.sh` verifies dispatch events, shared context updates, and human gate triggers.
 - Regression: nightly `scripts/nightly-cost-smoke.sh` ensures forecasts stay within tolerance and recommendations trigger downstream skills.
 
 ## References

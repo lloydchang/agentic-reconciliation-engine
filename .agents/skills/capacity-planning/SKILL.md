@@ -88,10 +88,11 @@ Predicts demand, models growth trajectories, validates autoscaler health, and is
 ## World-class workflow templates
 
 ### AI resource forecasting
-1. Gather telemetry from Prometheus/Cloud Monitor/DB stats.
+1. Gather telemetry from Prometheus/Cloud Monitor/DB stats and clean-slate baselines.
 2. Train ensembles per metric (Prophet, ARIMA, gradient boosting) and surface confidence bands.
 3. Emit predictions with headroom guidance and `capacity-forecast` events tagged by tenant/region.
 4. Share context with memory agents for downstream orchestration.
+5. Command stub: `/capacity-planning forecast --horizon=90d --granularity=daily --target=aks-hub`.
 
 ### Intelligent scenario modeling
 1. Build base, target, and spike scenarios using tenant growth, campaign assumptions, and scaling multipliers.
@@ -104,11 +105,13 @@ Predicts demand, models growth trajectories, validates autoscaler health, and is
 2. Monitor Cluster Autoscaler event stream for scale failures or stalls.
 3. Flag misconfigurations (min=max, absent metrics) and provide fix-it guidance.
 4. Emit `autoscaler-issue` events with remediation actions.
+5. Command stub: `/capacity-planning autoscaler --namespace=payments --validate=true`.
 
 ### Predictive capacity alerts
 1. Monitor forecast vs actual usage; when projected usage crosses `threshold`, fire `capacity-warning`.
 2. Recommend provisioning, autoscaler tuning, or tenant throttling before exhaustion.
 3. Escalate to `incident-triage-runbook` if exhaustion is predicted within 72h.
+4. Command stub: `/capacity-planning alert --threshold=0.85 --resource=cpu`.
 
 ## AI intelligence highlights
 - **AI Resource Forecasting** captures seasonality, campaigns, and tenancy growth with ensemble models and confidence intervals.

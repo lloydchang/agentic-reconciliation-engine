@@ -70,21 +70,25 @@ Manages Terraform/ARM/Bicep/CloudFormation/CDK lifecycles with AI risk scoring, 
 1. Run `terraform init`, `validate`, `fmt`, `plan -out`.
 2. Summarize adds/changes/destroys and cost delta (with `infracost`).
 3. Score risk and emit `riskScore`; require human gate when destroying prod or riskScore ≥ 0.7.
+4. Command stub: `/terraform-provisioning plan --environment=prod --workspace=tenant-42 --dry-run`.
 
 ### Apply with policy & smoke verification
 1. Execute `terraform apply tfplan` after approval.
 2. Run policy checks (`tfsec`, `checkov`) and fail fast on violations.
 3. Perform smoke tests, emit `infra-applied`, and store context for dispatchers.
+4. Command stub: `/terraform-provisioning apply --plan=tfplan --environment=prod --riskScore=0.18`.
 
 ### Drift detection & cleanup
 1. Schedule `terraform plan -refresh`; detect drift beyond threshold.
 2. Report diff, emit `drift-detected`, and notify responsible teams.
 3. Optionally plan targeted destroy/apply to reconcile drift.
+4. Command stub: `/terraform-provisioning drift --workspace=prod --threshold=1 --notify=incident-triage`.
 
 ### Safe destroy & teardown
 1. Confirm destroy confirmations and human gates for >N prod resources.
 2. Run `terraform destroy` with filters, capture outputs.
 3. Emit `destroy-completed`, purge state references, and log for audits.
+4. Command stub: `/terraform-provisioning destroy --workspace=staging --confirm=true`.
 
 ## AI intelligence highlights
 - **AI risk assessment** gauges change magnitude, policies, and environment to assign `riskScore`.

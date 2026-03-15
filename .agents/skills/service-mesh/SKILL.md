@@ -75,24 +75,28 @@ Manages mesh installation, mTLS enforcement, traffic policies, observability, an
 ## World-class workflow templates
 
 ### Mesh installation & hardening
-1. Install Istio (production profile) or Linkerd with resource-tuned settings.
-2. Label namespaces for sidecar injection and apply baseline PeerAuthentication and AuthorizationPolicy templates.
-3. Emit `mesh-installed` events with mesh metadata, dashboard URLs, and shared context for downstream skills.
+1. Install Istio (production profile) or Linkerd with resource-tuned settings and mesh control-plane telemetry.
+2. Label namespaces for sidecar injection, apply baseline PeerAuthentication/AuthorizationPolicy templates, and configure observability add-ons.
+3. Emit `mesh-installed` events with metadata (`dashboardUrl`, `version`, `operationId`) and share context for downstream skills.
+4. Command stub: `/service-mesh install --mesh=istio --profile=production --namespace=tenant-42`.
 
 ### mTLS & zero-trust policies
-1. Configure PeerAuthentication/Policy for STRICT/PERMISSIVE enforcement plus deny-by-default AuthorizationPolicies.
-2. AI risk scoring verifies compliance and exposure before new policies apply.
-3. Emit `mtls-mode-updated` events; watchers adjust dispatcher flows if anomalies surface.
+1. Configure PeerAuthentication/Policy for STRICT/PERMISSIVE enforcement and deny-by-default AuthorizationPolicies aligned with RBAC manifests.
+2. AI risk scoring verifies compliance, performance impact, and policy exposure before applying changes.
+3. Emit `mtls-mode-updated` events; the dispatcher adjusts flows if anomalies surface or confidence drops.
+4. Command stub: `/service-mesh mtls --namespace=tenant-42 --mode=STRICT --humanGate=true`.
 
 ### Traffic management & resilience
 1. Define VirtualServices/DestinationRules (Istio) or TrafficSplits (Linkerd) for canaries, retries, circuit breakers, and connection pools.
-2. Monitor metrics (error rate, latency, saturation) for gating decisions.
-3. Emit `traffic-policy-applied` events that trigger/orchestrate rollbacks via `deployment-validation` or human review.
+2. Monitor golden signals (error rate, latency, saturation) and compare to baselines for gating decisions.
+3. Emit `traffic-policy-applied` events that trigger rollbacks via `/deployment-validation` or request human review when confidence is low.
+4. Command stub: `/service-mesh traffic --app=payments-api --namespace=tenant-42 --canaryWeight=10`.
 
 ### Observability & debugging
 1. Deploy Kiali, Prometheus, Grafana dashboards and enable Envoy stats/traces for dependency graphs.
-2. Run `istioctl analyze`, `proxy-config`, `kiali` graphing and store outputs under `shared-context` for incident context.
-3. Emit `mesh-debug` artifacts to help `incident-triage-runbook` and `deployment-validation` reduce MTTR.
+2. Run `istioctl analyze`, `proxy-config`, and `kiali` graph exports, storing outputs under `shared-context://memory-store/mesh/{operationId}`.
+3. Emit `mesh-debug` artifacts to support `/incident-triage-runbook` and `/deployment-validation` for faster MTTR.
+4. Command stub: `/service-mesh debug --source=cart --destination=pricing --namespace=tenant-42`.
 
 ## AI intelligence highlights
 - **AI Risk Scoring** evaluates mesh changes against policy compliance, traffic impact, and historical incidents.
