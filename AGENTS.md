@@ -1,17 +1,17 @@
 // File: AGENTS.md
 
-# Temporal AI Agents & GitOps Control Plane Agents - Combined Manual
+# Temporal AI & GitOps Control Plane Agents - Full Autonomy & Gating Specification
 
 ## Preface
 
-This manual consolidates two complementary agent frameworks:
+This document defines a **world-class AI agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following [https://agentskills.io/home](https://agentskills.io/home) specifications.
 
-1. **Temporal AI Agents** – orchestration of workflows, multi-cloud task automation, and human-gated operations. Temporal is used strictly for workflow management, scheduling, retries, and composite task execution.
-2. **GitOps/Control-Plane Agents** – execute infrastructure-specific operations like cluster management, CI/CD orchestration, and infrastructure provisioning.
+Two complementary layers coexist:
 
-The two frameworks **coexist without conflict**. Temporal AI orchestrates high-level workflows, and GitOps agents execute cloud-infrastructure actions. Agents use **both layers simultaneously**, invoking the appropriate layer based on task type. This design ensures safety, clarity, and composability.
+1. **Temporal AI Agents**: General-purpose workflow orchestration, multi-cloud, multi-tenant operations. Determines *what* actions are required.
+2. **GitOps/Control-Plane Agents**: Deterministic executor of LLM-generated structured plans. Ensures safe infrastructure changes via GitOps pipelines and Kubernetes reconciliation loops.
 
-All skills follow **[agentskills.io](https://agentskills.io/home) specifications**, including `SKILL.md` in each skill folder with clearly documented parameters, outputs, human-gated actions, and any accompanying files (scripts, templates, references).
+**Key Principle:** LLM decides *what*, system decides *how*. This is called **tool-constrained or structured tool agents**.
 
 ---
 
@@ -19,42 +19,27 @@ All skills follow **[agentskills.io](https://agentskills.io/home) specifications
 
 1. Cloud AI Agent Overview
 2. Temporal AI Agent System
-
-   * Core Principles
-   * Repository Structure
-   * Agent Behavior Rules
-   * Skill System & Interfaces
-   * Monitoring, Observability & Compliance
-   * Operational Protocols & Human Gates
-   * Workflows & Automation
 3. GitOps Control Plane Agents (Appendix A)
-
-   * Purpose & Scope
-   * Infrastructure-Specific Workflows
-   * GitOps Synchronization (ArgoCD/Flux)
-   * Cluster & Node Pool Management
-   * Deployment Validation & Rollouts
-   * Multi-Cloud Considerations
-   * Monitoring & Logging in Control Plane
-4. Integration Guidelines
-5. Testing, Validation & Troubleshooting
-6. Appendices
+4. Autonomy, PR Gating, and Risk Levels
+5. Integration Guidelines
+6. Testing, Validation & Troubleshooting
+7. Appendices
 
    * A: Skill Index Mapping (Temporal vs GitOps-specific)
    * B: Environment Variables & Configurations
    * C: Human Gate Reference Table
-   * D: Composite Workflows
+   * D: Composite Workflows & Autonomy Rules
 
 ---
 
 ## 1. Cloud AI Agent Overview
 
-You are the **Cloud AI Agent** responsible for orchestrating tasks across multiple clouds (AWS, Azure, GCP).
+Agents automate cloud workflows while preserving safety:
 
-* **Temporal AI layer**: schedules, sequences, and monitors multi-step workflows.
-* **GitOps/Control-Plane layer**: performs infrastructure-specific actions (cluster provisioning, Helm/Terraform deployment).
-
-Agents **determine skill invocation** by task type, always checking if the task is general orchestration or infrastructure-specific.
+* Temporal AI layer decides *what* actions are needed and composes workflows.
+* GitOps/Control-Plane layer executes changes deterministically.
+* Risk-based gating controls which actions are fully autonomous vs PR-gated.
+* Skills define structured outputs, parameters, and error handling.
 
 ---
 
@@ -62,69 +47,67 @@ Agents **determine skill invocation** by task type, always checking if the task 
 
 ### Core Principles
 
-* Safety, auditability, human oversight, idempotency
 * Multi-skill orchestration for general cloud operations
+* Safety, auditability, human oversight, idempotency
 * Structured output, logging, and monitoring
-* Human-gated execution for destructive or high-impact actions
-* Strict adherence to [agentskills.io](https://agentskills.io/home) specifications
+* Risk-level assessment and human gating
 
 ### Repository Structure
 
 ```
 repo/
-├── .agents/                     # Each folder here is a skill
-│   ├── <skill-name>/
-│   │   ├── SKILL.md             # Required by agentskills.io
-│   │   ├── scripts/             # Optional executable files
-│   │   ├── assets/              # Optional templates or configuration files
-│   │   └── references/          # Optional documentation for the skill
-├── ai-agents/                   # Core agent code & orchestration logic
-├── backend/                     # Temporal workflow definitions & activities (Go, Rust, or Python)
-├── frontend/                    # Dashboard & WebMCP client
-├── cli/                         # CLI interface
-├── docs/                        # Documentation & interface specs
-├── tools/                       # Tool permissions & configuration files
-└── gitops/                       # GitOps/Control-Plane workflows
+├── .agents/
+│   └── [skill_name]/
+│       ├── SKILL.md          # Skill definition (agentskills.io compliant)
+│       ├── README.md          # Explains skill purpose and usage
+│       ├── input_schema.json  # Expected input format
+│       ├── output_schema.json # Structured output format
+│       └── tools/             # Optional supporting scripts or binaries
+├── ai-agents/                 # Temporal AI orchestration code
+├── backend/                    # Temporal workflows and activities (Go, Rust, Python)
+├── frontend/                   # Dashboard & WebMCP client
+├── cli/                        # CLI interface
+├── docs/                       # Documentation & interface specs
+├── AGENTS.md                   # This agent specification file
+├── tools/                      # Tool permissions & configurations
+└── gitops/                     # GitOps/Control-Plane workflows
 ```
-
-**Notes on structure**:
-
-* No redundant `skills/` folder is needed; each skill is directly under `.agents/`.
-* Folder names must match `name` field in `SKILL.md`.
-* `SKILL.md` defines parameters, outputs, preconditions, human-gated actions, and references all scripts/assets.
 
 ### Agent Behavior Rules
 
-* Execute Temporal workflows for general orchestration tasks.
-* Validate inputs, maintain state consistency, and follow structured error handling.
-* Trigger GitOps/Control-Plane agents for infrastructure changes only.
+* Temporal AI orchestrates multi-step workflows and decides action sequences.
+* GitOps layer executes structured plans deterministically.
+* Skills define autonomy level, risk, and human gate requirements.
 
 ### Skill System & Interfaces
 
-* Skills are **clearly divided** between general-purpose and infrastructure-specific.
-* Each skill folder contains:
+* `.agents/[skill]/SKILL.md` defines the skill:
 
-  * `SKILL.md` (mandatory)
-  * Optional supporting files (`scripts/`, `assets/`, `references/`)
-* Skills follow consistent parameter patterns, JSON outputs, error handling, and human-gated operations.
-* Composite workflows can orchestrate tasks across both layers.
+  * **action_name**: unique identifier
+  * **risk_level**: low / medium / high
+  * **autonomy**: fully_auto / conditional / requires_PR
+  * **input_schema** and **output_schema**: JSON schemas
+  * **human_gate**: optional explanation of required approvals
+* Skills may include additional files in the skill directory (scripts, templates).
+* Composite workflows combine multiple skills, potentially across both layers.
 
 ### Monitoring, Observability & Compliance
 
-* Track execution times, success rates, resource usage for all workflows.
-* Maintain structured logs, audit trails, and compliance reporting.
-* Integrate metrics from both Temporal and GitOps layers.
+* Track execution times, success rates, resource usage.
+* Unified logs from Temporal and GitOps layers.
+* Risk and human gate auditing.
 
 ### Operational Protocols & Human Gates
 
-* Temporal layer: human gates for destructive/general high-risk operations.
-* GitOps layer: additional human gates for cluster, namespace, network, or multi-tenant changes.
-* Standardized confirmation format applies across all layers.
+* Low-risk actions may run fully automated.
+* Medium/high-risk actions are PR-gated, requiring explicit human approval.
+* Standardized confirmation and audit trail for all human-gated operations.
 
 ### Workflows & Automation
 
-* Temporal orchestrates multi-step general tasks.
-* GitOps automates infrastructure-specific tasks: ArgoCD sync, Helm/Terraform deployment, node pool management.
+* Temporal workflows orchestrate general cloud operations.
+* GitOps workflows execute infrastructure changes via validated pipelines (ArgoCD/Flux).
+* LLM output is never executed directly on clusters; only through structured plans.
 
 ---
 
@@ -132,77 +115,103 @@ repo/
 
 ### Purpose & Scope
 
-* Manage Kubernetes clusters, multi-cloud GitOps deployments, and infrastructure provisioning.
-* Triggered only for **infrastructure-specific operations**.
+* Manage clusters, multi-cloud deployments, infrastructure provisioning.
+* Execute **structured plans** generated by Temporal AI.
+* Reconciliation ensures system-level safety even if automation misfires.
 
 ### Key Workflows
 
-* Cluster Management: provision, upgrade, scale, troubleshoot nodes.
-* GitOps Synchronization: ArgoCD/Flux reconciliation, ApplicationSet updates.
-* Deployment Validation: smoke tests, canary releases, blue-green deployments.
-* Secrets & Certificates: rotation and management across clouds.
-* Multi-Cloud Orchestration: region-specific deployments, networking, VPC/VNet peering.
-
-### Integration with Temporal AI
-
-* GitOps tasks may be wrapped in Temporal workflows for auditing, retry logic, and composite operations.
-* Temporal agents decide when to invoke GitOps skills based on request parameters, risk, and task type.
+* Cluster Management: provision, upgrade, scale, troubleshoot nodes
+* GitOps Synchronization: PR validation, ArgoCD/Flux reconciliation
+* Deployment Validation: smoke tests, canary, blue-green
+* Secrets & Certificates: rotation and management
+* Multi-Cloud Orchestration: region-specific deployments, networking
 
 ### Monitoring & Logging
 
-* Track GitOps-specific metrics: sync status, drift detection, deployment success/failure.
-* Integrate logs into unified Temporal monitoring dashboards.
+* GitOps-specific metrics (sync status, drift detection, deployment success/failure)
+* Integration into unified Temporal monitoring dashboards
 
 ---
 
-## 4. Integration Guidelines
+## 4. Autonomy, PR Gating, and Risk Levels
 
-* Use API keys and environment variables consistently across layers.
-* Skill chaining: Temporal first, GitOps second if infrastructure task applies.
-* Human gates must be evaluated at each layer.
+| Risk Level | Autonomy Options | Description                                                                    |
+| ---------- | ---------------- | ------------------------------------------------------------------------------ |
+| Low        | fully_auto       | LLM generates plan, GitOps executes without PR. Safe for dev or test clusters. |
+| Medium     | conditional      | LLM generates plan, PR created; human may approve or skip if policy allows.    |
+| High       | requires_PR      | LLM generates plan; all actions require human approval before execution.       |
+
+**Structured Action Example:**
+
+```
+action: get_pod_logs
+namespace: payments
+pod: api-123
+risk_level: low
+autonomy: fully_auto
+```
+
+**High-Risk Example:**
+
+```
+action: rotate_tls_certificates
+namespace: production
+risk_level: high
+autonomy: requires_PR
+```
+
+* Even fully_auto tasks go through GitOps pipeline for validation and reconciliation.
+* Kubernetes reconciliation loops automatically revert invalid changes.
 
 ---
 
-## 5. Testing, Validation & Troubleshooting
+## 5. Integration Guidelines
 
-* Temporal workflows tested with mock environments.
-* GitOps workflows tested in staging clusters first.
-* Structured error handling, retries, and composite workflow logging.
+* LLM outputs **structured JSON plans**, never shell commands.
+* GitOps pipelines validate and apply changes deterministically.
+* Skills define risk and gating clearly in `.agents/[skill]/SKILL.md`.
+* Human gates enforced at both Temporal orchestration and GitOps layers where specified.
 
 ---
 
-## 6. Appendices
+## 6. Testing, Validation & Troubleshooting
+
+* Temporal workflows: unit tests, mock cloud environments.
+* GitOps workflows: staging clusters, PR validation, rollback scenarios.
+* Continuous monitoring for errors, retries, and workflow consistency.
+
+---
+
+## 7. Appendices
 
 ### A: Skill Index Mapping
 
 * Maps general-purpose Temporal skills to GitOps-specific skills.
-* Highlights which layer executes by default.
+* Shows default execution layer and autonomy level.
 
 ### B: Environment Variables & Configurations
 
-* Cloud provider credentials
-* ArgoCD/Flux endpoints
-* Monitoring, Slack/Teams/PagerDuty integration
+* Cloud credentials, ArgoCD/Flux endpoints
+* Monitoring and alerting integrations
 
 ### C: Human Gate Reference Table
 
-* Lists all operations requiring explicit confirmation
-* Separated by layer: Temporal vs GitOps
+* Lists all operations requiring approval
+* Separated by risk level and layer
 
-### D: Composite Workflows
+### D: Composite Workflows & Autonomy Rules
 
-* Example: Onboard tenant with infrastructure provisioning
+* Example: Tenant onboarding with infrastructure changes
 * Temporal orchestrates multi-step workflow
-* GitOps executes infrastructure changes
+* GitOps executes infra changes according to autonomy rules
 
 ---
 
 **Summary:**
 
-* `.agents/` contains all skills, each with `SKILL.md` and optional supporting files.
-* Temporal layer is exclusively for workflow orchestration.
-* GitOps layer is exclusively for infrastructure execution.
-* Both layers operate simultaneously without conflict, with skill invocation determined by **task type and risk level**.
-* All skills strictly follow [agentskills.io](https://agentskills.io/home) specifications.
-
-This structure ensures that **any LLM, regardless of training data**, can read the repository, understand the agent’s operation, and execute workflows unambiguously.
+* Architecture is **tool-constrained / structured tool agent** pattern.
+* LLM decides *what*, deterministic system decides *how*.
+* Autonomy is explicitly defined per skill and risk level.
+* GitOps and Kubernetes reconciliation provide safety net for fully automated actions.
+* Document and skills follow [https://agentskills.io/home](https://agentskills.io/home) standards.
