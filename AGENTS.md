@@ -217,7 +217,7 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 
 # GitOps Endpoints
 ARGO_CD_SERVER=https://argocd.example.com
-FLUX_GIT_REPO=git@github.com:org/infrastructure.git
+FLUX_GIT_REPO=git@example.com:example/gitops-infra-control-plane.git
 
 # GitOps Configuration
 GITOPS_TOOL=flux # or argo_cd
