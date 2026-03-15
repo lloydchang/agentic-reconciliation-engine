@@ -1,5 +1,8 @@
 resources:
-  - ../azure-network.yaml
-  - ../azure-clusters.yaml
-  - ../azure-workloads.yaml
-  - ../azure-entra-id-workload.yaml
+  - ../../infrastructure/tenants/azure/network
+  - ../../infrastructure/tenants/azure/clusters
+  - ../../infrastructure/tenants/azure/workloads
+  - local-emulator
+patchesStrategicMerge:
+  - patches/vnet-overrides.yaml
+  - patches/aks-overrides.yaml
