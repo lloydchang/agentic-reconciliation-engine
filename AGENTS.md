@@ -22,13 +22,10 @@ Two complementary layers coexist:
 5. Integration Guidelines
 6. Testing, Validation & Troubleshooting
 7. Appendices
-
-<<<<<<< HEAD
    * A: Skill Index Mapping (Temporal vs GitOps-specific)
    * B: Environment Variables & Configurations
    * C: Human Gate Reference Table
    * D: Composite Workflows & Autonomy Rules
-=======
 ## Repository Structure
 ```
 repo/
@@ -41,7 +38,6 @@ repo/
     └── tools/              # Tool permissions and configurations
 ├── docs/                   # Documentation and interface specs
 ```
->>>>>>> e6e1afb6 (Reorganize agent skills and consolidate duplicates)
 
 ---
 
