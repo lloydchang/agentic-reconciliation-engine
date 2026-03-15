@@ -1,246 +1,138 @@
 ---
 name: compliance-check
-description: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
+description: >
+  Start, monitor, and report on compliance checks (SOC2, GDPR, HIPAA) with AI scoring, gating, and dispatcher context.
 argument-hint: "[targetResource] [complianceType] [priority]"
 disable-model-invocation: false
 user-invocable: true
-allowed-tools: 
+allowed-tools:
   - Bash
   - Read
   - Write
   - Grep
 ---
 
-# Compliance Check Skill
+# Compliance Check — World-class Regulator Playbook
 
-Starts comprehensive compliance workflows using the Temporal AI Agents system to verify that infrastructure and applications meet regulatory standards.
+Launches Temporal compliance workflows, tracks progress, and generates evidence packages while integrating AI risk scoring and shared context for downstream skills. Use when verifying SOC2/GDPR/HIPAA, preparing audits, or responding to compliance incidents.
 
-## Usage
+## When to invoke
+- Start compliance scans per resource/environment.
+- Monitor scan progress and produce reports/postmortems.
+- Enforce policy frameworks, follow up on failed controls.
+- Provide dispatcher alerts when compliance risk high.
+
+## Capabilities
+- Start Temporal compliance workflows.
+- Monitor execution/states.
+- Generate compliance reports, evidence packages, remediation plans.
+- AI risk scoring, gating for high-severity violations.
+- Shared context `shared-context://memory-store/compliance/<operationId>`.
+
+## Invocation patterns
+
 ```bash
-/compliance-check vm-web-server-001 SOC2 high
-/compliance-check database-cluster-prod GDPR
-/compliance-check all-resources HIPAA critical
+/compliance-check scan --targetResource=production-cluster --complianceType=SOC2 --priority=high
+/compliance-check scan --targetResource=database-cluster --complianceType=HIPAA --priority=critical
+/compliance-check report --operationId=COMPLIANCE-2026-0315-01 --format=json
+/compliance-check monitor --workflowId=WF-12345
 ```
 
-## Instructions
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `targetResource` | Target object (cluster, tenant, all). | `prod-cluster` |
+| `complianceType` | Standard (SOC2, GDPR, HIPAA, CIS). | `SOC2` |
+| `priority` | workflow priority (low/normal/high/critical). | `high` |
+| `operationId` | Compliance workflow ID. | `COMPLIANCE-2026-0315-01` |
+| `workflowId` | Temporal workflow ID to monitor. | `WF-12345` |
 
-When this skill is invoked:
+## Output contract
 
-1. **Parse Arguments**: Extract targetResource, complianceType, and priority from $ARGUMENTS
-2. **Start Compliance Workflow**: Call the Temporal AI Agents API to start compliance check
-3. **Monitor Progress**: Track workflow execution and provide status updates
-4. **Generate Report**: Create comprehensive compliance report with findings
-
-### Step-by-Step Process
-
-#### 1. Parse Input Arguments
-```bash
-# Default values if not provided
-targetResource="$1" || "all-resources"
-complianceType="$2" || "full-scan"  
-priority="$3" || "normal"
+```json
+{
+  "operationId": "COMPLIANCE-2026-0315-01",
+  "status": "started|running|completed|failed",
+  "targetResource": "prod-cluster",
+  "complianceType": "SOC2",
+  "priority": "high",
+  "reportUrl": "https://reports/compliance/COMPLIANCE-2026-0315-01",
+  "riskScore": 0.62,
+  "findings": [
+    {
+      "id": "FIND-0001",
+      "severity": "high",
+      "description": "K8s audit logging not enabled"
+    }
+  ],
+  "decisionContext": "redis://memory-store/compliance/COMPLIANCE-2026-0315-01",
+  "logs": "shared-context://memory-store/compliance/COMPLIANCE-2026-0315-01"
+}
 ```
 
-#### 2. Start Compliance Check
-Execute API call to Temporal backend:
-```bash
-curl -X POST http://localhost:8081/api/v1/compliance/start \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TEMPORAL_API_KEY" \
-  -d '{
-    "targetResource": "'$targetResource'",
-    "complianceType": "'$complianceType'",
-    "priority": "'$priority'"
-  }'
-```
+## World-class workflow templates
 
-#### 3. Monitor Workflow Progress
-Poll workflow status every 5 seconds:
-```bash
-# Get workflow ID from start response
-workflowId="extracted-from-response"
+### Compliance scan execution
+1. Launch Temporal workflow with target/resource.
+2. Collect scans across frameworks (SOC2, GDPR, HIPAA).
+3. Track progress, emit events (`compliance-progress`, `compliance-complete`).
+4. Summarize findings, riskScore, and remediation steps for stakeholders.
 
-# Monitor loop
-while true; do
-  status=$(curl -s "http://localhost:8081/api/v1/workflows/$workflowId")
-  # Parse and display progress
-  if [[ "$status" == *"completed"* ]] || [[ "$status" == *"failed"* ]]; then
-    break
-  fi
-  sleep 5
-done
-```
+### Evidence package generation
+1. Query activity logs, audit trails, policy state for time window.
+2. Compile JSON/CSV artifacts and generate compliance PDF.
+3. Emit `compliance-evidence-ready`.
 
-#### 4. Generate Compliance Report
-Create detailed report with:
-- Compliance score (0-100)
-- Issues found by category
-- Remediation recommendations
-- Approval status
-- Audit trail
+### Monitoring & human review
+1. Monitor workflow states; re-run or escalate on failure.
+2. Trigger `request_human_review` when riskScore high or partial compliance.
 
-## Compliance Types Supported
+## AI intelligence highlights
+- **AI Risk Scoring**: severity-aware scoring of findings to prioritize gating.
+- **Smart Remediation Plan**: sequences actions by impact and assurance effort.
+- **Intelligent Evidence Assembly**: selects key logs/events for auditors.
 
-### SOC2 (Security, Availability, Processing, Integrity, Confidentiality)
-- Access control verification
-- Encryption standards validation
-- Audit trail completeness
-- Incident response procedures
+## Memory agent & dispatcher integration
+- Store compliance outputs under `shared-context://memory-store/compliance/<operationId>`.
+- Emit events: `compliance-progress`, `compliance-alert`, `compliance-complete`.
+- Subscribe to dispatcher alerts (policy-risk) to run focused scans.
+- Tag entries with `decisionId`, `targetResource`, `complianceType`, `riskScore`.
 
-### GDPR (General Data Protection Regulation)
-- Data processing consent
-- Right to be forgotten implementation
-- Data breach notification procedures
-- International data transfer compliance
+## Communication protocols
+- Primary: Temporal API calls to start/monitor workflows.
+- Secondary: Event bus for `compliance-*` events.
+- Fallback: JSON artifacts `artifact-store://compliance/<operationId>.json`.
 
-### HIPAA (Health Insurance Portability and Accountability Act)
-- Protected health information (PHI) security
-- Audit controls validation
-- Transmission security verification
-- Administrative safeguards assessment
+## Observability & telemetry
+- Metrics: compliance runs by type/status, finding count, riskScore.
+- Logs: structured `log.event="compliance.run"` with `operationId`.
+- Dashboards: integrate `/compliance-check metrics --format=prometheus`.
+- Alerts: repeated failures, high-risk findings, missing evidence.
 
-### Full-Scan
-- Comprehensive evaluation across all standards
-- Integrated compliance dashboard
-- Cross-standard requirement analysis
+## Failure handling & retries
+- Retry workflow start/monitor API up to 2×; on failure escalate to `incident-triage-runbook`.
+- If scan halts due to missing permissions, fallback to local compliance heuristics.
+- Retain artifacts/logs for audit; never auto-delete.
 
-## Priority Levels
+## Human gates
+- Required when:
+ 1. RiskScore ≥ 0.8 or critical compliance findings.
+ 2. Compliance egress/impact touches customer data or sensitive fields.
+ 3. Dispatcher requests manual review after repeated auto-runs.
+- Use standard human gate template capturing impact/reversibility.
 
-- **critical**: Immediate execution, resource-intensive analysis
-- **high**: Priority queue, comprehensive scanning
-- **normal**: Standard execution, balanced analysis
-- **low**: Background execution, basic checks
+## Testing & validation
+- Dry-run: `/compliance-check scan --targetResource=canary --complianceType=SOC2 --dry-run`.
+- Unit tests: `backend/compliance/` ensures scoring/guidance logic.
+- Integration: `scripts/validate-compliance-check.sh` triggers workflows and extracts evidence.
+- Regression: nightly `scripts/nightly-compliance-smoke.sh` ensures workflows and alerts remain stable.
 
-## Output Format
+## References
+- Templates: `templates/compliance-report.md`.
+- Scripts: `scripts/compliance-validator.sh`.
+- Assets: `assets/compliance-checklist.json`.
 
-The skill generates:
-1. **Real-time Updates**: Progress indicators during execution
-2. **Summary Report**: Compliance score and key findings
-3. **Detailed Findings**: Itemized list of compliance issues
-4. **Remediation Plan**: Specific actions to achieve compliance
-5. **Audit Documentation**: Complete evidence trail
-
-## Integration with Temporal AI Agents
-
-This skill interfaces with:
-- `start_compliance_check` workflow function
-- `get_compliance_status` monitoring function
-- `request_human_review` for failed compliance items
-- Infrastructure emulator for safe testing
-
-## Error Handling
-
-- Invalid resource IDs: Provide resource discovery suggestions
-- API connectivity issues: Fallback to local compliance checks
-- Insufficient permissions: Request elevated access or alternative approaches
-- Timeout scenarios: Implement partial reporting with resumption capability
-
-## Supporting Files
-
-- [templates/compliance-report.md](templates/compliance-report.md): Report template
-- [scripts/compliance-validator.sh](scripts/compliance-validator.sh): Validation logic
-- [assets/compliance-checklist.json](assets/compliance-checklist.json): Requirements database
-
-## Examples
-
-### Basic SOC2 Check
-```bash
-/compliance-check web-server-prod-001 SOC2 high
-```
-
-### GDPR Compliance for All Resources
-```bash
-/compliance-check all-resources GDPR normal
-```
-
-### Critical HIPAA Validation
-```bash
-/compliance-check patient-database-cluster HIPAA critical
-```
-
-## Best Practices
-
-1. **Resource Discovery**: Use `/infrastructure-discovery` to identify target resources
-2. **Baseline Establishment**: Run initial compliance check before making changes
-3. **Continuous Monitoring**: Schedule regular compliance checks using `/loop`
-4. **Documentation**: Keep detailed records of all compliance activities
-5. **Human Review**: Always involve human reviewers for critical compliance failures
-
-## Related Skills
-
-- `/security-analysis`: Complementary security vulnerability scanning
-- `/infrastructure-discovery`: Resource identification and classification
-- `/workflow-management`: Monitor and manage compliance workflows
-- `/cost-optimization`: Balance compliance requirements with cost efficiency
-
-## OpenAI Codex Integration
-
-This section documents the OpenAI Codex-style compliance check automation that has been integrated into the Claude skills framework.
-
-### Systematic Compliance Check Approach
-
-When performing compliance checks, follow this systematic approach:
-
-#### 1. Policy Definition
-- Define compliance rules and requirements
-- Create policy validation criteria
-- Document compliance frameworks (SOC2, GDPR, HIPAA, etc.)
-- Establish compliance baselines
-
-#### 2. Configuration Analysis
-- Examine system configurations against policies
-- Check security settings and access controls
-- Validate encryption and data protection
-- Review logging and monitoring requirements
-
-#### 3. Automated Checks
-- Run compliance validation scripts
-- Check for policy violations
-- Generate compliance reports
-- Flag non-compliant resources
-
-#### 4. Remediation Guidance
-- Provide specific remediation steps
-- Prioritize violations by severity
-- Generate compliance tickets or tasks
-- Track remediation progress
-
-### Compliance Areas
-- **Security**: Access controls, encryption, network security
-- **Data Privacy**: Data handling, consent management, retention
-- **Infrastructure**: Resource configurations, deployment standards
-- **Operational**: Change management, incident response, backup
-
-### Common Checks
-```bash
-# Security group validation
-# IAM policy analysis
-# Encryption verification
-# Logging configuration check
-# Backup validation
-```
-
-### Reporting
-- Generate compliance dashboards
-- Create compliance scorecards
-- Export compliance reports
-- Track compliance trends over time
-
-### Integration Points
-- Connect to policy management systems
-- Integrate with ticketing systems
-- Link to audit trails
-- Sync with governance tools
-
-### File Locations
-- Compliance rules: `backend/compliance/`
-- Check scripts: `scripts/compliance/`
-- Reports: `reports/compliance/`
-- Configurations: `config/compliance.yaml`
-
-### Best Practices
-- Maintain up-to-date compliance rules
-- Document all compliance exceptions
-- Regularly review and update policies
-- Implement automated remediation where possible
-- Keep audit trails for all compliance activities
+## Related skills
+- `/policy-as-code`: ensures policy compliance before scanning.
+- `/incident-triage-runbook`: triggered by compliance blockers.
+- `/ai-agent-orchestration`: coordinates compliance sequences.
