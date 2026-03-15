@@ -33,60 +33,60 @@ controllers and platform automation separately.
 ![hub spoke diagram](docs/hub_spoke_v5.svg)
 
 ```text
-[Tier 0]   Git repository — declarative source of truth
-                |
-                |  Pull request
-                v
-[CI]       CI policy gate (Conftest / OPA)
-           · Schema validation (kubeconform)
-           · Deletion guard: stateful XRDs require explicit approval annotation
-           · Policy checks: naming, tagging, cost guardrails
-                |
-                |  Merge to main
-                v
-           +-----------------------------------------------+
-           | Bootstrap cluster (lightweight, 1–3 nodes)    |
-           | k3s or small managed cluster                  |
-           | · Holds hub bootstrap config and manifests    |
-           | · Runs hub etcd backup schedule               |
-           | · Provides cold-start recovery anchor         |
-           +-----------------------------------------------+
-                | bootstraps hub once; monitors hub health
-                v
-      +--------------------------------------------------------------------------+
-[Tier 1] |                      Hub cluster (HA)                                 |
-      |  Any Kubernetes distribution · 3+ control plane nodes across AZs        |
-      |  etcd backup to object storage · Flux self-manages hub after bootstrap   |
-      |--------------------------------------------------------------------------|
-  _->-+--+------------------+  +------------------------------+  +------------+  |
- /    |  | Flux             |  | Crossplane                   |  | CAPI       |  |
-/     |  | GitOps reconcile |  | Unified XRDs (cloud-agnostic)|  | Spoke      |  |
-|     |  | Git → hub        |  | XDatabase, XNetwork, etc.    |  | lifecycle  |  |
- \    |  | Bootstraps spoke |  | provider-aws                 |  | Kubeadm    |  |
-  `---+--| Flux + ESO       |  | provider-azure               |  | Metal3     |  |
-      |  | agents via CAPI  |  | provider-gcp                 |  | CAPV/CAPO  |  |
-      |  +------------------+  +------------------------------+  +------------+  |
-      +--------------------------------------------------------------------------+
-               |                        |                          |
-               | Flux bootstraps        | Crossplane creates       | CAPI provisions
-               | spoke Flux + ESO       | cloud resources          | cluster lifecycle
-               v                        v                          v
-      +--------------------------------------------------------------------------+
-[Tier 2] |                       Spoke clusters                                  |
-      |  Each spoke is operationally independent                                 |
-      |  · Flux agent pulls config from Git directly (pull model)                |
-      |  · ESO pulls secrets from cloud vault via workload identity              |
-      |  · Hub outage does not pause spoke reconciliation or secret delivery     |
-      |--------------------------------------------------------------------------|
-      |  +----------+  +----------+  +----------+  +----------------------+      |
-      |  | EKS      |  | AKS      |  | GKE      |  | Kubeadm / on-prem   |      |
-      |  | IRSA     |  | Managed  |  | Workload |  | HashiCorp Vault /   |      |
-      |  | → AWS SM |  | Identity |  | Identity |  | external vault      |      |
-      |  |          |  | → AKV    |  | → GCP SM |  |                     |      |
-      |  | Flux     |  | Flux     |  | Flux     |  | Flux                |      |
-      |  | ESO      |  | ESO      |  | ESO      |  | ESO                 |      |
-      |  +----------+  +----------+  +----------+  +----------------------+      |
-      +--------------------------------------------------------------------------+
+[Tier 0]      Git repository — declarative source of truth
+                   |
+                   |  Pull request
+                   v
+[CI]          CI policy gate (Conftest / OPA)
+              · Schema validation (kubeconform)
+              · Deletion guard: stateful XRDs require explicit approval annotation
+              · Policy checks: naming, tagging, cost guardrails
+                   |
+                   |  Merge to main
+                   v
+              +-----------------------------------------------+
+              | Bootstrap cluster (lightweight, 1–3 nodes)    |
+              | k3s or small managed cluster                  |
+              | · Holds hub bootstrap config and manifests    |
+              | · Runs hub etcd backup schedule               |
+              | · Provides cold-start recovery anchor         |
+              +-----------------------------------------------+
+                   | bootstraps hub once; monitors hub health
+                   v
+         +--------------------------------------------------------------------------+
+[Tier 1] |                         Hub cluster (HA)                                 |
+         |  Any Kubernetes distribution · 3+ control plane nodes across AZs         |
+         |  etcd backup to object storage · Flux self-manages hub after bootstrap   |
+         |--------------------------------------------------------------------------|
+     _->-+--+------------------+  +------------------------------+  +------------+  |
+    /    |  | Flux             |  | Crossplane                   |  | CAPI       |  |
+   /     |  | GitOps reconcile |  | Unified XRDs (cloud-agnostic)|  | Spoke      |  |
+   |     |  | Git → hub        |  | XDatabase, XNetwork, etc.    |  | lifecycle  |  |
+    \    |  | Bootstraps spoke |  | provider-aws                 |  | Kubeadm    |  |
+     `---+--| Flux + ESO       |  | provider-azure               |  | Metal3     |  |
+         |  | agents via CAPI  |  | provider-gcp                 |  | CAPV/CAPO  |  |
+         |  +------------------+  +------------------------------+  +------------+  |
+         +--------------------------------------------------------------------------+
+                  |                        |                          |
+                  | Flux bootstraps        | Crossplane creates       | CAPI provisions
+                  | spoke Flux + ESO       | cloud resources          | cluster lifecycle
+                  v                        v                          v
+         +--------------------------------------------------------------------------+
+[Tier 2] |                          Spoke clusters                                  |
+         |  Each spoke is operationally independent                                 |
+         |  · Flux agent pulls config from Git directly (pull model)                |
+         |  · ESO pulls secrets from cloud vault via workload identity              |
+         |  · Hub outage does not pause spoke reconciliation or secret delivery     |
+         |--------------------------------------------------------------------------|
+         |  +----------+  +----------+  +----------+  +----------------------+      |
+         |  | EKS      |  | AKS      |  | GKE      |  | Kubeadm / on-prem    |      |
+         |  | IRSA     |  | Managed  |  | Workload |  | HashiCorp Vault /    |      |
+         |  | → AWS SM |  | Identity |  | Identity |  | external vault       |      |
+         |  |          |  | → AKV    |  | → GCP SM |  |                      |      |
+         |  | Flux     |  | Flux     |  | Flux     |  | Flux                 |      |
+         |  | ESO      |  | ESO      |  | ESO      |  | ESO                  |      |
+         |  +----------+  +----------+  +----------+  +----------------------+      |
+         +--------------------------------------------------------------------------+
 
 Cloud-agnostic resource model (Crossplane Compositions):
   - Platform team defines XRDs once: XDatabase, XNetwork, XQueue, XCluster, etc.
