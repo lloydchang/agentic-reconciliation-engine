@@ -129,10 +129,10 @@ infrastructure; data retention and privacy considerations for audit log analysis
 
 These resources provide context on the patterns explored here:
 
-- Flux notifications and alerting: https://fluxcd.io/flux/components/notification/
-- Crossplane managed resource status: https://docs.crossplane.io/latest/concepts/managed-resources/
-- OPA/Conftest for policy-as-code: https://www.conftest.dev/
-- OpenGitOps principles: https://opengitops.dev/
+- Flux notifications and alerting: <https://fluxcd.io/flux/components/notification/>
+- Crossplane managed resource status: <https://docs.crossplane.io/latest/concepts/managed-resources/>
+- OPA/Conftest for policy-as-code: <https://www.conftest.dev/>
+- OpenGitOps principles: <https://opengitops.dev/>
 
 For the production architecture, see [ARCHITECTURE.md](./ARCHITECTURE.md).  
 For deployment steps, see [implementation_plan.md](./implementation_plan.md).

@@ -7,17 +7,23 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 ## 🎯 Scenario Definition Framework
 
 ### Brownfield Scenario
+
 **Definition**: Existing infrastructure that needs to be migrated, modernized, or enhanced
+
 - **Characteristics**: Legacy systems, technical debt, existing cloud resources
 - **Primary Challenge**: Migration without disruption, compatibility, incremental improvement
 
 ### Greenfield Scenario  
+
 **Definition**: New projects starting from scratch with no existing infrastructure constraints
+
 - **Characteristics**: Clean slate, modern architecture, cloud-native from day one
 - **Primary Challenge**: Getting started quickly, establishing patterns, avoiding early mistakes
 
 ### Hybrid Scenario
+
 **Definition**: Local development combined with Cloud AI operations
+
 - **Characteristics**: Development on local machines, Cloud AI-based production, CI/CD pipelines
 - **Primary Challenge**: Environment parity, deployment consistency, developer experience
 
@@ -37,6 +43,7 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 ## 🏗️ Brownfield Scenario Implementation
 
 ### When This Applies
+
 - ✅ **Existing Infrastructure**: You have resources in AWS, Azure, GCP, or on-prem
 - ✅ **Migration Need**: Moving from manual/legacy processes to GitOps
 - ✅ **Technical Debt**: Systems have accumulated complexity over time
@@ -46,6 +53,7 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 ### Implementation Strategy
 
 #### Phase 1: Assessment and Planning (Weeks 1-2)
+
 ```yaml
 brownfield_phase1:
   assessment:
@@ -61,6 +69,7 @@ brownfield_phase1:
 ```
 
 #### Phase 2: Foundation Setup (Weeks 3-4)
+
 ```yaml
 brownfield_phase2:
   flux_foundation:
@@ -75,6 +84,7 @@ brownfield_phase2:
 ```
 
 #### Phase 3: Gradual Migration (Weeks 5-12)
+
 ```yaml
 brownfield_phase3:
   migration_waves:
@@ -90,6 +100,7 @@ brownfield_phase3:
 ```
 
 #### Phase 4: Optimization and Enhancement (Months 3-6)
+
 ```yaml
 brownfield_phase4:
   optimization:
@@ -107,6 +118,7 @@ brownfield_phase4:
 ### Key Components for Brownfield
 
 #### 1. Infrastructure Discovery and Analysis
+
 ```yaml
 brownfield_discovery:
   tools:
@@ -120,6 +132,7 @@ brownfield_discovery:
 ```
 
 #### 2. Migration Workflows
+
 ```yaml
 brownfield_migration:
   workflows:
@@ -135,6 +148,7 @@ brownfield_migration:
 ```
 
 #### 3. Safety and Rollback
+
 ```yaml
 brownfield_safety:
   components:
@@ -148,6 +162,7 @@ brownfield_safety:
 ```
 
 ### Success Metrics for Brownfield
+
 ```yaml
 brownfield_success_metrics:
   migration_metrics:
@@ -169,6 +184,7 @@ brownfield_success_metrics:
 ## 🌱 Greenfield Scenario Implementation
 
 ### When This Applies
+
 - ✅ **New Project**: Starting from scratch with no existing infrastructure
 - ✅ **Clean Architecture**: No technical debt or legacy constraints
 - ✅ **Modern Requirements**: Cloud-native, microservices, container-based
@@ -178,6 +194,7 @@ brownfield_success_metrics:
 ### Implementation Strategy
 
 #### Phase 1: Foundation Setup (Weeks 1-2)
+
 ```yaml
 greenfield_phase1:
   foundation:
@@ -194,6 +211,7 @@ greenfield_phase1:
 ```
 
 #### Phase 2: Core Services (Weeks 3-4)
+
 ```yaml
 greenfield_phase2:
   core_services:
@@ -209,6 +227,7 @@ greenfield_phase2:
 ```
 
 #### Phase 3: Advanced Features (Weeks 5-8)
+
 ```yaml
 greenfield_phase3:
   advanced_features:
@@ -227,6 +246,7 @@ greenfield_phase3:
 ### Key Components for Greenfield
 
 #### 1. Clean Infrastructure Setup
+
 ```yaml
 greenfield_infrastructure:
   components:
@@ -241,6 +261,7 @@ greenfield_infrastructure:
 ```
 
 #### 2. Advanced GitOps Patterns
+
 ```yaml
 greenfield_gitops:
   patterns:
@@ -254,6 +275,7 @@ greenfield_gitops:
 ```
 
 #### 3. AI and Automation (When Scale Requires)
+
 ```yaml
 greenfield_ai:
   components:
@@ -271,6 +293,7 @@ greenfield_ai:
 ```
 
 ### Success Metrics for Greenfield
+
 ```yaml
 greenfield_success_metrics:
   development_metrics:
@@ -293,6 +316,7 @@ greenfield_success_metrics:
 ## 🔄 Hybrid Scenario Implementation
 
 ### When This Applies
+
 - ✅ **Local Development**: Developers need local environments
 - ✅ **Cloud Production**: Production runs in cloud environments
 - ✅ **CI/CD Pipelines**: Automated deployment from local to cloud
@@ -302,6 +326,7 @@ greenfield_success_metrics:
 ### Implementation Strategy
 
 #### Phase 1: Local Development Setup (Weeks 1-2)
+
 ```yaml
 hybrid_phase1:
   local_setup:
@@ -317,6 +342,7 @@ hybrid_phase1:
 ```
 
 #### Phase 2: Deployment Pipeline (Weeks 3-4)
+
 ```yaml
 hybrid_phase2:
   deployment_pipeline:
@@ -332,6 +358,7 @@ hybrid_phase2:
 ```
 
 #### Phase 3: Advanced Hybrid Features (Weeks 5-8)
+
 ```yaml
 hybrid_phase3:
   advanced_features:
@@ -350,6 +377,7 @@ hybrid_phase3:
 ### Key Components for Hybrid
 
 #### 1. Local Development Environment
+
 ```yaml
 hybrid_local:
   tools:
@@ -366,6 +394,7 @@ hybrid_local:
 ```
 
 #### 2. Cloud Integration
+
 ```yaml
 hybrid_cloud:
   components:
@@ -380,6 +409,7 @@ hybrid_cloud:
 ```
 
 #### 3. AI-Enhanced Development
+
 ```yaml
 hybrid_ai:
   components:
@@ -397,6 +427,7 @@ hybrid_ai:
 ```
 
 ### Success Metrics for Hybrid
+
 ```yaml
 hybrid_success_metrics:
   development_metrics:
@@ -419,6 +450,7 @@ hybrid_success_metrics:
 ## 🎯 Scenario Selection Guidance
 
 ### Decision Tree
+
 ```yaml
 scenario_selection:
   questions:
@@ -443,6 +475,7 @@ scenario_selection:
 ### Component Reusability Across Scenarios
 
 #### High Reusability (Use in All Scenarios)
+
 ```yaml
 universal_components:
   flux_gitops:
@@ -474,6 +507,7 @@ universal_components:
 ```
 
 #### Scenario-Specific Components
+
 ```yaml
 scenario_specific:
   brownfield_only:
@@ -495,6 +529,7 @@ scenario_specific:
 ## 📋 Implementation Checklist
 
 ### Pre-Implementation Checklist
+
 - [ ] **Scenario Assessment**: Complete scenario analysis using decision tree
 - [ ] **Team Evaluation**: Assess skills and capacity against scenario complexity
 - [ ] **Resource Planning**: Inventory existing resources and plan migrations
@@ -504,6 +539,7 @@ scenario_specific:
 ### Scenario-Specific Checklists
 
 #### Brownfield Implementation
+
 - [ ] **Infrastructure Inventory**: Complete discovery of existing resources
 - [ ] **Dependency Mapping**: Document all resource relationships
 - [ ] **Migration Plan**: Create phased migration with rollback procedures
@@ -511,18 +547,21 @@ scenario_specific:
 - [ ] **Validation**: Test migration in staging before production
 
 #### Greenfield Implementation
+
 - [ ] **Architecture Design**: Create clean, scalable architecture
 - [ ] **Best Practices**: Implement cloud-native patterns from day one
 - [ ] **Automation Setup**: Configure CI/CD and GitOps from scratch
 - [ ] **Documentation**: Document architecture and decisions from start
 
 #### Hybrid Implementation
+
 - [ ] **Local Environment**: Set up consistent local development
 - [ ] **Cloud Integration**: Configure production environments
 - [ ] **CI/CD Pipeline**: Automate deployment from local to cloud
 - [ ] **Environment Parity**: Ensure consistency across environments
 
 ### Post-Implementation Validation
+
 - [ ] **Functional Testing**: Verify all components work as expected
 - [ ] **Performance Testing**: Validate performance against success metrics
 - [ ] **Security Review**: Ensure security posture meets requirements
@@ -532,6 +571,7 @@ scenario_specific:
 ## 🔄 Continuous Evolution
 
 ### Adapting to Changing Needs
+
 ```yaml
 evolution_strategy:
   assessment:
@@ -562,6 +602,7 @@ This repository provides a **comprehensive, scenario-aware GitOps platform** tha
 3. **Hybrid Requirements**: Seamless local development with cloud production
 
 **Key Success Factors**:
+
 - **Problem-First Approach**: Always start with clear problem definition
 - **Scenario Appropriateness**: Choose solution complexity that matches actual needs
 - **Incremental Enhancement**: Add complexity only when justified by value

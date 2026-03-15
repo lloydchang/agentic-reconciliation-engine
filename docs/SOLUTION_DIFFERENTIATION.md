@@ -27,17 +27,21 @@ Git Repository → Flux (Hub) → Crossplane + CAPI → Cloud APIs → Spoke Clu
 #### **Similar Patterns That Exist:**
 
 1. **AWS Multi-Cluster GitOps** (Official AWS Pattern):
+
    ```
    Git → EKS + Flux → Crossplane → Multi-Cluster Resources
    ```
+
    - **Exists:** [AWS Blog: Multi-Cluster GitOps with EKS, Flux, and Crossplane](https://aws.amazon.com/blogs/containers/part-1-build-multi-cluster-gitops-using-amazon-eks-flux-cd-and-crossplane/)
    - **Focus:** Application deployments within single cloud provider, not cross-cloud infrastructure orchestration
    - **Dependencies:** Basic ordering, not true multi-cloud DAGs
 
 2. **Crossplane Multi-Cloud Control Planes**:
+
    ```
    Git → Crossplane → XRDs/Compositions → Cloud Resources
    ```
+
    - **Exists:** Crossplane documentation, enterprise implementations
    - **Focus:** Provider-agnostic infrastructure as code
    - **Dependencies:** XRD composition (similar but more complex)
@@ -52,6 +56,7 @@ Git Repository → Flux (Hub) → Crossplane + CAPI → Cloud APIs → Spoke Clu
 ### **1. True DAG Dependencies (Primary Advantage)**
 
 **Our Approach:**
+
 ```yaml
 # Example: Cross-cloud dependency chain
 dependsOn:
@@ -60,6 +65,7 @@ dependsOn:
 ```
 
 **Why Better:**
+
 - **Most alternatives:** Use wave-based ordering or no explicit dependencies across cloud providers
 - **Our solution:** Creates actual **directed acyclic graphs** with **cross-cloud relationships** between different public cloud providers
 - **Example:** AWS Certificate Manager → Azure/GCP SSL workloads
@@ -70,11 +76,13 @@ dependsOn:
 ### **2. Infrastructure Control Plane Focus**
 
 **Our Approach:**
+
 - Manages **full infrastructure lifecycle** from provisioning to workloads
 - Crossplane providers handle cloud APIs via XRDs/Compositions
 - Single source of truth for infrastructure + applications
 
 **Why Better:**
+
 - **Most GitOps:** Focuses on application deployments only
 - **Our solution:** Orchestrates **infrastructure provisioning** of spoke clusters
 - **Example:** Hub cluster provisions EKS/AKS/GKE via controllers
@@ -84,11 +92,13 @@ dependsOn:
 ### **3. Cross-Cloud Orchestration**
 
 **Our Approach:**
+
 - Hub orchestrates **interdependent resources across clouds**
 - Real examples: Azure AD authenticating AWS/GCP workloads
 - Certificate Manager providing SSL to multiple clouds
 
 **Why Better:**
+
 - **Many solutions:** Single-cloud deployments or basic multi-cluster within same provider
 - **Our solution:** True **multi-cloud dependencies** between different public cloud providers
 - **Example:** Azure Entra ID service dependency for AWS and GCP applications
@@ -98,10 +108,12 @@ dependsOn:
 ### **4. Controller-Based Reconciliation**
 
 **Our Approach:**
+
 - Cloud-native controllers (Crossplane/CAPI) with built-in retries
 - Eventual consistency with cloud API reconciliation loops
 
 **Why Better:**
+
 - **Alternatives:** Often use imperative kubectl calls or basic reconciliation
 - **Our solution:** **Cloud-native API integration** with proper error handling
 - **Impact:** More reliable than kubectl-based approaches
@@ -145,17 +157,20 @@ dependsOn:
 ## Novelty Assessment
 
 ### **Not Completely Novel:**
+
 - Flux + cloud controllers pattern exists conceptually
 - AWS's official multi-cluster GitOps uses similar components
 - Hub-and-spoke architectures are common
 
 ### **Novel Combination:**
+
 - **Infrastructure focus** with cross-cloud DAGs is more comprehensive
 - **Dynamic visualization** and validation is unique
 - **Real-world examples** (Entra ID, Certificate Manager, Vertex AI) are practical
 - **Complete implementation** with testing is rare
 
 ### **Value Proposition:**
+
 We've created a **production-ready synthesis** of existing tools that solves real multi-cloud infrastructure challenges. While not novel, it's a **comprehensive, tested approach** that demonstrates how to do enterprise-grade multi-cloud GitOps reliably.
 
 ## Competitive Advantages
@@ -176,6 +191,7 @@ Yes, the examples are grounded in real enterprise practices and widely adopted p
 ### **GCP Vertex AI + Gemini Example**
 
 **✅ Realistic and Actively Used:**
+
 - **Production Customers:**
   - **Snap:** Uses Gemini within "My AI" chatbot - 2.5x engagement increase
   - **ScottsMiracle-Gro:** AI agent on Vertex AI for gardening recommendations
@@ -191,6 +207,7 @@ Yes, the examples are grounded in real enterprise practices and widely adopted p
 ### **Azure Entra ID Cross-Cloud Authentication**
 
 **✅ Standard Enterprise Practice:**
+
 - **Microsoft's Usage:** Azure AD authenticates across Microsoft's entire cloud ecosystem
 - **Enterprise Adoption:** 80%+ of Fortune 500 companies use Azure AD for identity
 - **Multi-Cloud Pattern:** Banks and enterprises use Azure AD as single identity provider for AWS/GCP
@@ -202,6 +219,7 @@ Yes, the examples are grounded in real enterprise practices and widely adopted p
 ### **AWS Certificate Manager Cross-Cloud SSL**
 
 **✅ Documented and Used:**
+
 - **AWS Export Feature:** 2023 announcement enables certificates for use anywhere (not just AWS)
 - **Multi-Cloud SSL Complexity:** Managing certificates across providers is challenging
 - **Enterprise Usage:** Companies centralize certificates in ACM, then export to Azure/GCP
@@ -211,6 +229,7 @@ Yes, the examples are grounded in real enterprise practices and widely adopted p
 ### **Overall Pattern Validation**
 
 These represent **established enterprise multi-cloud patterns:**
+
 1. **Identity spanning clouds** - Azure AD authenticating AWS/GCP is common
 2. **Certificate centralization** - AWS ACM providing SSL to multiple clouds is documented
 3. **AI workloads** - Vertex AI with Gemini used by major companies for production applications

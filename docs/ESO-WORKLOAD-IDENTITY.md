@@ -484,4 +484,3 @@ Common causes: ESO service account lacks the workload identity annotation; provi
 references incorrect region or vault URL.
 
 See [CONTROLLER-RUNBOOKS.md](./CONTROLLER-RUNBOOKS.md#eso) for full ESO failure playbook.
-

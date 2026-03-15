@@ -12,6 +12,7 @@ The Continuous Reconciliation Engine (CRE) is the core infrastructure management
 - **Hub-and-spoke topology** for multi-cloud management
 
 **Above this engine**, you can build proprietary layers such as:
+
 - SaaS platforms
 - Compliance frameworks
 - DevOps portals
@@ -21,26 +22,32 @@ The Continuous Reconciliation Engine (CRE) is the core infrastructure management
 ## Integration Approaches
 
 ### 1. Core Replacement Pattern
+
 Use CRE as the primary reconciliation engine for infrastructure management, supplementing or gradually migrating from traditional IaC tools (Terraform/CDK/CloudFormation), then build proprietary orchestration layers on top.
 
 **Brownfield approach**: Keep existing IaC for initial setup, add CRE for continuous reconciliation and drift prevention.
 **Greenfield approach**: Start fresh with CRE as the foundation, build proprietary layers above it.
 
 ### 2. Platform Foundation Pattern
+
 Use CRE as the infrastructure foundation, add proprietary APIs, UIs, and business logic layers.
 
 ### 3. Augmentation Pattern
+
 Keep existing IaC tools but add CRE for continuous monitoring and drift detection.
 
 ### 4. Multi-Platform Pattern
+
 Build a unified control plane that manages multiple CRE instances across different environments.
 
 ### 5. SaaS Pattern
+
 Wrap CRE in a SaaS offering with proprietary features (multi-tenancy, billing, etc.).
 
 ## Licensing Considerations
 
 The core engine is AGPL-3.0, which allows building proprietary software on top as long as:
+
 - Communication happens via APIs/network (not code linking)
 - CRE core remains unmodified
 - Clear architectural boundaries exist
@@ -53,6 +60,7 @@ The core engine is AGPL-3.0, which allows building proprietary software on top a
 4. **Maintain separation** - your proprietary code never links to AGPL code directly
 
 See detailed guides:
+
 - [Greenfield Deployment](./GREENFIELD-DEPLOYMENT.md)
 - [Brownfield Migration](./BROWNFIELD-MIGRATION.md)
 - [API Integration](./API-INTEGRATION.md)

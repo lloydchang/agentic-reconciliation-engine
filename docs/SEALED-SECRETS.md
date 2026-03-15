@@ -1,16 +1,19 @@
 # Sealed Secrets Architecture and Usage Guide
 
 ## Overview
+
 Sealed Secrets is a Kubernetes controller and operator for managing encrypted secrets using asymmetric encryption. It allows you to store encrypted secrets in Git while maintaining the confidentiality of sensitive data.
 
 ## Architecture
 
 ### Hub Cluster
+
 - **SealedSecrets Controller**: Runs in hub cluster to provision spoke clusters
 - **Purpose**: Encrypt secrets that will be used across spoke clusters
 - **Location**: `control-plane/controllers/sealed-secrets/`
 
 ### Spoke Clusters
+
 - **SealedSecrets Controller**: Must run in each spoke cluster that needs to decrypt secrets
 - **Purpose**: Decrypt SealedSecret resources into regular Kubernetes secrets at runtime
 - **Location**: `infrastructure/tenants/3-workloads/sealed-secrets/` (per spoke cluster)
@@ -18,6 +21,7 @@ Sealed Secrets is a Kubernetes controller and operator for managing encrypted se
 ## Sealing Process
 
 ### 1. Install kubeseal CLI
+
 ```bash
 # Download kubeseal
 KUBESEAL_VERSION=$(curl -s https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest | jq -r .tag_name)
@@ -27,6 +31,7 @@ sudo install kubeseal /usr/local/bin/
 ```
 
 ### 2. Get SealedSecrets Certificate (Public Key)
+
 ```bash
 # Fetch the certificate from the cluster
 kubeseal --fetch-cert \
@@ -36,6 +41,7 @@ kubeseal --fetch-cert \
 ```
 
 ### 3. Create and Seal Secrets
+
 ```bash
 # Create a regular secret first (temporary)
 kubectl create secret generic my-secret \
@@ -54,6 +60,7 @@ rm secret.yaml
 ```
 
 ### 4. Commit SealedSecret to Git
+
 ```bash
 git add sealed-secret.yaml
 git commit -m "Add encrypted database credentials"
@@ -61,16 +68,19 @@ git push
 ```
 
 ### 5. Deploy to Cluster
+
 The SealedSecrets controller will automatically decrypt the SealedSecret into a regular Kubernetes secret.
 
 ## Key Concepts
 
 ### Asymmetric Encryption
+
 - **Public Key**: Used by `kubeseal` to encrypt secrets (can be safely stored in Git)
 - **Private Key**: Managed by SealedSecrets controller to decrypt secrets at runtime
 - **No External Dependencies**: No external vault or password manager required
 
 ### Scope
+
 - **Cluster-Scoped**: Each Kubernetes cluster has its own SealedSecrets controller
 - **Namespace-Scoped**: SealedSecrets can be scoped to specific namespaces
 - **Multi-Cluster**: Different clusters can have different encryption keys
@@ -78,6 +88,7 @@ The SealedSecrets controller will automatically decrypt the SealedSecret into a 
 ## Usage Examples
 
 ### Database Credentials
+
 ```yaml
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
@@ -95,6 +106,7 @@ spec:
 ```
 
 ### Cloud Provider Credentials
+
 ```yaml
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
@@ -114,15 +126,18 @@ spec:
 ## Security Considerations
 
 ### Certificate Rotation
+
 - Rotate the SealedSecrets certificate periodically
 - Use `kubeseal --re-encrypt` to re-encrypt existing secrets with new certificates
 
 ### Access Control
+
 - Limit who can create SealedSecret resources
 - Use RBAC to control secret access
 - Consider namespace isolation
 
 ### Backup and Recovery
+
 - Backup the SealedSecrets private key securely (not in Git)
 - Document certificate rotation procedures
 - Plan for disaster recovery scenarios
@@ -130,11 +145,13 @@ spec:
 ## Troubleshooting
 
 ### Common Issues
+
 1. **SealedSecret not decrypting**: Check controller logs and certificate validity
 2. **Permission denied**: Verify RBAC permissions for SealedSecrets resources
 3. **Certificate expired**: Rotate certificates and re-encrypt secrets
 
 ### Debug Commands
+
 ```bash
 # Check controller status
 kubectl get pods -n sealed-secrets-system
@@ -150,11 +167,13 @@ kubectl describe sealedsecret <name>
 ## Integration with GitOps
 
 ### Flux Integration
+
 - SealedSecrets work seamlessly with Flux GitOps workflows
 - Encrypted secrets are stored in Git alongside other manifests
 - Automatic decryption happens during deployment
 
 ### CI/CD Integration
+
 - Use `kubeseal` in CI pipelines to encrypt secrets
 - Store encrypted secrets in Git repositories
 - Automatic deployment through GitOps
@@ -162,11 +181,13 @@ kubectl describe sealedsecret <name>
 ## Alternative Approaches
 
 ### External Secret Operator (ESO)
+
 - For secrets stored in external systems (AWS Secrets Manager, HashiCorp Vault)
 - Complements SealedSecrets for hybrid scenarios
 - Location: `infrastructure/tenants/3-workloads/external-secrets/`
 
 ### HashiCorp Vault
+
 - Full-featured secret management system
 - More complex setup than SealedSecrets
 - Better for enterprise secret management
@@ -199,21 +220,25 @@ kubeseal --cert=pub-cert.pem --format=yaml > sealed-secret.yaml
 When using SealedSecrets, the **original plaintext secrets** need to be available during the sealing process. Here are recommended approaches:
 
 ### 1. Password Managers (Recommended for Teams)
+
 - **Benefits**: Centralized access, audit trails, secure sharing
 - **CLI Support**: Most modern password managers have CLI tools
 - **API Access**: REST APIs for CI/CD integration
 - **Examples**: 1Password, Bitwarden, LastPass Enterprise
 
 ### 2. Cloud Secret Managers
+
 - **AWS Secrets Manager**, **Azure Key Vault**, **GCP Secret Manager**
 - **Benefits**: Native cloud integration, fine-grained access control
 - **Use ESO**: External Secrets Operator can pull from these during sealing
 
 ### 3. HashiCorp Vault (Enterprise)
+
 - **Benefits**: Advanced secret management, dynamic secrets, leasing
 - **Integration**: Can be used with External Secrets Operator
 
 ### 4. Local Development
+
 - **Environment Variables** or **.env files** (not committed to Git)
 - **Benefits**: Simple for development
 - **Risk**: Manual process, potential for mistakes
@@ -226,6 +251,7 @@ When using SealedSecrets, the **original plaintext secrets** need to be availabl
 4. **Deploy**: Flux applies SealedSecrets, controller decrypts at runtime
 
 This approach provides:
+
 - ✅ **Secure storage** in password managers
 - ✅ **GitOps compatibility** with encrypted secrets in Git
 - ✅ **Audit trails** and access control

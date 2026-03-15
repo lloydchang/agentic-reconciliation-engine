@@ -26,18 +26,21 @@ This file implements advanced agent skills for self-organizing swarms within the
 ## 🎯 Problem-Based Skill Classification
 
 ### 🟢 Simple Automation Problems
+
 **Problem Types**: Basic deployment automation, simple monitoring, routine tasks
 **Appropriate Skills**: Basic Flux CronJobs, shell scripts, simple kubectl operations
 **When to Use**: Small teams, predictable workloads, single-cloud environments
 **Repository Path**: `infrastructure/tenants/3-workloads/` basic patterns
 
 ### 🟡 Coordination Problems  
+
 **Problem Types**: Multi-cloud resource coordination, complex deployment sequencing, cross-environment management
 **Appropriate Skills**: Agent orchestration, consensus coordination, workflow management
 **When to Use**: Medium complexity, multi-cloud, multi-team environments
 **Repository Path**: `examples/complete-hub-spoke/agent-workflows/` selective adoption
 
 ### 🔴 Complex Optimization Problems
+
 **Problem Types**: Large-scale cost optimization, predictive scaling, autonomous failure recovery, complex compliance management
 **Appropriate Skills**: Advanced AI agents, machine learning integration, self-organizing swarms
 **When to Use**: Large-scale infrastructure, complex multi-cloud, high-compliance requirements
@@ -49,6 +52,7 @@ This file implements advanced agent skills for self-organizing swarms within the
 
 **Problem**: New multi-cloud application requiring intelligent resource management
 **Skill Strategy**: Start with full AI capabilities from day one
+
 ```yaml
 # Greenfield: Full AI from start
 apiVersion: v1
@@ -94,6 +98,7 @@ Traditional agent orchestration relies on centralized controllers (like Kubernet
 ### Feedback Loop Architecture
 
 #### Micro-Loops (Seconds): Local Optimization
+
 ```python
 class LocalOptimizer:
     def __init__(self, agent_id, namespace):
@@ -118,6 +123,7 @@ class LocalOptimizer:
 ```
 
 #### Meso-Loops (Minutes): Agent Consensus
+
 ```yaml
 # Agent consensus for infrastructure changes
 apiVersion: consensus.gitops.io/v1alpha1
@@ -136,6 +142,7 @@ spec:
 ```
 
 #### Macro-Loops (Hours): Global Optimization
+
 - Cross-cloud resource allocation
 - Long-term capacity planning
 - Cost optimization strategies
@@ -144,6 +151,7 @@ spec:
 ### Self-Organizing Agent Swarms
 
 #### Swarm Configuration
+
 ```yaml
 # Self-organizing agent swarm
 apiVersion: swarm.gitops.io/v1alpha1
@@ -194,6 +202,7 @@ spec:
 ### Consensus Protocols for Agent Coordination
 
 #### Raft-Based Agent Consensus
+
 ```yaml
 # ACP Configuration
 apiVersion: consensus.gitops.io/v1alpha1
@@ -219,6 +228,7 @@ spec:
 ```
 
 #### Two-Phase Commit for Critical Changes
+
 ```python
 class AgentConsensus:
     def reach_consensus(self, proposal):
@@ -235,6 +245,7 @@ class AgentConsensus:
 ## Evolution Path: MCP → Agent Skills → Consensus-Based Swarms → Self-Organizing Intelligence
 
 ### Current State: MCP-Based Orchestration
+
 ```yaml
 # MCP Registry with tool endpoints
 apiVersion: kagent.io/v1alpha1
@@ -252,6 +263,7 @@ spec:
 ```
 
 ### Next Level: Agent Skills-Based Orchestration
+
 ```markdown
 ---
 name: infrastructure-manager
@@ -305,6 +317,7 @@ flux reconcile kustomization microservice-prod --with-source
 ```
 
 ### Detect and Fix Drift
+
 ```bash
 # User request: "Check for infrastructure drift and fix it"
 kubectl get all -A -o yaml > current-state.yaml
@@ -314,6 +327,7 @@ diff current-state.yaml desired-state.yaml
 ```
 
 ### Security Compliance Check
+
 ```bash
 # User request: "Run security compliance check"
 kube-score score infrastructure/*.yaml
@@ -321,6 +335,7 @@ polaris audit --audit-path infrastructure/
 ```
 
 ## Implementation Details
+
 ```
 infrastructure-manager/
 ├── SKILL.md                    # Main skill definition
@@ -348,6 +363,7 @@ The **ai-agents-sandbox** repository demonstrates an approach to AI agent orches
 #### Key Architectural Insights
 
 **1. Bottom-Up Orchestration vs Top-Down Control**
+
 ```yaml
 # Traditional Top-Down (Current Approach)
 apiVersion: kagent.io/v1alpha1
@@ -371,6 +387,7 @@ spec:
 The sandbox implements feedback loops at three critical time scales:
 
 **Micro-Loops (30 seconds)**: Local optimization
+
 ```python
 class LocalOptimizer:
     def run_tight_feedback_loop(self):
@@ -390,6 +407,7 @@ class LocalOptimizer:
 ```
 
 **Meso-Loops (5 minutes)**: Agent coordination
+
 ```python
 class AgentConsensus:
     def reach_consensus(self, proposal):
@@ -405,6 +423,7 @@ class AgentConsensus:
 ```
 
 **Macro-Loops (1 hour)**: Global optimization
+
 ```python
 class GlobalOptimizer:
     def optimize_system(self):
@@ -532,21 +551,25 @@ spec:
 ### Benefits of Consensus-Based Architecture
 
 **1. True Tight Feedback Loops**
+
 - **Local Decision Making**: Agents make decisions based on local state without central coordination
 - **Rapid Response**: No waiting for central orchestrator approval (30-second loops)
 - **Continuous Optimization**: Always-on feedback at multiple time scales
 
 **2. Fault Tolerance and Resilience**
+
 - **No Single Point of Failure**: Consensus continues even if some agents fail
 - **Self-Healing**: Agents automatically re-form consensus groups
 - **Graceful Degradation**: System continues with reduced agent capacity
 
 **3. Horizontal Scalability**
+
 - **Add More Agents**: Simply add more agents to increase capacity
 - **Distributed Load**: Decision making distributed across all agents
 - **Linear Scaling**: Performance scales with agent count
 
 **4. Coordinated Intelligence**
+
 - **Swarm Behavior**: Complex global behavior from simple local rules
 - **Adaptive Learning**: Agents learn patterns and share through consensus
 - **Self-Organization**: Agents automatically organize into efficient configurations
@@ -554,6 +577,7 @@ spec:
 ### Implementation Roadmap
 
 **Phase 1: Foundation (Immediate)**
+
 1. **Implement Basic Consensus Protocol**
    - Raft-based consensus for critical decisions
    - Agent discovery and registration
@@ -565,6 +589,7 @@ spec:
    - Fast failure detection and recovery
 
 **Phase 2: Advanced Features (3-6 months)**
+
 1. **Multi-Cloud Consensus**
    - Cross-cloud agent communication
    - Cloud-specific consensus rules
@@ -576,6 +601,7 @@ spec:
    - Swarm optimization techniques
 
 **Phase 3: Production Readiness (6-12 months)**
+
 1. **Enterprise Features**
    - Audit trails for consensus decisions
    - Compliance integration
@@ -600,11 +626,13 @@ spec:
 ### Security and Governance
 
 **Consensus Security**
+
 - **Vote Validation**: Ensure only authorized agents can vote
 - **Proposal Authentication**: Verify proposal authenticity
 - **Consensus Integrity**: Prevent consensus manipulation attacks
 
 **Agent Isolation**
+
 - **Sandboxed Execution**: Agents run in isolated environments
 - **Minimal Privilege**: Each agent has minimal required permissions
 - **Audit Logging**: All agent actions logged and auditable
@@ -619,6 +647,7 @@ The consensus-based architecture demonstrated in **ai-agents-sandbox** represent
 4. **Local decision-making** for rapid response
 
 We can achieve AI agent systems that are:
+
 - **More responsive** (30-second feedback vs minutes/hours)
 - **More resilient** (no single points of failure)
 - **More scalable** (linear scaling with agent count)
@@ -627,6 +656,7 @@ We can achieve AI agent systems that are:
 This approach transforms the control plane from a reactive system into a **proactive, self-optimizing ecosystem of intelligent agents** that continuously work toward local maxima while maintaining global coherence through lightweight consensus protocols.
 
 The key insight is that **feedback loops happen at the local level**, and global optimization emerges from the collective behavior of locally-optimizing agents coordinated through consensus protocols.
+
 ```
 
 ## Architectural Implications
@@ -651,6 +681,7 @@ mcp_server: "Execute terraform plan with parameters"
 ```
 
 **After (Agent Skills)**:
+
 ```markdown
 # Agent learns from skill instructions
 agent: "I need to plan infrastructure changes"
@@ -662,12 +693,15 @@ skill: "Here's how to use terraform for planning:
 ```
 
 ### 3. From Static Tools to Dynamic Skills
+
 **Before (MCP)**:
+
 - Fixed tool capabilities
 - Limited to predefined operations
 - Requires tool updates for new features
 
 **After (Agent Skills)**:
+
 - Dynamic skill learning
 - Adaptive behavior based on context
 - Skills evolve with new instructions
@@ -675,6 +709,7 @@ skill: "Here's how to use terraform for planning:
 ## Implementation Strategy
 
 ### Phase 1: Skill Development
+
 Create comprehensive skills for infrastructure management:
 
 ```markdown
@@ -701,6 +736,7 @@ flux reconcile kustomization --all
 ```
 
 ### Check Sync Status
+
 ```bash
 # Check reconciliation status
 flux get kustomizations -A
@@ -708,13 +744,16 @@ flux get sources -A
 ```
 
 ### Handle Dependencies
+
 ```bash
 # Check dependency chain
 flux get kustomizations -A -o wide | grep dependsOn
 ```
 
 ## Manifest Validation
+
 ### Validate Syntax
+
 ```bash
 # Validate YAML syntax
 kubeval infrastructure/*.yaml
@@ -724,11 +763,13 @@ kubeconform infrastructure/*.yaml
 ```
 
 ### Security Validation
+
 ```bash
 # Check security policies
 kube-score score infrastructure/*.yaml
 polaris audit --audit-path infrastructure/
 ```
+
 ```
 
 ### Phase 2: Skill Integration with Kagent
@@ -755,6 +796,7 @@ spec:
 ```
 
 ### Phase 3: Skill-Based Agent Orchestration
+
 Create skill-driven workflows:
 
 ```yaml
@@ -785,6 +827,7 @@ spec:
 ### Core Infrastructure Skills
 
 #### 1. `infrastructure-manager`
+
 ```markdown
 ---
 name: infrastructure-manager
@@ -797,6 +840,7 @@ metadata:
 ```
 
 #### 2. `security-compliance`
+
 ```markdown
 ---
 name: security-compliance
@@ -809,6 +853,7 @@ metadata:
 ```
 
 #### 3. `cost-optimizer`
+
 ```markdown
 ---
 name: cost-optimizer
@@ -821,6 +866,7 @@ metadata:
 ```
 
 #### 4. `disaster-recovery`
+
 ```markdown
 ---
 name: disaster-recovery
@@ -835,6 +881,7 @@ metadata:
 ### Specialized Skills
 
 #### 1. `network-policy-manager`
+
 ```markdown
 ---
 name: network-policy-manager
@@ -847,6 +894,7 @@ metadata:
 ```
 
 #### 2. `rbac-auditor`
+
 ```markdown
 ---
 name: rbac-auditor
@@ -859,6 +907,7 @@ metadata:
 ```
 
 #### 3. `performance-tuner`
+
 ```markdown
 ---
 name: performance-tuner
@@ -873,21 +922,25 @@ metadata:
 ## Benefits of Agent Skills
 
 ### 1. Enhanced Flexibility
+
 - **Dynamic Learning**: Agents adapt based on skill content
 - **Context Awareness**: Skills provide domain-specific context
 - **Continuous Improvement**: Skills can be updated independently
 
 ### 2. Better Maintainability
+
 - **Self-Documenting**: Skills contain their own documentation
 - **Version Control**: Skills can be versioned and tracked
 - **Modular Design**: Skills are independent and reusable
 
 ### 3. Improved Reliability
+
 - **Built-in Validation**: Skills include validation steps
 - **Error Handling**: Skills define error recovery procedures
 - **Best Practices**: Skills encode organizational practices
 
 ### 4. Greater Scalability
+
 - **Distributed Skills**: Skills can be distributed across teams
 - **Parallel Development**: Multiple teams can develop skills independently
 - **Knowledge Sharing**: Skills can be shared and reused
@@ -895,18 +948,21 @@ metadata:
 ## Migration Path
 
 ### Step 1: Skill Development
+
 1. **Identify Core Workflows**: Map current MCP tools to skill concepts
 2. **Create Skill Templates**: Develop SKILL.md templates
 3. **Implement Skills**: Convert tool logic to skill instructions
 4. **Test Skills**: Validate skill functionality
 
 ### Step 2: Hybrid Integration
+
 1. **Dual Operation**: Run both MCP and Agent Skills in parallel
 2. **Gradual Migration**: Migrate workflows one by one
 3. **Performance Comparison**: Compare MCP vs Skills performance
 4. **Optimization**: Fine-tune skill implementations
 
 ### Step 3: Complete Migration
+
 1. **Decommission MCP**: Remove MCP infrastructure
 2. **Skill Optimization**: Optimize skill performance
 3. **Documentation**: Update all documentation
@@ -915,6 +971,7 @@ metadata:
 ## Technical Implementation
 
 ### Skill Loading Mechanism
+
 ```yaml
 apiVersion: kagent.io/v1alpha1
 kind: SkillLibrary
@@ -938,6 +995,7 @@ spec:
 ```
 
 ### Skill Execution Framework
+
 ```yaml
 apiVersion: kagent.io/v1alpha1
 kind: SkillExecutor
@@ -964,6 +1022,7 @@ spec:
 ```
 
 ### Skill Monitoring
+
 ```yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -1029,6 +1088,7 @@ diff expected-state.yaml deployed-state.yaml
 ```
 
 #### Rollback Deployment
+
 ```bash
 # Step 1: Identify previous revision
 flux get kustomization app-name -o yaml | grep revision
@@ -1044,6 +1104,7 @@ kubectl logs -l app=app-name --tail=50
 ### 2. Drift Detection and Remediation
 
 #### Detect Infrastructure Drift
+
 ```bash
 # Step 1: Get current state
 kubectl get all -A -o yaml > current-state.yaml
@@ -1060,6 +1121,7 @@ python scripts/analyze-drift.py drift-report.txt
 ```
 
 #### Remediate Drift
+
 ```bash
 # Step 1: Classify drift severity
 python scripts/classify-drift.py drift-report.txt
@@ -1080,6 +1142,7 @@ diff desired-state.yaml post-remediation.yaml
 ### 3. Security and Compliance
 
 #### Security Policy Validation
+
 ```bash
 # Step 1: RBAC Analysis
 kubectl auth can-i --list --as=system:serviceaccount:default:default
@@ -1099,6 +1162,7 @@ python scripts/validate-secrets.py
 ```
 
 #### Compliance Reporting
+
 ```bash
 # Step 1: CIS Benchmark Check
 kube-bench --json > cis-report.json
@@ -1116,6 +1180,7 @@ python scripts/generate-compliance-report.py \
 ### 4. Cost Optimization
 
 #### Resource Utilization Analysis
+
 ```bash
 # Step 1: Collect metrics
 kubectl top pods -A --no-headers | awk '{print $2, $3}' > cpu-mem-usage.txt
@@ -1129,6 +1194,7 @@ python scripts/generate-optimization.py utilization-report.json
 ```
 
 #### Right-Sizing Recommendations
+
 ```bash
 # Step 1: Historical analysis
 prometheus_query 'rate(container_cpu_usage_seconds_total[7d])' > cpu-history.json
@@ -1146,6 +1212,7 @@ fi
 ### 5. Multi-Cloud Management
 
 #### AWS EKS Operations
+
 ```bash
 # Step 1: Cluster health check
 aws eks describe-cluster --name cluster-name --query 'cluster.status'
@@ -1158,6 +1225,7 @@ aws ce get-cost-and-usage --time-period Start=$(date -d '30 days ago' +%Y-%m-%d)
 ```
 
 #### Azure AKS Operations
+
 ```bash
 # Step 1: Cluster status
 az aks show --resource-group rg-name --name cluster-name --query 'powerState'
@@ -1170,6 +1238,7 @@ az consumption usage list --time-period $(date -d '30 days ago' +%Y-%m-%d)/$(dat
 ```
 
 #### Google GKE Operations
+
 ```bash
 # Step 1: Cluster health
 gcloud container clusters describe cluster-name --zone=us-central1-a --format='value(status)'
@@ -1185,12 +1254,14 @@ gcloud billing accounts get-billing-info --account-id=BILLING_ACCOUNT_ID
 ## Error Handling and Troubleshooting
 
 ### Common Issues
+
 1. **Deployment Failures**: Check resource limits, image availability, and configuration errors
 2. **Drift Detection**: Ensure Git state is current and permissions are correct
 3. **Security Validation**: Verify policy definitions and RBAC permissions
 4. **Cost Analysis**: Check cloud provider API access and metric availability
 
 ### Debug Commands
+
 ```bash
 # Check deployment status
 kubectl get events --sort-by='.lastTimestamp' | grep Error
@@ -1209,6 +1280,7 @@ kubectl top pods -A
 ## Best Practices
 
 ### 1. Always Validate Before Applying
+
 ```bash
 # Validate manifests
 kubeconform infrastructure/**/*.yaml
@@ -1219,6 +1291,7 @@ kubectl apply -f infrastructure/ --dry-run=client
 ```
 
 ### 2. Use GitOps Principles
+
 ```bash
 # Always commit changes to Git first
 git add infrastructure/
@@ -1230,6 +1303,7 @@ flux reconcile kustomization app-name --with-source
 ```
 
 ### 3. Monitor After Changes
+
 ```bash
 # Watch deployment progress
 kubectl get pods -l app=app-name -w
@@ -1242,6 +1316,7 @@ kubectl exec -it deployment/app-name -- curl http://localhost:8080/health
 ```
 
 ### 4. Document Changes
+
 ```bash
 # Update documentation
 echo "$(date): Deployed version v1.2.3 of app-name" >> deployment-log.md
@@ -1253,6 +1328,7 @@ echo "If app-name fails, check: 1. Pod logs 2. Resource limits 3. Network polici
 ## Integration with Other Skills
 
 This skill works well with:
+
 - `security-compliance`: For comprehensive security validation
 - `cost-optimizer`: For detailed cost analysis and optimization
 - `disaster-recovery`: For backup and recovery validation
@@ -1277,6 +1353,7 @@ This skill works well with:
 - **v2.0**: Added multi-cloud support and cost optimization
 - **v1.5**: Enhanced security validation and compliance reporting
 - **v1.0**: Initial release with basic infrastructure management
+
 ```
 
 ## Conclusion
@@ -1336,6 +1413,7 @@ class FastFeedback:
 ```
 
 **Cost-Optimized Autonomous Operations**:
+
 ```python
 class CostOptimizedAutonomy:
     def adaptive_loop_frequency(self):
@@ -1351,6 +1429,7 @@ class CostOptimizedAutonomy:
 #### Advanced Consensus Protocols
 
 **Byzantine Fault Tolerance with Reputation**:
+
 ```python
 # From research paper analysis
 class ReputationSystem:
@@ -1366,6 +1445,7 @@ class ReputationSystem:
 ```
 
 **Hierarchical Consensus (3-Level)**:
+
 ```yaml
 # Multi-level consensus for global optimization
 apiVersion: consensus.gitops.io/v1alpha1
@@ -1401,6 +1481,7 @@ spec:
 #### Self-Organizing Intelligence Patterns
 
 **Ant Colony Optimization**:
+
 ```python
 class AntColonyOptimizer:
     def optimize_resource(self, resource_id):
@@ -1417,6 +1498,7 @@ class AntColonyOptimizer:
 ```
 
 **Flock Alignment for Multi-Cloud Coordination**:
+
 ```python
 class FlockAlignment:
     def coordinate_agents(self, agents):
@@ -1432,24 +1514,28 @@ class FlockAlignment:
 ### Benefits Achieved
 
 #### 1. **Response Times**
+
 - **Local Decisions**: 15-30 seconds
 - **Consensus Decisions**: 1-2 minutes
 - **Global Optimization**: Continuous learning and adaptation
 - **Local Decisions**: 1000+ decisions per agent
 
 #### 2. **Fault Tolerance**
+
 - **Byzantine Protection**: Handle up to 1/3 malicious agents
 - **Reputation Systems**: Automatically identify and isolate unreliable agents
 - **Hierarchical Recovery**: Multi-level fallback mechanisms
 - **Global Consensus**: Cross-cloud coordination with weighted voting
 
 #### 3. **Scalability**
+
 - **Linear Agent Scaling**: Add agents without architectural changes
 - **Distributed Load**: Decision making across all agents
 - **Cross-Cloud Coordination**: Global optimization across providers
 - **Coordinated Behavior**: Complex behavior from simple local rules
 
 #### 4. **Autonomous Self-Organization**
+
 - **Coordinated Behavior**: Complex global behavior from local interactions
 - **Adaptive Learning**: Continuous improvement without human intervention
 - **Cost Optimization**: Autonomous resource efficiency management
@@ -1458,6 +1544,7 @@ class FlockAlignment:
 ### Integration with GitOps Infra Control Plane
 
 #### Enhanced Flux Integration
+
 ```yaml
 # Fast feedback loop integration
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2

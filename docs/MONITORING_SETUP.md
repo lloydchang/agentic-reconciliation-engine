@@ -11,6 +11,7 @@ This guide explains how to configure and use the comprehensive monitoring and al
 ### **Slack Integration**
 
 #### **1. Create Slack Bot Token**
+
 ```bash
 # Create Slack app and get bot token
 # Visit: https://api.slack.com/apps
@@ -24,7 +25,9 @@ kubectl create secret generic slack-bot-token \
 ```
 
 #### **2. Configure Slack Provider**
+
 The Slack provider is already configured in `control-plane/monitoring/alerts/slack-provider.yaml`:
+
 - **Channel**: `gitops-alerts` (change as needed)
 - **Namespace**: `flux-system`
 - **Auto-deployed**: Via monitoring kustomization
@@ -32,6 +35,7 @@ The Slack provider is already configured in `control-plane/monitoring/alerts/sla
 ### **GitHub Integration**
 
 #### **1. Create GitHub Token**
+
 ```bash
 # Create personal access token with repo:write, repo:status scopes
 # Visit: https://github.com/settings/tokens
@@ -43,7 +47,9 @@ kubectl create secret generic github-token \
 ```
 
 #### **2. Configure GitHub Provider**
+
 The GitHub provider is already configured in `control-plane/monitoring/alerts/github-provider.yaml`:
+
 - **Repository**: `lloydchang/gitops-infra-control-plane`
 - **Namespace**: `flux-system`
 - **Auto-deployed**: Via monitoring kustomization
@@ -53,7 +59,9 @@ The GitHub provider is already configured in `control-plane/monitoring/alerts/gi
 ## 📋 **Alert Types**
 
 ### **Error Alerts** (`gitops-pipeline-alerts`)
+
 Triggered on:
+
 - ❌ Kustomization build failures
 - ❌ Resource apply errors
 - ❌ Health check failures
@@ -61,7 +69,9 @@ Triggered on:
 - ❌ Cloud controller failures
 
 ### **Info Alerts** (`gitops-deployment-alerts`)
+
 Triggered on:
+
 - ✅ Successful resource creation
 - ✅ Successful resource updates
 - ✅ Successful resource deletions
@@ -73,11 +83,13 @@ Triggered on:
 ## 🔄 **GitHub Integration Benefits**
 
 ### **Commit Status Updates**
+
 - 🟢 **Green checkmark**: Deployment succeeded
 - 🔴 **Red cross**: Deployment failed
 - 📊 **Click icon**: Detailed deployment information
 
 ### **Deployment Loop Closure**
+
 - Traditional push-based CD: Manual verification
 - Flux GitOps: Automatic status feedback
 - **Benefit**: Immediate deployment visibility
@@ -87,6 +99,7 @@ Triggered on:
 ## 🤖 **Automated Workflows**
 
 ### **Weekly Flux Upgrades**
+
 ```yaml
 # .github/workflows/flux-upgrade.yml
 - Schedule: Weekly (Sunday midnight)
@@ -95,6 +108,7 @@ Triggered on:
 ```
 
 ### **OCI Manifest Publishing**
+
 ```yaml
 # .github/workflows/push-manifests.yml
 - Trigger: Push to main branch
@@ -106,6 +120,7 @@ Triggered on:
 ```
 
 ### **E2E Testing**
+
 ```yaml
 # .github/workflows/e2e-testing.yml
 - Trigger: Push + PR
@@ -119,6 +134,7 @@ Triggered on:
 ## 📊 **Monitoring Dashboard Integration**
 
 ### **Grafana Setup**
+
 ```bash
 # Grafana provider already configured
 # Address: http://kube-prometheus-stack-grafana.monitoring/api/annotations
@@ -127,6 +143,7 @@ Triggered on:
 ```
 
 ### **Prometheus Metrics**
+
 - Flux controller metrics
 - Kustomization reconciliation times
 - Resource deployment counts
@@ -137,6 +154,7 @@ Triggered on:
 ## 🚀 **Quick Start**
 
 ### **1. Configure Secrets**
+
 ```bash
 # Slack token
 kubectl create secret generic slack-bot-token \
@@ -150,6 +168,7 @@ kubectl create secret generic github-token \
 ```
 
 ### **2. Deploy Monitoring**
+
 ```bash
 # Monitoring is already included in main Flux deployment
 # Apply the monitoring kustomization
@@ -160,6 +179,7 @@ flux get alerts
 ```
 
 ### **3. Test Alerts**
+
 ```bash
 # Trigger a test alert
 flux reconcile kustomization infrastructure-controllers
@@ -173,6 +193,7 @@ flux reconcile kustomization infrastructure-controllers
 ## 🎯 **Alert Routing**
 
 ### **Team-Specific Channels**
+
 ```yaml
 # Example: Different alerts to different channels
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
@@ -192,6 +213,7 @@ spec:
 ```
 
 ### **Environment-Specific Routing**
+
 ```yaml
 # Example: Separate prod vs dev alerts
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
@@ -212,18 +234,21 @@ spec:
 ## 📈 **Best Practices**
 
 ### **Alert Configuration**
+
 - ✅ Use descriptive alert names and summaries
 - ✅ Include relevant metadata (env, cluster, region)
 - ✅ Set appropriate severity levels (error vs info)
 - ✅ Route to correct teams/channels
 
 ### **Secret Management**
+
 - ✅ Use Kubernetes secrets, not hardcoded values
 - ✅ Rotate tokens regularly
 - ✅ Limit secret access to necessary namespaces
 - ✅ Use least-privilege principle
 
 ### **Monitoring Coverage**
+
 - ✅ Monitor all critical GitOps components
 - ✅ Track dependency chain health
 - ✅ Alert on reconciliation failures
@@ -236,6 +261,7 @@ spec:
 ### **Common Issues**
 
 #### **Slack Notifications Not Working**
+
 ```bash
 # Check provider status
 flux get providers
@@ -248,6 +274,7 @@ flux get alerts
 ```
 
 #### **GitHub Status Not Updating**
+
 ```bash
 # Check GitHub token permissions
 # Ensure repo:write and repo:status scopes
@@ -260,6 +287,7 @@ kubectl get events -n flux-system --sort-by='.lastTimestamp'
 ```
 
 #### **Alerts Not Triggering**
+
 ```bash
 # Check kustomization status
 flux get kustomizations

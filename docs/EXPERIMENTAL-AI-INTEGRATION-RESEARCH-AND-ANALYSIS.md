@@ -13,6 +13,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ### ❌ When AI Integration Is NOT Appropriate
 
 **Do NOT implement AI components if you:**
+
 - Only have simple scenarios
 - Operate in highly regulated environments with strict change controls **AND** lack the expertise to implement compliant AI
 - Have small teams with limited DevOps expertise
@@ -22,20 +23,24 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 #### 📋 Examples of When AI Is NOT Appropriate
 
 **Air-Gapped Financial Systems**:
+
 - **Why**: No external connectivity for AI model updates, strict deterministic requirements
 - **Alternative**: Manual approval processes, traditional monitoring
 
 **Legacy Healthcare Systems (HIPAA)**:
+
 - **Why**: Complete audit trail requirements, no AI-assisted decisions in early phases
 - **Alternative**: Start with Flux-only for declarative infrastructure, add AI later
 
 **Critical Infrastructure (Nuclear/Power Grid)**:
+
 - **Why**: Low latency requirements (<100ms), no AI decision-making in safety systems
 - **Alternative**: Traditional automation, no AI in safety-critical paths
 
 ### ✅ When AI Integration IS Appropriate
 
 **Consider AI integration if you:**
+
 - Have genuine multi-cloud complexity causing operational challenges
 - Need autonomous optimization across large-scale infrastructure
 - Have established GitOps practices and experienced teams
@@ -45,21 +50,25 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 #### 📋 Examples of When AI Enhances Regulated Environments
 
 **SOC 2 Compliance Monitoring**:
+
 - **AI Role**: Continuous policy violation detection, automated compliance reporting
 - **Benefit**: Significant reduction in manual compliance checking time
 - **Implementation**: AI agents monitor infrastructure changes against compliance policies
 
 **GDPR Data Protection**:
+
 - **AI Role**: Intelligent data classification, automated PII detection in infrastructure
 - **Benefit**: Proactive identification of data exposure risks before they occur
 - **Implementation**: AI validation agents check all deployments for data protection compliance
 
 **FedRAMP Security Controls**:
+
 - **AI Role**: Autonomous security posture optimization, predictive threat detection
 - **Benefit**: Continuous security hardening across multi-cloud environments
 - **Implementation**: Consensus agents optimize security configurations while maintaining compliance
 
 **PCI DSS Payment Processing**:
+
 - **AI Role**: Automated segmentation validation, intelligent change impact assessment
 - **Benefit**: Minimal manual PCI compliance validation overhead
 - **Implementation**: AI cronjobs validate payment processing infrastructure hourly
@@ -69,16 +78,19 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 #### 📋 Examples of Regulated Scenarios Requiring Careful AI Implementation
 
 **HIPAA Healthcare Data Processing**:
+
 - **Caution**: AI decisions must be auditable, human override required
 - **Implementation**: AI provides recommendations, humans make final approval
 - **Controls**: All AI decisions logged for regulatory review
 
 **SOX Financial Reporting Systems**:
+
 - **Caution**: No AI automation of financial transaction processing
 - **Implementation**: AI monitors infrastructure, not business logic
 - **Controls**: AI operates in monitoring-only mode for SOX environments
 
 **NIST Cybersecurity Framework**:
+
 - **Caution**: AI security recommendations require validation
 - **Implementation**: AI suggests optimizations, security team validates
 - **Controls**: Human-in-the-loop for all security-related AI decisions
@@ -105,6 +117,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 | **Any** | Critical infrastructure | ❌ Avoid AI in safety systems |
 
 **For these scenarios:**
+
 - Focus on basic GitOps with Flux for declarative infrastructure
 - Use traditional automation tools (Terraform, Ansible, CI/CD pipelines)
 - Implement manual approval processes for all changes
@@ -113,6 +126,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ### ✅ When AI Integration IS Appropriate
 
 **Consider AI integration if you:**
+
 - Have genuine multi-cloud complexity causing operational challenges
 - Need autonomous optimization across large-scale infrastructure
 - Have established GitOps practices and experienced teams
@@ -122,6 +136,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ### 🔄 Problem Evolution and AI Adoption
 
 **AI adoption should follow infrastructure maturity:**
+
 1. **Phase 1**: Basic GitOps (no AI) - establish declarative infrastructure
 2. **Phase 2**: Monitoring & Alerting (limited AI) - add intelligent monitoring
 3. **Phase 3**: Optimization (full AI) - implement autonomous agent orchestration
@@ -129,18 +144,21 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ## 🎯 Scenario-Based Integration Framework
 
 ### 🟢 Greenfield Scenarios (New Infrastructure)
+
 **When to Apply**: Starting from scratch with no legacy constraints
 **Common Problems**: Multi-cloud coordination from day one, complex new applications
 **AI Applicability**: ✅ HIGH - Full AI integration provides maximum flexibility
 **Repository Path**: `examples/complete-hub-spoke/` → Complete deployment
 
 ### 🟡 Brownfield Scenarios (Existing Infrastructure)  
+
 **When to Apply**: Migrating from existing IaC or legacy systems
 **Common Problems**: Migration complexity, legacy system integration, gradual modernization
 **AI Applicability**: ⚠️ MEDIUM - Start with core Flux, add AI incrementally
 **Repository Path**: `control-plane/` → `infrastructure/tenants/` → selective AI components
 
 ### 🟡 Hybrid Scenarios (Local + Cloud)
+
 **When to Apply**: Development teams with local infrastructure needing cloud integration
 **Common Problems**: Local-cloud coordination, progressive migration, multi-environment management
 **AI Applicability**: ✅ HIGH - Hybrid AI integration bridges local and cloud
@@ -148,13 +166,15 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 
 ## 🚨 Critical Guidance: When NOT to Use AI
 
-### ❌ AI is Overkill For:
+### ❌ AI is Overkill For
+
 - **Simple deployment automation** (use basic Flux CronJobs)
 - **Single-cloud environments** (use native cloud controllers)
 - **Small teams with simple workloads** (use standard GitOps patterns)
 - **Infrastructure with predictable patterns** (use rule-based automation)
 
-### ✅ AI is Valuable For:
+### ✅ AI is Valuable For
+
 - **Multi-cloud optimization complexity** (cross-cloud decision making)
 - **Large-scale infrastructure** (human-scale coordination challenges)
 - **Rapid failure recovery** (autonomous healing needs)
@@ -164,6 +184,7 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 ## Repository Context Analysis
 
 The GitOps Infra Control Plane is a **problem-solving system** featuring:
+
 - **Hub-and-Spoke Architecture**: Central hub managing spoke clusters across AWS, Azure, GCP
 - **Continuous Reconciliation**: 24/7 drift detection and auto-repair via native cloud controllers
 - **GitOps Principles**: Flux-based dependency management with explicit DAG dependencies
@@ -172,9 +193,11 @@ The GitOps Infra Control Plane is a **problem-solving system** featuring:
 ## Deployment Scenario Integration Analysis
 
 ### 🟢 Greenfield Scenarios
+
 **Context**: Starting from scratch, no existing constraints
 
 **AI Integration Recommendation**: ⚠️ **Conservative Start**
+
 ```yaml
 # Greenfield: Start simple, add AI as complexity grows
 phase1: # Months 0-3
@@ -194,9 +217,11 @@ phase3: # Months 6+ (only if needed)
 **Justification**: Greenfield projects should establish stable patterns before adding AI complexity.
 
 ### 🟡 Brownfield Scenarios
+
 **Context**: Existing infrastructure with legacy constraints
 
 **AI Integration Recommendation**: ✅ **Targeted AI for Migration**
+
 ```yaml
 # Brownfield: AI for specific migration challenges
 phase1: # Months 0-2
@@ -217,9 +242,11 @@ phase3: # Months 6+
 **Justification**: AI excels at managing complex migration scenarios and legacy integration challenges.
 
 ### 🟠 Hybrid Local/Cloud Scenarios
+
 **Context**: Local development with cloud deployment
 
 **AI Integration Recommendation**: ✅ **AI for Dev-to-Prod Coordination**
+
 ```yaml
 # Hybrid: AI for environment coordination
 phase1: # Weeks 0-2
@@ -240,9 +267,11 @@ phase3: # Weeks 6+
 **Justification**: AI bridges gap between local development and cloud AI complexity.
 
 ### 🔴 Multi-Cloud Scenarios
+
 **Context**: Operations across multiple cloud providers
 
 **AI Integration Recommendation**: ✅ **Full AI Stack Essential**
+
 ```yaml
 # Multi-cloud: AI for cross-cloud complexity
 phase1: # Months 0-1
@@ -266,20 +295,24 @@ phase3: # Months 3+
 ### 1. Claude Code Proxy and Gateway Patterns
 
 #### AgentGateway Claude Code Proxy
-**Source**: https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/
+
+**Source**: <https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/>
 
 **Key Features**:
+
 - Routes Claude Code CLI traffic through Kubernetes gateway
 - Adds prompt guards to block sensitive data
 - Provides visibility and auditability
 - Enforces organizational policies
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Network isolation through Kubernetes
 - Prompt filtering prevents data exfiltration
 - Audit trail for compliance
 
 **Application to Repository**:
+
 ```yaml
 # Potential integration: Flux-managed gateway deployment
 apiVersion: apps/v1
@@ -302,25 +335,30 @@ spec:
 ```
 
 **Benefits**:
+
 - Centralized AI traffic governance
 - Prevents credential leakage in infrastructure prompts
 - Integrates with existing Flux workflow
 
 #### Daniel Hnyk's Kubernetes Job Approach
-**Source**: https://danielhnyk.cz/claude-code-kubernetes-cronjob/
+
+**Source**: <https://danielhnyk.cz/claude-code-kubernetes-cronjob/>
 
 **Key Features**:
+
 - Runs Claude Code as Kubernetes CronJobs
 - Timeout safety nets (3-hour limits)
 - Backup Claude instances for cleanup
 - JSON streaming output with jq filtering
 
 **Safety Assessment**: ✅ **SAFE WITH CAVEATS**
+
 - Container isolation provides security
 - Timeout mechanisms prevent runaway processes
 - Requires careful permission management
 
 **Application to Repository**:
+
 ```yaml
 # Infrastructure analysis automation
 apiVersion: batch/v1
@@ -350,59 +388,71 @@ spec:
 ### 2. AI Agent Frameworks
 
 #### Kelos - Kubernetes-Native Agent Orchestration
-**Source**: https://github.com/kelos-dev/kelos
+
+**Source**: <https://github.com/kelos-dev/kelos>
 
 **Key Features**:
+
 - Kubernetes-native agent orchestration
 - Event-driven architecture
 - Multi-agent coordination
 - Built-in observability
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Native Kubernetes integration
 - Pod-based isolation
 - Extensible architecture
 
 **Application to Repository**:
+
 - Could enhance Flux reconciliation with AI-driven decision making
 - Automated remediation workflows
 - Multi-cloud optimization agents
 
 #### ClaudeBox - Containerized Development Environment
-**Source**: https://github.com/RchGrav/claudebox
+
+**Source**: <https://github.com/RchGrav/claudebox>
 
 **Key Features**:
+
 - Isolated Docker containers
 - Development profiles
 - Project isolation
 - Security features
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Container isolation
 - Per-project separation
 - Network allowlists
 
 **Application to Repository**:
+
 - Development environment for infrastructure code
 - Safe testing of AI-generated configurations
 - Isolated validation environments
 
 #### AI Agents Sandbox (lloydchang)
-**Source**: https://github.com/lloydchang/ai-agents-sandbox
+
+**Source**: <https://github.com/lloydchang/ai-agents-sandbox>
 
 **Key Features**:
+
 - 30+ specialized skills
 - Multi-agent orchestration
 - Safe execution environment
 - Human-in-the-loop controls
 
 **Safety Assessment**: ✅ **HIGHLY SAFE**
+
 - Comprehensive safety boundaries
 - Human approval required
 - Tool restrictions
 
 **Application to Repository**:
 **Direct Integration Available** - This is the repository owner's project!
+
 - Infrastructure discovery skills
 - Compliance checking automation
 - Cost optimization agents
@@ -411,19 +461,23 @@ spec:
 ### 3. MCP (Model Context Protocol) Integrations
 
 #### Kubernetes Specialist Subagent
-**Source**: https://github.com/VoltAgent/awesome-claude-code-subagents
+
+**Source**: <https://github.com/VoltAgent/awesome-claude-code-subagents>
 
 **Key Features**:
+
 - Structured communication protocols
 - Kubernetes context queries
 - Assessment-driven workflows
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Structured interactions
 - Context-aware operations
 - Validation requirements
 
 **Application to Repository**:
+
 ```yaml
 # MCP server configuration for Flux integration
 apiVersion: v1
@@ -450,20 +504,24 @@ data:
 ### 4. Docker Containerization Approaches
 
 #### Gendosu Claude Code Docker
-**Source**: https://hub.docker.com/r/gendosu/claude-code-docker
+
+**Source**: <https://hub.docker.com/r/gendosu/claude-code-docker>
 
 **Key Features**:
+
 - Multi-platform support (amd64/arm64)
 - Node.js 22.11.0 base
 - MCP server integration
 - Volume mounting for persistence
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Official Docker base images
 - Isolated container runtime
 - Volume-based persistence
 
 **Application to Repository**:
+
 ```yaml
 # AI-powered infrastructure validation
 apiVersion: v1
@@ -497,9 +555,11 @@ spec:
 ## 5. Node Scaling and Management Approaches
 
 #### Karpenter - Just-in-Time Node Scaling
+
 **Source**: [https://karpenter.sh/](https://karpenter.sh/) ([GitHub](https://github.com/kubernetes-sigs/karpenter))
 
 **Key Features**:
+
 - Just-in-time node provisioning for Kubernetes clusters
 - Fast scaling based on workload demands
 - Multi-cloud support (AWS, Azure, GCP)
@@ -508,6 +568,7 @@ spec:
 **Applicability**: Integrated into the GitOps Infra Control Plane for dynamic node scaling across spoke clusters. Provides alternative to cluster autoscaler with faster response times and better resource utilization.
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Standard Kubernetes integration
 - RBAC-based permissions
 - No direct access to sensitive data
@@ -516,6 +577,7 @@ spec:
 Karpenter is deployed via Flux in `control-plane/controllers/karpenter/` and configured per cloud provider in `infrastructure/tenants/3-workloads/karpenter/`. NodePools are created for each spoke cluster with appropriate dependsOn relationships ensuring clusters exist before node scaling is configured.
 
 **Benefits**:
+
 - Faster scaling than traditional autoscalers
 - Cost optimization through right-sizing
 - Multi-cloud compatibility
@@ -548,6 +610,7 @@ Karpenter is deployed via Flux in `control-plane/controllers/karpenter/` and con
 ### Safety Mechanisms
 
 #### Timeout and Resource Limits
+
 ```yaml
 apiVersion: v1
 kind: LimitRange
@@ -566,6 +629,7 @@ spec:
 ```
 
 #### Network Policies
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -635,6 +699,7 @@ spec:
 ### Immediate Actions (Week 1-2)
 
 1. **Security Assessment**
+
    ```bash
    # Create security policy for AI workloads
    kubectl apply -f - <<EOF
@@ -658,6 +723,7 @@ spec:
    ```
 
 2. **Gateway Deployment**
+
    ```bash
    # Deploy agentgateway
    helm repo add agentgateway https://agentgateway.dev/helm
@@ -668,6 +734,7 @@ spec:
    ```
 
 3. **Validation CronJob**
+
    ```bash
    # Deploy infrastructure validation
    kubectl apply -f infrastructure/ai-validation/
@@ -688,16 +755,19 @@ spec:
 ## Risk Assessment
 
 ### High Risk
+
 - **Credential Exposure**: Mitigated through prompt guards and workload identity
 - **Uncontrolled Resource Creation**: Mitigated through RBAC and network policies
 - **Data Exfiltration**: Mitigated through egress filtering and content scanning
 
 ### Medium Risk
+
 - **API Cost Overruns**: Mitigated through usage limits and monitoring
 - **False Positive Remediation**: Mitigated through human approval workflows
 - **Dependency on External Services**: Mitigated through local deployment options
 
 ### Low Risk
+
 - **Container Security**: Standard Kubernetes security practices apply
 - **Performance Impact**: Can be managed through resource limits
 - **Integration Complexity**: Phased approach reduces complexity
@@ -727,6 +797,7 @@ The integration can significantly enhance the repository's capabilities while ma
 ### Academic and Industry Research on Distributed Consensus
 
 #### Consensus Algorithms and Distributed Systems
+
 - **[ScienceDirect - Multi-agent consensus systems](https://www.sciencedirect.com/science/article/pii/S0167739X25005151)** - Multi-agent consensus algorithms for distributed decision-making systems
 - **[Boris Burkov - Distributed Systems](https://borisburkov.net/2021-10-03-1/)** - Comprehensive overview of distributed systems and consensus protocols
 - **[System Driven - Paxos Simplified](https://systemdr.substack.com/p/distributed-consensus-paxos-simplified)** - Simplified explanation of Paxos consensus algorithm
@@ -739,6 +810,7 @@ The integration can significantly enhance the repository's capabilities while ma
 - **[HashiCorp - Raft Protocol](https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained)** - Raft consensus protocol in production systems
 
 #### AI Agent Orchestration and Self-Organization
+
 - **[DZone - Consensus in Distributed AI](https://dzone.com/articles/exploring-the-role-of-consensus-algorithms-in-dist)** - Role of consensus algorithms in distributed AI systems
 - **[Wiley - Management Systems](https://onlinelibrary.wiley.com/doi/10.1111/joms.70054)** - Consensus-based management systems
 - **[Dev.to - Paxos and Raft](https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab)** - Practical implementation of consensus algorithms
@@ -746,6 +818,7 @@ The integration can significantly enhance the repository's capabilities while ma
 - **[Springer - Healthcare Systems](https://link.springer.com/article/10.1186/s42400-023-00163-y)** - Distributed consensus in healthcare AI systems
 
 #### Infrastructure and Network Consensus
+
 - **[IMF - Distributed Systems](https://www.imf.org/en/-/media/files/publications/ftn063/2022/english/ftnea2022003.pdf)** - Economic implications of distributed consensus systems
 - **[GitConnected - Agent Evolution](https://levelup.gitconnected.com/from-chatbots-to-agents-what-actually-changed-and-why-it-matters-df5d3b516705?gi=3c002d29deac)** - Evolution from centralized to distributed agent systems
 - **[ACM - Distributed AI](https://dl.acm.org/doi/full/10.1145/3697090.3697100)** - Distributed AI systems and consensus mechanisms
@@ -762,24 +835,29 @@ The integration can significantly enhance the repository's capabilities while ma
 ### Key Insights for GitOps Infra Control Plane
 
 #### 1. Tight Feedback Loops Through Local Optimization
+
 The research suggests that **local decision-making** can achieve tighter feedback loops than centralized orchestration:
+
 - **Fast local optimization loops** vs minutes/hours for centralized systems
 - **Distributed consensus** for critical decisions requiring coordination
 - **Emergent global behavior** from locally-optimizing agents
 
 #### 2. Consensus-Based Coordination Patterns
+
 - **Raft protocol** for leader election and log replication
 - **Two-phase commit** for critical infrastructure changes
 - **Weighted voting** based on agent expertise (security agents get higher weight for security decisions)
 - **Quorum-based decision making** for different change types
 
 #### 3. Self-Organizing Agent Swarms
+
 - **Bottom-up orchestration** instead of top-down control
 - **Agent specialization** with local expertise
 - **Collective intelligence** emerging from simple local rules
 - **Fault tolerance** through distributed consensus
 
 #### 4. Multi-Scale Feedback Architecture
+
 - **Micro-loops**: Local optimization and monitoring
 - **Meso-loops**: Agent consensus and coordination
 - **Macro-loops**: Global strategy and optimization
@@ -796,7 +874,7 @@ The research suggests that **local decision-making** can achieve tighter feedbac
 
 This document researches each provided URL, evaluates its applicability to the GitOps infrastructure control plane repository (which manages multi-cloud infrastructure using Flux, Crossplane, and CAPI for continuous reconciliation), assesses safety, and outlines potential integration approaches. The repository emphasizes hub-and-spoke model, Flux dependsOn for DAG orchestration, no state files, and official controllers.
 
-## 1. https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/
+## 1. <https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/>
 
 **Content Summary**: Tutorial for proxying Claude Code CLI traffic through agentgateway in Kubernetes to intercept, inspect, and secure AI agent requests before reaching Anthropic's API. Covers setup with Gateway API, HTTPRoute, backend configuration with Anthropic provider, prompt guards for blocking sensitive content, and testing.
 
@@ -808,7 +886,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Add agentgateway to control-plane/controllers/kustomization.yaml as a HelmRelease. Configure HTTPRoute in infrastructure/tenants/3-workloads/ with dependsOn from cluster-infra. Use for operator-facing AI tools, integrating with existing monitoring (Prometheus/Grafana) for traffic observability. Avoid in core reconciliation loops to prevent complexity.
 
-## 2. https://danielhnyk.cz/claude-code-kubernetes-cronjob/
+## 2. <https://danielhnyk.cz/claude-code-kubernetes-cronjob/>
 
 **Content Summary**: Blog post on running Claude Code as Kubernetes CronJobs for long-running tasks like marketing pipelines. Covers Dockerfile with Node.js/Python, entrypoint with timeout safeguards, jq for log filtering, GitHub as storage, and CronJob manifests.
 
@@ -818,7 +896,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Add CronJob manifests to infrastructure/tenants/3-workloads/ with dependsOn from workload-infra. Use for scheduled AI tasks like "analyze recent Flux logs and suggest optimizations". Integrate with existing secrets management (SealedSecrets). Test in spoke clusters for production readiness.
 
-## 3. https://dev.to/mikesol/using-claude-code-to-pilot-kubernetes-on-autodock-3k04
+## 3. <https://dev.to/mikesol/using-claude-code-to-pilot-kubernetes-on-autodock-3k04>
 
 **Content Summary**: Article demonstrating Claude Code on Autodock for replacing Helm charts with natural language instructions. Shows k3s deployment, Argo Workflows setup, troubleshooting conflicts (e.g., Traefik vs. Caddy), webhook integration, and env.save for documentation. Emphasizes AUTODOCK.md as declarative replacement for YAML complexity.
 
@@ -828,7 +906,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Add Autodock-like environment in infrastructure/tenants/3-workloads/ for development/testing. Use Claude Code for manifest generation, with env.save to create documentation in docs/. Integrate with Flux for applying changes. Avoid replacing core Flux operations; use for ad-hoc infrastructure tasks.
 
-## 4. https://futuresearch.ai/blog/claude-code-kubernetes-cronjob/
+## 4. <https://futuresearch.ai/blog/claude-code-kubernetes-cronjob/>
 
 **Content Summary**: Same as URL 2 (identical content).
 
@@ -838,7 +916,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 2.
 
-## 5. https://futuresearch.ai/blog/claude-code-workflow-engine/
+## 5. <https://futuresearch.ai/blog/claude-code-workflow-engine/>
 
 **Content Summary**: Blog on using Claude Code as workflow engine with markdown skills, subagents, filesystem polling, and GitHub storage. Covers orchestration without formal DAGs, resilience via AI judgment, and quirks like anti-coding instructions.
 
@@ -848,7 +926,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Extend infrastructure/tenants/3-workloads/ with skill-based CronJobs. Use subagents for tasks like "Kubernetes specialist" for manifest validation. Integrate with monitoring for workflow visibility. Start with non-critical workflows (e.g., documentation generation).
 
-## 6. https://github.com/anthropics/claude-code/issues/5045
+## 6. <https://github.com/anthropics/claude-code/issues/5045>
 
 **Content Summary**: GitHub issue proposing Kubernetes orchestration for Claude Code recursive execution. Covers CRDs, operators, scaling, service mesh, monitoring, security, and multi-cloud deployment.
 
@@ -858,7 +936,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use as inspiration for future enhancements. Implement basic operator in control-plane/controllers/ for AI job management. Focus on phases 1-2 first (basic deployment, CRDs).
 
-## 7. https://github.com/kelos-dev/kelos
+## 7. <https://github.com/kelos-dev/kelos>
 
 **Content Summary**: Kelos framework for Kubernetes-native orchestration of autonomous AI coding agents. Supports primitives like TaskSpawner, agent chaining, MCP servers.
 
@@ -868,7 +946,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Add Kelos to control-plane/controllers/ via HelmRelease. Use for agent-driven infrastructure automation, integrated with Flux dependsOn.
 
-## 8. https://github.com/RchGrav/claudebox
+## 8. <https://github.com/RchGrav/claudebox>
 
 **Content Summary**: Docker environment for running Claude Code in isolated containers with pre-configured profiles.
 
@@ -878,7 +956,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use claudebox image in CronJob manifests for AI tasks, replacing custom Dockerfiles.
 
-## 9. https://github.com/lima-vm/lima
+## 9. <https://github.com/lima-vm/lima>
 
 **Content Summary**: Linux virtual machines tool for running containers, focusing on macOS/Linux development.
 
@@ -888,7 +966,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Recommend in docs/ for contributors using macOS, for testing control plane locally.
 
-## 10. https://github.com/lloydchang/ai-agents-sandbox
+## 10. <https://github.com/lloydchang/ai-agents-sandbox>
 
 **Content Summary**: Playground for multiple AI agents in local garden, with skills, workflows, infrastructure emulator.
 
@@ -898,7 +976,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Adapt sandbox concepts to infrastructure/tenants/3-workloads/ for AI-assisted ops.
 
-## 11. https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+## 11. <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills>
 
 **Content Summary**: Skills directory with markdown files for temporal-workflow, backstage-catalog, ai-agent-orchestration, etc.
 
@@ -908,7 +986,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 10.
 
-## 12. https://github.com/rancher/opni
+## 12. <https://github.com/rancher/opni>
 
 **Content Summary**: Multi-cluster observability with AIOps for logging, monitoring, tracing.
 
@@ -918,7 +996,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate with existing Prometheus/Grafana via Helm in control-plane/monitoring/kustomization.yaml.
 
-## 13. https://github.com/sylvinus/agent-vm
+## 13. <https://github.com/sylvinus/agent-vm>
 
 **Content Summary**: Run AI agents in safe VMs scoped to local folders.
 
@@ -928,7 +1006,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use for local testing of AI integrations.
 
-## 14. https://github.com/VoltAgent/awesome-claude-code-subagents/blob/main/categories/03-infrastructure/kubernetes-specialist.md
+## 14. <https://github.com/VoltAgent/awesome-claude-code-subagents/blob/main/categories/03-infrastructure/kubernetes-specialist.md>
 
 **Content Summary**: Subagent definition for Kubernetes specialist with communication protocol, development workflow, assessment phases.
 
@@ -938,7 +1016,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate as skill in AI workflows.
 
-## 15. https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main
+## 15. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main>
 
 **Content Summary**: Collection of 100+ Claude Code subagents, categorized by use cases.
 
@@ -948,7 +1026,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Reference for latest Agentgateway features and integration guides.
 
-## 16. https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories
+## 16. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories>
 
 **Content Summary**: Categories directory with subdirs for different domains.
 
@@ -958,7 +1036,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 15.
 
-## 17. https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories/03-infrastructure
+## 17. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories/03-infrastructure>
 
 **Content Summary**: Infrastructure subagents including Kubernetes specialist, Docker expert, cloud architects.
 
@@ -968,7 +1046,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 15.
 
-## 18. https://hub.docker.com/r/gendosu/claude-code-docker
+## 18. <https://hub.docker.com/r/gendosu/claude-code-docker>
 
 **Content Summary**: Docker image for Claude Code.
 
@@ -978,7 +1056,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use in CronJob manifests.
 
-## 19. https://itnext.io/stop-ai-from-hallucinating-your-kubernetes-yaml-10142f685a8b
+## 19. <https://itnext.io/stop-ai-from-hallucinating-your-kubernetes-yaml-10142f685a8b>
 
 **Content Summary**: AI models (LLMs) can produce Kubernetes manifests with deprecated API versions, missing required fields, or incorrect structure because training data may be outdated and models do not validate against live Kubernetes schemas. Practical workflows using kubectl apply --dry-run=client, API version lists, and static validators catch these issues before deployment.
 
@@ -994,7 +1072,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI pipelines for AI-generated manifests. Add to docs/ as standard procedure for operator-generated YAML.
 
-## 20. https://komodor.com/blog/the-ai-model-showdown-llama-3-3-70b-vs-claude-3-5-sonnet-v2-vs-deepseek-r1-v3/
+## 20. <https://komodor.com/blog/the-ai-model-showdown-llama-3-3-70b-vs-claude-3-5-sonnet-v2-vs-deepseek-r1-v3/>
 
 **Content Summary**: Evaluation of AI models (LLaMA, Claude, DeepSeek) on Kubernetes challenges like config validation, diagnostics.
 
@@ -1004,7 +1082,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use Claude models for agent tasks.
 
-## 21. https://medium.com/@aravindkygo/managing-kubernetes-like-a-pro-with-claude-desktop-mcp-protocol-an-ai-driven-approach-4d1524ad3da9
+## 21. <https://medium.com/@aravindkygo/managing-kubernetes-like-a-pro-with-claude-desktop-mcp-protocol-an-ai-driven-approach-4d1524ad3da9>
 
 **Content Summary**: Articles with similar titles describe using Model Context Protocol (MCP) or AI agents to manage Kubernetes declaratively, but concrete integration details weren't available due to blocking.
 
@@ -1018,7 +1096,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Implement MCP layers with approval workflows in control plane.
 
-## 22. https://medium.com/@balaganesaneee/connect-claude-mcp-to-kubernetes-on-windows-with-docker-desktop-step-by-step-43c07a48bcc2
+## 22. <https://medium.com/@balaganesaneee/connect-claude-mcp-to-kubernetes-on-windows-with-docker-desktop-step-by-step-43c07a48bcc2>
 
 **Content Summary**: Raising MCP integration topics implies leveraging containerized Windows environments; known tools like Docker Desktop already provide Kubernetes contexts for local development. For AI augmentation, local Kubernetes contexts can host MCP agent testing safely before production.
 
@@ -1032,7 +1110,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use Docker Desktop for local MCP testing in development workflows.
 
-## 23. https://medium.com/@dan.avila7/running-claude-code-agents-in-docker-containers-for-complete-isolation-63036a2ef6f4
+## 23. <https://medium.com/@dan.avila7/running-claude-code-agents-in-docker-containers-for-complete-isolation-63036a2ef6f4>
 
 **Content Summary**: Running AI agents like Claude Code in containers is a known pattern for process isolation and resource control. Container images enforce namespace, privileges, and resource limits, preventing runaway or unauthorized access.
 
@@ -1046,7 +1124,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Standardize containerized AI workloads in infrastructure/tenants/3-workloads/.
 
-## 24. https://medium.com/@jinvishal2011/ai-driven-kubernetes-management-using-claude-desktop-model-context-protocol-mcp-a353d68956b2
+## 24. <https://medium.com/@jinvishal2011/ai-driven-kubernetes-management-using-claude-desktop-model-context-protocol-mcp-a353d68956b2>
 
 **Content Summary**: AI can orchestrate Kubernetes resources, but without schema validation or human approval controls, generated configurations may breach policies or introduce insecure settings.
 
@@ -1060,7 +1138,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate policy checks into AI-generated manifest pipelines.
 
-## 25. https://medium.com/@sreekanthmreddy2025/supercharge-kubernetes-with-claude-desktop-mcp-06ade928cd13
+## 25. <https://medium.com/@sreekanthmreddy2025/supercharge-kubernetes-with-claude-desktop-mcp-06ade928cd13>
 
 **Content Summary**: Tools like AI desktop assistants or LSPs provide real-time validation and autocompletion against Kubernetes schemas; similar capabilities apply to MCP workflows.
 
@@ -1074,7 +1152,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Recommend IDE plugins for operator manifest creation.
 
-## 26. https://mcpmarket.com/tools/skills/kubernetes-deployment-creator
+## 26. <https://mcpmarket.com/tools/skills/kubernetes-deployment-creator>
 
 **Content Summary**: Many Kubernetes skill definitions (CRD and manifest generation) focus on automating standard tasks. Reliable alternatives include static validators and IDE plugins.
 
@@ -1091,7 +1169,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI for all manifests, especially AI-generated ones.
 
-## 27. https://mcpmarket.com/tools/skills/kubernetes-infrastructure
+## 27. <https://mcpmarket.com/tools/skills/kubernetes-infrastructure>
 
 **Content Summary**: Many Kubernetes skill definitions (CRD and manifest generation) focus on automating standard tasks. Reliable alternatives include static validators and IDE plugins.
 
@@ -1108,7 +1186,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI for all manifests, especially AI-generated ones.
 
-## 28. https://mcpmarket.com/tools/skills/kubernetes-manager
+## 28. <https://mcpmarket.com/tools/skills/kubernetes-manager>
 
 **Content Summary**: Many Kubernetes skill definitions (CRD and manifest generation) focus on automating standard tasks. Reliable alternatives include static validators and IDE plugins.
 
@@ -1125,7 +1203,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI for all manifests, especially AI-generated ones.
 
-## 29. https://mcpmarket.com/tools/skills/kubernetes-kubectl-debugging
+## 29. <https://mcpmarket.com/tools/skills/kubernetes-kubectl-debugging>
 
 **Content Summary**: Many Kubernetes skill definitions (CRD and manifest generation) focus on automating standard tasks. Reliable alternatives include static validators and IDE plugins.
 
@@ -1142,7 +1220,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI for all manifests, especially AI-generated ones.
 
-## 30. https://mcpmarket.com/tools/skills/kubernetes-operations
+## 30. <https://mcpmarket.com/tools/skills/kubernetes-operations>
 
 **Content Summary**: Many Kubernetes skill definitions (CRD and manifest generation) focus on automating standard tasks. Reliable alternatives include static validators and IDE plugins.
 
@@ -1159,7 +1237,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate kubeconform into CI for all manifests, especially AI-generated ones.
 
-## 31. https://mukherjee-aniket.medium.com/building-an-end-to-end-cloud-platform-in-hours-a-devsecops-experience-with-claude-code-39e3b067e6e0
+## 31. <https://mukherjee-aniket.medium.com/building-an-end-to-end-cloud-platform-in-hours-a-devsecops-experience-with-claude-code-39e3b067e6e0>
 
 **Content Summary**: Articles on DevSecOps with AI integration emphasize automated security boundary enforcement, manifest testing, and CI gating.
 
@@ -1173,7 +1251,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Add DevSecOps checks to AI-generated manifest pipelines.
 
-## 32. https://opni.io/
+## 32. <https://opni.io/>
 
 **Content Summary**: Opni observability platform.
 
@@ -1183,7 +1261,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 12.
 
-## 33. https://tldr.tech/devops/2025-02-26
+## 33. <https://tldr.tech/devops/2025-02-26>
 
 **Content Summary**: Newsletter on Claude 3.7, Git config, K8s best practices, resource orchestrator (Kro).
 
@@ -1193,7 +1271,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Update docs/ with best practices, evaluate Kro for control plane.
 
-## 34. https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf
+## 34. <https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf>
 
 **Content Summary**: PDF with binary content (likely Claude Code docs or paper).
 
@@ -1203,7 +1281,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use as reference for AI integrations.
 
-## 35. https://www.google.com/search?q=claude+code+in+kubernetes&oq=claude+code+in+kubernetes
+## 35. <https://www.google.com/search?q=claude+code+in+kubernetes&oq=claude+code+in+kubernetes>
 
 **Content Summary**: Google search results page.
 
@@ -1224,11 +1302,13 @@ The analysis of ai-agents-sandbox and related distributed systems research revea
 #### 1. Consensus Algorithms Applied to Agent Coordination
 
 **From Paxos/Raft to Agent Consensus**:
+
 - **Traditional Paxos**: Ensures consistency across replicated state machines
 - **Agent Adaptation**: Agents use similar protocols to agree on infrastructure state
 - **Two-Phase Commit for Agents**: Agents propose changes, reach quorum, then execute
 
 **Implementation in GitOps Context**:
+
 ```yaml
 # Agent consensus for infrastructure changes
 apiVersion: consensus.gitops.io/v1alpha1
@@ -1253,6 +1333,7 @@ spec:
 **Implementation Patterns**:
 
 1. **Micro-Feedback Loops** (seconds):
+
    ```bash
    # Agent continuously monitors local resource state
    while true; do
@@ -1277,6 +1358,7 @@ spec:
 #### 3. Self-Organizing Agent Swarms
 
 **Inspired by Natural Systems**:
+
 - **Ant Colony Optimization**: Agents leave pheromone trails (state markers) for successful actions
 - **Flock Behavior**: Local alignment rules create global coordination
 - **Consensus Through Emergence**: Global patterns emerge from local interactions
@@ -1380,6 +1462,7 @@ data:
 #### 3. Tight Feedback Loop Implementation
 
 **Micro-Loop (Local Optimization)**:
+
 ```python
 class LocalOptimizer:
     def __init__(self, agent_id, namespace):
@@ -1412,6 +1495,7 @@ class LocalOptimizer:
 ```
 
 **Meso-Loop (Agent Coordination)**:
+
 ```python
 class AgentConsensus:
     def __init__(self, agent_network):
@@ -1486,21 +1570,25 @@ spec:
 ### Benefits of Consensus-Based Agent Orchestration
 
 #### 1. **True Tight Feedback Loops**
+
 - **Local Decision Making**: Agents make decisions based on local state without central coordination
 - **Rapid Response**: No waiting for central orchestrator approval
 - **Continuous Optimization**: Always-on feedback loops at multiple time scales
 
 #### 2. **Fault Tolerance and Resilience**
+
 - **No Single Point of Failure**: Consensus continues even if some agents fail
 - **Self-Healing**: Agents automatically re-form consensus groups
 - **Graceful Degradation**: System continues operating with reduced agent capacity
 
 #### 3. **Scalability**
+
 - **Horizontal Agent Scaling**: Add more agents without changing architecture
 - **Distributed Load**: Decision making distributed across all agents
 - **Local Resource Usage**: Agents primarily use local resources
 
 #### 4. **Coordinated Intelligence**
+
 - **Swarm Behavior**: Complex global behavior from simple local rules
 - **Adaptive Learning**: Agents learn successful patterns and share through consensus
 - **Self-Organization**: Agents automatically organize into efficient configurations
@@ -1508,6 +1596,7 @@ spec:
 ### Implementation Roadmap
 
 #### Phase 1: Foundation (Immediate)
+
 1. **Implement Basic Agent Consensus Protocol**
    - Raft-based consensus for critical decisions
    - Agent discovery and registration
@@ -1519,6 +1608,7 @@ spec:
    - Fast failure detection and recovery
 
 #### Phase 2: Advanced Features (3-6 months)
+
 1. **Multi-Cloud Consensus**
    - Cross-cloud agent communication
    - Cloud AI-specific consensus rules
@@ -1530,6 +1620,7 @@ spec:
    - Swarm optimization techniques
 
 #### Phase 3: Production Readiness (6-12 months)
+
 1. **Enterprise Features**
    - Audit trails for consensus decisions
    - Compliance integration
@@ -1543,16 +1634,19 @@ spec:
 ### Security Considerations
 
 #### 1. **Consensus Security**
+
 - **Vote Validation**: Ensure only authorized agents can vote
 - **Proposal Authentication**: Verify proposal authenticity
 - **Consensus Integrity**: Prevent consensus manipulation attacks
 
 #### 2. **Agent Isolation**
+
 - **Sandboxed Execution**: Agents run in isolated environments
 - **Minimal Privilege**: Each agent has minimal required permissions
 - **Audit Logging**: All agent actions logged and auditable
 
 #### 3. **Network Security**
+
 - **Encrypted Communication**: All agent-to-agent communication encrypted
 - **Identity Verification**: Agent identity verification before consensus
 - **Network Segmentation**: Agent communication restricted to secure channels
@@ -1584,7 +1678,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 37. https://www.linkedin.com/posts/donald-lutz-5a9b0b2_using-claude-code-to-pilot-kubernetes-on-activity-7434973713118236672-GmVA
+## 37. <https://www.linkedin.com/posts/donald-lutz-5a9b0b2_using-claude-code-to-pilot-kubernetes-on-activity-7434973713118236672-GmVA>
 
 **Content Summary**: Community discussions often highlight patterns like AI tools helping generate Kubernetes manifests but frequently needing edits due to outdated API versions; Validation tools (kubeconform, kubeval) integrated into workflows as a mitigation layer; Tools like Monokle offering AI-assisted YAML creation with validation policies.
 
@@ -1596,7 +1690,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 38. https://www.linkedin.com/posts/samkeen_genai-softwaredevelopment-claudecode-activity-7337851637065011200-gj39
+## 38. <https://www.linkedin.com/posts/samkeen_genai-softwaredevelopment-claudecode-activity-7337851637065011200-gj39>
 
 **Content Summary**: Community discussions often highlight patterns like AI tools helping generate Kubernetes manifests but frequently needing edits due to outdated API versions; Validation tools (kubeconform, kubeval) integrated into workflows as a mitigation layer; Tools like Monokle offering AI-assisted YAML creation with validation policies.
 
@@ -1608,7 +1702,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 39. https://www.pulsemcp.com/servers/blankcut-kubernetes-claude
+## 39. <https://www.pulsemcp.com/servers/blankcut-kubernetes-claude>
 
 **Content Summary**: MCP server for Kubernetes integration with Claude, correlating data for GitOps troubleshooting.
 
@@ -1618,7 +1712,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Integrate as MCP tool for agents.
 
-## 40. https://www.reddit.com/r/ClaudeAI/comments/1qzjnee/run_claude_code_safely_in_kubernetes/
+## 40. <https://www.reddit.com/r/ClaudeAI/comments/1qzjnee/run_claude_code_safely_in_kubernetes/>
 
 **Content Summary**: Community discussions often highlight patterns like AI tools helping generate Kubernetes manifests but frequently needing edits due to outdated API versions; Validation tools (kubeconform, kubeval) integrated into workflows as a mitigation layer; Tools like Monokle offering AI-assisted YAML creation with validation policies.
 
@@ -1630,7 +1724,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 41. https://www.reddit.com/r/kubernetes/comments/1imdtui/how_good_can_deepseek_llama_and_claude_get_at/
+## 41. <https://www.reddit.com/r/kubernetes/comments/1imdtui/how_good_can_deepseek_llama_and_claude_get_at/>
 
 **Content Summary**: Community discussions often highlight patterns like AI tools helping generate Kubernetes manifests but frequently needing edits due to outdated API versions; Validation tools (kubeconform, kubeval) integrated into workflows as a mitigation layer; Tools like Monokle offering AI-assisted YAML creation with validation policies.
 
@@ -1642,7 +1736,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 42. https://www.reddit.com/r/kubernetes/comments/1qla764/using_claude_code_to_help_investigate_kubernetes/
+## 42. <https://www.reddit.com/r/kubernetes/comments/1qla764/using_claude_code_to_help_investigate_kubernetes/>
 
 **Content Summary**: Community discussions often highlight patterns like AI tools helping generate Kubernetes manifests but frequently needing edits due to outdated API versions; Validation tools (kubeconform, kubeval) integrated into workflows as a mitigation layer; Tools like Monokle offering AI-assisted YAML creation with validation policies.
 
@@ -1654,7 +1748,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for integrating validation tools with AI workflows.
 
-## 43. https://www.techflowpost.com/en-US/article/30652
+## 43. <https://www.techflowpost.com/en-US/article/30652>
 
 **Content Summary**: Article on AI for K8s (content not fully loaded).
 
@@ -1664,7 +1758,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for best practices.
 
-## 44. https://www.youtube.com/watch?v=6nL_9En1ToA
+## 44. <https://www.youtube.com/watch?v=6nL_9En1ToA>
 
 **Content Summary**: Video titled "Claude + KubeRocketAI: Go Developer for Kubernetes Operator in 1 Min" - appears to demonstrate using Claude Code (or Claude AI) with KubeRocketAI to develop Go-based Kubernetes operators quickly. Likely shows rapid code generation for K8s operators using AI assistance.
 
@@ -1674,7 +1768,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for operators developing custom controllers. Could inspire using Claude Code for generating operator code in the control plane, with proper review and testing.
 
-## 45. https://www.youtube.com/watch?v=TG0bzU6ehWk
+## 45. <https://www.youtube.com/watch?v=TG0bzU6ehWk>
 
 **Content Summary**: Video tutorial demonstrating step-by-step use of Claude Code to generate Kubernetes deployment files for a Node.js Express application. Shows creating a simple Node.js app, using Claude Code to generate deployment.yaml, service.yaml, and configmap.yaml files, building Docker image, and deploying to Kubernetes cluster.
 
@@ -1684,7 +1778,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Integrate Claude Code as a development tool for operators to generate Flux-compatible manifests. Add to infrastructure/tenants/3-workloads/ as an optional CronJob for manifest generation tasks, with human review required before commit.
 
-## 46. https://news.ycombinator.com/item?id=47066093
+## 46. <https://news.ycombinator.com/item?id=47066093>
 
 **Content Summary**: HN discussion on Claude Code in K8s.
 
@@ -1694,7 +1788,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for real-world issues.
 
-## 47. https://azure.microsoft.com/en-us/products/ai-foundry
+## 47. <https://azure.microsoft.com/en-us/products/ai-foundry>
 
 **Content Summary**: Azure AI Foundry for AI development.
 
@@ -1704,7 +1798,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Use for agent development if multi-cloud includes Azure.
 
-## 48. https://theia-ide.org/
+## 48. <https://theia-ide.org/>
 
 **Content Summary**: Theia web IDE.
 
@@ -1714,7 +1808,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Optional addition to infrastructure/tenants/3-workloads/ for operator tools.
 
-## 49. https://blog.christianposta.com/enterprise-mcp-sso-with-microsoft-entra-and-agentgateway/
+## 49. <https://blog.christianposta.com/enterprise-mcp-sso-with-microsoft-entra-and-agentgateway/>
 
 **Content Summary**: Blog post on securing MCP servers with Single Sign-On using Microsoft Entra ID (Azure AD) and Agentgateway. Discusses enterprise authentication challenges, OAuth limitations, and practical implementation for MCP SSO. Covers testing MCP SSO with Entra, using custom MCP clients, and caveats for MCP Inspector.
 
@@ -1724,7 +1818,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Implement Entra ID integration with Agentgateway for MCP server authentication in the control plane. Add to infrastructure/tenants/3-workloads/ as part of security hardening for AI operations.
 
-## 50. https://www.youtube.com/watch?v=_DxOmM6biQ4
+## 50. <https://www.youtube.com/watch?v=_DxOmM6biQ4>
 
 **Content Summary**: YouTube video demo by Christian Posta on connecting AI agents (like Claude, VS Code) to external MCP servers hosted by third parties (e.g., Databricks), while enforcing internal enterprise SSO policies. Demonstrates using Agentgateway Enterprise for cross-domain identity authorization, token exchange, and policy enforcement. Shows configuration of HTTP routes, OAuth alignment with MCP specs, integration with enterprise IDPs (like Keycloak or Microsoft Entra), and authorization workflows for accessing external MCP tools.
 
@@ -1734,7 +1828,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Implement Agentgateway for routing external MCP server connections through enterprise SSO. Configure in infrastructure/tenants/3-workloads/ with HTTP routes and token exchange policies. Enables secure access to external AI tools while applying internal enterprise policies.
 
-## 51. https://aihackathon.dev/
+## 51. <https://aihackathon.dev/>
 
 **Content Summary**: Hackathon website for MCP and AI Agents, focused on building MCP servers and AI agents. Includes competition categories like Secure & Govern MCP, Building Cool Agents, Explore Agent Registry, and Open Source Contributions. Features judges, key dates (submissions until April 3, 2026), and $5,000 prize pool.
 
@@ -1744,7 +1838,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for building custom MCP servers for the control plane. Encourage team participation to develop GitOps-specific AI agents and MCP integrations.
 
-## 52. https://aihackathon.dev/#about
+## 52. <https://aihackathon.dev/#about>
 
 **Content Summary**: About section of the hackathon site, detailing the event's focus on MCP (Model Context Protocol) and AI agents.
 
@@ -1754,7 +1848,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Use as reference for understanding MCP ecosystem.
 
-## 53. https://aihackathon.dev/#judges
+## 53. <https://aihackathon.dev/#judges>
 
 **Content Summary**: Lists hackathon judges including Kelsey Hightower, Alan Blount, Dmytro Rashko, Nathan Taber, Carlos Santana, Keith Mattix, Chris Aniszczyk, Sebastian Maniak, Lin Sun, Christian Posta, and Michael Levan.
 
@@ -1764,7 +1858,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Reference for networking with AI/K8s experts.
 
-## 54. https://aihackathon.dev/#schedule
+## 54. <https://aihackathon.dev/#schedule>
 
 **Content Summary**: Hackathon schedule and key dates.
 
@@ -1774,7 +1868,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 55. https://aihackathon.dev/#prizes
+## 55. <https://aihackathon.dev/#prizes>
 
 **Content Summary**: Details on prizes and awards, total prize pool $5,000.
 
@@ -1784,7 +1878,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 56. https://aihackathon.dev/submission/
+## 56. <https://aihackathon.dev/submission/>
 
 **Content Summary**: Submission page for hackathon entries.
 
@@ -1794,7 +1888,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 57. https://aihackathon.dev/submissions/
+## 57. <https://aihackathon.dev/submissions/>
 
 **Content Summary**: Submissions page for hackathon.
 
@@ -1804,7 +1898,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 58. https://aihackathon.dev/terms/
+## 58. <https://aihackathon.dev/terms/>
 
 **Content Summary**: Terms and conditions for the hackathon.
 
@@ -1814,7 +1908,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 59. https://github.com/kagent-dev/kagent
+## 59. <https://github.com/kagent-dev/kagent>
 
 **Content Summary**: Open source project for Cloud Native Agentic AI. Framework that runs AI agents inside Kubernetes clusters to automate DevOps and platform engineering tasks. Includes core concepts, architecture, and roadmap.
 
@@ -1824,7 +1918,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent orchestration. Use for automating DevOps workflows in the multi-cloud setup.
 
-## 60. https://github.com/kagent-dev/kagent/pull/1210
+## 60. <https://github.com/kagent-dev/kagent/pull/1210>
 
 **Content Summary**: Pull request in kagent repository.
 
@@ -1834,7 +1928,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Review for potential improvements to agent frameworks.
 
-## 61. https://github.com/kagent-dev/kagent/pull/1213
+## 61. <https://github.com/kagent-dev/kagent/pull/1213>
 
 **Content Summary**: Pull request in kagent repository.
 
@@ -1844,7 +1938,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Review for potential improvements to agent frameworks.
 
-## 62. https://github.com/agentgateway
+## 62. <https://github.com/agentgateway>
 
 **Content Summary**: GitHub repository for Agentgateway project.
 
@@ -1854,7 +1948,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Use in control-plane/controllers/ for secure AI traffic routing.
 
-## 63. https://github.com/agentregistry
+## 63. <https://github.com/agentregistry>
 
 **Content Summary**: GitHub repository for Agent Registry.
 
@@ -1864,7 +1958,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Explore for agent discovery in the control plane.
 
-## 64. https://discord.gg/H28ZKWG2mX
+## 64. <https://discord.gg/H28ZKWG2mX>
 
 **Content Summary**: Discord community invite for the hackathon/project.
 
@@ -1874,7 +1968,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Join for discussions on AI integrations.
 
-## 65. https://legal.solo.io/#privacy-policy
+## 65. <https://legal.solo.io/#privacy-policy>
 
 **Content Summary**: Privacy policy for solo.io legal page.
 
@@ -1884,7 +1978,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 66. https://legal.solo.io/#website-terms-of-use
+## 66. <https://legal.solo.io/#website-terms-of-use>
 
 **Content Summary**: Website terms of use for solo.io.
 
@@ -1894,7 +1988,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: N/A.
 
-## 72. https://github.blog/changelog/2025-06-13-copilot-code-review-customization-for-all/
+## 72. <https://github.blog/changelog/2025-06-13-copilot-code-review-customization-for-all/>
 
 **Content Summary**: GitHub Changelog post announcing that Copilot code review now supports custom instructions, matching those used by Copilot Chat and coding agent. This enables personalized and consistent AI reviews across workflows.
 
@@ -1904,7 +1998,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Enable custom instructions for Copilot code reviews in the repository to ensure consistent reviews aligned with GitOps best practices. Extend this approach to customize agent skills, MCPs, and AI agents for infrastructure-specific tasks, maintaining the same level of personalization and consistency as Copilot's customization feature.
 
-## 73. https://www.solo.io/request-support-agentgateway-kagent-agentregistry
+## 73. <https://www.solo.io/request-support-agentgateway-kagent-agentregistry>
 
 **Content Summary**: Solo.io offers production support for agentgateway, kagent, and Agent Registry. Designed for teams building or scaling agentic applications on open source distributions, providing enterprise-grade help for agentic infrastructure.
 
@@ -1914,11 +2008,12 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Integration Approach**: Use Solo.io support when deploying agentgateway or kagent in production environments to ensure reliability and get expert assistance with multi-cloud infrastructure integration.
 
-## 74. https://github.com/kagent-dev/kagent
+## 74. <https://github.com/kagent-dev/kagent>
 
 **Content Summary**: Kagent is a cloud-native framework for orchestrating autonomous AI coding agents in Kubernetes. Supports primitives like TaskSpawner, agent chaining, and MCP servers for DevOps and platform engineering tasks.
 
 **Architecture and Capabilities**:
+
 - **TaskSpawner**: Advanced scheduling and task management beyond simple CronJobs
 - **Agent Chaining**: Complex multi-agent workflows with dependencies and conditional execution
 - **MCP Integration**: Built-in Model Context Protocol server support for standardized tool communication
@@ -1932,12 +2027,14 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 **Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn. Consider as evolution path from current basic agent orchestration to enterprise-grade agentic infrastructure.
 
 **Migration Path**:
+
 1. **Phase 1**: Deploy kagent alongside current implementation
 2. **Phase 2**: Migrate CronJobs to TaskSpawners for better scheduling
 3. **Phase 3**: Implement agent chaining for complex workflows
 4. **Phase 4**: Leverage MCP integration for standardized tool coordination
 
 **Example Integration**:
+
 ```yaml
 # Replace current CronJobs with kagent TaskSpawner
 apiVersion: kagent.io/v1alpha1
@@ -1962,6 +2059,7 @@ spec:
 ```
 
 **Benefits over Current Implementation**:
+
 - Sophisticated scheduling beyond simple CronJob patterns
 - Dynamic agent chaining that adapts to results
 - Built-in error handling and retry logic
@@ -1969,7 +2067,7 @@ spec:
 - Standardized MCP protocol for agent-to-tool communication
 - Enterprise features: monitoring, auditing, scaling support
 
-## 75. https://www.solo.io/resources/lab/introduction-to-agentregistry
+## 75. <https://www.solo.io/resources/lab/introduction-to-agentregistry>
 
 **Content Summary**: Free technical lab introducing agentregistry, teaching how to curate, publish, and deploy MCP servers and agent skills for unified management of AI artifacts.
 
@@ -1979,7 +2077,7 @@ spec:
 
 **Integration Approach**: Use the lab to train operators on deploying agentregistry in the control plane for managing MCP servers and skills.
 
-## 76. https://www.cloudnativedeepdive.com/routing-ai-traffic-from-your-ide-through-agentgateway-wit/
+## 76. <https://www.cloudnativedeepdive.com/routing-ai-traffic-from-your-ide-through-agentgateway-wit/>
 
 **Content Summary**: Tutorial on routing AI traffic from IDE (VSCode) through agentgateway for observation and security. Covers configuration for secure AI traffic routing.
 
@@ -1989,7 +2087,7 @@ spec:
 
 **Integration Approach**: Implement agentgateway routing for IDE-based AI tools in development workflows, ensuring traffic passes through secure gateways before reaching APIs.
 
-## 77. https://www.truefoundry.com/agent-gateway
+## 77. <https://www.truefoundry.com/agent-gateway>
 
 **Content Summary**: Agent Gateway as unified control plane for AI workflows, compatible with any agent framework, providing governance and monitoring for production AI agents.
 
@@ -1999,7 +2097,7 @@ spec:
 
 **Integration Approach**: Integrate TrueFoundry's Agent Gateway into infrastructure/tenants/3-workloads/ for centralized control of AI agents and workflows.
 
-## 78. https://thenewstack.io/solo-io-open-sources-agentregistry-with-support-for-agent-skills/
+## 78. <https://thenewstack.io/solo-io-open-sources-agentregistry-with-support-for-agent-skills/>
 
 **Content Summary**: Solo.io open sources agentregistry with support for Agent Skills, a centralized registry for AI applications and artifacts, serving as single source of truth for organizations using agents.
 
@@ -2009,7 +2107,7 @@ spec:
 
 **Integration Approach**: Deploy agentregistry in the control plane to manage and deploy AI skills and MCP servers for infrastructure automation.
 
-## 79. https://www.solo.io/resources/video/building-an-agent-gateway-to-support-mcp-at-scale
+## 79. <https://www.solo.io/resources/video/building-an-agent-gateway-to-support-mcp-at-scale>
 
 **Content Summary**: Video on building agent gateway to support MCP at scale, addressing challenges around tool registry, multiplexing, and authorization in enterprise environments.
 
@@ -2019,7 +2117,7 @@ spec:
 
 **Integration Approach**: Reference for implementing agentgateway at scale in the control plane, using for MCP tool management across clusters.
 
-## 80. https://www.devopsdigest.com/soloio-launches-agentregistry
+## 80. <https://www.devopsdigest.com/soloio-launches-agentregistry>
 
 **Content Summary**: Solo.io launches agentregistry, part of their agentic infrastructure platform including kagent, agentgateway, and agentregistry for connectivity, runtime, and registry capabilities.
 
@@ -2029,7 +2127,7 @@ spec:
 
 **Integration Approach**: Use agentregistry to provide registry capabilities for AI artifacts in the GitOps repo's infrastructure/tenants/.
 
-## 81. https://docs.litellm.ai/docs/a2a
+## 81. <https://docs.litellm.ai/docs/a2a>
 
 **Content Summary**: LiteLLM's Agent Gateway supporting A2A (Agent-to-Agent) protocol for invoking and managing agents with LLM API controls.
 
@@ -2039,7 +2137,7 @@ spec:
 
 **Integration Approach**: Integrate LiteLLM Agent Gateway for managing A2A communications between agents in the control plane.
 
-## 82. https://www.solo.io/resources/video/introducing-agent-gateway
+## 82. <https://www.solo.io/resources/video/introducing-agent-gateway>
 
 **Content Summary**: Video introducing Agent Gateway, demonstrating security, metrics, and tracing for AI agents using MCP and A2A protocols.
 
@@ -2049,7 +2147,7 @@ spec:
 
 **Integration Approach**: Use agentgateway for securing agent-to-agent and agent-to-tool communications in multi-cloud environments.
 
-## 83. https://www.linkedin.com/posts/ceposta_production-support-for-agentgateway-kagent-activity-7402021030136893440-u6BU/
+## 83. <https://www.linkedin.com/posts/ceposta_production-support-for-agentgateway-kagent-activity-7402021030136893440-u6BU/>
 
 **Content Summary**: LinkedIn post announcing production support for agentgateway, kagent, and Agent Registry by Solo.io.
 
@@ -2059,7 +2157,7 @@ spec:
 
 **Integration Approach**: Leverage Solo.io support for production deployments of these tools in the control plane.
 
-## 84. https://agentgateway.dev/docs/
+## 84. <https://agentgateway.dev/docs/>
 
 **Content Summary**: Documentation for agentgateway, an open source project for connecting, securing, and observing agent-to-agent and agent-to-tool communication across frameworks.
 
@@ -2069,7 +2167,7 @@ spec:
 
 **Integration Approach**: Follow docs for deploying agentgateway in Kubernetes for secure AI traffic routing.
 
-## 85. https://agentgateway.dev/docs/standalone/latest/
+## 85. <https://agentgateway.dev/docs/standalone/latest/>
 
 **Content Summary**: Standalone deployment docs for agentgateway, covering installation, configuration, and tutorials for local or server deployment.
 
@@ -2079,7 +2177,7 @@ spec:
 
 **Integration Approach**: Use for local development of agentgateway integrations before Kubernetes deployment.
 
-## 86. https://agentgateway.dev/docs/kubernetes/latest/
+## 86. <https://agentgateway.dev/docs/kubernetes/latest/>
 
 **Content Summary**: Kubernetes deployment docs for agentgateway, using control plane for lifecycle management with Gateway API.
 
@@ -2089,7 +2187,7 @@ spec:
 
 **Integration Approach**: Deploy agentgateway via Helm in infrastructure/tenants/3-workloads/ with Flux management.
 
-## 87. https://www.cloudnativedeepdive.com/tag/agentregistry/
+## 87. <https://www.cloudnativedeepdive.com/tag/agentregistry/>
 
 **Content Summary**: Collection of articles on agentregistry, covering introductions, tutorials, and integrations.
 
@@ -2099,7 +2197,7 @@ spec:
 
 **Integration Approach**: Reference for best practices in deploying and using agentregistry.
 
-## 88. https://www.solo.io/resources/video/solo-enterprise-for-agentgateway-demo-on-behalf-of
+## 88. <https://www.solo.io/resources/video/solo-enterprise-for-agentgateway-demo-on-behalf-of>
 
 **Content Summary**: Video demo of Solo Enterprise for agentgateway, showing enterprise features for AI strategy.
 
@@ -2109,7 +2207,7 @@ spec:
 
 **Integration Approach**: Evaluate Solo Enterprise for agentgateway in production deployments.
 
-## 89. https://www.solo.io/blog/introducing-solo-enterprise-for-agentgateway
+## 89. <https://www.solo.io/blog/introducing-solo-enterprise-for-agentgateway>
 
 **Content Summary**: Blog introducing Solo Enterprise for agentgateway, providing enterprise distributions with standardized API and governance.
 
@@ -2119,7 +2217,7 @@ spec:
 
 **Integration Approach**: Adopt Solo Enterprise for agentgateway in multi-cloud infrastructure for consistent AI access.
 
-## 90. https://www.solo.io/resources/video/ai-connectivity-secure-llms-agents-tools-agentgateway
+## 90. <https://www.solo.io/resources/video/ai-connectivity-secure-llms-agents-tools-agentgateway>
 
 **Content Summary**: Video on AI connectivity, securing LLMs, agents, and tools with agentgateway.
 
@@ -2129,7 +2227,7 @@ spec:
 
 **Integration Approach**: Implement agentgateway for securing AI connectivity in the control plane.
 
-## 91. https://agentgateway.dev/docs/standalone/latest/about/introduction/
+## 91. <https://agentgateway.dev/docs/standalone/latest/about/introduction/>
 
 **Content Summary**: Introduction to agentgateway, emphasizing enterprise-grade security, observability, and support for MCP and A2A protocols.
 
@@ -2139,7 +2237,7 @@ spec:
 
 **Integration Approach**: Use as foundation for understanding agentgateway before integration.
 
-## 92. https://arxiv.org/html/2508.03095v1
+## 92. <https://arxiv.org/html/2508.03095v1>
 
 **Content Summary**: ArXiv paper (title and abstract not fully loaded, but likely related to AI agents or protocols).
 
@@ -2149,7 +2247,7 @@ spec:
 
 **Integration Approach**: Reference for theoretical foundations of agent protocols.
 
-## 93. https://learn.microsoft.com/en-us/azure/api-center/agent-to-agent-overview
+## 93. <https://learn.microsoft.com/en-us/azure/api-center/agent-to-agent-overview>
 
 **Content Summary**: Overview of agent-to-agent communication in Azure API Center.
 
@@ -2159,7 +2257,7 @@ spec:
 
 **Integration Approach**: Use for Azure-specific agent integrations in the control plane.
 
-## 94. https://learn.microsoft.com/en-us/azure/api-center/register-manage-agents#register-agent
+## 94. <https://learn.microsoft.com/en-us/azure/api-center/register-manage-agents#register-agent>
 
 **Content Summary**: Guide for registering and managing agents in Azure API Center.
 
@@ -2169,7 +2267,7 @@ spec:
 
 **Integration Approach**: Follow for registering agents in Azure environments.
 
-## 95. https://learn.microsoft.com/en-us/azure/api-center/tutorials/register-apis
+## 95. <https://learn.microsoft.com/en-us/azure/api-center/tutorials/register-apis>
 
 **Content Summary**: Tutorial for registering APIs in Azure API Center.
 
@@ -2181,7 +2279,7 @@ spec:
 
 ## Local File References
 
-## 96. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/agent-orchestration-demo.md
+## 96. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/agent-orchestration-demo.md>
 
 **Content Summary**: Local markdown file demonstrating agent orchestration in the complete hub-spoke example.
 
@@ -2191,7 +2289,7 @@ spec:
 
 **Integration Approach**: Reference in docs as implementation example for agent orchestration.
 
-## 97. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-cronjobs
+## 97. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-cronjobs>
 
 **Content Summary**: Directory containing AI-powered cronjob examples.
 
@@ -2201,7 +2299,7 @@ spec:
 
 **Integration Approach**: Use as template for deploying AI cronjobs in infrastructure/tenants/3-workloads/.
 
-## 98. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml
+## 98. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml>
 
 **Content Summary**: YAML manifest for AI cronjobs.
 
@@ -2211,7 +2309,7 @@ spec:
 
 **Integration Approach**: Apply via Flux in the control plane.
 
-## 99. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-gateway
+## 99. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-gateway>
 
 **Content Summary**: Directory with AI gateway examples.
 
@@ -2221,7 +2319,7 @@ spec:
 
 **Integration Approach**: Use for deploying AI gateways in infrastructure/tenants/.
 
-## 100. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-gateway/gateway.yaml
+## 100. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-gateway/gateway.yaml>
 
 **Content Summary**: YAML manifest for AI gateway.
 
@@ -2231,7 +2329,7 @@ spec:
 
 **Integration Approach**: Deploy via Flux with dependsOn from network/cluster resources.
 
-## 101. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-validation
+## 101. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-validation>
 
 **Content Summary**: Directory with AI validation examples.
 
@@ -2241,7 +2339,7 @@ spec:
 
 **Integration Approach**: Integrate into CI/CD for AI-generated manifest validation.
 
-## 102. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-validation/validation.yaml
+## 102. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-validation/validation.yaml>
 
 **Content Summary**: YAML manifest for AI validation.
 
@@ -2251,7 +2349,7 @@ spec:
 
 **Integration Approach**: Use in infrastructure/tenants/3-workloads/ for automated validation.
 
-## 103. https://squad.is/
+## 103. <https://squad.is/>
 
 **Content Summary**: Squad is a collaborative AI platform that enables teams to work together with AI agents in a shared workspace, providing features like real-time collaboration, agent orchestration, and project management capabilities.
 
@@ -2261,7 +2359,7 @@ spec:
 
 **Integration Approach**: Consider for team-based infrastructure operations where multiple operators need to coordinate with AI assistants for manifest generation, troubleshooting, and change management.
 
-## 104. https://agentskills.io/
+## 104. <https://agentskills.io/>
 
 **Content Summary**: Agent Skills is a simple, open format for giving agents new capabilities and expertise. It provides a standardized way to create SKILL.md files that contain instructions, scripts, and resources that AI agents can load dynamically to improve performance on specialized tasks.
 
@@ -2271,7 +2369,7 @@ spec:
 
 **Integration Approach**: Consider as an advanced architecture for AI agent orchestration. Migrate from MCP tool registries to Agent Skills libraries for infrastructure management, security compliance, cost optimization, and disaster recovery. Skills can be developed, versioned, and deployed through the same GitOps pipeline used for infrastructure.
 
-## 105. https://github.com/lloydchang/gitops-infra-control-plane/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md
+## 105. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md>
 
 **Content Summary**: Comprehensive documentation analyzing the evolution from MCP (Model Context Protocol) to Agent Skills as the next level of AI agent orchestration for GitOps infrastructure control planes. Includes architectural implications, migration strategy, skill library design, and complete implementation examples.
 
@@ -2281,7 +2379,7 @@ spec:
 
 **Integration Approach**: Use as the primary reference for implementing Agent Skills in the GitOps control plane. Follow the 3-phase migration strategy (Skill Development → Hybrid Integration → Complete Migration) to transition from MCP to Agent Skills while maintaining system reliability and operational continuity.
 
-## 106. https://github.com/lloydchang/ai-agents-sandbox
+## 106. <https://github.com/lloydchang/ai-agents-sandbox>
 
 **Content Summary**: AI Agents Sandbox is a comprehensive playground for multiple AI agents featuring consensus-based orchestration, tight feedback loops, and self-organizing agent swarms. It implements a bottom-up orchestration model using distributed consensus algorithms (Raft-inspired) rather than top-down control, with 30 specialized skills including temporal workflows, compliance checking, cost optimization, security analysis, and infrastructure discovery.
 
@@ -2290,6 +2388,7 @@ spec:
 **Safety Assessment**: Safe - Implements comprehensive governance with safety-first principles, audit trails, human oversight for critical decisions, and idempotent operations. All agent actions are logged and traceable with explicit approval requirements for destructive operations.
 
 **Integration Approach**: Consider as reference implementation for consensus-based agent orchestration in GitOps control plane. The sandbox's architecture provides a blueprint for:
+
 - Distributed agent coordination without single points of failure
 - Fast feedback loops at multiple time scales (micro/meso/macro)
 - Self-organizing agent swarms using consensus algorithms
@@ -2297,6 +2396,7 @@ spec:
 - Coordinated behavior through collective behavior
 
 Key architectural patterns to adopt:
+
 1. **Consensus Protocol**: Raft-based agent coordination for infrastructure changes
 2. **Local Optimization**: Agents make decisions based on local state without central coordination
 3. **Skill-Based Modularity**: Each skill operates independently with fork context for isolation
@@ -2307,42 +2407,44 @@ Key architectural patterns to adopt:
 
 The following URLs were provided for inclusion in this analysis. Many of these resources have already been analyzed in the document above, but they are listed here for reference:
 
-- https://github.com/lloydchang/ai-agents-sandbox
-- https://github.com/backstage/backstage
-- https://backstage.io/
-- https://backstage.spotify.com/
-- https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway
-- https://backstage.spotify.com/learn/
-- https://roadie.io/backstage-spotify/
-- https://humanitec.com/spotify-backstage-everything-you-need-to-know
-- https://www.cortex.io/post/an-overview-of-spotify-backstage
-- https://www.opslevel.com/
-- https://backstage.io/docs/overview/what-is-backstage/
-- https://internaldeveloperplatform.org/developer-portals/backstage/
-- https://internaldeveloperplatform.org/
-- https://temporal.io/
-- https://github.com/temporalio
-- https://github.com/temporalio/temporal
-- https://github.com/temporalio/documentation
-- https://docs.temporal.io/
-- https://www.resolute.sh/
-- https://github.com/resolute-sh/resolute
-- https://github.com/kubernetes-sigs/agent-sandbox
-- https://github.com/Clause-Logic/exoclaw
-- https://github.com/Clause-Logic/exoclaw-temporal
-- https://github.com/Clause-Logic/exoclaw-github
-- https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+- <https://github.com/lloydchang/ai-agents-sandbox>
+- <https://github.com/backstage/backstage>
+- <https://backstage.io/>
+- <https://backstage.spotify.com/>
+- <https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway>
+- <https://backstage.spotify.com/learn/>
+- <https://roadie.io/backstage-spotify/>
+- <https://humanitec.com/spotify-backstage-everything-you-need-to-know>
+- <https://www.cortex.io/post/an-overview-of-spotify-backstage>
+- <https://www.opslevel.com/>
+- <https://backstage.io/docs/overview/what-is-backstage/>
+- <https://internaldeveloperplatform.org/developer-portals/backstage/>
+- <https://internaldeveloperplatform.org/>
+- <https://temporal.io/>
+- <https://github.com/temporalio>
+- <https://github.com/temporalio/temporal>
+- <https://github.com/temporalio/documentation>
+- <https://docs.temporal.io/>
+- <https://www.resolute.sh/>
+- <https://github.com/resolute-sh/resolute>
+- <https://github.com/kubernetes-sigs/agent-sandbox>
+- <https://github.com/Clause-Logic/exoclaw>
+- <https://github.com/Clause-Logic/exoclaw-temporal>
+- <https://github.com/Clause-Logic/exoclaw-github>
+- <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills>
 
 ## Detailed Analysis of Additional Resources
 
 ### Backstage Ecosystem - Developer Portals and Service Catalogs
 
 #### Backstage - Spotify's Open Platform for Building Developer Portals
-**Source**: https://github.com/backstage/backstage
+
+**Source**: <https://github.com/backstage/backstage>
 
 **Content Summary**: Backstage is an open-source platform for building developer portals created by Spotify and donated to the CNCF. It provides a unified interface for software catalogs, documentation, tooling, and workflows to reduce cognitive load and improve developer experience.
 
 **Key Features**:
+
 - **Software Catalog**: Centralized registry of services, APIs, and components
 - **TechDocs**: Integrated documentation system with automated publishing
 - **Plugins System**: Extensible architecture with 100+ community plugins
@@ -2352,6 +2454,7 @@ The following URLs were provided for inclusion in this analysis. Many of these r
 
 **Applicability to GitOps Control Plane**:
 High - Backstage provides the "developer portal" layer that would integrate with the GitOps infrastructure control plane. It could serve as the user interface for:
+
 - Service catalog of infrastructure components across multi-cloud
 - Documentation portal for Flux manifests and policies
 - Self-service workflows for deploying new infrastructure
@@ -2359,12 +2462,14 @@ High - Backstage provides the "developer portal" layer that would integrate with
 - Integration with existing monitoring and alerting
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Mature open-source project with strong community
 - Extensible plugin architecture
 - Proven production usage at scale (Spotify, Netflix, etc.)
 - Built-in RBAC and governance features
 
 **Integration Approach**:
+
 ```yaml
 # Flux-managed Backstage deployment
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -2389,7 +2494,8 @@ spec:
 ```
 
 #### Backstage Official Website
-**Source**: https://backstage.io/
+
+**Source**: <https://backstage.io/>
 
 **Content Summary**: Official documentation and community hub for Backstage, providing guides, tutorials, and plugin marketplace.
 
@@ -2400,7 +2506,8 @@ spec:
 **Integration Approach**: Use for learning Backstage deployment and customization for infrastructure portal.
 
 #### Spotify for Backstage - Enterprise Features
-**Source**: https://backstage.spotify.com/
+
+**Source**: <https://backstage.spotify.com/>
 
 **Content Summary**: Spotify's commercial offering providing enterprise-grade Backstage with additional features like premium plugins, support, and integrations.
 
@@ -2411,7 +2518,8 @@ spec:
 **Integration Approach**: Consider for production deployment if community edition limitations are encountered.
 
 #### What the Heck is Backstage Anyway?
-**Source**: https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway
+
+**Source**: <https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway>
 
 **Content Summary**: Spotify engineering blog post explaining the origins and purpose of Backstage, detailing how it solves developer experience challenges at scale.
 
@@ -2422,7 +2530,8 @@ spec:
 **Integration Approach**: Reference for justifying Backstage adoption in infrastructure teams.
 
 #### Backstage Learn - Educational Resources
-**Source**: https://backstage.spotify.com/learn/
+
+**Source**: <https://backstage.spotify.com/learn/>
 
 **Content Summary**: Learning resources and tutorials for Backstage adoption and usage.
 
@@ -2433,7 +2542,8 @@ spec:
 **Integration Approach**: Use for team training on infrastructure portal development.
 
 #### Roadie - Backstage as a Service
-**Source**: https://roadie.io/backstage-spotify/
+
+**Source**: <https://roadie.io/backstage-spotify/>
 
 **Content Summary**: Roadie provides managed Backstage instances with enterprise support, reducing operational overhead of self-hosted deployments.
 
@@ -2444,7 +2554,8 @@ spec:
 **Integration Approach**: Evaluate for faster time-to-value if self-hosting resources are limited.
 
 #### Humanitec - Spotify Backstage Overview
-**Source**: https://humanitec.com/spotify-backstage-everything-you-need-to-know
+
+**Source**: <https://humanitec.com/spotify-backstage-everything-you-need-to-know>
 
 **Content Summary**: Comprehensive guide to Backstage, its features, benefits, and integration patterns.
 
@@ -2455,7 +2566,8 @@ spec:
 **Integration Approach**: Reference for Backstage implementation strategy.
 
 #### Cortex - Alternative Developer Portal
-**Source**: https://www.cortex.io/post/an-overview-of-spotify-backstage
+
+**Source**: <https://www.cortex.io/post/an-overview-of-spotify-backstage>
 
 **Content Summary**: Cortex provides competitive analysis of Backstage and positions their platform as an alternative with different strengths.
 
@@ -2466,11 +2578,13 @@ spec:
 **Integration Approach**: Compare with Backstage for infrastructure portal selection.
 
 #### OpsLevel - Service Maturity Platform
-**Source**: https://www.opslevel.com/
+
+**Source**: <https://www.opslevel.com/>
 
 **Content Summary**: OpsLevel provides service catalogs, maturity assessments, and self-service actions for engineering teams.
 
 **Key Features**:
+
 - **Service Catalog**: Automated discovery and cataloging
 - **Maturity Scorecards**: Service health and compliance tracking
 - **Self-Service Actions**: Automated workflows and approvals
@@ -2479,17 +2593,20 @@ spec:
 
 **Applicability to GitOps Control Plane**:
 High - OpsLevel could enhance the control plane with:
+
 - Automated cataloging of infrastructure components
 - Compliance scorecards for security and governance
 - Self-service workflows for infrastructure changes
 - Maturity tracking for migration progress
 
 **Safety Assessment**: ✅ **SAFE**
+
 - Enterprise-grade platform
 - Focus on compliance and standards
 - Strong integration capabilities
 
 **Integration Approach**:
+
 ```yaml
 # OpsLevel integration via Flux-managed config
 apiVersion: v1
@@ -2511,7 +2628,8 @@ data:
 ```
 
 #### Backstage Technical Overview
-**Source**: https://backstage.io/docs/overview/what-is-backstage/
+
+**Source**: <https://backstage.io/docs/overview/what-is-backstage/>
 
 **Content Summary**: Technical documentation explaining Backstage's architecture and capabilities.
 
@@ -2522,7 +2640,8 @@ data:
 **Integration Approach**: Use for technical planning of infrastructure portal.
 
 #### Internal Developer Platform - Backstage Analysis
-**Source**: https://internaldeveloperplatform.org/developer-portals/backstage/
+
+**Source**: <https://internaldeveloperplatform.org/developer-portals/backstage/>
 
 **Content Summary**: Analysis of Backstage within the Internal Developer Platform ecosystem.
 
@@ -2533,7 +2652,8 @@ data:
 **Integration Approach**: Reference for platform engineering strategy.
 
 #### Internal Developer Platform Hub
-**Source**: https://internaldeveloperplatform.org/
+
+**Source**: <https://internaldeveloperplatform.org/>
 
 **Content Summary**: Central resource for Internal Developer Platform knowledge and community.
 
@@ -2546,7 +2666,8 @@ data:
 ### Temporal Workflow Orchestration
 
 #### Temporal Platform
-**Source**: https://temporal.io/
+
+**Source**: <https://temporal.io/>
 
 **Content Summary**: Temporal provides durable execution for complex workflows with fault tolerance and observability.
 
@@ -2557,7 +2678,8 @@ data:
 **Integration Approach**: Consider for complex workflow needs beyond Flux.
 
 #### Temporal GitHub Organization
-**Source**: https://github.com/temporalio
+
+**Source**: <https://github.com/temporalio>
 
 **Content Summary**: Main repository for Temporal open-source projects.
 
@@ -2568,7 +2690,8 @@ data:
 **Integration Approach**: Reference for Temporal adoption.
 
 #### Temporal Core Service
-**Source**: https://github.com/temporalio/temporal
+
+**Source**: <https://github.com/temporalio/temporal>
 
 **Content Summary**: Core Temporal service for workflow orchestration.
 
@@ -2579,7 +2702,8 @@ data:
 **Integration Approach**: Use for durable workflow execution.
 
 #### Temporal Documentation
-**Source**: https://github.com/temporalio/documentation
+
+**Source**: <https://github.com/temporalio/documentation>
 
 **Content Summary**: Comprehensive documentation for Temporal platform.
 
@@ -2590,7 +2714,8 @@ data:
 **Integration Approach**: Use for Temporal integration planning.
 
 #### Temporal Docs
-**Source**: https://docs.temporal.io/
+
+**Source**: <https://docs.temporal.io/>
 
 **Content Summary**: Official documentation portal for Temporal.
 
@@ -2603,7 +2728,8 @@ data:
 ### Additional Kubernetes and Agent Tools
 
 #### Resolute Platform
-**Source**: https://www.resolute.sh/
+
+**Source**: <https://www.resolute.sh/>
 
 **Content Summary**: Kubernetes-native workflow management platform.
 
@@ -2614,7 +2740,8 @@ data:
 **Integration Approach**: Consider for GitOps-aligned workflow orchestration.
 
 #### Resolute Repository
-**Source**: https://github.com/resolute-sh/resolute
+
+**Source**: <https://github.com/resolute-sh/resolute>
 
 **Content Summary**: Open-source Kubernetes workflow engine.
 
@@ -2625,7 +2752,8 @@ data:
 **Integration Approach**: Evaluate for Flux-integrated workflows.
 
 #### Kubernetes Agent Sandbox
-**Source**: https://github.com/kubernetes-sigs/agent-sandbox
+
+**Source**: <https://github.com/kubernetes-sigs/agent-sandbox>
 
 **Content Summary**: Kubernetes SIG project for isolated agent execution environments.
 
@@ -2636,7 +2764,8 @@ data:
 **Integration Approach**: Use for agent isolation in multi-tenant environments.
 
 #### Exoclaw - Agent Framework
-**Source**: https://github.com/Clause-Logic/exoclaw
+
+**Source**: <https://github.com/Clause-Logic/exoclaw>
 
 **Content Summary**: Multi-agent framework for AI workflows.
 
@@ -2647,7 +2776,8 @@ data:
 **Integration Approach**: Consider for agent-based automation.
 
 #### Exoclaw Temporal Integration
-**Source**: https://github.com/Clause-Logic/exoclaw-temporal
+
+**Source**: <https://github.com/Clause-Logic/exoclaw-temporal>
 
 **Content Summary**: Integration between Exoclaw and Temporal for durable agent workflows.
 
@@ -2658,7 +2788,8 @@ data:
 **Integration Approach**: Evaluate for complex agent workflows.
 
 #### Exoclaw GitHub Integration
-**Source**: https://github.com/Clause-Logic/exoclaw-github
+
+**Source**: <https://github.com/Clause-Logic/exoclaw-github>
 
 **Content Summary**: GitHub integration for Exoclaw agents.
 
@@ -2669,7 +2800,8 @@ data:
 **Integration Approach**: Use for GitHub-based agent automation.
 
 #### AI Agents Sandbox Skills
-**Source**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+
+**Source**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills>
 
 **Content Summary**: Specialized skills for infrastructure and DevOps automation.
 
@@ -2684,9 +2816,11 @@ data:
 ### Developer Platforms and Internal Developer Portals
 
 #### Backstage - Spotify's Open Platform for Building Developer Portals
-**Source**: https://github.com/backstage/backstage
+
+**Source**: <https://github.com/backstage/backstage>
 
 **Key Features**:
+
 - Open-source platform for building developer portals
 - Software catalog and component lifecycle management
 - Plugin ecosystem for extensibility
@@ -2694,25 +2828,29 @@ data:
 - Tech docs and API catalog
 
 **Documentation and Learning Resources**:
-- Official documentation: https://backstage.io/docs/overview/what-is-backstage/
-- Spotify's Backpage: https://backstage.spotify.com/
-- Learning resources: https://backstage.spotify.com/learn/
-- Engineering blog: https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway
+
+- Official documentation: <https://backstage.io/docs/overview/what-is-backstage/>
+- Spotify's Backpage: <https://backstage.spotify.com/>
+- Learning resources: <https://backstage.spotify.com/learn/>
+- Engineering blog: <https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway>
 
 **Third-party Analysis and Guides**:
-- Roadie.io Backstage resources: https://roadie.io/backstage-spotify/
-- Humanitec comprehensive guide: https://humanitec.com/spotify-backstage-everything-you-need-to-know
-- Cortex.io overview: https://www.cortex.io/post/an-overview-of-spotify-backstage
-- Internal Developer Platform community: https://internaldeveloperplatform.org/developer-portals/backstage/
-- IDP general resources: https://internaldeveloperplatform.org/
+
+- Roadie.io Backstage resources: <https://roadie.io/backstage-spotify/>
+- Humanitec comprehensive guide: <https://humanitec.com/spotify-backstage-everything-you-need-to-know>
+- Cortex.io overview: <https://www.cortex.io/post/an-overview-of-spotify-backstage>
+- Internal Developer Platform community: <https://internaldeveloperplatform.org/developer-portals/backstage/>
+- IDP general resources: <https://internaldeveloperplatform.org/>
 
 **Applicability to GitOps Control Plane**:
+
 - Could serve as frontend interface for infrastructure management
 - Plugin development for multi-cloud resource visualization
 - Integration with Flux workflows and dependency chains
 - Centralized documentation and API catalog for infrastructure components
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Mature open-source project with strong community
 - Extensible plugin architecture
 - Proven production usage at scale
@@ -2720,41 +2858,48 @@ data:
 ### Workflow Orchestration and Temporal Integration
 
 #### Temporal - The Ideal Runtime for Consensus-Based Agent Orchestration
-**Source**: https://github.com/temporalio/temporal
+
+**Source**: <https://github.com/temporalio/temporal>
 
 **Why Temporal is Ideal for Consensus-Based Agent Systems**:
 
 **1. Go-Based Concurrency and Performance**
+
 - **Language Alignment**: Both Temporal and Kubernetes are written in Go, providing seamless integration and optimal performance
 - **Native Concurrency**: Go's goroutines and channels perfectly match the concurrent nature of distributed consensus
 - **Memory Efficiency**: Go's garbage collection and memory management ideal for long-running agent processes
 - **Compile-Time Optimization**: Statically typed Go provides performance advantages over interpreted languages
 
 **2. Battle-Tested Distributed Systems Foundation**
+
 - **Production Proven**: Used by Netflix, Stripe, and other large-scale distributed systems
 - **Fault Tolerance**: Built-in retry, circuit breaker, and failure handling mechanisms
 - **Durable Execution**: Workflow state survives process failures and cluster restarts
 - **Cluster-Sharding**: Natural fit for multi-cloud consensus across regions
 
 **3. Kubernetes-Native Architecture**
+
 - **Operator Integration**: Temporal Kubernetes Operator provides native K8s resource management
 - **Sidecar Pattern**: Agents can run as sidecars with Temporal workers
 - **Resource Efficiency**: Shared worker pools reduce resource overhead for agent orchestration
 - **Health Checking**: Built-in health probes for consensus participant monitoring
 
 **4. Advanced Workflow Capabilities for Consensus**
+
 - **Durable State Management**: Temporal workflows maintain Raft log state across agent failures
 - **Multi-Agent Coordination**: Complex infrastructure deployment orchestration with consensus validation
 - **Rollback and Recovery Procedures**: Automated rollback of failed consensus decisions
 - **Built-in retry and error handling** - Essential for consensus reliability
 
 **Documentation and Resources**:
-- Official docs: https://docs.temporal.io/
-- GitHub organization: https://github.com/temporalio
-- Documentation repository: https://github.com/temporalio/documentation
-- Main website: https://temporal.io/
+
+- Official docs: <https://docs.temporal.io/>
+- GitHub organization: <https://github.com/temporalio>
+- Documentation repository: <https://github.com/temporalio/documentation>
+- Main website: <https://temporal.io/>
 
 **Applicability to GitOps Control Plane**:
+
 - **Consensus State Management**: Temporal workflows maintain Raft log state across agent failures
 - **Multi-Agent Coordination**: Complex infrastructure deployment orchestration with consensus validation
 - **Rollback and Recovery Procedures**: Automated rollback of failed consensus decisions
@@ -2763,7 +2908,9 @@ data:
 ### Multi-Language Runtime Support for Maximum Flexibility
 
 #### 1. Go/Temporal - Production-Grade Performance
+
 **Advantages**:
+
 - **Native Kubernetes Integration**: Both Go and Kubernetes share the same runtime foundation
 - **Optimal Concurrency**: Goroutines provide lightweight, efficient parallelism for agent coordination
 - **Memory Safety**: Strong typing and garbage collection prevent memory leaks in long-running processes
@@ -2772,7 +2919,9 @@ data:
 **Use Case**: Best for production deployments requiring maximum performance and reliability
 
 #### 2. Python - Rapid Development and AI/ML Integration
+
 **Advantages**:
+
 - **AI/ML Ecosystem**: Unmatched access to machine learning libraries (TensorFlow, PyTorch, scikit-learn)
 - **Rapid Prototyping**: Fast development cycle for agent behavior experimentation
 - **Rich Scientific Computing**: NumPy, pandas, and scientific computing libraries
@@ -2781,7 +2930,9 @@ data:
 **Use Case**: Ideal for AI-powered agents requiring machine learning capabilities
 
 #### 3. Bash/Shell - Simplicity and Universal Compatibility
+
 **Advantages**:
+
 - **Zero Dependencies**: Available on every system without additional installation
 - **Kubernetes Native**: Direct access to kubectl and cloud CLI tools
 - **Simple Debugging**: Straightforward troubleshooting and logging
@@ -2790,7 +2941,9 @@ data:
 **Use Case**: Perfect for simple coordination tasks and environments with minimal dependencies
 
 #### 4. C#/.NET - Enterprise Integration and Windows Support
+
 **Advantages**:
+
 - **Enterprise Ecosystem**: Seamless integration with Microsoft stack and enterprise systems
 - **Strong Typing**: Compile-time type safety and performance optimization
 - **Windows Support**: Native Windows development and deployment capabilities
@@ -2799,7 +2952,9 @@ data:
 **Use Case**: Enterprise environments requiring Microsoft ecosystem integration
 
 #### 5. TypeScript/Node.js - Real-time and Web Integration
+
 **Advantages**:
+
 - **Real-time Capabilities**: Event-driven architecture perfect for agent communication
 - **Web Integration**: Natural fit for web-based dashboards and APIs
 - **Type Safety**: TypeScript provides compile-time type checking
@@ -2808,7 +2963,9 @@ data:
 **Use Case**: Web-based agent interfaces and real-time coordination requirements
 
 #### 6. Java/OpenJDK/JVM - Enterprise Maturity and Scalability
+
 **Advantages**:
+
 - **Enterprise Maturity**: Decades of enterprise deployment experience
 - **Scalability**: Proven horizontal scaling capabilities
 - **Rich Ecosystem**: Extensive Java libraries and frameworks
@@ -2817,7 +2974,9 @@ data:
 **Use Case**: Large enterprise deployments requiring proven scalability
 
 #### 7. Rust - High Performance and Memory Safety
+
 **Advantages**:
+
 - **Zero-Cost Abstractions**: Performance comparable to C/C++ with safety guarantees
 - **Memory Safety**: Ownership system prevents common memory errors at compile time
 - **WebAssembly Support**: Compile to WASM for cross-platform deployment
@@ -2850,6 +3009,7 @@ data:
 7. **Large Scale**: Java/JVM for enterprise deployments
 
 **Benefits of Multi-Runtime Support**:
+
 - **Flexibility**: Choose the right tool for each specific task
 - **Team Skills**: Leverage existing team expertise in different languages
 - **Performance Optimization**: Use high-performance languages where needed
@@ -2857,13 +3017,15 @@ data:
 - **Risk Mitigation**: Diversify technology stack to avoid single points of failure
 - **Cross-Cloud Dependency Management**: Global coordination across multi-cloud infrastructure
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Production-ready orchestration engine with proven reliability
 - Strong consistency guarantees essential for consensus protocols
 - Comprehensive monitoring and observability for agent networks
 - Go-based performance aligns with Kubernetes ecosystem
 
 **Integration Approach for Consensus-Based Agents**:
+
 ```yaml
 # Temporal workflow for consensus-based agent orchestration
 apiVersion: io.temporal.io/v1alpha1
@@ -2910,30 +3072,35 @@ spec:
 ```
 
 **Performance Benefits Over Other Runtimes**:
+
 - **30% Faster Execution**: Go's compiled performance vs interpreted languages
 - **50% Lower Memory**: Efficient garbage collection and memory management
 - **Native Kubernetes Integration**: No translation layer overhead
 - **Better Concurrency**: Goroutines vs threads/processes for agent coordination
 
 #### Resolute - Kubernetes-Native Workflow Management
-**Source**: https://github.com/resolute-sh/resolute
+
+**Source**: <https://github.com/resolute-sh/resolute>
 
 **Key Features**:
+
 - Kubernetes-native design
 - Kubernetes-native workflow execution
 - GitOps-friendly approach
 - Declarative workflow definitions
 - Integration with existing K8s tools
 
-**Documentation**: https://www.resolute.sh/
+**Documentation**: <https://www.resolute.sh/>
 
 **Applicability to GitOps Control Plane**:
+
 - Native integration with existing Flux workflows
 - Declarative workflow definitions in Git
 - Seamless dependency management with dependsOn
 - Enhanced multi-cluster orchestration
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Kubernetes-native design
 - Declarative approach aligns with GitOps principles
 - Minimal operational overhead
@@ -2942,44 +3109,53 @@ spec:
 ### Agent Sandbox and Security Frameworks
 
 #### Kubernetes SIG Agent Sandbox
-**Source**: https://github.com/kubernetes-sigs/agent-sandbox
+
+**Source**: <https://github.com/kubernetes-sigs/agent-sandbox>
 
 **Key Features**:
+
 - Official Kubernetes agent sandbox framework
 - Security boundaries and isolation
 - Standardized agent deployment patterns
 - Community-driven security standards
 
 **Applicability to GitOps Control Plane**:
+
 - Security framework for AI agent deployment
 - Standardized isolation patterns
 - Community best practices
 - Integration with Kubernetes RBAC
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Official Kubernetes project
 - Community security review
 - Production-ready patterns
 
 #### Exoclaw - Advanced Agent Framework
+
 **Sources**:
-- Main repository: https://github.com/Clause-Logic/exoclaw
-- Temporal integration: https://github.com/Clause-Logic/exoclaw-temporal
-- GitHub integration: https://github.com/Clause-Logic/exoclaw-github
+
+- Main repository: <https://github.com/Clause-Logic/exoclaw>
+- Temporal integration: <https://github.com/Clause-Logic/exoclaw-temporal>
+- GitHub integration: <https://github.com/Clause-Logic/exoclaw-github>
 
 **Key Features**:
+
 - Advanced agent orchestration
 - Temporal workflow integration
 - GitHub automation capabilities
 - Enterprise-grade security features
 
 **Applicability to GitOps Control Plane**:
+
 - Advanced agent orchestration beyond basic CronJobs
 - Integration with Temporal for complex workflows
 - GitHub automation for repository management
 - Enterprise security and compliance features
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Commercial-grade security
 - Comprehensive integration options
 - Production-ready architecture
@@ -2987,17 +3163,20 @@ spec:
 ### Enhanced AI Agents Sandbox
 
 #### AI Agents Sandbox (Extended Repository)
-**Source**: https://github.com/lloydchang/ai-agents-sandbox
+
+**Source**: <https://github.com/lloydchang/ai-agents-sandbox>
 
 **Enhanced Features**:
+
 - 30+ specialized infrastructure skills
 - Multi-agent coordination patterns
 - Human-in-the-loop approval workflows
 - Comprehensive audit trails
 
-**Skills Repository**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+**Skills Repository**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills>
 
 **Key Infrastructure Skills**:
+
 - Infrastructure discovery and inventory
 - Compliance and security scanning
 - Cost optimization analysis
@@ -3006,12 +3185,14 @@ spec:
 
 **Applicability to GitOps Control Plane**:
 **Direct Integration Available** - Repository owner's project
+
 - Ready-to-use infrastructure skills
 - Proven sandbox security model
 - Extensible agent framework
 - Integration with existing workflows
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Comprehensive safety boundaries
 - Human approval required for critical actions
 - Tool restrictions and audit logging
@@ -3022,67 +3203,78 @@ spec:
 #### Developer Portal vs. Control Plane Integration
 
 **Backstage Integration Benefits**:
+
 - Unified developer experience
 - Centralized infrastructure documentation
 - Plugin ecosystem for custom tools
 - Proven scalability patterns
 
 **Control Plane Native Approach**:
+
 - Direct Flux integration
 - Native Kubernetes security
 - Minimal abstraction layers
 - GitOps-first design principles
 
 **Recommended Hybrid Approach**:
+
 1. Use Backstage for developer-facing interfaces
 2. Maintain GitOps control plane for infrastructure
 3. Integrate via plugins and webhooks
 4. Preserve single source of truth in Git
 
 #### Resolute - Pure Kubernetes-Native Workflow Management
-**Source**: https://github.com/resolute-sh/resolute
+
+**Source**: <https://github.com/resolute-sh/resolute>
 
 **Why Resolute is Ideal for Kubernetes-Native Agent Orchestration**:
 
 **1. Pure Kubernetes-Native Design**
+
 - **No External Dependencies**: Runs entirely within Kubernetes cluster using CRDs
 - **Native Resource Management**: Leverages Kubernetes controllers and operators
 - **GitOps-Friendly**: Workflow definitions stored in Git, applied via Flux
 - **No Translation Layer**: Direct Kubernetes API integration
 
 **2. Declarative Workflow Definitions**
+
 - **YAML-Based Workflows**: Define agent orchestration using familiar Kubernetes manifests
 - **Custom Resources**: Uses CRDs for workflow steps and agent coordination
 - **Flux Integration**: Native integration with existing Flux dependsOn chains
 - **Version Control**: Workflows tracked in Git like other infrastructure
 
 **3. Kubernetes-Native Execution**
+
 - **Controller-Based**: Uses Kubernetes controller pattern for workflow execution
 - **Resource Efficiency**: Shares cluster resources efficiently with other workloads
 - **Native Monitoring**: Leverages Kubernetes metrics and observability
 - **Standard Patterns**: Follows Kubernetes best practices and conventions
 
 **Key Features**:
+
 - **Kubernetes-native workflow execution** - No external runtime dependencies
 - **GitOps-friendly approach** - Declarative workflow definitions in Git
 - **Declarative workflow definitions** - YAML-based agent orchestration
 - **Integration with existing K8s tools** - Native Kubernetes API usage
 
-**Documentation**: https://www.resolute.sh/
+**Documentation**: <https://www.resolute.sh/>
 
 **Applicability to GitOps Control Plane**:
+
 - **Native Flux Integration**: Workflow definitions managed through existing Flux workflows
 - **Declarative Agent Chains**: Agent orchestration defined as Kubernetes resources
 - **Seamless Dependency Management**: Use existing dependsOn for workflow ordering
 - **Enhanced Multi-Cluster Orchestration**: Kubernetes-native cross-cluster coordination
 
 **Safety Assessment**: ✅ **HIGHLY RECOMMENDED FOR KUBERNETES-NATIVE APPROACH**
+
 - Kubernetes-native design eliminates external dependencies
 - Declarative approach aligns with GitOps principles
 - Minimal operational overhead
 - Native K8s integration
 
 **Integration Approach for Kubernetes-Native Consensus**:
+
 ```yaml
 # Resolute CRD for consensus-based agent orchestration
 apiVersion: resolute.io/v1alpha1
@@ -3119,6 +3311,7 @@ spec:
 ```
 
 **Benefits Over External Runtimes**:
+
 - **Zero External Dependencies**: No need for Temporal cluster or other runtimes
 - **GitOps-Native**: Workflows versioned and applied through existing GitOps processes
 - **Resource Efficiency**: Shared cluster resources without dedicated runtime pods
@@ -3127,6 +3320,7 @@ spec:
 #### Workflow Orchestration Comparison
 
 **Temporal Advantages**:
+
 - Complex workflow support
 - Language-agnostic SDKs
 - Advanced error handling
@@ -3137,6 +3331,7 @@ spec:
 - Goroutines-based concurrency
 
 **Resolute Advantages**:
+
 - Kubernetes-native design
 - Kubernetes-native workflow execution
 - GitOps-friendly approach
@@ -3151,12 +3346,14 @@ spec:
 **Temporal SDK Support for Multiple Languages**:
 
 **1. Python SDK**
+
 - **Mature Ecosystem**: Extensive libraries for AI/ML integrations (pandas, numpy, scikit-learn)
 - **Rich AI Tooling**: Native support for TensorFlow, PyTorch, LangChain
 - **Data Processing**: Excellent for infrastructure analytics and cost optimization
 - **Agent Development**: Fast prototyping with dynamic typing and REPL
 
 **Python Integration Example**:
+
 ```python
 from temporalio import workflow, activity
 
@@ -3188,12 +3385,14 @@ async def analyze_infrastructure_metrics() -> dict:
 ```
 
 **2. TypeScript/Node.js SDK**
+
 - **Event-Driven Architecture**: Natural fit for real-time agent coordination
 - **Rich Ecosystem**: npm packages for cloud APIs and infrastructure tools
 - **Async/Await**: Perfect for consensus protocol implementation
 - **JSON Processing**: Native for agent communication and proposal handling
 
 **TypeScript Integration Example**:
+
 ```typescript
 import { workflow, activity } from '@temporalio/workflow';
 import { sleep } from '@temporalio/workflow';
@@ -3239,12 +3438,14 @@ export async function getLocalInfrastructureState(): Promise<InfrastructureState
 ```
 
 **3. C#/.NET SDK**
+
 - **Enterprise Integration**: Native support for Azure, AWS, and Windows environments
 - **Strong Typing**: Compile-time type safety for consensus protocols
 - **Performance**: JIT compilation for optimized execution
 - **Ecosystem**: NuGet packages for infrastructure and cloud tools
 
 **C# Integration Example**:
+
 ```csharp
 using Temporalio.Workflow;
 using Temporalio.Activity;
@@ -3306,12 +3507,14 @@ public static class InfrastructureActivities
 ```
 
 **4. Java/OpenJDK SDK**
+
 - **Enterprise Maturity**: Battle-tested in large-scale enterprise environments
 - **JVM Ecosystem**: Rich libraries for infrastructure monitoring and management
 - **Multi-Threading**: Excellent for concurrent agent coordination
 - **Cloud Integration**: Native AWS, Azure, GCP Java SDKs
 
 **Java Integration Example**:
+
 ```java
 import io.temporal.workflow.Workflow;
 import io.temporal.activity.Activity;
@@ -3381,6 +3584,7 @@ public class ConsensusAgentWorkflowImpl implements ConsensusAgentWorkflow {
 #### Hybrid Approach Recommendations
 
 **1. Multi-Language Agent Teams**
+
 - **Go**: Consensus coordination and performance-critical components
 - **Python**: AI/ML analysis and optimization algorithms
 - **TypeScript**: Real-time monitoring and event handling
@@ -3388,12 +3592,14 @@ public class ConsensusAgentWorkflowImpl implements ConsensusAgentWorkflow {
 - **Java**: Legacy system integration and large-scale deployment
 
 **2. Cross-Language Communication**
+
 - **Protocol Buffers**: Language-agnostic message format for agent communication
 - **REST APIs**: Standard HTTP interfaces for cross-language coordination
 - **gRPC**: High-performance RPC for consensus protocols
 - **Message Queues**: Redis/Kafka for asynchronous agent coordination
 
 **3. Deployment Strategy**
+
 ```yaml
 # Multi-language agent swarm deployment
 apiVersion: swarm.gitops.io/v1alpha1
@@ -3437,29 +3643,34 @@ spec:
 5. **Performance Optimization**: Use Go for performance-critical, Python for AI/ML, etc.
 
 #### 5. Rust-Based Systems and Tooling
-**Source**: https://github.com/agentgateway, https://github.com/kagent-dev/kagent
+
+**Source**: <https://github.com/agentgateway>, <https://github.com/kagent-dev/kagent>
 
 **Why Rust is Ideal for High-Performance Agent Systems**:
 
 **1. Memory Safety and Performance**
+
 - **Zero-Cost Abstractions**: Compile-time memory safety without garbage collection overhead
 - **Fearless Concurrency**: Built-in actor model and async/await patterns
 - **Predictable Performance**: Deterministic execution timing for tight feedback loops
 - **WebAssembly Support**: Can compile to WASM for cross-platform agent deployment
 
 **2. Systems Programming Excellence**
+
 - **Type System**: Advanced type system preventing entire classes of runtime errors
 - **Pattern Matching**: Powerful destructuring for agent state management
 - **Error Handling**: Result/Option types force explicit error handling
 - **Trait System**: Composable behaviors for different agent types
 
 **3. Modern Actor Model**
+
 - **Erlang/Elixir Inspiration**: Actor-based concurrency perfect for distributed agents
 - **Message Passing**: Built-in channels for agent communication
 - **Supervision Trees**: Hierarchical agent supervision and restart policies
 - **Location Transparency**: Distributed agent coordination across nodes
 
 **Rust Integration Example for Consensus Agents**:
+
 ```rust
 use tokio::time::{sleep, Duration};
 use serde::{Deserialize, Serialize};
@@ -3560,18 +3771,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 **Rust-Based Tooling Ecosystem**:
 
 **1. AgentGateway Integration**
+
 - **Rust-Based Gateway**: High-performance AI traffic routing
 - **Memory Safety**: Zero-cost abstraction for security-critical components
 - **WebAssembly**: Compile to WASM for cross-platform deployment
 - **Async Performance**: Tokio async runtime for agent coordination
 
 **2. Kagent with Rust Components**
+
 - **Rust Controllers**: High-performance Kubernetes operators
 - **Memory-Efficient Agents**: Lower resource overhead
 - **Type Safety**: Compile-time prevention of entire error classes
 - **WebAssembly Agents**: Portable agent execution across platforms
 
 **3. Cross-Language Tooling**
+
 - **Rust-Python Bridge**: Use Rust for performance-critical components, Python for AI/ML
 - **Rust-Go Interop**: Combine Go's Kubernetes integration with Rust's performance
 - **WASM Agents**: Deploy Rust-compiled agents as WebAssembly for universal execution
@@ -3580,6 +3794,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 **4. Advanced Agent Patterns**
 
 **Actor-Based Agent Supervision**:
+
 ```rust
 use tokio::supervisor::Supervisor;
 
@@ -3613,6 +3828,7 @@ impl Supervisor for AgentSwarm {
 | **Java** | Medium | GC Overhead | Threads | Mature | Large-scale enterprise |
 
 **Hybrid Rust-Based Architecture**:
+
 ```yaml
 # Rust-enhanced agent swarm with performance-critical components
 apiVersion: swarm.gitops.io/v1alpha1
@@ -3656,6 +3872,7 @@ spec:
 ```
 
 **Benefits of Rust-Based Agents**:
+
 1. **Fast Feedback Loops**: 10-15 second loops (vs 30s for other languages)
 2. **Memory Efficiency**: 50-70% lower memory usage
 3. **Compile-Time Safety**: Eliminate entire classes of runtime errors
@@ -3670,24 +3887,28 @@ spec:
 #### **Decision Criteria for Agent Systems**
 
 **1. Understandability and Implementation Simplicity**
+
 - **Raft**: Designed to be more understandable than Paxos
 - **Clear Separation of Concerns**: Leader election, log replication, state machine
 - **Simpler State Machine**: Fewer edge cases and corner cases
 - **Implementation Accessibility**: Easier to implement correctly in agent systems
 
 **2. Leader-Based Architecture for Agent Coordination**
+
 - **Natural Fit**: Agent swarms naturally coordinate around a leader
 - **Clear Decision Flow**: Leader proposes, followers vote, leader commits
 - **Failure Recovery**: Leader election provides automatic failover
 - **Reduced Communication**: Followers only communicate with leader, not all-to-all
 
 **3. Performance Characteristics for Tight Feedback Loops**
+
 - **Lower Latency**: Leader-based decisions reduce communication overhead
 - **Predictable Timing**: Leader election intervals are deterministic
 - **Faster Convergence**: Single point of coordination speeds up consensus
 - **Optimized for Fast Loops**: Raft's efficiency matches tight feedback requirements
 
 **4. Fault Tolerance and Recovery**
+
 - **Leader Election**: Automatic leader replacement on failures
 - **Log Replication**: Consistent state across agent restarts
 - **Network Partitions**: Handles split-brain scenarios gracefully
@@ -3696,6 +3917,7 @@ spec:
 #### **Raft Protocol Advantages for Agent Systems**
 
 **1. Simplicity and Correctness**
+
 ```go
 // Raft state machine - clear and understandable
 type AgentState int
@@ -3713,6 +3935,7 @@ func (s AgentState) canBecomeLeader() bool {
 ```
 
 **2. Leader-Based Agent Coordination**
+
 ```go
 // Natural leader-follower pattern for agent swarms
 type AgentSwarm struct {
@@ -3734,6 +3957,7 @@ func (as *AgentSwarm) proposeChange(change InfrastructureChange) error {
 ```
 
 **3. Efficient Log Replication**
+
 ```go
 // Raft log for consensus state persistence
 type ConsensusLog struct {
@@ -3750,6 +3974,7 @@ func (cl *ConsensusLog) append(entry LogEntry) error {
 ```
 
 **4. Rust High-Performance Implementation**
+
 ```rust
 // Raft state machine with memory safety and performance
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -3795,18 +4020,21 @@ impl AgentSwarm {
 #### **Why Not Paxos for Agent Systems**
 
 **1. Complexity and Implementation Challenges**
+
 - **Two-Phase Commit**: More complex phases (prepare, accept, learn)
 - **Multiple Quorums**: Can have overlapping quorums causing confusion
 - **Leaderless Coordination**: All agents must communicate with all others
 - **Higher Message Overhead**: More complex message patterns increase latency
 
 **2. Performance Issues for Tight Feedback Loops**
+
 - **Higher Latency**: Complex consensus rounds take longer
 - **Indeterminate Timing**: No clear leader for coordination
 - **Message Explosion**: All-to-all communication scales poorly
 - **Difficult Debugging**: Complex protocol interactions hard to troubleshoot
 
 **3. Agent System Mismatch**
+
 - **Natural Leader Model**: Paxos doesn't specify leader election clearly
 - **Dynamic Membership**: Adding/removing agents is more complex
 - **Recovery Complexity**: Handling failures requires complex state recovery
@@ -3815,6 +4043,7 @@ impl AgentSwarm {
 #### **Raft Implementation for Agent Orchestration**
 
 **1. Core Components**
+
 ```yaml
 # Raft-based consensus configuration for agents
 apiVersion: consensus.gitops.io/v1alpha1
@@ -3843,6 +4072,7 @@ spec:
 ```
 
 **2. Agent State Machine**
+
 ```go
 // Simplified Raft state machine for agents
 type RaftAgent struct {
@@ -3878,6 +4108,7 @@ func (ra *RaftAgent) runConsensusLoop() {
 ```
 
 **3. Performance Optimization for 30-Second Loops**
+
 ```go
 // Optimized Raft for fast feedback loops
 func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
@@ -3900,15 +4131,18 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 #### **Alternative Consensus Protocols Considered**
 
 **1. PBFT (Practical Byzantine Fault Tolerance)**
+
 - **Pros**: Handles malicious agents, 3f+1 fault tolerance
 - **Cons**: Higher computational overhead, complex implementation
 - **Use Case**: Only for high-security environments with trust issues
 
 **2. Tendermint**
+
 - **Pros**: Byzantine fault tolerance with good performance
 - **Cons**: Complex, blockchain-oriented, overkill for most agent systems
 
 **3. Snowball**
+
 - **Pros**: No leader election, completely decentralized
 - **Cons**: High message overhead, slow convergence, not suitable for tight loops
 
@@ -3924,6 +4158,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 6. **Recovery**: Clear leader election and failover mechanisms
 
 **Implementation Strategy**:
+
 - **Phase 1**: Implement basic Raft for agent consensus
 - **Phase 2**: Add performance optimizations for fast feedback loops
 - **Phase 3**: Enhance with dynamic membership and load balancing
@@ -3933,9 +4168,10 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 
 ### Google's Paxos Usage and Historical Context
 
-**Source**: https://news.ycombinator.com/item?id=27831576
+**Source**: <https://news.ycombinator.com/item?id=27831576>
 
 **Google's Production Systems Using Paxos**:
+
 - **Borg**: Google's container orchestration system (predecessor to Kubernetes)
 - **Chubby**: Distributed lock service
 - **CFS**: Cluster File System
@@ -3950,6 +4186,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 5. **Library Proliferation**: Chubby's Paxos code extracted into shared Paxos library used across Google
 
 **Why Google Stuck with Paxos**:
+
 - **Maturity**: Decades of production use and optimization
 - **Investment**: Significant engineering effort already invested
 - **Integration**: Deep integration across critical infrastructure
@@ -3957,33 +4194,37 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 
 ### Academic Perspective: "Paxos vs Raft: Have we reached consensus on distributed consensus?"
 
-**Source**: https://charap.co/reading-group-paxos-vs-raft-have-we-reached-consensus-on-distributed-consensus/
+**Source**: <https://charap.co/reading-group-paxos-vs-raft-have-we-reached-consensus-on-distributed-consensus/>
 
 **Key Findings from Academic Analysis**:
 
 #### **1. Understandability Gap**
+
 - **Raft**: Explicitly designed for understandability with clear separation of concerns
 - **Paxos**: Academic focus on correctness, less attention to implementation clarity
 - **Community Preference**: Raft wins on teaching and implementation accessibility
 
 #### **2. Implementation Correctness**
+
 - **Raft**: Fewer implementation bugs due to clearer specification
 - **Paxos**: Higher bug rate in implementations due to complexity
 - **Production Impact**: Raft implementations tend to be more reliable initially
 
 #### **3. Performance Characteristics**
+
 - **Theoretical Equivalence**: Both protocols achieve same consensus guarantees
 - **Practical Differences**: Raft's leader-based approach often performs better in practice
 - **Network Efficiency**: Raft reduces message complexity in typical scenarios
 
 #### **4. Ecosystem Maturity**
+
 - **Raft**: Growing ecosystem with multiple production-ready implementations
 - **Paxos**: Limited to specialized implementations (Google, academic projects)
 - **Tooling**: Raft has better debugging and monitoring tools
 
 ### Differentiation Analysis: When to Choose Each Protocol
 
-#### **Choose Raft When**:
+#### **Choose Raft When**
 
 1. **New System Development**
    - Clear specification reduces implementation bugs
@@ -4005,7 +4246,7 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
    - Faster development cycles
    - Lower maintenance overhead
 
-#### **Choose Paxos When**:
+#### **Choose Paxos When**
 
 1. **Existing Google Infrastructure**
    - Deep integration with Google's internal systems
@@ -4030,17 +4271,20 @@ func (ra *RaftAgent) optimizedConsensusRound(proposal Proposal) error {
 ### Updated Recommendation for Agent Orchestration
 
 **Primary Choice: Raft**
+
 - **Understandability**: Critical for complex agent systems
 - **Performance**: Leader-based coordination fits tight feedback loops
 - **Ecosystem**: Strong Go implementations and Kubernetes integration. Rust offers ultra-high performance consensus implementations.
 - **Community**: Active development and support
 
 **Secondary Consideration: Paxos**
+
 - **Google Integration**: Only if integrating with Google's existing systems
 - **Academic Requirements**: For research or specialized variants
 - **Legacy Compatibility**: When interfacing with existing Paxos systems
 
 **Hybrid Approach**:
+
 ```yaml
 # Multi-protocol consensus support
 apiVersion: consensus.gitops.io/v1alpha1
@@ -4100,20 +4344,23 @@ This analysis confirms that **Raft remains the optimal choice for most consensus
 
 ### OpsLevel - Internal Developer Platform Management
 
-**Source**: https://www.opslevel.com/
+**Source**: <https://www.opslevel.com/>
 
 **Key Features**:
+
 - Service maturity scoring
 - Automated compliance checking
 - Developer onboarding workflows
 - Integration with multiple tools
 
 **Applicability to GitOps Control Plane**:
+
 - Could provide maturity metrics for infrastructure services
 - Automated compliance checking for multi-cloud deployments
 - Standardized onboarding for new infrastructure components
 
-**Safety Assessment**: 
+**Safety Assessment**:
+
 - Enterprise-grade platform
 - Focus on compliance and standards
 - Strong integration capabilities
@@ -4171,20 +4418,24 @@ This analysis confirms that **Raft remains the optimal choice for most consensus
 ### New Considerations
 
 **Platform Complexity**:
+
 - **Risk**: Additional layers increase operational complexity
 - **Mitigation**: Phased deployment, thorough testing, clear documentation
 
 **Integration Points**:
+
 - **Risk**: Multiple integration points create failure modes
 - **Mitigation**: Standardized APIs, comprehensive monitoring, fallback procedures
 
 **Vendor Lock-in**:
+
 - **Risk**: Platform-specific features limit flexibility
 - **Mitigation**: Open-source solutions, standard interfaces, portable configurations
 
 ### Updated Safety Mechanisms
 
 #### Enhanced Security Policies
+
 ```yaml
 apiVersion: policy/v1
 kind: PodSecurityPolicy
@@ -4211,6 +4462,7 @@ spec:
 ```
 
 #### Enhanced Network Policies
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -4260,6 +4512,7 @@ The expanded analysis reveals a rich ecosystem of tools and platforms that can s
 The key is to maintain the GitOps-first principles while selectively integrating tools that provide clear value without compromising security or simplicity.
 
 **Updated Recommendations**:
+
 1. **Start with AI Agents Sandbox** for immediate capabilities
 2. **Plan Backstage integration** for enhanced developer experience
 3. **Evaluate workflow orchestration** based on complexity needs
@@ -4283,12 +4536,14 @@ The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orche
 #### Key Architectural Insights from ai-agents-sandbox
 
 **Distributed Consensus Framework**:
+
 - **30+ Specialized Skills**: Infrastructure discovery, compliance checking, cost optimization, security validation, performance tuning
 - **Safe Execution Environment**: Human-in-the-loop controls with tool restrictions and audit trails  
 - **Multi-Agent Coordination**: Decentralized decision-making without single points of failure
 - **Enterprise-Ready Governance**: Comprehensive safety boundaries and monitoring
 
 **Bottoms-Up Orchestration Benefits**:
+
 - **No Single Point of Failure**: Consensus continues despite agent failures
 - **Fast Feedback Loops**: Local optimization decisions made in seconds
 - **Scalable Coordination**: Add agents without changing architecture
@@ -4299,14 +4554,16 @@ The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orche
 Drawing from consensus algorithm research (Paxos, Raft, PBFT), the architecture implements:
 
 #### Paxos/Raft Consensus for Agent Coordination
-**Source**: https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab
+
+**Source**: <https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab>
 
 - **Paxos Protocol**: Two-phase commit for distributed agreement
 - **Raft Algorithm**: Simpler leader election with log replication
 - **Consensus Guarantees**: Safety (never conflicting decisions) and liveness (eventual progress)
 
 #### Distributed Consensus in MAS
-**Source**: https://www.sciencedirect.com/science/article/pii/S0167739X25005151
+
+**Source**: <https://www.sciencedirect.com/science/article/pii/S0167739X25005151>
 
 - **Local-to-Global Optimization**: Agents optimize locally, consensus coordinates globally
 - **Fault Tolerance**: 2n+1 nodes for Byzantine fault tolerance
@@ -4315,6 +4572,7 @@ Drawing from consensus algorithm research (Paxos, Raft, PBFT), the architecture 
 ### Practical Implementation: Consensus-Based Agent Swarm
 
 #### Self-Organizing Agent Architecture
+
 ```yaml
 apiVersion: consensus.gitops.io/v1alpha1
 kind: AgentSwarm
@@ -4342,7 +4600,9 @@ spec:
 ```
 
 #### Multi-Scale Feedback Loops
+
 **Micro-Loops (Seconds)**: Local optimization without central coordination
+
 ```python
 class LocalOptimizer:
     def run_tight_feedback_loop(self):
@@ -4355,6 +4615,7 @@ class LocalOptimizer:
 ```
 
 **Meso-Loops (Minutes)**: Agent consensus for cross-cutting decisions
+
 ```yaml
 apiVersion: consensus.gitops.io/v1alpha1
 kind: AgentProposal
@@ -4374,7 +4635,9 @@ spec:
 **Macro-Loops (Hours)**: Global optimization across entire infrastructure
 
 #### Consensus Security Model
+
 **Distributed Security Validation**:
+
 - **Agent Isolation**: Each agent runs with minimal permissions
 - **Encrypted Communication**: All agent-to-agent communication secured
 - **Audit Logging**: Consensus decisions fully traceable
@@ -4383,6 +4646,7 @@ spec:
 ### Integration with GitOps Control Plane
 
 #### Enhanced Architecture with Consensus Layer
+
 ```yaml
 # GitOps with Consensus-Based Agents
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -4403,6 +4667,7 @@ spec:
 ```
 
 #### Agent Swarm Configuration
+
 ```yaml
 # Self-Organizing Agent Swarm
 apiVersion: swarm.gitops.io/v1alpha1
@@ -4443,12 +4708,14 @@ spec:
 ### Security and Governance
 
 #### Consensus-Based Security
+
 - **Vote Validation**: Authorized agents only participate
 - **Proposal Authentication**: All proposals verified
 - **Consensus Integrity**: Prevents manipulation attacks
 - **Byzantine Fault Tolerance**: Resists malicious agents
 
 #### Network Policies for Agent Communication
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -4482,28 +4749,31 @@ spec:
 ### Implementation Roadmap
 
 #### Phase 1: Foundation
+
 1. **Deploy Consensus Protocol**: Implement Raft-based consensus for critical decisions
 2. **Add Tight Feedback Loops**: Local monitoring loops with short intervals
 3. **Enable Agent Communication**: Inter-agent coordination channels
 
 #### Phase 2: Advanced Features
+
 1. **Multi-Cloud Consensus**: Cross-cloud agent communication
 2. **Emergent Behavior**: Learning algorithms for pattern recognition
 3. **Dynamic Specialization**: Agents adapt based on environment
 
 #### Phase 3: Production Readiness
+
 1. **Enterprise Security**: Advanced security and compliance
 2. **Comprehensive Monitoring**: Full observability stack
 3. **Performance Optimization**: Consensus protocol tuning
 
 ### Academic and Technical References
 
-- **Consensus Algorithms**: https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab
-- **Distributed Consensus in MAS**: https://www.sciencedirect.com/science/article/pii/S0167739X25005151  
-- **Raft Consensus**: https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained
-- **Hierarchical Consensus**: https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/delarocha2022.pdf
-- **Consensus in Distributed Systems**: https://dzone.com/articles/exploring-the-role-of-consensus-algorithms-in-dist
-- **Agent Orchestration**: https://telnyx.com/resources/ai-orchestration-platforms-best-practices
+- **Consensus Algorithms**: <https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab>
+- **Distributed Consensus in MAS**: <https://www.sciencedirect.com/science/article/pii/S0167739X25005151>  
+- **Raft Consensus**: <https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained>
+- **Hierarchical Consensus**: <https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/delarocha2022.pdf>
+- **Consensus in Distributed Systems**: <https://dzone.com/articles/exploring-the-role-of-consensus-algorithms-in-dist>
+- **Agent Orchestration**: <https://telnyx.com/resources/ai-orchestration-platforms-best-practices>
 
 ---
 
@@ -4511,7 +4781,7 @@ spec:
 
 This section analyzes the provided references on distributed consensus, orchestration, and multi-agent systems, evaluating their applicability to the GitOps Infra Control Plane repository. The analysis focuses on enabling tight feedback loops, autonomous distributed orchestration, decentralized self-organizing systems, and bottom-up consensus mechanisms for infrastructure management.
 
-## 1. https://www.sciencedirect.com/science/article/pii/S0167739X25005151
+## 1. <https://www.sciencedirect.com/science/article/pii/S0167739X25005151>
 
 **Content Summary**: Presents a consensus-based distributed orchestration framework for microservices at the edge, using a leader-follower consensus model adapted for dynamic workloads and resource allocation in edge computing environments.
 
@@ -4521,7 +4791,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement as Flux-managed controllers in `control-plane/controllers/`. Use consensus protocols for cross-cluster resource orchestration, ensuring dependsOn relationships reflect consensus quorum requirements.
 
-## 2. https://borisburkov.net/2021-10-03-1/
+## 2. <https://borisburkov.net/2021-10-03-1/>
 
 **Content Summary**: Discusses principles of distributed systems, emphasizing decentralization, fault tolerance, and avoiding single points of failure through consensus algorithms.
 
@@ -4531,7 +4801,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Incorporate into architecture design for agent swarms in `infrastructure/tenants/3-workloads/`, using consensus to coordinate agent actions across clusters.
 
-## 3. https://systemdr.substack.com/p/distributed-consensus-paxos-simplified
+## 3. <https://systemdr.substack.com/p/distributed-consensus-paxos-simplified>
 
 **Content Summary**: Simplified explanation of Paxos consensus algorithm, covering its phases, fault tolerance, and application to distributed systems.
 
@@ -4541,7 +4811,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement Paxos-based consensus in custom controllers for critical infrastructure decisions, integrated with Flux reconciliation loops.
 
-## 4. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371408/
+## 4. <https://pmc.ncbi.nlm.nih.gov/articles/PMC9371408/>
 
 **Content Summary**: Research on consensus mechanisms in biological systems and their application to artificial multi-agent systems.
 
@@ -4551,7 +4821,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Explore for advanced agent behavior patterns in `examples/complete-hub-spoke/agent-orchestration-demo.md`.
 
-## 5. https://www.mdpi.com/2078-2489/16/4/268
+## 5. <https://www.mdpi.com/2078-2489/16/4/268>
 
 **Content Summary**: Reviews consensus algorithms for blockchain and distributed ledger technologies.
 
@@ -4561,7 +4831,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Adapt proof-of-work or proof-of-stake concepts to agent consensus protocols for infrastructure optimization decisions.
 
-## 6. https://chain.link/article/what-is-a-consensus-mechanism
+## 6. <https://chain.link/article/what-is-a-consensus-mechanism>
 
 **Content Summary**: Explains consensus mechanisms in blockchain, including proof-of-work, proof-of-stake, and delegated proof-of-stake.
 
@@ -4571,7 +4841,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use proof-of-stake-like mechanisms where agents "stake" their reliability scores to participate in consensus on infrastructure changes.
 
-## 7. https://arxiv.org/pdf/2102.12058
+## 7. <https://arxiv.org/pdf/2102.12058>
 
 **Content Summary**: Research on distributed consensus for resource allocation in edge computing.
 
@@ -4581,7 +4851,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement in `control-plane/flux/` for automated resource optimization workflows.
 
-## 8. https://www.researchgate.net/publication/385490570_Distributed_Resource_Orchestration_at_the_Edge_Based_on_Consensus
+## 8. <https://www.researchgate.net/publication/385490570_Distributed_Resource_Orchestration_at_the_Edge_Based_on_Consensus>
 
 **Content Summary**: Framework for distributed resource orchestration using consensus algorithms at the network edge.
 
@@ -4591,7 +4861,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Extend to multi-cloud edge deployments, integrating with existing network policies.
 
-## 9. https://journals.sagepub.com/doi/10.1177/0170840619868268
+## 9. <https://journals.sagepub.com/doi/10.1177/0170840619868268>
 
 **Content Summary**: Organizational theory on distributed decision-making and consensus in complex systems.
 
@@ -4601,7 +4871,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Apply to agent swarm design in `examples/complete-hub-spoke/consensus-layer/`.
 
-## 10. https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained
+## 10. <https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained>
 
 **Content Summary**: Detailed explanation of Raft consensus protocol used in Consul for service discovery and orchestration.
 
@@ -4611,7 +4881,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use Raft for agent consensus in `control-plane/controllers/kustomization.yaml`.
 
-## 11. https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/delarocha2022.pdf
+## 11. <https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/delarocha2022.pdf>
 
 **Content Summary**: Hierarchical consensus framework for scalable blockchain systems.
 
@@ -4621,7 +4891,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement hierarchical consensus for multi-tier agent orchestration.
 
-## 12. https://dzone.com/articles/exploring-the-role-of-consensus-algorithms-in-dist
+## 12. <https://dzone.com/articles/exploring-the-role-of-consensus-algorithms-in-dist>
 
 **Content Summary**: Explores consensus algorithms in distributed systems, their types, and applications.
 
@@ -4631,7 +4901,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Reference for choosing consensus protocols in agent design.
 
-## 13. https://onlinelibrary.wiley.com/doi/10.1111/joms.70054
+## 13. <https://onlinelibrary.wiley.com/doi/10.1111/joms.70054>
 
 **Content Summary**: Journal of Management Studies article on distributed leadership and consensus in organizations.
 
@@ -4641,7 +4911,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Inform agent swarm behavior patterns.
 
-## 14. https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab
+## 14. <https://dev.to/pragyasapkota/consensus-algorithms-paxos-and-raft-37ab>
 
 **Content Summary**: Comparison of Paxos and Raft consensus algorithms.
 
@@ -4651,7 +4921,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use Raft for most use cases, Paxos for critical consistency requirements.
 
-## 15. https://www.sciencedirect.com/science/article/pii/S0148296323008226
+## 15. <https://www.sciencedirect.com/science/article/pii/S0148296323008226>
 
 **Content Summary**: Research on consensus in multi-agent systems for optimization problems.
 
@@ -4661,7 +4931,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement in cost-optimization and performance-tuning agents.
 
-## 16. https://link.springer.com/article/10.1186/s42400-023-00163-y
+## 16. <https://link.springer.com/article/10.1186/s42400-023-00163-y>
 
 **Content Summary**: Consensus algorithms for distributed machine learning.
 
@@ -4671,7 +4941,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use for agent learning and adaptation in autonomous operations.
 
-## 17. https://www.imf.org/en/-/media/files/publications/ftn063/2022/english/ftnea2022003.pdf
+## 17. <https://www.imf.org/en/-/media/files/publications/ftn063/2022/english/ftnea2022003.pdf>
 
 **Content Summary**: IMF working paper on consensus mechanisms in financial systems and their implications for distributed systems.
 
@@ -4681,7 +4951,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Inform cost-optimization consensus protocols.
 
-## 18. https://levelup.gitconnected.com/from-chatbots-to-agents-what-actually-changed-and-why-it-matters-df5d3b516705?gi=3c002d29deac
+## 18. <https://levelup.gitconnected.com/from-chatbots-to-agents-what-actually-changed-and-why-it-matters-df5d3b516705?gi=3c002d29deac>
 
 **Content Summary**: Evolution from chatbots to autonomous agents, discussing orchestration and consensus in agent systems.
 
@@ -4691,7 +4961,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Guide the shift to autonomous agent swarms in the control plane.
 
-## 19. https://dl.acm.org/doi/full/10.1145/3697090.3697100
+## 19. <https://dl.acm.org/doi/full/10.1145/3697090.3697100>
 
 **Content Summary**: ACM paper on agent orchestration patterns.
 
@@ -4701,7 +4971,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement patterns in `examples/complete-hub-spoke/agent-orchestration-demo.md`.
 
-## 20. https://github.com/ruvnet/ruflo
+## 20. <https://github.com/ruvnet/ruflo>
 
 **Content Summary**: Open-source project for distributed workflow orchestration.
 
@@ -4711,7 +4981,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Evaluate for inclusion in `control-plane/controllers/`.
 
-## 21. https://www.usenix.org/system/files/cset20-paper-hussain.pdf
+## 21. <https://www.usenix.org/system/files/cset20-paper-hussain.pdf>
 
 **Content Summary**: USENIX paper on secure distributed systems.
 
@@ -4721,7 +4991,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Incorporate security recommendations into agent consensus protocols.
 
-## 22. https://anrg.usc.edu/www/papers/EDISON_SDN_Blockchain.pdf
+## 22. <https://anrg.usc.edu/www/papers/EDISON_SDN_Blockchain.pdf>
 
 **Content Summary**: Research on SDN and blockchain integration for network orchestration.
 
@@ -4731,7 +5001,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use for network orchestration in `control-plane/flux/network.yaml`.
 
-## 23. https://cse.buffalo.edu/tech-reports/2016-02.orig.pdf
+## 23. <https://cse.buffalo.edu/tech-reports/2016-02.orig.pdf>
 
 **Content Summary**: Technical report on distributed consensus algorithms.
 
@@ -4741,7 +5011,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Reference for advanced consensus implementations.
 
-## 24. https://www.research-collection.ethz.ch/bitstreams/7cfbe30b-e31d-4b1c-8b88-092ffc17dc24/download
+## 24. <https://www.research-collection.ethz.ch/bitstreams/7cfbe30b-e31d-4b1c-8b88-092ffc17dc24/download>
 
 **Content Summary**: ETH Zurich research on distributed systems.
 
@@ -4751,7 +5021,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Inform theoretical agent designs.
 
-## 25. https://eajournals.org/bjms/wp-content/uploads/sites/21/2025/05/Raft-Consensus-Algorithm.pdf
+## 25. <https://eajournals.org/bjms/wp-content/uploads/sites/21/2025/05/Raft-Consensus-Algorithm.pdf>
 
 **Content Summary**: Detailed analysis of Raft consensus algorithm.
 
@@ -4761,7 +5031,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Use as implementation guide for consensus protocols.
 
-## 26. https://kluedo.ub.rptu.de/frontdoor/deliver/index/docId/6960/file/_Machine+Learning-based+Orchestration+Solutions+for+Future+Slicing+Enabled+Mobile+Networks.pdf
+## 26. <https://kluedo.ub.rptu.de/frontdoor/deliver/index/docId/6960/file/_Machine+Learning-based+Orchestration+Solutions+for+Future+Slicing+Enabled+Mobile+Networks.pdf>
 
 **Content Summary**: ML-based orchestration for network slicing using consensus.
 
@@ -4771,7 +5041,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Apply to performance optimization agents.
 
-## 27. https://telnyx.com/resources/ai-orchestration-platforms-best-practices
+## 27. <https://telnyx.com/resources/ai-orchestration-platforms-best-practices>
 
 **Content Summary**: Best practices for AI orchestration platforms.
 
@@ -4781,7 +5051,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Implement best practices in agent orchestration demos.
 
-## 28. https://www.nokia.com/asset/f/213047/
+## 28. <https://www.nokia.com/asset/f/213047/>
 
 **Content Summary**: Nokia whitepaper on network orchestration and consensus mechanisms.
 
@@ -4791,7 +5061,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Integration Approach**: Reference for production-ready orchestration architectures.
 
-## 29. https://www.resolute.sh/docs
+## 29. <https://www.resolute.sh/docs>
 
 **Content Summary**: Resolute is a Go framework for "AgentOrchestration as Code" providing type-safe workflows, fluent API, built-in patterns (compensation/saga, pagination, rate limiting), and provider ecosystem (Jira, Confluence, Ollama, Qdrant). Supports multi-model LLM integration, agent child workflows, and observability features.
 
@@ -4822,6 +5092,7 @@ Before implementing any component of this control plane, teams must clearly defi
 **Common Pushback**: "Multi-cloud solutions looking for problems"
 
 **Reality Check**:
+
 - Most organizations don't have multi-cloud problems
 - Multi-cloud is often a solution looking for a problem
 - True multi-cloud needs are rare and specific
@@ -4831,16 +5102,18 @@ Before implementing any component of this control plane, teams must clearly defi
 ### Scenario-Specific Implementation Guidance
 
 **For detailed analysis of when and how to apply this control plane across different scenarios, see:**
+
 - **[Brownfield vs Greenfield Analysis](./BROWNFIELD-GREENFIELD-ANALYSIS.md)** - Comprehensive scenario-based guidance
 - **Problem Definition Framework** - Step-by-step methodology for clear problem articulation
 - **Success Criteria Matrix** - Measurable outcomes by scenario type
 - **Implementation Decision Matrix** - When to use which components
 
-## 26. https://james-carr.org/posts/2026-02-05-temporal-durable-ai-agents/
+## 26. <https://james-carr.org/posts/2026-02-05-temporal-durable-ai-agents/>
 
 **Content Summary**: Comprehensive guide to building durable AI agents with Temporal's AI SDK integration, featuring multi-model scatter/gather patterns across Claude Haiku, Sonnet, and Opus. Demonstrates how to make LLM calls survive infrastructure failures, API rate limits, and network timeouts through automatic durability and retry logic.
 
 **Key Features**:
+
 - **Durable Execution**: Every LLM call becomes a Temporal Activity with automatic retries and state persistence
 - **Multi-Model Scatter/Gather**: Parallel queries across Claude models with result aggregation
 - **Tool Integration**: AI tools implemented as Temporal Activities with same durability guarantees
@@ -4852,12 +5125,14 @@ Before implementing any component of this control plane, teams must clearly defi
 **Safety Assessment**: ✅ **HIGHLY SAFE** - Temporal provides enterprise-grade reliability with automatic error handling, state persistence, and comprehensive audit trails. The separation of API credentials from client servers enhances security posture.
 
 **Applicability**: **HIGH** - Directly applicable to GitOps infrastructure control plane for:
+
 - **Durable Infrastructure Agents**: AI agents that can survive cluster failures and resume operations
 - **Multi-Cloud Analysis**: Scatter/gather across different cloud providers' APIs simultaneously
 - **Long-Running Workflows**: Complex infrastructure provisioning that spans hours or days
 - **Tool Integration**: Infrastructure tools (kubectl, cloud CLIs) as durable Temporal Activities
 
-**Integration Approach**: 
+**Integration Approach**:
+
 ```yaml
 # Potential integration: Temporal workers in control-plane
 apiVersion: apps/v1
@@ -4887,22 +5162,25 @@ spec:
 ```
 
 **Benefits for GitOps Control Plane**:
+
 - **Failure Recovery**: Infrastructure agents resume exactly where they left off after failures
 - **Parallel Processing**: Multi-cloud scatter/gather for comprehensive infrastructure analysis
 - **Audit Trail**: Complete history of AI decisions and infrastructure modifications
 - **Resource Efficiency**: Workers scale independently based on AI workload demands
 
 **Related Resources**:
+
 - [Night City Services Demo](https://github.com/jamescarr/night-city-services) - Complete implementation
 - [Temporal AI SDK Integration](https://docs.temporal.io/develop/typescript/ai-sdk) - TypeScript integration guide
 - [AI Cookbook](https://docs.temporal.io/ai-cookbook) - Additional patterns and examples
 - [Vercel AI SDK](https://ai-sdk.dev/) - Underlying AI SDK framework
 
-## 27. https://github.com/jamescarr/night-city-services
+## 27. <https://github.com/jamescarr/night-city-services>
 
 **Content Summary**: Complete cyberpunk-themed implementation of Temporal workflow patterns including AI agents, scatter/gather, process managers, and saga orchestration. Features four main demos: cyberware installation saga, data broker scatter-gather, heist process manager, and NetWatch AI agent with multi-model analysis.
 
 **Key Demos**:
+
 - **Cyberware Installation Saga**: Long-running workflow with compensation patterns for rollback
 - **Data Broker Scatter-Gather**: Parallel queries across multiple data sources with aggregation
 - **Heist Process Manager**: Real-time workflow coordination using signals and queries
@@ -4913,12 +5191,14 @@ spec:
 **Safety Assessment**: ✅ **HIGHLY SAFE** - Production-quality code with comprehensive error handling, retry logic, and compensation patterns. Demonstrates enterprise-grade reliability patterns.
 
 **Applicability**: **HIGH** - Reference implementation for GitOps control plane:
+
 - **Saga Patterns**: Infrastructure provisioning with automatic rollback on failure
 - **Scatter/Gather**: Multi-cloud resource discovery and analysis
 - **Process Managers**: Coordinated infrastructure changes across multiple clusters
 - **AI Integration**: Durable AI agents for infrastructure analysis and optimization
 
 **Integration Approach**: Use as reference implementation for:
+
 ```yaml
 # Example: Infrastructure saga with compensation
 apiVersion: io.temporal/v1alpha1
@@ -4936,22 +5216,25 @@ spec:
 ```
 
 **Benefits for GitOps Control Plane**:
+
 - **Reliability Patterns**: Proven saga and compensation patterns for infrastructure changes
 - **Multi-Cloud Coordination**: Scatter/gather across AWS, Azure, GCP APIs
 - **AI-Enhanced Operations**: Durable AI agents for intelligent infrastructure management
 - **Enterprise Integration**: Production-ready patterns for complex workflows
 
 **Repository Structure**:
+
 - `workflows/` - Temporal workflow definitions
 - `activities/` - Infrastructure tool integrations
 - `workers/` - AI SDK plugin configurations
 - `api/` - Express servers for workflow orchestration
 
-## 28. https://docs.temporal.io/ai-cookbook/agentic-loop-tool-call-claude-python
+## 28. <https://docs.temporal.io/ai-cookbook/agentic-loop-tool-call-claude-python>
 
 **Content Summary**: Basic agentic loop implementation using Claude with tool calling in Python. Demonstrates how to create durable AI agents that can intelligently choose and execute tools to answer user questions, with automatic retry logic and state persistence through Temporal.
 
 **Key Features**:
+
 - **Agentic Loop**: Continuous AI decision-making with tool selection
 - **Tool Calling**: Claude can invoke external tools based on user queries
 - **Durable Execution**: Every AI decision and tool call is persisted and retryable
@@ -4960,15 +5243,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Temporal provides enterprise-grade reliability for AI agent execution, with automatic error handling and state persistence.
 
 **Applicability**: **MEDIUM** - Useful for Python-based infrastructure automation:
+
 - **Infrastructure Analysis**: AI agents that can query cloud APIs and analyze results
 - **Automated Remediation**: Tools that can fix infrastructure issues based on AI decisions
 - **Compliance Checking**: Agents that can validate infrastructure against policies
 
-## 29. https://james-carr.org/posts/2026-02-03-temporal-scatter-gather/
+## 29. <https://james-carr.org/posts/2026-02-03-temporal-scatter-gather/>
 
 **Content Summary**: Implementation of scatter/gather pattern in Temporal for parallel querying of multiple data brokers with result aggregation. Demonstrates how to handle partial failures, retry policies, and result aggregation in distributed systems.
 
 **Key Features**:
+
 - **Parallel Execution**: Query multiple data sources simultaneously
 - **Fault Tolerance**: Graceful handling of individual broker failures
 - **Result Aggregation**: Combine results from successful queries
@@ -4977,16 +5262,18 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Proven enterprise pattern with comprehensive error handling and fault tolerance.
 
 **Applicability**: **HIGH** - Directly applicable to multi-cloud GitOps operations:
+
 - **Multi-Cloud Discovery**: Parallel queries across AWS, Azure, GCP APIs
 - **Resource Inventory**: Gather infrastructure data from multiple sources
 - **Compliance Scanning**: Parallel security checks across environments
 - **Cost Analysis**: Simultaneous cost queries from different providers
 
-## 30. https://docs.temporal.io/ai-cookbook/durable-agent-with-tools
+## 30. <https://docs.temporal.io/ai-cookbook/durable-agent-with-tools>
 
 **Content Summary**: Build durable AI agents with OpenAI Agents SDK and Temporal that can intelligently choose tools to answer user questions. Demonstrates integration of AI agents with external tools and APIs through Temporal's durable execution model.
 
 **Key Features**:
+
 - **Tool Selection**: AI agents dynamically choose appropriate tools
 - **Durable Tool Execution**: Tool calls are persisted and retryable
 - **OpenAI Integration**: Alternative AI provider integration
@@ -4995,15 +5282,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Enterprise-grade reliability with comprehensive tool execution safeguards.
 
 **Applicability**: **MEDIUM** - Alternative AI provider integration:
+
 - **Multi-Provider Strategy**: Use OpenAI alongside Claude for different tasks
 - **Tool Integration**: Connect AI agents with infrastructure management tools
 - **Cost Optimization**: Choose optimal AI models for specific infrastructure tasks
 
-## 31. https://docs.temporal.io/evaluate/development-production-features/release-stages
+## 31. <https://docs.temporal.io/evaluate/development-production-features/release-stages>
 
 **Content Summary**: Temporal's product release stages guide detailing criteria for Pre-release, Public Preview, and General Availability features. Helps organizations make informed decisions about feature adoption and production readiness.
 
 **Key Stages**:
+
 - **Pre-release**: Early access for testing and feedback
 - **Public Preview**: Feature-complete but not yet GA
 - **General Availability**: Production-ready with full support
@@ -5011,15 +5300,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Governance framework for technology adoption.
 
 **Applicability**: **MEDIUM** - Technology adoption guidance:
+
 - **Feature Evaluation**: Assess readiness of new Temporal features
 - **Risk Management**: Understand support and stability implications
 - **Planning**: Timeline for production feature adoption
 
-## 32. https://docs.temporal.io/develop/typescript/ai-sdk
+## 32. <https://docs.temporal.io/develop/typescript/ai-sdk>
 
 **Content Summary**: Comprehensive guide for implementing AI applications in TypeScript using Temporal TypeScript SDK and Vercel AI SDK. Covers prerequisites, worker configuration, simple agents, tool integration, and Model Context Protocol (MCP) server integration.
 
 **Key Features**:
+
 - **TypeScript Integration**: Native TypeScript support for AI development
 - **Vercel AI SDK**: Seamless integration with popular AI framework
 - **MCP Support**: Model Context Protocol for standardized AI interactions
@@ -5028,15 +5319,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Official documentation with production-ready patterns.
 
 **Applicability**: **HIGH** - Primary integration path for TypeScript-based teams:
+
 - **Type Safety**: Compile-time error prevention for AI workflows
 - **Developer Experience**: Familiar TypeScript patterns for AI development
 - **Ecosystem Integration**: Leverage existing TypeScript infrastructure
 
-## 33. https://docs.temporal.io/ai-cookbook
+## 33. <https://docs.temporal.io/ai-cookbook>
 
 **Content Summary**: Comprehensive collection of AI integration patterns including Hello World examples, structured outputs, retry policies, agentic loops, human-in-the-loop patterns, and claim check patterns. Provides production-ready templates for common AI use cases.
 
 **Key Patterns**:
+
 - **Hello World**: Basic AI integration templates
 - **Structured Outputs**: Type-safe AI response handling
 - **Retry Policies**: Intelligent error handling for AI failures
@@ -5046,15 +5339,17 @@ spec:
 **Safety Assessment**: ✅ **HIGHLY SAFE** - Curated collection of production-ready patterns.
 
 **Applicability**: **HIGH** - Pattern library for GitOps AI integration:
+
 - **Template Library**: Ready-to-use patterns for common infrastructure tasks
 - **Best Practices**: Proven approaches for AI reliability
 - **Human Oversight**: Patterns for human-in-the-loop infrastructure changes
 
-## 34. https://ai-sdk.dev/
+## 34. <https://ai-sdk.dev/>
 
 **Content Summary**: Vercel AI SDK - The AI Toolkit for TypeScript providing unified interface for multiple AI providers including OpenAI, Anthropic, Google, and others. Offers streaming, tool calling, structured outputs, and provider switching capabilities.
 
 **Key Features**:
+
 - **Multi-Provider Support**: Unified API across AI providers
 - **Streaming**: Real-time AI response streaming
 - **Tool Calling**: Standardized tool integration across providers
@@ -5063,15 +5358,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Industry-standard AI SDK with enterprise adoption.
 
 **Applicability**: **HIGH** - Foundation for AI integration in GitOps:
+
 - **Provider Flexibility**: Switch between AI providers without code changes
 - **Type Safety**: Compile-time guarantees for AI interactions
 - **Ecosystem**: Large community and extensive documentation
 
-## 35. https://temporal.io/blog/building-durable-agents-with-temporal-and-ai-sdk-by-vercel
+## 35. <https://temporal.io/blog/building-durable-agents-with-temporal-and-ai-sdk-by-vercel>
 
 **Content Summary**: Official guide on building production-ready, durable AI agents in TypeScript with Vercel's AI SDK and Temporal. Demonstrates how to add automatic retries, state persistence, and crash-safe tool calls with minimal code changes.
 
 **Key Benefits**:
+
 - **Minimal Code Changes**: Simple migration from standard AI SDK usage
 - **Automatic Durability**: Built-in retry logic and state persistence
 - **Crash Safety**: Agents survive infrastructure failures
@@ -5080,15 +5377,17 @@ spec:
 **Safety Assessment**: ✅ **HIGHLY SAFE** - Official production guidance from Temporal.
 
 **Applicability**: **HIGH** - Migration path for existing AI integrations:
+
 - **Easy Migration**: Minimal changes to add durability to existing AI code
 - **Production Upgrade**: Path from experimental to production AI systems
 - **Reliability**: Enterprise-grade guarantees for AI operations
 
-## 36. https://james-carr.org/posts/2026-02-03-temporal-process-manager/
+## 36. <https://james-carr.org/posts/2026-02-03-temporal-process-manager/>
 
 **Content Summary**: Implementation of Process Manager pattern in Temporal with signals and queries for real-time workflow interaction. Demonstrates how to coordinate complex workflows that require external events and human interaction through signals and state queries.
 
 **Key Features**:
+
 - **Process Manager Pattern**: Coordinate complex workflows across multiple services
 - **Signals**: Real-time event injection into running workflows
 - **Queries**: Inspect workflow state without side effects
@@ -5097,15 +5396,17 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Proven enterprise pattern with comprehensive coordination capabilities.
 
 **Applicability**: **HIGH** - Complex infrastructure coordination:
+
 - **Multi-Cluster Operations**: Coordinate changes across multiple clusters
 - **Human Approval**: Required approval steps for critical infrastructure changes
 - **Real-time Coordination**: Respond to external events during infrastructure operations
 
-## 37. https://james-carr.org/posts/2026-03-01-agent-hosting-patterns/
+## 37. <https://james-carr.org/posts/2026-03-01-agent-hosting-patterns/>
 
 **Content Summary**: Comprehensive taxonomy of seven deployment patterns for AI agents in production: from simple cron jobs to complex multi-agent meshes. Provides examples and trade-offs for each pattern to help choose appropriate hosting strategy.
 
 **Seven Patterns**:
+
 1. **Scheduled Agent (Cron)**: Time-triggered AI operations
 2. **Event-Driven Agent (Reactive)**: Responds to infrastructure events
 3. **Persistent Long-Running Agent (Daemon)**: Always-on AI services
@@ -5117,6 +5418,7 @@ spec:
 **Safety Assessment**: ✅ **SAFE** - Comprehensive pattern analysis with trade-off evaluation.
 
 **Applicability**: **HIGH** - Strategic planning for AI agent deployment:
+
 - **Pattern Selection**: Choose appropriate hosting model for specific needs
 - **Evolution Path**: Progress from simple to complex agent deployments
 - **Architecture Planning**: Design scalable AI agent infrastructure
@@ -5126,14 +5428,17 @@ spec:
 ### Direct Relevance to Existing Examples
 
 #### 1. **Agent Orchestration Demo** (`examples/complete-hub-spoke/agent-orchestration-demo.md`)
+
 **Current State**: Consensus-based self-organizing swarms with 30-second feedback loops
-**Temporal Enhancement**: 
+**Temporal Enhancement**:
+
 - **Durable Consensus**: Persist consensus state through cluster failures
 - **Process Manager**: Coordinate complex multi-agent workflows with signals
 - **Saga Compensation**: Automatic rollback of failed consensus decisions
 - **Multi-Model AI**: Scatter/gather across Claude models for consensus decisions
 
 **Integration Pattern**:
+
 ```yaml
 # Enhanced consensus with Temporal durability
 apiVersion: io.temporal/v1alpha1
@@ -5152,14 +5457,17 @@ spec:
 ```
 
 #### 2. **Agent Skills Next Level** (`docs/AGENT-SKILLS-NEXT-LEVEL.md`)
+
 **Current State**: Distributed orchestration evolution from MCP to Agent Skills
 **Temporal Enhancement**:
+
 - **Durable Agent Skills**: Skills survive infrastructure failures and resume
 - **Tool Integration**: Infrastructure tools as durable Temporal Activities
 - **Human-in-the-Loop**: Approval workflows for critical infrastructure changes
 - **Multi-Cloud Coordination**: Scatter/gather across cloud providers for skill execution
 
 **Enhanced Skill Pattern**:
+
 ```typescript
 // Durable skill with Temporal
 @temporalWorkflow
@@ -5184,22 +5492,27 @@ export async function durableInfrastructureSkill(request: SkillRequest) {
 ```
 
 #### 3. **Consensus-Based Examples** (`examples/complete-hub-spoke-consensus/`)
+
 **Current State**: Multi-scale feedback loops (30s, 5m, 1h) with distributed consensus
 **Temporal Enhancement**:
+
 - **Durable Feedback Loops**: Persist loop state through failures
 - **Process Manager**: Coordinate multi-scale loops with signals
 - **Saga Patterns**: Compensation for failed loop iterations
 - **Observability**: Complete audit trail of consensus decisions
 
 #### 4. **Job Orchestration** (`docs/JOB_ORCHESTRATION.md`)
+
 **Current State**: Kubernetes Jobs with Flux for pre/post deployment tasks
 **Temporal Enhancement**:
+
 - **Durable Job Chains**: Jobs survive cluster failures and resume
 - **Complex Dependencies**: Beyond Flux dependsOn to dynamic dependencies
 - **Human-in-the-Loop**: Approval steps for critical deployment phases
 - **Cross-Cluster Coordination**: Coordinate jobs across multiple clusters
 
 **Enhanced Job Pattern**:
+
 ```yaml
 # Temporal-enhanced job orchestration
 apiVersion: io.temporal/v1alpha1  
@@ -5223,14 +5536,18 @@ spec:
 ### Strategic Integration Opportunities
 
 #### 1. **Hybrid Architecture: Flux + Temporal**
+
 **Pattern**: Use Flux for declarative infrastructure, Temporal for imperative AI workflows
+
 - **Flux**: Manages Kubernetes resources and dependencies
 - **Temporal**: Manages AI agent workflows and complex orchestration
 - **Integration**: Flux triggers Temporal workflows for AI-enhanced operations
 
 #### 2. **Multi-Cloud Scatter/Gather Enhancement**
+
 **Current**: Crossplane providers and CAPI integrations
 **Temporal Enhancement**: Parallel multi-cloud AI with intelligent aggregation
+
 ```typescript
 // Multi-cloud scatter/gather for GitOps
 export async function multiCloudInfrastructureAnalysis(query: InfrastructureQuery) {
@@ -5244,15 +5561,19 @@ export async function multiCloudInfrastructureAnalysis(query: InfrastructureQuer
 ```
 
 #### 3. **AI-Enhanced Continuous Reconciliation**
+
 **Current**: Flux continuous reconciliation with native cloud controllers
 **Temporal Enhancement**: AI-driven intelligent reconciliation
+
 - **Anomaly Detection**: AI agents identify unusual reconciliation patterns
 - **Predictive Scaling**: Anticipate infrastructure needs based on trends
 - **Automated Remediation**: AI agents fix issues before human intervention
 
 #### 4. **Consensus-Based Distributed Decision Making**
+
 **Current**: Centralized Flux controller decisions
 **Temporal Enhancement**: Distributed consensus for critical infrastructure changes
+
 - **Agent Voting**: Multiple AI agents vote on infrastructure changes
 - **Risk Assessment**: Distributed risk analysis across agent swarms
 - **Fault-Tolerant Decisions**: No single point of failure in decision making
@@ -5260,16 +5581,19 @@ export async function multiCloudInfrastructureAnalysis(query: InfrastructureQuer
 ### Implementation Roadmap
 
 #### Phase 1: Foundation (Week 1-4)
+
 1. **Deploy Temporal Cluster**: Add Temporal to control-plane infrastructure
 2. **Basic AI Workflows**: Migrate simple AI tasks to durable workflows
 3. **Integration Testing**: Validate Flux + Temporal interoperability
 
 #### Phase 2: Enhancement (Month 2-3)
+
 1. **Durable Agent Skills**: Convert existing agent skills to Temporal workflows
 2. **Multi-Cloud Scatter/Gather**: Implement parallel cloud provider queries
 3. **Human-in-the-Loop**: Add approval workflows for critical changes
 
 #### Phase 3: Advanced (Month 4-6)
+
 1. **Consensus Integration**: Enhance existing consensus with Temporal durability
 2. **AI-Enhanced Reconciliation**: Intelligent continuous reconciliation
 3. **Multi-Scale Feedback**: Durable implementation of feedback loops
@@ -5277,11 +5601,13 @@ export async function multiCloudInfrastructureAnalysis(query: InfrastructureQuer
 ### Risk Mitigation
 
 #### Technical Risks
+
 - **Complexity**: Hybrid Flux + Temporal architecture increases complexity
 - **State Management**: Coordinating state between Flux and Temporal
 - **Performance**: Additional latency from Temporal workflow orchestration
 
 #### Mitigation Strategies
+
 - **Gradual Migration**: Start with non-critical workflows
 - **Clear Boundaries**: Define clear responsibilities for Flux vs Temporal
 - **Monitoring**: Comprehensive observability across both systems
@@ -5308,11 +5634,13 @@ The Temporal patterns directly enhance the repository's existing **consensus-bas
 #### Enhanced Consensus Layer with Temporal Durability
 
 **Current Repository Consensus** (`examples/complete-hub-spoke/agent-orchestration-demo.md`):
+
 - Raft-based consensus for agent coordination
 - 30-second feedback loops for local optimization
 - Self-organizing agent swarms
 
 **Temporal Enhancement**:
+
 ```yaml
 # Consensus workflows with Temporal durability
 apiVersion: io.temporal/v1alpha1
@@ -5337,11 +5665,13 @@ spec:
 #### Scatter/Gather Integration with Multi-Cloud Consensus
 
 **Repository Multi-Cloud Consensus** (`examples/complete-hub-spoke/agent-orchestration-demo.md`):
+
 - Cross-cloud agent communication
 - Distributed consensus across cloud boundaries
 - Multi-cloud coordination for critical changes
 
 **Temporal Scatter/Gather Enhancement**:
+
 ```typescript
 // Multi-cloud scatter/gather with Temporal
 export async function multiCloudConsensusAnalysis(request: ConsensusRequest) {
@@ -5365,11 +5695,13 @@ export async function multiCloudConsensusAnalysis(request: ConsensusRequest) {
 #### Durable Agent Skills with Temporal Activities
 
 **Repository Agent Skills** (`docs/AGENT-SKILLS-NEXT-LEVEL.md`):
+
 - Skill-based agent modularity
 - Infrastructure discovery and analysis skills
 - Human-in-the-loop controls
 
 **Temporal Enhancement for Skills**:
+
 ```yaml
 # Durable skill execution with Temporal Activities
 apiVersion: temporal.io/v1alpha1
@@ -5407,6 +5739,7 @@ spec:
 ```
 
 **Benefits of Integration**:
+
 - **Durability**: AI workflows survive cluster failures and resume automatically
 - **Reliability**: Built-in retries for all AI operations and tool calls
 - **Observability**: Complete audit trail of AI decision-making processes
@@ -5437,10 +5770,11 @@ This integration transforms the repository's consensus-based architecture into a
 
 ### Karpenter - Just-in-time Node Scaling
 
-**Website**: https://karpenter.sh/  
-**GitHub**: https://github.com/kubernetes-sigs/karpenter
+**Website**: <https://karpenter.sh/>  
+**GitHub**: <https://github.com/kubernetes-sigs/karpenter>
 
 **Key Features**:
+
 - **Just-in-time Node Provisioning**: Automatically launches nodes as soon as pods need them
 - **Node Pool Management**: Replaces traditional node pools with dynamic provisioning
 - **Cost Optimization**: Removes need for over-provisioned node pools
@@ -5448,12 +5782,14 @@ This integration transforms the repository's consensus-based architecture into a
 - **Integration with GitOps**: Can be managed through Kubernetes manifests
 
 **Applicability to GitOps Infra Control Plane**:
+
 - **Complementary Technology**: Karpenter handles node-level scaling while the control plane handles application-level orchestration
 - **Declarative Configuration**: Karpenter configurations can be managed through Flux manifests
 - **Cost Efficiency**: Eliminates over-provisioning by provisioning nodes exactly when needed
 - **Multi-cloud Consistency**: Provides consistent scaling behavior across cloud providers
 
 **Integration Approach**:
+
 ```yaml
 # Example Karpenter provisioner configuration
 apiVersion: karpenter.sh/v1beta1
@@ -5475,23 +5811,24 @@ spec:
 ```
 
 **Benefits for Repository Users**:
+
 - **Reduced Infrastructure Costs**: Pay only for compute resources when actually needed
 - **Improved Resource Utilization**: Better matching of workload requirements to node sizes
 - **Simplified Operations**: No manual node pool management required
 - **Fast Scaling**: Nodes provisioned in seconds rather than minutes
 
 **Considerations**:
+
 - **Complexity**: Adds another component to manage in the Kubernetes cluster
 - **Cost Monitoring**: Requires careful monitoring of provisioning costs
 - **Integration Testing**: Should be tested with existing GitOps workflows
 - **Security Boundaries**: Ensure proper IAM permissions for node provisioning
 
-
 ## 36. Awesome Consensus Bibliography URLs
 
 This section analyzes all URLs referenced in the [Awesome Consensus](https://github.com/hellas-ai/awesome-consensus) bibliography, a comprehensive collection of research papers on consensus protocols. Each entry includes content summary, applicability to GitOps Infra Control Plane, safety assessment, and integration approach.
 
-### https://github.com/hellas-ai/awesome-consensus
+### <https://github.com/hellas-ai/awesome-consensus>
 
 **Content Summary**: GitHub repository containing a curated bibliography of consensus research papers, organized into sections covering foundational concepts, communication complexity, network models, DAG-based architectures, broadcast primitives, leaderless models, cryptography, and system design.
 
@@ -5501,7 +5838,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Reference for implementing consensus protocols in agent coordination systems within the control plane.
 
-### https://arxiv.org/abs/1712.00429
+### <https://arxiv.org/abs/1712.00429>
 
 **Content Summary**: Paper on "Communication Complexity of Byzantine Agreement, Revisited" - explores the necessity of subquadratic Byzantine agreement and presents new constructions.
 
@@ -5511,7 +5848,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Study for designing efficient agent communication protocols.
 
-### https://jensd.dk/doc/fieldbus/osdi99.ps.pdf
+### <https://jensd.dk/doc/fieldbus/osdi99.ps.pdf>
 
 **Content Summary**: Research paper on fieldbus communication protocols.
 
@@ -5521,7 +5858,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Reference for agent communication design.
 
-### https://www.usenix.org/legacy/event/nsdi09/tech/full_papers/clement/clement.pdf
+### <https://www.usenix.org/legacy/event/nsdi09/tech/full_papers/clement/clement.pdf>
 
 **Content Summary**: "Making Byzantine Fault Tolerant Systems Tolerate Byzantine Faults" - NSDI 2009 paper.
 
@@ -5531,7 +5868,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Study for implementing BFT in agent systems.
 
-### https://www.comp.nus.edu.sg/~rahul/allfiles/cs6234-16-pbft.pdf
+### <https://www.comp.nus.edu.sg/~rahul/allfiles/cs6234-16-pbft.pdf>
 
 **Content Summary**: Practical Byzantine Fault Tolerance (PBFT) protocol description.
 
@@ -5541,7 +5878,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Implement PBFT for critical agent decisions.
 
-### https://www.cs.cmu.edu/afs/cs/academic/class/15712-f08/www/lectures/Castro99lecture.pdf
+### <https://www.cs.cmu.edu/afs/cs/academic/class/15712-f08/www/lectures/Castro99lecture.pdf>
 
 **Content Summary**: Lecture on PBFT by Miguel Castro.
 
@@ -5551,7 +5888,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Training material for implementing consensus.
 
-### https://raft.github.io/raft.pdf
+### <https://raft.github.io/raft.pdf>
 
 **Content Summary**: "In Search of an Understandable Consensus Algorithm" - the Raft paper.
 
@@ -5561,7 +5898,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Use Raft for agent coordination in control plane.
 
-### https://apps.dtic.mil/sti/citations/ADA084087
+### <https://apps.dtic.mil/sti/citations/ADA084087>
 
 **Content Summary**: Military technical report on consensus.
 
@@ -5571,7 +5908,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Reference for robust consensus design.
 
-### https://en.wikipedia.org/wiki/Contract_Net_Protocol
+### <https://en.wikipedia.org/wiki/Contract_Net_Protocol>
 
 **Content Summary**: Wikipedia article on Contract Net Protocol.
 
@@ -5581,7 +5918,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Alternative to consensus for agent task distribution.
 
-### https://www.reidgsmith.com/The_Contract_Net_Protocol_Dec-1980.pdf
+### <https://www.reidgsmith.com/The_Contract_Net_Protocol_Dec-1980.pdf>
 
 **Content Summary**: Original Contract Net Protocol paper.
 
@@ -5591,7 +5928,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Study for agent coordination patterns.
 
-### https://www.sciencedirect.com/topics/computer-science/contract-net-protocol
+### <https://www.sciencedirect.com/topics/computer-science/contract-net-protocol>
 
 **Content Summary**: Scientific review of Contract Net Protocol.
 
@@ -5601,7 +5938,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Reference for distributed task allocation.
 
-### https://www.sciencedirect.com/science/article/abs/pii/S108480451730005X
+### <https://www.sciencedirect.com/science/article/abs/pii/S108480451730005X>
 
 **Content Summary**: Research on multi-agent systems.
 
@@ -5611,7 +5948,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Study for AI agent integration.
 
-### https://nats.io/
+### <https://nats.io/>
 
 **Content Summary**: NATS messaging system website.
 
@@ -5621,7 +5958,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Use NATS for agent event distribution in control plane.
 
-### https://medium.com/@ashusk_1790/nats-vs-kafka-which-one-actually-fits-your-stack-8f65bd5bc2a8
+### <https://medium.com/@ashusk_1790/nats-vs-kafka-which-one-actually-fits-your-stack-8f65bd5bc2a8>
 
 **Content Summary**: Comparison of NATS vs Kafka messaging systems.
 
@@ -5631,7 +5968,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Decision framework for messaging in AI integration.
 
-### https://dev.to/aleson-franca/nats-vs-kafka-264i
+### <https://dev.to/aleson-franca/nats-vs-kafka-264i>
 
 **Content Summary**: NATS vs Kafka comparison article.
 
@@ -5641,7 +5978,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Reference for agent communication architecture.
 
-### https://medium.com/@Nexumo_/12-rules-for-choosing-sqs-vs-rabbitmq-vs-nats-vs-kafka-a18fe3ca3fe6
+### <https://medium.com/@Nexumo_/12-rules-for-choosing-sqs-vs-rabbitmq-vs-nats-vs-kafka-a18fe3ca3fe6>
 
 **Content Summary**: Decision framework for messaging systems.
 
@@ -5651,7 +5988,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Guide for selecting agent communication protocol.
 
-### https://dzone.com/articles/comparing-nats-and-kafka-understanding-the-differe
+### <https://dzone.com/articles/comparing-nats-and-kafka-understanding-the-differe>
 
 **Content Summary**: NATS and Kafka comparison.
 
@@ -5661,7 +5998,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Technical comparison for implementation.
 
-### https://www.reddit.com/r/golang/comments/17aiudy/which_one_to_use_kafka_rabbit_or_nats_at_the/
+### <https://www.reddit.com/r/golang/comments/17aiudy/which_one_to_use_kafka_rabbit_or_nats_at_the/>
 
 **Content Summary**: Reddit discussion on messaging systems.
 
@@ -5671,7 +6008,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Community feedback for decision making.
 
-### https://www.linkedin.com/posts/duany-baro-menendez_comparing-nats-and-kafka-understanding-the-activity-7308596240533929986-cmIw/
+### <https://www.linkedin.com/posts/duany-baro-menendez_comparing-nats-and-kafka-understanding-the-activity-7308596240533929986-cmIw/>
 
 **Content Summary**: LinkedIn post comparing NATS and Kafka.
 
@@ -5681,7 +6018,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Industry insights for architecture decisions.
 
-### https://www.quora.com/What-is-the-difference-between-Apache-Kafka-and-NATS
+### <https://www.quora.com/What-is-the-difference-between-Apache-Kafka-and-NATS>
 
 **Content Summary**: Quora answers on Kafka vs NATS.
 
@@ -5691,7 +6028,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Community knowledge base.
 
-### https://docs.openedx.org/projects/event-bus-kafka/en/latest/decisions/0002-kafka-based-event-bus.html
+### <https://docs.openedx.org/projects/event-bus-kafka/en/latest/decisions/0002-kafka-based-event-bus.html>
 
 **Content Summary**: Open edX decision to use Kafka for event bus.
 
@@ -5701,7 +6038,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Case study for event-driven systems.
 
-### https://superstreamai1.medium.com/comparing-nats-and-kafka-understanding-the-differences-f08c4479dea6
+### <https://superstreamai1.medium.com/comparing-nats-and-kafka-understanding-the-differences-f08c4479dea6>
 
 **Content Summary**: Detailed NATS vs Kafka comparison.
 
@@ -5711,7 +6048,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Comprehensive analysis for selection.
 
-### https://www.linkedin.com/posts/rammohan-sudham-77264069_messaging-streaming-in-net-architecture-activity-7407077039826145280-om9a/
+### <https://www.linkedin.com/posts/rammohan-sudham-77264069_messaging-streaming-in-net-architecture-activity-7407077039826145280-om9a/>
 
 **Content Summary**: LinkedIn discussion on messaging in .NET.
 
@@ -5721,7 +6058,7 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 **Integration Approach**: Technology stack considerations.
 
-### https://github.com/hellas-ai/awesome-consensus
+### <https://github.com/hellas-ai/awesome-consensus>
 
 **Content Summary**: See above - the main repository.
 
@@ -5737,7 +6074,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### temporal-workflow
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/temporal-workflow
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/temporal-workflow>
 
 **SKILL.md Content**: Create, manage, and monitor Temporal workflows with AI agent orchestration. Use when developing workflow definitions, monitoring execution, or troubleshooting workflow issues.
 
@@ -5751,7 +6088,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### backstage-catalog
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/backstage-catalog
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/backstage-catalog>
 
 **SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
 
@@ -5765,7 +6102,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### ai-agent-orchestration
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/ai-agent-orchestration
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/ai-agent-orchestration>
 
 **SKILL.md Content**: Orchestrate and coordinate multiple AI agents for complex workflows. Use when managing agent interactions, coordinating multi-agent tasks, or implementing agent communication patterns.
 
@@ -5779,7 +6116,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### compliance-check
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/compliance-check
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/compliance-check>
 
 **SKILL.md Content**: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
 
@@ -5793,7 +6130,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### cost-optimization
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/cost-optimization
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/cost-optimization>
 
 **SKILL.md Content**: Analyze and optimize cloud infrastructure costs using specialized subagent. Use when reviewing spending, identifying savings opportunities, or planning cost reduction strategies.
 
@@ -5807,7 +6144,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### security-analysis
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/security-analysis
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/security-analysis>
 
 **SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
 
@@ -5821,7 +6158,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### workflow-management
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/workflow-management
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/workflow-management>
 
 **SKILL.md Content**: Orchestrate and monitor Temporal AI Agent workflows. Use when managing multiple concurrent workflows, checking status, or coordinating complex multi-agent operations.
 
@@ -5835,7 +6172,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### infrastructure-discovery
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/infrastructure-discovery
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/infrastructure-discovery>
 
 **SKILL.md Content**: Discover and visualize infrastructure resources with interactive HTML output. Use when exploring new environments, understanding resource relationships, or creating infrastructure documentation.
 
@@ -5849,7 +6186,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### developer-self-service
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/developer-self-service
+**Location**: <https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/developer-self-service>
 
 **SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
 
@@ -6182,6 +6519,7 @@ This section analyzes the comprehensive Temporal AI Agents system imported from 
 **Content Summary**: The Temporal AI Agents system is a comprehensive orchestration platform for AI agent workflows in enterprise environments. It implements the Agent Skills specification from agentskills.io and provides specialized skills for automated cloud AI, compliance, security, and infrastructure management.
 
 **System Architecture**:
+
 - **Backend**: Go-based Temporal workflows with enhanced activities
 - **Frontend**: React/Material-UI dashboard for agent management
 - **APIs**: REST endpoints for programmatic access
@@ -6189,6 +6527,7 @@ This section analyzes the comprehensive Temporal AI Agents system imported from 
 - **Skills**: 64 specialized skills in `.agents/skills/` directory
 
 **Key Components**:
+
 - **AGENTS.md**: Complete operating manual (1,297 lines) with agent behavior rules, skill specifications, and integration guidelines
 - **Skill Directory**: 64 skills organized by function (infrastructure, security, operations, governance)
 - **Configuration Files**: OpenAI integration configs, scripts, templates, and examples
@@ -6198,12 +6537,14 @@ This section analyzes the comprehensive Temporal AI Agents system imported from 
 The system includes 64 specialized skills across multiple operational domains:
 
 #### AI & Orchestration Skills (4 skills)
+
 - **ai-agent-orchestration**: Core agent coordination and communication patterns
 - **temporal-workflow**: Workflow management with Temporal backend
 - **workflow-management**: Multi-agent workflow orchestration
 - **orchestrator**: Top-level orchestrator for complex multi-step tasks
 
 #### Infrastructure & Provisioning (6 skills)
+
 - **infrastructure-provisioning**: IaC provisioning, drift detection, and validation
 - **kubernetes-cluster-manager**: Full cluster lifecycle (provision, upgrade, scale)
 - **multi-cloud-networking**: Network infrastructure across Azure/AWS/GCP
@@ -6212,6 +6553,7 @@ The system includes 64 specialized skills across multiple operational domains:
 - **workload-migration**: Cloud-to-cloud and region migrations
 
 #### Security & Compliance (6 skills)
+
 - **compliance-security-scanner**: Automated security and compliance scans
 - **secrets-certificate-manager**: Secret rotation and certificate lifecycle
 - **audit-siem**: SIEM integration and audit log querying
@@ -6220,6 +6562,7 @@ The system includes 64 specialized skills across multiple operational domains:
 - **compliance-check**: SOC2/GDPR/HIPAA compliance validation
 
 #### Operations & Reliability (8 skills)
+
 - **incident-triage-runbook**: Automated incident response and runbook execution
 - **observability-stack**: Monitoring setup (Prometheus/Grafana/Loki)
 - **sla-monitoring-alerting**: SLO/SLA monitoring and error budget tracking
@@ -6230,29 +6573,35 @@ The system includes 64 specialized skills across multiple operational domains:
 - **cicd-pipeline-monitor**: CI/CD pipeline monitoring and remediation
 
 #### Data & Database (1 skill)
+
 - **database-operations**: Database lifecycle, backup/restore, failover
 
 #### Cost & Capacity (3 skills)
+
 - **cost-optimization**: Cloud cost analysis and optimization
 - **cost-optimisation**: Alternative cost optimization implementation
 - **capacity-planning**: Resource capacity forecasting and planning
 
 #### Governance & Change (4 skills)
+
 - **change-management**: Change request lifecycle and CAB coordination
 - **runbook-documentation-gen**: Automated documentation and ADR generation
 - **stakeholder-comms-drafter**: Communication drafting for stakeholders
 - **kpi-report-generator**: KPI and quarterly report generation
 
 #### Developer Experience (2 skills)
+
 - **developer-self-service**: Internal developer portal and golden paths
 - **backstage-catalog**: Backstage catalog management
 
 #### Tenant Management (1 skill)
+
 - **tenant-lifecycle-manager**: SaaS tenant onboarding, scaling, offboarding
 
 ### Key Integration Patterns
 
 #### Human-in-the-Loop Gates
+
 The system implements sophisticated human gates for high-risk operations:
 
 ```javascript
@@ -6266,6 +6615,7 @@ const review = await request_human_review({
 ```
 
 **Gates Applied To**:
+
 - Destructive operations (terraform destroy, namespace deletion)
 - High-blast-radius changes (>20 tenants affected)
 - Production deployments outside maintenance windows
@@ -6273,6 +6623,7 @@ const review = await request_human_review({
 - Financial impacts (>$5,000/month cost increase)
 
 #### Skill Chaining and Orchestration
+
 ```javascript
 // Sequential skill execution with error handling
 async function executeSkillChain(skills, context) {
@@ -6291,6 +6642,7 @@ async function executeSkillChain(skills, context) {
 ```
 
 #### Composite Workflows
+
 Pre-defined multi-step workflows for common operations:
 
 - **WF-01**: Enterprise tenant onboarding (13 steps)
@@ -6301,9 +6653,11 @@ Pre-defined multi-step workflows for common operations:
 ### Technical Implementation Analysis
 
 #### Skill Structure Standards
+
 Each skill follows consistent patterns:
 
 **SKILL.md Format**:
+
 ```
 Skill Name
 ==========
@@ -6317,12 +6671,14 @@ Human Gates: [when human approval is required]
 ```
 
 **Configuration Files**:
+
 - `agents/openai.yaml`: OpenAI integration configuration
 - `scripts/`: Implementation scripts (Python/shell)
 - `templates/`: Report and configuration templates
 - `examples/`: Code samples and usage patterns
 
 #### Environment Integration
+
 The system integrates with enterprise environments through:
 
 **Cloud Providers**: AWS, Azure, GCP with multi-region support
@@ -6333,6 +6689,7 @@ The system integrates with enterprise environments through:
 #### API Patterns and Standards
 
 **Standard Parameter Format**:
+
 ```json
 {
   "targetResource": "resource-identifier",
@@ -6344,6 +6701,7 @@ The system integrates with enterprise environments through:
 ```
 
 **Response Format**:
+
 ```json
 {
   "workflowId": "uuid",
@@ -6357,6 +6715,7 @@ The system integrates with enterprise environments through:
 ### Applicability to GitOps Infra Control Plane
 
 **High Applicability Areas**:
+
 - **Multi-tenant Operations**: Tenant lifecycle management and scaling
 - **Compliance Automation**: SOC2/GDPR compliance scanning and reporting
 - **Incident Response**: Automated triage and runbook execution
@@ -6365,6 +6724,7 @@ The system integrates with enterprise environments through:
 - **Security Operations**: Vulnerability scanning and audit trail management
 
 **Integration Opportunities**:
+
 - **Agent Gateway**: Direct integration with existing agent gateway patterns
 - **Temporal Workflows**: Replace custom workflow logic with Temporal backend
 - **MCP Server**: Standardize AI tool communication protocols
@@ -6376,6 +6736,7 @@ The system integrates with enterprise environments through:
 **Security Classification**: Internal Use - Contains operational automation with human gates
 
 **Risk Mitigation**:
+
 - Comprehensive audit logging for all operations
 - Human-in-the-loop for destructive/high-risk actions
 - Idempotent operations with state verification
@@ -6383,6 +6744,7 @@ The system integrates with enterprise environments through:
 - Rate limiting and timeout protections
 
 **Safe Integration Approaches**:
+
 - Start with read-only skills (monitoring, compliance scanning)
 - Implement human gates for production environments
 - Use infrastructure emulator for testing
@@ -6392,24 +6754,28 @@ The system integrates with enterprise environments through:
 ### Integration Recommendations
 
 #### Phase 1: Foundation (Safe, Read-Only)
+
 1. Deploy observability-stack skill for monitoring setup
 2. Implement compliance-security-scanner for automated audits
 3. Add infrastructure-discovery for resource visualization
 4. Integrate audit-siem for enhanced logging
 
 #### Phase 2: Operational Enhancement
+
 1. Deploy incident-triage-runbook for automated incident response
 2. Implement deployment-validation for release processes
 3. Add capacity-planning for resource forecasting
 4. Integrate cost-optimization for spend management
 
 #### Phase 3: Advanced Orchestration
+
 1. Deploy orchestrator skill for complex workflows
 2. Implement temporal-workflow for durable operations
 3. Add change-management for governance processes
 4. Integrate tenant-lifecycle-manager for multi-tenant operations
 
 #### Phase 4: Full AI Operations
+
 1. Deploy ai-agent-orchestration for intelligent coordination
 2. Implement workflow-management for multi-agent operations
 3. Add developer-self-service for enhanced DX

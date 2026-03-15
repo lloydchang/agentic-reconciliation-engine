@@ -24,6 +24,7 @@ Certain operations require explicit human confirmation and cannot be bypassed:
 ### Critical Operations (Always Require Approval)
 
 #### Destructive / Irreversible Actions
+
 - `terraform destroy` on any environment
 - Deleting a Kubernetes namespace or cluster
 - Dropping or truncating a database
@@ -31,23 +32,27 @@ Certain operations require explicit human confirmation and cannot be bypassed:
 - Removing a tenant from the registry (offboard)
 
 #### High-Blast-Radius Changes
+
 - Any change affecting more than 20 tenants simultaneously
 - Modifying hub VNet peering or firewall policy
 - Changing a shared Key Vault access policy
 - Disabling a security control (mTLS, policy enforcement)
 
 #### Production Deployments
+
 - Any deployment to `prod` environment outside maintenance windows
 - Rolling back a production database migration
 - Triggering a region failover
 
 #### Authentication & Access
+
 - Creating or deleting cluster-admin role bindings
 - Rotating the root CA certificate
 - Issuing an emergency break-glass credential
 - Disabling an Azure AD account
 
 #### Financial Impact
+
 - Any action projected to increase monthly spend by more than $5,000
 - Deleting reserved instances or savings plans
 
@@ -90,42 +95,52 @@ All operation results must follow this standardized JSON wrapper:
 Pre-defined multi-step workflows coordinate multiple skills for complex operations:
 
 ### WF-01: Full Tenant Onboarding
+
 **Trigger:** "Onboard [tenant] as enterprise tier in [region]"  
 **Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
 
 ### WF-02: P0/P1 Incident Response
+
 **Trigger:** "Take over P0/P1 incident response"  
 **Skills:** incident-triage-runbook, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter, compliance-security-scanner, audit-siem, sla-monitoring-alerting, change-management, orchestrator
 
 ### WF-03: Weekly Compliance Scan
+
 **Trigger:** Automatic (Monday 06:00 UTC)  
 **Skills:** compliance-security-scanner, policy-as-code, audit-siem, runbook-documentation-gen, kpi-report-generator, stakeholder-comms-drafter
 
 ### WF-04: Monthly Executive Report
+
 **Trigger:** Automatic (1st of month 07:00 UTC)  
 **Skills:** kpi-report-generator, sla-monitoring-alerting, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter
 
 ### WF-05: Pre-Release Readiness Check
+
 **Trigger:** "Is v[X] ready to release?"  
 **Skills:** deployment-validation, cicd-pipeline-monitor, compliance-security-scanner, chaos-load-testing, observability-stack, container-registry, gitops-workflow
 
 ### WF-06: QBR Preparation
+
 **Trigger:** "Prepare the Q[N] QBR deck"  
 **Skills:** kpi-report-generator, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter, sla-monitoring-alerting, change-management
 
 ### WF-07: New Cluster Provisioning
+
 **Trigger:** "Provision a new [env] cluster in [region]"  
 **Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
 
 ### WF-08: Security Incident Response
+
 **Trigger:** "Sentinel fired — investigate [alert]"  
 **Skills:** audit-siem, incident-triage-runbook, compliance-security-scanner, stakeholder-comms-drafter
 
 ### WF-09: DR Drill Execution
+
 **Trigger:** "Run the quarterly DR drill"  
 **Skills:** disaster-recovery, database-operations, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter
 
 ### WF-10: Platform Team Onboarding
+
 **Trigger:** "Onboard the [team name] engineering team"  
 **Skills:** developer-self-service, gitops-workflow, observability-stack, secrets-certificate-manager, policy-as-code, compliance-security-scanner, audit-siem, runbook-documentation-gen, kubernetes-cluster-manager, container-registry, cicd-pipeline-monitor, change-management, stakeholder-comms-drafter
 
@@ -157,6 +172,7 @@ When operations fail or encounter unexpected states:
 ## Operational Constraints
 
 ### Security Constraints
+
 - Never pipe credentials to shell history; use environment variables or Azure Key Vault references
 - Never store secrets in Git, even in comments or example configuration
 - Always use `--dry-run` or `plan` mode first for terraform and kubectl operations
@@ -165,6 +181,7 @@ When operations fail or encounter unexpected states:
 - Timeout: fail any step that takes longer than 15 minutes
 
 ### Resource Management
+
 - Monitor CPU and memory usage during operations
 - Implement proper resource cleanup on failures
 - Use batching for large-scale operations to avoid rate limits
@@ -173,6 +190,7 @@ When operations fail or encounter unexpected states:
 ## Error Handling Patterns
 
 ### Retry Logic
+
 ```javascript
 async function executeSkillWithRetry(skillFunction, params, maxRetries = 3) {
   let attempt = 0;
@@ -213,6 +231,7 @@ async function executeSkillWithRetry(skillFunction, params, maxRetries = 3) {
 ```
 
 ### Batch Operations
+
 ```javascript
 const batchOperations = async (resources, skillFunction, batchSize = 10) => {
   const results = [];
@@ -237,6 +256,7 @@ const batchOperations = async (resources, skillFunction, batchSize = 10) => {
 ## Monitoring & Observability
 
 ### Execution Logging Standards
+
 All skill executions generate comprehensive audit logs:
 
 ```json
@@ -273,6 +293,7 @@ All skill executions generate comprehensive audit logs:
 ```
 
 ### Performance Monitoring
+
 Track key metrics for all skill executions:
 
 ```javascript
@@ -346,6 +367,7 @@ const complianceReport = {
 ## Integration Guidelines
 
 ### Authentication & Authorization
+
 ```bash
 # API Key Configuration
 export AI_AGENTS_API_KEY="your-production-api-key"
@@ -362,6 +384,7 @@ curl -H "Authorization: Bearer $AI_AGENTS_API_KEY" \
 ```
 
 ### Best Practices for Skill Chaining
+
 ```javascript
 async function executeSkillChain(skillSequence, context) {
   const results = [];

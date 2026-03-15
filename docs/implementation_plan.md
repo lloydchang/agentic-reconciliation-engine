@@ -27,12 +27,14 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
 ## 2. Design Rationale
 
 **Why Flux (not Argo CD)?**
+
 - Flux is a cluster extension, making it the preferred plumbing for hub clusters
 - Native `dependsOn` field allows specific resource-to-resource sequencing critical for
   Network → Cluster → Workload dependency chains
 - Flux bootstraps and manages itself on the hub (circular dependency by design)
 
 **Why Crossplane (not raw provider-specific CRDs)?**
+
 - Raw provider CRDs produce cloud-specific schemas — a developer targeting multiple clouds must
   write entirely different YAML per provider
 - Crossplane Compositions provide a single cloud-agnostic API surface; cloud is an implementation
@@ -40,6 +42,7 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
 - Switching cloud providers requires updating one Composition, not all consumer manifests
 
 **Why ESO + workload identity (not hub SOPS push)?**
+
 - Hub SOPS push places the hub in the secrets delivery path for all spokes — a hub compromise
   exposes all spoke secrets simultaneously
 - ESO with workload identity (IRSA on EKS, Managed Identity on AKS, Workload Identity on GKE)
@@ -47,6 +50,7 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
 - Spoke secret delivery continues independently during hub outage
 
 **Why a CI policy gate?**
+
 - GitOps has no `terraform plan` equivalent — a manifest merged to Git is acted on immediately
 - The CI gate provides deletion guards (stateful XRDs require explicit approval annotation),
   schema validation, and OPA policy checks before merge
@@ -54,6 +58,7 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
   the reconciliation loop
 
 **Why a bootstrap cluster?**
+
 - Flux manages the hub cluster it runs on (circular dependency by design)
 - If the hub suffers a total failure, the tool required to recover it is not running
 - A secondary lightweight cluster (k3s or small managed cluster, 1–3 nodes) holds the hub

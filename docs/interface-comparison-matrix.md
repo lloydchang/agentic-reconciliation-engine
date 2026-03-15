@@ -1,16 +1,19 @@
 # Interface Types Comparison Matrix
 
 ## Overview
+
 The Temporal AI Agent system now supports multiple interface types, each optimized for different use cases and user preferences. Below is a comprehensive comparison of the implemented interfaces.
 
 ## Interface Types Implemented
 
 ### 1. REST APIs (Current)
+
 **Status:** ✅ Implemented  
 **Technology:** HTTP REST endpoints with JSON  
 **Server:** `http://localhost:8081`
 
-#### Endpoints Available:
+#### Endpoints Available
+
 - `POST /workflow/start-enhanced-compliance` - Start compliance workflows
 - `POST /workflow/start-batch` - Batch workflow execution
 - `GET /workflow/status?id={workflowId}` - Get workflow status
@@ -21,7 +24,8 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - `GET /emulator/resources/{id}/security` - Security posture
 - `GET /emulator/resources/{id}/compliance` - Compliance status
 
-#### Pros:
+#### Pros
+
 - ✅ **Language Agnostic** - Works with any HTTP client
 - ✅ **Stateless** - Each request is independent
 - ✅ **Scalable** - Easy to load balance and cache
@@ -29,13 +33,15 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - ✅ **CI/CD Integration** - Perfect for automated workflows
 - ✅ **Monitoring Ready** - Built-in metrics and health endpoints
 
-#### Cons:
+#### Cons
+
 - ❌ **Manual Orchestration** - Requires client-side workflow management
 - ❌ **No Real-time Updates** - Polling required for status updates
 - ❌ **Authentication Required** - Each request needs auth
 - ❌ **Verbose** - Multiple requests needed for complex operations
 
-#### Best Use Cases:
+#### Best Use Cases
+
 - **CI/CD Pipelines** - Automated compliance checks on deployments
 - **Backend Services** - Other services triggering agent workflows
 - **Scripting** - Bash/Python scripts for batch operations
@@ -45,11 +51,13 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 ---
 
 ### 2. MCP (Model Context Protocol) Server
+
 **Status:** ✅ Implemented  
 **Technology:** JSON-RPC over stdio/websocket/http  
 **Server:** `localhost:8082`
 
-#### Tools Available:
+#### Tools Available
+
 - `start_compliance_workflow` - Trigger compliance checks
 - `start_security_scan` - Execute security analysis
 - `start_cost_analysis` - Run cost optimization
@@ -57,7 +65,8 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - `signal_workflow` - Send workflow signals
 - `get_infrastructure_info` - Access resource data
 
-#### Resources Available:
+#### Resources Available
+
 - `workflow://results` - Completed workflow results
 - `agent://capabilities` - Agent capability discovery
 - `compliance://reports` - Compliance reports and audits
@@ -65,7 +74,8 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - `workflow://metrics` - Performance metrics
 - `human://tasks` - Human review tasks
 
-#### Pros:
+#### Pros
+
 - ✅ **Standardized Protocol** - MCP-compliant tools and resources
 - ✅ **Tool Discovery** - Clients can dynamically discover capabilities
 - ✅ **Streaming Support** - Real-time updates via WebSocket transport
@@ -73,13 +83,15 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - ✅ **Extensible** - Easy to add new tools and resources
 - ✅ **AI-Ready** - Optimized for AI agent interactions
 
-#### Cons:
+#### Cons
+
 - ❌ **MCP Client Required** - Needs MCP-compatible clients
 - ❌ **Protocol Overhead** - Additional JSON-RPC layer
 - ❌ **Less Universal** - Not as widely supported as REST
 - ❌ **Learning Curve** - Requires understanding MCP concepts
 
-#### Best Use Cases:
+#### Best Use Cases
+
 - **AI Agent Integration** - Claude, ChatGPT, or custom agents
 - **IDE Extensions** - VS Code, JetBrains MCP plugins
 - **Specialized Tools** - MCP-compatible applications
@@ -89,18 +101,21 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 ---
 
 ### 3. WebMCP Interface
+
 **Status:** ✅ Implemented  
 **Technology:** React + WebSocket + MCP protocol  
 **URL:** Integrated into Backstage frontend
 
-#### Features:
+#### Features
+
 - **Real-time Tool Execution** - Live tool calling and results
 - **Interactive Resource Browser** - Explore available resources
 - **Workflow Monitoring** - Real-time workflow status updates
 - **Visual Tool Forms** - Auto-generated forms from tool schemas
 - **Activity Logging** - Complete interaction history
 
-#### Pros:
+#### Pros
+
 - ✅ **User-Friendly GUI** - Visual interface for non-technical users
 - ✅ **Real-time Updates** - WebSocket-based live updates
 - ✅ **No Installation** - Browser-based, works everywhere
@@ -108,13 +123,15 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 - ✅ **Integrated Experience** - Part of Backstage ecosystem
 - ✅ **Mobile Responsive** - Works on tablets and phones
 
-#### Cons:
+#### Cons
+
 - ❌ **Browser Dependent** - Requires modern web browser
 - ❌ **Network Dependent** - Needs internet connectivity
 - ❌ **Resource Intensive** - More overhead than CLI
 - ❌ **Limited Automation** - Not suitable for headless operations
 
-#### Best Use Cases:
+#### Best Use Cases
+
 - **Business Users** - Non-technical stakeholders triggering workflows
 - **Dashboard Integration** - Embedded in business intelligence tools
 - **Training/Education** - Learning agent capabilities interactively
@@ -124,11 +141,13 @@ The Temporal AI Agent system now supports multiple interface types, each optimiz
 ---
 
 ### 4. CLI (Command Line Interface)
+
 **Status:** ✅ Implemented  
 **Technology:** Go + Cobra CLI framework  
 **Binary:** `./cli/temporal-agents`
 
-#### Commands Available:
+#### Commands Available
+
 ```bash
 temporal-agents start <type> <resource>    # Start workflows
 temporal-agents status <workflow-id>       # Check workflow status
@@ -139,7 +158,8 @@ temporal-agents metrics                    # Get performance metrics
 temporal-agents interactive                # Start interactive shell
 ```
 
-#### Pros:
+#### Pros
+
 - ✅ **Scripting Friendly** - Perfect for automation scripts
 - ✅ **Fast and Lightweight** - Minimal resource usage
 - ✅ **SSH/Remote Access** - Works over SSH connections
@@ -147,14 +167,16 @@ temporal-agents interactive                # Start interactive shell
 - ✅ **No GUI Required** - Works in terminals and headless environments
 - ✅ **Version Control** - Commands can be saved in scripts
 
-#### Cons:
+#### Cons
+
 - ❌ **Terminal Required** - Command-line interface only
 - ❌ **No Visual Feedback** - Text-based output only
 - ❌ **Learning Curve** - Commands and flags to remember
 - ❌ **Limited Discovery** - No auto-complete for dynamic options
 - ❌ **Batch Operations Only** - No real-time monitoring
 
-#### Best Use Cases:
+#### Best Use Cases
+
 - **DevOps Automation** - CI/CD pipeline integration
 - **Infrastructure Scripts** - Automated deployment workflows
 - **Batch Processing** - Bulk operations on multiple resources
@@ -164,11 +186,13 @@ temporal-agents interactive                # Start interactive shell
 ---
 
 ### 5. Enhanced GUI (Agent Management Dashboard)
+
 **Status:** ✅ Implemented  
 **Technology:** React + Material-UI + Backstage components  
 **Location:** Enhanced Backstage frontend
 
-#### Features:
+#### Features
+
 - **Agent Statistics Dashboard** - Real-time agent metrics
 - **Workflow Management** - Start, monitor, and control workflows
 - **Interactive Forms** - Guided workflow creation
@@ -176,7 +200,8 @@ temporal-agents interactive                # Start interactive shell
 - **Result Visualization** - Charts and reports for workflow results
 - **Agent Performance** - Execution time and success rate tracking
 
-#### Pros:
+#### Pros
+
 - ✅ **Rich User Experience** - Full GUI with charts and visualizations
 - ✅ **Comprehensive Monitoring** - All agent activities in one view
 - ✅ **Guided Workflows** - Forms and wizards for complex operations
@@ -184,14 +209,16 @@ temporal-agents interactive                # Start interactive shell
 - ✅ **Collaborative Features** - Multi-user workflow management
 - ✅ **Mobile Friendly** - Responsive design for all devices
 
-#### Cons:
+#### Cons
+
 - ❌ **Resource Intensive** - Higher memory and CPU usage
 - ❌ **Network Dependent** - Requires stable internet connection
 - ❌ **Browser Dependent** - Modern browser required
 - ❌ **Less Scriptable** - Not suitable for automated operations
 - ❌ **Setup Complexity** - More complex deployment than CLI
 
-#### Best Use Cases:
+#### Best Use Cases
+
 - **Operations Teams** - Daily workflow monitoring and management
 - **Business Intelligence** - Agent performance dashboards
 - **Team Collaboration** - Shared workflow management
@@ -216,6 +243,7 @@ temporal-agents interactive                # Start interactive shell
 ## Implementation Notes
 
 ### Authentication & Security
+
 - **REST APIs**: API key authentication via headers
 - **MCP Server**: Configurable auth (API key, JWT, or none)
 - **WebMCP**: Session-based auth via WebSocket
@@ -223,6 +251,7 @@ temporal-agents interactive                # Start interactive shell
 - **Enhanced GUI**: Integrated Backstage authentication
 
 ### Deployment Considerations
+
 - **REST APIs**: Container-ready, horizontally scalable
 - **MCP Server**: Lightweight, multiple transport options
 - **WebMCP**: Browser-based, CDN-deployable
@@ -230,6 +259,7 @@ temporal-agents interactive                # Start interactive shell
 - **Enhanced GUI**: Full-stack application deployment
 
 ### Monitoring & Observability
+
 - All interfaces include health checks
 - Metrics endpoints available for REST APIs
 - Activity logging built into MCP server

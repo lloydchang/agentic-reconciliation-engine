@@ -163,11 +163,13 @@ pipeline {
 ## Development vs Release Images
 
 ### Development Images
+
 - Tagged with sortable format: `{branch}-{sha}-{timestamp}`
 - Pushed on every commit to branches
 - Can be deployed automatically by Flux for dev environments
 
 ### Release Images
+
 - Tagged with SemVer from Git tags
 - Only pushed after tests pass
 - Deployed to production via Flux ImagePolicy
@@ -175,6 +177,7 @@ pipeline {
 ## Flux Integration
 
 ### ImagePolicy for Production
+
 ```yaml
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
@@ -190,6 +193,7 @@ spec:
 ```
 
 ### ImageUpdateAutomation
+
 ```yaml
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
@@ -215,6 +219,7 @@ spec:
 This Jenkins + Flux integration works seamlessly with the GitOps Infra Control Plane. The platform provides comprehensive CI/CD integration capabilities.
 
 ### Integration Benefits
+
 - **Separation of Concerns**: CI (Jenkins) builds and tests, CD (Flux) deploys
 - **Security**: No direct production cluster access from CI
 - **Reliability**: Declarative GitOps deployments

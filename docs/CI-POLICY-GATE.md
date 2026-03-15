@@ -11,12 +11,14 @@ Every pull request must pass all CI checks before merge.
 ## What the Gate Does and Does Not Do
 
 **Does:**
+
 - Block deletion of stateful XRDs without explicit human approval (deletion guard)
 - Validate manifests against Crossplane XRD schemas and Kubernetes API schemas
 - Enforce naming conventions, required labels, and cost guardrails via OPA/Conftest policies
 - Run Flux dry-run against the hub API server (read-only) to catch apply failures
 
 **Does not:**
+
 - Diff current cloud state (no equivalent to `terraform plan`)
 - Predict runtime cost with precision
 - Catch semantic errors inside Crossplane Compositions

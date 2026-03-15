@@ -121,6 +121,7 @@ in a zone fail, CAPI and Crossplane controllers reschedule to surviving zones. N
 intervention required if 3+ nodes across 3 AZs are healthy.
 
 **Diagnosis**:
+
 ```bash
 kubectl get nodes -o wide
 kubectl get pods -n crossplane-system

@@ -21,16 +21,19 @@ We implemented a defense-in-depth approach with seven complementary mitigations:
 **Implementation**: Primary (GitHub) + Secondary (GitLab) + Tertiary (Gitea)
 
 **Files Created**:
+
 - `control-plane/flux/multi-git-repositories.yaml`
 - `control-plane/flux/git-repository-failover.yaml`
 - `control-plane/flux/secrets/git-repository-credentials.yaml.template`
 
 **Benefits**:
+
 - Eliminates single provider dependency
 - Geographic distribution of repositories
 - Provider-specific outage isolation
 
 **Commands**:
+
 ```bash
 # Check repository health
 kubectl get gitrepositories -n flux-system -L gitrepo.fluxcd.io/healthy
@@ -44,16 +47,19 @@ kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRe
 **Implementation**: Bidirectional synchronization between all repositories
 
 **Files Created**:
+
 - `scripts/git-mirroring-setup.sh`
 - `control-plane/flux/git-mirroring-controller.yaml`
 - `scripts/conflict-resolution.sh`
 
 **Benefits**:
+
 - Real-time synchronization across providers
 - Automatic conflict resolution
 - Data redundancy and consistency
 
 **Setup**:
+
 ```bash
 ./scripts/git-mirroring-setup.sh
 kubectl apply -f control-plane/flux/git-mirroring-controller.yaml
@@ -64,16 +70,19 @@ kubectl apply -f control-plane/flux/git-mirroring-controller.yaml
 **Implementation**: In-cluster cached repository with offline operations
 
 **Files Created**:
+
 - `control-plane/flux/local-git-cache.yaml`
 - `control-plane/flux/offline-mode-controller.yaml`
 - `scripts/setup-offline-mode.sh`
 
 **Benefits**:
+
 - Complete independence from external repositories
 - Queued changes during outages
 - Automatic synchronization on recovery
 
 **Setup**:
+
 ```bash
 ./scripts/setup-offline-mode.sh
 kubectl apply -f control-plane/flux/local-git-cache.yaml
@@ -84,16 +93,19 @@ kubectl apply -f control-plane/flux/local-git-cache.yaml
 **Implementation**: Multi-source support with automatic failover
 
 **Files Created**:
+
 - `control-plane/flux/enhanced-kustomization.yaml`
 - `control-plane/flux/failover-configmap.yaml`
 - `control-plane/flux/enhanced-flux-controllers.yaml`
 
 **Benefits**:
+
 - Intelligent source switching
 - Health-aware reconciliation
 - Enhanced error handling
 
 **Features**:
+
 - Automatic failover based on repository health
 - Offline mode detection and activation
 - Enhanced retry logic and timeouts
@@ -103,16 +115,19 @@ kubectl apply -f control-plane/flux/local-git-cache.yaml
 **Implementation**: Regular state backups in Kubernetes etcd
 
 **Files Created**:
+
 - `control-plane/flux/state-persistence.yaml`
 - `control-plane/flux/state-backup-controller.yaml`
 - `scripts/state-persistence-setup.sh`
 
 **Benefits**:
+
 - State recovery during extended outages
 - Point-in-time restoration capabilities
 - Reduced data loss risk
 
 **Setup**:
+
 ```bash
 ./scripts/state-persistence-setup.sh
 kubectl apply -f control-plane/flux/state-backup-controller.yaml
@@ -123,11 +138,13 @@ kubectl apply -f control-plane/flux/state-backup-controller.yaml
 **Implementation**: Comprehensive monitoring with real-time dashboard
 
 **Files Created**:
+
 - `control-plane/flux/git-health-monitoring.yaml`
 - `control-plane/flux/health-monitoring-controller.yaml`
 - `scripts/health-monitoring-setup.sh`
 
 **Benefits**:
+
 - Proactive issue detection
 - Real-time health visibility
 - Automated alerting
@@ -135,6 +152,7 @@ kubectl apply -f control-plane/flux/state-backup-controller.yaml
 **Dashboard**: `http://git-health-dashboard.flux-system.svc.cluster.local:8080`
 
 **Setup**:
+
 ```bash
 ./scripts/health-monitoring-setup.sh
 kubectl apply -f control-plane/flux/health-monitoring-controller.yaml
@@ -145,16 +163,19 @@ kubectl apply -f control-plane/flux/health-monitoring-controller.yaml
 **Implementation**: Comprehensive DR procedures and automated drills
 
 **Files Created**:
+
 - `docs/GIT-OUTAGE-DISASTER-RECOVERY.md`
 - `scripts/disaster-recovery-drill.sh`
 - `scripts/setup-disaster-recovery.sh`
 
 **Benefits**:
+
 - Documented recovery procedures
 - Regular testing through drills
 - Team readiness validation
 
 **Setup**:
+
 ```bash
 ./scripts/setup-disaster-recovery.sh
 ./scripts/disaster-recovery-drill.sh primary-outage
@@ -190,6 +211,7 @@ kubectl apply -f control-plane/flux/health-monitoring-controller.yaml
 ## Deployment Instructions
 
 ### 1. Prerequisites
+
 - Kubernetes cluster with Flux CD installed
 - Access to GitHub, GitLab, and Gitea repositories
 - kubectl configured with cluster admin permissions
@@ -234,6 +256,7 @@ kubectl apply -f control-plane/flux/health-monitoring-controller.yaml
 ## Testing and Validation
 
 ### Health Checks
+
 ```bash
 # Repository health
 kubectl get gitrepositories -n flux-system -L gitrepo.fluxcd.io/healthy
@@ -246,6 +269,7 @@ kubectl get kustomizations -n flux-system
 ```
 
 ### Drill Execution
+
 ```bash
 # Primary outage drill
 ./scripts/disaster-recovery-drill.sh primary-outage
@@ -258,6 +282,7 @@ kubectl get kustomizations -n flux-system
 ```
 
 ### Dashboard Access
+
 ```bash
 # Port forward for local access
 kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
@@ -267,16 +292,19 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ## Performance Impact
 
 ### Resource Requirements
+
 - **CPU**: Additional 500m for monitoring and caching
 - **Memory**: Additional 1Gi for cache and state persistence
 - **Storage**: 10Gi for Git cache and state backups
 
 ### Network Impact
+
 - **Repository Sync**: ~5MB every 5 minutes per repository
 - **Health Checks**: ~1KB per minute per repository
 - **Cache Operations**: Local cluster traffic only
 
 ### Reconciliation Times
+
 - **Normal Operations**: 2-5 minutes
 - **Failover Scenario**: 5-10 minutes
 - **Offline Mode**: Immediate (cached state)
@@ -284,6 +312,7 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ## Monitoring and Alerting
 
 ### Key Metrics
+
 - Repository health status
 - Response times
 - Failover events
@@ -291,12 +320,14 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 - State backup success
 
 ### Alert Thresholds
+
 - Repository failure count ≥ 3
 - Cache unavailable > 2 minutes
 - State backup failure
 - All repositories down
 
 ### Dashboard Features
+
 - Real-time health status
 - Response time trends
 - Historical outage data
@@ -305,18 +336,21 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ## Maintenance Procedures
 
 ### Monthly
+
 - Run primary outage drill
 - Review health monitoring logs
 - Update contact information
 - Verify backup integrity
 
 ### Quarterly
+
 - Run complete outage drill
 - Test disaster recovery procedures
 - Update documentation
 - Performance tuning
 
 ### Annually
+
 - Full disaster recovery exercise
 - Architecture review
 - Security assessment
@@ -325,12 +359,14 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ## Success Metrics
 
 ### Availability Targets
+
 - **Git Repository Access**: 99.9% (with failover)
 - **Infrastructure Operations**: 99.99% (with offline mode)
 - **Recovery Time**: < 5 minutes (automatic)
 - **Data Loss**: 0% (with state persistence)
 
 ### Measured Outcomes
+
 - Reduced outage impact from hours to minutes
 - Eliminated single provider dependency
 - Improved system resilience
@@ -339,12 +375,14 @@ kubectl port-forward -n flux-system service/git-health-dashboard 8080:8080
 ## Future Enhancements
 
 ### Planned Improvements
+
 1. **Multi-Region Caching**: Geo-distributed cache instances
 2. **Advanced Conflict Resolution**: AI-powered merge strategies
 3. **Predictive Health Monitoring**: ML-based anomaly detection
 4. **Automated Testing**: Continuous validation of recovery procedures
 
 ### Technology Roadmap
+
 - **Q2 2026**: Multi-region deployment
 - **Q3 2026**: Advanced monitoring integration
 - **Q4 2026**: Predictive health analytics

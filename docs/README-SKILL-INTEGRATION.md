@@ -65,9 +65,11 @@ curl -X POST http://localhost:8081/api/v1/workflows/execute \
 ## API Endpoints
 
 ### GET /api/v1/health
+
 Service health check.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -79,9 +81,11 @@ Service health check.
 ```
 
 ### GET /api/v1/skills
+
 List all available skills.
 
 **Response:**
+
 ```json
 {
   "skills": {
@@ -96,9 +100,11 @@ List all available skills.
 ```
 
 ### POST /api/v1/skills/execute
+
 Execute a skill with AI agent processing.
 
 **Request:**
+
 ```json
 {
   "request": "provision new EKS cluster in us-east-1"
@@ -106,6 +112,7 @@ Execute a skill with AI agent processing.
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -141,9 +148,11 @@ Execute a skill with AI agent processing.
 ```
 
 ### GET /api/v1/workflows
+
 List available composite workflows.
 
 ### POST /api/v1/workflows/execute
+
 Execute a composite workflow.
 
 ## AGENTS.md Integration
@@ -159,6 +168,7 @@ The system fully uses AGENTS.md:
 ## Supported Skills
 
 ### Core Skills
+
 - **infrastructure-provisioning**: Infrastructure provisioning with Terraform
 - **compliance-security-scanner**: Security and compliance scanning
 - **cicd-pipeline-monitor**: CI/CD pipeline monitoring and analysis
@@ -170,6 +180,7 @@ The system fully uses AGENTS.md:
 ### Skill Examples
 
 #### Terraform Provisioning
+
 ```json
 {
   "request": "provision new AKS cluster in eastus for production",
@@ -184,6 +195,7 @@ The system fully uses AGENTS.md:
 ```
 
 #### Compliance Scanner
+
 ```json
 {
   "request": "run security scan on production resources",
@@ -198,6 +210,7 @@ The system fully uses AGENTS.md:
 ```
 
 #### Orchestrator Workflow
+
 ```json
 {
   "request": "onboard new tenant Acme Corp as enterprise tier",
@@ -222,6 +235,7 @@ The system implements human gates for:
 - Emergency actions
 
 **Human Gate Response:**
+
 ```json
 {
   "status": "pending_human_gate",

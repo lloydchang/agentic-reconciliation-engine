@@ -7,14 +7,17 @@ This document provides comprehensive guidance for applying this repository's com
 ## 🎯 Core Principle: Problem First, Solution Second
 
 ### The Anti-Pattern We Must Avoid
+>
 > **"Solution Looking for a Problem"**: Implementing complex multi-cloud AI systems when you only need basic CI/CD
 
 ### The Pattern We Must Follow
+>
 > **"Problem-Driven Implementation"**: Start with clear problem definition, then select minimum components that solve it
 
 ## 📋 Scenario Definition Framework
 
 ### Step 1: Problem Classification
+
 ```yaml
 problem_analysis:
   primary_issue:
@@ -34,6 +37,7 @@ problem_analysis:
 ```
 
 ### Step 2: Scenario Identification
+
 ```yaml
 scenario_identification:
   brownfield_indicators:
@@ -69,6 +73,7 @@ scenario_identification:
 ### Scenario-Specific Components
 
 #### Brownfield-Optimized Components
+
 ```yaml
 brownfield_components:
   primary:
@@ -89,6 +94,7 @@ brownfield_components:
 ```
 
 #### Greenfield-Optimized Components
+
 ```yaml
 greenfield_components:
   primary:
@@ -109,6 +115,7 @@ greenfield_components:
 ```
 
 #### Hybrid-Optimized Components
+
 ```yaml
 hybrid_components:
   primary:
@@ -147,6 +154,7 @@ hybrid_components:
 ### Phase-Based Evolution
 
 #### Phase 1: Foundation (Always Start Here)
+
 ```yaml
 phase1_universal:
   components:
@@ -162,6 +170,7 @@ phase1_universal:
 ```
 
 #### Phase 2: Automation (Add When Needed)
+
 ```yaml
 phase2_automation:
   components:
@@ -180,6 +189,7 @@ phase2_automation:
 ```
 
 #### Phase 3: Intelligence (Add When Complexity Justifies)
+
 ```yaml
 phase3_intelligence:
   components:
@@ -199,6 +209,7 @@ phase3_intelligence:
 ```
 
 #### Phase 4: Advanced (Enterprise Scale Only)
+
 ```yaml
 phase4_advanced:
   components:
@@ -220,6 +231,7 @@ phase4_advanced:
 ## 🎯 Implementation Checklists
 
 ### Pre-Implementation Checklist
+
 - [ ] **Problem Clearly Defined**: Documented with success criteria
 - [ ] **Scenario Identified**: Brownfield/greenfield/hybrid determined
 - [ ] **Team Assessment**: Skills and capacity evaluated
@@ -229,6 +241,7 @@ phase4_advanced:
 ### Scenario-Specific Checklists
 
 #### Brownfield Implementation
+
 - [ ] **Infrastructure Inventory**: Complete discovery of existing resources
 - [ ] **Dependency Mapping**: Document all resource relationships
 - [ ] **Migration Plan**: Phased approach with rollback procedures
@@ -236,6 +249,7 @@ phase4_advanced:
 - [ ] **Validation Strategy**: Test migration in staging first
 
 #### Greenfield Implementation
+
 - [ ] **Architecture Design**: Clean, scalable from day one
 - [ ] **Best Practices**: Cloud-native and GitOps from start
 - [ ] **Security Planning**: Built-in security posture
@@ -243,6 +257,7 @@ phase4_advanced:
 - [ ] **Documentation**: Architecture and decisions documented
 
 #### Hybrid Implementation
+
 - [ ] **Local Environment**: Consistent development setup
 - [ ] **Cloud Integration**: Production environment configuration
 - [ ] **CI/CD Pipeline**: Automated deployment path
@@ -250,6 +265,7 @@ phase4_advanced:
 - [ ] **Security Gateway**: Secure AI and cloud access
 
 ### Post-Implementation Validation
+
 - [ ] **Functional Testing**: All components working as specified
 - [ ] **Scenario Success Metrics**: Meeting defined success criteria
 - [ ] **Team Training**: Team comfortable with new processes
@@ -259,6 +275,7 @@ phase4_advanced:
 ## 📈 Success Metrics by Scenario
 
 ### Brownfield Success Indicators
+
 ```yaml
 brownfield_success:
   migration_metrics:
@@ -278,6 +295,7 @@ brownfield_success:
 ```
 
 ### Greenfield Success Indicators
+
 ```yaml
 greenfield_success:
   development_metrics:
@@ -297,6 +315,7 @@ greenfield_success:
 ```
 
 ### Hybrid Success Indicators
+
 ```yaml
 hybrid_success:
   development_productivity:
@@ -318,26 +337,31 @@ hybrid_success:
 ## 🚨 Common Pitfalls and How to Avoid Them
 
 ### Pitfall 1: Over-Engineering
+
 **Problem**: Implementing complex solutions for simple problems
 **Solution**: Use decision matrix to match complexity to problem
 **Prevention**: Start with Phase 1 only, add complexity only when justified
 
 ### Pitfall 2: Solution-Looking-for-Problem
+
 **Problem**: Implementing multi-cloud when you only use one cloud
 **Solution**: Focus on actual problem, not impressive technology
 **Prevention**: Complete problem analysis before selecting components
 
 ### Pitfall 3: One-Size-Fits-All
+
 **Problem**: Using same approach for different scenarios
 **Solution**: Adapt implementation to brownfield/greenfield/hybrid needs
 **Prevention**: Use scenario-specific guidance and checklists
 
 ### Pitfall 4: Ignoring Team Constraints
+
 **Problem**: Implementing solutions team can't maintain
 **Solution**: Assess team skills and capacity honestly
 **Prevention**: Use gradual evolution and training plans
 
 ### Pitfall 5: Forgetting Evolution
+
 **Problem**: Static implementation that doesn't adapt to changing needs
 **Solution**: Plan for evolution from day one
 **Prevention**: Use phase-based approach with clear triggers
@@ -345,6 +369,7 @@ hybrid_success:
 ## 🔄 Continuous Improvement
 
 ### Monthly Review Process
+
 ```yaml
 monthly_review:
   success_metrics:
@@ -362,6 +387,7 @@ monthly_review:
 ```
 
 ### Quarterly Strategy Adjustment
+
 ```yaml
 quarterly_adjustment:
   scenario_reassessment:
@@ -381,18 +407,21 @@ quarterly_adjustment:
 ## 📚 Additional Resources
 
 ### Scenario-Specific Documentation
+
 - [Brownfield Analysis](./BROWNFIELD-GREENFIELD-SCENARIO-ANALYSIS.md)
 - [Decision Matrix](../examples/complete-hub-spoke-temporal/DECISION-MATRIX.md)
 - [When Not Right Solution](../examples/complete-hub-spoke-temporal/WHEN-NOT-RIGHT-SOLUTION.md)
 - [Legacy Migration Strategy](./LEGACY-IAC-MIGRATION-STRATEGY.md)
 
 ### Component Documentation
+
 - [Flux Integration](../examples/complete-hub-spoke/flux/)
 - [Temporal Workflows](../examples/complete-hub-spoke-temporal/workflows/)
 - [AI Skills](../examples/complete-hub-spoke-temporal/skills/)
 - [Security Patterns](../examples/complete-hub-spoke-temporal/security/)
 
 ### Implementation Examples
+
 - [Complete Examples](../examples/)
 - [Infrastructure Templates](../infrastructure/)
 - [Monitoring Setup](../infrastructure/monitoring/)
@@ -409,6 +438,7 @@ This repository provides a **comprehensive, scenario-aware GitOps platform** tha
 5. **Continuous Improvement**: Adapt and optimize based on real usage
 
 **Key Success Factors**:
+
 - **Honest Problem Assessment**: Don't over-engineer for simple problems
 - **Scenario Awareness**: Adapt approach to brownfield/greenfield/hybrid needs
 - **Team Reality**: Implement solutions team can actually use and maintain

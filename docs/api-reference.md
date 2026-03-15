@@ -1,12 +1,14 @@
 # AI Agents Sandbox API Reference
 
 ## 🌐 Base URL
+
 ```
 Development: http://localhost:8081
 Production: https://api.ai-agents-sandbox.com
 ```
 
 ## 📋 Authentication
+
 ```http
 Authorization: Bearer <jwt-token>
 Content-Type: application/json
@@ -15,11 +17,13 @@ Content-Type: application/json
 ## 🔍 Health & Status
 
 ### Health Check
+
 ```http
 GET /health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -32,11 +36,13 @@ GET /health
 ```
 
 ### System Status
+
 ```http
 GET /status
 ```
 
 **Response:**
+
 ```json
 {
   "message": "All repository integrations completed successfully",
@@ -61,11 +67,13 @@ GET /status
 ## 🤖 Workflow Management
 
 ### Start Workflow
+
 ```http
 POST /workflow/start
 ```
 
 **Request Body:**
+
 ```json
 {
   "workflowType": "goal-based-agent",
@@ -80,6 +88,7 @@ POST /workflow/start
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "goal-agent-1710035700123",
@@ -90,11 +99,13 @@ POST /workflow/start
 ```
 
 ### Get Workflow Status
+
 ```http
 GET /workflow/status/{workflowId}
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "goal-agent-1710035700123",
@@ -108,11 +119,13 @@ GET /workflow/status/{workflowId}
 ```
 
 ### Send Signal to Workflow
+
 ```http
 POST /workflow/{workflowId}/signal
 ```
 
 **Request Body:**
+
 ```json
 {
   "signalName": "humanInput",
@@ -124,11 +137,13 @@ POST /workflow/{workflowId}/signal
 ## 🎯 Goal-Based Agents
 
 ### Start Goal-Based Agent
+
 ```http
 POST /agent/goal/start
 ```
 
 **Request Body:**
+
 ```json
 {
   "goal": "payment-processing",
@@ -144,6 +159,7 @@ POST /agent/goal/start
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "goal-agent-1710035700123",
@@ -155,11 +171,13 @@ POST /agent/goal/start
 ```
 
 ### Get Agent Status
+
 ```http
 GET /agent/goal/{workflowId}/status
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "goal-agent-1710035700123",
@@ -180,11 +198,13 @@ GET /agent/goal/{workflowId}/status
 ```
 
 ### Send Human Input
+
 ```http
 POST /agent/goal/{workflowId}/message
 ```
 
 **Request Body:**
+
 ```json
 {
   "message": "Please proceed with the payment processing",
@@ -195,11 +215,13 @@ POST /agent/goal/{workflowId}/message
 ## 🧠 ReAct Agents
 
 ### Start ReAct Agent
+
 ```http
 POST /agent/react/start
 ```
 
 **Request Body:**
+
 ```json
 {
   "query": "What is the current stock price of AAPL?",
@@ -212,6 +234,7 @@ POST /agent/react/start
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "react-agent-1710035700123",
@@ -224,11 +247,13 @@ POST /agent/react/start
 ```
 
 ### Get ReAct Status
+
 ```http
 GET /agent/react/{workflowId}/status?includeSteps=true
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "react-agent-1710035700123",
@@ -263,11 +288,13 @@ GET /agent/react/{workflowId}/status?includeSteps=true
 ## 🔬 Research Workflows
 
 ### Start Research Workflow
+
 ```http
 POST /research/start
 ```
 
 **Request Body:**
+
 ```json
 {
   "query": "AI trends in 2024",
@@ -283,6 +310,7 @@ POST /research/start
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "research-1710035700123",
@@ -296,11 +324,13 @@ POST /research/start
 ```
 
 ### Get Research Status
+
 ```http
 GET /research/{workflowId}/status?includeDetails=true
 ```
 
 **Response:**
+
 ```json
 {
   "workflowId": "research-1710035700123",
@@ -337,11 +367,13 @@ GET /research/{workflowId}/status?includeDetails=true
 ```
 
 ### Get Research Quality Metrics
+
 ```http
 GET /research/{workflowId}/quality
 ```
 
 **Response:**
+
 ```json
 {
   "sourceQuality": 0.87,
@@ -356,15 +388,18 @@ GET /research/{workflowId}/quality
 ## 🔧 MCP Tool Management
 
 ### List Available Tools
+
 ```http
 GET /mcp/tools
 ```
 
 **Query Parameters:**
+
 - `category` (optional): Filter by category (finance, hr, travel, research, general)
 - `goal` (optional): Filter by goal alignment
 
 **Response:**
+
 ```json
 {
   "tools": [
@@ -391,11 +426,13 @@ GET /mcp/tools
 ```
 
 ### Get Available Goals
+
 ```http
 GET /mcp/goals
 ```
 
 **Response:**
+
 ```json
 {
   "goals": [
@@ -418,11 +455,13 @@ GET /mcp/goals
 ```
 
 ### Get Tool Categories
+
 ```http
 GET /mcp/categories
 ```
 
 **Response:**
+
 ```json
 {
   "categories": ["finance", "hr", "travel", "research", "general"],
@@ -431,11 +470,13 @@ GET /mcp/categories
 ```
 
 ### Execute Tool
+
 ```http
 POST /mcp/execute
 ```
 
 **Request Body:**
+
 ```json
 {
   "toolName": "stripe_payment",
@@ -450,6 +491,7 @@ POST /mcp/execute
 ```
 
 **Response:**
+
 ```json
 {
   "toolName": "stripe_payment",
@@ -473,11 +515,13 @@ POST /mcp/execute
 ## ☁️ AWS Bedrock Integration
 
 ### List Available Models
+
 ```http
 GET /api/bedrock/models
 ```
 
 **Response:**
+
 ```json
 {
   "models": [
@@ -505,11 +549,13 @@ GET /api/bedrock/models
 ```
 
 ### Get Model Details
+
 ```http
 GET /api/bedrock/models/{modelId}
 ```
 
 **Response:**
+
 ```json
 {
   "modelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -526,11 +572,13 @@ GET /api/bedrock/models/{modelId}
 ```
 
 ### Invoke Model
+
 ```http
 POST /api/bedrock/invoke
 ```
 
 **Request Body:**
+
 ```json
 {
   "modelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -542,6 +590,7 @@ POST /api/bedrock/invoke
 ```
 
 **Response:**
+
 ```json
 {
   "completion": "AI offers numerous benefits in healthcare including improved diagnostic accuracy, personalized treatment plans, operational efficiency, and enhanced patient care...",
@@ -558,11 +607,13 @@ POST /api/bedrock/invoke
 ```
 
 ### Conduct Conversation
+
 ```http
 POST /api/bedrock/conversation
 ```
 
 **Request Body:**
+
 ```json
 {
   "modelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -579,6 +630,7 @@ POST /api/bedrock/conversation
 ```
 
 **Response:**
+
 ```json
 {
   "messages": [
@@ -603,11 +655,13 @@ POST /api/bedrock/conversation
 ```
 
 ### Get Models by Provider
+
 ```http
 GET /api/bedrock/models/provider/{provider}
 ```
 
 **Response:**
+
 ```json
 {
   "models": [
@@ -628,11 +682,13 @@ GET /api/bedrock/models/provider/{provider}
 ```
 
 ### Get Models by Capability
+
 ```http
 GET /api/bedrock/models/capability/{capability}
 ```
 
 **Response:**
+
 ```json
 {
   "models": [
@@ -650,11 +706,13 @@ GET /api/bedrock/models/capability/{capability}
 ## 🤖 Multi-Model AI Management
 
 ### Get All Available Models
+
 ```http
 GET /api/multimodel/models
 ```
 
 **Response:**
+
 ```json
 {
   "models": [
@@ -682,11 +740,13 @@ GET /api/multimodel/models
 ```
 
 ### Process Multi-Model Request
+
 ```http
 POST /api/multimodel/process
 ```
 
 **Request Body:**
+
 ```json
 {
   "prompt": "Analyze the market trends for electric vehicles",
@@ -699,6 +759,7 @@ POST /api/multimodel/process
 ```
 
 **Response:**
+
 ```json
 {
   "results": [
@@ -744,11 +805,13 @@ POST /api/multimodel/process
 ```
 
 ### Compare Models
+
 ```http
 POST /api/multimodel/compare
 ```
 
 **Request Body:**
+
 ```json
 {
   "prompt": "What are the benefits of renewable energy?",
@@ -758,6 +821,7 @@ POST /api/multimodel/compare
 ```
 
 **Response:**
+
 ```json
 {
   "prompt": "What are the benefits of renewable energy?",
@@ -782,11 +846,13 @@ POST /api/multimodel/compare
 ```
 
 ### Create Ensemble Result
+
 ```http
 POST /api/multimodel/ensemble
 ```
 
 **Request Body:**
+
 ```json
 {
   "prompt": "Explain quantum computing in simple terms",
@@ -795,6 +861,7 @@ POST /api/multimodel/ensemble
 ```
 
 **Response:**
+
 ```json
 {
   "combinedResponse": "[GPT-4]: Quantum computing uses quantum bits...\n[Claude 3]: Quantum computing is a revolutionary approach...\n[Gemini Pro]: At its core, quantum computing leverages...",
@@ -818,11 +885,13 @@ POST /api/multimodel/ensemble
 ## 💬 RAG AI Plugin
 
 ### Chat with RAG AI
+
 ```http
 POST /api/rag-ai/chat
 ```
 
 **Request Body:**
+
 ```json
 {
   "message": "What are our company's security policies?",
@@ -833,6 +902,7 @@ POST /api/rag-ai/chat
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Based on your company's documentation, the security policies include...",
@@ -850,11 +920,13 @@ POST /api/rag-ai/chat
 ```
 
 ### Search Knowledge Base
+
 ```http
 GET /api/rag-ai/search?query=security%20policies&limit=10&offset=0
 ```
 
 **Response:**
+
 ```json
 {
   "results": [
@@ -880,11 +952,13 @@ GET /api/rag-ai/search?query=security%20policies&limit=10&offset=0
 ```
 
 ### Get Available Tools
+
 ```http
 GET /api/rag-ai/tools
 ```
 
 **Response:**
+
 ```json
 {
   "tools": [
@@ -906,6 +980,7 @@ GET /api/rag-ai/tools
 ## 🔌 WebSocket Real-Time Updates
 
 ### Connect to WebSocket
+
 ```javascript
 const ws = new WebSocket('ws://localhost:8081/ws');
 
@@ -930,6 +1005,7 @@ ws.onmessage = (event) => {
 ### Message Types
 
 #### Workflow Update
+
 ```json
 {
   "type": "workflow_update",
@@ -952,6 +1028,7 @@ ws.onmessage = (event) => {
 ```
 
 #### Agent Update
+
 ```json
 {
   "type": "agent_update",
@@ -973,6 +1050,7 @@ ws.onmessage = (event) => {
 ```
 
 #### System Update
+
 ```json
 {
   "type": "system_update",
@@ -994,6 +1072,7 @@ ws.onmessage = (event) => {
 ```
 
 #### Notification
+
 ```json
 {
   "type": "notification",
@@ -1011,6 +1090,7 @@ ws.onmessage = (event) => {
 ```
 
 #### Heartbeat
+
 ```json
 {
   "type": "heartbeat",
@@ -1025,11 +1105,13 @@ ws.onmessage = (event) => {
 ## 📊 Monitoring & Metrics
 
 ### Get System Metrics
+
 ```http
 GET /metrics
 ```
 
 **Response:**
+
 ```json
 {
   "system": {
@@ -1062,11 +1144,13 @@ GET /metrics
 ```
 
 ### Get Integration Status
+
 ```http
 GET /integrations
 ```
 
 **Response:**
+
 ```json
 {
   "high_priority": [
@@ -1091,6 +1175,7 @@ GET /integrations
 ## 🚨 Error Handling
 
 ### Standard Error Response
+
 ```json
 {
   "error": {
@@ -1107,6 +1192,7 @@ GET /integrations
 ```
 
 ### HTTP Status Codes
+
 - `200 OK` - Successful request
 - `201 Created` - Resource created successfully
 - `400 Bad Request` - Invalid request parameters
@@ -1120,11 +1206,13 @@ GET /integrations
 ## 🔧 Rate Limiting
 
 ### Rate Limits
+
 - **Anonymous Users**: 100 requests/minute
 - **Authenticated Users**: 1000 requests/minute
 - **Premium Users**: 5000 requests/minute
 
 ### Rate Limit Headers
+
 ```http
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -1134,6 +1222,7 @@ X-RateLimit-Reset: 1710036000
 ## 📚 SDK Examples
 
 ### Go Client
+
 ```go
 package main
 
@@ -1170,6 +1259,7 @@ func (c *Client) StartGoalAgent(goal string, context map[string]interface{}) (*W
 ```
 
 ### JavaScript Client
+
 ```javascript
 class AIAgentsClient {
     constructor(baseURL, token) {
@@ -1209,6 +1299,7 @@ class AIAgentsClient {
 ```
 
 ### Python Client
+
 ```python
 import requests
 import websocket
@@ -1252,6 +1343,7 @@ class AIAgentsClient:
 ## 🎯 Quick Reference
 
 ### Common Workflows
+
 1. **Start Goal-Based Agent**: `POST /agent/goal/start`
 2. **Start ReAct Agent**: `POST /agent/react/start`
 3. **Start Research**: `POST /research/start`
@@ -1259,12 +1351,14 @@ class AIAgentsClient:
 5. **Invoke AI Model**: `POST /api/bedrock/invoke`
 
 ### WebSocket Events
+
 - `workflow_update` - Workflow progress updates
 - `agent_update` - Agent status changes
 - `system_update` - System health updates
 - `notification` - Important notifications
 
 ### Error Codes
+
 - `VALIDATION_ERROR` - Invalid input
 - `AUTHENTICATION_ERROR` - Invalid credentials
 - `PERMISSION_ERROR` - Insufficient permissions

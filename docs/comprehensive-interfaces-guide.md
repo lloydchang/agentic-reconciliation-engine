@@ -7,11 +7,13 @@ Modern AI agent ecosystems support multiple interface patterns for agent-to-syst
 ## Core Interface Files
 
 ### AGENTS.md
+
 **Purpose**: Global behavior rules and repository governance for AI agents
 
 **Location**: Repository root (`/AGENTS.md`)
 
 **Controls**:
+
 - Repository architecture overview
 - Coding standards and conventions
 - Test execution procedures
@@ -20,6 +22,7 @@ Modern AI agent ecosystems support multiple interface patterns for agent-to-syst
 - File modification rules
 
 **Structure**:
+
 ```markdown
 # AGENTS.md
 
@@ -43,6 +46,7 @@ Deployment:
 ```
 
 **Example**:
+
 ```markdown
 # AGENTS.md
 
@@ -80,11 +84,13 @@ Forbidden
 ```
 
 ### SKILL.md
+
 **Purpose**: Specialized workflow capabilities for specific tasks
 
 **Location**: `skills/[skill-name]/SKILL.md`
 
 **Controls**:
+
 - Task-specific workflow instructions
 - Required tools and permissions
 - Input/output specifications
@@ -92,6 +98,7 @@ Forbidden
 - Trigger conditions
 
 **Structure**:
+
 ```markdown
 # SKILL.md
 
@@ -115,6 +122,7 @@ Outputs:
 ```
 
 **Example**:
+
 ```markdown
 # SKILL.md
 
@@ -150,17 +158,20 @@ Outputs:
 ```
 
 ### Tool Configuration
+
 **Purpose**: Define execution permissions and capabilities for agents
 
 **Location**: `tools/[tool-name].yaml` or `tools/config.yaml`
 
 **Controls**:
+
 - Allowed commands and operations
 - Blocked dangerous commands
 - Resource access permissions
 - Execution constraints
 
 **Structure**:
+
 ```yaml
 tools:
   [tool-name]:
@@ -180,6 +191,7 @@ tools:
 ```
 
 **Example**:
+
 ```yaml
 tools:
   bash:
@@ -234,19 +246,23 @@ tools:
 ## Protocol Interfaces
 
 ### MCP (Model Context Protocol)
+
 **Purpose**: Standardized agent-to-tool communication protocol
 
 **Transport Options**:
+
 - **stdio**: Standard input/output (default for CLI tools)
 - **HTTP**: REST API over HTTP/HTTPS
 - **WebSocket**: Real-time bidirectional communication
 
 **Components**:
+
 - **Tools**: Callable functions (start_workflow, get_status, etc.)
 - **Resources**: Data access patterns (workflow_results, metrics, etc.)
 - **Authentication**: API key-based with role-based permissions
 
 **MCP Server Structure**:
+
 ```
 mcp/
 ├── mcp_server.go          # Core MCP server
@@ -259,6 +275,7 @@ mcp/
 ```
 
 **MCP Tools Example**:
+
 ```json
 {
   "name": "start_compliance_workflow",
@@ -271,6 +288,7 @@ mcp/
 ```
 
 **MCP Resources Example**:
+
 ```json
 {
   "uri": "workflow://results",
@@ -281,15 +299,18 @@ mcp/
 ```
 
 ### WebMCP
+
 **Purpose**: Browser-based MCP client interface
 
 **Components**:
+
 - **Web Client**: React/Vue.js frontend
 - **WebSocket Connection**: Real-time MCP communication
 - **Tool Explorer**: Interactive tool discovery
 - **Resource Browser**: Data access interface
 
 **WebMCP Structure**:
+
 ```
 frontend/
 ├── src/
@@ -307,6 +328,7 @@ frontend/
 ```
 
 **WebMCP Features**:
+
 - Interactive tool execution
 - Real-time workflow monitoring
 - Resource visualization
@@ -316,9 +338,11 @@ frontend/
 ## API Interfaces
 
 ### REST APIs
+
 **Purpose**: HTTP-based programmatic access to agent capabilities
 
 **Endpoints**:
+
 ```yaml
 /workflow/start:
   method: POST
@@ -352,6 +376,7 @@ frontend/
 ```
 
 **API Authentication**:
+
 ```yaml
 authentication:
   type: API Key
@@ -366,9 +391,11 @@ authorization:
 ```
 
 ### GraphQL APIs
+
 **Purpose**: Flexible query interface for complex data access
 
 **Schema Example**:
+
 ```graphql
 type Workflow {
   id: ID!
@@ -394,9 +421,11 @@ type Mutation {
 ## CLI Interfaces
 
 ### Command-Line Tools
+
 **Purpose**: Terminal-based agent interaction
 
 **CLI Structure**:
+
 ```
 cli/
 ├── cmd/
@@ -414,6 +443,7 @@ cli/
 ```
 
 **CLI Commands**:
+
 ```bash
 # Workflow management
 ai-agent workflow start --type=compliance --target=vm-001
@@ -430,15 +460,18 @@ ai-agent config auth --method=bearer
 ```
 
 ### Shell Integration
+
 **Purpose**: Direct shell integration for seamless workflow
 
 **Shell Features**:
+
 - Tab completion for commands and parameters
 - History tracking and search
 - Alias support for common workflows
 - Environment variable integration
 
 **Example Shell Integration**:
+
 ```bash
 # Add to .bashrc or .zshrc
 eval "$(ai-agent completion bash)"
@@ -451,9 +484,11 @@ ai-agent workflow start --t<TAB>  # Shows available types
 ## GUI Interfaces
 
 ### Desktop Applications
+
 **Purpose**: Rich desktop experience for agent interaction
 
 **Desktop App Structure**:
+
 ```
 desktop/
 ├── src/
@@ -475,6 +510,7 @@ desktop/
 ```
 
 **Desktop Features**:
+
 - Drag-and-drop workflow builder
 - Real-time status monitoring
 - Resource visualization
@@ -482,9 +518,11 @@ desktop/
 - System tray integration
 
 ### Web Applications
+
 **Purpose**: Browser-based agent management interface
 
 **Web App Structure**:
+
 ```
 webapp/
 ├── src/
@@ -508,6 +546,7 @@ webapp/
 ```
 
 **Web App Features**:
+
 - Responsive design for mobile/desktop
 - Real-time collaboration
 - Workflow template library
@@ -517,9 +556,11 @@ webapp/
 ## Integration Patterns
 
 ### Multi-Interface Architecture
+
 **Purpose**: Support multiple client types simultaneously
 
 **Architecture Diagram**:
+
 ```
                     ┌─────────────────┐
                     │   User/API     │
@@ -551,6 +592,7 @@ webapp/
 ### Interface Selection Guidelines
 
 **CLI Interface Best For**:
+
 - DevOps automation
 - CI/CD integration
 - Script-based workflows
@@ -558,6 +600,7 @@ webapp/
 - Bulk operations
 
 **GUI Interface Best For**:
+
 - Visual workflow design
 - Real-time monitoring
 - Non-technical users
@@ -565,6 +608,7 @@ webapp/
 - Interactive debugging
 
 **API Interface Best For**:
+
 - Programmatic integration
 - Third-party applications
 - Automated systems
@@ -572,6 +616,7 @@ webapp/
 - Custom client development
 
 **MCP Interface Best For**:
+
 - AI agent communication
 - Tool orchestration
 - Standardized integration
@@ -581,9 +626,11 @@ webapp/
 ## Configuration Management
 
 ### Environment-Based Configuration
+
 **Purpose**: Flexible configuration across environments
 
 **Configuration Files**:
+
 ```yaml
 # config/development.yaml
 server:
@@ -614,9 +661,11 @@ server:
 ```
 
 ### Dynamic Configuration
+
 **Purpose**: Runtime configuration updates
 
 **Dynamic Config Structure**:
+
 ```json
 {
   "interfaces": {
@@ -647,7 +696,9 @@ server:
 ## Security Considerations
 
 ### Authentication Methods
+
 **API Key Authentication**:
+
 ```yaml
 authentication:
   type: api_key
@@ -660,6 +711,7 @@ authentication:
 ```
 
 **OAuth 2.0 Authentication**:
+
 ```yaml
 authentication:
   type: oauth2
@@ -673,6 +725,7 @@ authentication:
 ```
 
 **Certificate-Based Authentication**:
+
 ```yaml
 authentication:
   type: certificate
@@ -682,7 +735,9 @@ authentication:
 ```
 
 ### Authorization Framework
+
 **Role-Based Access Control**:
+
 ```yaml
 roles:
   admin:
@@ -715,19 +770,23 @@ roles:
 ```
 
 ### Security Best Practices
+
 **Input Validation**:
+
 - Validate all parameters against schemas
 - Sanitize user inputs
 - Rate limit API endpoints
 - Implement request size limits
 
 **Output Filtering**:
+
 - Filter sensitive information from responses
 - Mask credentials and secrets
 - Implement data retention policies
 - Audit log all access
 
 **Network Security**:
+
 - Use HTTPS for all API communications
 - Implement CORS policies
 - Enable CSRF protection
@@ -736,7 +795,9 @@ roles:
 ## Implementation Examples
 
 ### Complete Interface Implementation
+
 **Repository Structure**:
+
 ```
 ai-agent-platform/
 ├── AGENTS.md                    # Global agent rules
@@ -775,7 +836,9 @@ ai-agent-platform/
 ```
 
 ### Interface Integration Code
+
 **MCP Server Integration**:
+
 ```go
 // mcp/server.go
 func (s *MCPServer) StartInterfaces() error {
@@ -795,6 +858,7 @@ func (s *MCPServer) StartInterfaces() error {
 ```
 
 **Unified Client Interface**:
+
 ```typescript
 // client/unified-client.ts
 export class UnifiedAgentClient {
@@ -816,7 +880,9 @@ export class UnifiedAgentClient {
 ## Testing and Validation
 
 ### Interface Testing
+
 **MCP Interface Tests**:
+
 ```typescript
 describe('MCP Interface', () => {
     test('should list tools', async () => {
@@ -836,6 +902,7 @@ describe('MCP Interface', () => {
 ```
 
 **API Interface Tests**:
+
 ```typescript
 describe('API Interface', () => {
     test('should start workflow via REST', async () => {
@@ -853,7 +920,9 @@ describe('API Interface', () => {
 ```
 
 ### Load Testing
+
 **Concurrent Interface Testing**:
+
 ```bash
 # Test MCP server with multiple connections
 for i in {1..100}; do
@@ -869,7 +938,9 @@ ab -n 1000 -c 10 -H "Authorization: Bearer test-key" \
 ## Deployment Strategies
 
 ### Container-Based Deployment
+
 **Docker Compose Configuration**:
+
 ```yaml
 version: '3.8'
 services:
@@ -906,7 +977,9 @@ services:
 ```
 
 ### Kubernetes Deployment
+
 **Kubernetes Manifest**:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -966,7 +1039,9 @@ spec:
 ## Monitoring and Observability
 
 ### Interface Metrics
+
 **Key Metrics**:
+
 ```yaml
 metrics:
   mcp:
@@ -993,7 +1068,9 @@ metrics:
 ```
 
 ### Logging Strategy
+
 **Structured Logging Format**:
+
 ```json
 {
   "timestamp": "2024-03-15T10:30:00Z",
@@ -1013,7 +1090,9 @@ metrics:
 ```
 
 ### Health Checks
+
 **Interface Health Endpoints**:
+
 ```yaml
 health_checks:
   mcp_server:

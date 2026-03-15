@@ -5,6 +5,7 @@ Welcome to the AI Agents Sandbox documentation. This comprehensive guide covers 
 ## 📚 Documentation Structure
 
 ### 🏃‍♂️ [User Guide](user-guide/)
+
 Everything you need to get started and use the AI Agents Sandbox effectively.
 
 - **[Getting Started](user-guide/getting-started.md)** - Quick start guide, prerequisites, and basic setup
@@ -13,6 +14,7 @@ Everything you need to get started and use the AI Agents Sandbox effectively.
 - **[Troubleshooting](user-guide/troubleshooting.md)** - Common issues and their solutions
 
 ### 🛠️ [Developer Guide](developer-guide/)
+
 Technical documentation for developers working with or extending the platform.
 
 - **[Agent Behavior](developer-guide/agent-behavior.md)** - Agent operating rules and governance
@@ -22,6 +24,7 @@ Technical documentation for developers working with or extending the platform.
 - **[Extending](developer-guide/extending.md)** - How to contribute, add skills, and extend functionality
 
 ### 📖 [Reference](reference/)
+
 Detailed reference materials and specifications.
 
 - **[CLI Commands](reference/cli-commands.md)** - Complete command-line interface reference
