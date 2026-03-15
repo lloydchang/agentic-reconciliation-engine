@@ -1,288 +1,149 @@
 ---
 name: disaster-recovery
 description: >
-  Use this skill to design, implement, test, and execute disaster recovery
-  procedures for workloads. Triggers: any request to create a DR plan,
-  execute a region failover, test RTO/RPO objectives, run a DR drill,
-  validate backup integrity, restore a failed environment, or assess and
-  improve the current disaster recovery posture.
-tools:
-  - bash
-  - computer
+  Design, test, and execute disaster recovery plans with AI-guided RTO/RPO scoring, automated drills, and adaptive failover orchestration.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Disaster Recovery Skill
+# Disaster Recovery — World-class Resilience Playbook
 
-Automate the full DR lifecycle: design DR architecture, codify recovery
-runbooks, schedule and execute DR drills, measure RTO/RPO actuals vs targets,
-and maintain an always-ready failover capability.
+Ensures workloads recover within their SLA-defined RTO/RPO using AI-augmented planning, automated drills, telemetry-driven failover, and shared-context signals for downstream skills. Trigger when defining recovery architecture, running drills, failing over, or reacting to capacity/incident alerts.
 
----
+## When to invoke
+- Draft or revise DR plans for Starter/Business/Enterprise/Critical tiers.
+- Execute failover or failback runbooks after an outage or during drills.
+- Validate backups, replication, and RPO compliance.
+- Respond to dispatcher alerts (`incident-ready`, `capacity-alert`, `policy-risk`) requiring cross-region mitigation.
 
-## DR Tiers (by SLA)
+## Capabilities
+- Multi-tier failover strategies (cold/warm/hot/active-active) with AI RTO/RPO scoring.
+- Automated DR drills, backup integrity checks, and posture reporting.
+- Intelligent runbook selection and guided failover/failback steps.
+- Shared context integration (`shared-context://memory-store/dr/<operationId>`) for other skills.
+- Human gate guidance for impactful failovers or production drills.
 
-| Tier       | RTO    | RPO    | Strategy                         |
-|------------|--------|--------|----------------------------------|
-| Starter    | 4 hr   | 24 hr  | Backup + restore (cold)          |
-| Business   | 1 hr   | 1 hr   | Pilot light (warm standby)       |
-| Enterprise | 15 min | 5 min  | Active-passive (hot standby)     |
-| Critical   | 5 min  | 1 min  | Active-active (multi-region)     |
-
----
-
-## Architecture Patterns
-
-### Active-Passive (Enterprise default)
-```
-Primary Region (East US)         Secondary Region (West Europe)
-  AKS Cluster (active)    ──────► AKS Cluster (scaled to 0)
-  PostgreSQL (primary)    ──────► PostgreSQL (geo-replica, read)
-  Blob Storage            ──────► Blob Storage (GRS replicated)
-  Key Vault               ──────► Key Vault (replicated)
-  Azure Front Door ─── health probes ─── auto-failover at DNS level
-```
-
-### Traffic Manager / Front Door Failover
-```bash
-# Azure Front Door health probe config
-az afd origin update \
-  --resource-group "$FRONTDOOR_RG" \
-  --profile-name "$AFD_PROFILE" \
-  --origin-group-name "og-${TENANT_ID}" \
-  --origin-name "primary-${REGION}" \
-  --priority 1 --weight 1000 \
-  --enabled-state Enabled
-
-az afd origin update \
-  --resource-group "$FRONTDOOR_RG" \
-  --profile-name "$AFD_PROFILE" \
-  --origin-group-name "og-${TENANT_ID}" \
-  --origin-name "secondary-${DR_REGION}" \
-  --priority 2 --weight 1000 \
-  --enabled-state Enabled
-```
-
----
-
-## Failover Execution
-
-### Region Failover Runbook (Enterprise Tier)
-```bash
-execute_failover() {
-  local tenant_id=$1
-  local reason=$2
-
-  echo "[$(date -u +%H:%M:%SZ)] FAILOVER INITIATED: $tenant_id — $reason"
-  FAILOVER_START=$(date +%s)
-
-  # Step 1: Confirm primary is unreachable (don't fail over on false alarm)
-  PRIMARY_HEALTHY=$(curl -sf --max-time 10 \
-    "https://${tenant_id}.app.example.com/health" && echo "true" || echo "false")
-  [[ "$PRIMARY_HEALTHY" == "true" ]] && {
-    echo "Primary is healthy — aborting failover"
-    return 1
-  }
-
-  # Step 2: Promote geo-replica to standalone
-  az postgres flexible-server replica stop-replication \
-    --resource-group "rg-${tenant_id}-dr" \
-    --name "pg-${tenant_id}-replica"
-  echo "[$(date -u +%H:%M:%SZ)] DB promoted to standalone"
-
-  # Step 3: Scale up DR AKS node pool
-  az aks nodepool scale \
-    --cluster-name "aks-${tenant_id}-dr" \
-    --resource-group "rg-${tenant_id}-dr" \
-    --name workload --node-count "$PROD_NODE_COUNT"
-  echo "[$(date -u +%H:%M:%SZ)] DR AKS scaled up"
-
-  # Step 4: Update secrets/config to point at DR database
-  kubectl create secret generic db-connection \
-    --from-literal=host="pg-${tenant_id}-replica.postgres.database.azure.com" \
-    --namespace "$tenant_id" --dry-run=client -o yaml | kubectl apply -f -
-
-  # Step 5: Trigger rolling restart to pick up new DB endpoint
-  kubectl rollout restart deployment -n "$tenant_id"
-  kubectl rollout status deployment -n "$tenant_id" --timeout=5m
-
-  # Step 6: Update Front Door weights (DR becomes primary)
-  az afd origin update \
-    --profile-name "$AFD_PROFILE" -g "$FRONTDOOR_RG" \
-    --origin-group-name "og-${tenant_id}" \
-    --origin-name "secondary-${DR_REGION}" --priority 1
-
-  az afd origin update \
-    --profile-name "$AFD_PROFILE" -g "$FRONTDOOR_RG" \
-    --origin-group-name "og-${tenant_id}" \
-    --origin-name "primary-${REGION}" --priority 99
-
-  # Step 7: Validate
-  sleep 30
-  DR_HEALTHY=$(curl -sf "https://${tenant_id}.app.example.com/health" \
-    && echo "true" || echo "false")
-
-  FAILOVER_END=$(date +%s)
-  RTO_ACHIEVED=$(( (FAILOVER_END - FAILOVER_START) / 60 ))
-
-  echo "[$(date -u +%H:%M:%SZ)] FAILOVER COMPLETE"
-  echo "RTO achieved: ${RTO_ACHIEVED} minutes | DR healthy: $DR_HEALTHY"
-  record_failover_event "$tenant_id" "$reason" "$RTO_ACHIEVED" "$DR_HEALTHY"
-}
-```
-
-### Failback Runbook (return to primary region)
-```bash
-execute_failback() {
-  local tenant_id=$1
-
-  # 1. Restore primary region infrastructure (if needed via Terraform)
-  # 2. Set up replication: DR → primary (reverse)
-  # 3. Wait for data sync (monitor replication lag → 0)
-  # 4. Maintenance window: freeze writes, final sync
-  # 5. Promote primary, demote DR
-  # 6. Update Front Door weights back to primary
-  # 7. Validate, then scale down DR
-}
-```
-
----
-
-## DR Drills
-
-### Automated DR Drill Schedule
-```yaml
-dr_drills:
-  - type: backup_restore_validation
-    frequency: weekly
-    scope: all_tenants
-    action: restore_to_test_env_and_verify_row_counts
-
-  - type: rto_measurement
-    frequency: monthly
-    scope: enterprise_tenants
-    action: execute_full_failover_to_dr_region_and_measure_time
-    human_gate: required
-
-  - type: failover_simulation
-    frequency: quarterly
-    scope: all_tiers
-    action: simulate_primary_outage_validate_auto_detection
-```
-
-### Drill Execution
-```bash
-run_dr_drill() {
-  local drill_type=$1
-  local tenant_id=$2
-  local DRILL_ID="DRILL-$(date +%Y%m%d-%H%M%S)"
-
-  echo "Starting DR drill: $drill_type for $tenant_id"
-
-  case $drill_type in
-    backup_restore)
-      # Restore latest backup to isolated test environment
-      az postgres flexible-server restore \
-        --resource-group "rg-dr-test" \
-        --name "pg-drill-${tenant_id}" \
-        --source-server "pg-${tenant_id}" \
-        --restore-time "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
-      # Validate row counts
-      PROD_COUNT=$(psql -h "pg-${tenant_id}.postgres.database.azure.com" \
-        -t -c "SELECT COUNT(*) FROM events;")
-      TEST_COUNT=$(psql -h "pg-drill-${tenant_id}.postgres.database.azure.com" \
-        -t -c "SELECT COUNT(*) FROM events;")
-
-      RPO_OK=$( [[ "$PROD_COUNT" == "$TEST_COUNT" ]] && echo "PASS" || echo "FAIL" )
-      echo "RPO drill result: $RPO_OK (prod: $PROD_COUNT, restore: $TEST_COUNT)"
-
-      # Clean up test server
-      az postgres flexible-server delete \
-        --resource-group "rg-dr-test" \
-        --name "pg-drill-${tenant_id}" --yes
-      ;;
-  esac
-
-  record_drill_result "$DRILL_ID" "$drill_type" "$tenant_id"
-}
-```
-
----
-
-## RPO Validation
+## Invocation patterns
 
 ```bash
-# Confirm geo-replication lag is within RPO target
-check_rpo() {
-  local tenant_id=$1 rpo_target_minutes=$2
-
-  REPLICA_LAG=$(psql -h "pg-${tenant_id}-replica.postgres.database.azure.com" \
-    -t -c "SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp())) / 60;" \
-    | tr -d ' ')
-
-  if (( $(echo "$REPLICA_LAG > $rpo_target_minutes" | bc -l) )); then
-    echo "RPO BREACH: lag=${REPLICA_LAG}min, target=${rpo_target_minutes}min"
-    create_alert "RPO_BREACH" "$tenant_id" "$REPLICA_LAG"
-  else
-    echo "RPO OK: lag=${REPLICA_LAG}min (target=${rpo_target_minutes}min)"
-  fi
-}
+/disaster-recovery plan --tenant=tenant-42 --tier=enterprise --region=eastus
+/disaster-recovery drill --drillId=DRILL-2026-0315-01 --type=rto_measurement --tenant=tenant-42
+/disaster-recovery failover --tenant=tenant-42 --reason=region-outage --humanGate=true
+/disaster-recovery failback --tenant=tenant-42 --primaryRegion=eastus --secondaryRegion=westeurope
+/disaster-recovery rpo-check --tenant=tenant-42 --targetMinutes=5
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `tenant` | Tenant identifier. | `tenant-42` |
+| `tier` | DR SLA tier (starter/business/enterprise/critical). | `enterprise` |
+| `region` | Primary region for plan/drill. | `eastus` |
+| `drillId` | Identifier for scheduled drill. | `DRILL-2026-0315-01` |
+| `targetMinutes` | RTO/RPO target (minutes). | `15` |
+| `humanGate` | Whether gate approval is required. | `true` |
 
-## DR Posture Dashboard
-
-```
-DR Posture Report — [Date]
-──────────────────────────────
-
-RTO/RPO Coverage
-  Enterprise tenants (15/5 min targets):  18/18 ✅
-  Business tenants (1hr/1hr targets):     24/24 ✅
-  Starter tenants (4hr/24hr targets):     41/41 ✅
-
-Last Drill Results
-  Backup restore drill:  PASS (2025-05-01) — avg restore time 8.4 min
-  RTO measurement drill: PASS (2025-04-15) — avg RTO 11.2 min (target 15 min)
-  Failback drill:        PASS (2025-03-01)
-
-Replication Health
-  Replicas in sync (lag < 5 min): 18/18 ✅
-  Worst replication lag:          2.3 min (tenant-42)
-
-Backup Integrity
-  Backups verified this week:     83/83 ✅
-  Last integrity failure:         None (30 days)
-```
-
----
-
-## Examples
-
-- "Execute a region failover for tenant-42 — the East US cluster is down"
-- "Run a DR drill for all enterprise tenants this weekend"
-- "What is our current RPO compliance across all tenants?"
-- "Generate the quarterly DR posture report"
-- "Walk me through what happens when we failover tenant-7 to West Europe"
-- "Test the backup integrity for all business-tier tenants"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "operation": "failover|failback|drill|rpo_check|posture_report",
-  "tenant_id": "string",
+  "operationId": "DR-2026-0315-01",
+  "operation": "plan|drill|failover|failback|rpo_check",
+  "tenant": "tenant-42",
   "status": "success|failure|in_progress",
-  "rto_achieved_minutes": 0,
-  "rpo_lag_minutes": 0,
-  "rto_target_minutes": 0,
-  "rpo_target_minutes": 0,
-  "rto_met": true,
-  "rpo_met": true,
-  "drill_result": "PASS|FAIL|SKIPPED",
-  "failover_region": "string"
+  "tier": "enterprise",
+  "rtoTarget": 15,
+  "rpoTarget": 5,
+  "rtoAchieved": 12,
+  "rpoLag": 3,
+  "riskScore": 0.18,
+  "events": [
+    { "name": "failover-initiated", "timestamp": "2026-03-15T08:00:00Z" }
+  ],
+  "humanGate": {
+    "required": true,
+    "impact": "Production failover",
+    "reversible": "Yes"
+  },
+  "logs": "shared-context://memory-store/dr/DR-2026-0315-01",
+  "decisionContext": "redis://memory-store/dr/DR-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### AI-assisted DR planning
+1. Determine tier (Starter 4h/24h, Business 1h/1h, Enterprise 15min/5min, Critical 5min/1min).
+2. Use AI risk scoring (tier, tenant impact, telemetry) to surface gaps.
+3. Generate failover/failback runbooks and Azure/AWS/GCP architecture diagrams.
+4. Store plan metadata in shared-context for dispatcher consumption.
+
+### Automated DR drills & validation
+1. Schedule drills (weekly backup restore, monthly RTO measurement, quarterly failover simulation).
+2. Run steps (restore backup, promote geo-replicated DB, scale DR AKS, update DNS/front-door).
+3. Measure actual RTO/RPO, log metrics, emit `drill-completed`.
+4. Update `dr-loop` dashboards and notify stakeholders.
+
+### Failover & failback execution
+1. Confirm primary outage via health checks; gather telemetry.
+2. Promote geo-replicated databases, scale DR clusters, update secrets/config.
+3. Restore traffic weighting via Front Door/Traffic Manager/VPN.
+4. Validate health, log RTO, emit `failover-complete`; if failover fails, trigger incident skill.
+
+### Predictive RPO/RTO monitoring
+1. Monitor replication lag, backup freshness, capacity headroom.
+2. Forecast RPO breaches; send proactive `dr-warning` events.
+3. Align with `capacity-planning` and `incident-triage-runbook` when risk > threshold.
+
+## AI intelligence highlights
+- **AI RTO/RPO Risk Scoring**: blends telemetry, tier definitions, incident history to determine readiness.
+- **Intelligent Runbook Selection**: matches telemetry signatures to prescribed failover/failback scripts.
+- **Predictive Drill Recommendations**: selects tenants/tiers needing drills before saturations occur.
+- **Remediation Prioritization**: balances failover versus mitigations (scaling, routing) using cost/impact heuristics.
+
+## Memory agent & dispatcher integration
+- Store drill/failover state under `shared-context://memory-store/dr/<operationId>`.
+- Emit events: `dr-plan-ready`, `dr-drill`, `dr-failover`, `dr-warning`.
+- Subscribe to dispatcher signals (`incident-ready`, `capacity-alert`) to trigger failover sequences automatically.
+- Tag metadata with `decisionId`, `tenant`, `riskScore`, `confidence`.
+
+## Communication protocols
+- Primary: Bash/CLI runbooks calling cloud CLIs or kubectl/az commands, streaming progress logs.
+- Secondary: Event bus for `dr-*` events; watchers (prometheus/alertmanager) monitor telemetry.
+- Fallback: Persist JSON artifacts to `artifact-store://dr/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: drills executed, RTO/RPO compliance rates, backup validation success, failover duration, riskScore.
+- Logs: structured `log.event="dr.operation"` with `operation`, `tenant`, `tier`, `decisionId`.
+- Dashboards: integrate `/disaster-recovery metrics --format=prometheus` showing posture, drill history, alert status.
+- Alerts: riskScore > 0.85, RPO lag > target, drill failures > 1 per quarter.
+
+## Failure handling & retries
+- Retry orchestrator steps (scaling, DNS updates) up to 2× before human escalation.
+- On failover failure, roll back partial changes, emit `dr-failover-failed`, and escalate to `incident-triage-runbook`.
+- Keep artifacts/logs until downstream acknowledgement.
+
+## Human gates
+- Required when:
+ 1. Tier is Enterprise/Critical or >20 tenants affected.
+ 2. Failover impacts production traffic or modifies global networking.
+ 3. Drill execution may disrupt primary systems beyond scheduled windows.
+- Use the standard gate template capturing Impact/Reversibility.
+
+## Testing & validation
+- Dry-run: `/disaster-recovery drill --drillId=DRILL-DRY-RUN --type=backup_restore --dry-run`.
+- Unit tests: `backend/disaster-recovery` verifying scoring and runbook logic.
+- Integration: `scripts/validate-dr-cycle.sh` runs drill → failover → failback in emulator mode.
+- Regression: nightly `scripts/nightly-dr-smoke.sh` keeps telemetry, RTO/RPO reporting, and alerting aligned.
+
+## References
+- Failover scripts: `scripts/disaster-recovery/`.
+- Runbooks: `runbooks/disaster-recovery/`.
+- Dashboards: `monitoring/grafana/dr`.
+
+## Related skills
+- `/incident-triage-runbook`: handles failover incidents.
+- `/capacity-planning`: aligns capacity signals and triggers failovers.
+- `/ai-agent-orchestration`: sequences multi-step failover/drill workflows.
