@@ -69,8 +69,8 @@ create_namespace() {
 deploy_ollama() {
     log_info "Deploying Ollama with $OLLAMA_MODEL model..."
 
-    # Apply Ollama manifests
-    kubectl apply -f infrastructure/ai-inference/shared/ollama.yaml -n $NAMESPACE
+    # Apply Ollama manifests - use ai-infrastructure namespace
+    sed 's/namespace: ai-inference/namespace: ai-infrastructure/g' infrastructure/ai-inference/shared/ollama.yaml | kubectl apply -f -
 
     # Wait for Ollama deployment
     kubectl wait --for=condition=available --timeout=300s deployment/ollama -n $NAMESPACE
