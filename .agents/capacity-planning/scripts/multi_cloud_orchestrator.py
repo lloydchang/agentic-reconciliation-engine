@@ -1,515 +1,566 @@
 #!/usr/bin/env python3
 """
-Multi-Cloud Orchestrator
+Multi-Cloud Capacity Planning Orchestrator
 
-Cross-provider coordination and orchestration for AI agent management across multiple cloud environments.
+Orchestrates capacity planning operations across multiple cloud providers
+to ensure consistent resource forecasting and optimization.
 """
 
 import json
 import logging
 import asyncio
 from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
+import statistics
 
-from ai_agent_orchestration_handler import get_handler, CloudHandler, CloudResource
+from capacity_planning_handler import get_capacity_handler, ResourceCapacity
 
 logger = logging.getLogger(__name__)
 
 class OrchestrationStrategy(Enum):
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
-    ROLLING = "rolling"
-    BLUE_GREEN = "blue_green"
+    PRIORITY_BASED = "priority_based"
 
 class HealthStatus(Enum):
     HEALTHY = "healthy"
-    UNHEALTHY = "unhealthy"
-    DEGRADED = "degraded"
+    WARNING = "warning"
+    CRITICAL = "critical"
     UNKNOWN = "unknown"
 
 @dataclass
 class OrchestrationTask:
-    id: str
-    name: str
+    task_id: str
     provider: str
-    operation: str
-    config: Dict[str, Any]
-    dependencies: List[str]
-    retry_count: int = 0
-    max_retries: int = 3
-    timeout_seconds: int = 300
+    action: str
+    parameters: Dict[str, Any]
+    priority: str
+    status: str
+    created_at: datetime
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
 
 @dataclass
 class OrchestrationResult:
     task_id: str
     provider: str
+    action: str
     status: str
-    message: str
-    data: Optional[Dict[str, Any]]
-    timestamp: datetime
-    execution_time: float
+    success: bool
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+    execution_time: Optional[float] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
 
-class MultiCloudOrchestrator:
-    """Multi-cloud orchestration engine"""
+@dataclass
+class CapacityOrchestrationSummary:
+    orchestration_id: str
+    total_tasks: int
+    completed_tasks: int
+    successful_tasks: int
+    failed_tasks: int
+    total_resources: int
+    total_capacity: float
+    average_utilization: float
+    providers: List[str]
+    resource_types: List[str]
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    status: str = "in_progress"
+
+class MultiCloudCapacityOrchestrator:
+    """Orchestrates capacity planning operations across multiple cloud providers"""
     
-    def __init__(self, config_file: Optional[str] = None):
-        self.handlers = {}
-        self.tasks = []
-        self.results = []
-        self.running_tasks = {}
-        self.config = self._load_config(config_file)
-        self.executor = ThreadPoolExecutor(max_workers=10)
+    def __init__(self, max_workers: int = 4):
+        self.max_workers = max_workers
+        self.handlers: Dict[str, Any] = {}
+        self.tasks: List[OrchestrationTask] = []
+        self.results: List[OrchestrationResult] = []
+        self.orchestrations: Dict[str, CapacityOrchestrationSummary] = {}
         
-    def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
-        """Load orchestration configuration"""
-        default_config = {
-            'default_timeout': 300,
-            'max_parallel_tasks': 5,
-            'health_check_interval': 60,
-            'retry_delay': 30,
-            'providers': {
-                'aws': {'region': 'us-west-2', 'enabled': True},
-                'azure': {'region': 'eastus', 'enabled': True},
-                'gcp': {'region': 'us-central1', 'enabled': True},
-                'onprem': {'region': 'default', 'enabled': True}
-            }
-        }
-        
-        if config_file:
-            try:
-                with open(config_file, 'r') as f:
-                    user_config = json.load(f)
-                default_config.update(user_config)
-            except Exception as e:
-                logger.warning(f"Failed to load config file {config_file}: {e}")
-        
-        return default_config
-    
-    def initialize_providers(self, providers: List[str]) -> Dict[str, bool]:
-        """Initialize cloud provider handlers"""
-        results = {}
-        
-        for provider in providers:
-            try:
-                if provider not in self.config['providers']:
-                    logger.warning(f"Provider {provider} not in configuration")
-                    results[provider] = False
-                    continue
-                
-                if not self.config['providers'][provider]['enabled']:
-                    logger.info(f"Provider {provider} is disabled")
-                    results[provider] = False
-                    continue
-                
-                region = self.config['providers'][provider]['region']
-                handler = get_handler(provider, region)
+    def initialize_handlers(self, providers: List[str], regions: Dict[str, str]) -> bool:
+        """Initialize capacity handlers for all providers"""
+        try:
+            success = True
+            
+            for provider in providers:
+                region = regions.get(provider, "us-west-2")
+                handler = get_capacity_handler(provider, region)
                 
                 if handler.initialize_client():
                     self.handlers[provider] = handler
-                    results[provider] = True
-                    logger.info(f"Provider {provider} initialized successfully")
+                    logger.info(f"Initialized {provider} capacity handler")
                 else:
-                    results[provider] = False
-                    logger.error(f"Failed to initialize provider {provider}")
-                    
-            except Exception as e:
-                logger.error(f"Error initializing provider {provider}: {e}")
-                results[provider] = False
-        
-        return results
+                    logger.error(f"Failed to initialize {provider} capacity handler")
+                    success = False
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize handlers: {e}")
+            return False
     
-    def create_deployment_plan(self, 
-                            agents: List[Dict[str, Any]], 
-                            strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationTask]:
-        """Create deployment plan based on strategy"""
+    def orchestrate_capacity_analysis(
+        self,
+        providers: List[str],
+        resource_types: List[str],
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> CapacityOrchestrationSummary:
+        """Orchestrate capacity analysis across providers"""
+        
+        if not orchestration_id:
+            orchestration_id = f"capacity-analysis-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        
+        logger.info(f"Starting capacity analysis orchestration {orchestration_id} for providers: {providers}")
+        
+        # Create orchestration summary
+        summary = CapacityOrchestrationSummary(
+            orchestration_id=orchestration_id,
+            total_tasks=0,
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_capacity=0.0,
+            average_utilization=0.0,
+            providers=providers,
+            resource_types=resource_types,
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[orchestration_id] = summary
+        
+        try:
+            # Generate analysis tasks
+            tasks = self._generate_analysis_tasks(providers, resource_types)
+            summary.total_tasks = len(tasks)
+            
+            # Execute tasks based on strategy
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process results
+            self._process_analysis_results(results, summary)
+            
+            # Update summary
+            summary.end_time = datetime.utcnow()
+            summary.status = "completed" if summary.failed_tasks == 0 else "completed_with_errors"
+            
+            logger.info(f"Completed capacity analysis orchestration {orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute capacity analysis orchestration {orchestration_id}: {e}")
+            summary.status = "failed"
+            summary.end_time = datetime.utcnow()
+        
+        return summary
+    
+    def _generate_analysis_tasks(self, providers: List[str], resource_types: List[str]) -> List[OrchestrationTask]:
+        """Generate capacity analysis tasks"""
         tasks = []
         
-        for i, agent in enumerate(agents):
-            task = OrchestrationTask(
-                id=f"deploy-{i}",
-                name=f"Deploy {agent['name']}",
-                provider=agent['provider'],
-                operation="deploy",
-                config=agent,
-                dependencies=[]
-            )
-            
-            if strategy == OrchestrationStrategy.SEQUENTIAL:
-                # Each task depends on the previous one
-                if i > 0:
-                    task.dependencies = [f"deploy-{i-1}"]
-            elif strategy == OrchestrationStrategy.ROLLING:
-                # Rolling deployment - stagger dependencies
-                if i > 0:
-                    task.dependencies = [f"deploy-{max(0, i-2)}"]
-            elif strategy == OrchestrationStrategy.BLUE_GREEN:
-                # Blue-green - split into two groups
-                group_size = len(agents) // 2
-                if i >= group_size:
-                    task.dependencies = [f"deploy-{i-group_size}"]
-            
-            tasks.append(task)
+        for provider in providers:
+            for resource_type in resource_types:
+                task = OrchestrationTask(
+                    task_id=f"task-{provider}-{resource_type}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    provider=provider,
+                    action=f"get_{resource_type}_capacity",
+                    parameters={},
+                    priority="high",
+                    status="pending",
+                    created_at=datetime.utcnow()
+                )
+                tasks.append(task)
         
         return tasks
     
-    def execute_tasks(self, tasks: List[OrchestrationTask], strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationResult]:
-        """Execute orchestration tasks"""
-        self.tasks = tasks
-        self.results = []
-        
-        if strategy == OrchestrationStrategy.SEQUENTIAL:
-            return self._execute_sequential(tasks)
-        elif strategy == OrchestrationStrategy.PARALLEL:
-            return self._execute_parallel(tasks)
-        elif strategy == OrchestrationStrategy.ROLLING:
-            return self._execute_rolling(tasks)
-        elif strategy == OrchestrationStrategy.BLUE_GREEN:
-            return self._execute_blue_green(tasks)
-        else:
-            raise ValueError(f"Unknown strategy: {strategy}")
-    
-    def _execute_sequential(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+    def _execute_tasks_sequential(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
         """Execute tasks sequentially"""
         results = []
         
         for task in tasks:
-            # Check dependencies
-            if not self._check_dependencies(task, results):
-                result = OrchestrationResult(
-                    task_id=task.id,
-                    provider=task.provider,
-                    status="skipped",
-                    message=f"Dependencies not satisfied: {task.dependencies}",
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                )
+            try:
+                result = self._execute_single_task(task)
                 results.append(result)
-                continue
-            
-            # Execute task
-            result = self._execute_single_task(task)
-            results.append(result)
+            except Exception as e:
+                logger.error(f"Failed to execute task {task.task_id}: {e}")
+                results.append(OrchestrationResult(
+                    task_id=task.task_id,
+                    provider=task.provider,
+                    action=task.action,
+                    status="failed",
+                    success=False,
+                    error=str(e),
+                    started_at=datetime.utcnow(),
+                    completed_at=datetime.utcnow()
+                ))
         
         return results
     
-    def _execute_parallel(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+    def _execute_tasks_parallel(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
         """Execute tasks in parallel"""
-        # Group tasks by dependencies
-        task_groups = self._group_tasks_by_dependencies(tasks)
-        all_results = []
-        
-        for group in task_groups:
-            # Execute tasks in this group in parallel
-            futures = {}
-            for task in group:
-                future = self.executor.submit(self._execute_single_task, task)
-                futures[future] = task
-            
-            # Collect results
-            group_results = []
-            for future in as_completed(futures):
-                result = future.result()
-                group_results.append(result)
-            
-            all_results.extend(group_results)
-        
-        return all_results
-    
-    def _execute_rolling(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
-        """Execute tasks with rolling strategy"""
-        batch_size = max(1, len(tasks) // 3)  # Divide into 3 batches
         results = []
         
-        for i in range(0, len(tasks), batch_size):
-            batch = tasks[i:i + batch_size]
-            batch_results = self._execute_parallel(batch)
-            results.extend(batch_results)
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all tasks
+            future_to_task = {
+                executor.submit(self._execute_single_task, task): task
+                for task in tasks
+            }
             
-            # Wait between batches
-            if i + batch_size < len(tasks):
-                logger.info(f"Waiting before next batch...")
-                import time
-                time.sleep(self.config['retry_delay'])
+            # Collect results as they complete
+            for future in as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    logger.error(f"Failed to execute task {task.task_id}: {e}")
+                    results.append(OrchestrationResult(
+                        task_id=task.task_id,
+                        provider=task.provider,
+                        action=task.action,
+                        status="failed",
+                        success=False,
+                        error=str(e),
+                        started_at=datetime.utcnow(),
+                        completed_at=datetime.utcnow()
+                    ))
         
         return results
     
-    def _execute_blue_green(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
-        """Execute tasks with blue-green strategy"""
-        # Split into two groups
-        mid_point = len(tasks) // 2
-        blue_tasks = tasks[:mid_point]
-        green_tasks = tasks[mid_point:]
+    def _execute_tasks_priority(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks based on priority"""
+        # Sort tasks by priority
+        priority_order = {'high': 0, 'medium': 1, 'low': 2}
+        tasks.sort(key=lambda t: priority_order.get(t.priority, 3))
         
-        # Deploy blue environment
-        logger.info("Deploying blue environment...")
-        blue_results = self._execute_parallel(blue_tasks)
+        # Execute high priority tasks in parallel, then medium, then low
+        results = []
+        current_priority = None
+        current_batch = []
         
-        # Check blue deployment health
-        blue_healthy = all(r.status == "success" for r in blue_results)
+        for task in tasks:
+            if current_priority is None:
+                current_priority = task.priority
+                current_batch.append(task)
+            elif task.priority == current_priority:
+                current_batch.append(task)
+            else:
+                # Execute current batch
+                batch_results = self._execute_tasks_parallel(current_batch)
+                results.extend(batch_results)
+                
+                # Start new batch
+                current_priority = task.priority
+                current_batch = [task]
         
-        if blue_healthy:
-            logger.info("Blue deployment healthy, proceeding with green...")
-            # Deploy green environment
-            green_results = self._execute_parallel(green_tasks)
-        else:
-            logger.warning("Blue deployment failed, skipping green deployment")
-            green_results = [
-                OrchestrationResult(
-                    task_id=task.id,
-                    provider=task.provider,
-                    status="skipped",
-                    message="Skipped due to blue deployment failure",
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                )
-                for task in green_tasks
-            ]
+        # Execute last batch
+        if current_batch:
+            batch_results = self._execute_tasks_parallel(current_batch)
+            results.extend(batch_results)
         
-        return blue_results + green_results
+        return results
     
     def _execute_single_task(self, task: OrchestrationTask) -> OrchestrationResult:
-        """Execute a single task"""
+        """Execute a single capacity task"""
         start_time = datetime.utcnow()
         
         try:
-            if task.provider not in self.handlers:
-                return OrchestrationResult(
-                    task_id=task.id,
-                    provider=task.provider,
-                    status="error",
-                    message=f"Handler not available for provider {task.provider}",
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                )
+            handler = self.handlers.get(task.provider)
+            if not handler:
+                raise ValueError(f"No handler available for provider: {task.provider}")
             
-            handler = self.handlers[task.provider]
-            
-            if task.operation == "deploy":
-                result_data = handler.deploy_agent(task.config)
-            elif task.operation == "scale":
-                result_data = handler.scale_agent(
-                    task.config['agent_id'], 
-                    task.config['replicas']
-                )
-            elif task.operation == "stop":
-                result_data = handler.stop_agent(task.config['agent_id'])
-            elif task.operation == "start":
-                result_data = handler.start_agent(task.config['agent_id'])
-            elif task.operation == "status":
-                result_data = handler.get_agent_status(task.config['agent_id'])
+            if task.action == "get_compute_capacity":
+                resources = handler.get_compute_capacity()
+            elif task.action == "get_storage_capacity":
+                resources = handler.get_storage_capacity()
+            elif task.action == "get_networking_capacity":
+                resources = handler.get_networking_capacity()
+            elif task.action == "get_database_capacity":
+                resources = handler.get_database_capacity()
+            elif task.action == "get_memory_capacity":
+                resources = handler.get_memory_capacity()
             else:
-                result_data = {
-                    'status': 'error',
-                    'message': f'Unknown operation: {task.operation}'
-                }
+                raise ValueError(f"Unknown task action: {task.action}")
+            
+            result_data = {
+                'resources': [asdict(resource) for resource in resources],
+                'count': len(resources),
+                'total_capacity': sum(r.current_capacity for r in resources),
+                'average_utilization': sum(r.current_utilization for r in resources) / len(resources) if resources else 0.0
+            }
             
             execution_time = (datetime.utcnow() - start_time).total_seconds()
             
             return OrchestrationResult(
-                task_id=task.id,
+                task_id=task.task_id,
                 provider=task.provider,
-                status=result_data.get('status', 'unknown'),
-                message=result_data.get('message', ''),
-                data=result_data,
-                timestamp=datetime.utcnow(),
-                execution_time=execution_time
+                action=task.action,
+                status="completed",
+                success=True,
+                result=result_data,
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
             )
             
         except Exception as e:
             execution_time = (datetime.utcnow() - start_time).total_seconds()
-            logger.error(f"Task {task.id} failed: {e}")
             
             return OrchestrationResult(
-                task_id=task.id,
+                task_id=task.task_id,
                 provider=task.provider,
-                status="error",
-                message=str(e),
-                data=None,
-                timestamp=datetime.utcnow(),
-                execution_time=execution_time
+                action=task.action,
+                status="failed",
+                success=False,
+                error=str(e),
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
             )
     
-    def _check_dependencies(self, task: OrchestrationTask, completed_results: List[OrchestrationResult]) -> bool:
-        """Check if task dependencies are satisfied"""
-        if not task.dependencies:
-            return True
+    def _process_analysis_results(self, results: List[OrchestrationResult], summary: CapacityOrchestrationSummary):
+        """Process analysis results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
         
-        completed_task_ids = {r.task_id for r in completed_results if r.status == "success"}
+        # Aggregate resource information
+        total_resources = 0
+        total_capacity = 0.0
+        all_utilizations = []
         
-        return all(dep in completed_task_ids for dep in task.dependencies)
+        for result in results:
+            if result.success and result.result:
+                total_resources += result.result.get('count', 0)
+                total_capacity += result.result.get('total_capacity', 0.0)
+                avg_util = result.result.get('average_utilization', 0.0)
+                if avg_util > 0:
+                    all_utilizations.append(avg_util)
+        
+        summary.total_resources = total_resources
+        summary.total_capacity = total_capacity
+        
+        if all_utilizations:
+            summary.average_utilization = statistics.mean(all_utilizations)
     
-    def _group_tasks_by_dependencies(self, tasks: List[OrchestrationTask]) -> List[List[OrchestrationTask]]:
-        """Group tasks by dependency levels"""
-        task_dict = {task.id: task for task in tasks}
-        levels = []
-        remaining_tasks = set(task_dict.keys())
+    def orchestrate_capacity_optimization(
+        self,
+        providers: List[str],
+        optimization_goals: List[str],
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Orchestrate capacity optimization across providers"""
         
-        while remaining_tasks:
-            current_level = []
-            
-            for task_id in list(remaining_tasks):
-                task = task_dict[task_id]
-                
-                # Check if all dependencies are resolved
-                if all(dep not in remaining_tasks for dep in task.dependencies):
-                    current_level.append(task)
-                    remaining_tasks.remove(task_id)
-            
-            if not current_level:
-                # Circular dependency detected
-                logger.warning("Circular dependency detected, executing remaining tasks")
-                current_level = [task_dict[task_id] for task_id in remaining_tasks]
-                remaining_tasks.clear()
-            
-            levels.append(current_level)
+        logger.info(f"Starting capacity optimization for providers: {providers}")
         
-        return levels
+        try:
+            # First run capacity analysis
+            analysis_summary = self.orchestrate_capacity_analysis(
+                providers, ['compute', 'storage', 'networking', 'database'], strategy, orchestration_id
+            )
+            
+            # Generate optimization recommendations
+            recommendations = self._generate_optimization_recommendations(analysis_summary)
+            
+            # Create optimization plan
+            optimization_plan = {
+                'analysis_summary': asdict(analysis_summary),
+                'recommendations': recommendations,
+                'implementation_roadmap': self._create_implementation_roadmap(recommendations),
+                'cost_optimization': self._calculate_cost_optimization(recommendations),
+                'risk_assessment': self._assess_optimization_risks(recommendations)
+            }
+            
+            return optimization_plan
+            
+        except Exception as e:
+            logger.error(f"Failed to orchestrate capacity optimization: {e}")
+            raise
     
-    def get_multi_cloud_status(self) -> Dict[str, Any]:
-        """Get comprehensive multi-cloud status"""
-        status = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'providers': {},
-            'total_agents': 0,
-            'healthy_agents': 0,
-            'unhealthy_agents': 0,
-            'degraded_agents': 0
+    def _generate_optimization_recommendations(self, summary: CapacityOrchestrationSummary) -> List[Dict[str, Any]]:
+        """Generate optimization recommendations based on analysis"""
+        recommendations = []
+        
+        # Analyze utilization patterns
+        if summary.average_utilization > 85:
+            recommendations.append({
+                'type': 'scale_up',
+                'priority': 'high',
+                'description': 'High utilization detected - consider scaling up resources',
+                'impact': 'performance',
+                'estimated_cost_change': '+15-25%'
+            })
+        elif summary.average_utilization < 30:
+            recommendations.append({
+                'type': 'scale_down',
+                'priority': 'medium',
+                'description': 'Low utilization detected - opportunity to scale down and optimize costs',
+                'impact': 'cost',
+                'estimated_cost_change': '-20-40%'
+            })
+        
+        # Add provider-specific recommendations
+        for provider in summary.providers:
+            recommendations.append({
+                'type': 'provider_optimization',
+                'priority': 'medium',
+                'description': f'Optimize {provider.upper()} resource allocation for better efficiency',
+                'impact': 'cost_performance',
+                'provider': provider,
+                'estimated_cost_change': '-5-15%'
+            })
+        
+        return recommendations
+    
+    def _create_implementation_roadmap(self, recommendations: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+        """Create implementation roadmap for recommendations"""
+        roadmap = {
+            'immediate': [],
+            'week_1': [],
+            'month_1': [],
+            'quarter_1': []
         }
         
-        for provider_name, handler in self.handlers.items():
-            try:
-                agents = handler.list_agents()
-                provider_status = {
-                    'status': 'connected',
-                    'agent_count': len(agents),
-                    'agents': []
-                }
-                
-                for agent in agents:
-                    agent_details = handler.get_agent_status(agent.name)
-                    health = self._assess_agent_health(agent_details)
-                    
-                    agent_info = {
-                        'id': agent.id,
-                        'name': agent.name,
-                        'type': agent.type,
-                        'status': agent.status,
-                        'health': health.value,
-                        'metadata': agent.metadata,
-                        'details': agent_details
-                    }
-                    
-                    provider_status['agents'].append(agent_info)
-                    
-                    # Update global counts
-                    status['total_agents'] += 1
-                    if health == HealthStatus.HEALTHY:
-                        status['healthy_agents'] += 1
-                    elif health == HealthStatus.UNHEALTHY:
-                        status['unhealthy_agents'] += 1
-                    elif health == HealthStatus.DEGRADED:
-                        status['degraded_agents'] += 1
-                
-                status['providers'][provider_name] = provider_status
-                
-            except Exception as e:
-                logger.error(f"Failed to get status for provider {provider_name}: {e}")
-                status['providers'][provider_name] = {
-                    'status': 'error',
-                    'error': str(e),
-                    'agent_count': 0,
-                    'agents': []
-                }
-        
-        return status
-    
-    def _assess_agent_health(self, agent_details: Dict[str, Any]) -> HealthStatus:
-        """Assess agent health based on details"""
-        if agent_details.get('status') != 'success':
-            return HealthStatus.UNKNOWN
-        
-        data = agent_details.get('data', {})
-        
-        # Check for common health indicators
-        if 'running_count' in data and 'desired_count' in data:
-            if data['running_count'] == data['desired_count']:
-                return HealthStatus.HEALTHY
-            elif data['running_count'] > 0:
-                return HealthStatus.DEGRADED
+        for rec in recommendations:
+            if rec.get('priority') == 'high':
+                roadmap['immediate'].append(rec)
+            elif rec.get('priority') == 'medium':
+                roadmap['week_1'].append(rec)
             else:
-                return HealthStatus.UNHEALTHY
+                roadmap['month_1'].append(rec)
         
-        if 'status' in data:
-            status = data['status'].lower()
-            if status in ['running', 'healthy', 'active']:
-                return HealthStatus.HEALTHY
-            elif status in ['pending', 'starting', 'degraded']:
-                return HealthStatus.DEGRADED
-            elif status in ['failed', 'error', 'stopped']:
-                return HealthStatus.UNHEALTHY
-        
-        return HealthStatus.UNKNOWN
+        return roadmap
     
-    def rollback_deployment(self, deployment_results: List[OrchestrationResult]) -> List[OrchestrationResult]:
-        """Rollback a deployment"""
-        rollback_results = []
+    def _calculate_cost_optimization(self, recommendations: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Calculate cost optimization potential"""
+        total_savings = 0.0
+        total_investment = 0.0
         
-        # Process in reverse order (LIFO)
-        for result in reversed(deployment_results):
-            if result.status != "success":
-                continue
-            
-            try:
-                handler = self.handlers[result.provider]
-                
-                # Create rollback task
-                rollback_task = OrchestrationTask(
-                    id=f"rollback-{result.task_id}",
-                    name=f"Rollback {result.task_id}",
-                    provider=result.provider,
-                    operation="stop",
-                    config={'agent_id': result.data.get('service_name') or result.data.get('deployment_name')},
-                    dependencies=[]
-                )
-                
-                rollback_result = self._execute_single_task(rollback_task)
-                rollback_results.append(rollback_result)
-                
-            except Exception as e:
-                logger.error(f"Failed to rollback {result.task_id}: {e}")
-                rollback_results.append(OrchestrationResult(
-                    task_id=f"rollback-{result.task_id}",
-                    provider=result.provider,
-                    status="error",
-                    message=str(e),
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                ))
+        for rec in recommendations:
+            cost_change = rec.get('estimated_cost_change', '0%')
+            if cost_change.startswith('-'):
+                # Savings
+                savings_pct = float(cost_change.replace('%', '').replace('-', ''))
+                total_savings += savings_pct
+            else:
+                # Investment
+                investment_pct = float(cost_change.replace('%', '').replace('+', ''))
+                total_investment += investment_pct
         
-        return rollback_results
+        return {
+            'potential_savings': total_savings,
+            'required_investment': total_investment,
+            'net_impact': total_savings - total_investment,
+            'roi_months': (total_investment / total_savings * 12) if total_savings > 0 else None
+        }
     
-    def cleanup(self):
-        """Cleanup resources"""
-        self.executor.shutdown(wait=True)
+    def _assess_optimization_risks(self, recommendations: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Assess risks associated with optimization recommendations"""
+        risks = {
+            'high_risk': [],
+            'medium_risk': [],
+            'low_risk': [],
+            'mitigation_strategies': []
+        }
+        
+        for rec in recommendations:
+            if rec.get('priority') == 'high':
+                risks['high_risk'].append(rec)
+            elif rec.get('priority') == 'medium':
+                risks['medium_risk'].append(rec)
+            else:
+                risks['low_risk'].append(rec)
+        
+        # Add mitigation strategies
+        if risks['high_risk']:
+            risks['mitigation_strategies'].append('Implement high-priority changes during maintenance windows')
+        if risks['medium_risk']:
+            risks['mitigation_strategies'].append('Monitor performance closely after medium-priority changes')
+        
+        return risks
+    
+    def orchestrate_continuous_monitoring(
+        self,
+        providers: List[str],
+        interval_hours: int = 24
+    ) -> Dict[str, Any]:
+        """Orchestrate continuous capacity monitoring"""
+        
+        logger.info(f"Starting continuous capacity monitoring with {interval_hours}h interval")
+        
+        monitoring_config = {
+            'monitoring_id': f"monitoring-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            'providers': providers,
+            'interval_hours': interval_hours,
+            'last_run': None,
+            'next_run': datetime.utcnow() + timedelta(hours=interval_hours),
+            'status': 'active'
+        }
+        
+        # In a real implementation, this would set up a scheduler
+        # For now, just run one analysis and return config
+        
+        analysis_summary = self.orchestrate_capacity_analysis(providers, ['compute', 'storage'])
+        
+        monitoring_config['last_run'] = analysis_summary.start_time.isoformat()
+        monitoring_config['last_analysis'] = asdict(analysis_summary)
+        
+        return monitoring_config
+    
+    def get_orchestration_status(self, orchestration_id: str) -> Optional[CapacityOrchestrationSummary]:
+        """Get status of a specific orchestration"""
+        return self.orchestrations.get(orchestration_id)
+    
+    def get_all_orchestrations(self) -> Dict[str, CapacityOrchestrationSummary]:
+        """Get all orchestrations"""
+        return self.orchestrations
+    
+    def cleanup_completed_orchestrations(self, older_than_days: int = 7):
+        """Clean up old completed orchestrations"""
+        cutoff_date = datetime.utcnow() - timedelta(days=older_than_days)
+        
+        to_remove = []
+        for orch_id, summary in self.orchestrations.items():
+            if summary.end_time and summary.end_time < cutoff_date:
+                to_remove.append(orch_id)
+        
+        for orch_id in to_remove:
+            del self.orchestrations[orch_id]
+        
+        logger.info(f"Cleaned up {len(to_remove)} old orchestrations")
 
 def main():
     """Example usage"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Multi-Cloud Orchestrator")
+    parser = argparse.ArgumentParser(description="Multi-Cloud Capacity Planning Orchestrator")
     parser.add_argument("--config", help="Configuration file")
     parser.add_argument("--strategy", choices=[s.value for s in OrchestrationStrategy],
                        default=OrchestrationStrategy.PARALLEL.value, help="Orchestration strategy")
     parser.add_argument("--providers", nargs="+", 
                        choices=['aws', 'azure', 'gcp', 'onprem'],
                        default=['aws', 'azure', 'gcp', 'onprem'], help="Cloud providers")
+    parser.add_argument("--resource-types", nargs="+",
+                       choices=['compute', 'storage', 'networking', 'database', 'memory'],
+                       default=['compute', 'storage'], help="Resource types")
+    parser.add_argument("--action", choices=['analyze', 'optimize', 'monitor'],
+                       default='analyze', help="Action to perform")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     
     args = parser.parse_args()
@@ -518,51 +569,67 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     
     # Initialize orchestrator
-    orchestrator = MultiCloudOrchestrator(args.config)
+    orchestrator = MultiCloudCapacityOrchestrator()
     
-    # Initialize providers
-    init_results = orchestrator.initialize_providers(args.providers)
-    print(f"Provider initialization results: {init_results}")
+    # Initialize handlers
+    regions = {
+        'aws': 'us-west-2',
+        'azure': 'eastus', 
+        'gcp': 'us-central1',
+        'onprem': 'datacenter-1'
+    }
     
-    # Example deployment
-    agents = [
-        {
-            'name': 'ai-agent-1',
-            'provider': 'aws',
-            'image': 'python:3.9-slim',
-            'memory_mb': 2048,
-            'cpu_cores': 2,
-            'replicas': 2,
-            'environment': 'production'
-        },
-        {
-            'name': 'ai-agent-2',
-            'provider': 'azure',
-            'image': 'python:3.9-slim',
-            'memory_mb': 1024,
-            'cpu_cores': 1,
-            'replicas': 1,
-            'environment': 'production'
-        }
-    ]
+    init_success = orchestrator.initialize_handlers(args.providers, regions)
+    if not init_success:
+        print("Failed to initialize handlers")
+        return
     
-    # Create and execute deployment plan
-    strategy = OrchestrationStrategy(args.strategy)
-    tasks = orchestrator.create_deployment_plan(agents, strategy)
-    
-    print(f"Executing {len(tasks)} tasks with strategy {strategy.value}")
-    results = orchestrator.execute_tasks(tasks, strategy)
-    
-    # Print results
-    for result in results:
-        print(f"{result.task_id}: {result.status} - {result.message}")
-    
-    # Get multi-cloud status
-    status = orchestrator.get_multi_cloud_status()
-    print(f"\nMulti-cloud status: {json.dumps(status, indent=2)}")
-    
-    # Cleanup
-    orchestrator.cleanup()
+    # Execute action
+    if args.action == 'analyze':
+        strategy = OrchestrationStrategy(args.strategy)
+        summary = orchestrator.orchestrate_capacity_analysis(
+            args.providers, args.resource_types, strategy
+        )
+        
+        print(f"Capacity Analysis Summary:")
+        print(f"Orchestration ID: {summary.orchestration_id}")
+        print(f"Total Tasks: {summary.total_tasks}")
+        print(f"Completed Tasks: {summary.completed_tasks}")
+        print(f"Successful Tasks: {summary.successful_tasks}")
+        print(f"Failed Tasks: {summary.failed_tasks}")
+        print(f"Total Resources: {summary.total_resources}")
+        print(f"Total Capacity: {summary.total_capacity}")
+        print(f"Average Utilization: {summary.average_utilization:.2f}%")
+        print(f"Providers: {', '.join(summary.providers)}")
+        print(f"Resource Types: {', '.join(summary.resource_types)}")
+        print(f"Status: {summary.status}")
+        
+    elif args.action == 'optimize':
+        optimization_plan = orchestrator.orchestrate_capacity_optimization(
+            args.providers, ['cost', 'performance']
+        )
+        
+        print(f"Capacity Optimization Plan:")
+        print(f"Recommendations: {len(optimization_plan['recommendations'])}")
+        for rec in optimization_plan['recommendations']:
+            print(f"  - {rec['type']}: {rec['description']}")
+        
+        print(f"Cost Optimization:")
+        cost_opt = optimization_plan['cost_optimization']
+        print(f"  Potential Savings: {cost_opt['potential_savings']:.1f}%")
+        print(f"  Required Investment: {cost_opt['required_investment']:.1f}%")
+        print(f"  Net Impact: {cost_opt['net_impact']:.1f}%")
+        
+    elif args.action == 'monitor':
+        monitoring = orchestrator.orchestrate_continuous_monitoring(
+            args.providers, interval_hours=24
+        )
+        
+        print(f"Continuous Monitoring Setup:")
+        print(f"Monitoring ID: {monitoring['monitoring_id']}")
+        print(f"Providers: {', '.join(monitoring['providers'])}")
+        print(f"Interval: {monitoring['interval_hours']} hours")
+        print(f"Status: {monitoring['status']}")
 
 if __name__ == "__main__":
     main()
