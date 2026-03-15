@@ -6,6 +6,18 @@ Orchestrates cluster health check operations across multiple cloud providers
 to ensure consistent monitoring and health assessment.
 """
 
+# /// script
+# dependencies = [
+#   "boto3>=1.26.0",
+#   "azure-mgmt-compute>=29.0.0",
+#   "google-cloud-compute>=1.8.0",
+#   "kubernetes>=25.0.0",
+#   "pydantic>=1.10.0",
+#   "requests>=2.28.0",
+#   "prometheus-client>=0.15.0"
+# ]
+# ///
+
 import json
 import logging
 import asyncio

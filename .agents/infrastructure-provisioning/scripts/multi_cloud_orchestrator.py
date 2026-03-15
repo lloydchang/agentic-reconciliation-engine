@@ -6,6 +6,17 @@ Orchestrates infrastructure provisioning operations across multiple cloud provid
 to ensure consistent resource creation and management.
 """
 
+# /// script
+# dependencies = [
+#   "boto3>=1.26.0",
+#   "azure-mgmt-compute>=29.0.0",
+#   "google-cloud-compute>=1.8.0",
+#   "kubernetes>=25.0.0",
+#   "pydantic>=1.10.0",
+#   "requests>=2.28.0"
+# ]
+# ///
+
 import json
 import logging
 import asyncio
