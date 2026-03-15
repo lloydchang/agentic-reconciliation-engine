@@ -1,0 +1,108 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-aws
+  labels:
+    provider: aws
+    platform.example.com/xrd: xnetwork
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+    - name: vpc
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: VPC
+        spec:
+          forProvider:
+            cidrBlock: 10.0.0.0/16
+            enableDnsHostnames: true
+            enableDnsSupport: true
+            region: us-east-1
+            tags:
+              - key: Name
+                value: placeholder
+              - key: NetworkRef
+                value: placeholder
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.cidr
+          toFieldPath: spec.forProvider.cidrBlock
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[1].value
+    - name: subnet
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            region: us-east-1
+            vpcIdRef:
+              name: ""
+            cidrBlock: 10.0.1.0/24
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[0]
+          toFieldPath: spec.forProvider.cidrBlock
+    - name: subnet-2
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            region: us-east-1
+            vpcIdRef:
+              name: ""
+            cidrBlock: 10.0.2.0/24
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[1]
+          toFieldPath: spec.forProvider.cidrBlock
+    - name: subnet-3
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            region: us-east-1
+            vpcIdRef:
+              name: ""
+            cidrBlock: 10.0.3.0/24
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[2]
+          toFieldPath: spec.forProvider.cidrBlock

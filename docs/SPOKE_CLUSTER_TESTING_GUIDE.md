@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how to test AWS ACK, Azure ASO, and GCP KCC controllers for provisioning and managing the three spoke clusters (EKS, AKS, GKE) as described in the README.md hub-and-spoke architecture.
+This guide explains how to test Crossplane providers and CAPI for provisioning and managing the three spoke clusters (EKS, AKS, GKE) as described in the README.md hub-and-spoke architecture.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ This guide explains how to test AWS ACK, Azure ASO, and GCP KCC controllers for 
       +------------------------------------------+
       |                HUB CLUSTER               |
       |------------------------------------------|
-      | Flux | ACK        | ASO           | KCC  |
+      | Flux | Crossplane | CAPI          |
       +------------------------------------------+
              |               |               |
    Provisions/Manages Provisions/Manages Provisions/Manages
@@ -34,23 +34,20 @@ This comprehensive test validates the complete hub-and-spoke architecture with l
 
 ### What It Tests
 
-#### 1. **AWS ACK Controller for Spoke 1 (EKS)**
-- ✅ Validates AWS ACK controller readiness
-- ✅ Creates EKS cluster manifests in `spoke-1` namespace
-- ✅ Configures AWS credentials and cluster settings
-- ✅ Tests EC2 instance provisioning via ACK
+#### 1. **Crossplane + CAPA for Spoke 1 (EKS)**
+- ✅ Validates provider-aws readiness
+- ✅ Creates XCluster claim for EKS
+- ✅ CAPI provisions the EKS spoke via CAPA
 
-#### 2. **Azure ASO Controller for Spoke 2 (AKS)**
-- ✅ Validates Azure ASO controller readiness  
-- ✅ Creates AKS cluster manifests in `spoke-2` namespace
-- ✅ Configures Azure credentials and cluster settings
-- ✅ Tests Virtual Network provisioning via ASO
+#### 2. **Crossplane + CAPZ for Spoke 2 (AKS)**
+- ✅ Validates provider-azure readiness  
+- ✅ Creates XCluster claim for AKS
+- ✅ CAPI provisions the AKS spoke via CAPZ
 
-#### 3. **GCP KCC Controller for Spoke 3 (GKE)**
-- ✅ Validates GCP KCC controller readiness
-- ✅ Creates GKE cluster manifests in `spoke-3` namespace
-- ✅ Configures GCP service account and cluster settings
-- ✅ Tests Compute Engine instance provisioning via KCC
+#### 3. **Crossplane + CAPG for Spoke 3 (GKE)**
+- ✅ Validates provider-gcp readiness
+- ✅ Creates XCluster claim for GKE
+- ✅ CAPI provisions the GKE spoke via CAPG
 
 #### 4. **Flux Dependency Chains**
 - ✅ Creates proper `dependsOn` relationships
@@ -68,9 +65,8 @@ This comprehensive test validates the complete hub-and-spoke architecture with l
 - ✅ Counts resources in hub and spoke namespaces
 
 #### 7. **Cloud Controller Integration**
-- ✅ Tests AWS ACK can create EC2 instances
-- ✅ Tests Azure ASO can create Virtual Networks  
-- ✅ Tests GCP KCC can create Compute instances
+- ✅ Tests Crossplane providers can create cloud resources
+- ✅ Tests CAPI can create spoke clusters
 
 ## How to Run
 
@@ -86,40 +82,40 @@ chmod +x tests/test-spoke-provisioning-validation.sh
 
 ### ✅ **Successful Test Output**
 ```
-🚀 AWS ACK, Azure ASO, GCP KCC Spoke Cluster Provisioning Validation
+🚀 Crossplane + CAPI Spoke Cluster Provisioning Validation
 =========================================================================
 
-Test 1: AWS ACK Controller for Spoke 1 (EKS)
+Test 1: Crossplane + CAPA for Spoke 1 (EKS)
 ================================
-[TEST] ✅ AWS ACK EC2 controller ready (1 replicas)
-[TEST] ✅ Spoke 1 (EKS) manifests created
+[TEST] ✅ provider-aws ready (1 replicas)
+[TEST] ✅ XCluster claim created for EKS
 [TEST] ✅ EKS cluster: spoke-1-eks-cluster
 
-Test 2: Azure ASO Controller for Spoke 2 (AKS)
+Test 2: Crossplane + CAPZ for Spoke 2 (AKS)
 ================================
-[TEST] ✅ Azure ASO controller ready (1 replicas)
-[TEST] ✅ Spoke 2 (AKS) manifests created
+[TEST] ✅ provider-azure ready (1 replicas)
+[TEST] ✅ XCluster claim created for AKS
 [TEST] ✅ AKS cluster: spoke-2-aks-cluster
 
-Test 3: GCP KCC Controller for Spoke 3 (GKE)
+Test 3: Crossplane + CAPG for Spoke 3 (GKE)
 ================================
-[TEST] ✅ GCP KCC controller ready (1 replicas)
-[TEST] ✅ Spoke 3 (GKE) manifests created
+[TEST] ✅ provider-gcp ready (1 replicas)
+[TEST] ✅ XCluster claim created for GKE
 [TEST] ✅ GKE cluster: spoke-3-gke-cluster
 
 ... (all 7 tests pass) ...
 
 🎉 All spoke cluster provisioning tests completed!
 ✅ Hub-and-spoke architecture validated
-✅ AWS ACK, Azure ASO, GCP KCC controllers tested
+✅ Crossplane providers and CAPI controllers tested
 ✅ Multi-cloud spoke cluster management verified
 ```
 
 ### ⚠️ **Expected Warnings with Emulators**
 ```
-[WARN] ⚠️ AWS ACK EC2 controller not ready
-[WARN] ⚠️ Azure ASO controller not ready  
-[WARN] ⚠️ GCP KCC controller not ready
+[WARN] ⚠️ provider-aws not ready
+[WARN] ⚠️ provider-azure not ready  
+[WARN] ⚠️ provider-gcp not ready
 [WARN] ⚠️ Cloud controller integration failed (expected with emulator)
 ```
 
@@ -171,7 +167,7 @@ The test works with the local emulators deployed in this repository:
 
 | Feature | Real Cloud | Local Emulator | Status |
 |---------|-------------|------------------|---------|
-| ACK/ASO/KCC Controllers | ✅ Ready | ⚠️ Mock | Expected |
+| Crossplane/CAPI Controllers | ✅ Ready | ⚠️ Mock | Expected |
 | Resource Creation | ✅ Working | ⚠️ Simulated | Expected |
 | API Calls | ✅ Real Endpoints | ⚠️ Local Endpoints | Expected |
 | Cost | 💰 Real Cost | 🆓 Free | Expected |

@@ -76,10 +76,10 @@ source of truth achieved. This is the end state, not the starting point.
 
 ### Crossplane Compositions as the migration target
 
-When migrating a resource, the goal is not to produce raw ACK/ASO/KCC CRDs. The goal is to author
-a Crossplane Composition that abstracts the resource behind a cloud-agnostic XRD. This is a
-one-time platform team investment per resource type; all subsequent use by spoke teams is through
-the cloud-agnostic XRD.
+When migrating a resource, the goal is not to produce raw provider-specific CRDs. The goal is to
+author a Crossplane Composition that abstracts the resource behind a cloud-agnostic XRD. This is
+a one-time platform team investment per resource type; all subsequent use by spoke teams is
+through the cloud-agnostic XRD.
 
 Example: migrating an AWS RDS instance managed by Terraform.
 
@@ -132,7 +132,7 @@ spec:
       restartPolicy: OnFailure
 ```
 
-3. **Raw cloud CRD** (ACK/ASO/KCC, last resort) — only when no Composition exists and no
+3. **Raw cloud CRD** (last resort) — only when no Composition exists and no
    operator is available. Document the reason and add a Composition authoring task to the backlog.
 
 ---

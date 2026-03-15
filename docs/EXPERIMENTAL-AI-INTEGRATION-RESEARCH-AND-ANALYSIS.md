@@ -794,7 +794,7 @@ The research suggests that **local decision-making** can achieve tighter feedbac
 
 # Research Documentation: AI and Kubernetes Resources for GitOps Infra Control Plane
 
-This document researches each provided URL, evaluates its applicability to the GitOps infrastructure control plane repository (which manages multi-cloud infrastructure using Flux, ACK, ASO, KCC for continuous reconciliation), assesses safety, and outlines potential integration approaches. The repository emphasizes hub-and-spoke model, Flux dependsOn for DAG orchestration, no state files, and official cloud controllers.
+This document researches each provided URL, evaluates its applicability to the GitOps infrastructure control plane repository (which manages multi-cloud infrastructure using Flux, Crossplane, and CAPI for continuous reconciliation), assesses safety, and outlines potential integration approaches. The repository emphasizes hub-and-spoke model, Flux dependsOn for DAG orchestration, no state files, and official controllers.
 
 ## 1. https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/
 
@@ -1668,7 +1668,7 @@ The ai-agents-sandbox repository demonstrates **production-ready multi-agent orc
 
 **Content Summary**: Video titled "Claude + KubeRocketAI: Go Developer for Kubernetes Operator in 1 Min" - appears to demonstrate using Claude Code (or Claude AI) with KubeRocketAI to develop Go-based Kubernetes operators quickly. Likely shows rapid code generation for K8s operators using AI assistance.
 
-**Applicability**: High relevance - demonstrates AI-assisted development of Kubernetes operators, which are central to the GitOps control plane (ACK, ASO, KCC are operators). Could show how to use Claude Code for developing custom operators for infrastructure management.
+**Applicability**: High relevance - demonstrates AI-assisted development of Kubernetes operators, which are central to the GitOps control plane (Crossplane providers and CAPI are operators). Could show how to use Claude Code for developing custom operators for infrastructure management.
 
 **Safety Assessment**: Safe - educational content about AI-assisted development.
 
@@ -5229,7 +5229,7 @@ spec:
 - **Integration**: Flux triggers Temporal workflows for AI-enhanced operations
 
 #### 2. **Multi-Cloud Scatter/Gather Enhancement**
-**Current**: Individual cloud provider integrations (ACK, ASO, KCC)
+**Current**: Crossplane providers and CAPI integrations
 **Temporal Enhancement**: Parallel multi-cloud operations with intelligent aggregation
 ```typescript
 // Multi-cloud scatter/gather for GitOps

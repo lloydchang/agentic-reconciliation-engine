@@ -4,9 +4,9 @@ metadata:
   name: cluster-infra
   namespace: flux-system
 resources:
- - aws-eks-cluster.yaml
- - azure-aks-cluster.yaml
- - gcp-gke-cluster.yaml
+ - cluster-eks-prod.yaml
+ - cluster-aks-prod.yaml
+ - cluster-gke-prod.yaml
 # Karpenter node scaling
  - karpenter-namespace.yaml
  - karpenter-rbac.yaml

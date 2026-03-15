@@ -1,0 +1,55 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdatabases.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XDatabase
+    plural: xdatabases
+  claimNames:
+    kind: Database
+    plural: databases
+  connectionSecretKeys:
+    - username
+    - password
+    - endpoint
+    - port
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [engine, version, size]
+              properties:
+                engine:
+                  type: string
+                  enum: [postgres, mysql]
+                version:
+                  type: string
+                  description: "Engine version string e.g. '15', '8.0'"
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                  description: "small=db.t3.small, medium=db.t3.medium, large=db.r6g.large"
+                region:
+                  type: string
+                  default: us-east-1
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+                  description: "Orphan retains the cloud resource if the claim is deleted"
+            status:
+              type: object
+              properties:
+                endpoint:
+                  type: string
+                port:
+                  type: integer
+                  format: int32

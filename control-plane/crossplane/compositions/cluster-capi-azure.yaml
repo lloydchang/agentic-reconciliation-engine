@@ -1,0 +1,72 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcluster-capi-azure
+  labels:
+    provider: capi-azure
+    platform.example.com/xrd: xcluster
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCluster
+  resources:
+    - name: capi-cluster
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          providerConfigRef:
+            name: hub-kubernetes
+          forProvider:
+            manifest:
+              apiVersion: cluster.x-k8s.io/v1beta1
+              kind: Cluster
+              metadata:
+                name: placeholder
+                namespace: capi-system
+                annotations:
+                  platform.example.com/network-ref: ""
+                labels:
+                  platform.example.com/network-ref: ""
+              spec:
+                clusterNetwork:
+                  pods:
+                    cidrBlocks: ["192.168.0.0/16"]
+                  services:
+                    cidrBlocks: ["10.96.0.0/12"]
+                topology:
+                  class: spoke-aks
+                  version: "v1.30.0"
+                  variables:
+                    - name: NETWORK_REF
+                      value: ""
+                  controlPlane:
+                    replicas: 3
+                  workers:
+                    machineDeployments:
+                      - class: default-worker
+                        name: md-0
+                        replicas: 3
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.manifest.metadata.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.kubernetesVersion
+          toFieldPath: spec.forProvider.manifest.spec.topology.version
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodeCount
+          toFieldPath: spec.forProvider.manifest.spec.topology.workers.machineDeployments[0].replicas
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.networkRef.name
+          toFieldPath: spec.forProvider.manifest.spec.topology.variables[0].value
+          transforms:
+            - type: string
+              string:
+                fmt: "%s"
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.networkRef.name
+          toFieldPath: spec.forProvider.manifest.metadata.annotations["platform.example.com/network-ref"]
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.networkRef.name
+          toFieldPath: spec.forProvider.manifest.metadata.labels["platform.example.com/network-ref"]

@@ -1,0 +1,49 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-azure
+  labels:
+    provider: azure
+    platform.example.com/xrd: xdatabase
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  writeConnectionSecretsToNamespace: crossplane-system
+  resources:
+    - name: azure-flexible-server
+      base:
+        apiVersion: dbformysql.azure.jet.crossplane.io/v1alpha2
+        kind: FlexibleServer
+        spec:
+          forProvider:
+            location: eastus
+            skuName: Standard_D4s_v3
+            version: "8.0"
+            storageMb: 32768
+            administratorLogin: adminuser
+            administratorLoginPasswordSecretRef:
+              name: db-admin-password
+              namespace: crossplane-system
+              key: password
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.version
+          toFieldPath: spec.forProvider.version
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.size
+          toFieldPath: spec.forProvider.skuName
+          transforms:
+            - type: map
+              map:
+                small: Standard_B2s
+                medium: Standard_D4s_v3
+                large: Standard_E8s_v3
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.fullyQualifiedDomainName
+          toFieldPath: status.endpoint

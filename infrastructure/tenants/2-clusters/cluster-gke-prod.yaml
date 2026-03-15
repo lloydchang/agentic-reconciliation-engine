@@ -1,0 +1,20 @@
+apiVersion: platform.example.com/v1alpha1
+kind: Cluster
+metadata:
+  name: prod-gke
+  namespace: platform
+  labels:
+    team: platform
+    env: prod
+    cost-center: core
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: capi-gcp
+  nodeCount: 3
+  nodeSize: medium
+  kubernetesVersion: "1.30"
+  region: us-central1
+  networkRef:
+    name: prod-network
+  deletionPolicy: Orphan

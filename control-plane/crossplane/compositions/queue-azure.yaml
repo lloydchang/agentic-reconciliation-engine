@@ -1,0 +1,22 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xqueue-azure
+  labels:
+    provider: azure
+    platform.example.com/xrd: xqueue
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XQueue
+  resources:
+    - name: servicebus-queue
+      base:
+        apiVersion: servicebus.azure.crossplane.io/v1beta1
+        kind: Queue
+        spec:
+          forProvider:
+            resourceGroupName: platform-rg
+            namespaceName: platform-sb
+          providerConfigRef:
+            name: azure-provider

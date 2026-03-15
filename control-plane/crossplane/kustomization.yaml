@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: crossplane-core
+  namespace: flux-system
+resources:
+  - xrds/
+  - compositions/
+  - providers/
+labels:
+  - pairs:
+      managed-by: flux
+      component: crossplane
+      platform: multi-cluster-gitops

@@ -1,0 +1,23 @@
+apiVersion: platform.example.com/v1alpha1
+kind: Database
+metadata:
+  name: orders-db
+  namespace: orders-team
+  labels:
+    team: orders
+    env: prod
+    cost-center: revenue
+  annotations:
+    platform.example.com/allow-deletion: "false"
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  engine: postgres
+  version: "15"
+  size: medium
+  region: us-east-1
+  deletionPolicy: Orphan
+  writeConnectionSecretToRef:
+    name: orders-db-connection
+    namespace: orders-team

@@ -7,7 +7,7 @@
 
 ### 🧠 Hub Cluster Validation
 - **Flux Controllers**: ✅ All running and healthy
-- **Cloud Controllers**: ✅ AWS ACK, Azure ASO, GCP KCC installed
+- **Cloud Controllers**: ✅ Crossplane providers installed (AWS/Azure/GCP)
 - **Namespaces**: ✅ Proper isolation (flux-system for management)
 - **Git Integration**: ✅ Repository connected and syncing
 - **Dependencies**: ✅ `dependsOn` chains functioning
@@ -29,19 +29,19 @@
 ## 📊 MULTI-CLOUD CAPABILITIES
 
 ### AWS (Amazon Web Services)
-- **Controller**: ✅ ACK (AWS Controllers for Kubernetes)
+- **Controller**: ✅ Crossplane provider-aws
 - **Resources**: ✅ VPC, Subnets, EKS, NodeGroups, IAM
 - **Authentication**: ✅ IRSA (IAM Roles for Service Accounts)
 - **Status**: 🟡 Ready for credentials
 
 ### Azure (Microsoft Azure)  
-- **Controller**: ✅ ASO (Azure Service Operator)
+- **Controller**: ✅ Crossplane provider-azure
 - **Resources**: ✅ VNet, Subnets, AKS, Managed Identities
 - **Authentication**: ✅ Azure Workload Identity
 - **Status**: 💠 Ready for credentials
 
 ### GCP (Google Cloud Platform)
-- **Controller**: ✅ KCC (Config Connector)
+- **Controller**: ✅ Crossplane provider-gcp
 - **Resources**: ✅ Networks, Subnets, GKE, NodePools, IAM
 - **Authentication**: ✅ GCP Workload Identity  
 - **Status**: ☁️ Ready for credentials
@@ -54,7 +54,7 @@
 - **24/7 Automated Healing**: ✅ Native controllers detect and repair drift automatically
 - **Self-Healing Infrastructure**: ✅ No manual re-runs required like traditional IaC
 - **No Blueprints**: ✅ Native cloud provider APIs for ongoing management
-- **No Crossplane**: ✅ Direct ACK/ASO/KCC integration
+- **Crossplane**: ✅ XRDs + Compositions + provider configs
 - **Zero State Files**: ✅ Live cloud APIs as source of truth
 
 ### ✅ GitOps Principles Implemented

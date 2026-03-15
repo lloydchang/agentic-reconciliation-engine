@@ -17,8 +17,7 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
   something traditional IaC cannot achieve without external orchestration.
 - **Cloud-Agnostic Resource Model**: Use Crossplane Compositions and XRDs for all cloud resources.
   Platform team authors Compositions once; spoke teams write cloud-agnostic YAML. Do not use raw
-  ACK, ASO, or KCC directly — they produce cloud-specific manifests that fragment the resource
-  model across providers.
+  provider-specific CRDs directly — they fragment the resource model across providers.
 - **Spoke Autonomy**: Each spoke runs its own Flux agent pulling from Git. Each spoke uses ESO
   with workload identity to pull secrets from its cloud vault. The hub is not in the secrets path.
   Spoke reconciliation and secret delivery continue during hub maintenance or failure.
@@ -33,8 +32,8 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
   Network → Cluster → Workload dependency chains
 - Flux bootstraps and manages itself on the hub (circular dependency by design)
 
-**Why Crossplane (not raw ACK/ASO/KCC)?**
-- Raw ACK/ASO/KCC produce cloud-specific CRD schemas — a developer targeting multiple clouds must
+**Why Crossplane (not raw provider-specific CRDs)?**
+- Raw provider CRDs produce cloud-specific schemas — a developer targeting multiple clouds must
   write entirely different YAML per provider
 - Crossplane Compositions provide a single cloud-agnostic API surface; cloud is an implementation
   detail inside the Composition
@@ -82,6 +81,7 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
    - `provider-aws` with IRSA service account
    - `provider-azure` with Azure Managed Identity
    - `provider-gcp` with Workload Identity Federation
+   - `provider-kubernetes` to allow XCluster compositions to create CAPI objects
 5. Install Cluster API with relevant infra providers (Kubeadm + Metal3/CAPV/CAPO for on-prem)
 6. Author initial Crossplane Compositions: XNetwork, XCluster, XDatabase, XQueue
 
@@ -147,7 +147,7 @@ For resources that have no Crossplane provider support, use this hierarchy:
 
 1. **Official Kubernetes operator** (preferred) — cert-manager, external-dns, prometheus-operator
 2. **Flux-managed Kubernetes Job** — for one-off or complex deployments using legacy IaC commands
-3. **Raw cloud CRD via ACK/ASO/KCC** (last resort) — only when no Composition exists and no
+3. **Raw cloud CRD** (last resort) — only when no Composition exists and no
    operator is available; document the reason and plan for Composition adoption
 
 ## 5. Completion Criteria

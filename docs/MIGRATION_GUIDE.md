@@ -2,15 +2,15 @@
 
 ## Overview
 
-This guide documents the approach for handling existing workloads built with push-based Infrastructure as Code (IaC) tools such as Terraform, AWS CloudFormation/CDK, Azure Blueprints/ARM/Bicep, and GCP Deployment Manager when adopting the GitOps Infra Control Plane using Flux + Cloud Controllers (ACK/ASO/KCC).
+This guide documents the approach for handling existing workloads built with push-based Infrastructure as Code (IaC) tools such as Terraform, AWS CloudFormation/CDK, Azure Blueprints/ARM/Bicep, and GCP Deployment Manager when adopting the GitOps Infra Control Plane using Flux + Crossplane + CAPI.
 
 ## Core Philosophy
 
 The GitOps approach employs a hybrid strategy: push-based tools for initial cluster bootstrap, transitioning to continuous reconciliation for ongoing infrastructure management.
 
-- **Phased Migration**: Use industry-standard CLIs (eksctl, az, gcloud) for initial Hub cluster creation, then leverage native Kubernetes controllers (ACK/ASO/KCC) for declarative, self-healing infrastructure management.
+- **Phased Migration**: Use industry-standard CLIs (eksctl, az, gcloud) for initial Hub cluster creation, then leverage Crossplane + CAPI for declarative, self-healing infrastructure management.
 - **Push-Based IaC (Terraform, CDK, etc.)**: Execute once, create state files, require external orchestration for dependencies - used only for initial bootstrap.
-- **GitOps Control Plane**: Continuous reconciliation using native Kubernetes controllers (ACK/ASO/KCC), no state files, Flux `dependsOn` for DAG dependencies - used for ongoing management.
+- **GitOps Control Plane**: Continuous reconciliation using Crossplane + CAPI, no state files, Flux `dependsOn` for DAG dependencies - used for ongoing management.
 
 **Key Advantage**: Self-healing infrastructure that automatically maintains desired state without human intervention.
 
@@ -25,7 +25,7 @@ The repository does not contain automated migration utilities. Conversion must b
 ### Manual Migration Required
 All workloads must be rewritten into:
 - Flux-compatible Kustomization.yaml manifests
-- ACK/ASO/KCC Custom Resource Definitions (CRDs) for cloud resources
+- Crossplane XRDs/Compositions and CAPI resources for cloud resources
 - Proper Flux `dependsOn` relationships for dependency sequencing
 
 ## Conversion Process
@@ -39,22 +39,22 @@ Analyze existing IaC to identify core components:
 - Application workloads
 
 ### Step 2: Map to Controller Resources
-Translate each IaC resource to equivalent ACK/ASO/KCC custom resources:
+Translate each IaC resource to Crossplane XRDs and CAPI resources:
 
 **AWS Resources:**
-- VPCs, subnets → ACK EC2 custom resources
-- EKS clusters → ACK EKS custom resources
-- IAM roles/policies → ACK IAM custom resources
+- VPCs, subnets → XNetwork
+- EKS clusters → XCluster (CAPI)
+- IAM roles/policies → Crossplane-managed IAM or external IAM pipelines
 
 **Azure Resources:**
-- VNets, subnets → ASO Network custom resources
-- AKS clusters → ASO ContainerService custom resources
-- RBAC → ASO Authorization custom resources
+- VNets, subnets → XNetwork
+- AKS clusters → XCluster (CAPI)
+- RBAC → platform IAM workflows
 
 **GCP Resources:**
-- VPCs, subnets → KCC Compute custom resources
-- GKE clusters → KCC Container custom resources
-- IAM → KCC IAM custom resources
+- VPCs, subnets → XNetwork
+- GKE clusters → XCluster (CAPI)
+- IAM → platform IAM workflows
 
 ### Step 3: Define Dependencies
 Use Flux `dependsOn` to establish proper sequencing:
@@ -77,7 +77,7 @@ dependsOn:
 
 While no built-in tools exist, an AI coding agent can assist with conversion by:
 - Analyzing source IaC syntax and parameters
-- Generating equivalent ACK/ASO/KCC YAML manifests
+- Generating equivalent Crossplane XRD claims
 - Mapping resource dependencies
 
 **Requirements for AI Conversion:**

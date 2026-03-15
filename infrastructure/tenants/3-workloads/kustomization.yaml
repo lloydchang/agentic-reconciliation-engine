@@ -5,8 +5,12 @@ metadata:
   namespace: flux-system
 resources:
   # Core workloads that can be swapped based on ecosystem needs
+  - orders-team-namespace.yaml
   - sealed-secrets.yaml
   - monitoring.yaml
+  - eso-workload-identity/
+  - database-orders.yaml
+  - queue-orders.yaml
   - karpenter/
   - networking/
   - security/
