@@ -1,5 +1,3 @@
-// File: AGENTS.md
-
 # Temporal AI & GitOps Control Plane Agents - Full Autonomy & Gating Specification
 
 ## Preface
