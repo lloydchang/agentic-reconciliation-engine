@@ -3,18 +3,23 @@ kind: PersistentVolumeClaim
 metadata:
   name: memory-agent-pvc
   namespace: ai-inference
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "default"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
+  volumeMode: Filesystem
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: memory-agent-rust
-  namespace: ai-inference
+  namespace: ai-infrastructure
   labels:
     component: memory-agent
     language: rust
