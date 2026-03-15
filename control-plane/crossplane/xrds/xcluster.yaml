@@ -1,0 +1,55 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xclusters.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XCluster
+    plural: xclusters
+  claimNames:
+    kind: Cluster
+    plural: clusters
+  connectionSecretKeys:
+    - kubeconfig
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [nodeCount, nodeSize, kubernetesVersion, region]
+              properties:
+                nodeCount:
+                  type: integer
+                  minimum: 1
+                  default: 3
+                nodeSize:
+                  type: string
+                  enum: [small, medium, large]
+                kubernetesVersion:
+                  type: string
+                  description: "Kubernetes version string e.g. '1.30'"
+                region:
+                  type: string
+                networkRef:
+                  type: object
+                  description: "Reference to an XNetwork claim"
+                  properties:
+                    name:
+                      type: string
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                endpoint:
+                  type: string
+                phase:
+                  type: string

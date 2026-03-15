@@ -1,0 +1,23 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xqueue-gcp
+  labels:
+    provider: gcp
+    platform.example.com/xrd: xqueue
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XQueue
+  resources:
+    - name: pubsub-topic
+      base:
+        apiVersion: pubsub.gcp.crossplane.io/v1beta1
+        kind: Topic
+        spec:
+          forProvider:
+            messageStoragePolicy:
+              allowedPersistenceRegions:
+                - us-central1
+          providerConfigRef:
+            name: gcp-provider

@@ -1,0 +1,38 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcluster-aks
+  labels:
+    provider: azure
+    platform.example.com/xrd: xcluster
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCluster
+  resources:
+    - name: aks-cluster
+      base:
+        apiVersion: containerservice.azure.crossplane.io/v1beta1
+        kind: KubernetesCluster
+        spec:
+          forProvider:
+            location: eastus
+            resourceGroupName: platform-rg
+            dnsPrefix: aks-platform
+            kubernetesVersion: "1.30.0"
+            defaultNodePool:
+              name: system
+              nodeCount: 3
+              vmSize: Standard_D4s_v3
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.kubernetesVersion
+          toFieldPath: spec.forProvider.kubernetesVersion
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodeCount
+          toFieldPath: spec.forProvider.defaultNodePool.nodeCount

@@ -52,17 +52,22 @@ control-plane/crossplane/
     cluster-eks.yaml
     cluster-aks.yaml
     cluster-gke.yaml
+    cluster-capi-aws.yaml      # Composition: XCluster → CAPI Cluster (provider-kubernetes)
+    cluster-capi-azure.yaml
+    cluster-capi-gcp.yaml
   providers/
     provider-aws.yaml
     provider-azure.yaml
     provider-gcp.yaml
+    provider-kubernetes.yaml
     providerconfig-aws.yaml
     providerconfig-azure.yaml
     providerconfig-gcp.yaml
+    providerconfig-kubernetes.yaml
 
 infrastructure/tenants/
   1-network/
-    network-prod-aws.yaml      # XNetwork claim — developer-facing
+    network-prod.yaml          # XNetwork claim — developer-facing
   2-clusters/
     cluster-eks-prod.yaml      # XCluster claim
   3-workloads/

@@ -1,0 +1,94 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-azure
+  labels:
+    provider: azure
+    platform.example.com/xrd: xnetwork
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+    - name: vnet
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: VirtualNetwork
+        spec:
+          forProvider:
+            location: eastus
+            addressSpace:
+              - 10.0.0.0/16
+            resourceGroupName: platform-rg
+            tags:
+              Name: placeholder
+              NetworkRef: placeholder
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.cidr
+          toFieldPath: spec.forProvider.addressSpace[0]
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.NetworkRef
+    - name: subnet
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            addressPrefix: 10.0.1.0/24
+            virtualNetworkName: ""
+            resourceGroupName: platform-rg
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.virtualNetworkName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[0]
+          toFieldPath: spec.forProvider.addressPrefix
+    - name: subnet-2
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            addressPrefix: 10.0.2.0/24
+            virtualNetworkName: ""
+            resourceGroupName: platform-rg
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.virtualNetworkName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[1]
+          toFieldPath: spec.forProvider.addressPrefix
+    - name: subnet-3
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            addressPrefix: 10.0.3.0/24
+            virtualNetworkName: ""
+            resourceGroupName: platform-rg
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.virtualNetworkName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.subnetCidrs[2]
+          toFieldPath: spec.forProvider.addressPrefix

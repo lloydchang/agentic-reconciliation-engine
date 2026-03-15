@@ -1,0 +1,19 @@
+apiVersion: platform.example.com/v1alpha1
+kind: Queue
+metadata:
+  name: orders-queue
+  namespace: orders-team
+  labels:
+    team: orders
+    env: prod
+    cost-center: revenue
+  annotations:
+    platform.example.com/allow-deletion: "false"
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  engine: sqs
+  region: us-east-1
+  size: small
+  deletionPolicy: Orphan

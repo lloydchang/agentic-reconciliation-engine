@@ -1,0 +1,44 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [cidr, region]
+              properties:
+                cidr:
+                  type: string
+                  description: "VPC/VNet CIDR block e.g. 10.0.0.0/16"
+                region:
+                  type: string
+                  description: "Cloud region"
+                subnetCidrs:
+                  type: array
+                  items:
+                    type: string
+                  description: "One CIDR per availability zone"
+            status:
+              type: object
+              properties:
+                vpcId:
+                  type: string
+                subnetIds:
+                  type: array
+                  items:
+                    type: string

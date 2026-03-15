@@ -476,14 +476,16 @@ evolved_solution:
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
-  - infrastructure/tenants/aws/
+  - infrastructure/tenants/1-network/
+  - infrastructure/tenants/2-clusters/
+  - infrastructure/tenants/3-workloads/
   - focus: "aws-cost-optimization"
 
 # Evolved problem: Multi-cloud cost comparison
 evolved_solution:
-  - infrastructure/tenants/aws/
-  - infrastructure/tenants/azure/
-  - infrastructure/tenants/gcp/
+  - infrastructure/tenants/1-network/
+  - infrastructure/tenants/2-clusters/
+  - infrastructure/tenants/3-workloads/
   - examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
   - new_capabilities: "cross-cloud cost analysis"
 ```
@@ -600,14 +602,16 @@ evolved_solution:
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
-  - infrastructure/tenants/aws/
+  - infrastructure/tenants/1-network/
+  - infrastructure/tenants/2-clusters/
+  - infrastructure/tenants/3-workloads/
   - focus: "aws-cost-optimization"
 
 # Evolved problem: Multi-cloud cost comparison
 evolved_solution:
-  - infrastructure/tenants/aws/
-  - infrastructure/tenants/azure/
-  - infrastructure/tenants/gcp/
+  - infrastructure/tenants/1-network/
+  - infrastructure/tenants/2-clusters/
+  - infrastructure/tenants/3-workloads/
   - examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
   - new_capabilities: "cross-cloud cost analysis"
 ```

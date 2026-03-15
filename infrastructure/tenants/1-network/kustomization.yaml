@@ -4,10 +4,8 @@ metadata:
   name: network-infra
   namespace: flux-system
 resources:
-  - aws-vpc.yaml
-  - aws-subnets.yaml
-  - azure-vnet.yaml
-  - gcp-network.yaml
+  - platform-namespace.yaml
+  - network-prod.yaml
 labels:
   - pairs:
       managed-by: flux

@@ -5,6 +5,8 @@ metadata:
   namespace: flux-system
 resources:
   - flux/
+  - crossplane/
+  - capi/
   - controllers/
   - karmada/
   - monitoring/

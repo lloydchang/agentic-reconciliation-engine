@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - database-aws.yaml
+  - database-azure.yaml
+  - database-gcp.yaml
+  - network-aws.yaml
+  - network-azure.yaml
+  - network-gcp.yaml
+  - cluster-eks.yaml
+  - cluster-aks.yaml
+  - cluster-gke.yaml
+  - cluster-capi-aws.yaml
+  - cluster-capi-azure.yaml
+  - cluster-capi-gcp.yaml
+  - queue-aws.yaml
+  - queue-azure.yaml
+  - queue-gcp.yaml

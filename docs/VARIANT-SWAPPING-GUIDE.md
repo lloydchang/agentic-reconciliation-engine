@@ -80,7 +80,7 @@ configMapGenerator:
 **Characteristics:**
 - Full AI integration and orchestration
 - Advanced security and compliance
-- Multi-cloud controllers (ACK/ASO/KCC)
+- Multi-cloud controllers (Crossplane + CAPI)
 - Consensus-based agent swarms
 - High availability and disaster recovery
 - Advanced observability and analytics

@@ -14,10 +14,10 @@ Our solution focuses on **multi-cloud** (AWS + Azure + GCP) only. It does not in
 
 ## Solution Overview
 
-Our implementation uses **Flux CD + Cloud Controllers (ACK/ASO/KCC)** in a hub-and-spoke architecture to create a **GitOps Infra Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies across multiple public cloud providers.
+Our implementation uses **Flux CD + Crossplane + CAPI** in a hub-and-spoke architecture to create a **GitOps Infra Control Plane** that orchestrates multi-cloud deployments with explicit DAG dependencies across multiple public cloud providers.
 
 ```
-Git Repository → Flux (Hub) → ACK/ASO/KCC Controllers → Cloud APIs → Spoke Clusters
+Git Repository → Flux (Hub) → Crossplane + CAPI → Cloud APIs → Spoke Clusters
 ```
 
 ## Differentiation Analysis
@@ -71,7 +71,7 @@ dependsOn:
 
 **Our Approach:**
 - Manages **full infrastructure lifecycle** from provisioning to workloads
-- Controllers (ACK/ASO/KCC) handle cloud APIs directly
+- Crossplane providers handle cloud APIs via XRDs/Compositions
 - Single source of truth for infrastructure + applications
 
 **Why Better:**
@@ -79,7 +79,7 @@ dependsOn:
 - **Our solution:** Orchestrates **infrastructure provisioning** of spoke clusters
 - **Example:** Hub cluster provisions EKS/AKS/GKE via controllers
 
-**Evidence:** Our scripts/deploy-gitops-infrastructure.sh installs ACK/ASO/KCC controllers that provision and manage spoke clusters.
+**Evidence:** Crossplane and CAPI manifests in `control-plane/` provision and manage spoke clusters.
 
 ### **3. Cross-Cloud Orchestration**
 
@@ -98,7 +98,7 @@ dependsOn:
 ### **4. Controller-Based Reconciliation**
 
 **Our Approach:**
-- Cloud-native controllers (ACK/ASO/KCC) with built-in retries
+- Cloud-native controllers (Crossplane/CAPI) with built-in retries
 - Eventual consistency with cloud API reconciliation loops
 
 **Why Better:**
@@ -106,7 +106,7 @@ dependsOn:
 - **Our solution:** **Cloud-native API integration** with proper error handling
 - **Impact:** More reliable than kubectl-based approaches
 
-**Evidence:** Mock controllers in test environments simulate real ACK/ASO/KCC behavior.
+**Evidence:** Mock controllers in test environments simulate provider behavior where needed.
 
 ## When Our Solution is Better
 

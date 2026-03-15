@@ -7,12 +7,5 @@ resources:
   - 1-network/
   - 2-clusters/
   - 3-workloads/
-  - example-database-credentials.secret.yaml
-  - example-api-keys.secret.yaml
 dependsOn:
   - 1-network
-# SOPS configuration for secret decryption
-decryption:
-  provider: sops
-  secretRef:
-    name: sops-age

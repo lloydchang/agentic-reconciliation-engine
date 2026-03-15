@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hub-backup-sa
+  namespace: bootstrap-system
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hub-state-backup
+  namespace: bootstrap-system
+spec:
+  schedule: "0 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: hub-backup-sa
+          containers:
+            - name: backup
+              image: bitnami/kubectl:latest
+              env:
+                - name: HUB_KUBECONFIG
+                  valueFrom:
+                    secretKeyRef:
+                      name: hub-kubeconfig
+                      key: kubeconfig
+                - name: BACKUP_BUCKET
+                  value: "s3://hub-backups"
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  export KUBECONFIG=/tmp/hub-kubeconfig
+                  echo "$HUB_KUBECONFIG" > $KUBECONFIG
+
+                  if ! kubectl cluster-info > /dev/null 2>&1; then
+                    echo "Hub unreachable — skipping backup, alerting"
+                    exit 1
+                  fi
+
+                  TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+                  kubectl get managed -A -o yaml > /tmp/managed.yaml
+                  kubectl get kustomizations,gitrepositories -A -o yaml > /tmp/flux.yaml
+                  kubectl get clusters,machinedeployments -A -o yaml > /tmp/capi.yaml
+                  kubectl get xrds,compositions -A -o yaml > /tmp/crossplane-apis.yaml
+
+                  aws s3 cp /tmp/ ${BACKUP_BUCKET}/${TIMESTAMP}/ --recursive
+                  echo "Backup complete: ${BACKUP_BUCKET}/${TIMESTAMP}/"
+          restartPolicy: OnFailure
