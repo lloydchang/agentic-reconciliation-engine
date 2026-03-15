@@ -1,284 +1,146 @@
 ---
 name: service-mesh
 description: >
-  Use this skill to install, configure, and operate a service mesh (Istio or
-  Linkerd) across Kubernetes clusters. Triggers: any request to enable mTLS
-  between services, configure traffic management (canary, circuit breaker,
-  retries, timeouts), set up mutual TLS enforcement, generate a service
-  dependency map, debug inter-service connectivity, configure observability
-  through the mesh, or enforce zero-trust service-to-service communication.
-tools:
-  - bash
-  - computer
+  Install, harden, and operate a service mesh (Istio/Linkerd) with AI-augmented traffic control, zero-trust enforcement, and dispatcher-ready telemetry.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Service Mesh Skill
+# Service Mesh — World-class Zero-trust Connectivity Playbook
 
-Deploy and operate a production service mesh with mTLS, traffic policies,
-observability, and zero-trust service identity — using Istio (default) or
-Linkerd.
+Manages mesh installation (Istio default, Linkerd option), mTLS/traffic policies, observability, and debugging while feeding AI-driven events into the dispatcher. Use when enabling secure service-to-service communication, running progressive traffic policies, or diagnosing mesh issues.
 
----
+## When to invoke
+- Install/upgrade Istio or Linkerd across clusters.
+- Enforce mTLS, authorization policies, circuit breakers, retries, or traffic shifting (canary/blue-green).
+- Diagnose inter-service connectivity, dependency graphs, or sidecar issues.
+- React to dispatcher events (policy-risk, incident-ready, SLA burn-rate) requiring mesh-level controls.
 
-## Installation
+## Capabilities
+- Production-grade mesh install/upgrades with resource-safe settings and sidecar injection per namespace.
+- AI-assisted policy enforcement (mTLS, authorization rules) and traffic management (canaries, circuit breakers).
+- Observability integration (Kiali, Prometheus, Grafana) with dependency mapping and telemetry.
+- Shared context integration `shared-context://memory-store/mesh/<operationId>` for downstream skills.
+- Human-gated operations when mesh changes affect production communications.
 
-### Istio (Production Profile)
-```bash
-# Install Istio with production profile
-istioctl install --set profile=production \
-  --set values.global.proxy.resources.requests.cpu=100m \
-  --set values.global.proxy.resources.requests.memory=128Mi \
-  --set values.global.proxy.resources.limits.cpu=500m \
-  --set values.global.proxy.resources.limits.memory=256Mi \
-  -y
-
-# Verify installation
-istioctl verify-install
-
-# Label namespace for sidecar injection
-kubectl label namespace "${TENANT_NAMESPACE}" istio-injection=enabled
-```
-
-### Linkerd (lightweight alternative)
-```bash
-linkerd install --crds | kubectl apply -f -
-linkerd install | kubectl apply -f -
-linkerd viz install | kubectl apply -f -
-linkerd check
-
-# Annotate namespace for injection
-kubectl annotate namespace "${TENANT_NAMESPACE}" \
-  linkerd.io/inject=enabled
-```
-
----
-
-## mTLS Enforcement (Zero-Trust)
-
-```yaml
-# Enforce STRICT mTLS in a namespace — all traffic must be encrypted + authenticated
-apiVersion: security.istio.io/v1beta1
-kind: PeerAuthentication
-metadata:
-  name: default
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  mtls:
-    mode: STRICT
----
-# Deny all traffic not using mTLS
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: deny-all
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  {} # empty spec = deny all
----
-# Allow specific service-to-service communication
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: allow-api-to-db
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  selector:
-    matchLabels:
-      app: database-proxy
-  rules:
-    - from:
-        - source:
-            principals:
-              - cluster.local/ns/${TENANT_NAMESPACE}/sa/api-service
-      to:
-        - operation:
-            ports: ["5432"]
-```
-
----
-
-## Traffic Management
-
-### Canary Deployment via VirtualService
-```yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: ${APP_NAME}
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  hosts:
-    - ${APP_NAME}
-  http:
-    - route:
-        - destination:
-            host: ${APP_NAME}
-            subset: stable
-          weight: 90
-        - destination:
-            host: ${APP_NAME}
-            subset: canary
-          weight: 10
----
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: ${APP_NAME}
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  host: ${APP_NAME}
-  subsets:
-    - name: stable
-      labels:
-        version: stable
-    - name: canary
-      labels:
-        version: canary
-```
-
-### Circuit Breaker
-```yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: ${APP_NAME}-circuit-breaker
-  namespace: ${TENANT_NAMESPACE}
-spec:
-  host: ${APP_NAME}
-  trafficPolicy:
-    outlierDetection:
-      consecutive5xxErrors: 5
-      interval: 30s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 50
-    connectionPool:
-      tcp:
-        maxConnections: 100
-      http:
-        http1MaxPendingRequests: 100
-        http2MaxRequests: 1000
-```
-
-### Retry & Timeout Policy
-```yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: ${APP_NAME}-resilience
-spec:
-  hosts:
-    - ${APP_NAME}
-  http:
-    - timeout: 5s
-      retries:
-        attempts: 3
-        perTryTimeout: 2s
-        retryOn: gateway-error,connect-failure,retriable-4xx
-      route:
-        - destination:
-            host: ${APP_NAME}
-```
-
----
-
-## Observability via Mesh
+## Invocation patterns
 
 ```bash
-# Install Kiali (service topology dashboard)
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/kiali.yaml
-
-# View service graph
-istioctl dashboard kiali &
-
-# Envoy proxy stats for a pod
-istioctl proxy-status
-istioctl proxy-config cluster "${POD_NAME}.${NAMESPACE}"
-
-# Per-service traffic metrics via Prometheus
-# Request rate
-sum(rate(istio_requests_total{destination_service="${APP_NAME}.${NAMESPACE}.svc.cluster.local"}[5m]))
-
-# Error rate
-sum(rate(istio_requests_total{
-  destination_service="${APP_NAME}.${NAMESPACE}.svc.cluster.local",
-  response_code=~"5.."
-}[5m])) /
-sum(rate(istio_requests_total{
-  destination_service="${APP_NAME}.${NAMESPACE}.svc.cluster.local"
-}[5m]))
-
-# P99 latency
-histogram_quantile(0.99,
-  sum(rate(istio_request_duration_milliseconds_bucket{
-    destination_service="${APP_NAME}.${NAMESPACE}.svc.cluster.local"
-  }[5m])) by (le)
-)
+/service-mesh install --mesh=istio --profile=production --namespace=tenant-42
+/service-mesh mtls --namespace=tenant-42 --mode=STRICT --humanGate=true
+/service-mesh traffic --app=payments-api --namespace=tenant-42 --canaryWeight=10
+/service-mesh observe --namespace=tenant-42 --duration=30m
+/service-mesh debug --source=cart --destination=pricing --namespace=tenant-42
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `mesh` | Mesh provider (`istio|linkerd`). | `istio` |
+| `namespace` | Namespace/tenant scope. | `tenant-42` |
+| `mode` | mTLS enforcement mode (`STRICT|PERMISSIVE|DISABLED`). | `STRICT` |
+| `app` | Application/service name. | `payments-api` |
+| `canaryWeight` | Canary traffic percent. | `10` |
+| `duration` | Observation window. | `30m` |
 
-## Service Dependency Map
-
-```bash
-# Generate service dependency graph
-kubectl get serviceentries,virtualservices,destinationrules -A -o json | \
-  jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name): \(.spec.hosts[]?)"'
-
-# Kiali API — get service graph as JSON
-curl -s "http://kiali:20001/kiali/api/namespaces/${NAMESPACE}/graph?duration=5m" | \
-  jq '.elements.nodes[] | {id: .data.id, service: .data.service, workload: .data.workload}'
-```
-
----
-
-## Debugging Inter-Service Connectivity
-
-```bash
-# Check if sidecar is injected
-kubectl get pod "${POD_NAME}" -n "${NAMESPACE}" \
-  -o jsonpath='{.spec.containers[*].name}'
-
-# Proxy configuration analysis
-istioctl analyze -n "${NAMESPACE}"
-
-# Test connectivity through mesh
-kubectl exec "${SOURCE_POD}" -n "${SOURCE_NS}" \
-  -c istio-proxy -- curl -sv \
-  "http://${DEST_SERVICE}.${DEST_NS}.svc.cluster.local/health" 2>&1
-
-# Envoy access logs for debugging
-kubectl logs "${POD_NAME}" -n "${NAMESPACE}" -c istio-proxy | \
-  grep -E "\"[0-9]{3}\"" | tail -20
-
-# Check mTLS is active between two services
-istioctl authn tls-check "${SOURCE_POD}.${SOURCE_NS}" \
-  "${DEST_SERVICE}.${DEST_NS}.svc.cluster.local"
-```
-
----
-
-## Examples
-
-- "Enable mTLS and strict PeerAuthentication for the tenant-42 namespace"
-- "Set up a canary split: 10% traffic to payments-api v2.3.1"
-- "Configure circuit breaker for the inventory service — it keeps cascading"
-- "Show me the service dependency map for the order processing namespace"
-- "Why is the cart service returning 503s when calling the pricing service?"
-- "Install Istio on the new production cluster with production profile"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "operation": "install|mtls|traffic|circuit-breaker|debug|map",
-  "namespace": "string",
-  "app": "string",
-  "mtls_mode": "STRICT|PERMISSIVE|DISABLED",
-  "canary_weight": 0,
+  "operationId": "MESH-2026-0315-01",
+  "operation": "install|mtls|traffic|observe|debug",
+  "mesh": "istio",
+  "namespace": "tenant-42",
   "status": "success|failure",
-  "connectivity": "OK|BLOCKED|DEGRADED",
-  "issues": []
+  "aiInsights": {
+    "riskScore": 0.32,
+    "policyViolations": 0,
+    "anomalies": []
+  },
+  "events": [
+    {
+      "name": "mtls-enforced",
+      "mode": "STRICT",
+      "timestamp": "2026-03-15T08:12:00Z"
+    }
+  ],
+  "issues": [],
+  "logs": "shared-context://memory-store/mesh/MESH-2026-0315-01",
+  "decisionContext": "redis://memory-store/mesh/MESH-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Mesh installation & hardening
+1. Install Istio (production profile) or lightweight Linkerd with resource-tuned settings.
+2. Label namespaces for sidecar injection and apply global/default PeerAuthentication/AuthorizationPolicy templates.
+3. Emit `mesh-installed` event with mesh metadata and dashboard URLs for shared context.
+
+### mTLS & zero-trust policies
+1. Configure PeerAuthentication (STRICT/PERMISSIVE) and AuthorizationPolicy for deny-all plus allow patterns.
+2. AI risk scoring checks (policy compliance, exposure) before enforcing new rules.
+3. Emit `mtls-mode-updated` events; watchers adjust dispatcher flows when anomalies detected.
+
+### Traffic management & resilience
+1. Define VirtualService/DestinationRule (Istio) or TrafficSplit (Linkerd) for canaries, retries, circuit breakers, and connection pools.
+2. Monitor traffic metrics (errorRate, latency, saturation) for policy gating.
+3. Emit `traffic-policy-applied` event; watchers can trigger rollback or `deployment-validation`.
+
+### Observability & debugging
+1. Deploy Kiali, Prometheus, Grafana dashboards, and enable Envoy stats for dependencies.
+2. Generate dependency map via `kubectl get virtualservices/serviceentries/destinationrules`.
+3. Run `istioctl analyze`, `proxy-config`, `kiali` graph; store outputs in shared context for incident response.
+
+## AI intelligence highlights
+- **AI Risk Scoring**: evaluates mesh changes against policy compliance, percent of traffic affected, and historical failures.
+- **Intelligent Traffic Control**: recommends canary weights, circuit breaker thresholds, and retries with confidence values.
+- **Anomaly Detection**: watches mTLS enforcement metrics for handshake failures or unauthorized connections.
+- **Predictive Observability**: forecasts mesh component health (Pilot, Galley, Pilot, Control Plane) and surfaces warnings.
+
+## Memory agent & dispatcher integration
+- Store mesh state under `shared-context://memory-store/mesh/<operationId>`.
+- Emit/consume events: `mesh-installed`, `mtls-enforced`, `traffic-policy-applied`, `mesh-debug`.
+- Dispatcher listens to `incident-ready`, `policy-risk`, `capacity-alert` to trigger mesh actions automatically.
+- Tag records with `decisionId`, `tenant`, `mesh`, `riskScore`.
+
+## Communication protocols
+- Primary: CLI commands (istioctl, kubectl, linkerd) producing JSON/warnings.
+- Secondary: Event bus for `mesh-*` events consumed by dispatchers.
+- Fallback: Persist artifacts in `artifact-store://mesh/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: mesh install duration, mtls failures, canary error rate, dependency map freshness.
+- Logs: structured `log.event="mesh.operation"` with `operation`, `namespace`, `decisionId`.
+- Dashboards: integrate `/service-mesh metrics --format=prometheus`.
+- Alerts: policy violation count > 0, mtls handshake failure rate > threshold, canary error spikes.
+
+## Failure handling & retries
+- Retry CLI operations (install/mtls/traffic) up to 2× with exponential backoff.
+- On failure, roll back to previous VirtualService/PeerAuthentication and emit `mesh-failed`.
+- Preserve logs/contexts for audits until downstream acknowledgements.
+
+## Human gates
+- Required when:
+ 1. Enabling STRICT mTLS or policies affecting production namespaces.
+ 2. Traffic policies shift >20% of production traffic or change circuit-breaker sensitivity.
+ 3. Dispatcher flags manual inspection after retries/failure.
+- Use the standard human gate confirmation template.
+
+## Testing & validation
+- Dry-run: `/service-mesh traffic --app=payments-api --namespace=test --dry-run`.
+- Unit tests: `backend/mesh/` ensures config generation and risk scoring produce expected results.
+- Integration: `scripts/validate-service-mesh.sh` installs mesh in emulator, applies policies, and monitors telemetry.
+- Regression: nightly `scripts/nightly-mesh-smoke.sh` ensures mTLS, traffic shaping, and observability events are stable.
+
+## References
+- Istio values: `observability/values/`.
+- Linkerd docs: `docs/OBSERVABILITY.md`.
+- Mesh scripts: `scripts/service-mesh/`.
+
+## Related skills
+- `/deployment-validation`: gates deployments impacted by mesh traffic shifts.
+- `/incident-triage-runbook`: receives mesh debug context for incidents.
+- `/ai-agent-orchestration`: orchestrates mesh-aware workflows.
