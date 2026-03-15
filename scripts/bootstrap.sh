@@ -112,7 +112,7 @@ done < <(find "${SKILL_DIR}" -name "SKILL.md" -type f | sort)
 # ── Header ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}╔══════════════════════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║   Cloud AI Agent — Bootstrap & Validation     ║${RESET}"
+echo -e "${BOLD}║   gitops-infra-control-plane — Bootstrap & Validation    ║${RESET}"
 echo -e "${BOLD}╚══════════════════════════════════════════════════════════╝${RESET}"
 echo ""
 
