@@ -1,0 +1,70 @@
+{
+  "providers": {
+    "aws": {
+      "enabled": true,
+      "region": "us-west-2",
+      "account_id": "YOUR_AWS_ACCOUNT_ID",
+      "credentials": {
+        "profile": "default",
+        "assume_role_arn": "arn:aws:iam::ACCOUNT_ID:role/InfrastructureProvisioning"
+      }
+    },
+    "azure": {
+      "enabled": true,
+      "region": "eastus",
+      "subscription_id": "YOUR_AZURE_SUBSCRIPTION_ID",
+      "credentials": {
+        "tenant_id": "YOUR_AZURE_TENANT_ID",
+        "client_id": "YOUR_AZURE_CLIENT_ID",
+        "client_secret": "YOUR_AZURE_CLIENT_SECRET"
+      }
+    },
+    "gcp": {
+      "enabled": true,
+      "region": "us-central1",
+      "project_id": "YOUR_GCP_PROJECT_ID",
+      "credentials": {
+        "service_account_key": "/path/to/your/service-account.json"
+      }
+    },
+    "onprem": {
+      "enabled": true,
+      "kubeconfig": "/path/to/your/kubeconfig",
+      "prometheus_url": "http://prometheus:9090"
+    }
+  },
+  "orchestration": {
+    "max_workers": 10,
+    "timeout_minutes": 30,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 5
+  },
+  "monitoring": {
+    "enabled": true,
+    "prometheus_endpoint": "http://prometheus:9090",
+    "grafana_endpoint": "http://grafana:3000",
+    "alertmanager_endpoint": "http://alertmanager:9093"
+  },
+  "security": {
+    "encryption_enabled": true,
+    "audit_logging": true,
+    "require_approval_for_production": true,
+    "allowed_regions": [
+      "us-west-2",
+      "us-east-1",
+      "eastus",
+      "us-central1"
+    ]
+  },
+  "cost_management": {
+    "budget_alerts": true,
+    "daily_cost_threshold": 1000.0,
+    "monthly_budget": 30000.0,
+    "optimization_enabled": true
+  },
+  "compliance": {
+    "standards": ["SOC2", "GDPR", "HIPAA"],
+    "required_tags": ["environment", "owner", "cost-center"],
+    "automated_compliance_checks": true
+  }
+}

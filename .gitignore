@@ -23,13 +23,19 @@ charts/**/tmp/
 *.kubeconfig
 *.key
 *.pem
-*.json
 *.tmp
 .terraform/
 .terragrunt-cache/
 .direnv/
 .env
 .envrc
+
+# Specific config files (but not templates/examples)
+config.json
+*.config.json
+!config.template.json
+!config.example.json
+!examples/*.json
 
 # Cloud provider credentials
 .aws/
