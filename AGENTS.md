@@ -1,4 +1,4 @@
-# Temporal AI & GitOps Control Plane Agents - Full Autonomy & Gating Specification
+# GitOps Infra Control Plane Agents
 
 ## Preface
 
