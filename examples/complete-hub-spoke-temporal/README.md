@@ -79,7 +79,7 @@ This example implements all three phases of Temporal integration with comprehens
 
 ### AI Workflows
 - `workflows/infrastructure-analysis.go` - Infrastructure analysis workflow
-- `workflows/multi-cloud-scatter-gather.go` - Parallel cloud operations
+- `workflows/multi-cloud-scatter-gather.go` - Parallel cloud AI
 - `workflows/consensus-decision.go` - Consensus-based decision making
 - `workflows/human-approval.go` - Human-in-the-loop workflows
 

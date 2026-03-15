@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides comprehensive guidance on how the GitOps Infra Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + cloud operations). Each scenario requires different approaches, components, and success metrics.
+This document provides comprehensive guidance on how the GitOps Infra Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + Cloud AI). Each scenario requires different approaches, components, and success metrics.
 
 ## 🎯 Scenario Definition Framework
 
@@ -17,8 +17,8 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 - **Primary Challenge**: Getting started quickly, establishing patterns, avoiding early mistakes
 
 ### Hybrid Scenario
-**Definition**: Local development combined with cloud deployment operations
-- **Characteristics**: Development on local machines, cloud-based production, CI/CD pipelines
+**Definition**: Local development combined with Cloud AI operations
+- **Characteristics**: Development on local machines, Cloud AI-based production, CI/CD pipelines
 - **Primary Challenge**: Environment parity, deployment consistency, developer experience
 
 ## 📊 Scenario Applicability Matrix
@@ -29,7 +29,7 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 | **Temporal Workflows** | ✅ Excellent | ⚠️ Overkill | ✅ Good | Complex orchestration |
 | **AI Agents** | ✅ Good | ⚠️ Overkill | ✅ Excellent | Intelligent automation |
 | **Consensus Protocol** | ⚠️ Limited | ❌ Overkill | ✅ Good | Team coordination |
-| **Multi-Cloud Scatter/Gather** | ✅ Excellent | ⚠️ Overkill | ✅ Good | Cross-cloud operations |
+| **Multi-Cloud Scatter/Gather** | ✅ Excellent | ⚠️ Overkill | ✅ Good | Cross-cloud AI |
 | **Infrastructure Discovery** | ✅ Excellent | ⚠️ Overkill | ✅ Good | Resource inventory |
 | **Security & RBAC** | ✅ Excellent | ✅ Good | ✅ Excellent | Access control |
 | **Monitoring Stack** | ✅ Excellent | ✅ Excellent | ✅ Excellent | Observability |
@@ -310,7 +310,7 @@ hybrid_phase1:
     - "Local database and caching"
     - "Git hooks and pre-commit validation"
   cloud_integration:
-    - "Cloud provider setup (AWS, Azure, GCP)"
+    - "Cloud AI provider setup (AWS, Azure, GCP)"
     - "CI/CD pipeline configuration"
     - "Environment-specific configurations"
     - "Secret management across environments"

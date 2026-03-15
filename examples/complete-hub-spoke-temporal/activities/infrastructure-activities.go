@@ -223,7 +223,7 @@ func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Con
 	startTime := time.Now()
 
 	// Execute operation based on type
-	var result CloudOperationResult
+	var result CloudAIResult
 	var err error
 
 	switch input.OperationType {
@@ -639,8 +639,8 @@ func checkApprovalStatus(ctx context.Context, requestID string) (string, error) 
 	return "pending", nil
 }
 
-func executeAnalysisOperation(ctx context.Context, input CloudOperationInput) (CloudOperationResult, error) {
-	return CloudOperationResult{
+func executeAnalysisOperation(ctx context.Context, input CloudAIInput) (CloudAIResult, error) {
+	return CloudAIResult{
 		Provider:      input.Provider,
 		Status:        "success",
 		Data:          map[string]interface{}{"resourceCount": 10, "totalCost": 100.50},
@@ -649,8 +649,8 @@ func executeAnalysisOperation(ctx context.Context, input CloudOperationInput) (C
 	}, nil
 }
 
-func executeDiscoveryOperation(ctx context.Context, input CloudOperationInput) (CloudOperationResult, error) {
-	return CloudOperationResult{
+func executeDiscoveryOperation(ctx context.Context, input CloudAIInput) (CloudAIResult, error) {
+	return CloudAIResult{
 		Provider:      input.Provider,
 		Status:        "success",
 		Data:          map[string]interface{}{"resourceCount": 15, "totalCost": 150.75},
@@ -659,8 +659,8 @@ func executeDiscoveryOperation(ctx context.Context, input CloudOperationInput) (
 	}, nil
 }
 
-func executeSecurityScanOperation(ctx context.Context, input CloudOperationInput) (CloudOperationResult, error) {
-	return CloudOperationResult{
+func executeSecurityScanOperation(ctx context.Context, input CloudAIInput) (CloudAIResult, error) {
+	return CloudAIResult{
 		Provider:      input.Provider,
 		Status:        "success",
 		Data:          map[string]interface{}{"vulnerabilities": 3, "securityScore": 87.5},
@@ -669,8 +669,8 @@ func executeSecurityScanOperation(ctx context.Context, input CloudOperationInput
 	}, nil
 }
 
-func executeCostOptimizationOperation(ctx context.Context, input CloudOperationInput) (CloudOperationResult, error) {
-	return CloudOperationResult{
+func executeCostOptimizationOperation(ctx context.Context, input CloudAIInput) (CloudAIResult, error) {
+	return CloudAIResult{
 		Provider:      input.Provider,
 		Status:        "success",
 		Data:          map[string]interface{}{"savings": 25.30, "recommendations": 5},
@@ -679,7 +679,7 @@ func executeCostOptimizationOperation(ctx context.Context, input CloudOperationI
 	}, nil
 }
 
-func identifyCrossCloudIssues(results []CloudOperationResult) []CrossCloudIssue {
+func identifyCrossCloudIssues(results []CloudAIResult) []CrossCloudIssue {
 	return []CrossCloudIssue{
 		{
 			ID:          "issue-1",

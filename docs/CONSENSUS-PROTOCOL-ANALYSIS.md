@@ -74,7 +74,7 @@ This document provides a comprehensive analysis of consensus protocol choices fo
 - **Implementation**: Start with basic coordination, add consensus gradually
 
 ### 🟡 Hybrid Scenarios
-**When to Use Selective Consensus**: Local development + cloud operations
+**When to Use Selective Consensus**: Local development + cloud AI
 - **Problem**: Coordinating across development and production environments
 - **Team**: Medium with distributed development
 - **Implementation**: Local coordination + cloud consensus where needed
