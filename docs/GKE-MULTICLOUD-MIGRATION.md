@@ -75,6 +75,22 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
 - Remove the `./cloud-gcp` entry from the Flux kustomization (or revert the commit) to have Flux prune the GCP overlay.
 - Leave the original GKE/Argo CD stack running during the transition in case you need to fall back.
 
+## Automation via migration wizard
+
+Use `scripts/migration_wizard.py` to automate overlay ordering and CI validation while applying this runbook. Example:
+
+```bash
+./scripts/migration_wizard.py \
+  --repo-url https://github.com/your-org/gitops-infra-control-plane.git \
+  --branch migration-gcp \
+  --connector github-enterprise-cloud \
+  --overlay-order ./bootstrap ./hub ./cloud-gcp \
+  --helper-script ./scripts/enable-cloud.sh \
+  --ci-gate ./scripts/bootstrap.sh
+```
+
+Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `scripts/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.
+
 ## Validation checklist
 
 - [ ] Flux kustomization stays `Ready` after each overlay change.
