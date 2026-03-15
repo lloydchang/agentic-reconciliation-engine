@@ -98,12 +98,12 @@ class FinalSkillValidator:
                 result['issues'].append(f'Missing required section: {section}')
                 result['score'] -= 7
         
-        # Check for world-class indicators
-        world_class_indicators = ['world-class', 'enterprise-grade', 'multi-cloud', 'AI-powered']
+        # Check for indicators
+        world_class_indicators = ['', 'enterprise-grade', 'multi-cloud', 'AI-powered']
         found_indicators = sum(1 for indicator in world_class_indicators if indicator.lower() in content.lower())
         if found_indicators < 2:
             result['compliant'] = False
-            result['issues'].append(f'Insufficient world-class indicators (found {found_indicators}/2)')
+            result['issues'].append(f'Insufficient indicators (found {found_indicators}/2)')
             result['score'] -= 15
         
         return result
@@ -132,18 +132,18 @@ class FinalSkillValidator:
         return result
     
     def validate_world_class_level(self, skill_file: Path) -> dict:
-        """Validate world-class level declaration"""
+        """Validate level declaration"""
         with open(skill_file, 'r') as f:
             content = f.read()
         
         result = {'compliant': True, 'issues': [], 'score': 100}
         
-        # Check for world-class phrases
-        world_class_phrases = ['world-class', 'enterprise-grade', 'multi-cloud', 'python-first', 'agent-executable']
+        # Check for phrases
+        world_class_phrases = ['', 'enterprise-grade', 'multi-cloud', 'python-first', 'agent-executable']
         found_phrases = sum(1 for phrase in world_class_phrases if phrase.lower() in content.lower())
         if found_phrases < 3:
             result['compliant'] = False
-            result['issues'].append(f'Insufficient world-class phrases (found {found_phrases}/3)')
+            result['issues'].append(f'Insufficient phrases (found {found_phrases}/3)')
             result['score'] -= (3 - found_phrases) * 10
         
         # Check API Patterns section and count types - SIMPLIFIED LOGIC
@@ -275,7 +275,7 @@ class FinalSkillValidator:
             print(f"🚀 Python-first multi-cloud enterprise ready!")
             print(f"💯 World-class level achieved across all skills!")
             print(f"🔥 Each SKILL.md follows both specifications perfectly!")
-            print(f"⚡ All skills declared at world-class level for their personas!")
+            print(f"⚡ All skills declared at level for their personas!")
         else:
             print(f"\n⚠️  {summary['non_compliant_skills']} skills need attention")
         

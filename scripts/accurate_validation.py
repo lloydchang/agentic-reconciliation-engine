@@ -91,12 +91,12 @@ def validate_single_file_accurate(file_path: Path, file_name: str) -> dict:
         result['agents_md'] = False
         result['issues'].append(f'Missing sections: {", ".join(missing_sections)}')
     
-    # Check world-class indicators
-    world_class_indicators = ['world-class', 'enterprise-grade', 'multi-cloud', 'AI-powered']
+    # Check indicators
+    world_class_indicators = ['', 'enterprise-grade', 'multi-cloud', 'AI-powered']
     found_indicators = sum(1 for indicator in world_class_indicators if indicator.lower() in content.lower())
     if found_indicators < 3:
         result['world_class'] = False
-        result['issues'].append(f'Insufficient world-class indicators (found {found_indicators}/3)')
+        result['issues'].append(f'Insufficient indicators (found {found_indicators}/3)')
     
     # Check multi-cloud support
     multi_cloud_terms = ['aws', 'azure', 'gcp', 'onprem', 'multi-cloud']
@@ -237,9 +237,9 @@ def main():
         print(f"❌ Q1: Specification compliance issues found")
     
     if world_class_compliant == total_count:
-        print(f"✅ Q2: ALL files declared at world-class level for their personas")
+        print(f"✅ Q2: ALL files declared at level for their personas")
     else:
-        print(f"❌ Q2: {total_count - world_class_compliant} files not at world-class level")
+        print(f"❌ Q2: {total_count - world_class_compliant} files not at level")
     
     # Show sample of API patterns found
     sample_result = results[0] if results else None

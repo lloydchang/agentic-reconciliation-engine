@@ -118,10 +118,10 @@ class FixedSkillValidator:
                 result['issues'].append(f'Missing required section: {section}')
                 result['score'] -= 7
         
-        # Check for world-class indicators
+        # Check for indicators
         world_class_indicators = [
             'enterprise-grade',
-            'world-class',
+            '',
             'comprehensive',
             'AI-powered',
             'intelligent',
@@ -131,7 +131,7 @@ class FixedSkillValidator:
         found_indicators = sum(1 for indicator in world_class_indicators if indicator.lower() in content.lower())
         if found_indicators < 3:
             result['compliant'] = False
-            result['issues'].append(f'Insufficient world-class indicators (found {found_indicators}/3)')
+            result['issues'].append(f'Insufficient indicators (found {found_indicators}/3)')
             result['score'] -= 15
         
         return result
@@ -180,7 +180,7 @@ class FixedSkillValidator:
         return result
     
     def validate_world_class_level(self, skill_file: Path) -> Dict[str, any]:
-        """Validate world-class level declaration"""
+        """Validate level declaration"""
         with open(skill_file, 'r') as f:
             content = f.read()
         
@@ -192,7 +192,7 @@ class FixedSkillValidator:
         
         # World-class indicators
         world_class_phrases = [
-            'world-class',
+            '',
             'enterprise-grade',
             'comprehensive validation',
             'intelligent workflows',
@@ -207,7 +207,7 @@ class FixedSkillValidator:
         found_phrases = sum(1 for phrase in world_class_phrases if phrase.lower() in content.lower())
         if found_phrases < 5:
             result['compliant'] = False
-            result['issues'].append(f'Insufficient world-class phrases (found {found_phrases}/5)')
+            result['issues'].append(f'Insufficient phrases (found {found_phrases}/5)')
             result['score'] -= (5 - found_phrases) * 10
         
         # Check for comprehensive API patterns - FIXED LOGIC

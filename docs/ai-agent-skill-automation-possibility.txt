@@ -258,7 +258,7 @@ Would you like me to show you how to write the knowledge server so Claude can re
 
 (This is an approach to getting an AI to act as a persona rather than just a code-runner.)
 
-To make your AI agent act like a persona (world-class engineering and cloud architect), it needs to understand your specific source of truth: Your roadmap, runbooks, and architectural standards.
+To make your AI agent act like a persona (engineering and cloud architect), it needs to understand your specific source of truth: Your roadmap, runbooks, and architectural standards.
 
 We will build a knowledge MCP server. Instead of running CLI commands, this server allows Claude to read and reason over your local project documentation folders as if they were part of its own long-term memory.
 

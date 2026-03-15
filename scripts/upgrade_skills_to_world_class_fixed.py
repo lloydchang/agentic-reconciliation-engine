@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 World-class Skills Upgrade Automation - Fixed Version
-Systematically upgrades all SKILL.md files to meet both agentskills.io and AGENTS.md specifications at world-class level
+Systematically upgrades all SKILL.md files to meet both agentskills.io and AGENTS.md specifications at level
 """
 
 import os
@@ -74,12 +74,12 @@ class SkillsUpgrader:
         return list(set(keywords))
     
     def generate_world_class_skill(self, skill_info: Dict[str, Any]) -> str:
-        """Generate world-class skill content"""
+        """Generate skill content"""
         skill_name = skill_info['name']
         purpose = skill_info['purpose']
         keywords = skill_info['trigger_keywords']
         
-        # Generate world-class template
+        # Generate template
         return f"""---
 name: {skill_name}
 description: >
@@ -469,7 +469,7 @@ func (a *SkillExecutionActivities) Execute{skill_name.replace('-', '_').title().
     
     def upgrade_all_skills(self) -> Dict[str, int]:
         """Upgrade all skills"""
-        print(f"🚀 Starting world-class upgrade of all skills...")
+        print(f"🚀 Starting upgrade of all skills...")
         print(f"📁 Agents directory: {self.agents_dir}")
         
         skills = self.get_all_skills()
@@ -505,7 +505,7 @@ def main():
     if results['failed'] > 0:
         print(f"\n⚠️  Some skills failed to upgrade. Check the logs above.")
     else:
-        print(f"\n🎊 All skills successfully upgraded to world-class level!")
+        print(f"\n🎊 All skills successfully upgraded to level!")
 
 if __name__ == "__main__":
     main()

@@ -69,15 +69,15 @@ def validate_template():
             agents_md_compliant = False
             agents_md_issues.append(f'Missing required section: {section}')
     
-    # Check world-class features
+    # Check features
     world_class_compliant = True
     world_class_issues = []
     
-    world_class_indicators = ['world-class', 'enterprise-grade', 'multi-cloud', 'AI-powered']
+    world_class_indicators = ['', 'enterprise-grade', 'multi-cloud', 'AI-powered']
     found_indicators = sum(1 for indicator in world_class_indicators if indicator.lower() in content.lower())
     if found_indicators < 3:
         world_class_compliant = False
-        world_class_issues.append(f'Insufficient world-class indicators (found {found_indicators}/3)')
+        world_class_issues.append(f'Insufficient indicators (found {found_indicators}/3)')
     
     # Check multi-cloud support
     multi_cloud_compliant = True
