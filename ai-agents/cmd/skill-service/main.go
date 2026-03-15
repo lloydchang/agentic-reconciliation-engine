@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/antigravity/gitops-infra-control-plane/backend/service"
+	"github.com/lloydchang/gitops-infra-control-plane/backend/service"
 )
 
 func main() {
