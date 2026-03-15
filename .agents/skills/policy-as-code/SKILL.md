@@ -1,347 +1,152 @@
 ---
 name: policy-as-code
 description: >
-  Use this skill to define, enforce, and audit governance policies across
-  cloud infrastructure and Kubernetes using Open Policy Agent (OPA), Azure
-  Policy, AWS Service Control Policies, and Kubernetes Gatekeeper. Triggers:
-  any request to create or update a governance policy, enforce tagging
-  standards, restrict resource types or regions, audit policy compliance,
-  generate a policy violation report, set up guardrails for developer
-  self-service, or implement a platform governance framework.
-tools:
-  - bash
-  - computer
+  Define, enforce, and audit governance policies across IaC, Kubernetes, and cloud platforms with AI-backed risk scoring and remediation prioritization.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Policy-as-Code Governance Skill
+# Policy-as-Code — World-class Governance Playbook
 
-Codify, deploy, and audit governance policies across the cloud stack.
-Shift governance left — enforce standards at PR time, admission time, and
-continuously in production — using OPA/Gatekeeper, Azure Policy, and SCPs.
+Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime using OPA, Gatekeeper, Azure Policy, AWS SCPs, and CI pre-flight gates. Use this skill whenever policy definitions, enforcement, audits, or violation remediation are required.
 
-## Enhanced Governance Enforcement
+## When to invoke
+- Before merging IaC/manifests: enforce tagging, SKU, and security requirements.
+- After deployments or runtime drift: re-audit and auto-remediate policy violations.
+- During compliance reviews (SOC2, CIS, PCI) to generate evidence.
+- When dispatchers or memory agents report `policy-risk`, `compliance-gap`, or `security-exposure`.
 
-### Enforce Governance Policies Across Infrastructure Environments
-Enforce governance policies across infrastructure environments with automated remediation.
+## Capabilities
+- Multi-layer enforcement (CI pre-plan, Kubernetes admission, cloud policy, runtime telemetry).
+- **AI Risk Assessment** that contextualizes violations with severity, business impact, and policy mapping.
+- **Smart Remediation Prioritization** surfaces actions by impact/effort, hooking into automations when safe.
+- **Intelligent Violation Analysis** explains dependencies, attack surface, and regulatory consequences.
+- Auto-remediation for safe violations (tagging, SKU drift) plus human-gated escalations.
+- Shared context integration (`shared-context://memory-store/policy/{operationId}`) for downstream skills.
 
-**Policies Enforced:**
-- Resource naming conventions
-- Mandatory tagging standards
-- Cost limits and budget controls
-- Security baseline requirements
-- Compliance framework adherence
-
-**Workflow:**
-1. Scan environment for policy violations
-2. Detect non-compliant resources and configurations
-3. Apply automated remediation where safe
-4. Generate governance compliance report
-5. Escalate critical violations for manual review
-
-**Output:** Governance compliance report with violation details, remediation actions taken, and compliance score.
-
----
-
-## Policy Layers
-
-| Layer               | Tool                        | Enforcement point         |
-|---------------------|-----------------------------|---------------------------|
-| IaC (pre-plan)      | `conftest` + OPA Rego        | CI/CD pipeline gate       |
-| K8s admission       | Gatekeeper (OPA)            | kubectl apply             |
-| Azure platform      | Azure Policy + Initiatives  | ARM deployment            |
-| AWS platform        | Service Control Policies    | IAM evaluation            |
-| Runtime             | Falco                       | Continuous                |
-| Git (pre-commit)    | Custom OPA + conftest       | Developer workstation     |
-
----
-
-## Core Policy Set
-
-### 1. Resource Tagging (IaC + Azure Policy)
-
-**Required tags:** `tenant`, `env`, `owner`, `cost_center`, `managed_by`
-
-```rego
-# conftest/terraform/tagging.rego
-package terraform.tagging
-
-required_tags := {"tenant", "env", "owner", "cost_center", "managed_by"}
-
-deny[msg] {
-  resource := input.resource_changes[_]
-  resource.change.actions[_] == "create"
-  missing := required_tags - {tag | resource.change.after.tags[tag]}
-  count(missing) > 0
-  msg := sprintf(
-    "Resource %v is missing required tags: %v",
-    [resource.address, missing]
-  )
-}
-```
+## Invocation patterns
 
 ```bash
-# Run at PR time
-conftest test terraform/plan.json -p conftest/terraform/
+/policy-as-code enforce --scope=terraform --policy=tagging --framework=soc2
+/policy-as-code audit --cluster=tenant-42 --policy=resource-limits
+/policy-as-code reconcile --provider=azure --initiative=production-baseline
+/policy-as-code report --scanId=POLICY-2026-0315-01 --format=json
+/policy-as-code alert --event=policy-risk --riskScore=0.86 --tenant=tenant-42
 ```
 
-### 2. Approved Regions Only (Azure Policy)
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `scope` | IaC, cluster, cloud, or runtime environment. | `terraform`, `aks`, `aws` |
+| `policy` | Named policy (e.g., `tagging`, `approved-regions`). | `approved-regions` |
+| `framework` | Compliance framework (SOC2, CIS, ISO27001). | `soc2` |
+| `cluster` | Kubernetes cluster identifier. | `tenant-42` |
+| `provider` | Cloud provider (azure|aws|gcp). | `azure` |
+| `scanId` | Policy scan/tracking ID. | `POLICY-2026-0315-01` |
+
+## Output contract
+
 ```json
 {
-  "if": {
-    "not": {
-      "field": "location",
-      "in": ["eastus", "westeurope", "southeastasia", "global"]
-    }
-  },
-  "then": { "effect": "Deny" }
-}
-```
-
-### 3. Approved VM SKUs
-```json
-{
-  "if": {
-    "allOf": [
-      { "field": "type", "equals": "Microsoft.Compute/virtualMachines" },
-      { "field": "Microsoft.Compute/virtualMachines/sku.name",
-        "notIn": ["Standard_D2s_v3","Standard_D4s_v3","Standard_D8s_v3",
-                  "Standard_E2s_v3","Standard_E4s_v3"] }
-    ]
-  },
-  "then": { "effect": "Deny" }
-}
-```
-
-### 4. No Public IPs on Production VMs
-```rego
-# conftest/terraform/network.rego
-package terraform.network
-
-deny[msg] {
-  resource := input.resource_changes[_]
-  resource.type == "azurerm_network_interface"
-  resource.change.after.ip_configuration[_].public_ip_address_id != null
-  contains(resource.change.after.tags.env, "prod")
-  msg := sprintf(
-    "Production NIC %v must not have a public IP",
-    [resource.address]
-  )
-}
-```
-
----
-
-## Kubernetes Gatekeeper Policies
-
-### Install Gatekeeper
-```bash
-helm upgrade --install gatekeeper gatekeeper/gatekeeper \
-  --namespace gatekeeper-system --create-namespace \
-  --set replicas=3
-```
-
-### Policy: Require Resource Limits
-```yaml
-apiVersion: templates.gatekeeper.sh/v1
-kind: ConstraintTemplate
-metadata:
-  name: requireresourcelimits
-spec:
-  crd:
-    spec:
-      names:
-        kind: RequireResourceLimits
-  targets:
-    - target: admission.k8s.gatekeeper.sh
-      rego: |
-        package requireresourcelimits
-        violation[{"msg": msg}] {
-          container := input.review.object.spec.containers[_]
-          not container.resources.limits.cpu
-          msg := sprintf(
-            "Container %v must have CPU limits set",
-            [container.name]
-          )
-        }
-        violation[{"msg": msg}] {
-          container := input.review.object.spec.containers[_]
-          not container.resources.limits.memory
-          msg := sprintf(
-            "Container %v must have memory limits set",
-            [container.name]
-          )
-        }
----
-apiVersion: constraints.gatekeeper.sh/v1beta1
-kind: RequireResourceLimits
-metadata:
-  name: require-resource-limits
-spec:
-  match:
-    kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
-    excludedNamespaces: ["kube-system", "monitoring"]
-```
-
-### Policy: No Root Containers
-```yaml
-apiVersion: templates.gatekeeper.sh/v1
-kind: ConstraintTemplate
-metadata:
-  name: noroot
-spec:
-  targets:
-    - target: admission.k8s.gatekeeper.sh
-      rego: |
-        package noroot
-        violation[{"msg": msg}] {
-          container := input.review.object.spec.containers[_]
-          container.securityContext.runAsUser == 0
-          msg := sprintf("Container %v must not run as root (UID 0)", [container.name])
-        }
-        violation[{"msg": msg}] {
-          container := input.review.object.spec.containers[_]
-          not container.securityContext.runAsNonRoot
-          msg := sprintf("Container %v must set runAsNonRoot: true", [container.name])
-        }
-```
-
-### Policy: Approved Image Registries
-```rego
-package approvedregistries
-
-approved := {"myregistry.azurecr.io", "mcr.microsoft.com"}
-
-violation[{"msg": msg}] {
-  container := input.review.object.spec.containers[_]
-  registry := split(container.image, "/")[0]
-  not approved[registry]
-  msg := sprintf(
-    "Container image %v must be from an approved registry. Approved: %v",
-    [container.image, approved]
-  )
-}
-```
-
----
-
-## AWS Service Control Policies
-
-### Restrict to Approved Regions
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
+  "scanId": "POLICY-2026-0315-01",
+  "status": "success|failure",
+  "policies": ["tagging", "approved-regions"],
+  "violations": [
     {
-      "Sid": "DenyOutsideApprovedRegions",
-      "Effect": "Deny",
-      "NotAction": [
-        "iam:*", "sts:*", "cloudfront:*",
-        "route53:*", "support:*", "budgets:*"
-      ],
-      "Resource": "*",
-      "Condition": {
-        "StringNotEquals": {
-          "aws:RequestedRegion": ["us-east-1", "eu-west-1", "ap-southeast-1"]
-        }
-      }
+      "id": "POLICY-001",
+      "policy": "tagging",
+      "severity": "high",
+      "riskScore": 0.82,
+      "resource": "azurerm_storage_account.production",
+      "description": "Missing `owner` tag",
+      "autoRemediation": true,
+      "recommendation": "Add mandatory tags via policy-driven append"
     }
-  ]
-}
-```
-
-### Prevent Disabling Security Services
-```json
-{
-  "Sid": "ProtectSecurityServices",
-  "Effect": "Deny",
-  "Action": [
-    "guardduty:DeleteDetector",
-    "guardduty:DisassociateFromMasterAccount",
-    "cloudtrail:DeleteTrail",
-    "cloudtrail:StopLogging",
-    "config:DeleteConfigRule",
-    "config:DeleteConfigurationRecorder"
   ],
-  "Resource": "*"
+  "summary": {
+    "critical": 1,
+    "high": 2,
+    "medium": 4,
+    "low": 3
+  },
+  "aiInsights": {
+    "riskImpact": "PCI/PCI-DSS scope",
+    "remediationPriority": "tagging > approved-skus > forbidden-ips"
+  },
+  "logs": "shared-context://memory-store/policy/POLICY-2026-0315-01",
+  "decisionContext": "redis://memory-store/policy/POLICY-2026-0315-01"
 }
 ```
 
----
+## World-class workflow templates
 
-## Policy Audit & Compliance Reporting
+### AI risk-aware policy enforcement
+1. Run pre-commit/PR `conftest`/OPA against IaC plans.
+2. Policy violations feed AI risk scoring (severity × compliance impact × tenant criticality).
+3. Auto-remediate safe violations (tag injection, SKU replacement) and emit `policy-remediated`.
+4. Escalate critical/high risk to human gate with detailed explanation.
 
-```bash
-# Audit all Gatekeeper constraint violations
-kubectl get constraints -A -o json | \
-  jq -r '.items[] | {
-    constraint: .metadata.name,
-    violations: .status.totalViolations,
-    details: [.status.violations[]? | {resource: .resource, message: .message}]
-  }'
+### Intelligent violation analysis & reporting
+1. Correlate policy violations across IaC, Kubernetes, cloud platforms, and runtime.
+2. Explain attack surface or compliance consequence (e.g., missing encryption affects SOC2-CC6).
+3. Generate executive-ready compliance reports highlighting trending violations.
+4. Emit `policy-report-ready` event for dispatcher and auditors.
 
-# Azure Policy compliance state
-az policy state summarize \
-  --subscription "$SUBSCRIPTION_ID" \
-  --query "{compliant: results.compliantResources,
-            nonCompliant: results.nonCompliantResources}" \
-  --output json
+### Continuous production guardrails
+1. Apply Gatekeeper constraints/admission policies (resource limits, approved registries).
+2. Use Azure Policy/AWS SCP to deny dangerous configurations instantly.
+3. Monitor runtime through Falco/log-based findings for drift.
+4. Emit `policy-breach` events when severity escalates and connect to `incident-triage-runbook`.
 
-# Generate full violation report
-kubectl get constraints -A -o json > policy-violations.json
-python3 scripts/generate_policy_report.py \
-  --input policy-violations.json \
-  --output reports/policy-compliance.html
-```
+## AI intelligence highlights
+- **AI Risk Assessment**: blends policy severity, tenant SLA, and historical remediation to output `riskScore` and recommended action.
+- **Smart Remediation Prioritization**: sequences fixes by effort, impact, and confidence to respect limited SRE bandwidth.
+- **Intelligent Violation Analysis**: surfaces causal factors (IAM exposure, unsupported regions, missing tags) with textual explanation for auditors.
+- **Predictive Guardrail Alerts**: anticipates policy drift before deployment (e.g., new IaC modules lacking policies).
 
----
+## Memory agent & dispatcher integration
+- Store normalized findings under `shared-context://memory-store/policy/<scanId>`.
+- Emit events: `policy-risk`, `policy-remediated`, `policy-report-ready`, `policy-human-gate`.
+- Subscribe to `incident-ready`, `cost-anomaly`, `capacity-alert` to reprioritize policy actions.
+- Tag all entries with `decisionId`, `tenant`, `framework`, `riskScore`, `confidence`.
 
-## Policy Governance Workflow
+## Communication protocols
+- Primary: CLI/batch commands running `conftest`, Azure Policy CLI, AWS CLI with JSON output.
+- Secondary: Event bus (Kafka/NATS) carrying `policy-*` events for dispatchers/skills.
+- Fallback: Persist JSON artifacts to `artifact-store://policy/<scanId>.json`.
 
-```
-Developer writes IaC/manifests
-         ↓
-  Pre-commit: conftest (local)
-         ↓
-  PR created → CI runs conftest + tfsec
-         ↓
-  PR blocked if policies fail
-         ↓
-  Merge → Terraform plan + conftest in pipeline
-         ↓
-  Apply → Azure Policy / GK admission controller
-         ↓
-  Runtime → Falco + Gatekeeper audit mode
-         ↓
-  Weekly compliance report generated
-```
+## Observability & telemetry
+- Metrics: violations per policy, riskScore distribution, remediation latency, auto-remediation rate.
+- Logs: structured `log.event="policy.violation"` with `policy`, `tenant`, `framework`.
+- Dashboards: integrate `/policy-as-code metrics --format=prometheus` for compliance posture and trends.
+- Alerts: riskScore > 0.85, >50 violations in 24h, automation failure rate > 10%.
 
----
+## Failure handling & retries
+- Retry policy scans or cloud API calls (e.g., Azure Policy) up to 3× with exponential backoff (30s → 2m).
+- Upon auto-remediation failure, store context, emit `policy-remediation-failed`, and escalate human gate.
+- Keep artifacts/logs for audit `<reports/policy>`. Do not delete until compliance cycle completes.
 
-## Examples
+## Human gates
+- Required when:
+ 1. RiskScore ≥ 0.9 or >20 tenants impacted.
+ 2. Policy action would remove access, delete resources, or change networking.
+ 3. Dispatcher flags unresolved critical violation after >2 auto-remediation attempts.
+- Use standard human gate confirmation capturing impact and reversibility.
 
-- "Add a policy that requires all new AKS workloads to have CPU and memory limits"
-- "Deny deployment to any non-approved region across all subscriptions"
-- "Run a compliance audit and show me all current policy violations"
-- "Write an OPA policy that prevents images from Docker Hub in production"
-- "Show me all Kubernetes pods currently violating our security policies"
-- "Create a tagging policy that auto-remediates missing tags where possible"
+## Testing & validation
+- Dry-run: `/policy-as-code audit --scope=terraform --policy=tagging --dry-run`.
+- Unit tests: `backend/policy/` validates rego parsing/risk scoring.
+- Integration: `scripts/validate-policy-pipeline.sh` runs Gatekeeper/Azure Policy with sample violations.
+- Regression: nightly `scripts/nightly-policy-smoke.sh` ensures dispatch events fire and reports stay valid.
 
----
+## References
+- Policy templates: `conftest/`, `gatekeeper/templates/`.
+- Azure Policy initiatives: `infrastructure/policy/azure/`.
+- AWS SCP definitions: `infrastructure/policy/aws/`.
 
-## Output Format
-
-```json
-{
-  "policy_name": "string",
-  "layer": "iac|k8s|azure|aws|runtime",
-  "action": "create|update|audit|enforce",
-  "violations": [],
-  "compliant_resources": 0,
-  "non_compliant_resources": 0,
-  "compliance_pct": 0.0,
-  "auto_remediated": 0,
-  "status": "success|failure"
-}
-```
+## Related skills
+- `/ai-agent-orchestration`: orchestrates policy responses across other skill flows.
+- `/incident-triage-runbook`: handles critical policy breaches.
+- `/compliance-security-scanner`: correlates policy violations with compliance findings.
