@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cost-optimizer-config
-data:
-  example: "placeholder for cost-optimizer"
-

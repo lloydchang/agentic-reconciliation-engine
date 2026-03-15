@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: log-classifier-config
-data:
-  example: "placeholder for log-classifier"
-

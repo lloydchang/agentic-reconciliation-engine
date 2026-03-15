@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kubectl-assistant-config
-data:
-  example: "placeholder for kubectl-assistant"
-

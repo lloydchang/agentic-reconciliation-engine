@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: secret-rotation-config
-data:
-  example: "placeholder for secret-rotation"
-
