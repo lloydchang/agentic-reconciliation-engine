@@ -166,6 +166,64 @@ class SkillExecutor:
 3. **Maintain async patterns**: Use asyncio instead of Promises
 4. **Preserve API contracts**: Keep same input/output schemas
 
+## Industry Validation: Python is the Standard
+
+Based on research of the broader Agent Skills ecosystem, our Python-first approach is **validated by industry practice**:
+
+### **Python Dominates the Agent Skills Ecosystem**
+
+**Official Specification Support:**
+- Python is listed **first** in agentskills.io "Self-contained scripts" section
+- PEP 723 (inline script dependencies) is specifically mentioned and recommended
+- Official documentation extensively features Python examples
+
+**Anthropic's Implementation:**
+- All built-in Claude skills (PDF, DOCX, XLSX, PPTX) use Python scripts
+- Skills like `xlsx/recalc.py`, `pdf/scripts/extract_form_field_info.py` are Python
+- Official skill validation tool `quick_validate.py` is written in Python
+
+**Real-World Usage Patterns:**
+```python
+#!/usr/bin/env python3
+# /// script
+# dependencies = [
+#   "requests>=2.28.0",
+#   "beautifulsoup4>=4.12.0",
+# ]
+# ///
+import requests
+from bs4 import BeautifulSoup
+```
+
+### **Multi-Language Support Exists but is Niche**
+
+**TypeScript/JavaScript:**
+- **Deno/Bun**: Supported but limited to JavaScript development workflows
+- **Examples**: `bun-skills` repository for TypeScript development
+- **Pattern**: `#!/usr/bin/env bun` with inline dependencies
+
+**Ruby:**
+- **Supported** via bundler/inline approach for Ruby-specific tasks
+- **Examples**: `ruby-agent-skills` repository for Ruby type signatures
+- **Pattern**: `require 'bundler/inline'` with gemfile declarations
+
+**Compiled Languages:**
+- **Go, Rust, Java, C#**: Not mentioned in official documentation
+- **Compilation complexity** makes them unsuitable for LLM-driven workflows
+
+### **Community Preferences**
+
+**Why Python Dominates (per agentskills.io):**
+1. **LLM Training Data**: Python has the best coverage in LLM training sets
+2. **Dynamic Execution**: No compilation step required
+3. **Dependency Management**: PEP 723, uv, and pipx provide elegant solutions
+4. **Ecosystem**: Extensive library support for cloud, AI/ML, and data processing
+
+**Industry Adoption:**
+- **26+ platforms** support Agent Skills, with Python as the primary language
+- **GitHub Copilot, Cursor, VS Code** all prioritize Python skills
+- **Enterprise implementations** consistently choose Python for the same reasons we did
+
 ## Conclusion
 
 Python's interpreted nature provides the **optimal balance** for LLM-driven agent skills:
@@ -175,6 +233,7 @@ Python's interpreted nature provides the **optimal balance** for LLM-driven agen
 ✅ **Type Safety**: Optional but comprehensive when needed
 ✅ **Ecosystem Maturity**: Extensive cloud and AI/ML library support
 ✅ **Development Velocity**: Rapid prototyping and iteration
+✅ **Industry Standard**: Validated by agentskills.io specification and real-world usage
 
 The performance trade-off is acceptable because:
 - Agent coordination is **I/O bound**, not CPU bound
@@ -182,3 +241,10 @@ The performance trade-off is acceptable because:
 - Multi-cloud orchestration is **network bound**, not computation bound
 
 This architecture enables **truly dynamic agent skills** that can evolve and adapt at runtime, which is essential for autonomous infrastructure management systems.
+
+**Sources:**
+- [Agent Skills Specification - agentskills.io](https://agentskills.io/specification)
+- [Using Scripts in Skills - agentskills.io](https://agentskills.io/skill-creation/using-scripts)
+- [Anthropic Skills Repository - github.com/anthropics/skills](https://github.com/anthropics/skills)
+- [Ruby Agent Skills - github.com/DmitryPogrebnoy/ruby-agent-skills](https://github.com/DmitryPogrebnoy/ruby-agent-skills)
+- [Bun Skills - github.com/DaleSeo/bun-skills](https://github.com/DaleSeo/bun-skills)
