@@ -1,4 +1,4 @@
-module github.com/antigravity/gitops-infra-control-plane
+module github.com/lloydchang/gitops-infra-control-plane
 
 go 1.21
 
