@@ -1179,18 +1179,18 @@ class MultiCloudOrchestrator:
             if data['running_count'] == data['desired_count']:
                 return HealthStatus.HEALTHY
             elif data['running_count'] > 0:
-                return HealthStatus.DEGRADED
+                return HealthStatus.WARNING
             else:
-                return HealthStatus.UNHEALTHY
+                return HealthStatus.CRITICAL
         
         if 'status' in data:
             status = data['status'].lower()
             if status in ['running', 'healthy', 'active']:
                 return HealthStatus.HEALTHY
             elif status in ['pending', 'starting', 'degraded']:
-                return HealthStatus.DEGRADED
-            elif status in ['failed', 'error', 'stopped']:
-                return HealthStatus.UNHEALTHY
+                return HealthStatus.WARNING
+            elif status in ['failed', 'error', 'critical', 'stopped']:
+                return HealthStatus.CRITICAL
         
         return HealthStatus.UNKNOWN
     
@@ -1226,6 +1226,7 @@ class MultiCloudOrchestrator:
                 rollback_results.append(OrchestrationResult(
                     task_id=f"rollback-{result.task_id}",
                     provider=result.provider,
+                    action="rollback",
                     status="error",
                     message=str(e),
                     data=None,
