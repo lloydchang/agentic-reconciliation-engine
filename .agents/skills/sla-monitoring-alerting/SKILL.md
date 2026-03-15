@@ -1,242 +1,144 @@
 ---
 name: sla-monitoring-alerting
 description: >
-  Use this skill to define, monitor, and report on platform SLAs and SLOs for
-  uptime, deployment success, incident response, and performance. Triggers:
-  requests to check SLA status, calculate SLO error budgets, set up alerting
-  thresholds, generate SLA compliance reports, detect SLA breaches, or review
-  operational reliability metrics across tenants and environments.
-tools:
-  - bash
-  - computer
+  Monitor SLAs/SLOs, detect breaches, alert on burn rate, and feed predictive reliability intelligence into the dispatcher.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# SLA Monitoring & Alerting Skill
+# SLA Monitoring & Alerting — World-class Reliability Playbook
 
-Implement and operate a full SLO/SLA measurement stack: define objectives,
-calculate error budgets, alert on burn-rate, and produce executive-ready
-compliance reports.
+Controls uptime, deployment success, incident response, and performance SLOs end-to-end. Use this skill when defining error budgets, running breach detection, automating burn-rate responses, or informing dispatcher decisions (e.g., when `riskScore` spikes due to SLA risk).
 
-# SLA Monitoring & Alerting Skill
+## When to invoke
+- At every release: validate deployment success SLOs and pre-confirm alerting.
+- On telemetry spikes: calculate error-budget burn rate before a breach occurs.
+- When dispatcher marks `incident-ready` or `capacity-risk`: link reliability impacts to other workflows.
+- During quarterly reliability reviews or executive SLA reporting.
 
-Implement and operate a full SLO/SLA measurement stack: define objectives,
-calculate error budgets, alert on burn-rate, and produce executive-ready
-compliance reports.
+## Capabilities
+- **AI SLA Risk Assessment**: contextualizes uptime/performance metrics with historical behavior, change velocity, and business impact to score breach risk.
+- **Error Budget Forecasting**: projects burn-rate trajectories and predicts exhaustion timings with confidence intervals.
+- **Smart Remediation Suggestions**: recommends actions (traffic shifting, circuit-breaking, throttling) before SLA breaches.
+- **Predictive Alerts & Automation**: early warnings plus automated escalation pathways.
+- Integrates with shared context and dispatcher events for multi-skill collaboration (`shared-context://memory-store/sla/{tier}`).
 
-## Enhanced SLA Monitoring
+## Invocation patterns
 
-### Monitor Uptime, Deployment Success, and Incident Response SLAs
-Monitor uptime, deployment success, and incident response SLAs to ensure reliability.
-
-**Purpose:** Ensure operational reliability and SLA compliance.
-
-**Key Metrics:**
-- Uptime percentage across services and infrastructure
-- Deployment success rate and failure patterns
-- Mean time to recovery (MTTR) for incidents
-- Error rates and availability targets
-
-**Workflow:**
-1. Collect comprehensive metrics from monitoring systems
-2. Compare current performance against defined SLA thresholds
-3. Calculate error budgets and burn rates
-4. Trigger alerts when SLA violations are imminent
-5. Generate SLA dashboard with real-time status
-
-**Output:** SLA dashboard with uptime metrics, deployment success rates, incident response times, error budgets, and compliance status.
-
----
-
-## SLA / SLO Definitions
-
-### Platform SLAs (defaults — override per tier)
-
-| SLA                         | Starter | Business | Enterprise |
-|-----------------------------|---------|----------|------------|
-| Monthly uptime              | 99.5%   | 99.9%    | 99.99%     |
-| Deployment success rate     | 95%     | 98%      | 99.5%      |
-| P1 incident response        | 1 hr    | 30 min   | 15 min     |
-| P2 incident response        | 4 hr    | 2 hr     | 30 min     |
-| RTO (recovery time)         | 4 hr    | 2 hr     | 30 min     |
-| RPO (data loss window)      | 24 hr   | 4 hr     | 1 hr       |
-| Change fail rate            | <20%    | <10%     | <5%        |
-
-### SLO → Error Budget Calculation
-
-```
-Error budget (monthly) = (1 - SLO_target) × total_minutes_in_month
-
-Example (99.9% uptime, 30-day month):
-  total_minutes = 43,200
-  error_budget   = 0.001 × 43,200 = 43.2 minutes
-```
-
----
-
-## Data Sources
-
-Configure via environment variables:
-
-| Source               | Env var                    | Metric types                  |
-|----------------------|----------------------------|-------------------------------|
-| Prometheus           | `PROMETHEUS_URL`           | Uptime, latency, error rate   |
-| Azure Monitor        | `AZURE_MONITOR_WORKSPACE`  | Resource health, platform     |
-| DataDog              | `DD_API_KEY`               | APM, synthetics, logs         |
-| PagerDuty            | `PD_API_KEY`               | Incident response times       |
-| ArgoCD               | `ARGOCD_TOKEN`             | Deployment success rate       |
-| Custom webhook       | `SLA_WEBHOOK_URL`          | Any metric via POST           |
-
----
-
-## Core Workflows
-
-### Real-Time SLO Dashboard Query
 ```bash
-# Uptime — availability over 30 days
-curl -s "$PROMETHEUS_URL/api/v1/query" \
-  --data-urlencode 'query=avg_over_time(up{job="api"}[30d]) * 100'
-
-# Error rate
-curl -s "$PROMETHEUS_URL/api/v1/query" \
-  --data-urlencode 'query=sum(rate(http_requests_total{status=~"5.."}[5m])) /
-    sum(rate(http_requests_total[5m])) * 100'
-
-# Deployment success rate (ArgoCD)
-argocd app list --output json | jq '[.[] | .status.sync.status] |
-  (map(select(. == "Synced")) | length) / length * 100'
+/sla-monitoring-alerting define --tier=enterprise --targets=payments-api,identity-service
+/sla-monitoring-alerting monitor --tier=business --window=30d
+/sla-monitoring-alerting burn-rate --tier=enterprise --threshold=14x --action=page-oncall
+/sla-monitoring-alerting report --tier=starter --format=json --destination=reports/sla-starter.json
 ```
 
-### Error Budget Burn Rate Alerting
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `tier` | SLA/SLO tier (starter/business/enterprise). | `enterprise` |
+| `targets` | Services/tenants under observation. | `payments-api,identity-service` |
+| `window` | Lookback window for rolling calculations. | `30d` |
+| `threshold` | Burn-rate multiplier before action. | `14x` |
+| `action` | Automated response (`page`, `throttle`, `escalate`). | `page-oncall` |
+| `format` | Output format (json|yaml). | `json` |
 
-```yaml
-# Prometheus alerting rules
-groups:
-  - name: slo_alerts
-    rules:
-      - alert: HighErrorBudgetBurnRate
-        expr: |
-          (
-            sum(rate(http_requests_total{status=~"5.."}[1h])) /
-            sum(rate(http_requests_total[1h]))
-          ) > 14.4 * (1 - 0.999)
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Error budget burning at 14.4x normal rate — P1 action required"
-
-      - alert: MediumErrorBudgetBurnRate
-        expr: |
-          (
-            sum(rate(http_requests_total{status=~"5.."}[6h])) /
-            sum(rate(http_requests_total[6h]))
-          ) > 6 * (1 - 0.999)
-        for: 15m
-        labels:
-          severity: warning
-```
-
-### SLA Breach Detection
-```python
-def check_sla_breach(tenant_id, slo_target, current_availability):
-    error_budget_remaining = calculate_remaining_budget(tenant_id, slo_target)
-    if error_budget_remaining <= 0:
-        return "BREACHED"
-    elif error_budget_remaining < 0.1 * total_budget:
-        return "AT_RISK"
-    else:
-        return "OK"
-```
-
-On breach: page on-call, notify tenant account manager, log to SLA ledger.
-
----
-
-## Alerting Channels
-
-Route alerts based on severity and team:
-
-```yaml
-routes:
-  - match:
-      severity: critical
-    receiver: pagerduty-p1
-  - match:
-      severity: warning
-      team: warning-team
-    receiver: slack-warning-team
-  - match:
-      severity: info
-    receiver: slack-alerts-general
-
-receivers:
-  - name: pagerduty-p1
-    pagerduty_configs:
-      - routing_key: $PD_ROUTING_KEY
-        severity: critical
-  - name: slack-warning-team
-    slack_configs:
-      - api_url: $SLACK_WEBHOOK
-        channel: '#warning-alerts'
-        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
-```
-
----
-
-## SLA Compliance Report
-
-Weekly/monthly report structure:
-```
-SLA Compliance Report — [Month Year]
-─────────────────────────────────────
-Platform Uptime
-  Target:  99.9%
-  Actual:  99.94% ✅
-  Budget used: 18.7 min of 43.2 min available
-
-Deployment Success Rate
-  Target:  98%
-  Actual:  97.1% ⚠️  (2 failed deployments in window)
-
-Incident Response Compliance
-  P1 — 4 incidents: 4/4 within SLA ✅
-  P2 — 11 incidents: 10/11 within SLA (1 breach logged) ⚠️
-
-Top Incidents by Downtime
-  1. AKS node pool exhaustion — 12 min — tenant-42
-  2. DB failover — 6 min — tenant-91
-
-Error Budget Trend (90 days)
-  [chart data]
-```
-
----
-
-## Examples
-
-- "What is our current error budget status for the enterprise tier?"
-- "Set up burn-rate alerting for 99.9% uptime SLO on the payments API"
-- "Generate the monthly SLA compliance report for June"
-- "Which tenants are closest to an SLA breach this month?"
-- "Show me MTTR trends for P1 incidents over the last quarter"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "tier": "string",
-  "budget_remaining_pct": 0.0,
-  "report_period": "string",
-  "slo_name": "string",
-  "target_pct": 99.9,
-  "actual_pct": 99.94,
+  "tier": "enterprise",
+  "window": "30d",
   "status": "ok|at_risk|breached",
-  "error_budget_minutes_total": 43.2,
-  "error_budget_minutes_used": 18.7,
-  "error_budget_pct_remaining": 56.7,
-  "incidents": [],
-  "trend_90d": []
+  "errorBudgetRemainingPct": 34.5,
+  "burnRate": 12.1,
+  "riskScore": 0.78,
+  "forecast": {
+    "timeToExhaust": "2026-03-19T02:00:00Z",
+    "confidenceInterval": ["2026-03-19T01:30:00Z", "2026-03-19T02:30:00Z"]
+  },
+  "recommendations": [
+    {
+      "name": "traffic-shift",
+      "description": "Shift 20% traffic to blue deployment",
+      "action": "throttle",
+      "impact": "Reduces load on payments-api"
+    }
+  ],
+  "alert": {
+    "name": "HighErrorBudgetBurnRate",
+    "severity": "critical",
+    "triggeredAt": "2026-03-15T07:40:00Z"
+  },
+  "logs": "shared-context://memory-store/sla/enterprise/2026-03-15"
 }
 ```
+
+## World-class workflow templates
+
+### Real-time SLA dashboard
+1. Query Prometheus/Datadog/Azure Monitor for uptime, error rate, latency, deployment success.
+2. Publish metrics to dashboards and store in time-series for trend analysis.
+3. Provide `sla-status` event with tier status and burn-rate.
+
+### Error budget burn-rate automation
+1. Calculate burn-rate multiplier (`window-error / budget`) and compare to thresholds (14× for critical, 6× for warning).
+2. If threshold crossed, emit `sla-burn-rate` event with `severity` and `action` (page, throttle).
+3. Auto-trigger dispatchers to run `incident-triage-runbook` or `deployment-validation` if burn-rate persists > 15 minutes.
+
+### Predictive breach alerts
+1. Use AI forecasting (Prophet/ensemble) to predict when error budget exhausts.
+2. Send `sla-forecast` with `timeToExhaust`, `confidenceInterval`, `riskScore`.
+3. Recommend remediation (throttle, scale, circuit break) or request human gate when riskScore ≥ 0.9.
+
+## AI intelligence highlights
+- **AI SLA Risk Assessment**: blends current metrics, change volume, and historical breach patterns to classify `status`.
+- **Error Budget Forecasting**: predicts exhaustion with `confidenceInterval`, enabling proactive mitigation.
+- **Smart Remediation Suggestions**: suggests actions (traffic shift, circuit break, autoscaler tweak) with justification and business impact.
+- **Predictive Capacity Alerts**: collab with `capacity-planning` to correlate predicted KPI shortfalls with broader capacity risk.
+
+## Memory agent & dispatcher integration
+- Store insights under `shared-context://memory-store/sla/{tier}/{window}` for other skills (incident, deployment, cost).
+- Emit/consume events: `sla-status`, `sla-burn-rate`, `sla-forecast`, `sla-breach`, `sla-action`.
+- Tag memory records with `decisionId`, `riskScore`, `tier`, `tenant`, `recommendation`.
+
+## Communication protocols
+- Primary: Prometheus/Alertmanager, Azure Monitor alerts stream and CLI for manual commands.
+- Secondary: NATS/Kafka event bus for `sla-*` events consumed by dispatchers.
+- Fallback: Write artifacts to `artifact-store://sla/{tier}/{window}.json` and signal dispatcher pollers.
+
+## Observability & telemetry
+- Metrics: burn-rate, risk score, forecast error, alert volume per tier.
+- Logs: structured `log.event="sla.alert"` with `decisionId`, `correlationId`, `bundle`.
+- Dashboards: integrate `/sla-monitoring-alerting metrics --format=prometheus` into Grafana (error budget, tracking).
+- Alerts: >3 burn-rate alerts in 1h, forecast error > 12%, dispatchers rerouted due to `sla-risk`.
+
+## Failure handling & retries
+- Retry telemetry/API queries up to 3× with exponential backoff (30s→2m); fallback to cached metrics.
+- If burn-rate action fails (e.g., can't throttle), escalate to `incident-triage-runbook` and log for audit.
+- Keep artifacts (alerts, forecasts) for 90 days to support post-incident analysis; do not delete until retention satisfied.
+
+## Human gates
+- Required when:
+ 1. SLA status transitions to `breached` for enterprise tier or riskScore ≥ 0.9.
+ 2. Recommended remediation impacts production systems (traffic shifts, throttles).
+ 3. Dispatcher requests escalation after >2 burn-rate alerts.
+- Use standard human gate confirmation template.
+
+## Testing & validation
+- Dry-run: `/sla-monitoring-alerting monitor --tier=enterprise --window=7d --dry-run`.
+- Unit tests: `backend/sla/` ensures burn-rate, forecast, and remediation logic produce expected outputs.
+- Integration: `scripts/validate-sla-pipeline.sh` runs alerts through dispatcher and human gate automation.
+- Regression: nightly `scripts/nightly-sla-smoke.sh` keeps thresholds aligned and verifies `ai-agent-orchestration` triggers.
+
+## References
+- Data sources: `docs/SLI-SLO-DEFINITIONS.md`, `docs/EXECUTION-CHECKLIST.md`.
+- Alerting rules: `monitoring/alert-rules/sla-burn-rate.yaml`.
+- Dashboards: `monitoring/grafana/sla`.
+
+## Related skills
+- `/incident-triage-runbook`: executes remediation when SLA risk escalates.
+- `/deployment-validation`: gates canaries/deployments in response to SLA status.
+- `/capacity-planning`: aligns capacity signals with SLA forecasts.
+- `/ai-agent-orchestration`: coordinates dispatcher responses to SLA events.
