@@ -1,0 +1,5 @@
+resources:
+  - ../azure-network.yaml
+  - ../azure-clusters.yaml
+  - ../azure-workloads.yaml
+  - ../azure-entra-id-workload.yaml

@@ -84,7 +84,7 @@ This document defines the comprehensive strategic architecture for the GitOps In
 
 **Strategic Advantages**:
 - **Durability**: Workflows survive infrastructure failures
-- **Complex Orchestration**: Handle multi-step, multi-cloud operations
+- **Complex Orchestration**: Handle multi-step, multi-cloud AI
 - **State Management**: Persistent state across restarts
 - **Observability**: Complete audit trail of workflow executions
 

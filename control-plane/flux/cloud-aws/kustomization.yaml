@@ -1,0 +1,5 @@
+resources:
+  - ../aws-network.yaml
+  - ../aws-clusters.yaml
+  - ../aws-workloads.yaml
+  - ../aws-certificate-authority.yaml

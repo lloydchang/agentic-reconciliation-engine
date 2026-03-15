@@ -194,7 +194,7 @@ phase3_intelligence:
   trigger:
     - "Infrastructure complexity > medium"
     - "Team size > 10"
-    - "Multi-cloud operations"
+    - "Multi-cloud AI"
     - "Cost > $2000/month"
 ```
 

@@ -334,16 +334,16 @@ spec:
       annotations:
         summary: "AI agent high error rate"
         description: "AI agents are experiencing high error rate: {{ $value | humanizePercentage }}"
-    - alert: MultiCloudOperationFailure
+    - alert: MultiCloudAIFailure
       expr: multi_cloud_operation_success_rate < 0.8
       for: 2m
       labels:
         severity: warning
         service: multi-cloud
-        type: operation
+        type: Cloud AI
       annotations:
-        summary: "Multi-cloud operation failure rate"
-        description: "Multi-cloud operations are failing at rate {{ $value | humanizePercentage }}"
+        summary: "Multi-cloud Cloud AI failure rate"
+        description: "Multi-cloud AI are failing at rate {{ $value | humanizePercentage }}"
 ---
 apiVersion: v1
 kind: ServiceMonitor

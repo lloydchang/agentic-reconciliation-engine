@@ -16,7 +16,7 @@
 ### ⚠️ **Consider Carefully For:**
 - Medium teams (5-20 people) with growing complexity
 - Brownfield migrations with existing infrastructure
-- Hybrid local/cloud development workflows
+- Hybrid local/cloud AI workflows
 - Organizations experiencing growing operational toil
 
 ### ✅ **Strong Candidates For:**

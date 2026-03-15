@@ -249,7 +249,7 @@ type Vulnerability struct {
 
 // Input types for activities
 
-type CloudOperationInput struct {
+type CloudAIInput struct {
 	Provider      string                 `json:"provider"`
 	OperationType  string                 `json:"operationType"`
 	ResourceTypes  []string               `json:"resourceTypes"`
@@ -258,13 +258,13 @@ type CloudOperationInput struct {
 }
 
 type AggregationInput struct {
-	CloudResults  []CloudOperationResult `json:"cloudResults"`
+	CloudResults  []CloudAIResult `json:"cloudResults"`
 	OperationType string               `json:"operationType"`
 	OperationID  string               `json:"operationId"`
 }
 
 type ConsensusInput struct {
-	CloudResults    []CloudOperationResult `json:"cloudResults"`
+	CloudResults    []CloudAIResult `json:"cloudResults"`
 	AggregatedData  AggregatedCloudData   `json:"aggregatedData"`
 	OperationType   string               `json:"operationType"`
 	VotingMechanism string               `json:"votingMechanism"`
@@ -273,6 +273,6 @@ type ConsensusInput struct {
 type MultiCloudRecommendationInput struct {
 	AggregatedData AggregatedCloudData   `json:"aggregatedData"`
 	Consensus      ConsensusResult       `json:"consensus"`
-	CloudResults   []CloudOperationResult `json:"cloudResults"`
+	CloudResults   []CloudAIResult `json:"cloudResults"`
 	OperationType  string               `json:"operationType"`
 }

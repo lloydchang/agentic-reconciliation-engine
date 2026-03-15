@@ -59,7 +59,7 @@ This document provides a **strategic framework** for determining when and how to
 - Selective component adoption based on pain points
 
 #### 🔵 Hybrid Scenarios
-**Definition**: Mixed environments combining local development with cloud operations.
+**Definition**: Mixed environments combining local development with cloud AI.
 
 **Ideal For**:
 - Development teams with local workflows

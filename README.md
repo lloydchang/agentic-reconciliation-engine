@@ -22,7 +22,7 @@ Note: Terraform fits under the "Per-provider CLI/SDK" column because it is a tra
 - Interacts directly with each cloud provider via plugins
 - Runs as a CLI tool using HCL configurations
 - Requires explicit `plan` and `apply` for state enforcement
-- Does not generate Crossplane XRDs or provide continuous reconciliation. In this architecture, Terraform is useful for initial provisioning or migration but ongoing multi-cloud operations rely on Crossplane and Flux for automated drift detection and correction.
+- Does not generate Crossplane XRDs or provide continuous reconciliation. In this architecture, Terraform is useful for initial provisioning or migration but ongoing multi-cloud AI rely on Crossplane and Flux for automated drift detection and correction.
 
 GitOps enforces configuration drift correction by using a Git repository as the declarative source
 of truth. A CI (Continuous Integration) policy gate validates and guards all changes before merge.
