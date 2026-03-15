@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onboarding-assistant-config
+data:
+  example: "placeholder for onboarding-assistant"
+

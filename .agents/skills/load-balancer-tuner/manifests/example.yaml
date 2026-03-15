@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: load-balancer-tuner-config
+data:
+  example: "placeholder for load-balancer-tuner"
+
