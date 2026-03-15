@@ -1072,23 +1072,23 @@ class MultiCloudOrchestrator:
             
             handler = self.handlers[task.provider]
             
-            if task.operation == "deploy":
-                result_data = handler.deploy_agent(task.config)
-            elif task.operation == "scale":
+            if task.action == "deploy":
+                result_data = handler.deploy_agent(task.parameters)
+            elif task.action == "scale":
                 result_data = handler.scale_agent(
-                    task.config['agent_id'], 
-                    task.config['replicas']
+                    task.parameters['agent_id'], 
+                    task.parameters['replicas']
                 )
-            elif task.operation == "stop":
-                result_data = handler.stop_agent(task.config['agent_id'])
-            elif task.operation == "start":
-                result_data = handler.start_agent(task.config['agent_id'])
-            elif task.operation == "status":
-                result_data = handler.get_agent_status(task.config['agent_id'])
+            elif task.action == "stop":
+                result_data = handler.stop_agent(task.parameters['agent_id'])
+            elif task.action == "start":
+                result_data = handler.start_agent(task.parameters['agent_id'])
+            elif task.action == "status":
+                result_data = handler.get_agent_status(task.parameters['agent_id'])
             else:
                 result_data = {
                     'status': 'error',
-                    'message': f'Unknown operation: {task.operation}'
+                    'message': f'Unknown operation: {task.action}'
                 }
             
             execution_time = (datetime.utcnow() - start_time).total_seconds()
