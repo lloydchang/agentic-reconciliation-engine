@@ -1,4 +1,7 @@
-# k8s-troubleshoot
+# Kubernetes Troubleshoot Skill
+
+## Name
+k8s-troubleshoot
 
 ## Purpose
 Diagnose and troubleshoot Kubernetes workload failures and cluster issues.
@@ -35,14 +38,11 @@ Diagnose and troubleshoot Kubernetes workload failures and cluster issues.
 - RBAC permissions to query pod states and logs
 - Access to monitoring/metrics if available
 
-## Safety Considerations
-- Do not execute destructive commands automatically
-- Focus on diagnosis and suggestions, not direct fixes
-- Recommend testing changes in non-production environments first
+## Dependencies
+- kubectl binary access
+- Cluster API access
+- Monitoring stack integration (optional)
 
-## Optional Scripts
-scripts/analyze_pod.py
-
-## Optional Manifests
-manifests/example.yaml
+## Scripts
+- scripts/analyze_pod.py: Python script to analyze pod failures
 
