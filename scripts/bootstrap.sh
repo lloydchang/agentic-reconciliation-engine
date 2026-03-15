@@ -146,8 +146,10 @@ echo -e "${BOLD}[2/6] Checking required CLI tools${RESET}"
 check_tool() {
   local tool=$1 min_version=$2 version_flag="${3:---version}"
   if command -v "$tool" &>/dev/null; then
-    local ver
-    ver=$("$tool" $version_flag 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+    local ver=""
+    if "$tool" $version_flag >/dev/null 2>&1; then
+      ver=$("$tool" $version_flag 2>&1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+    fi
     pass "${tool} ${ver}"
   else
     fail "${tool} not found (required)"
@@ -165,7 +167,7 @@ check_tool_optional() {
 
 # Required
 check_tool "az"         "2.50"
-check_tool "kubectl"    "1.28"
+check_tool "kubectl"    "1.28" "version --client"
 check_tool "helm"       "3.12"
 check_tool "terraform"  "1.6"
 check_tool "jq"         "1.6"
