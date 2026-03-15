@@ -80,22 +80,26 @@ Manages provisioning, HA hardening, backups/restores, scaling, diagnostics, and 
 1. Provision engine (Azure PostgreSQL Flexible, Azure SQL, MongoDB Atlas, Redis Enterprise) with HA tiers, geo-redundant backups, and private endpoints.
 2. Apply tags, RBAC restrictions, and attach to monitoring/logging stacks.
 3. Emit `db-provisioned` event with connection info stored in shared context.
+4. Command stub: `/database-operations provision --engine=postgres --tenant=tenant-42 --tier=enterprise --region=eastus`.
 
 ### Backup, restore, failover automation
 1. Schedule manual/automated backups with defined retention policies.
 2. Perform restores/point-in-time recovery, capture RPO, and log results.
 3. Execute failover drills or DR responses with human gates as needed and emit `db-failover` events.
 4. Update downstream skills with `db-backup`, `db-restore`, `db-failover` events and shared context.
+5. Command stub: `/database-operations failover --tenant=tenant-42 --humanGate=true`.
 
 ### Scaling & performance tuning
 1. Adjust compute/storage SKU based on telemetry and cost/capacity signals.
 2. Tune connection/settings (max connections, indices) through AI remediation hints.
 3. Emit `db-scaled` and maintain event trail for audit.
+4. Command stub: `/database-operations scale --tenant=tenant-42 --cpu=8 --storage=512`.
 
 ### Diagnostics & upgrades
 1. Run slow query analysis, bloat/replication lag detection, and maintenance checks.
 2. Upgrade engine version with risk scoring, pre-checks, and post-validation.
 3. Emit `db-upgrade` event and store state for `incident`, `deployment`, or `policy` follow-up.
+4. Command stub: `/database-operations diagnose --tenant=tenant-42 --target=slow_queries`.
 
 ## AI intelligence highlights
 - **AI Risk Scoring** balances tenant impact, change size, and historical reliability before destructive actions.

@@ -246,9 +246,11 @@ The following 39 skills are available for automated operations. Each skill follo
 | Kubernetes cluster, AKS/EKS/GKE, upgrade, node pool | `kubernetes-cluster-manager` | Prod cluster changes |
 | log classification, summary, context, severity | `log-classifier` | Critical remediation actions |
 | manifest, Helm, K8s config, policy validation | `manifest-generator` | High-risk manifests |
+| route, deliver notification, pagerduty/slack/channel | `alert-router` | Channel outages require human oversight |
 | multi-cloud networking, VNet, VPC, DNS, peering | `multi-cloud-networking` | Hub firewall changes |
 | node scaling, autoscaler, capacity, forecast | `node-scale-assistant` | Production-scale decisions |
 | observability, Prometheus, Grafana, alerting | `observability-stack` | Prod alerting changes |
+| alert, incident signal, risk score, automation | `alert-prioritizer` | Human review for high-risk escalations |
 | orchestration, multi-skill, workflow, gating | `orchestrator` | Composite human gates |
 | policy, OPA, Gatekeeper, governance, tagging | `policy-as-code` | Deny-all policy changes |
 | runbook, ADR, postmortem, docs | `runbook-documentation-gen` | Sensitive narrative |
@@ -1382,6 +1384,8 @@ find .agents/skills -name "SKILL.md" | wc -l
 - **observability-stack**: "set up monitoring", "Grafana dashboard", "Prometheus scrape"
 - **chaos-load-testing**: "chaos experiment", "load test", "fault injection"
 - **disaster-recovery**: "failover", "DR drill", "RPO/RTO", "restore failed region"
+- **alert-prioritizer**: "score alerts", "correlate signals", "escalate high risk" 
+- **alert-router**: "route alerts", "deliver notification", "cancel/reschedule alert"
 
 ### Data & Security
 - **database-operations**: "restore database", "scale DB", "slow queries", "failover DB"

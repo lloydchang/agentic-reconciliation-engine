@@ -74,16 +74,19 @@ Centralizes audit logs (Azure Activity, Kubernetes auditable, application events
 1. Provision workspaces/connectors, enable diagnostic settings for Azure Activity, Kubernetes, Key Vault, Defender, NSGs.
 2. Normalize ingested logs and annotate with entity/context information.
 3. Emit `audit-configured` events with workspace metadata for dispatcher tracking.
+4. Command stub: `/audit-siem configure --workspace=law-platform-eastus --connectors=azureactivity,defender,kubernetes`.
 
 ### Detection & alerting
 1. Create scheduled/streaming analytics rules for brute force, RBAC changes, secret access, and suspicious deployments.
 2. Tag alerts with AI riskScore (user role, event context, policy impact) and recommend playbooks.
 3. Emit `audit-alert` events enriched with evidence for `incident-triage-runbook` or `policy-as-code`.
+4. Command stub: `/audit-siem alert --rule=bruteforce --severity=high --action=notify`.
 
 ### Compliance evidence generation
 1. Run compliance queries (admin actions, secret access, policy violations) over defined periods.
 2. Export artifacts (JSON/CSV) with narrative context for auditors.
 3. Emit `evidence-ready` events linking to artifact URIs for downstream skills.
+4. Command stub: `/audit-siem evidence --period-start=2026-01-01 --period-end=2026-03-01 --output=reports/soc2`.
 
 ## AI intelligence highlights
 - **AI risk scoring** blends severity, user role, history, and compliance context to assign `riskScore`.
