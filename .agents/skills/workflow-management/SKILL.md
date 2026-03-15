@@ -74,16 +74,19 @@ Centralizes listing, monitoring, controlling, and orchestrating Temporal AI Agen
 1. Accept workflow definitions (`sequential`, `parallel`, `conditional`) with dependencies and priorities.
 2. Score risk (resource contention, change impact, tenant exposure) and allocate execution nodes dynamically.
 3. Execute workflows respecting dependencies, emit `workflow-started/completed` events, and monitor telemetry.
+4. Command stub: `/workflow-management orchestrate security-audit production --parallel=3 --dependencies=wf-001,wf-002`.
 
 ### Resource-aware scheduling
 1. Evaluate resource availability (`cpu`, `memory`, queue depth) across Temporal workers.
 2. Schedule high-priority workflows first and throttle lower-priority ones during contention.
 3. Emit `workflow-throttled` events with reasoning for upstream skills.
+4. Command stub: `/workflow-management list active --priority=high --format=json`.
 
 ### Failure handling & recovery
 1. Detect failures/deadlocks through event hooks or anomaly detection.
 2. Retry with exponential backoff (<3 attempts) before escalating.
 3. Trigger human gates when repeated failures or high-risk workflows stall.
+4. Command stub: `/workflow-management monitor wf-12345 --live`.
 
 ## AI intelligence highlights
 - **AI risk scoring** predics workflow robustness based on type, resource needs, and past outcomes.
