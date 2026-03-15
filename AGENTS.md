@@ -259,7 +259,7 @@ The following 39 skills are available for automated operations. Each skill follo
 | comms, exec update, incident messaging, change notes | `stakeholder-comms-drafter` | Always review before send |
 | Temporal workflows, creation, monitor, debug, test | `temporal-workflow` | Production workflow changes |
 | tenant onboarding, scale, suspend, deprovision | `tenant-lifecycle-manager` | Offboard/delete |
-| Terraform/CDK provisioning, planner, drift | `terraform-provisioning` | Apply/destroy in prod |
+| Terraform/CDK provisioning, planner, drift | `infrastructure-provisioning` | Apply/destroy in prod |
 | workflow control, Temporal orchestration, monitoring | `workflow-management` | Critical workflow retries |
 | workload move, migration, cutover, failover | `workload-migration` | Prod cutover |
 
@@ -869,7 +869,7 @@ const performanceMetrics = {
   overall_success_rate: 0.987,
   skill_specific_rates: {
     "compliance-security-scanner": 0.992,
-    "terraform-provisioning": 0.978
+    "infrastructure-provisioning": 0.978
   },
   
   // Resource utilization
@@ -1365,7 +1365,7 @@ find .agents/skills -name "SKILL.md" | wc -l
 ## Skill Invocation Examples
 
 ### Infrastructure & Provisioning
-- **terraform-provisioning**: "run terraform plan/apply", "provision infra", "check for drift"
+- **infrastructure-provisioning**: "run terraform plan/apply", "provision infra", "check for drift"
 - **kubernetes-cluster-manager**: "provision/upgrade/scale the cluster", "AKS node pool", "EKS managed node group"
 - **multi-cloud-networking**: "create VNet/VPC", "private endpoint", "NSG", "diagnose connectivity"
 - **container-registry**: "scan this image", "promote to prod registry", "purge old images"

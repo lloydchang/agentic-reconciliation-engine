@@ -2721,7 +2721,7 @@ Purpose: Automate dev/staging/prod environment creation.
 
 Skills:
 
-terraform-provisioning (OpenAI Skill)
+infrastructure-provisioning (OpenAI Skill)
 
 kubernetes-deployment-automation (Microsoft Skill)
 
@@ -2941,7 +2941,7 @@ reusable module registry
 
 name: environment-provisioning-agent version: 1.0 description: Automates provisioning of dev, staging, and prod environments. skills:
 
-terraform-provisioning
+infrastructure-provisioning
 
 kubernetes-deployment-automation
 
@@ -3253,7 +3253,7 @@ Outputs: validated template, compliance report, reusable module registry
 
 Automates dev/staging/prod environment creation.
 
-Skills: terraform-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring
+Skills: infrastructure-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring
 
 Triggers: new-environment-requested, environment-decommissioned
 
@@ -3448,7 +3448,7 @@ Outputs: validated templates, compliance reports, reusable module registry
 
 Automates dev/staging/prod environment creation.
 
-Skills: terraform-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring
+Skills: infrastructure-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring
 
 Triggers: new-environment-requested, environment-decommissioned
 
@@ -3631,7 +3631,7 @@ Provides reusable modules to Environment Provisioning Agent
 
 2.3 Environment Provisioning Agent
 
-Function: Automate environment creation (dev/staging/prod) Skills: terraform-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring Interaction:
+Function: Automate environment creation (dev/staging/prod) Skills: infrastructure-provisioning, kubernetes-deployment-automation, api-integration, environment-health-monitoring Interaction:
 
 Sends environment status and health reports to Observability Agent
 

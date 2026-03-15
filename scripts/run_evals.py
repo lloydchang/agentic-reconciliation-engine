@@ -182,11 +182,11 @@ def extract_output_keys(skill_path: Path) -> list[str]:
 # ── Eval cases ────────────────────────────────────────────────────────────────
 EVAL_CASES: list[EvalCase] = [
     # Terraform provisioning
-    EvalCase("terraform-provisioning",
+    EvalCase("infrastructure-provisioning",
              "run terraform plan on the staging environment",
              True, ["operation", "environment", "status"],
              "Standard terraform trigger"),
-    EvalCase("terraform-provisioning",
+    EvalCase("infrastructure-provisioning",
              "check for infrastructure drift in prod",
              True, ["operation", "status"],
              "Drift detection trigger"),
@@ -350,7 +350,7 @@ EVAL_CASES: list[EvalCase] = [
              "Load test"),
 
     # Negative cases — should NOT trigger wrong skills
-    EvalCase("terraform-provisioning",
+    EvalCase("infrastructure-provisioning",
              "show me slow queries on the database",
              False, [],
              "Should NOT trigger terraform for DB query"),

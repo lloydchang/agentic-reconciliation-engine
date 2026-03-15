@@ -87,18 +87,21 @@ Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime
 2. Score violations by severity, tenant criticality, and compliance impact.
 3. Auto-remediate safe gaps (tag injection, SKU alignment) and emit `policy-remediated`.
 4. Escalate critical/high risks through human gates with clear impact stories.
+5. Command stub: `/policy-as-code enforce --scope=terraform --policy=tagging --framework=soc2`.
 
 ### Intelligent violation analysis & reporting
 1. Correlate violations across IaC, Kubernetes, cloud policy, and runtime logs.
 2. Explain attack surface/regulatory impact (e.g., missing encryption touches SOC2/PCI scope).
 3. Generate compliance-ready summaries and emit `policy-report-ready` events for auditors.
 4. Feed insights into dispatchers for remediation orchestration.
+5. Command stub: `/policy-as-code report --scanId=POLICY-2026-0315-01 --format=json`.
 
 ### Continuous production guardrails
 1. Apply Gatekeeper/OPA constraints (resource limits, approved registries, namespace policies).
 2. Use Azure Policy/Management Groups and AWS SCPs to block dangerous cross-account changes.
 3. Detect runtime drift via Falco/log-based findings and escalate with `policy-breach` events.
 4. Trigger `incident-triage-runbook` if severity persists or escalates.
+5. Command stub: `/policy-as-code reconcile --provider=azure --initiative=production-baseline`.
 
 ## AI intelligence highlights
 - **AI Risk Assessment** blends policy severity, tenant SLA, and historical remediation to output `riskScore`.

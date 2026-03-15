@@ -16,7 +16,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 ### WF-01: Full Tenant Onboarding
 **Trigger:** "Onboard [tenant] as enterprise tier in [region]"  
 **Steps:** 13  
-**Skills:** terraform-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
+**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
 
 **What it does:**
 1. Provisions infrastructure (VMs, networks, storage)
@@ -108,7 +108,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 ### WF-07: New Cluster Provisioning
 **Trigger:** "Provision a new [env] cluster in [region]"  
 **Steps:** 7  
-**Skills:** terraform-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
+**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
 
 **What it does:**
 1. Provisions cloud infrastructure with Terraform
@@ -180,7 +180,7 @@ Workflows leverage complex skill interdependencies:
 orchestrator (S18)
         │
         ├── tenant-lifecycle-manager (S04)
-        │       ├── terraform-provisioning (S01)
+        │       ├── infrastructure-provisioning (S01)
         │       ├── kubernetes-cluster-manager (S11)
         │       ├── multi-cloud-networking (S19)
         │       ├── database-operations (S20)

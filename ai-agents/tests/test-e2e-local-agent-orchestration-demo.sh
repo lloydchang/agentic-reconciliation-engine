@@ -676,7 +676,7 @@ data:
       steps:
         - capacity-planning
         - policy-as-code
-        - terraform-provisioning
+        - infrastructure-provisioning
         - kubernetes-cluster-manager
         - secrets-certificate-manager
         - observability-stack
@@ -908,7 +908,7 @@ demo_demonstration() {
         sleep 2
         print_demo "Step 2/10: policy-as-code - Validating against governance policies..."
         sleep 2
-        print_demo "Step 3/10: terraform-provisioning - Provisioning infrastructure..."
+        print_demo "Step 3/10: infrastructure-provisioning - Provisioning infrastructure..."
         sleep 2
         print_demo "Step 4/10: kubernetes-cluster-manager - Configuring cluster..."
         sleep 2

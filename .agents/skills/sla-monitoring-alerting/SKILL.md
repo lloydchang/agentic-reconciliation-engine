@@ -81,16 +81,19 @@ Controls uptime, deployment success, incident response, and performance SLOs end
 1. Query Prometheus/Datadog/Azure Monitor for uptime, latency, error rate, and deployment success.
 2. Post metrics to Grafana dashboards and time-series stores for trend analysis.
 3. Emit `sla-status` events with tier health, burn rate, and risk scoring for dispatcher consumption.
+4. Command stub: `/sla-monitoring-alerting monitor --tier=enterprise --window=30d`.
 
 ### Error budget burn-rate automation
 1. Calculate burn-rate multiplier (`window-error / budget`) and compare to thresholds (14× for critical, 6× for warning).
 2. Fire `sla-burn-rate` events with `severity` and automation action (`page`, `throttle`, `escalate`).
 3. Route dispatchers to trigger `incident-triage-runbook` or `deployment-validation` if burn-rate persists beyond 15 minutes.
+4. Command stub: `/sla-monitoring-alerting burn-rate --tier=enterprise --threshold=14x --action=page-oncall`.
 
 ### Predictive breach alerts
 1. Use AI forecasting (Prophet/ensemble) to predict when error budgets exhaust.
 2. Publish `sla-forecast` with `timeToExhaust`, `confidenceInterval`, and `riskScore`.
 3. Recommend remediation (throttle, circuit-break, deploy mitigations) or request a human gate when `riskScore ≥ 0.9`.
+4. Command stub: `/sla-monitoring-alerting report --tier=enterprise --format=json --destination=reports/sla-enterprise.json`.
 
 ## AI intelligence highlights
 - **AI SLA Risk Assessment** blends current metrics, change volume, and historical breach patterns to classify tier status.
