@@ -1,7 +1,7 @@
 ---
 name: sla-monitoring-alerting
 description: >
-  Monitor SLAs/SLOs, detect breaches, alert on burn rate, and feed predictive reliability intelligence into the dispatcher.
+  Monitor SLAs/SLOs, detect breaches, automate burn-rate responses, and feed predictive reliability intelligence into dispatcher workflows.
 allowed-tools:
   - Bash
   - Read
@@ -10,20 +10,20 @@ allowed-tools:
 
 # SLA Monitoring & Alerting — World-class Reliability Playbook
 
-Controls uptime, deployment success, incident response, and performance SLOs end-to-end. Use this skill when defining error budgets, running breach detection, automating burn-rate responses, or informing dispatcher decisions (e.g., when `riskScore` spikes due to SLA risk).
+Controls uptime, deployment success, incident response, and performance SLOs end-to-end so every reliability decision is backed by AI risk scoring and dispatcher-ready context.
 
 ## When to invoke
-- At every release: validate deployment success SLOs and pre-confirm alerting.
-- On telemetry spikes: calculate error-budget burn rate before a breach occurs.
-- When dispatcher marks `incident-ready` or `capacity-risk`: link reliability impacts to other workflows.
+- Before (and during) every release to validate deployment success SLOs and alerting readiness.
+- On telemetry spikes to calculate error-budget burn rate prior to a breach.
+- When dispatcher/memory agents flag `incident-ready`, `capacity-risk`, or other reliability impacts.
 - During quarterly reliability reviews or executive SLA reporting.
 
 ## Capabilities
-- **AI SLA Risk Assessment**: contextualizes uptime/performance metrics with historical behavior, change velocity, and business impact to score breach risk.
-- **Error Budget Forecasting**: projects burn-rate trajectories and predicts exhaustion timings with confidence intervals.
-- **Smart Remediation Suggestions**: recommends actions (traffic shifting, circuit-breaking, throttling) before SLA breaches.
-- **Predictive Alerts & Automation**: early warnings plus automated escalation pathways.
-- Integrates with shared context and dispatcher events for multi-skill collaboration (`shared-context://memory-store/sla/{tier}`).
+- **AI SLA Risk Assessment** contextualizes uptime/performance metrics with historical behavior, change velocity, and business impact to score breach risk.
+- **Error Budget Forecasting** projects burn-rate trajectories and predicts exhaustion windows with confidence intervals.
+- **Smart Remediation Suggestions** recommend traffic shifts, circuit breaking, or throttles before SLA breaches occur.
+- **Predictive Alerts & Automation** provide early warnings plus automation pathways (page, throttle, shift) through dispatchers.
+- **Shared-context propagation** stores SLA insight under `shared-context://memory-store/sla/{tier}` for other skills.
 
 ## Invocation patterns
 
@@ -37,12 +37,12 @@ Controls uptime, deployment success, incident response, and performance SLOs end
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `tier` | SLA/SLO tier (starter/business/enterprise). | `enterprise` |
-| `targets` | Services/tenants under observation. | `payments-api,identity-service` |
+| `tier` | SLA/SLO tier (`starter`, `business`, `enterprise`). | `enterprise` |
+| `targets` | Services or tenants tracked. | `payments-api,identity-service` |
 | `window` | Lookback window for rolling calculations. | `30d` |
-| `threshold` | Burn-rate multiplier before action. | `14x` |
+| `threshold` | Burn-rate multiplier before action (e.g., `14x`). | `14x` |
 | `action` | Automated response (`page`, `throttle`, `escalate`). | `page-oncall` |
-| `format` | Output format (json|yaml). | `json` |
+| `format` | Output format (json/yaml). | `json` |
 
 ## Output contract
 
@@ -78,59 +78,63 @@ Controls uptime, deployment success, incident response, and performance SLOs end
 ## World-class workflow templates
 
 ### Real-time SLA dashboard
-1. Query Prometheus/Datadog/Azure Monitor for uptime, error rate, latency, deployment success.
-2. Publish metrics to dashboards and store in time-series for trend analysis.
-3. Provide `sla-status` event with tier status and burn-rate.
+1. Query Prometheus/Datadog/Azure Monitor for uptime, latency, error rate, and deployment success.
+2. Post metrics to Grafana dashboards and time-series stores for trend analysis.
+3. Emit `sla-status` events with tier health, burn rate, and risk scoring for dispatcher consumption.
 
 ### Error budget burn-rate automation
 1. Calculate burn-rate multiplier (`window-error / budget`) and compare to thresholds (14× for critical, 6× for warning).
-2. If threshold crossed, emit `sla-burn-rate` event with `severity` and `action` (page, throttle).
-3. Auto-trigger dispatchers to run `incident-triage-runbook` or `deployment-validation` if burn-rate persists > 15 minutes.
+2. Fire `sla-burn-rate` events with `severity` and automation action (`page`, `throttle`, `escalate`).
+3. Route dispatchers to trigger `incident-triage-runbook` or `deployment-validation` if burn-rate persists beyond 15 minutes.
 
 ### Predictive breach alerts
-1. Use AI forecasting (Prophet/ensemble) to predict when error budget exhausts.
-2. Send `sla-forecast` with `timeToExhaust`, `confidenceInterval`, `riskScore`.
-3. Recommend remediation (throttle, scale, circuit break) or request human gate when riskScore ≥ 0.9.
+1. Use AI forecasting (Prophet/ensemble) to predict when error budgets exhaust.
+2. Publish `sla-forecast` with `timeToExhaust`, `confidenceInterval`, and `riskScore`.
+3. Recommend remediation (throttle, circuit-break, deploy mitigations) or request a human gate when `riskScore ≥ 0.9`.
 
 ## AI intelligence highlights
-- **AI SLA Risk Assessment**: blends current metrics, change volume, and historical breach patterns to classify `status`.
-- **Error Budget Forecasting**: predicts exhaustion with `confidenceInterval`, enabling proactive mitigation.
-- **Smart Remediation Suggestions**: suggests actions (traffic shift, circuit break, autoscaler tweak) with justification and business impact.
-- **Predictive Capacity Alerts**: collab with `capacity-planning` to correlate predicted KPI shortfalls with broader capacity risk.
+- **AI SLA Risk Assessment** blends current metrics, change volume, and historical breach patterns to classify tier status.
+- **Error Budget Forecasting** predicts exhaustion with confidence intervals, enabling proactive mitigation.
+- **Smart Remediation Suggestions** propose traffic shifts, emergency throttles, or circuit breakers with business impact context.
+- **Predictive Capacity Alerts** collaborate with `capacity-planning` to align forecasts with broader capacity risk.
 
 ## Memory agent & dispatcher integration
-- Store insights under `shared-context://memory-store/sla/{tier}/{window}` for other skills (incident, deployment, cost).
-- Emit/consume events: `sla-status`, `sla-burn-rate`, `sla-forecast`, `sla-breach`, `sla-action`.
-- Tag memory records with `decisionId`, `riskScore`, `tier`, `tenant`, `recommendation`.
-
-## Communication protocols
-- Primary: Prometheus/Alertmanager, Azure Monitor alerts stream and CLI for manual commands.
-- Secondary: NATS/Kafka event bus for `sla-*` events consumed by dispatchers.
-- Fallback: Write artifacts to `artifact-store://sla/{tier}/{window}.json` and signal dispatcher pollers.
+- Store insights at `shared-context://memory-store/sla/{tier}/{window}` for downstream skills (incident, deployment, cost).
+- Emit/consume `sla-status`, `sla-burn-rate`, `sla-forecast`, `sla-breach`, and `sla-action` events.
+- Tag context with `decisionId`, `riskScore`, `tier`, `tenant`, `recommendation`, and `timeWindow`.
+- Subscribe to `agent-completed`, `incident-ready`, `deployment-risk` events so reliability posture informs automation chains.
 
 ## Observability & telemetry
 - Metrics: burn-rate, risk score, forecast error, alert volume per tier.
-- Logs: structured `log.event="sla.alert"` with `decisionId`, `correlationId`, `bundle`.
-- Dashboards: integrate `/sla-monitoring-alerting metrics --format=prometheus` into Grafana (error budget, tracking).
-- Alerts: >3 burn-rate alerts in 1h, forecast error > 12%, dispatchers rerouted due to `sla-risk`.
+- Logs: structured `log.event="sla.alert"` entries with `decisionId`, `correlationId`, and `bundle` for traceability.
+- Dashboards: feed `/sla-monitoring-alerting metrics --format=prometheus` into Grafana for error budget tracking.
+- Alerts: fire when >3 burn-rate alerts appear within 1h, forecast error exceeds 12%, or dispatcher rerouting occurs due to `sla-risk`.
 
 ## Failure handling & retries
-- Retry telemetry/API queries up to 3× with exponential backoff (30s→2m); fallback to cached metrics.
-- If burn-rate action fails (e.g., can't throttle), escalate to `incident-triage-runbook` and log for audit.
-- Keep artifacts (alerts, forecasts) for 90 days to support post-incident analysis; do not delete until retention satisfied.
+- Retry telemetry/API queries up to 3× with exponential backoff (30s → 2m); fall back to cached metrics if sources fail.
+- If burn-rate automation (traffic shift/throttle) fails, escalate to `incident-triage-runbook` and log audit context.
+- Keep artifacts (alerts, forecasts) for 90 days for post-incident analysis; do not delete until retention requirements are met.
+- Notify on-call channels when automation loops are blocked or human gates remain pending >15 minutes.
 
 ## Human gates
 - Required when:
- 1. SLA status transitions to `breached` for enterprise tier or riskScore ≥ 0.9.
- 2. Recommended remediation impacts production systems (traffic shifts, throttles).
- 3. Dispatcher requests escalation after >2 burn-rate alerts.
-- Use standard human gate confirmation template.
+  1. SLA status transitions to `breached` for enterprise tier or `riskScore ≥ 0.9`.
+  2. Recommended remediation impacts production systems (traffic shifts, throttles, circuit breaks).
+  3. Dispatcher requests oversight after >2 burn-rate alerts.
+- Confirmation template matches the orchestrator standard:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/sla-monitoring-alerting monitor --tier=enterprise --window=7d --dry-run`.
 - Unit tests: `backend/sla/` ensures burn-rate, forecast, and remediation logic produce expected outputs.
-- Integration: `scripts/validate-sla-pipeline.sh` runs alerts through dispatcher and human gate automation.
-- Regression: nightly `scripts/nightly-sla-smoke.sh` keeps thresholds aligned and verifies `ai-agent-orchestration` triggers.
+- Integration: `scripts/validate-sla-pipeline.sh` passes alerts through dispatcher and human gate automation.
+- Regression: nightly `scripts/nightly-sla-smoke.sh` validates thresholds, AI scoring, and `ai-agent-orchestration` triggers.
 
 ## References
 - Data sources: `docs/SLI-SLO-DEFINITIONS.md`, `docs/EXECUTION-CHECKLIST.md`.
@@ -138,7 +142,7 @@ Controls uptime, deployment success, incident response, and performance SLOs end
 - Dashboards: `monitoring/grafana/sla`.
 
 ## Related skills
-- `/incident-triage-runbook`: executes remediation when SLA risk escalates.
-- `/deployment-validation`: gates canaries/deployments in response to SLA status.
-- `/capacity-planning`: aligns capacity signals with SLA forecasts.
+- `/incident-triage-runbook`: remediates when SLA risk escalates.
+- `/deployment-validation`: gates canaries/deployments when SLA status tightens.
+- `/capacity-planning`: aligns capacity headroom with SLA forecasts.
 - `/ai-agent-orchestration`: coordinates dispatcher responses to SLA events.

@@ -10,19 +10,20 @@ allowed-tools:
 
 # Kubectl Assistant — World-class Kubernetes Command Playbook
 
-Interprets user requests into well-formed kubectl commands, enforces safety (no destructive actions without confirmation), and provides explanations for operator actions. Use when operators need assistance with get/describe/rollout/join operations or to verify commands before execution.
+Interprets user requests into well-formed kubectl commands, enforces safety, and explains expected outcomes before execution.
 
 ## When to invoke
-- User asks how to inspect pods, services, or deploy resources.
-- Requests to scale, restart, roll out, or debug workloads.
-- Need safe command generation for destructive actions (delete/scale down) with human gate checks.
-- Provide CLI steps for standard troubleshooting flows.
+- Operators ask how to inspect pods, services, deployments, or manifests.
+- Request scaling, restarting, rollouts, or debugging workloads.
+- Need safe commands for destructive actions (delete/scale down) with human gate prompts.
+- Deliver scripted troubleshooting flows.
 
 ## Capabilities
-- Interpret natural language into kubectl CLI commands with appropriate flags.
-- Validate safety (disallow `delete`/`rm` without explicit confirm) and add human gate prompts when needed.
-- Provide explanations of what the command does and expected outcomes.
-- Shared context `shared-context://memory-store/kubectl/<operationId>`.
+- **Natural language parsing** into kubectl CLI commands with proper flags/namespaces.
+- **Safety validation** blocking destructive runs until confirmation.
+- **Narrative explanation** describing command intent and expected result.
+- **Shared context propagation** via `shared-context://memory-store/kubectl/{operationId}`.
+- **Human gate orchestration** for high-risk commands.
 
 ## Invocation patterns
 
@@ -38,9 +39,9 @@ Interprets user requests into well-formed kubectl commands, enforces safety (no 
 |-----------|-------------|---------|
 | `command` | Natural language request. | `show pods` |
 | `namespace` | Target namespace. | `production` |
-| `label` | Filter label selectors. | `app=web` |
-| `confirm` | Require confirmation for destructive actions. | `true` |
-| `operationId` | Reference for command session. | `KUBE-2026-0315-01` |
+| `label` | Label selector filter. | `app=web` |
+| `confirm` | Confirm destructive actions. | `true` |
+| `operationId` | Session reference. | `KUBE-2026-0315-01` |
 
 ## Output contract
 
@@ -50,14 +51,8 @@ Interprets user requests into well-formed kubectl commands, enforces safety (no 
   "status": "ready|blocked",
   "command": "kubectl get pods -n production",
   "explanation": "Lists all pods in the production namespace.",
-  "safety": {
-    "destructive": false,
-    "confirmRequired": false
-  },
-  "aiInsights": {
-    "riskScore": 0.12,
-    "confidence": 0.94
-  },
+  "safety": { "destructive": false, "confirmRequired": false },
+  "aiInsights": { "riskScore": 0.12, "confidence": 0.94 },
   "decisionContext": "redis://memory-store/kubectl/KUBE-2026-0315-01",
   "logs": "shared-context://memory-store/kubectl/KUBE-2026-0315-01"
 }
@@ -66,58 +61,53 @@ Interprets user requests into well-formed kubectl commands, enforces safety (no 
 ## World-class workflow templates
 
 ### Inspection command generation
-1. Parse request (get/describe/logs) and identify target resource.
-2. Build kubectl command with selectors/namespace.
+1. Parse request (get/describe/logs) and identify resource/namespace.
+2. Build kubectl command with selectors and options.
 3. Emit `kubectl-command` event for review.
 
 ### Destructive action gating
 1. Detect destructive verbs (`delete`, `scale down`).
-2. Require confirmation or suggest safe alternative.
-3. Emit `kubectl-gated` event until confirmed.
+2. Require confirmation or suggest safer alternatives.
+3. Emit `kubectl-gated` event until authorized.
 
 ### Troubleshooting flow
-1. Generate sequence of commands (inspect pods → describe → logs).
-2. Provide explanation for each step.
-3. Return combined script ready for operator execution.
+1. Generate step sequence (inspect pods → describe → logs) with explanations.
+2. Provide combined script for operator execution.
+3. Log revisit context for incident follow-ups.
 
 ## AI intelligence highlights
-- **AI Command Interpretation**: extracts resources, filters, and actions with high confidence.
-- **Risk Scoring**: flags commands with riskScore near 1 (delete/scale) and requires human approval.
-- **Narrative Explanation**: describes what the command will do and why it was chosen.
+- **AI command interpretation** infers resources, filters, and actions with high confidence.
+- **Risk scoring** flags destructive commands for review.
+- **Narrative explanation** articulates command effect and expected outcome.
 
 ## Memory agent & dispatcher integration
-- Store commands in `shared-context://memory-store/kubectl/<operationId>`.
-- Emit `kubectl-command`, `kubectl-gated`, `kubectl-executed` events.
-- Dispatcher can log commands/alerts and feed into incident workflows.
-- Tag entries with `decisionId`, `target`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI output requests (kubectl commands).
-- Secondary: Event bus for `kubectl-*` events.
-- Fallback: JSON artifacts for audit `artifact-store://kubectl/<operationId>.json`.
+- Persist commands under `shared-context://memory-store/kubectl/{operationId}`.
+- Emit events: `kubectl-command`, `kubectl-gated`, `kubectl-executed`.
+- Dispatcher logs commands, impacts operations, and feeds into incident workflows.
+- Tag metadata with `decisionId`, `target`, `riskScore`.
 
 ## Observability & telemetry
-- Metrics: commands generated, destructive gates triggered, approvals issued.
+- Metrics: commands generated, destructive gates triggered, review delays.
 - Logs: structured `log.event="kubectl.command"` with `operationId`.
-- Dashboards: integrate `/kubectl-assistant metrics --format=prometheus`.
-- Alerts: gate delays > threshold, command failures > threshold.
+- Dashboards: integrate `/kubectl-assistant metrics --format=prometheus` for K8s ops.
+- Alerts: gate delays > threshold, command failures rate high.
 
 ## Failure handling & retries
-- Retry parsing up to 2× on unclear requests; prompt for clarifications if still ambiguous.
-- If command generation fails (lack of permissions), escalate to `incident-triage`.
-- Keep artifacts until downstream ack.
+- Retry parsing up to 2× on ambiguous requests; prompt for clarification if unresolved.
+- If generation fails (permissions, context), escalate to `incident-triage-runbook`.
+- Preserve artifacts/logs until downstream ack.
 
 ## Human gates
 - Required when:
- 1. Command is destructive (delete/scale down).
- 2. RiskScore high or target is production-critical.
- 3. Dispatcher requests manual review after repeated gate blocks.
-- Use standard confirmation template.
+  1. Command is destructive or touches production-critical workloads.
+  2. RiskScore high or targets large tenant groups.
+  3. Dispatcher demands manual review after repeated gating.
+- Use standard confirmation template capturing impact and reversibility.
 
 ## Testing & validation
 - Dry-run: `/kubectl-assistant explain --command="list pods" --dry-run`.
-- Unit tests: `backend/kubectl/` ensures parser+templates.
-- Integration: `scripts/validate-kubectl-assistant.sh` tests gating flows.
+- Unit tests: `backend/kubectl/` ensures parsing/templating accuracy.
+- Integration: `scripts/validate-kubectl-assistant.sh` exercises gating and command flows.
 - Regression: nightly `scripts/nightly-kubectl-smoke.sh` ensures accuracy and gating.
 
 ## References
@@ -125,5 +115,6 @@ Interprets user requests into well-formed kubectl commands, enforces safety (no 
 - Templates: `templates/kubectl-command.md`.
 
 ## Related skills
-- `/incident-triage-runbook`: uses commands for remediations.
-- `/kubernetes-cluster-manager`: depends on scale/policy commands.
+- `/incident-triage-runbook`: uses commands for remediation.
+- `/kubernetes-cluster-manager`: consumes scale/hardening commands.
+- `/workflow-management`: includes commands as part of orchestration.

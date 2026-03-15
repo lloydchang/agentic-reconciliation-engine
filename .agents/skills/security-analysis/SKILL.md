@@ -13,20 +13,20 @@ allowed-tools:
 
 # Security Analysis — World-class Threat Detection Playbook
 
-Performs AI-enhanced security assessments (vulnerability, configuration, runtime) with real-time intelligence ingestion, structured outputs, and dispatchable signals to downstream remediation/workflow skills. Trigger when investigating incidents, verifying posture, or responding to dispatcher risk alerts.
+Performs AI-enhanced security assessments (vulnerability, configuration, runtime) with intelligence ingestion, structured outputs, and dispatcher-grade signals for remediation.
 
 ## When to invoke
-- Critical/high priority vulnerability scans (external/internal resources).
-- Configuration and runtime posture reviews after deployments or changes.
-- Incident response or dispatcher alerts (`riskScore ≥ 70`, `policy-risk`, `incident-ready`).
-- Regular security hygiene (weekly scans, compliance checkpoints, secrets assurance).
+- Conduct vulnerability scans (critical/urgent) on applications or infrastructure.
+- Review configuration/runtime posture immediately after deployments or suspicious telemetry.
+- Respond to dispatcher/memory agent alerts (`riskScore ≥ 70`, `policy-risk`, `incident-ready`).
+- Run regular security hygiene (weekly scans, compliance checks, secrets assurance).
 
 ## Capabilities
-- Dynamic target discovery and recon context (threat feeds, CVE lookup, port/service enumeration).
-- AI-informed risk scoring + remediation prioritization plus threat correlation.
-- Automation-safe post-scan intelligence (POC reproduction, IOC highlights) for other skills.
-- Shared context integration `shared-context://memory-store/security/<scanId>` for dispatcher/incident use.
-- Human gate guidance for intrusive or high-risk scans.
+- **Dynamic target discovery** feeding threat feeds (CVE, abuse IP, MITRE) plus telemetry context.
+- **AI risk scoring & remediation prioritization** for vulnerabilities/exposures.
+- **Threat hunting and incident enrichment** with PoC/IOC extraction.
+- **Shared-context propagation** via `shared-context://memory-store/security/{scanId}` for downstream skills.
+- **Human gating** for intrusive or high-impact scans.
 
 ## Invocation patterns
 
@@ -40,11 +40,11 @@ Performs AI-enhanced security assessments (vulnerability, configuration, runtime
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `targetResource` | Resource/app stack to analyze. | `web-server-001` |
+| `targetResource` | Resource/app to analyze. | `web-server-001` |
 | `scanType` | `vulnerability|malware|configuration|full|runtime`. | `full` |
-| `priority` | Criticality affecting resource allocation. | `critical` |
-| `timeframe` | Lookback period for telemetry/context. | `7d` |
-| `context` | Additional context store to enrich detection. | `shared-context://memory-store/capacity/` |
+| `priority` | Scan criticality. | `critical` |
+| `timeframe` | Lookback window for telemetry. | `7d` |
+| `context` | Enrichment context (shared route). | `shared-context://memory-store/capacity/` |
 
 ## Output contract
 
@@ -85,61 +85,55 @@ Performs AI-enhanced security assessments (vulnerability, configuration, runtime
 ## World-class workflow templates
 
 ### AI-assisted security scan
-1. Discover targets via infrastructure APIs and Recon data.
-2. Ingest threat feeds (CVE, abuse IP DB, malware hashes, CISA alerts) and combine with telemetry.
-3. Run vulnerability/malware/configuration scans using dynamic context, capturing findings.
-4. Score each finding by `riskScore`, produce remediation guidance, emit `security-scan` event.
+1. Discover targets across infra, telemetry, and threat intelligence.
+2. Run vulnerability/malware/configuration/runtime scans with scanning tools (trivy, gitleaks, falco) and gather context.
+3. Score each finding (`riskScore`), attach remediation steps, and emit `security-scan-complete`.
 
-### Intelligence-driven incident enrichment
-1. Correlate findings with past incidents, attackers, and behavior patterns.
-2. Add logs/traces/alerts (shared context) so incident runbook or compliance skills can act.
-3. Emit `incident-ready` or `policy-risk` events for dispatcher orchestration.
+### Incident enrichment
+1. Correlate scan results with prior incidents, attackers, and policy violations.
+2. Package logs/traces/alerts in shared context for `incident-triage-runbook` or `policy-as-code`.
+3. Emit `incident-ready` or `policy-risk` events when escalations needed.
 
-### Predictive posture & anomaly monitoring
-1. Scan runtime telemetry (logs, metrics, traces) for anomalies (suspicious commands, authentication failures).
-2. Forecast risk using AI patterns and forward to `incident-triage-runbook` or `sla-monitoring-alerting`.
-3. Provide enriched report linking anomalies to vulnerabilities/policies.
+### Predictive posture monitoring
+1. Scan runtime telemetry (logs, traces, auth events) for anomalies.
+2. Forecast risk using AI (anomaly detection + threat modeling) and notify `sla-monitoring-alerting` or operations.
+3. Produce `security-anomaly` events linking anomalies to vulnerabilities.
 
 ## AI intelligence highlights
-- **AI Risk Assessment**: weighs CVSS, exploitation context, asset criticality, and compliance impact to determine `riskScore`.
-- **Smart Remediation Prioritization**: ranks fixes by impact/effort/confidence.
-- **Intelligent Violation Analysis**: articulates attack path, exploit theory, and related regulatory controls.
-- **Predictive Threat Forecasting**: uses anomaly detection plus threat intelligence to predict emergent threats.
+- **AI risk assessment** weighs CVSS, exploitation context, asset criticality, and compliance impact for every finding.
+- **Smart remediation prioritization** ranks fixes by impact, effort, and automation confidence.
+- **Intelligent violation analysis** explains potential attack paths/regulatory consequences.
+- **Predictive threat forecasting** uses anomaly detection and threat feeds to anticipate escalations.
 
 ## Memory agent & dispatcher integration
-- Emit to shared store `shared-context://memory-store/security/<scanId>` with all findings, riskScore, recommended actions.
-- Generate events: `security-scan-complete`, `security-anomaly`, `policy-risk`, `incident-ready`.
-- Consume dispatcher events (e.g., `policy-risk`, `cost-anomaly`) to adjust scanning scope or priority.
-- Tag records with `decisionId`, `tenant`, `riskScore`, `confidence`.
-
-## Communication protocols
-- Primary: CLI-driven scan commands producing JSON artifacts; wrappers call security tooling (nmap, trivy, scanning APIs).
-- Secondary: Event bus (Kafka/NATS) for `security-*` signals.
-- Fallback: Persistent artifacts `artifact-store://security/<scanId>.json`.
+- Persist findings at `shared-context://memory-store/security/{scanId}` tagged with `decisionId`, `tenant`, `riskScore`.
+- Emit events: `security-scan-complete`, `security-anomaly`, `policy-risk`, `incident-ready`.
+- Respond to dispatcher signals (`policy-risk`, `cost-anomaly`) by expanding scan scope or adjusting priority.
+- Provide fallback artifacts via `artifact-store://security/{scanId}.json` when needed.
 
 ## Observability & telemetry
-- Metrics: scans per period, findings severity distribution, AI confidence, scan duration, false-positive rate.
+- Metrics: scans executed, severity distributions, AI confidence, scan duration, false positive rates.
 - Logs: structured `log.event="security.scan"` with `scanId`, `riskScore`, `priority`.
 - Dashboards: integrate `/security-analysis metrics --format=prometheus` for posture trending.
-- Alerts: riskScore ≥ 0.85, critical findings > 5, scan failures > threshold.
+- Alerts: riskScore ≥ 0.85, >5 critical findings, scan failures beyond threshold.
 
 ## Failure handling & retries
-- Retry temporary failures (network, API) up to 2× with exponential backoff.
-- On tool failure, switch to fallback scanner (secondary tool) and emit `security-scan-fallback`.
-- Persist scans, context, logs until downstream ack for audit; never delete data prematurely.
+- Retry on transient errors (API, network) up to 2× with exponential backoff.
+- Switch to fallback scanners if primary fails and emit `security-scan-fallback`.
+- Preserve scans, logs, and context until downstream ack for auditing.
 
 ## Human gates
 - Required when:
- 1. Scans risk interfering with production services (workloads critical, high priority).
- 2. High-impact findings (riskScore ≥ 0.9) require manual verification before remediation.
- 3. Dispatcher requests manual review after repeated scan failures.
-- Use standard human gate template to capture impact/reversibility.
+  1. Scans interfere with production or high-criticality workloads.
+  2. High-impact findings (riskScore ≥ 0.9) need manual validation.
+  3. Dispatcher requests manual review after repeated scan failures.
+- Confirmation template follows orchestrator standard (impact/reversibility).
 
 ## Testing & validation
 - Dry-run: `/security-analysis scan --targetResource=canary --scanType=vulnerability --dry-run`.
-- Unit tests: `backend/security/analysis` ensures scoring and parsing logic operate per expectation.
-- Integration: `scripts/validate-security-analysis.sh` runs scans in emulator mode and emits events for downstream skills.
-- Regression: nightly `scripts/nightly-security-smoke.sh` keeps telemetry thresholds, alert volumes, and AI scoring stable.
+- Unit tests: `backend/security/analysis` ensures scoring and parsing logic meet expectations.
+- Integration: `scripts/validate-security-analysis.sh` runs scans/emulation and emits events for follow-ups.
+- Regression: nightly `scripts/nightly-security-smoke.sh` keeps telemetry thresholds and AI scoring stable.
 
 ## References
 - Templates: `templates/security-report.md`.
@@ -147,6 +141,6 @@ Performs AI-enhanced security assessments (vulnerability, configuration, runtime
 - Threat config: `assets/threat-integration.json`.
 
 ## Related skills
-- `/incident-triage-runbook`: triggers remediation for critical detections.
-- `/compliance-security-scanner`: cross-references compliance violations with vulnerabilities.
-- `/workflow-management`: orchestrates scans, retries, and follow-up actions.
+- `/incident-triage-runbook`: remediates critical detections.
+- `/compliance-security-scanner`: correlates compliance violations with vulnerabilities.
+- `/workflow-management`: orchestrates scan/retry/follow-up workflows.

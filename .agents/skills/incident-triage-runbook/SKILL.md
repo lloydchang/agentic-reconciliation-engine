@@ -12,20 +12,20 @@ allowed-tools:
 
 # Incident Triage & Runbook Execution — World-class Response Playbook
 
-Automates detection, AI classification, intelligent runbook selection, remediation, and rapid post-mortem delivery. Use this skill to stabilize affected tenants fast while preserving traceability for compliance and learning loops.
+Automates detection, AI-powered classification, intelligent remediation selection, and rapid post-mortem delivery so every incident is stabilized quickly with a clear audit trail.
 
 ## When to invoke
-- PagerDuty/Prometheus/DataDog/Azure Monitor alerts with severity P1–P4.
-- Manual requests to investigate degraded services, recurring incidents, or new CVEs.
-- Post-mortem generation, incident reviews, or human-in-the-loop escalation for observed anomalies.
-- `ai-agent-orchestration` dispatchers route `incident-ready` or `risk-bump` events here when memory agents detect high-risk states.
+- PagerDuty/Prometheus/DataDog/Azure Monitor/New Relic alerts tagged P1–P4.
+- Manual requests for degraded services, recurring outages, or emergent CVEs.
+- Human-in-the-loop reviews, post-mortem drafts, or follow-up action tracking for incidents.
+- Dispatcher events (`incident-ready`, `risk-bump`) from memory agents that flag high-risk states.
 
 ## Capabilities
-- AI incident classification (P1/P2/P3/P4) that evaluates impact, scope, and automation confidence.
-- Intelligent runbook selection that matches incidents to the best-matched remediation plans.
-- Smart post-mortem generation with timelines, root causes, SLA impact, and action items.
-- Human-gated escalation for novel/unresolved incidents with risk-aware communication.
-- Telemetry capture across detection, remediation, and verification for audit readiness.
+- **AI Incident Classification** resolves severity (P1–P4) by combining telemetry, change history, SLA context, and confidence scoring.
+- **Intelligent Runbook Selection** uses semantic similarity, historical success rates, and risk exposure to pick the optimal remediation plan.
+- **Smart Post-Mortem Generation** produces timelines, root causes, SLA impact, action items, and follow-ups automatically.
+- **Human-aware Automation** pauses for gates when novelty, low confidence, or high blast radius is detected, with transparent communication.
+- **Audit-Ready Telemetry Capture** records every detection, remediation, rollback, and validation step for compliance and learning.
 
 ## Invocation patterns
 
@@ -39,12 +39,12 @@ Automates detection, AI classification, intelligent runbook selection, remediati
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `incidentId` | Unique ID of the alert/incident. | `INC-2026-0050` |
+| `incidentId` | Unique incident or alert identifier. | `INC-2026-0050` |
 | `severity` | P1–P4 derived from AI classification. | `P2` |
-| `tenant` | Tenant or workspace identifier. | `tenant-42` |
-| `region` | Cloud region scope. | `us-east-1` |
-| `runbook` | Runbook name or trigger pattern. | `high-memory-aks-node` |
-| `autoApprove` | Whether low-risk steps run without human gate. | `true` |
+| `tenant` | Tenant, workspace, or service scope. | `tenant-42` |
+| `region` | Cloud region or cluster context. | `us-east-1` |
+| `runbook` | Specific remediation guide or template. | `high-memory-aks-node` |
+| `autoApprove` | Run low-risk remediation without a gate. | `true` |
 
 ## Output contract
 
@@ -72,55 +72,51 @@ Automates detection, AI classification, intelligent runbook selection, remediati
 
 ## World-class workflow templates
 
-### AI incident classification →
-1. Ingest alert payload (PagerDuty/Azure/Prometheus/DataDog).  
-2. AI classifier scores severity (P1–P4) and identifies impacted tenants/services.  
-3. Dispatcher chooses runbook or escalates to human gate if novelty/high uncertainty.  
-4. Runbook executes steps (with rollbacks if necessary) and streams `insight-ready` events.  
-5. Post-mortem draft produced automatically with timeline, root cause, impact, and action items.
+### AI incident classification
+1. Ingest alert payload (PagerDuty, Azure Monitor, Prometheus, DataDog).
+2. AI classifier scores severity, scope, tenant impact, and automation readiness.
+3. Dispatcher selects the best-fit runbook or escalates to human gate if novelty or low confidence exists.
+4. Runbook runs remediation steps with rollback safeguards while emitting `insight-ready` events.
+5. Post-mortem draft is generated with timeline, root cause, SLA impact, and action items.
 
 ### Intelligent runbook selection
-- Match alert to runbooks via `trigger_pattern`, telemetry signatures, and past resolutions.  
-- Evaluate risk and automation readiness to determine whether human gate is required.  
-- Example runbooks: node memory pressure, failed rollout, certificate expiry, database connection pool.
+- Match incidents to runbooks via trigger patterns, dependency fingerprints, and historical outcomes.
+- Factor execution risk, blast radius, and rollback cost to decide whether a human gate is needed.
+- Example runbooks: node memory pressure, failed rollout, certificate rotation, database connection pool.
 
 ### Smart post-mortem generation
-- Collect timeline entries across detection/resolution (API events, runbook steps, alerts).  
-- Analyze root cause using causal graph (dependencies, config changes), severity, SLA impact, and human actions.  
-- Produce structured report and publish to `reports/postmortems/{incidentId}.json`.
+- Aggregate timelines from alerts, runbook steps, and automation actions.
+- Calculate root cause using causal graphs (config changes, dependencies, telemetry drift).
+- Produce structured post-mortem with severity, impact, mitigation, and follow-up owners stored at `reports/postmortems/{incidentId}.json`.
 
 ## AI intelligence highlights
-- **AI Incident Classification**: Multi-model ensemble that balances telemetry, change history, and business-criticality to determine severity and guardrail exemptions.
-- **Smart Post-Mortem Generation**: Auto-populates timelines, impact statements, mitigation steps, and action owners for rapid review.
-- **Intelligent Runbook Selection**: Uses semantic similarity and past success rates to pick the most effective remediation plan while factoring rollback complexity.
+- **AI Incident Classification** balances telemetry, change history, and SLA context to assign severity and guardrail decisions.
+- **Smart Post-Mortem Generation** auto-populates timelines, impact statements, mitigation steps, and responsible owners for rapid review.
+- **Intelligent Runbook Selection** reasons over semantic similarity, success rates, risk levels, and rollback complexity when choosing remediation.
 
-## Memory agent integration
-- Subscribe to `agent-completed` and `insight-ready` events from memory agents; read context via `shared-context://memory-store/<tenant>/incident`.
-- Emit `incident-resolved`, `postmortem-ready`, and `risk-adjustment` events so other skills (compliance, cost, deployment validation) update context.
-- Update Redis metadata (`riskScore`, `confidence`, `stepsCompleted`) so dispatchers know whether to escalate or rerun workflows.
-
-## Communication protocol
-- Primary: HTTP/webhook ingestion of alerts; internal commands issued via `/incident-triage-runbook`.
-- Secondary: Event bus topics `incident-classified`, `runbook-step`, `incident-triaged`, `postmortem-finished`.
-- Fallback: If event bus is unavailable, write JSON artifacts to `artifact-store://incidents/{incidentId}.json` for other skills to pick up.
+## Memory agent & dispatcher integration
+- Pull context from `shared-context://memory-store/<tenant>/incident` whenever a memory agent flags a regression or anomaly.
+- Emit `incident-resolved`, `postmortem-ready`, and `risk-adjustment` events so compliance, cost, deployment, and orchestrator skills stay synchronized.
+- Update Redis metadata (`riskScore`, `confidence`, `stepsCompleted`) so the dispatcher can decide whether to rerun the workflow or escalate.
+- Fallback: if the message bus is unavailable, write JSON artifacts to `artifact-store://incidents/{incidentId}.json` and let downstream skills pick them up.
 
 ## Observability & telemetry
-- Metrics: incidents classified per minute, runbook success rate, time to human gate, MTTR p95.
-- Logs: structured `log.event` (classification/runbook step/postmortem) with `decisionId`, `orchestrationId`, `tenant`.
-- Dashboards: integrate `/incident-triage-runbook metrics --format=prometheus` for on-call visibility.
-- Alerts: trigger when classification confidence < 0.65 or when MTTR > 60min for P1 events.
+- Metrics: incidents classified per minute, runbook success rate, MTTR p95, time to human gate.
+- Logs: structured `log.event` (classification/runbook step/postmortem) with `decisionId`, `orchestrationId`, and `tenant` tags.
+- Dashboards: expose `/incident-triage-runbook metrics --format=prometheus` for on-call visibility.
+- Alerts: fire when classification confidence < 0.65, when MTTR > 60m for a P1, or when human gate is pending > 15m.
 
 ## Failure handling & retries
-- Retry classification/runbook execution up to 2 times with exponential backoff (30s → 120s).  
-- On runbook failure, execute rollback steps if defined and escalate to human gate.  
-- Persist context (`shared-context://memory-store/incident/{incidentId}`) for post-failure analysis; do not delete logs to maintain audit trail.
+- Retry classification or runbook steps up to 2 times with exponential backoff (30s → 120s).
+- On runbook failure, execute rollback steps (when defined) and escalate to human gate along with contextual logs.
+- Persist `shared-context://memory-store/incident/{incidentId}` for downstream analysis and do not delete logs until downstream skills ack.
 
 ## Human gates
-- Required whenever:
- 1. Severity is P1 or automation confidence < 70%.
- 2. Runbook impacts production-facing services (e.g., draining nodes, firewall changes).
- 3. Dispatcher requests escalation after >2 failed steps.
-- Confirmation template:
+- Required when:
+  1. Severity is P1 or automation confidence < 70%.
+  2. Runbook impacts production-facing services (draining nodes, rewriting firewall policies, etc.).
+  3. Dispatcher requests escalation after >2 failed steps.
+- Confirmation template (matches orchestrator):
 
 ```
 ⚠️  HUMAN GATE: [description]
@@ -130,10 +126,10 @@ Automates detection, AI classification, intelligent runbook selection, remediati
 ```
 
 ## Testing & validation
-- Dry-run: `/incident-triage-runbook respond --incident-id=INC-DRY-RUN --dry-run=true`.
+- Dry-run: `/incident-triage-runbook respond --incident-id=INC-DRY-RUN --dry-run=true` to validate runbook flow.
 - Unit tests: focus on classification models and runbook selection heuristics under `backend/incidents/`.
-- Integration: `scripts/validate-incident-flow.sh` simulates alerts from all sources and verifies event flow plus postmortem payload.
-- Regression: nightly `scripts/nightly-incident-smoke.sh` ensures human gate logic and telemetry events keep working.
+- Integration: `scripts/validate-incident-flow.sh` simulates alerts from all sources and verifies postmortem payloads.
+- Regression: nightly `scripts/nightly-incident-smoke.sh` ensures human gate logic, telemetry, and event emission remain stable.
 
 ## References
 - Alert ingestion helpers: `api/alerts/**`.
@@ -141,6 +137,6 @@ Automates detection, AI classification, intelligent runbook selection, remediati
 - Postmortem templates: `docs/RUNBOOKS.md`, `docs/SECURITY-INCIDENT-RESPONSE.md`.
 
 ## Related skills
-- `/ai-agent-orchestration`: route events and orchestrate multi-skill remediation.
-- `/compliance-security-scanner`: contextualize compliance impact of incidents.
-- `/workflow-management`: monitor workflows triggered by incidents.
+- `/ai-agent-orchestration`: routes events and coordinates multi-skill remediation.
+- `/compliance-security-scanner`: contextualizes compliance impact of incident-driven changes.
+- `/workflow-management`: monitors workflows spun up by incidents and ensures completion.

@@ -15,24 +15,25 @@ allowed-tools:
 
 # AI Agent Orchestration — World-class Operator Guide
 
-This skill unifies the Go, Rust, and Python memory agents with every downstream skill (compliance, security, cost, observability, etc.) using adaptive workflows, shared memory stores, and event-driven dispatchers. Use it when you need conditional multi-agent runs, dynamic skill routing, unified logging/telemetry, or human-gated decision points.
+Unifies Go/Rust/Python memory agents with downstream skills (compliance, security, cost, observability) using adaptive workflows, shared memory, and event-driven dispatchers.
 
 ## When to invoke
-- Trigger implicit orchestration when agent outputs must determine the next skill (e.g., compliance findings should route to `compliance-check`, anomalies route to `cost-optimization`, threats route to `security-analysis`).
-- Use explicitly to register memory agents, emit shared-context events, health-check agent pools, or drive dispatcher workflows (`sequential`, `parallel`, `conditional`).
+- Trigger orchestration when agent outputs dictate next skill (e.g., compliance findings → `compliance-security-scanner`, anomalies → `cost-optimization`, threats → `security-analysis`).
+- Register memory agents, emit shared-context events, or monitor agent pools.
+- Drive dispatcher workflows (`sequential`, `parallel`, `conditional`) with gating and telemetry.
 
 ## Capabilities
-- Multi-agent sequencing (Go/Rust/Python memory agents) with shared state store backing.
-- Conditional dispatchers that evaluate agent outputs/events to choose downstream skills.
-- Shared-memory plus message-passing protocols (Redis/ETCD + event bus) and telemetry hooks.
-- Human-gate integration, retries/fallbacks, and structured JSON output for automation.
+- **Multi-agent sequencing** with shared state stores and event bus integration.
+- **Conditional dispatchers** that interpret agent outputs/events to route skills.
+- **Shared memory + message flow** (Redis/ETCD + Kafka/NATS) with telemetry hooks.
+- **Human gate enforcement**, retries, fallback agents, and structured JSON results.
+- **AI risk scoring** aggregated across skills to determine gating needs.
 
 ## Invocation patterns
-Examples:
 
 ```bash
 /ai-agent-orchestration orchestrate sequential --agents=go-memory,rust-memory,python-memory --target=production --workflow=memory-sync
-/ai-agent-orchestration orchestrate conditional --workflow=dispatcher --decision-context=shared-context://memory-store --timeout=1800
+/ai-agent-orchestration orchestrate conditional --workflow=dispatcher --context=shared-context://memory-store --timeout=1800
 /ai-agent-orchestration register-agent go-memory --language=go --capabilities=memory-enrichment --context-store=redis://memory-store --task-queue=memory-go
 /ai-agent-orchestration monitor-agents --status=detailed --metrics=queue-depth,latency
 ```
@@ -40,40 +41,27 @@ Examples:
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `targetResource` | Resource the workflow should focus on (tenant, cluster, skill scope). | `ProductionHub` |
-| `environment` | Environment tag (dev/staging/prod). | `staging` |
-| `priority` | Workflow priority for human gate or resource allocation. | `high` |
-| `timeframe` | Lookback window for telemetry or replay decisions. | `30d` |
-| `region` | Cloud region to limit discovery/skill run. | `us-east-1` |
+| `targetResource` | Focus scope (tenant, cluster). | `ProductionHub` |
+| `environment` | Environment tag (`dev|staging|prod`). | `staging` |
+| `priority` | Workflow priority for gating. | `high` |
+| `timeframe` | Lookback for telemetry/replay. | `30d` |
+| `region` | Cloud region limit. | `us-east-1` |
 
 ## Output contract
-Every orchestration command returns structured JSON:
 
 ```json
 {
   "workflowId": "uuid",
   "status": "started|running|completed|failed",
-  "startedAt": "ISO8601 timestamp",
+  "startedAt": "ISO8601",
   "result": {
-    "agents": [
-      {
-        "name": "go-memory",
-        "status": "success",
-        "output": "schema:/shared-context/discovery"
-      }
-    ],
-    "skillsTriggered": [
-      {
-        "name": "compliance-check",
-        "reason": "agent output flagged config drift",
-        "decision": "approve|human_gate|retry",
-        "humanGate": {
-          "required": true,
-          "impact": "Any prod change",
-          "reversible": "No"
-        }
-      }
-    ]
+    "agents": [ { "name": "go-memory", "status": "success", "output": "schema:/shared-context/discovery" } ],
+    "skillsTriggered": [ {
+      "name": "compliance-security-scanner",
+      "reason": "config drift",
+      "decision": "human_gate",
+      "humanGate": { "required": true, "impact": "Prod change", "reversible": "No" }
+    } ]
   },
   "errors": [],
   "metadata": {
@@ -87,66 +75,56 @@ Every orchestration command returns structured JSON:
 ## World-class workflow templates
 
 ### Sequential memory sync
-- Agents: Go → Rust → Python.
-- Coordination: Each agent writes enriched context to `shared-context://memory-store`.
-- Dispatcher: On completion, signal `agent-completed` event to trigger next skill.
-- Use `/ai-agent-orchestration orchestrate sequential --agents=go-memory,rust-memory,python-memory --workflow=memory-sync --communication=shared-context`.
+1. Agents run Go → Rust → Python, enriching context in `shared-context://memory-store`.
+2. Dispatcher listens for `agent-completed` to trigger next skill.
+3. Command: `/ai-agent-orchestration orchestrate sequential --agents=go-memory,rust-memory,python-memory --workflow=memory-sync`.
 
 ### Conditional dispatcher
-- Input: Agent event payloads with `riskScore`, `anomalyType`, `tenant`.
-- Decision matrix example:
-1. `riskScore >= 80`: trigger `incident-triage-runbook`.
-2. `anomalyType == "cost-spike"`: trigger `cost-optimization`.
-3. `complianceConcern == true`: trigger `compliance-check`.
-- Implementation uses `/ai-agent-orchestration orchestrate conditional --workflow=dispatcher --workflow-spec=dispatcher.yaml --context=redis://memory-store`.
+1. Evaluate agent payloads (`riskScore`, `anomalyType`, `tenant`).
+2. Decision matrix routes to skills: high risk → `incident-triage-runbook`, cost spikes → `cost-optimization`, compliance concerns → `compliance-security-scanner`.
+3. Invoke `/ai-agent-orchestration orchestrate conditional --workflow=dispatcher --context=redis://memory-store`.
 
 ### Parallel resiliency checks
-- Run `security-analysis` and `observability-stack` simultaneously after memory agents produce new context.
-- On failures, fallback to lightweight agents (`security-analysis-lite`).
-- Command: `/ai-agent-orchestration orchestrate parallel --agents=security-analysis,observability-stack --fail-fast=false --timeout=1200`.
+1. Run `security-analysis` and `observability-stack` simultaneously after memory updates.
+2. On failure fallback to lightweight agents (`security-analysis-lite`).
+3. Command: `/ai-agent-orchestration orchestrate parallel --agents=security-analysis,observability-stack --timeout=1200`.
 
-## Memory agent integration
-- Use Redis/ETCD as the shared memory store; all agents include `shared-context` wiring (schema: `agentName.outputKey`).
+## AI intelligence highlights
+- **AI dependency resolution** predicts ordering/conflicts across skills.
+- **Aggregate risk scoring** determines gating needs based on blended outputs.
+- **Anomaly detection** triggers alternative flows when repeated failures occur.
+
+## Memory agent & dispatcher integration
+- Shared memory: Redis/ETCD path `shared-context://<tenant>/<agent>/<artifact>`.
 - Event bus topics: `agent-completed`, `agent-failed`, `insight-ready`, `skill-request`.
-- Agents publish metadata: `tenant`, `region`, `riskScore`, `costImpact`.
-- Dispatcher subscribes to events, merges context, and selects skill(s) using template rules above.
-- Sample event payload:
-```json
-{
-  "agent": "python-memory",
-  "tenant": "acme",
-  "region": "us-east-1",
-  "riskScore": 72,
-  "insights": ["policy_gap", "cost_spike"],
-  "timestamp": "2026-03-14T22:00:00Z"
-}
-```
+- Agents publish metadata (`tenant`, `region`, `riskScore`, `costImpact`).
+- Dispatcher merges context and selects skills per template rules.
+- Sample event payload preserved for traceability and audit.
 
 ## Communication protocols
-- **Shared memory (primary)**: Redis or ETCD key `shared-context://<tenant>/<agent>/<artifact>`.
-- **Message passing (secondary)**: Kafka- or NATS-style event bus with topics described above.
-- **Fallback**: If shared memory is unavailable, agents send zipped payloads via `artifact-store://` and dispatcher polls every 30 seconds.
-- **Health**: `/ai-agent-orchestration monitor-agents --status=detailed` collects `queueDepth`, `latency`, `failedJobs`, `resourceUsage`.
+- Primary: shared memory store (Redis/ETCD).
+- Secondary: event bus (Kafka/NATS) for `agent-*` and `workflow-*` signals.
+- Fallback: zipped artifacts via `artifact-store://` polled every 30s.
+- Health: `/ai-agent-orchestration monitor-agents --status=detailed` collects queue depth, latency, failed jobs, resource usage.
 
 ## Observability & telemetry
-- Emit metrics for: agent execution time (p95/p99), dispatcher decision branching, skill success rates, context store latency.
-- Log structured events with correlation IDs (e.g., `orchestrationId`, `agentRunId`, `decisionId`).
-- Dashboards: integrate `/ai-agent-orchestration metrics --format=prometheus` into Grafana panels.
-- Alerting: fire on >3 consecutive dispatcher failures or shared memory latency > 500ms.
+- Metrics: agent execution time, dispatcher branching, skill success rates, context store latency.
+- Logs: structured events with correlation IDs (`orchestrationId`, `agentRunId`, `decisionId`).
+- Dashboards: include `/ai-agent-orchestration metrics --format=prometheus`.
+- Alerts: >3 consecutive dispatcher failures or shared memory latency >500ms.
 
-## Failure handling and retries
-- Use retry policy: 3 attempts with exponential backoff per agent or skill.
-- Fallback agents: map each primary skill to a lighter variant (e.g., `security-analysis-lite`, `cost-optimization-smoke`).
-- On repeated failure (>=2 retries) escalate: log failure, persist context, and trigger human gate.
-- Always preserve intermediate state; do not delete shared-context keys after failures (for audit).
+## Failure handling & retries
+- Retry policy: 3 attempts per agent/skill with exponential backoff.
+- Fallback agents (e.g., `security-analysis-lite`) for heavy operations.
+- Escalate after repeated failures: log failure, store context, trigger human gate.
+- Preserve intermediate state; never delete shared-context keys after failure.
 
 ## Human gates
-- Require explicit human confirmation any time:
-1. Dispatcher recommends production changes (riskScore ≥ 90 or >20 tenants affected).
-2. `compliance-check` or `security-analysis` plan high-impact remediations.
-3. `cost-optimization` proposes spend >$5,000/month increase.
-- Confirmation template:
-
+- Required when:
+  1. Dispatcher recommends prod changes (riskScore ≥ 90 or >20 tenants).
+  2. `compliance-security-scanner` or `security-analysis` results dictate high-impact remediation.
+  3. `cost-optimization` proposes spend >$5K/month increase.
+- Template:
 ```
 ⚠️  HUMAN GATE: [description]
     Impact: [what changes]
@@ -155,18 +133,17 @@ Every orchestration command returns structured JSON:
 ```
 
 ## Testing & validation
-- Run `/ai-agent-orchestration orchestrate sequential --dry-run` to validate dispatcher wiring.
-- Use `scripts/validate-memory-agents.sh` (referenced in `infrastructure/ai-inference/`) to simulate event payloads and ensure routing logic.
-- Include unit tests for dispatcher rules located under `backend/orchestration/dispatcher_rules/`.
-- Nightly smoke tests: trigger `/ai-agent-orchestration orchestrate parallel --agents=compliance-check,cost-optimization --nightly=true`.
+- Dry-run: `/ai-agent-orchestration orchestrate sequential --dry-run`.
+- Use `scripts/validate-memory-agents.sh` to simulate agent payloads and ensure routing.
+- Unit tests: `backend/orchestration/dispatcher_rules/` verify decision logic.
+- Nightly smoke: `/ai-agent-orchestration orchestrate parallel --agents=compliance-security-scanner,cost-optimization --nightly=true`.
 
 ## References
-- Agent config directory: `backend/agents/`.
+- Agent configs: `backend/agents/`.
 - Dispatcher definitions: `backend/orchestration/dispatcher/`.
-- Deployment manifests: `infrastructure/ai-inference/shared/`.
 - Monitoring dashboards: `monitoring/agents/`.
 
 ## Related skills
-- `/workflow-management`: monitor workflows and gather execution history.
-- `/compliance-security-scanner`: verify recommendations before approval.
-- `/incident-triage-runbook`: execute remediation when dispatcher raises critical alerts.
+- `/workflow-management`: monitors workflow history and execution.
+- `/compliance-security-scanner`: validates recommendations before approval.
+- `/incident-triage-runbook`: remediates critical dispatcher alerts.

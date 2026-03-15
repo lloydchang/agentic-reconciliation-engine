@@ -10,20 +10,20 @@ allowed-tools:
 
 # Chaos & Load Testing — World-class Resilience Playbook
 
-Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) and load tests (k6, Locust), providing structured outputs, AI scoring, and safety rails. Trigger for experiments, load tests, autoscaler validation, or resilience reports.
+Validates platform resilience with chaos experiments (Chaos Mesh, LitmusChaos, Azure Chaos) and load tests (k6, Locust), coupled with AI scoring and dispatcher telemetry.
 
 ## When to invoke
-- Execute chaos experiments (pod kill, network latency, zone failure) or load tests (HTTP stress, spike).
-- Test autoscaler response and circuit breakers.
-- Diagnose resilience metrics or produce quarterly reports.
-- Respond to dispatcher alerts (`incident-ready`, `capacity-alert`) by replaying relevant chaos scenarios.
+- Execute chaos experiments (pod kill, network latency, zone failure) or load tests (HTTP spikes, stress scenarios).
+- Test autoscaler/circuit breaker responses or resilience under degraded infrastructure.
+- Diagnose resilience metrics, produce quarterly reports, or respond to dispatcher alerts (`incident-ready`, `capacity-alert`).
 
 ## Capabilities
-- Chaos Mesh/LitmusChaos experiments, Azure Chaos failovers, and k6/Locust load tests.
-- AI guardrails assessing riskScore, SLO impact, and blast radius before autorun.
-- Autoscaler validation and predictive resilience insights.
-- Shared context `shared-context://memory-store/chaos/<experimentId>`.
-- Human gates for production experiments or high-risk tests.
+- **Chaos experimentation** across Chaos Mesh, LitmusChaos, or Azure Chaos with guardrails.
+- **Load testing** (k6/Locust) with stage-based traffic and auto-abort thresholds.
+- **AI risk scoring** balancing blast radius, SLOs, and tenant impact before execution.
+- **Autoscaler validation** (scale up/down toggles) and predictive resilience insights.
+- **Shared-context propagation** at `shared-context://memory-store/chaos/{experimentId}` for downstream skills.
+- **Human gating** for production-impacting or high-risk scenarios.
 
 ## Invocation patterns
 
@@ -39,11 +39,11 @@ Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `experiment` | Chaos experiment type. | `network-latency` |
-| `target` | Service/namespace to affect. | `payments-api` |
-| `duration` | Experiment duration (s/m). | `10m` |
-| `script` | k6 or Locust script path. | `k6/load-test.js` |
-| `env` | Target environment/tenant. | `tenant-42` |
-| `threshold` | SLO threshold for autoscale. | `0.1` |
+| `target` | Service/namespace targeted. | `payments-api` |
+| `duration` | Operation duration (s/m). | `10m` |
+| `script` | k6/Locust script path. | `k6/load-test.js` |
+| `env` | Tenant/environment scope. | `tenant-42` |
+| `threshold` | SLO threshold for guardrails. | `0.1` |
 
 ## Output contract
 
@@ -61,9 +61,7 @@ Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) 
     "recoveryTimeSeconds": 60
   },
   "abortReason": null,
-  "events": [
-    { "name": "plot-kill-aborted", "timestamp": "2026-03-15T08:12:00Z" }
-  ],
+  "events": [ { "name": "chaos-started", "timestamp": "2026-03-15T08:12:00Z" } ],
   "logs": "shared-context://memory-store/chaos/CHAOS-2026-0315-01",
   "decisionContext": "redis://memory-store/chaos/CHAOS-2026-0315-01"
 }
@@ -73,59 +71,54 @@ Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) 
 
 ### Chaos experiment lifecycle
 1. Define steady-state metrics (error rate, latency, autoscaler status).
-2. Evaluate AI riskScore and human gate before running.
-3. Launch experiment (Chaos Mesh/LitmusChaos/Azure Chaos) with guard loop aborting on SLO breach.
-4. Emit `chaos-experiment` events and log metrics in shared context.
+2. Evaluate AI riskScore, human gate, and guard thresholds before execution.
+3. Run experiment (Chaos Mesh/Litmus/Azure Chaos) with automatic abort on SLO breach.
+4. Emit `chaos-experiment`, store metrics, and provide remediation guidance.
 
-### Load testing
-1. Execute k6/Locust scripts with staged traffic and thresholds.
-2. Monitor error rates/latency; automatically abort if thresholds exceed (p99, error rate > threshold).
-3. Emit `load-test` event with metrics and recommended actions.
+### Load testing & autoscaler validation
+1. Stage traffic via k6/Locust; monitor error/latency thresholds.
+2. Abort when guardrails trigger, log metrics, and produce `load-test` events.
+3. For autoscaler validation simulate load shifts, monitor scaling events, and emit `autoscaler-validated`.
 
-### Autoscaler validation
-1. Simulate load or drop to test autoscaler scaling decisions.
-2. Verify response time, queue depth, and event log.
-3. Emit `autoscaler-validated` event with findings.
+### Diagnostics & reporting
+1. Run diagnostics (auto or manual) with retry/backoff parameters.
+2. Collect metrics, chart anomalies, and export resilience reports.
+3. Emit `resilience-report` events for leadership/compliance review.
 
 ## AI intelligence highlights
-- **AI Risk Scoring**: combines target criticality, environment, SLOs, and history to determine safe experiments.
-- **Predictive Alerts**: warns when load or chaos might breach thresholds before execution.
-- **Intelligent Remediation**: suggests next steps (scale nodes, restart, rollback) when tests fail/breach.
+- **AI risk scoring** combines target criticality, environment, and SLOs to gate experiments.
+- **Predictive alerts** warn when planned tests risk breaching thresholds before starting.
+- **Intelligent remediation** recommends actions (scale nodes, rollback, throttle) when breaches occur.
 
 ## Memory agent & dispatcher integration
-- Store experiment metadata at `shared-context://memory-store/chaos/<experimentId>`.
-- Emit events: `chaos-start`, `chaos-aborted`, `load-test-complete`, `autoscaler-issue`.
-- Respond to dispatcher alerts (incident-ready, capacity-alert) by auto-triggering pre-defined experiments or remediation actions.
-- Tag records with `decisionId`, `tenant`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI commands for Chaos Mesh, LitmusChaos, Azure Chaos, k6, Locust.
-- Secondary: Event bus for `chaos-*` signals consumed by orchestrators and incident skills.
-- Fallback: JSON artifacts stored at `artifact-store://chaos/<experimentId>.json`.
+- Store experiment metadata under `shared-context://memory-store/chaos/{experimentId}` with tags (`decisionId`, `tenant`, `riskScore`).
+- Emit events: `chaos-start`, `chaos-aborted`, `load-test-complete`, `autoscaler-issue`, `resilience-report`.
+- Subscribe to dispatcher alerts to auto-trigger tailored experiments or remediate impacted services.
+- Provide fallback artifacts via `artifact-store://chaos/{experimentId}.json` when event bus offline.
 
 ## Observability & telemetry
-- Metrics: experiments run, passes/failures, SLO breach counts, autoscaler reactions.
-- Logs: structured `log.event="chaos.operation"` with `experiment`, `decisionId`.
-- Dashboards: integrate `/chaos-load-testing metrics --format=prometheus`.
-- Alerts: aborts due to SLO breach > threshold, autoscaler not reacting, repeated experiment failures.
+- Metrics: experiments run, pass/fail counts, SLO breaches, autoscaler responses.
+- Logs: structured `log.event="chaos.operation"` with `experiment`, `decisionId`, `status`.
+- Dashboards: integrate `/chaos-load-testing metrics --format=prometheus` for resilience views.
+- Alerts: experiment aborts > threshold, autoscaler not reacting, repeated failure loops.
 
 ## Failure handling & retries
-- Retry experiments up to 2× on transient infra errors; abort automatically when SLO breach threshold hit.
-- On failure, emit `chaos-operation-failed` and escalate to `incident-triage-runbook`.
-- Preserve experiment artifacts/logs until downstream ack.
+- Retry experiments 2× on transient infra/API failures; auto-abort when SLO thresholds break.
+- On failure emit `chaos-operation-failed`, escalate to `incident-triage-runbook`, and keep artifacts.
+- Do not delete experiments or metrics until downstream acknowledgments exist.
 
 ## Human gates
 - Required when:
- 1. Experiments affect production or >20 tenants.
- 2. RiskScore ≥ 0.7 or SLO thresholds threatened.
- 3. Dispatcher requests manual review after retries.
-- Use standard human gate template documenting impact and reversibility.
+  1. Experiments affect production or >20 tenants.
+  2. RiskScore ≥ 0.7 or SLO thresholds are threatened.
+  3. Dispatcher requests manual review after retries/failures.
+- Confirmation template follows orchestrator standards (impact, reversibility).
 
 ## Testing & validation
 - Dry-run: `/chaos-load-testing run --experiment=pod-kill --dry-run`.
 - Unit tests: `backend/chaos/` ensures guard logic and risk scoring behave correctly.
-- Integration: `scripts/validate-chaos-load.sh` runs experiments in emulator and checks guard responses.
-- Regression: nightly `scripts/nightly-chaos-smoke.sh` ensures automation, metrics, and alerts are stable.
+- Integration: `scripts/validate-chaos-load.sh` runs experiments/emulators verifying guard responses.
+- Regression: nightly `scripts/nightly-chaos-smoke.sh` keeps automation, metrics, and alerts stable.
 
 ## References
 - Scripts: `scripts/chaos/`.
@@ -133,6 +126,6 @@ Validates platform resilience with chaos (Chaos Mesh, LitmusChaos, Azure Chaos) 
 - Reports: `monitoring/reports/chaos`.
 
 ## Related skills
-- `/incident-triage-runbook`: triggered when chaos exposes incidents.
-- `/capacity-planning`: tests autoscaler capacity headroom.
-- `/ai-agent-orchestration`: combines chaos/load tests into larger workflows.
+- `/incident-triage-runbook`: engages when chaos reveals incidents.
+- `/capacity-planning`: validates autoscaler capacity headroom.
+- `/ai-agent-orchestration`: integrates chaos/load tests into larger workflows.

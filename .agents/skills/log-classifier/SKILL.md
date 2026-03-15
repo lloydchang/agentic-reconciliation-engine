@@ -10,19 +10,20 @@ allowed-tools:
 
 # Log Classifier — World-class Observability Playbook
 
-Parses raw logs, classifies issues (errors, warnings, info), assigns AI risk scores, and feeds structured outputs into dispatchers or remediation workflows. Use when ingesting incident logs, summarizing alerts, or augmenting incidents with log context.
+Parses raw logs, classifies issues (errors, warnings, info), assigns AI risk scores, and streams structured outputs to dispatcher or remediation skills.
 
 ## When to invoke
-- Analyze logs from incidents, alerts, or monitoring spikes.
-- Classify logs into categories (database, network, security, application) and assign severity.
-- Provide recommendations/actions for engineering teams or automation scripts.
-- Supply structured context to `incident-triage-runbook`, `audit-siem`, or `workflow-management`.
+- Analyze incident logs, alerts, or monitoring spikes.
+- Categorize logs (database, network, security, application) and tag severity.
+- Supply structured context to `incident-triage-runbook`, `audit-siem`, or automation workflows.
+- Feed derived insights into dashboards, quality gates, or AI orchestrations.
 
 ## Capabilities
-- Raw log parsing + pattern extraction using regex/ML heuristics.
-- AI severity scoring (low/medium/high) with suggested actions.
-- Support for structured outputs used by downstream skills through shared context.
-- Human gates when remediation could touch production systems.
+- **Raw log parsing** with regex/ML heuristics for timestamps, components, stack traces.
+- **AI severity scoring** (low/medium/high) with remediation hints.
+- **Streaming/classification pipelines** for batch or real-time logs.
+- **Shared-context propagation** at `shared-context://memory-store/logs/{operationId}`.
+- **Human gating** when remediation impacts production.
 
 ## Invocation patterns
 
@@ -35,10 +36,10 @@ Parses raw logs, classifies issues (errors, warnings, info), assigns AI risk sco
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `input` | Log file or string to classify. | `logs/app.log` |
+| `input` | Log file or input stream. | `logs/app.log` |
 | `format` | Output format (`json|table`). | `json` |
-| `context` | Shared context for incident correlation. | `shared-context://memory-store/incident/INC-2026-0315` |
-| `category` | Target category filter. | `database` |
+| `context` | Shared context for correlation. | `shared-context://memory-store/incident/INC-2026-0315` |
+| `category` | Category filter (`database|network|security|app`). | `database` |
 | `priority` | Severity threshold. | `critical` |
 
 ## Output contract
@@ -48,12 +49,7 @@ Parses raw logs, classifies issues (errors, warnings, info), assigns AI risk sco
   "operationId": "LOG-2026-0315-01",
   "status": "success",
   "logsClassified": 120,
-  "categories": {
-    "database": 45,
-    "network": 30,
-    "application": 25,
-    "security": 20
-  },
+  "categories": { "database": 45, "network": 30, "application": 25, "security": 20 },
   "findings": [
     {
       "log": "ERROR Failed to connect to database",
@@ -71,66 +67,60 @@ Parses raw logs, classifies issues (errors, warnings, info), assigns AI risk sco
 ## World-class workflow templates
 
 ### Batch classification
-1. Parse log lines, extract timestamp/service/severity.
-2. Match patterns (regex/ML) to assign categories and severity.
-3. Score findings via AI risk heuristics and record suggested actions.
-4. Emit `log-classified` events with structured data for incidents.
+1. Parse log lines, extract metadata (timestamp, service, severity).
+2. Match patterns (regex/ML) to assign categories and use AI to compute severity.
+3. Score findings, record suggested actions, emit `log-classified` events for incident automation.
 
 ### Streaming classification
-1. Ingest logs via watcher (syslog, log aggregator) with filters.
-2. Stream classification results per log entry.
-3. Trigger alert or incident skill when severity high.
+1. Ingest logs via watchers (syslog, aggregator) with filters.
+2. Classify entries in real time and stream results to dashboards or orchestrations.
+3. Trigger alerts when severity/volume crosses thresholds.
 
 ### Incident enrichment
-1. Correlate logs to incident IDs (shared context).
-2. Provide structured context to `incident-triage-runbook` for root cause.
-3. Emit `log-context-ready` event.
+1. Correlate logs with shared incident context.
+2. Provide structured evidence to `incident-triage-runbook` for root-cause analysis.
+3. Emit `log-context-ready` for downstream teams.
 
 ## AI intelligence highlights
-- **AI severity scoring**: uses anomaly detection to rate logs from low (info) to critical (security incidents).
-- **Intelligent action suggestions**: recommends fix steps (restart service, check credentials) based on past incidents.
-- **Predictive alert filtering**: reduces noise by grouping similar logs and scoring aggregated impact.
+- **AI severity scoring** uses anomalies and historical context to rate logs from info to critical.
+- **Intelligent action suggestions** propose fix steps (restart, check credentials) drawn from past incidents.
+- **Predictive alert filtering** reduces noise by grouping similar logs and surfacing aggregated impact.
 
 ## Memory agent & dispatcher integration
-- Store classified logs at `shared-context://memory-store/logs/<operationId>`.
+- Persist classifications under `shared-context://memory-store/logs/{operationId}`.
 - Emit events: `log-classified`, `log-alert`, `log-context-ready`.
-- Subscribe to dispatcher signals (`incident-ready`, `policy-risk`) to add log context to follow-up workflows.
-- Tag records with `decisionId`, `tenant`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI scripts reading log files or streaming watchers.
-- Secondary: Event bus for `log-*` signals consumed by incident/policy skills.
-- Fallback: Persist JSON to `artifact-store://logs/<operationId>.json`.
+- React to dispatcher signals (`incident-ready`, `policy-risk`) to enrich follow-up automations.
+- Tag context with `decisionId`, `tenant`, `riskScore`, `category`.
 
 ## Observability & telemetry
-- Metrics: logs processed per minute, severity distribution, categories, action suggestions accepted.
+- Metrics: logs processed/minute, severity distribution, categories, accepted action suggestions.
 - Logs: structured `log.event="log.classified"` with `operationId`, `category`, `severity`.
-- Dashboards: integrate `/log-classifier metrics --format=prometheus`.
-- Alerts: classification failure rate > 5%, high severity logs > threshold, shared context missing.
+- Dashboards: include `/log-classifier metrics --format=prometheus` for observability.
+- Alerts: classification failure rate > 5%, high severity logs without escalation.
 
 ## Failure handling & retries
-- Retry parsing/ingestion up to 2× on transient errors (IO, parsing).
-- On repeated failures, escalate to `incident-triage-runbook` and log context.
-- Retain shared-context artifacts until downstream ack.
+- Retry parsing/ingestion up to 2× on IO/parsing errors.
+- On repeated failures escalate to `incident-triage-runbook` and provide fallback summaries.
+- Preserve artifacts until downstream acknowledges for audit purposes.
 
 ## Human gates
 - Required when:
- 1. Action suggestion would restart production services.
- 2. Severity critical/impact scope wide.
- 3. Dispatcher requests manual review after repeated noise.
-- Use standard human gate template.
+  1. Suggested action would restart production services.
+  2. Severity critical/impact scope wide requiring policy oversight.
+  3. Dispatcher requests manual review after repeated noise or automation failure.
+- Use the orchestrator-standard confirmation template (impact, reversibility).
 
 ## Testing & validation
 - Dry-run: `/log-classifier classify --input=logs/sample.log --dry-run`.
-- Unit tests: `backend/logs/` ensures classification models and scoring behave as expected.
+- Unit tests: `backend/logs/` ensures models and scoring logic behave as expected.
 - Integration: `scripts/validate-log-classifier.sh` converts sample logs and verifies structured output.
-- Regression: nightly `scripts/nightly-log-smoke.sh` ensures classification accuracy and telemetry.
+- Regression: nightly `scripts/nightly-log-smoke.sh` monitors accuracy and telemetry thresholds.
 
 ## References
 - Scripts: `scripts/log-classifier/`.
 - Templates: `templates/log-classification-report.md`.
 
 ## Related skills
-- `/incident-triage-runbook`: uses logs to contextualize incidents.
+- `/incident-triage-runbook`: uses logs for incident context.
 - `/audit-siem`: stores classified logs for compliance evidence.
-- `/ai-agent-orchestration`: orchestrates follow-up workflows when log alerts fire.
+- `/ai-agent-orchestration`: orchestrates follow-up workflows triggered by log events.

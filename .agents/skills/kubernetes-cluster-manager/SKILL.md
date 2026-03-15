@@ -1,7 +1,7 @@
 ---
 name: kubernetes-cluster-manager
 description: >
-  Operate Kubernetes clusters across AKS, EKS, GKE with AI-driven lifecycle orchestration, security hardening, and fleet observability.
+  Operate Kubernetes clusters across AKS, EKS, and GKE with AI-driven lifecycle orchestration, security hardening, and fleet observability.
 allowed-tools:
   - Bash
   - Read
@@ -10,21 +10,20 @@ allowed-tools:
 
 # Kubernetes Cluster Manager — World-class Fleet Operations Playbook
 
-Provides AI-aided provisioning, scaling, upgrades, security hardening, and diagnostics across AKS/EKS/GKE clusters. Trigger when managing clusters, node pools, RBAC/network policies, version lifecycles, or telemetry-driven remediation.
+Provides AI-aided provisioning, scaling, upgrades, hardening, and diagnostics for fleet-wide Kubernetes operations while feeding rich context to orchestrators.
 
 ## When to invoke
-- Provision, scale, upgrade, or decommission clusters across AKS/EKS/GKE.
-- Harden clusters (RBAC, network policies, workload identity) and enforce policy.
-- Troubleshoot cluster health, autoscaler misbehavior, control-plane anomalies.
-- Respond to dispatcher events (`incident-ready`, `capacity-alert`, `sla-risk`) that need cluster context.
+- Provision, scale, upgrade, or decommission clusters across AKS, EKS, or GKE.
+- Harden clusters with RBAC, network policies, workload identity, or PodSecurity Standards.
+- Troubleshoot cluster health, autoscaler anomalies, or control-plane alerts.
+- Respond to dispatcher/memory agent events (`incident-ready`, `capacity-alert`, `sla-risk`) that require cluster-level context.
 
 ## Capabilities
-- **AI Cluster Risk Scoring**: predicts upgrade/scale risk using historical incidents, change vector, and telemetry.
-- **Intelligent Scaling**: balances multi-node-pool autoscaling with forecasted demand and cost signals.
-- **Smart Upgrade Orchestration**: sequences control plane/node upgrades with rollback safety nets.
-- **Predictive Health Diagnostics**: uses AI to detect cluster anomalies (API latency, kubelet pressure) before impact.
-- **Fleet awareness**: maintains inventory, compliance posture, and uptime telemetry across clouds.
-- Integrates shared context (`shared-context://memory-store/cluster/<clusterId>`) for other skills.
+- **AI cluster risk scoring** predicts upgrade/scale risk using change vectors, telemetry, and incident history.
+- **Intelligent scaling** balances node-pool autoscaling with demand/cost signals from `cost-optimization` and `capacity-planning`.
+- **Smart upgrade orchestration** sequences control plane and node upgrades with rollback safeguards.
+- **Predictive health diagnostics** detect anomalies (API latency, kubelet pressure) before user impact.
+- **Fleet awareness** maintains inventory, compliance posture, and uptime telemetry across clouds via shared context.
 
 ## Invocation patterns
 
@@ -39,12 +38,12 @@ Provides AI-aided provisioning, scaling, upgrades, security hardening, and diagn
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `clusterId` | Cluster identifier (format `platform-tenant-env`). | `aks-tenant-42-prod` |
-| `platform` | Cloud provider (aks|eks|gke). | `gke` |
+| `clusterId` | Cluster identifier (`platform-tenant-env`). | `aks-tenant-42-prod` |
+| `platform` | Cloud provider (`aks|eks|gke`). | `gke` |
 | `nodePool` | Node pool name. | `pool1` |
 | `version` | Kubernetes version target. | `1.30` |
-| `nodeCount` | Desired replica count for pool. | `5` |
-| `policy` | Hardening or compliance policy. | `pod-security` |
+| `nodeCount` | Desired node count for a pool. | `5` |
+| `policy` | Hardening/compliance policy. | `pod-security` |
 
 ## Output contract
 
@@ -84,69 +83,72 @@ Provides AI-aided provisioning, scaling, upgrades, security hardening, and diagn
 ## World-class workflow templates
 
 ### AI-assisted provisioning & hardening
-1. Validate cluster requirements (platform quotas, node sizes, networking).
+1. Validate cluster requirements (quotas, node types, networking).
 2. Provision via cloud CLIs (`az aks`, `eksctl`, `gcloud`) with idempotent arguments and tagging.
 3. Deploy baseline security (network policies, PodSecurity Standards, workload identity, cert-manager, Prometheus stack).
-4. Emit `cluster-provisioned` event with telemetry stored in `shared-context`.
+4. Emit `cluster-provisioned` events with telemetry stored in shared context.
 
 ### Intelligent scaling & autoscaler tuning
-1. Read telemetry (autoscaler events, node CPU/mem) and forecast demand using AI patterns.
-2. Scale node pools while honoring cost/risk signals from `cost-optimization` and `capacity-planning`.
-3. Update node pool taints/labels and reconfigure autoscaler to avoid thrash.
-4. Publish `nodepool-scaled` event and update inventory.
+1. Ingest telemetry (autoscaler events, node CPU/memory, queue depth) and forecast demand using AI ensembles.
+2. Scale node pools while aligning decisions with cost and capacity signals.
+3. Tune taints/labels and autoscalers to avoid oscillation.
+4. Publish `nodepool-scaled` events and update the cluster inventory.
 
 ### Smart upgrades & rollback strategy
-1. Score upgrade risk (difference between current/target versions, change history, incident rate) via AI.
-2. Upgrade control plane followed by node pools sequentially with validation checks.
-3. Rollback automatically if critical health checks fail; log reasons for postmortems.
-4. Emit `upgrade-completed` event for dispatcher to trigger downstream compliance or deployments.
+1. Score upgrade risk (version gaps, change history, incident rate) via AI.
+2. Upgrade control plane/node pools sequentially with validation probes.
+3. Roll back automatically if critical health checks fail; log failures for postmortems.
+4. Emit `upgrade-completed` events for downstream compliance and deployments.
 
 ### Predictive health diagnostics
 1. Run scheduled health checks (nodes, components, events, PVCs, RBAC).
-2. Feed metrics into anomaly detection models (API latency, memory pressure, etc.).
-3. Fire `cluster-anomaly` events when prediction crosses thresholds and tag with `riskScore`.
+2. Feed metrics into anomaly models (API latency, memory pressure, API server errors).
+3. Emit `cluster-anomaly` events when predictions breach thresholds, tagging with `riskScore`.
 4. Trigger `incident-triage-runbook` or `deployment-validation` as needed.
 
 ## AI intelligence highlights
-- **AI Cluster Risk Scoring**: ensembles evaluate upgrade/scale operations for probability of failure and automation readiness.
-- **Intelligent Scaling**: patterns recognize burst demand patterns and tune autoscalers proactively.
-- **Smart Upgrade Orchestration**: sequences upgrades with canary control plane validation, minimize disruptions.
-- **Predictive Health Diagnostics**: identifies control-plane/cni/etcd anomalies before pods fail.
+- **AI Cluster Risk Scoring** evaluates operations for failure likelihood and automation readiness.
+- **Intelligent Scaling** recognizes burst demand patterns and pro-actively adjusts autoscalers.
+- **Smart Upgrade Orchestration** sequences upgrades with canary control-plane validation.
+- **Predictive Health Diagnostics** surfaces control-plane, CNI, or etcd anomalies before they affect pods.
 
 ## Memory agent & dispatcher integration
-- Store cluster telemetry under `shared-context://memory-store/cluster/<clusterId>` for other skills (incident, capacity, cost).
+- Store cluster telemetry under `shared-context://memory-store/cluster/{clusterId}` for `incident`, `capacity`, and `cost` skills.
 - Emit/consume events: `cluster-provisioned`, `cluster-scaled`, `cluster-upgrade`, `cluster-anomaly`, `cluster-hardening`.
-- Tag records with `decisionId`, `tenant`, `region`, `riskScore`, `confidence`.
-
-## Communication protocols
-- Primary: CLI/webhook operations executing cloud CLIs and kubectl commands.
-- Secondary: Event bus for `cluster-*` events consumed by dispatcher and skills.
-- Fallback: When event bus unavailable, persist JSON artifacts to `artifact-store://cluster/<operationId>.json`.
+- Tag context with `decisionId`, `tenant`, `region`, `riskScore`, and `confidence`.
+- Respond to dispatcher signals (`incident-ready`, `policy-risk`, `capacity-alert`) to synchronize fleets.
 
 ## Observability & telemetry
 - Metrics: provisioning latency, upgrade success rate, autoscaler stability, anomaly count.
-- Logs: structured `log.event="cluster.*"` with `decisionId`, `clusterId`, `tenant`.
-- Dashboards: integrate `/kubernetes-cluster-manager metrics --format=prometheus` into Grafana fleets.
-- Alerts: riskScore > 0.85, upgrade failure rate > 1%, cluster-anomaly events > 3 per hour.
+- Logs: structured `log.event="cluster.*"` including `decisionId`, `clusterId`, `tenant`.
+- Dashboards: integrate `/kubernetes-cluster-manager metrics --format=prometheus` into fleet Grafana views.
+- Alerts: `riskScore > 0.85`, upgrade failure rate >1%, cluster-anomaly events >3/hour.
 
 ## Failure handling & retries
 - Retry cloud CLI/API calls (provision/scale/upgrade) up to 3× with exponential backoff (30s → 2m).
-- On upgrade failure, trigger rollback steps (control plane, node pools) and emit `cluster-rollback`.
-- Preserve diagnostics/logs under `logs/cluster/<operationId>.log` until audits confirm closure.
-- Do not delete shared-context entries to keep audit trail intact.
+- On upgrade failure, trigger rollback (control plane, node pools) and emit `cluster-rollback` events.
+- Preserve diagnostics/logs under `logs/cluster/{operationId}.log` until audits close the loop.
+- Keep shared-context entries intact to maintain the audit trail.
 
 ## Human gates
 - Required when:
- 1. Risk score ≥ 0.9 for provisioning/upgrades or >20 tenants impacted.
- 2. Hardening operations change network policies or RBAC for production clusters.
- 3. Dispatcher requests escalation after repeated upgrade failures.
-- Use standard confirmation template capturing impact and reversibility.
+  1. Risk score ≥ 0.9 for provisioning/upgrades or >20 tenants impacted.
+  2. Hardening changes network policies/RBAC for production clusters.
+  3. Dispatcher flags escalation after repeated upgrade failures.
+- Confirmation template aligns with the orchestrator format:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/kubernetes-cluster-manager provision --clusterId=CLUSTER-DRY-RUN --dry-run`.
-- Unit tests: `backend/kubernetes/cluster` ensures risk scoring and template parsing.
-- Integration: `scripts/validate-cluster-manager.sh` drives provisioning, scaling, upgrade flows in emulator mode.
-- Regression: nightly `scripts/nightly-cluster-health.sh` validates telemetry, autoscaling, and AI anomaly detection.
+- Unit tests: `backend/kubernetes/cluster` ensures risk scoring and template parsing behave as expected.
+- Integration: `scripts/validate-cluster-manager.sh` drives provisioning, scaling, and upgrade flows in emulator mode.
+- Regression: nightly `scripts/nightly-cluster-health.sh` checks telemetry, autoscaling, and anomaly detection.
 
 ## References
 - Provisioning templates: `infrastructure/cluster/`.
@@ -154,7 +156,7 @@ Provides AI-aided provisioning, scaling, upgrades, security hardening, and diagn
 - Fleet dashboards: `monitoring/grafana/cluster-fleet`.
 
 ## Related skills
-- `/ai-agent-orchestration`: receives cluster events and routes downstream operations.
-- `/incident-triage-runbook`: handles anomalies surfaced from cluster health diagnostics.
-- `/capacity-planning`: aligns scaling decisions with forecasted capacity.
-- `/deployment-validation`: gates deployments dependent on healthy clusters.
+- `/ai-agent-orchestration`: responds to cluster events and coordinates downstream operations.
+- `/incident-triage-runbook`: handles anomalies surfaced by health diagnostics.
+- `/capacity-planning`: aligns scaling with forecasted demand.
+- `/deployment-validation`: gates deployments that depend on healthy clusters.

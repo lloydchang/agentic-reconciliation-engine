@@ -10,20 +10,20 @@ allowed-tools:
 
 # Deployment Validation — World-class Gatekeeper
 
-Combines pre-flight checks, telemetry-driven canary analysis, automated rollback, and contextual go/no-go decisions. Trigger when deploying to any environment where user impact matters—especially prod, staging, or multi-tenant surfaces.
+Combines pre-flight validation, telemetry-driven canary analysis, automated rollback, and context-aware GO/NO-GO decisions so every release is gatechecked before user traffic shifts.
 
 ## When to invoke
-- Before approving or promoting any new release (rolling, blue/green, canary, canary + progressive).
-- When realtime telemetry (golden signals) must gate traffic shifts.
-- During incident post-mortem to confirm if a deployment triggered degradation.
-- From `ai-agent-orchestration` when memory agents flag risky deployments or `cost-optimization`/`incident-triage` demand rollback validation.
+- Before approving or promoting any release (rolling, blue/green, canary, or progressive deployments).
+- When golden-signal telemetry must gate traffic shifts or when metric drift appears during rollout.
+- While investigating incidents to verify if a deployment introduced degradation.
+- When `ai-agent-orchestration` or memory agents flag risky deployments, cost spikes, or compliance gaps that could require rollback.
 
 ## Capabilities
-- AI deployment risk assessment scoring (pre-flight and runtime) combining test, metric, and dependency data.
-- Smart canary analysis that evaluates metrics per step, surfaces drift, and recommends promotion/rollback.
-- Intelligent rollback triggers that pre-empt user impact by detecting early deviation.
-- Automated GO/NO-GO gating that factors in deployment risk, business impact, and human approvals.
-- Observability ties into Prometheus, Grafana, Slack/Teams, and audit logs for traceability.
+- **AI Deployment Risk Assessment** scores pre-flight readiness and runtime indicators using change size, dependency health, and past MTTR.
+- **Smart Canary Analysis** evaluates per-step metrics, surfaces drift, and recommends promote/hold/rollback decisions with explanations.
+- **Intelligent Rollback Triggers** detect early deviation (latency drift, saturation) and initiate rollbacks before user impact grows.
+- **Automated GO/NO-GO Decisions** fuse AI risk, metrics, and policy to auto-approve low-risk releases or escalate high-risk events.
+- **Audit-grade Observability** ties metrics/logs to Prometheus, Grafana, Slack/Teams, and shared context stores for traceability.
 
 ## Invocation patterns
 
@@ -37,11 +37,11 @@ Combines pre-flight checks, telemetry-driven canary analysis, automated rollback
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `deploymentId` | Deployment identifier (tracker). | `DEP-2026-081` |
-| `strategy` | Deployment strategy (rolling, canary, blue-green). | `canary` |
+| `deploymentId` | Deployment identifier or tracker. | `DEP-2026-081` |
+| `strategy` | Deployment approach (rolling, canary, blue-green). | `canary` |
 | `thresholds` | Metric thresholds per strategy. | `latency:1.5,errorRate:1%` |
 | `region` | Region/tenant scope. | `us-east-1` |
-| `approval` | Whether human gate already approved. | `true|false` |
+| `approval` | Whether a human gate already granted permission. | `true|false` |
 
 ## Output contract
 
@@ -79,66 +79,66 @@ Combines pre-flight checks, telemetry-driven canary analysis, automated rollback
 ## World-class workflow templates
 
 ### Pre-flight AI risk assessment
-1. Validate manifests/images (kubeval, trivy).
-2. Run regression smoke suite.
-3. Score readiness using AI risk model (tests, change volume, dependency health).
-4. Emit `deployment-risk` event with `riskScore` and recommended gate.
+1. Validate manifests/images (kubeval, trivy, sigstore).  
+2. Execute regression/smoke suites and gather dependency health.  
+3. Score readiness with an AI model that combines test coverage, change volume, and past MTTR.  
+4. Emit `deployment-risk` events with `riskScore`, dependencies, and gate recommendations.
 
 ### Smart canary analysis
-1. Analyze golden signals per step (latency, error rate, saturation, throughput).
-2. Compare sliding window metrics to baseline with anomaly detection.
-3. Recommend `promote`, `hold`, or `rollback` with confidence and rationale.
-4. Use `/deployment-validation canary` to implement decision.
+1. Evaluate golden signals per canary step (latency, error rate, saturation, throughput).  
+2. Compare sliding windows to baseline using anomaly detection and explainable AI.  
+3. Recommend `promote`, `hold`, or `rollback` with confidence and rationale.  
+4. Trigger `/deployment-validation canary` or dispatch automation commands to effect the decision.
 
 ### Intelligent rollback triggers & automation
-1. Detect soft signals (latency drift, downstream error) before hitting threshold.
-2. Evaluate cost/risk tradeoff to decide immediate rollback vs hold.
-3. Trigger `rollback` command with reason, notify stakeholders, log to `deployment-history`.
+1. Detect soft signals (latency drift, downstream errors, dependency flaps) before thresholds breach.  
+2. Decide between immediate rollback or hold based on cost/risk tradeoffs and human availability.  
+3. Emit `deployment-rollback` events, notify stakeholders, and log to `deployment-history`.
 
 ### Automated GO/NO-GO decisions
-1. Combine AI risk, canary metrics, change volume, dependency status.
-2. If risk < threshold and metrics pass, auto-approve (GO).
-3. If risk high or metrics degrade, require human confirmation (NO-GO/human gate).
+1. Fuse AI risk, telemetry, dependency health, and approval status.  
+2. Auto-approve (GO) if all gates pass and risk is low; otherwise require a human gate (NO-GO/human gate).  
+3. Document the decision, log to shared context, and notify orchestration skills.
 
 ## AI intelligence highlights
-- **AI Deployment Risk Assessment**: Models combine test coverage, change size, dependency health, and past MTTR to score deployment risk.
-- **Smart Canary Analysis**: Evaluates per-step metrics, anomaly deviation, and recommends promotion/rollback with explanations.
-- **Intelligent Rollback Triggers**: Detects subtle drift (latency, saturation) and triggers rollback before significant impact.
-- **Automated GO/NO-GO Decisions**: Context-aware gating that fuses AI risk, telemetry, and policy to output actionable decisions.
+- **AI Deployment Risk Assessment** blends test depth, change size, dependency readiness, and historical incidents to quantify risk and highlight weak signals.
+- **Smart Canary Analysis** reasons over per-step metrics, anomalies, and confidence to produce promotion/rollback recommendations with explanations.
+- **Intelligent Rollback Triggers** spot subtle drift or saturation, trigger early rollback, and preserve rollback rationale.
+- **Automated GO/NO-GO Decisions** continuously compare policy, telemetry, and approvals to emit actionable decisions (GO, NO-GO, HUMAN_GATE).
 
 ## Memory agent & dispatcher integration
-- Write decision context to `shared-context://memory-store/deployments/{deploymentId}` for other skills.
-- Emit events `deployment-risk`, `deployment-go`, `deployment-no-go`, `deployment-rollback`.
-- Subscribe to memory agent insights (cost spike, compliance risk) to adjust thresholds on the fly.
-
-## Communication protocol
-- Primary: CLI/webhook invocation, event bus messages for canary and rollback states.
-- Secondary: HTTP webhook to Slack/Teams using `SLACK_WEBHOOK`, `TEAMS_WEBHOOK`.
-- Fallback: Artifact store entries (`artifact-store://deployments/{id}.json`) if event bus is unavailable.
+- Persist decisions and telemetry to `shared-context://memory-store/deployments/{deploymentId}` for downstream skills.
+- Emit events (`deployment-risk`, `deployment-go`, `deployment-no-go`, `deployment-rollback`) so orchestrators can chain follow-ups.
+- Subscribe to memory agent insights (cost spikes, compliance issues) to adjust thresholds and human gate decisions.
+- Communicate via the event bus (Pulsar/Kafka) for canary, rollback, and gate states; fallback to `artifact-store://deployments/{id}.json` when bus is offline.
 
 ## Observability & telemetry
-- Metrics: gates per deployment, risk score distribution, rollback frequency, model confidence.
-- Logs: structured `log.event` for `deployment-risk`, `canary-eval`, `rollback`.
-- Dashboards: integrate `/deployment-validation metrics --format=prometheus` for deployment health.
-- Alerts: risk scores > 0.85, >2 alerts per deployment, rollback rate > 5% per week.
+- Metrics: gates per deployment, risk score distribution, rollback rate, model confidence.  
+- Logs: structured `log.event` entries for `deployment-risk`, `canary-eval`, `rollback-trigger`, with `decisionId` and `tenant`.  
+- Dashboards: expose `/deployment-validation metrics --format=prometheus` for deployment health and on-call monitoring.  
+- Alerts: risk scores > 0.85, >2 deployment alerts per rollout, rollback rate >5% per week, or training data drift in AI decision models.
 
 ## Failure handling & retries
-- Retry telemetry pulls (Prometheus/Datadog) up to 3 times before failing gate.
-- If rollback command fails, log error, notify on-call, and escalate to `incident-triage-runbook`.
-- Preserve artifacts (`reports/deployments/{deploymentId}.json`) for auditing; never delete until retention policy reached.
+- Retry telemetry pulls (Prometheus/Datadog/Datadog) up to 3 times before escalating a gate failure.  
+- If rollback automation fails, log the error, notify on-call (Slack/Teams/SMS), and escalate to `incident-triage-runbook`.  
+- Preserve audit artifacts (`reports/deployments/{deploymentId}.json`, `logs/deployment-coordinator.log`) until downstream acknowledgements.
 
 ## Human gates
-- Required when:
- 1. AI decision is `NO-GO` or `HUMAN_GATE`.
- 2. Rollback affects >20 tenants or production-critical services.
- 3. Risk score ≥ 0.9 despite gate passing.
-- Use the standard confirmation template.
+- Required when any AI decision resolves to `NO-GO`/`HUMAN_GATE`, when rollback touches >20 tenants or critical services, or when risk score ≥ 0.9 despite passing gates.  
+- Confirmation template aligns with the orchestrator format:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
-- Dry-run: `/deployment-validation preflight --deploymentId=DEP-DRY-RUN --dry-run=true`.
-- Unit tests: `backend/deployments/validation` covers AI risk scoring and canary logic.
-- Integration: `scripts/validate-deployment-coordinator.sh` triggers full runbook and monitors event bus.
-- Regression: nightly script `scripts/nightly-deployment-smoke.sh` ensures GO/NO-GO logic remains stable.
+- Dry-run: `/deployment-validation preflight --deploymentId=DEP-DRY-RUN --dry-run=true`.  
+- Unit tests: `backend/deployments/validation` covers AI risk scoring and canary logic.  
+- Integration: `scripts/validate-deployment-coordinator.sh` exercises the full runbook and event bus handoffs.  
+- Regression: nightly `scripts/nightly-deployment-smoke.sh` ensures GO/NO-GO logic, telemetry, and gate notifications stay stable.
 
 ## References
 - Deployment history ledger: `logs/deployments/`.
@@ -146,6 +146,6 @@ Combines pre-flight checks, telemetry-driven canary analysis, automated rollback
 - Runbook templates: `docs/DEPLOYMENT_STATUS.md`, `docs/DEPLOYMENT_STRATEGIES.md`.
 
 ## Related skills
-- `/ai-agent-orchestration`: orchestrates multi-skill remediation based on risk and findings.
-- `/workflow-management`: tracks deployment workflows and can rerun validations.
-- `/incident-triage-runbook`: coordinates rollback-triggered incidents.
+- `/ai-agent-orchestration`: coordinates multi-skill remediation and post-deployment follow-up.
+- `/workflow-management`: tracks deployment workflows and reruns validations as needed.
+- `/incident-triage-runbook`: escalates incident responses triggered by deployment rollback events.

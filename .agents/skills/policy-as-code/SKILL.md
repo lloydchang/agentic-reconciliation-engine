@@ -1,7 +1,7 @@
 ---
 name: policy-as-code
 description: >
-  Define, enforce, and audit governance policies across IaC, Kubernetes, and cloud platforms with AI-backed risk scoring and remediation prioritization.
+  Define, enforce, and audit governance policies across IaC, Kubernetes, and cloud platforms with AI-backed risk scoring and remediation guidance.
 allowed-tools:
   - Bash
   - Read
@@ -10,21 +10,21 @@ allowed-tools:
 
 # Policy-as-Code — World-class Governance Playbook
 
-Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime using OPA, Gatekeeper, Azure Policy, AWS SCPs, and CI pre-flight gates. Use this skill whenever policy definitions, enforcement, audits, or violation remediation are required.
+Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime using OPA, Gatekeeper, Azure Policy, AWS SCPs, and CI gates so every change stays compliant.
 
 ## When to invoke
-- Before merging IaC/manifests: enforce tagging, SKU, and security requirements.
-- After deployments or runtime drift: re-audit and auto-remediate policy violations.
-- During compliance reviews (SOC2, CIS, PCI) to generate evidence.
-- When dispatchers or memory agents report `policy-risk`, `compliance-gap`, or `security-exposure`.
+- Before merging IaC/manifests to enforce tagging, SKU, and security controls.
+- After deployments or runtime drift to audit policy posture and auto-remediate violations.
+- During compliance reviews (SOC2, CIS, PCI) to produce evidence packages.
+- When dispatcher/memory agents surface `policy-risk`, `compliance-gap`, or security exposures.
 
 ## Capabilities
-- Multi-layer enforcement (CI pre-plan, Kubernetes admission, cloud policy, runtime telemetry).
-- **AI Risk Assessment** that contextualizes violations with severity, business impact, and policy mapping.
-- **Smart Remediation Prioritization** surfaces actions by impact/effort, hooking into automations when safe.
-- **Intelligent Violation Analysis** explains dependencies, attack surface, and regulatory consequences.
-- Auto-remediation for safe violations (tagging, SKU drift) plus human-gated escalations.
-- Shared context integration (`shared-context://memory-store/policy/{operationId}`) for downstream skills.
+- **Multi-layer enforcement** spanning CI pre-plans, Kubernetes admission, cloud policies, and runtime telemetry.
+- **AI risk assessment** contextualizing violations with severity, business impact, and framework mapping.
+- **Smart remediation prioritization** ranking fixes by impact/effort while respecting human gates.
+- **Intelligent violation analysis** explaining dependencies, attack surface, and regulatory implications.
+- **Automated remediation** for safe violations (tagging, SKU drift) plus human-gated escalation when needed.
+- **Shared-context integration** (`shared-context://memory-store/policy/{scanId}`) for downstream skills.
 
 ## Invocation patterns
 
@@ -39,11 +39,11 @@ Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime
 ## Common parameters
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `scope` | IaC, cluster, cloud, or runtime environment. | `terraform`, `aks`, `aws` |
-| `policy` | Named policy (e.g., `tagging`, `approved-regions`). | `approved-regions` |
+| `scope` | IaC, cluster, cloud, or runtime surface. | `terraform`, `aks`, `aws` |
+| `policy` | Policy name (`tagging`, `approved-regions`). | `approved-regions` |
 | `framework` | Compliance framework (SOC2, CIS, ISO27001). | `soc2` |
 | `cluster` | Kubernetes cluster identifier. | `tenant-42` |
-| `provider` | Cloud provider (azure|aws|gcp). | `azure` |
+| `provider` | Cloud provider (`azure|aws|gcp`). | `azure` |
 | `scanId` | Policy scan/tracking ID. | `POLICY-2026-0315-01` |
 
 ## Output contract
@@ -72,7 +72,7 @@ Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime
     "low": 3
   },
   "aiInsights": {
-    "riskImpact": "PCI/PCI-DSS scope",
+    "riskImpact": "SOC2-CC6.1 exposures",
     "remediationPriority": "tagging > approved-skus > forbidden-ips"
   },
   "logs": "shared-context://memory-store/policy/POLICY-2026-0315-01",
@@ -83,63 +83,70 @@ Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime
 ## World-class workflow templates
 
 ### AI risk-aware policy enforcement
-1. Run pre-commit/PR `conftest`/OPA against IaC plans.
-2. Policy violations feed AI risk scoring (severity × compliance impact × tenant criticality).
-3. Auto-remediate safe violations (tag injection, SKU replacement) and emit `policy-remediated`.
-4. Escalate critical/high risk to human gate with detailed explanation.
+1. Run CI gate (`conftest`, OPA) against IaC plans/manifests.
+2. Score violations by severity, tenant criticality, and compliance impact.
+3. Auto-remediate safe gaps (tag injection, SKU alignment) and emit `policy-remediated`.
+4. Escalate critical/high risks through human gates with clear impact stories.
 
 ### Intelligent violation analysis & reporting
-1. Correlate policy violations across IaC, Kubernetes, cloud platforms, and runtime.
-2. Explain attack surface or compliance consequence (e.g., missing encryption affects SOC2-CC6).
-3. Generate executive-ready compliance reports highlighting trending violations.
-4. Emit `policy-report-ready` event for dispatcher and auditors.
+1. Correlate violations across IaC, Kubernetes, cloud policy, and runtime logs.
+2. Explain attack surface/regulatory impact (e.g., missing encryption touches SOC2/PCI scope).
+3. Generate compliance-ready summaries and emit `policy-report-ready` events for auditors.
+4. Feed insights into dispatchers for remediation orchestration.
 
 ### Continuous production guardrails
-1. Apply Gatekeeper constraints/admission policies (resource limits, approved registries).
-2. Use Azure Policy/AWS SCP to deny dangerous configurations instantly.
-3. Monitor runtime through Falco/log-based findings for drift.
-4. Emit `policy-breach` events when severity escalates and connect to `incident-triage-runbook`.
+1. Apply Gatekeeper/OPA constraints (resource limits, approved registries, namespace policies).
+2. Use Azure Policy/Management Groups and AWS SCPs to block dangerous cross-account changes.
+3. Detect runtime drift via Falco/log-based findings and escalate with `policy-breach` events.
+4. Trigger `incident-triage-runbook` if severity persists or escalates.
 
 ## AI intelligence highlights
-- **AI Risk Assessment**: blends policy severity, tenant SLA, and historical remediation to output `riskScore` and recommended action.
-- **Smart Remediation Prioritization**: sequences fixes by effort, impact, and confidence to respect limited SRE bandwidth.
-- **Intelligent Violation Analysis**: surfaces causal factors (IAM exposure, unsupported regions, missing tags) with textual explanation for auditors.
-- **Predictive Guardrail Alerts**: anticipates policy drift before deployment (e.g., new IaC modules lacking policies).
+- **AI Risk Assessment** blends policy severity, tenant SLA, and historical remediation to output `riskScore`.
+- **Smart Remediation Prioritization** sequences fixes by effort, impact, and confidence to save SRE time.
+- **Intelligent Violation Analysis** surfaces causal factors (IAM exposure, unsupported regions, missing tags) for auditors.
+- **Predictive Guardrail Alerts** anticipate drift before deployment (new IaC modules lacking constraints).
 
 ## Memory agent & dispatcher integration
-- Store normalized findings under `shared-context://memory-store/policy/<scanId>`.
+- Store normalized findings under `shared-context://memory-store/policy/{scanId}`.
 - Emit events: `policy-risk`, `policy-remediated`, `policy-report-ready`, `policy-human-gate`.
-- Subscribe to `incident-ready`, `cost-anomaly`, `capacity-alert` to reprioritize policy actions.
-- Tag all entries with `decisionId`, `tenant`, `framework`, `riskScore`, `confidence`.
+- Subscribe to `incident-ready`, `cost-anomaly`, `capacity-alert`, `sla-risk` to reprioritize actions.
+- Tag entries with `decisionId`, `tenant`, `framework`, `riskScore`, `confidence`.
 
 ## Communication protocols
-- Primary: CLI/batch commands running `conftest`, Azure Policy CLI, AWS CLI with JSON output.
-- Secondary: Event bus (Kafka/NATS) carrying `policy-*` events for dispatchers/skills.
-- Fallback: Persist JSON artifacts to `artifact-store://policy/<scanId>.json`.
+- Primary: CLI/batch commands running `conftest`, Azure Policy CLI, AWS CLI returning JSON.
+- Secondary: Event bus (Kafka/NATS) carrying `policy-*` events for dispatchers.
+- Fallback: Persist JSON artifacts to `artifact-store://policy/{scanId}.json` for pull-based consumers.
 
 ## Observability & telemetry
 - Metrics: violations per policy, riskScore distribution, remediation latency, auto-remediation rate.
 - Logs: structured `log.event="policy.violation"` with `policy`, `tenant`, `framework`.
-- Dashboards: integrate `/policy-as-code metrics --format=prometheus` for compliance posture and trends.
-- Alerts: riskScore > 0.85, >50 violations in 24h, automation failure rate > 10%.
+- Dashboards: expose `/policy-as-code metrics --format=prometheus` for compliance posture and trends.
+- Alerts: riskScore > 0.85, >50 violations in 24h, automation failure rate >10%.
 
 ## Failure handling & retries
-- Retry policy scans or cloud API calls (e.g., Azure Policy) up to 3× with exponential backoff (30s → 2m).
-- Upon auto-remediation failure, store context, emit `policy-remediation-failed`, and escalate human gate.
-- Keep artifacts/logs for audit `<reports/policy>`. Do not delete until compliance cycle completes.
+- Retry policy evaluations or cloud APIs up to 3× with exponential backoff (30s → 2m).
+- On auto-remediation failure, store context, emit `policy-remediation-failed`, and trigger human gate.
+- Retain artifacts/logs in `reports/policy/` until compliance cycle closes; do not delete until downstream ack.
 
 ## Human gates
 - Required when:
- 1. RiskScore ≥ 0.9 or >20 tenants impacted.
- 2. Policy action would remove access, delete resources, or change networking.
- 3. Dispatcher flags unresolved critical violation after >2 auto-remediation attempts.
-- Use standard human gate confirmation capturing impact and reversibility.
+  1. `riskScore ≥ 0.9` or >20 tenants are impacted.
+  2. Policy action removes access, deletes resources, or modifies networking for production.
+  3. Dispatcher requests intervention after >2 auto-remediation retries.
+- Confirmation template matches the orchestrator standard:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
 
 ## Testing & validation
 - Dry-run: `/policy-as-code audit --scope=terraform --policy=tagging --dry-run`.
-- Unit tests: `backend/policy/` validates rego parsing/risk scoring.
+- Unit tests: `backend/policy/` validates Rego parsing and risk scoring.
 - Integration: `scripts/validate-policy-pipeline.sh` runs Gatekeeper/Azure Policy with sample violations.
-- Regression: nightly `scripts/nightly-policy-smoke.sh` ensures dispatch events fire and reports stay valid.
+- Regression: nightly `scripts/nightly-policy-smoke.sh` ensures dispatch events and reports remain accurate.
 
 ## References
 - Policy templates: `conftest/`, `gatekeeper/templates/`.
@@ -147,6 +154,6 @@ Codifies guardrails across Terraform/ARM, Kubernetes, Azure/AWS/GCP, and runtime
 - AWS SCP definitions: `infrastructure/policy/aws/`.
 
 ## Related skills
-- `/ai-agent-orchestration`: orchestrates policy responses across other skill flows.
-- `/incident-triage-runbook`: handles critical policy breaches.
+- `/ai-agent-orchestration`: coordinates policy response chains.
+- `/incident-triage-runbook`: handles critical/ongoing policy breaches.
 - `/compliance-security-scanner`: correlates policy violations with compliance findings.

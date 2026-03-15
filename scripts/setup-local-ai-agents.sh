@@ -47,7 +47,12 @@ log_agent() {
 
 # Detect operating system and set package manager
 detect_os() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Check for WSL first (can appear as Linux but needs special handling)
+    if [[ -f /proc/version ]] && grep -qi "microsoft\|wsl" /proc/version; then
+        OS="wsl"
+        PACKAGE_MANAGER="apt"  # WSL typically uses Ubuntu/Debian
+        log_success "WSL (Windows Subsystem for Linux) detected - using apt with Windows integration"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
         OS="macos"
         PACKAGE_MANAGER="brew"
         log_success "macOS detected - using Homebrew"
@@ -72,7 +77,7 @@ detect_os() {
             exit 1
         fi
     else
-        log_error "Unsupported operating system. This script supports macOS, Windows, and Linux."
+        log_error "Unsupported operating system. This script supports macOS, Windows, WSL, and Linux."
         exit 1
     fi
 }

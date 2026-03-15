@@ -10,24 +10,25 @@ allowed-tools:
 
 # Manifest Generator — World-class YAML Playbook
 
-Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from natural language, enforces best practices (labels, resource limits, probes), and provides structured outputs for automation/orchestrator ingestion.
+Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from natural language while enforcing best practices and providing structured outputs for automation.
 
 ## When to invoke
-- User needs a manifest for deployments/services/configmaps/ingresses/etc.
+- Translate natural requirements into manifests for Deployments, Services, ConfigMaps, Ingresses, etc.
 - Build multi-resource bundles for new services or updates.
-- Validate generated YAML for syntax, policies, and security.
-- Feed orchestrations requiring manifest creation (tenant onboarding, deployments).
+- Validate YAML against policies and explain resource semantics.
+- Supply manifest artifacts to orchestrations (tenant onboarding, deployments, GitOps).
 
 ## Capabilities
-- Parse natural descriptions into manifest specs.
-- Enforce best practices (labels, resource requests, probes).
-- AI scoring for manifest risk (privileged containers, hostPath, missing probes).
-- Shared context `shared-context://memory-store/manifest/<operationId>`.
+- **Natural language parsing** into structured manifest requirements.
+- **Policy enforcement** (labels, resource specifications, probes, security).
+- **AI risk scoring** for privileged configurations or missing controls.
+- **Bundle generation** creating zipped multi-resource packages.
+- **Shared-context propagation** via `shared-context://memory-store/manifest/{operationId}`.
 
 ## Invocation patterns
 
 ```bash
-/manifest-generator create --description="Deploy nginx with 3 replicas, limit memory to 512Mi, expose via LoadBalancer"
+/manifest-generator create --description="Deploy nginx with 3 replicas, 512Mi memory limit, LoadBalancer"
 /manifest-generator validate --manifest=deployment.yaml --policy=security
 /manifest-generator bundle --components=deployment,service --namespace=tenant-42
 /manifest-generator explain --manifest=deployment.yaml --audience=engineering
@@ -37,10 +38,11 @@ Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `description` | Natural language manifest request. | `3 replicas nginx` |
-| `manifest` | Path to existing manifest. | `deployment.yaml` |
-| `policy` | Validation policy (security, best-practices). | `security` |
-| `components` | Resource types building block. | `deployment,service` |
+| `manifest` | Path to existing YAML. | `deployment.yaml` |
+| `policy` | Validation policy (`security`, `best-practices`). | `security` |
+| `components` | Resource types to include. | `deployment,service` |
 | `namespace` | Target namespace. | `tenant-42` |
+| `format` | Output format (`yaml|json|bundle`). | `yaml` |
 
 ## Output contract
 
@@ -56,9 +58,7 @@ Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from 
     "riskScore": 0.25,
     "notes": ["Added readiness probe", "Set CPU limits"]
   },
-  "manifests": {
-    "deployment": "apiVersion: apps/v1..."
-  },
+  "manifests": { "deployment": "apiVersion: apps/v1..." },
   "decisionContext": "redis://memory-store/manifest/MANIFEST-2026-0315-01",
   "logs": "shared-context://memory-store/manifest/MANIFEST-2026-0315-01"
 }
@@ -67,54 +67,47 @@ Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from 
 ## World-class workflow templates
 
 ### Manifest creation
-1. Parse natural request into structured requirements.
-2. Compose manifest with required fields (labels, selectors, resource limits, probes).
-3. Validate syntax and policies.
-4. Emit `manifest-created` event with YAML and metadata.
+1. Parse description into workloads, services, config maps, and metadata.
+2. Generate YAML with labels, selectors, probes, and resource limits.
+3. Validate YAML, emit `manifest-created`, store context, and share with orchestrations.
 
 ### Bundle generation
-1. Create multi-resource bundles (Deployment + Service + ConfigMap + HPA).
-2. Export zipped YAML package for CLI/app consumption.
-3. Emit `manifest-bundle-ready`.
+1. Assemble multi-resource packages (Deployment + Service + ConfigMap + HPA).
+2. Package artifacts, deliver zipped payload, and emit `manifest-bundle-ready`.
 
 ### Validation & explanation
-1. Validate existing manifest vs policies (security, best practices).
-2. Provide human-friendly explanation of each resource/component.
-3. Emit `manifest-validated`.
+1. Validate existing manifests against policies and best practices.
+2. Generate human-friendly explanations per resource for engineering or compliance.
+3. Emit `manifest-validated` with verdict and suggestion list.
 
 ## AI intelligence highlights
-- **AI Risk Scoring**: flags risky configurations (privileged container, hostPath, missing probes).
-- **Intelligent Best Practices**: suggests probes, resource limits, annotations.
-- **Explainable YAML**: generates natural-language explanation for each field.
+- **AI risk scoring** flags risky configurations (privileged containers, hostPath, missing probes).
+- **Intelligent best practices** recommend resource limits, annotations, or security settings.
+- **Explainable YAML** provides natural-language descriptions for each field/resource.
 
 ## Memory agent & dispatcher integration
-- Store YAML & metadata at `shared-context://memory-store/manifest/<operationId>`.
-- Emit events: `manifest-created`, `manifest-validated`, `manifest-bundle`.
-- Dispatcher can trigger manifest generation as part of workflows.
-- Tag context with `decisionId`, `resources`, `riskScore`.
-
-## Communication protocols
-- Primary: CLI (kubectl) friendly YAML output.
-- Secondary: Event bus for `manifest-*` events.
-- Fallback: JSON artifacts `artifact-store://manifest/<operationId>.json`.
+- Persist manifests and metadata under `shared-context://memory-store/manifest/{operationId}`.
+- Emit events: `manifest-created`, `manifest-validated`, `manifest-bundle`, `manifest-explained`.
+- Dispatcher flows can trigger manifest generation as part of larger workflows.
+- Tag context with `decisionId`, `resources`, `riskScore`, `templates`.
 
 ## Observability & telemetry
-- Metrics: manifests generated, validations performed, riskScore distribution.
-- Logs: structured `log.event="manifest.operation"` with `operationId`.
-- Dashboards: integrate `/manifest-generator metrics --format=prometheus`.
-- Alerts: policy violations, high riskScore generation frequency, validation failures.
+- Metrics: manifests generated, validations run, riskScore distribution.
+- Logs: structured `log.event="manifest.operation"` with `operationId`, `resources`.
+- Dashboards: integrate `/manifest-generator metrics --format=prometheus` for platform teams.
+- Alerts: policy violations, high riskScore frequency, validation failures.
 
 ## Failure handling & retries
-- Retry generation/validation up to 2× on errors.
-- On repeated failure escalate to `incident-triage-runbook`.
-- Keep YAML and logs until referenced by downstream skills.
+- Retry generation/validation up to 2× on transient errors.
+- On repeated failure escalate to `incident-triage-runbook` and keep artifact logs.
+- Preserve YAML and logs until downstream acknowledges completion.
 
 ## Human gates
 - Required when:
- 1. Manifest adds privileged operations, cluster-wide changes, or dataloss risk.
- 2. Dispatcher demands manual review after repeated automation failures.
- 3. RiskScore ≥ 0.7.
-- Use standard human gate template capturing impact/reversibility.
+  1. Manifest adds privileged operations, cluster-wide changes, or dataloss risks.
+  2. Dispatcher requests manual review after repeated automation failures.
+  3. RiskScore ≥ 0.7.
+- Use the orchestrator-standard confirmation template capturing impact and reversibility.
 
 ## Testing & validation
 - Dry-run: `/manifest-generator create --description="deploy nginx" --dry-run`.
@@ -128,6 +121,6 @@ Produces Kubernetes Deployments, Services, ConfigMaps, and other manifests from 
 - Docs: `docs/MANIFEST_GENERATION.md`.
 
 ## Related skills
-- `/deployment-validation`: uses generated manifests for validation.
-- `/kubectl-assistant`: executes commands to apply generated YAML.
+- `/deployment-validation`: validates generated manifests.
+- `/kubectl-assistant`: applies manifests interactively.
 - `/workflow-management`: includes manifest creation in workflows.
