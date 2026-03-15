@@ -25,10 +25,10 @@ Note: Terraform fits under the "Per-provider CLI/SDK" column because it is a tra
 - Does not generate Crossplane XRDs or provide continuous reconciliation. In this architecture, Terraform is useful for initial provisioning or migration but ongoing multi-cloud operations rely on Crossplane and Flux for automated drift detection and correction.
 
 GitOps enforces configuration drift correction by using a Git repository as the declarative source
-of truth. A CI policy gate validates and guards all changes before merge. Flux reconciles the hub
-and bootstraps each spoke. This enables **automatic drift reconciliation**, not full operational
-self-healing, because runtime failures outside Git-managed resources are handled by Kubernetes
-controllers and platform automation separately.
+of truth. A CI (Continuous Integration) policy gate validates and guards all changes before merge.
+Flux reconciles the hub and bootstraps each spoke. This enables **automatic drift reconciliation**,
+not full operational self-healing, because runtime failures outside Git-managed resources are
+handled by Kubernetes controllers and platform automation separately.
 
 ![hub spoke diagram](docs/hub_spoke_v5.svg)
 
@@ -94,25 +94,26 @@ Cloud-agnostic resource model (Crossplane Compositions):
   - Crossplane Compositions translate XRDs to provider-specific managed resources
   - Switching cloud providers requires updating one Composition, not consumer manifests
 
-Secrets strategy (ESO + workload identity, primary):
+Secrets strategy - External Secrets Operator (ESO) + workload identity, primary):
   - Each spoke authenticates to its cloud vault using native workload identity
-    · EKS:     IRSA → AWS Secrets Manager
-    · AKS:     Azure Managed Identity → Azure Key Vault
-    · GKE:     Workload Identity Federation → GCP Secret Manager
+    · EKS:     IRSA → AWS Secrets Manager (AWS SM)
+    · AKS:     Azure Managed Identity → Azure Key Vault (AKV)
+    · GKE:     Workload Identity Federation → GCP Secret Manager (GCP SM)
     · On-prem: OIDC / HashiCorp Vault
   - Hub is not in the secrets path; hub outage does not affect secret delivery
   - Spoke secret access is scoped by cloud IAM per spoke, not by network access to hub
   - Secret rotation handled by vault; no re-encrypt-and-commit cycle
 
-Secrets strategy (SOPS / age, fallback):
+Secrets strategy - Secrets OPerationS (SOPS) / age, fallback:
   - Retained for on-prem spokes and secrets with no natural cloud vault home
   - Back up the SOPS age private key to a cloud key vault
   - Flux decrypts at apply time on hub; spokes receive plain Secret objects
   - Use only where ESO + workload identity is not available
 
 CI policy gate:
-  - Deletion guard: removing a stateful XRD (XDatabase, XVolume) without an explicit
-    platform.example.com/allow-deletion annotation fails CI and cannot be merged
+  - Deletion guard: removing a stateful Composite Resource Definition (XRD)
+    XDatabase, XVolume- without an explicit platform.example.com/allow-deletion
+    annotation fails CI and cannot be merged
   - Schema validation: kubeconform against current Crossplane XRD schemas
   - Policy checks: naming conventions, required tags, cost guardrail flags
   - Not a full terraform plan equivalent; does not diff current cloud state
