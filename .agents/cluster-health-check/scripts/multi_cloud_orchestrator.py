@@ -14,6 +14,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import statistics
 
 from cluster_health_check_handler import (
@@ -27,6 +28,8 @@ class OrchestrationStrategy(Enum):
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
     PRIORITY_BASED = "priority_based"
+    ROLLING = "rolling"
+    BLUE_GREEN = "blue_green"
 
 class HealthStatus(Enum):
     HEALTHY = "healthy"
@@ -43,6 +46,7 @@ class OrchestrationTask:
     priority: str
     status: str
     created_at: datetime
+    dependencies: List[str] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     result: Optional[Dict[str, Any]] = None
@@ -54,12 +58,10 @@ class OrchestrationResult:
     provider: str
     action: str
     status: str
-    success: bool
-    result: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    message: str = ""
+    data: Optional[Dict[str, Any]] = None
+    timestamp: Optional[datetime] = None
     execution_time: Optional[float] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
 
 @dataclass
 class ClusterHealthOrchestrationSummary:
@@ -860,11 +862,13 @@ class MultiCloudOrchestrator:
         
         for i, agent in enumerate(agents):
             task = OrchestrationTask(
-                id=f"deploy-{i}",
-                name=f"Deploy {agent['name']}",
+                task_id=f"deploy-{i}",
                 provider=agent['provider'],
-                operation="deploy",
-                config=agent,
+                action="deploy",
+                parameters=agent,
+                priority="medium",
+                status="pending",
+                created_at=datetime.now(),
                 dependencies=[]
             )
             
@@ -910,7 +914,7 @@ class MultiCloudOrchestrator:
             # Check dependencies
             if not self._check_dependencies(task, results):
                 result = OrchestrationResult(
-                    task_id=task.id,
+                    task_id=task.task_id,
                     provider=task.provider,
                     status="skipped",
                     message=f"Dependencies not satisfied: {task.dependencies}",
@@ -990,7 +994,7 @@ class MultiCloudOrchestrator:
             logger.warning("Blue deployment failed, skipping green deployment")
             green_results = [
                 OrchestrationResult(
-                    task_id=task.id,
+                    task_id=task.task_id,
                     provider=task.provider,
                     status="skipped",
                     message="Skipped due to blue deployment failure",
@@ -1010,8 +1014,9 @@ class MultiCloudOrchestrator:
         try:
             if task.provider not in self.handlers:
                 return OrchestrationResult(
-                    task_id=task.id,
+                    task_id=task.task_id,
                     provider=task.provider,
+                    action=task.action,
                     status="error",
                     message=f"Handler not available for provider {task.provider}",
                     data=None,
@@ -1021,30 +1026,31 @@ class MultiCloudOrchestrator:
             
             handler = self.handlers[task.provider]
             
-            if task.operation == "deploy":
-                result_data = handler.deploy_agent(task.config)
-            elif task.operation == "scale":
+            if task.action == "deploy":
+                result_data = handler.deploy_agent(task.parameters)
+            elif task.action == "scale":
                 result_data = handler.scale_agent(
-                    task.config['agent_id'], 
-                    task.config['replicas']
+                    task.parameters['agent_id'], 
+                    task.parameters['replicas']
                 )
-            elif task.operation == "stop":
-                result_data = handler.stop_agent(task.config['agent_id'])
-            elif task.operation == "start":
-                result_data = handler.start_agent(task.config['agent_id'])
-            elif task.operation == "status":
-                result_data = handler.get_agent_status(task.config['agent_id'])
+            elif task.action == "stop":
+                result_data = handler.stop_agent(task.parameters['agent_id'])
+            elif task.action == "start":
+                result_data = handler.start_agent(task.parameters['agent_id'])
+            elif task.action == "status":
+                result_data = handler.get_agent_status(task.parameters['agent_id'])
             else:
                 result_data = {
                     'status': 'error',
-                    'message': f'Unknown operation: {task.operation}'
+                    'message': f'Unknown operation: {task.action}'
                 }
             
             execution_time = (datetime.utcnow() - start_time).total_seconds()
             
             return OrchestrationResult(
-                task_id=task.id,
+                task_id=task.task_id,
                 provider=task.provider,
+                action=task.action,
                 status=result_data.get('status', 'unknown'),
                 message=result_data.get('message', ''),
                 data=result_data,
@@ -1054,11 +1060,12 @@ class MultiCloudOrchestrator:
             
         except Exception as e:
             execution_time = (datetime.utcnow() - start_time).total_seconds()
-            logger.error(f"Task {task.id} failed: {e}")
+            logger.error(f"Task {task.task_id} failed: {e}")
             
             return OrchestrationResult(
-                task_id=task.id,
+                task_id=task.task_id,
                 provider=task.provider,
+                action=task.action,
                 status="error",
                 message=str(e),
                 data=None,
@@ -1077,7 +1084,7 @@ class MultiCloudOrchestrator:
     
     def _group_tasks_by_dependencies(self, tasks: List[OrchestrationTask]) -> List[List[OrchestrationTask]]:
         """Group tasks by dependency levels"""
-        task_dict = {task.id: task for task in tasks}
+        task_dict = {task.task_id: task for task in tasks}
         levels = []
         remaining_tasks = set(task_dict.keys())
         
@@ -1201,11 +1208,13 @@ class MultiCloudOrchestrator:
                 
                 # Create rollback task
                 rollback_task = OrchestrationTask(
-                    id=f"rollback-{result.task_id}",
-                    name=f"Rollback {result.task_id}",
+                    task_id=f"rollback-{result.task_id}",
                     provider=result.provider,
-                    operation="stop",
-                    config={'agent_id': result.data.get('service_name') or result.data.get('deployment_name')},
+                    action="rollback",
+                    parameters={'original_task_id': result.task_id},
+                    priority="high",
+                    status="pending",
+                    created_at=datetime.now(),
                     dependencies=[]
                 )
                 
