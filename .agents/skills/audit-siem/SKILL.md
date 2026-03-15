@@ -1,257 +1,137 @@
 ---
 name: audit-siem
 description: >
-  Use this skill to collect, forward, and query audit logs and security events
-  from cloud infrastructure, Kubernetes, and application layers into a SIEM.
-  Triggers: any request to set up audit logging, query who accessed secrets, vault access, audit who accessed, accessed secrets, configure log forwarding to
-  Sentinel or Splunk, investigate a security event, search audit logs for
-  suspicious activity, generate a SOC compliance evidence package, configure
-  detection rules, or produce an audit trail for a specific user/resource/time.
-tools:
-  - bash
-  - computer
+  Collect, enrich, and forward audit logs/security events into SIEMs with AI risk scoring and dispatcher integration.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Audit & SIEM Skill
+# Audit & SIEM — World-class Observability Playbook
 
-Centralise, search, and alert on audit logs from every platform layer:
-Azure Activity Log, Kubernetes Audit, application events, and security
-scanner findings — feeding into Microsoft Sentinel (or Splunk / Elastic).
+Centralizes audit logs (Azure Activity Log, Kubernetes audits, application events, Defender findings) with KQL queries, Sentinel/Splunk/Elastic connectors, automated response playbooks, and shared-context outputs. Trigger when configuring logging, investigating suspicious access, or generating compliance evidence.
 
----
+## When to invoke
+- Configure Log Analytics/SIEM ingestion across Azure/Kubernetes/application layers.
+- Query who accessed secrets or performed privileged operations.
+- Generate compliance evidence (SOC2, ISO27001, PCI) or detection packages.
+- Respond to incidents by searching logs, triaging alerts, and forwarding relevant events to the dispatcher.
+- React to `policy-risk`, `incident-ready`, or `security-anomaly` events from memory agents.
 
-## Log Sources & Collection
+## Capabilities
+- Multi-source log collection (Azure Activity, Kubernetes audit, application telemetry, network events).
+- AI-assisted detection rules, risk scoring, event enrichment, and alert prioritization.
+- Automated response playbooks (PagerDuty, Slack, disable accounts) for high-severity alerts.
+- Shared context integration `shared-context://memory-store/audit/<operationId>` for other skills.
+- Human gate guidance for sensitive responses (suspending accounts, closing access).
 
-| Layer                    | Source                         | Forwarding method          |
-|--------------------------|--------------------------------|----------------------------|
-| Azure control plane      | Azure Activity Log             | Diagnostic settings → LAW  |
-| Azure Resource changes   | Azure Resource Graph           | Policy + Event Hub         |
-| Kubernetes API audit     | K8s audit log → OMS Agent      | Azure Monitor AKS add-on   |
-| Container stdout/stderr  | Promtail / Fluent Bit          | Loki / Log Analytics       |
-| OS / VM                  | Azure Monitor Agent (AMA)      | Log Analytics Workspace     |
-| Network                  | NSG Flow Logs + Azure Firewall | Storage → Sentinel         |
-| Identity                 | Azure AD Sign-in + Audit       | Entra diagnostic settings  |
-| Application              | App Insights / OpenTelemetry   | Log Analytics              |
-| Security scanner results | Defender for Cloud             | Sentinel connector         |
-
----
-
-## Setup: Log Analytics Workspace + Diagnostic Settings
+## Invocation patterns
 
 ```bash
-# Create Log Analytics Workspace (hub-level, shared)
-az monitor log-analytics workspace create \
-  --resource-group "$HUB_RG" \
-  --workspace-name "law-platform-${REGION}" \
-  --location "$REGION" \
-  --retention-time 90 \
-  --sku PerGB2018
-
-# Enable AKS audit logging → LAW
-az aks enable-addons \
-  --resource-group "rg-${TENANT_ID}" \
-  --name "aks-${CLUSTER_NAME}" \
-  --addons monitoring \
-  --workspace-resource-id "${LAW_ID}"
-
-# Diagnostic settings for Azure SQL → LAW
-az monitor diagnostic-settings create \
-  --name "diag-sql-${TENANT_ID}" \
-  --resource "${SQL_SERVER_ID}" \
-  --workspace "${LAW_ID}" \
-  --logs '[{"category":"SQLSecurityAuditEvents","enabled":true},
-           {"category":"SQLInsights","enabled":true}]' \
-  --metrics '[{"category":"AllMetrics","enabled":true}]'
-
-# Key Vault audit logging
-az monitor diagnostic-settings create \
-  --name "diag-kv-${TENANT_ID}" \
-  --resource "${KEY_VAULT_ID}" \
-  --workspace "${LAW_ID}" \
-  --logs '[{"category":"AuditEvent","enabled":true}]'
+/audit-siem configure --workspace=law-platform-eastus --connectors=azureactivity,defender,kubernetes
+/audit-siem query --period=24h --query="AzureDiagnostics | where ResourceType=='VAULTS'" --format=json
+/audit-siem alert --rule=bruteforce --severity=high --action=notify
+/audit-siem evidence --period-start=2026-01-01 --period-end=2026-03-01 --output=reports/soc2
+/audit-siem respond --incident=INC-2026-041 --playbook=logic-app
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `workspace` | Log Analytics/SIEM workspace. | `law-platform-eastus` |
+| `query` | KQL query portion. | `AzureDiagnostics | where ResourceType=='VAULTS'` |
+| `period` | Lookback window. | `24h` |
+| `rule` | Sentinel/alert rule name. | `bruteforce` |
+| `severity` | Alert severity (info/warning/critical). | `high` |
+| `incident` | Incident reference. | `INC-2026-041` |
 
-## Microsoft Sentinel Configuration
-
-```bash
-# Enable Sentinel on the LAW
-az sentinel workspace create \
-  --resource-group "$HUB_RG" \
-  --workspace-name "law-platform-${REGION}"
-
-# Connect data connectors
-for connector in \
-  AzureActivityLog \
-  AzureActiveDirectory \
-  MicrosoftDefenderForCloud \
-  KubernetesAudit \
-  AzureFirewall; do
-  az sentinel data-connector create \
-    --resource-group "$HUB_RG" \
-    --workspace-name "law-platform-${REGION}" \
-    --data-connector-kind "$connector" \
-    --name "$connector"
-done
-```
-
----
-
-## KQL Audit Queries
-
-### Kubernetes: Privileged Operations
-```kql
-AzureDiagnostics
-| where Category == "kube-audit"
-| where RequestURI_s has_any ("cluster-admin", "clusterrolebindings", "secrets")
-| where Verb_s in ("create", "update", "delete", "patch")
-| where User_s !startswith "system:"
-| project TimeGenerated, User_s, Verb_s, RequestURI_s, SourceIps_s
-| order by TimeGenerated desc
-```
-
-### Key Vault: Secret Access Pattern
-```kql
-AzureDiagnostics
-| where ResourceType == "VAULTS" and OperationName == "SecretGet"
-| summarize AccessCount = count() by CallerIPAddress, identity_claim_upn_s, bin(TimeGenerated, 1h)
-| where AccessCount > 50
-| order by AccessCount desc
-```
-
-### Failed Login Attempts (Entra ID)
-```kql
-SigninLogs
-| where ResultType != "0"
-| summarize FailureCount = count() by UserPrincipalName, IPAddress, bin(TimeGenerated, 1h)
-| where FailureCount > 10
-| order by FailureCount desc
-```
-
-### Azure RBAC Changes
-```kql
-AzureActivity
-| where OperationNameValue contains "roleAssignment"
-| where ActivityStatusValue == "Success"
-| project TimeGenerated, Caller, OperationNameValue, ResourceGroup,
-  Properties = parse_json(Properties)
-| extend TargetRole = Properties.roleDefinitionName,
-         TargetPrincipal = Properties.principalName
-| order by TimeGenerated desc
-```
-
-### Terraform Destroy Operations
-```kql
-AzureActivity
-| where OperationNameValue contains "delete" and ActivityStatusValue == "Start"
-| where Caller !has "terraform-managed-identity"
-| project TimeGenerated, Caller, OperationNameValue, ResourceGroup, Resource
-| order by TimeGenerated desc
-```
-
-### Network: Traffic from Unexpected IPs
-```kql
-AzureNetworkAnalytics_CL
-| where FlowType_s == "ExternalPublic"
-| where SrcIP_s !in (split(APPROVED_IPS, ","))
-| where DestPort_d in (22, 3389, 5432, 1433)
-| summarize ConnectionCount = count() by SrcIP_s, DestIP_s, DestPort_d
-| where ConnectionCount > 5
-| order by ConnectionCount desc
-```
-
----
-
-## Sentinel Detection Rules (Analytics Rules)
-
-```bash
-# Create a scheduled analytics rule for brute force detection
-az sentinel alert-rule create \
-  --resource-group "$HUB_RG" \
-  --workspace-name "law-platform-${REGION}" \
-  --rule-name "BruteForceDetection" \
-  --kind Scheduled \
-  --display-name "Brute Force Login Attempt" \
-  --severity High \
-  --enabled true \
-  --query-frequency PT1H \
-  --query-period PT1H \
-  --trigger-operator GreaterThan \
-  --trigger-threshold 0 \
-  --query "SigninLogs | where ResultType != '0' | summarize count() by UserPrincipalName | where count_ > 10"
-```
-
-### Automated Response Playbook (Logic App)
-On high-severity incident:
-1. Page on-call (PagerDuty)
-2. Post alert to #security-incidents Slack
-3. Enrich alert with threat intel
-4. If confirmed account compromise → disable user in Entra ID (requires approval)
-
----
-
-## Compliance Evidence Package
-
-For audits (SOC2, ISO27001):
-
-```bash
-generate_audit_evidence() {
-  local period_start=$1 period_end=$2 output_dir=$3
-
-  mkdir -p "$output_dir"
-
-  # 1. Admin actions log
-  az monitor activity-log list \
-    --start-time "$period_start" --end-time "$period_end" \
-    --query "[?contains(authorization.action, 'write') || contains(authorization.action,'delete')]" \
-    --output json > "$output_dir/admin-actions.json"
-
-  # 2. Key Vault access log
-  az monitor log-analytics query \
-    --workspace "$LAW_ID" \
-    --analytics-query "AzureDiagnostics | where ResourceType=='VAULTS' | where TimeGenerated between (datetime('${period_start}')..datetime('${period_end}'))" \
-    --output json > "$output_dir/keyvault-access.json"
-
-  # 3. Privileged K8s operations
-  # (KQL query against LAW → output to CSV)
-
-  # 4. Failed login summary
-  # (KQL query → output to CSV)
-
-  # 5. Policy compliance state
-  az policy state summarize \
-    --subscription "$SUBSCRIPTION_ID" \
-    --output json > "$output_dir/policy-compliance.json"
-
-  echo "Evidence package ready: $output_dir"
-  ls -la "$output_dir"
-}
-```
-
----
-
-## Examples
-
-- "Show me all admin operations performed on the prod environment last week"
-- "Who accessed the payments-api secrets in Key Vault in the past 30 days?"
-- "Set up Sentinel with all connectors for the new production subscription"
-- "Generate a SOC2 evidence package for the Q2 audit period"
-- "Alert me when any cluster-admin bindings are created in any namespace"
-- "Show failed login attempts for all service accounts in the last 24 hours"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "operation": "query|setup|alert-create|evidence-package",
-  "query_period": { "start": "string", "end": "string" },
-  "results_count": 0,
-  "high_severity_events": 0,
-  "evidence_files": [],
-  "sentinel_workspace": "string",
-  "status": "success|failure"
+  "operationId": "AUD-2026-0315-01",
+  "status": "success|failure",
+  "operation": "configure|query|alert|evidence|respond",
+  "workspace": "law-platform-eastus",
+  "resultsCount": 42,
+  "riskScore": 0.78,
+  "alertsTriggered": [
+    {
+      "name": "BruteForceDetection",
+      "severity": "high",
+      "timestamp": "2026-03-15T08:12:00Z"
+    }
+  ],
+  "evidenceFiles": ["reports/soc2/admin-actions.json"],
+  "logs": "shared-context://memory-store/audit/AUD-2026-0315-01",
+  "decisionContext": "redis://memory-store/audit/AUD-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### SIEM configuration & enrichment
+1. Create Log Analytics workspace + Sentinel/Splunk connector with required data sources.
+2. Enable diagnostic settings for Azure Activity, Key Vault, Kubernetes, Defender.
+3. Emit `audit-configured` events with workspace/connector metadata.
+
+### Detection & alerting
+1. Create scheduled/streaming analytics rules for brute force, RBAC changes, secret access.
+2. AI risk scoring tags alerts (riskScore based on user, event type, policy) and triggers playbook.
+3. Emit `audit-alert` event containing enriched data for dispatcher/incident skill consumption.
+
+### Compliance evidence generation
+1. Run queries across admin actions, secret access, failed logins, policy compliance.
+2. Export JSON/CSV artifacts for auditors and store in versioned directory.
+3. Emit `evidence-ready` events linking to artifact URIs.
+
+## AI intelligence highlights
+- **AI Risk Assessment**: blends event severity, user role, historical behavior, and policy impact to produce `riskScore`.
+- **Smart Detection Prioritization**: ranks alerts by downstream impact (policy, incident) and reduces noise.
+- **Intelligent Evidence Assembly**: automatically selects relevant logs for compliance periods and formats them.
+
+## Memory agent & dispatcher integration
+- Persist queries/reports under `shared-context://memory-store/audit/<operationId>`.
+- Emit events: `audit-alert`, `evidence-ready`, `playbook-run`, `audit-configured`.
+- Subscribe to dispatcher signals (`incident-ready`, `policy-risk`) to begin targeted investigations.
+- Tag entries with `decisionId`, `workspace`, `riskScore`.
+
+## Communication protocols
+- Primary: CLI (az monitor, az sentinel) and KQL queries triggered via script.
+- Secondary: Event bus for `audit-*` events consumed by dispatcher.
+- Fallback: Artifact files at `artifact-store://audit/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: alerts by severity, audit queries executed, evidence packages generated, riskScore trends.
+- Logs: structured `log.event="audit.alert"` with workspace, rule, decisionId.
+- Dashboards: integrate `/audit-siem metrics --format=prometheus`.
+- Alerts: alert-volume > baseline, riskScore ≥ 0.9, evidence generation failure.
+
+## Failure handling & retries
+- Retry diagnostic/API calls up to 2× on failures with exponential backoff.
+- On alerting failure, log context, emit `audit-alert-failed`, escalate to `incident-triage-runbook`.
+- Preserve artifacts until downstream consumers acknowledge.
+
+## Human gates
+- Required when:
+ 1. Automated response disables accounts, modifies access, or blocks resources.
+ 2. Evidence packages reveal sensitive compliance gaps needing executive review.
+ 3. Dispatcher requests manual review after repeated high-risk alerts.
+- Use standard human gate template (impact/reversibility).
+
+## Testing & validation
+- Dry-run: `/audit-siem query --query="AzureActivity | take 1" --dry-run`.
+- Unit tests: `backend/audit/` ensures parser/alert logic functions per expectation.
+- Integration: `scripts/validate-audit-siem.sh` spins up workspace, emits sample logs, and verifies alerts.
+- Regression: nightly `scripts/nightly-audit-smoke.sh` ensures connectors, alerts, and evidence workflows stay stable.
+
+## References
+- Loging guidelines: `docs/SECURITY-OPERATIONS.md`.
+- Alert rules: `monitoring/alert-rules/audit`.
+- Evidence scripts: `scripts/audit/`.
+
+## Related skills
+- `/incident-triage-runbook`: receives critical alerts to execute.
+- `/policy-as-code`: monitors policy violations leading to audit trails.
+- `/ai-agent-orchestration`: coordinates responses based on audit evidence.
