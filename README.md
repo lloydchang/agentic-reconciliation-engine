@@ -5,7 +5,7 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 ## Quick links
 - [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
 - [Overview](./docs/OVERVIEW.md) — architecture narrative, operations references, zero-touch automation, and known limitations.
-- [Agent Runtime](./docs/AGENT-CLIENTS.md) — Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
+- [Agent Runtime](./docs/AGENT-RUNTIME.md) — Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
 - Compatibility: [Windows](./docs/WINDOWS-COMPATIBILITY.md), [Mac](./docs/MAC-COMPATIBILITY.md), [Linux](./docs/LINUX-COMPATIBILITY.md), [Shell](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
 
