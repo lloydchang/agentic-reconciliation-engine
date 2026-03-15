@@ -49,7 +49,10 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
 | **cicd-pipeline-monitor** | "why did the build fail?", "DORA metrics", "re-trigger pipeline", "flaky tests" | Re-trigger prod | 85% |
+| **ci-cd-integrator** | "monitor pipelines", "trigger release", "remediate failures" | Human gate for high-risk releases | 75% |
 | **deployment-validation** | "validate this deploy", "smoke test", "is it safe to go to prod?", "canary gate" | GO/NO-GO in prod | 85% |
+| **deployment-strategy** | "model strategy", "validate release", "escalate rollback" | Human gate for prod strategies | 75% |
+| **release-manager** | "plan release", "gate approval", "wrap up" | Human gate for major launches | 75% |
 | **gitops-workflow** | "ArgoCD out of sync", "Flux out of sync", "Flux bootstrap", "promote to prod", "ApplicationSet", "drift" | Prod promotion | 85% |
 | **service-mesh** | "enable mTLS", "canary split", "A/B testing", "traffic mirroring", "traffic shadowing", "circuit breaker", "retry policy", "service dependency map" | Strict mTLS in prod | 80% |
 | **deployment-reliability-analysis** | "deployment failure analysis", "pipeline reliability issues", "CI/CD troubleshooting", "deployment success rate analysis", "failure pattern detection" | No | 80% |
@@ -61,9 +64,15 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | **incident-triage-runbook** | "P0/P1/P2/P3 alert", "outage", "degraded service", "runbook for X" | Novel P0/P1 decisions | 80% |
 | **alert-prioritizer** | "score alerts", "combine signals", "risk score", "auto-escalate" | Manual review for high-risk escalations | 75% |
 | **alert-router** | "route alert", "deliver to slack/pagerduty", "cancel notification" | Channel outages require human oversight | 70% |
+| **incident-history** | "record incident", "trend analysis", "lessons learned" | Human gate for exec reviews | 75% |
+| **incident-predictor** | "forecast incidents", "trend analysis", "risk escalations" | Human gate for automation triggers | 75% |
+| **incident-summary** | "draft update", "status change", "follow-up action" | Human gate for exec/customer updates | 75% |
 | **sla-monitoring-alerting** | "error budget", "SRE metrics", "Four Golden Signals", "latency", "traffic", "errors", "saturation", "Service Level Agreement", "SLA", "Service Level Objective", "SLO", "Service Level Indicator", "SLI", "SLO compliance", "SLA breach", "reliability metrics" | No (monitoring only) | 85% |
 | **observability-stack** | "set up monitoring", "Grafana dashboard", "Prometheus scrape", "log aggregation", "eBPF", "Pixie" | Prod alerting changes | 80% |
+| **cluster-health-check** | "control plane health", "node pressure", "maintenance planning" | Human gate for prod clusters | 75% |
+| **network-diagnostics** | "trace path", "DNS check", "firewall rule" | Human gate for prod networks | 75% |
 | **chaos-load-testing** | "chaos experiment", "load test", "fault injection", "zone failure", "breaking point" | Any prod chaos | 75% |
+| **k8s-troubleshoot** | "pod diagnostics", "service issues", "control plane health" | Human gate for prod clusters | 75% |
 | **disaster-recovery** | "failover", "DR drill", "RPO/RTO", "restore failed region", "failback", "business continuity" | Any prod failover | 70% |
 
 ### Data & Security
@@ -76,12 +85,14 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | **compliance-security-scanner** | "CVE scan", "checkov", "SOC2 report", "ISO standard", "CIS benchmark", "compliance posture", "az policy state list", "kubectl get events", "kube-bench" | No (scan only) | 80% |
 | **policy-as-code** | "enforce policy", "OPA/Gatekeeper", "tagging standard", "governance", "RBAC audit" | Deny-all policy changes | 85% |
 | **audit-siem** | "who accessed X?", "audit trail", "Sentinel alert", "security event", "SOC evidence" | No (read-only queries) | 75% |
+| **dependency-checker** | "scan SBOM", "CVE audit", "dependency graph" | Human gate for critical CVEs | 75% |
 
 ### Cost & Capacity
 
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
-| **cost-optimisation** | "cloud spend", "idle resources", "right-size", "RI coverage", "reserved instance", "spot instance", "cost by tenant" | Resource deletion | 75% |
+| **cost-optimisation** | "cloud spend"
+| **cost-optimizer** | "scan waste", "recommend actions", "review approvals" | Human gate for prod savings | 70% |, "idle resources", "right-size", "RI coverage", "reserved instance", "spot instance", "cost by tenant" | Resource deletion | 75% |
 | **capacity-planning** | "headroom", "forecast capacity", "will we hit limits?", "autoscaler config" | No (analysis only) | 65% |
 | **autoscaler-advisor** | "validate autoscaler", "recommend scaling", "forecast exhaustion" | Human gate for production impact | 70% |
 | **capacity-planner** | "simulate launch scenario", "validate capacity", "issue alerts" | Human gate for production impact | 70% |
@@ -100,6 +111,8 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 |-------|-----------------|------------|-------------|
 | **change-management** | "change request", "risk score this", "change freeze?", "CAB approval", "emergency change" | Major/emergency changes | 70% |
 | **runbook-documentation-gen** | "write a runbook", "ADR", "Application Detection and Response", "Architectural Decision Record", "update the wiki", "document this incident" | No | 75% |
+| **feature-flag-manager** | "manage feature flags", "rollout", "rollback" | Human gate for production flags | 70% |
+| **doc-generator** | "runbook", "change doc", "compliance evidence", "executive summary" | Human gate for exec/compliance docs | 70% |
 | **stakeholder-comms-drafter** | "draft the incident update", "exec email", "comms for outage", "weekly update", "monthly update", "quarterly update", "yearly update" | Always (never auto-sends) | 60% |
 | **kpi-report-generator** | "KPI report", "DORA metrics", "QBR deck", "exec dashboard", "weekly report", "monthly report", "quarterly report", "yearly update" | Before send | 70% |
 | **roadmap-execution** | "roadmap", "milestone tracking", "strategy execution", "transformation phase", "project tracking", "goal achievement" | No | 75% |
