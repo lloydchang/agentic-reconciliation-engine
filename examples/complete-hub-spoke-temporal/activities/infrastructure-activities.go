@@ -213,10 +213,10 @@ func (a *InfrastructureActivities) RequestHumanApprovalActivity(ctx context.Cont
 	}
 }
 
-// ExecuteCloudOperationActivity executes operations on cloud providers
-func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Context, input CloudOperationInput) (CloudOperationResult, error) {
+// ExecuteCloudOperationActivity executes operations on cloud AI providers
+func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Context, input CloudAIInput) (CloudAIResult, error) {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Executing cloud operation", "provider", input.Provider, "operationType", input.OperationType)
+	logger.Info("Executing cloud AI operation", "provider", input.Provider, "operationType", input.OperationType)
 
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -240,8 +240,8 @@ func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Con
 	}
 
 	if err != nil {
-		logger.Error("Cloud operation failed", "error", err)
-		result = CloudOperationResult{
+		logger.Error("Cloud AI operation failed", "error", err)
+		result = CloudAIResult{
 			Provider:      input.Provider,
 			Status:        "failed",
 			Error:         err.Error(),
@@ -250,7 +250,7 @@ func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Con
 		}
 	} else {
 		result.ExecutionTime = time.Since(startTime)
-		logger.Info("Cloud operation completed successfully", 
+		logger.Info("Cloud AI operation completed successfully", 
 			"provider", result.Provider,
 			"resourceCount", result.ResourceCount,
 			"executionTime", result.ExecutionTime)

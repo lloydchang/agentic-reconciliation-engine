@@ -212,7 +212,7 @@ implementation_path:
   - defer: agent-workflows/ (after migration success)
 ```
 
-### Example 3: Hybrid Local-Cloud Development
+### Example 3: Hybrid Local-Cloud AI
 ```yaml
 # Problem: Local development team needs cloud integration
 apiVersion: v1

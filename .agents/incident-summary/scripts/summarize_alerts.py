@@ -3,7 +3,7 @@
 Alert Summarization Script for Incident Summary Skill
 
 This script processes monitoring alerts and generates structured summaries
-for CloudOps incident response and documentation.
+for Cloud AI incident response and documentation.
 """
 
 import json

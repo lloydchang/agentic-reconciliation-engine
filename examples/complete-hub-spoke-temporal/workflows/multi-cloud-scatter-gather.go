@@ -8,7 +8,7 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
-// MultiCloudScatterGatherInput represents input for multi-cloud operations
+// MultiCloudScatterGatherInput represents input for multi-cloud AI operations
 type MultiCloudScatterGatherInput struct {
 	OperationType  string                 `json:"operationType"` // "analysis", "discovery", "security-scan", "cost-optimization"
 	ResourceTypes  []string               `json:"resourceTypes"`
@@ -23,15 +23,15 @@ type MultiCloudScatterGatherOutput struct {
 	OperationID     string                    `json:"operationId"`
 	Timestamp       time.Time                 `json:"timestamp"`
 	OperationType   string                    `json:"operationType"`
-	CloudResults    []CloudOperationResult     `json:"cloudResults"`
+	CloudResults    []CloudAIResult     `json:"cloudResults"`
 	AggregatedData  AggregatedCloudData        `json:"aggregatedData"`
 	Consensus       ConsensusResult           `json:"consensus"`
 	Recommendations []MultiCloudRecommendation `json:"recommendations"`
 	ExecutionTime   time.Duration             `json:"executionTime"`
 }
 
-// CloudOperationResult represents results from a single cloud operation
-type CloudOperationResult struct {
+// CloudAIResult represents results from a single cloud AI operation
+type CloudAIResult struct {
 	Provider      string                 `json:"provider"`
 	Status        string                 `json:"status"` // "success", "partial", "failed"
 	Data          map[string]interface{} `json:"data"`
@@ -88,7 +88,7 @@ func MultiCloudScatterGatherWorkflow(ctx workflow.Context, input MultiCloudScatt
 		OperationID:   operationID,
 		Timestamp:      workflow.Now(ctx),
 		OperationType:  input.OperationType,
-		CloudResults:   []CloudOperationResult{},
+		CloudResults:   []CloudAIResult{},
 	}
 
 	startTime := workflow.Now(ctx)
@@ -96,11 +96,11 @@ func MultiCloudScatterGatherWorkflow(ctx workflow.Context, input MultiCloudScatt
 	// Phase 1: Scatter - Execute operations across all cloud providers in parallel
 	logger.Info("Phase 1: Scattering operations across cloud providers")
 	
-	// Create futures for parallel cloud operations
+	// Create futures for parallel cloud AI operations
 	var cloudFutures []workflow.Future
 	for _, provider := range input.CloudProviders {
 		provider := provider // Capture for closure
-		future := workflow.ExecuteActivity(ctx, activities.ExecuteCloudOperationActivity, CloudOperationInput{
+		future := workflow.ExecuteActivity(ctx, activities.ExecuteCloudOperationActivity, CloudAIInput{
 			Provider:      provider,
 			OperationType:  input.OperationType,
 			ResourceTypes:  input.ResourceTypes,
@@ -114,10 +114,10 @@ func MultiCloudScatterGatherWorkflow(ctx workflow.Context, input MultiCloudScatt
 	logger.Info("Phase 2: Gathering results from cloud providers")
 	
 	for i, future := range cloudFutures {
-		var result CloudOperationResult
+		var result CloudAIResult
 		if err := future.Get(ctx, &result); err != nil {
-			logger.Error("Cloud operation failed", "provider", input.CloudProviders[i], "error", err)
-			result = CloudOperationResult{
+			logger.Error("Cloud AI operation failed", "provider", input.CloudProviders[i], "error", err)
+			result = CloudAIResult{
 				Provider:      input.CloudProviders[i],
 				Status:        "failed",
 				Error:         err.Error(),
