@@ -91,12 +91,14 @@ The complete lifecycle of a change from Git commit to cluster deployment:
 **Purpose**: Acquires and stores artifacts from external sources in a read-only format.
 
 **Supported Sources**:
+
 - **GitRepository**: Git repositories (GitHub, GitLab, Bitbucket, etc.)
 - **Bucket**: S3, GCS, and other object storage services
 - **HelmRepository**: Helm chart repositories
 - **OCIRepository**: OCI-compliant registries (new in v2.0+)
 
 **Key Features**:
+
 - Cryptographic signature verification (PGP, Cosign)
 - Semantic version filtering
 - Webhook-based instant reconciliation
@@ -151,6 +153,7 @@ spec:
 **Purpose**: Reconciles cluster state with Kustomize-based manifests from sources.
 
 **Key Features**:
+
 - Server-Side Apply for efficient updates
 - Dependency ordering with `dependsOn`
 - Health checking and readiness validation
@@ -195,6 +198,7 @@ spec:
 **Purpose**: Manages Helm releases with full upstream compatibility.
 
 **Key Features**:
+
 - Complete Helm client library compatibility
 - Chart hooks and lifecycle events
 - Post-rendering with Kustomize
@@ -244,6 +248,7 @@ spec:
 **Purpose**: Handles inbound events and outbound notifications.
 
 **Capabilities**:
+
 - Webhook receivers for instant reconciliation
 - Multi-platform notifications (Slack, Teams, Discord)
 - Git commit status updates
@@ -292,6 +297,7 @@ spec:
 **Purpose**: Scans image repositories and reflects metadata in Kubernetes.
 
 **Features**:
+
 - Multi-registry support (Docker Hub, GHCR, ECR, GCR, etc.)
 - Authentication and TLS configuration
 - Tag filtering and sorting
@@ -335,6 +341,7 @@ spec:
 **Purpose**: Automates Git commits for image updates.
 
 **Features**:
+
 - Automated manifest updates
 - Commit message customization
 - Branch management
@@ -660,23 +667,27 @@ spec:
 ### Common Issues
 
 1. **Source Reconciliation Failures**
+
    ```bash
    kubectl get gitrepositories -A
    kubectl describe gitrepository gitops-infra-control-plane -n flux-system
    ```
 
 2. **Kustomization Build Errors**
+
    ```bash
    flux build kustomization infrastructure-networks --path=./infrastructure/tenants/1-network
    ```
 
 3. **Helm Release Failures**
+
    ```bash
    kubectl get helmreleases -A
    kubectl describe helmrelease cert-manager -n flux-system
    ```
 
 4. **Permission Issues**
+
    ```bash
    kubectl auth can-i create kustomizations --as=system:serviceaccount:flux-system:kustomize-controller
    ```

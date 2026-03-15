@@ -7,9 +7,11 @@ The GitOps Infra Control Plane provides comprehensive support for multiple progr
 ## Supported Ecosystems
 
 ### 1. Rust Ecosystem
+
 **Label:** `ecosystem: rust`
 
 **Characteristics:**
+
 - Memory-safe, high-performance applications
 - Cargo-based dependency management
 - Tokio async runtime support
@@ -17,6 +19,7 @@ The GitOps Infra Control Plane provides comprehensive support for multiple progr
 - Ideal for: Performance-critical services, system tools
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/rust/
 ├── cargo-workloads/
@@ -34,6 +37,7 @@ infrastructure/tenants/3-workloads/rust/
 ```
 
 **Sample Kustomization:**
+
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -55,9 +59,11 @@ labels:
 ```
 
 ### 2. Go Ecosystem
+
 **Label:** `ecosystem: go`
 
 **Characteristics:**
+
 - Cloud-native applications
 - Kubernetes operators
 - gRPC and HTTP services
@@ -65,6 +71,7 @@ labels:
 - Ideal for: Microservices, Kubernetes tooling
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/go/
 ├── gin-services/
@@ -82,9 +89,11 @@ infrastructure/tenants/3-workloads/go/
 ```
 
 ### 3. Python/uv Ecosystem
+
 **Label:** `ecosystem: python`
 
 **Characteristics:**
+
 - Data science and AI workloads
 - FastAPI and Django frameworks
 - Apache Airflow orchestration
@@ -93,6 +102,7 @@ infrastructure/tenants/3-workloads/go/
 - Ideal for: AI/ML, data processing, web applications
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/python/
 ├── fastapi-apps/
@@ -114,9 +124,11 @@ infrastructure/tenants/3-workloads/python/
 ```
 
 ### 4. TypeScript/Node.js Ecosystem
+
 **Label:** `ecosystem: typescript`
 
 **Characteristics:**
+
 - Modern web applications
 - React and Vue.js frontends
 - NestJS and Express backends
@@ -124,6 +136,7 @@ infrastructure/tenants/3-workloads/python/
 - Ideal for: Full-stack applications, APIs
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/typescript/
 ├── nextjs-apps/
@@ -145,9 +158,11 @@ infrastructure/tenants/3-workloads/typescript/
 ```
 
 ### 5. C#/.NET Ecosystem
+
 **Label:** `ecosystem: dotnet`
 
 **Characteristics:**
+
 - Enterprise applications
 - ASP.NET Core web apps
 - Blazor web assembly
@@ -156,6 +171,7 @@ infrastructure/tenants/3-workloads/typescript/
 - Ideal for: Enterprise applications, Windows services
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/dotnet/
 ├── aspnet-core-apps/
@@ -173,9 +189,11 @@ infrastructure/tenants/3-workloads/dotnet/
 ```
 
 ### 6. Java/JVM Ecosystem
+
 **Label:** `ecosystem: java`
 
 **Characteristics:**
+
 - Spring Boot applications
 - Quarkus cloud-native apps
 - Maven and Gradle builds
@@ -183,6 +201,7 @@ infrastructure/tenants/3-workloads/dotnet/
 - Ideal for: Enterprise applications, microservices
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/java/
 ├── spring-boot-apps/
@@ -200,9 +219,11 @@ infrastructure/tenants/3-workloads/java/
 ```
 
 ### 7. Shell/Bash Ecosystem
+
 **Label:** `ecosystem: shell`
 
 **Characteristics:**
+
 - System automation scripts
 - Cron job management
 - Configuration management
@@ -210,6 +231,7 @@ infrastructure/tenants/3-workloads/java/
 - Ideal for: System administration, simple automation
 
 **Directory Structure:**
+
 ```
 infrastructure/tenants/3-workloads/shell/
 ├── cron-jobs/
@@ -328,7 +350,9 @@ spec:
 ## Ecosystem-Specific Dependencies
 
 ### Common Dependencies
+
 All ecosystems depend on:
+
 - `cluster-infra` (for compute resources)
 - `network-infra` (for networking)
 - `cert-manager` (for TLS certificates)
@@ -336,30 +360,37 @@ All ecosystems depend on:
 ### Ecosystem-Specific Dependencies
 
 **Rust:**
+
 - `cargo-registry` (for package caching)
 - `rust-toolchain` (for compiler management)
 
 **Go:**
+
 - `go-proxy` (for module caching)
 - `go-build-tools` (for compilation)
 
 **Python:**
+
 - `pypi-cache` (for package caching)
 - `python-runtime` (for interpreter management)
 
 **TypeScript:**
+
 - `npm-registry` (for package caching)
 - `node-runtime` (for Node.js runtime)
 
 **C#/.NET:**
+
 - `nuget-cache` (for package caching)
 - `dotnet-runtime` (for .NET runtime)
 
 **Java:**
+
 - `maven-repository` (for artifact caching)
 - `jvm-runtime` (for Java runtime)
 
 **Shell:**
+
 - `script-repository` (for script storage)
 - `cron-scheduler` (for job scheduling)
 

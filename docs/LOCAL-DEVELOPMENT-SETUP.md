@@ -12,11 +12,13 @@ After cloning the repository, run a single command to get a fully functional aut
 This script automatically detects your operating system and installs all prerequisites:
 
 ### **Supported Platforms**
+
 - ✅ **macOS** (Intel/Apple Silicon) - Homebrew
 - ✅ **Windows** (10/11) - Chocolatey + PowerShell
 - ✅ **Linux** (Ubuntu, CentOS, Fedora, etc.) - apt/yum/dnf
 
 ### **Auto-Installed Prerequisites**
+
 - ✅ **Docker Desktop/Engine** - Container runtime
 - ✅ **kubectl** - Kubernetes CLI
 - ✅ **Helm** - Package manager
@@ -24,6 +26,7 @@ This script automatically detects your operating system and installs all prerequ
 - ✅ **Package Managers** - Homebrew/Chocolatey/system packages
 
 The script then:
+
 - Builds AI agent container images
 - Deploys complete ecosystem (AI agents, skills, monitoring, dashboard)
 - Sets up port forwarding for local access
@@ -31,8 +34,10 @@ The script then:
 
 ## What You Get
 
-### 🌐 **Web Dashboard** (http://localhost:8080)
+### 🌐 **Web Dashboard** (<http://localhost:8080>)
+
 Real-time view of all AI agents and their activities:
+
 - **Agent Status**: Which agents are running, thinking, or idle
 - **Skill Execution**: Live view of autonomous skill workflows
 - **Storage Metrics**: PVC usage, memory pruning, compression status
@@ -40,12 +45,14 @@ Real-time view of all AI agents and their activities:
 - **Alert Dashboard**: Capacity warnings, anomaly detection
 
 ### 🤖 **Autonomous AI Agents**
+
 - **Memory Agents**: Rust/Go/Python agents with persistent SQLite storage
 - **Skill Integration**: 64 operational skills enhanced with AI analysis
 - **Intelligent Operations**: Incident triage, cost optimization, deployment validation
 - **Self-Management**: Auto-scaling storage, memory pruning, monitoring
 
-### 🔄 **Temporal Workflows** (http://localhost:8081)
+### 🔄 **Temporal Workflows** (<http://localhost:8081>)
+
 - Durable workflow orchestration
 - Skill execution tracking
 - Failure recovery and retries
@@ -86,6 +93,7 @@ minikube start -p ai-agents-local --memory=4096 --cpus=2
 ## Usage Examples
 
 ### View Agent Activity
+
 ```bash
 # Watch real-time agent logs
 kubectl logs -f deployment/memory-agent-rust -n ai-infrastructure
@@ -95,6 +103,7 @@ kubectl get pods -n ai-infrastructure
 ```
 
 ### Access Services
+
 ```bash
 # Dashboard
 open http://localhost:8080
@@ -107,6 +116,7 @@ minikube dashboard -p ai-agents-local
 ```
 
 ### Stop/Start
+
 ```bash
 # Stop local setup (keeps cluster)
 ./scripts/stop-local-setup.sh
@@ -120,18 +130,21 @@ minikube dashboard -p ai-agents-local
 The dashboard shows real-time insights into agent behavior:
 
 ### 🤖 Agent States
+
 - **🟢 Active**: Processing inference requests
 - **🟡 Thinking**: Analyzing data, making decisions
 - **⚪ Idle**: Waiting for tasks
 - **🔴 Error**: Recovery in progress
 
 ### 📊 Metrics
+
 - **Inference Requests**: Per minute, success rate
 - **Skill Executions**: Completed workflows, success rate
 - **Storage Usage**: PVC utilization, growth trends
 - **Memory Management**: Pruning cycles, compression savings
 
 ### 🔄 Autonomous Decisions
+
 - **Capacity Planning**: "Detected 80% storage usage → expanding PVC"
 - **Incident Response**: "High latency detected → triggering rollback"
 - **Cost Optimization**: "Identified $500/month savings → implementing"
@@ -139,6 +152,7 @@ The dashboard shows real-time insights into agent behavior:
 ## Troubleshooting
 
 ### Minikube Issues
+
 ```bash
 # Reset cluster
 minikube delete -p ai-agents-local
@@ -146,6 +160,7 @@ minikube delete -p ai-agents-local
 ```
 
 ### Docker Issues
+
 ```bash
 # Check Docker status
 docker ps
@@ -155,6 +170,7 @@ docker system df
 ```
 
 ### Port Conflicts
+
 ```bash
 # Check port usage
 lsof -i :8080
@@ -174,6 +190,7 @@ lsof -i :8081
 ## Next Steps
 
 After setup, explore:
+
 1. **Agent Dashboard**: Watch autonomous decision-making
 2. **Skill Execution**: Trigger skills and observe AI enhancement
 3. **Storage Management**: Monitor auto-scaling behavior

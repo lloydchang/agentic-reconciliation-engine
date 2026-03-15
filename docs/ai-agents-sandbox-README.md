@@ -17,11 +17,13 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Go 1.25+
 - Node.js 16+
 - Docker & Docker Compose
 
 ### Local Development
+
 ```bash
 # Clone and setup
 git clone https://github.com/lloydchang/ai-agents-sandbox.git
@@ -52,11 +54,13 @@ python3 scripts/run_evals.py
 ```
 
 **What these do:**
+
 - **`bootstrap.sh`** - Validates prerequisites, checks skills exist, ensures environment readiness
 - **`run_evals.py`** - Tests skill definitions, validates SKILL.md formats, checks trigger phrases
 - **`./scripts/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
 
 ### Try It Out
+
 ```bash
 # CLI example
 ./cli skill invoke /compliance-check vm-web-server-001 SOC2
@@ -72,11 +76,13 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 Comprehensive documentation is organized in the [`docs/`](./docs/) directory:
 
 ### 🏃‍♂️ [User Guide](./docs/user-guide/)
+
 - **[Getting Started](./docs/user-guide/getting-started.md)** - Setup and basic usage
 - **[Skills Reference](./docs/user-guide/skills-reference.md)** - All skills and workflows
 - **[Troubleshooting](./docs/user-guide/troubleshooting.md)** - Common issues and solutions
 
 ### 🛠️ [Developer Guide](./docs/developer-guide/)
+
 - **[Agent Behavior](./docs/developer-guide/agent-behavior.md)** - Governance and rules
 - **[Operational Procedures](./docs/developer-guide/operational-procedures.md)** - Workflow execution
 - **[Skills API](./docs/developer-guide/skills-api.md)** - Technical skill integration
@@ -84,6 +90,7 @@ Comprehensive documentation is organized in the [`docs/`](./docs/) directory:
 - **[Extending](./docs/developer-guide/extending.md)** - Adding new skills and integrations
 
 ### 📖 [Reference](./docs/reference/)
+
 - **[CLI Commands](./docs/reference/cli-commands.md)** - Complete command reference
 - **[API Reference](./docs/reference/api-reference.md)** - REST API documentation
 - **[Configuration](./docs/reference/configuration.md)** - All configuration options
@@ -91,16 +98,19 @@ Comprehensive documentation is organized in the [`docs/`](./docs/) directory:
 ## 🔑 Key Features
 
 ### Safe Execution Environment
+
 - **Infrastructure Emulation** - Test against simulated AWS, Azure, GCP resources
 - **Strict Tool Boundaries** - Configurable blast radius for every agent action
 - **Human-in-the-Loop** - Built-in workflow pauses for critical decisions
 
 ### AI Agent Orchestration
+
 - **Durable Execution** - Temporal ensures workflows survive crashes and timeouts
 - **Skill System** - Auto-discovery of tools from `.agents/skills/` directory
 - **Multi-Interface Support** - REST APIs, MCP server, CLI, WebMCP client, Backstage GUI
 
 ### Enterprise Ready
+
 - **Comprehensive Skills** - Various Skills
 - **Multi-Agent Coordination** - Parallel and sequential agent execution
 - **Audit Trails** - Complete logging and compliance reporting
@@ -222,15 +232,18 @@ This is not a production-ready framework — it is a testbed. Use this repositor
 ## Possible Approaches
 
 **The Sandbox (Safe Execution)**
+
 - *Infrastructure Emulation* — Run compliance and security scans against simulated AWS, Azure, and GCP resources without touching your actual cloud accounts
 - *Strict Tool Boundaries* — Granular config files (`tools/bash.yaml`, `tools/kubectl.yaml`, etc.) restrict agents to read-only, planning, or inspection operations
 - *Human-in-the-Loop* — Built-in workflow pauses that require human authorization before agents execute critical decisions
 
 **AI Agent Orchestration**
+
 - *Durable Execution* — Powered by Temporal, ensuring long-running multi-agent workflows survive server crashes and timeouts
 - *Skill System (Claude/Codex Compatible)* — Priority-based auto-discovery of tools defined via `SKILL.md` (YAML frontmatter + markdown) in `.agents/skills/`
 
 **Multi-Interface Platform**
+
 - Interact with agents however you want: REST APIs, MCP Server, WebMCP Client, CLI, Enhanced Backstage GUI, and direct AI assistant integration
 
 ---
@@ -238,33 +251,42 @@ This is not a production-ready framework — it is a testbed. Use this repositor
 ## Quick Start
 
 ### Prerequisites
+
 - Go 1.25+
 - Node.js 16+
 - Docker & Docker Compose
 - Make *(optional)*
 
 ### 1. Start Infrastructure
+
 ```bash
 cd backend && docker-compose up -d
 ```
+
 Starts:
+
 - PostgreSQL on port 5432
 - Temporal Server on port 7233
 - Temporal UI on port 8080
 
 ### 2. Start Backend
+
 ```bash
 cd backend && go mod tidy && go run main.go
 ```
+
 Launches the REST API on `:8081`, MCP server, WebMCP client interface, infrastructure emulator, and CLI-ready endpoints.
 
 ### 3. Start Frontend
+
 ```bash
 cd frontend && yarn install && yarn start
 ```
+
 Backstage with AI agent dashboard at `http://localhost:3000`.
 
 Alternatively, start everything at once:
+
 ```bash
 ./scripts/dev.sh
 ```
@@ -272,17 +294,20 @@ Alternatively, start everything at once:
 ### 4. Try It
 
 **Web UI:**
+
 1. Navigate to `http://localhost:3000/temporal`
 2. Click "Start HelloBackstage Workflow"
 3. Monitor workflow status in the table
 4. View detailed execution in Temporal UI at `http://localhost:8080`
 
 **CLI:**
+
 ```bash
 ./cli skill invoke /compliance-check vm-web-server-001 SOC2
 ```
 
 **REST API:**
+
 ```bash
 curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
   -d '{"target": "vm-web-server-001", "standard": "SOC2"}'
@@ -329,6 +354,7 @@ Interactive commands: `skill`, `skills list`, `skills info`, `start`, `status`, 
 ## API Reference
 
 ### Workflows
+
 ```
 POST /workflow/start
 POST /workflow/start-ai-orchestration
@@ -340,6 +366,7 @@ POST /workflow/signal/<workflow_id>
 ```
 
 ### Skills
+
 ```
 GET  /api/skills
 GET  /api/skills/invocable
@@ -349,6 +376,7 @@ POST /api/skills/discover
 ```
 
 ### Infrastructure Emulator
+
 ```
 GET  /emulator/resources
 GET  /emulator/resources/{id}
@@ -357,6 +385,7 @@ GET  /emulator/resources/{id}/compliance
 ```
 
 ### MCP & Health
+
 ```
 POST /mcp
 GET  /mcp/resources
@@ -388,6 +417,7 @@ The MCP server exposes standardized tools so local AI assistants (e.g., Claude D
 **SKILL.md** — Standardized input/output schemas for agentic tools, with usage examples, tool requirements, and error handling patterns.
 
 **`/tools`** — Sandboxed execution configs that define the blast radius for agent actions:
+
 - `bash.yaml` — permitted npm, git, docker, terraform commands
 - `git.yaml` — read-only operations only (status, diff, log, blame)
 - `kubectl.yaml` — cluster inspection, no destructive operations
@@ -437,16 +467,19 @@ ai-agents-sandbox/
 ## Configuration
 
 **Backend:**
+
 - Temporal Server: `localhost:7233`
 - Task Queue: `backstage-task-queue`
 - HTTP Server: `localhost:8081`
 
 **Frontend:**
+
 - Backstage: `http://localhost:3000`
 - Temporal UI: `http://localhost:8080`
 - Backend API: `http://localhost:8081`
 
 **Environment variables:**
+
 - `TEMPORAL_HOST` — Temporal server address (default: `localhost:7233`)
 - `DB_HOST` — PostgreSQL host (default: `localhost:5432`)
 - `LOG_LEVEL` — Logging verbosity (default: `info`)
@@ -488,32 +521,38 @@ cd frontend && yarn test
 ## Troubleshooting
 
 **Docker:**
+
 ```bash
 docker-compose ps
 docker-compose logs temporal
 docker-compose logs postgres
 docker-compose restart
 ```
+
 Check for port conflicts: 5432, 7233, 8080, 8081, 3000.
 
 **Backend:**
+
 ```bash
 curl http://localhost:7233/health
 docker-compose logs temporal | grep "Worker registered"
 ```
 
 **Agent decision tracing:**
+
 ```bash
 LOG_LEVEL=debug go run main.go
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend && rm -rf node_modules && yarn install
 cat frontend/app-config.yaml
 ```
 
 **CLI:**
+
 ```bash
 ./cli health
 ./cli skill list
@@ -560,6 +599,7 @@ The name was chosen deliberately, and every word carries meaning.
 **The bonus ambiguity** — Some readers will parse it as *AI Agents Sandbox* (a sandbox for multiple AI agents), others as *AI Agent's Sandbox* (the agent's own playground). Both readings are accurate and intentional. The first describes what you do with it; the second describes what it is from the agent's perspective — a home environment governed by `AGENTS.md`, `SKILL.md`, and defined tool boundaries.
 
 **Why not something else?**
+
 - `temporal-ai-agents` — Temporal already uses "AI agents" heavily in their own marketing; the name would look like an official or affiliated project
 - `agentic-sandbox` — An adjective without a noun; less searchable; dates faster
 - `ai-agent-platform` — Oversells stability and completeness
@@ -571,7 +611,7 @@ The name was chosen deliberately, and every word carries meaning.
 
 ## Open-source software
 
-https://github.com/lloydchang/ai-agents-sandbox
+<https://github.com/lloydchang/ai-agents-sandbox>
 
 ---
 

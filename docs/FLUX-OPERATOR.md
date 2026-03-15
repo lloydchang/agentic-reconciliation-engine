@@ -105,7 +105,7 @@ Port-forward to access the built-in dashboards:
 kubectl -n flux-system port-forward svc/flux-operator 9080:9080
 ```
 
-Open http://localhost:9080 in your browser to monitor your GitOps pipelines.
+Open <http://localhost:9080> in your browser to monitor your GitOps pipelines.
 
 Learn more about the [Flux Web UI](https://fluxoperator.dev/docs/web-ui/) →
 
@@ -139,20 +139,25 @@ Learn more about the [Flux MCP Server](https://fluxoperator.dev/docs/mcp/) →
 ## Next Steps
 
 ### Instance Configuration
+
 Learn about [multi-tenancy, sharding, scaling, and customization](https://fluxoperator.dev/docs/configuration/).
 
 ### ResourceSet API
+
 Discover [self-service environments and app definitions](https://fluxoperator.dev/docs/resourceset/).
 
 ### AI Prompting Guide
+
 Explore [effective prompting strategies for Flux MCP Server](https://fluxoperator.dev/docs/mcp/prompting/).
 
 ### Monitoring
+
 Set up [Prometheus metrics and alerting](https://fluxoperator.dev/docs/monitoring/).
 
 ## Features
 
 ### Enterprise Distribution
+
 - **Multi-tenancy**: Isolated Flux instances per team/namespace
 - **Sharding**: Scale Flux controllers across multiple replicas
 - **Security**: Built-in network policies and RBAC
@@ -160,12 +165,14 @@ Set up [Prometheus metrics and alerting](https://fluxoperator.dev/docs/monitorin
 - **Web UI**: Built-in dashboards for GitOps monitoring
 
 ### MCP Server Integration
+
 - **Agentic GitOps**: AI-powered GitOps operations
 - **Claude/Cursor Integration**: Seamless IDE integration
 - **Read/Write Operations**: Full GitOps workflow automation
 - **Context Awareness**: Intelligent Flux resource management
 
 ### Deployment Options
+
 - **CLI Installation**: Simple command-line deployment
 - **Helm Charts**: Kubernetes-native package management
 - **Terraform Provider**: Infrastructure-as-Code integration
@@ -228,18 +235,21 @@ data:
 ### Benefits
 
 #### Simplified Operations
+
 - **Single CRD**: Deploy complete Flux instances with one resource
 - **Auto-scaling**: Automatic controller scaling based on load
 - **Self-healing**: Built-in health checks and recovery
 - **Multi-tenant**: Safe isolation between teams and environments
 
 #### Enterprise Features
+
 - **Web Dashboard**: Built-in monitoring and management UI
 - **MCP Integration**: AI-powered GitOps operations
 - **Security Hardening**: Network policies, RBAC, and audit logging
 - **Compliance**: Enterprise-grade security and governance
 
 #### Developer Experience
+
 - **Quick Start**: Get Flux running in minutes
 - **Rich CLI**: Powerful command-line tooling
 - **Multiple Deployment Options**: Choose your preferred installation method

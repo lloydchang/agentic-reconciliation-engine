@@ -7,9 +7,11 @@ The GitOps Infra Control Plane supports three main variants that can be swapped 
 ## Variant Types
 
 ### 1. Open Source Variant
+
 **Label:** `variant: opensource`
 
 **Characteristics:**
+
 - Basic Flux controllers and core GitOps functionality
 - Community-supported tools and integrations
 - Standard monitoring (Prometheus/Grafana)
@@ -17,6 +19,7 @@ The GitOps Infra Control Plane supports three main variants that can be swapped 
 - Ideal for: Small teams, learning environments, proof-of-concepts
 
 **Components:**
+
 ```yaml
 # Core infrastructure
 - flux-system
@@ -27,6 +30,7 @@ The GitOps Infra Control Plane supports three main variants that can be swapped 
 ```
 
 **Configuration:**
+
 ```yaml
 configMapGenerator:
 - name: variant-config
@@ -38,9 +42,11 @@ configMapGenerator:
 ```
 
 ### 2. Small Business Variant
+
 **Label:** `variant: small-business`
 
 **Characteristics:**
+
 - Enhanced monitoring and observability
 - Backup and disaster recovery solutions
 - Security scanning and compliance tools
@@ -49,6 +55,7 @@ configMapGenerator:
 - Ideal for: Growing companies, production workloads
 
 **Components:**
+
 ```yaml
 # Core infrastructure + enhancements
 - flux-system
@@ -62,6 +69,7 @@ configMapGenerator:
 ```
 
 **Configuration:**
+
 ```yaml
 configMapGenerator:
 - name: variant-config
@@ -75,9 +83,11 @@ configMapGenerator:
 ```
 
 ### 3. Enterprise Variant
+
 **Label:** `variant: enterprise`
 
 **Characteristics:**
+
 - Full AI integration and orchestration
 - Advanced security and compliance
 - Multi-cloud controllers (Crossplane + CAPI)
@@ -87,6 +97,7 @@ configMapGenerator:
 - Ideal for: Large enterprises, mission-critical workloads
 
 **Components:**
+
 ```yaml
 # Complete enterprise stack
 - flux-system
@@ -103,6 +114,7 @@ configMapGenerator:
 ```
 
 **Configuration:**
+
 ```yaml
 configMapGenerator:
 - name: variant-config
@@ -178,15 +190,18 @@ variant-specific-components
 ### Variant-Specific Dependencies
 
 **Open Source:**
+
 - Basic monitoring depends on: workload-infra
 - Standard networking depends on: network-infra
 
 **Small Business:**
+
 - Enhanced monitoring depends on: workload-infra
 - Backup solutions depends on: cluster-infra
 - Security scanning depends on: workload-infra
 
 **Enterprise:**
+
 - AI gateway depends on: workload-infra
 - Consensus agents depends on: ai-gateway
 - Multi-cloud controllers depends on: cluster-infra
@@ -194,6 +209,7 @@ variant-specific-components
 ## Migration Paths
 
 ### Open Source → Small Business
+
 1. Update variant label to `small-business`
 2. Enable enhanced monitoring
 3. Add backup solutions
@@ -201,6 +217,7 @@ variant-specific-components
 5. Update monitoring dashboards
 
 ### Small Business → Enterprise
+
 1. Update variant label to `enterprise`
 2. Enable AI integration
 3. Add consensus orchestration
@@ -208,6 +225,7 @@ variant-specific-components
 5. Configure advanced security
 
 ### Enterprise → Small Business (Downgrade)
+
 1. Disable AI components first
 2. Remove consensus agents
 3. Scale down monitoring

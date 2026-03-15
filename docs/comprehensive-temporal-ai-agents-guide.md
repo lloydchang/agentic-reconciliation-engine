@@ -3,6 +3,7 @@
 This document combines architectural insights, implementation plans, and integration strategies for building AI agent orchestration systems using Temporal, Backstage, and Azure Foundry, with a focus on compliance workflows.
 
 ## Table of Contents
+
 1. [Executive Summary](#executive-summary)
 2. [Understanding the Integration](#understanding-the-integration)
 3. [When to Use Temporal](#when-to-use-temporal)
@@ -19,6 +20,7 @@ This document combines architectural insights, implementation plans, and integra
 This guide provides a comprehensive approach to implementing AI agent orchestration using Temporal for compliance workflows, integrated with Backstage for developer experience and optionally Azure Foundry for AI services. The solution emphasizes durable orchestration, audit trails, and reliable multi-agent coordination.
 
 ### Key Benefits
+
 - **Durable Execution**: Workflow state persists across failures and restarts
 - **Audit Compliance**: Complete execution history for regulatory requirements
 - **Multi-Agent Coordination**: Reliable parallel and sequential agent workflows
@@ -45,6 +47,7 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 **Long-running Processes**: Email processing over days with retries and manual review
 
 ### Typical Architecture
+
 - Your application defines a Temporal Workflow (Python, Go, or TypeScript)
 - Each AI step executes an Activity function (e.g., `invokeFoundryAgentTask`)
 - Activities make API/SDK calls to Azure Foundry's Agent Service
@@ -55,7 +58,7 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 
 ## When to Use Temporal
 
-### Temporal Adds Value When:
+### Temporal Adds Value When
 
 **Long-running Workflows**: Processes involving multiple AI agents, human-in-the-loop steps, or tasks taking minutes, hours, or days
 
@@ -67,7 +70,7 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 
 **Cross-system Orchestration**: Workflows spanning multiple APIs, databases, queues, or cloud services
 
-### When Temporal is Overkill:
+### When Temporal is Overkill
 
 - Single-step AI calls that are stateless and fast
 - Short-lived scripts that can fail and be restarted manually
@@ -82,14 +85,16 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 ### Core Components
 
 #### 1. Backstage Portal
+
 - **Purpose**: Web-based UI for workflow assembly with drag-and-drop modules
-- **Features**: 
+- **Features**:
   - Infrastructure emulator modules (AWS, Azure, GCP simulations)
   - AI agent modules (LLM endpoints, specialized task agents)
   - Compliance validation modules
   - Human-in-the-loop checkpoint components
 
 #### 2. Workflow Translation Layer
+
 - **Purpose**: Plugin converting Backstage templates to Temporal workflows
 - **Functions**:
   - Converts visual workflows to Temporal workflow definitions
@@ -97,6 +102,7 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
   - Maps modules to appropriate workers and emulators
 
 #### 3. Temporal Engine
+
 - **Purpose**: Local cluster providing durable orchestration and state management
 - **Components**:
   - PostgreSQL for durable workflow history
@@ -104,15 +110,18 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
   - Local development configuration
 
 #### 4. Worker Services
+
 - **AI Agent Worker**: Executes local AI models, handles structured I/O
 - **Emulator Worker**: Simulates cloud resources safely
 - **Design Principle**: Stateless and retryable
 
 #### 5. Durable Storage
+
 - **Purpose**: Local PostgreSQL database for workflow state and audit trails
 - **Benefits**: Enables replay and analysis for debugging and compliance
 
 #### 6. Monitoring Dashboard
+
 - **Purpose**: Real-time visibility into workflow executions
 - **Features**:
   - Real-time workflow execution status
@@ -123,17 +132,20 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 ### Agent Communication Protocols
 
 #### Agent-to-Agent Communication
+
 - **Message Bus/Pub-Sub**: NATS, Redis Streams, or Kafka for decoupled communication
 - **Direct API Calls**: For synchronous coordination when needed
 - **Structured Messages**: Task handoffs, intermediate results, event notifications
 - **Standardized Protocol**: Message schema, identifiers, and error handling for interoperability
 
 #### Agent-to-Temporal Communication
+
 - **Temporal Activities**: Structured input/output contracts
 - **Activity Options**: Timeouts, retry policies, and heartbeats
 - **State Management**: All persistent state managed by Temporal engine
 
 #### Human-in-the-Loop Integration
+
 - **Blocking Activities**: Pause workflows for user input
 - **UI Integration**: Resume based on Backstage UI interactions
 - **Decision Recording**: Store human decisions in durable storage
@@ -145,20 +157,26 @@ Temporal doesn't need native Azure Foundry support. Instead, it orchestrates wor
 ### Phase 1: Foundation Setup (Steps 1-3)
 
 #### Step 1: Backstage Setup
+
 Install local Backstage with workflow catalog containing:
+
 - Infrastructure emulator modules (AWS, Azure, GCP simulations)
 - AI agent modules (LLM endpoints, specialized task agents)
 - Compliance validation modules
 - Human-in-the-loop checkpoint components
 
 #### Step 2: Workflow Translation
+
 Develop plugin that:
+
 - Converts visual workflows to Temporal workflow definitions
 - Validates sandbox constraints and parameters
 - Maps modules to appropriate workers and emulators
 
 #### Step 3: Temporal Cluster
+
 Deploy local Temporal with:
+
 - PostgreSQL for durable workflow history
 - Workflow versioning and persistence
 - Local development configuration
@@ -166,19 +184,24 @@ Deploy local Temporal with:
 ### Phase 2: Core Implementation (Steps 4-6)
 
 #### Step 4: Worker Implementation
+
 - **AI Agent Worker**: Executes local AI models, handles structured I/O
 - **Emulator Worker**: Simulates cloud resources safely
 - Ensure stateless, retryable design patterns
 
 #### Step 5: Temporal Workflows
+
 Define activities for:
+
 - AI agent task execution
 - Infrastructure emulation
 - Human approval workflows
 - Error handling and retries
 
 #### Step 6: Human Integration
+
 Implement blocking activities that:
+
 - Pause workflows for user input
 - Resume based on Backstage UI interactions
 - Record decisions in durable storage
@@ -186,20 +209,25 @@ Implement blocking activities that:
 ### Phase 3: Operations & Testing (Steps 7-9)
 
 #### Step 7: Monitoring Dashboard
+
 Build Backstage plugin showing:
+
 - Real-time workflow execution status
 - AI agent outputs and emulator results
 - Pending human approvals
 - Comprehensive audit logs
 
 #### Step 8: Testing Strategy
+
 Validate:
+
 - Temporal orchestration correctness
 - AI agent output handling
 - Human-in-the-loop pause/resume functionality
 - Error recovery and idempotency
 
 #### Step 9: Optional Extensions
+
 - Multi-agent collaboration patterns
 - Conditional workflow branching
 - Performance analytics and metrics
@@ -271,12 +299,14 @@ func AgentCheckActivity(ctx context.Context, data string) (string, error) {
 ### Key Technical Requirements
 
 #### Compliance Focus
+
 - **Durable Audit Trails**: Complete workflow history for regulatory requirements
 - **Retry Logic**: Configurable policies for failed compliance checks
 - **Parallel Execution**: Coordinated multi-agent workflows with dependency management
 - **Safe Simulation**: Emulator tasks prevent production infrastructure changes
 
 #### Development Standards
+
 - **Local-First**: All components run locally without external dependencies
 - **Stateless Workers**: All persistent state managed by Temporal
 - **Modular Design**: Easy addition of new agents and emulators
@@ -289,6 +319,7 @@ func AgentCheckActivity(ctx context.Context, data string) (string, error) {
 ### Why Compliance Workflows Need Temporal
 
 Compliance workflows are inherently complex:
+
 - Multiple checks (regulatory rules, internal policies, data integrity)
 - External system calls (databases, APIs, document stores)
 - Intermittent failures due to data unavailability or timeouts
@@ -317,6 +348,7 @@ Temporal handles retries, errors, long-running waits, and guarantees that every 
 ## Development Roadmap
 
 ### Success Criteria
+
 - Safe local experimentation with AI agents
 - Complete audit trails for compliance workflows
 - Reliable orchestration through Temporal
@@ -324,6 +356,7 @@ Temporal handles retries, errors, long-running waits, and guarantees that every 
 - Comprehensive monitoring and debugging capabilities
 
 ### Next Steps
+
 1. Set up local development environment
 2. Implement core Backstage plugin structure
 3. Deploy Temporal cluster with PostgreSQL

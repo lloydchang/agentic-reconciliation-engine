@@ -130,14 +130,17 @@ This configuration works best when the Jobs are using the same image and tag as 
 ## Key Configuration Options
 
 ### Force Recreation
+
 - `spec.force: true` - Forces recreation of Jobs when immutable fields change
 - Required for Jobs to run on every deployment
 
 ### Wait for Completion
+
 - `spec.wait: true` - Makes Flux wait for Job completion before marking Kustomization as ready
 - Ensures proper sequencing of deployment phases
 
 ### Dependencies
+
 - `spec.dependsOn` - Creates dependency chains between Kustomizations
 - Ensures pre-deploy runs before deploy, and deploy before post-deploy
 
@@ -198,21 +201,25 @@ spec:
 ## Use Cases
 
 ### Database Migrations
+
 - Schema updates before application deployment
 - Data transformations and seeding
 - Backup operations
 
 ### Cache Management
+
 - Cache warming after deployment
 - Cache invalidation for stale data
 - CDN purges
 
 ### Integration Testing
+
 - API contract validation
 - External service connectivity tests
 - Performance baseline establishment
 
 ### Cleanup Operations
+
 - Temporary file removal
 - Log rotation
 - Resource cleanup

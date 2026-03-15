@@ -24,6 +24,7 @@ The GitOps Infra Control Plane supports **multi-language consensus-based agent o
 ## Integration Options
 
 ### Temporal-Based Orchestration
+
 - **Multi-Language SDKs**: Go, Python, TypeScript, C#, Java, Rust support
 - **Durable Workflows**: Persistent consensus state across failures
 - **Go-Based Performance**: Native Kubernetes integration
@@ -31,12 +32,14 @@ The GitOps Infra Control Plane supports **multi-language consensus-based agent o
 - **Enterprise Features**: Advanced error handling and monitoring
 
 ### Kubernetes-Native Workflows
+
 - **Resolute**: Pure Kubernetes-native workflow management
 - **Zero External Dependencies**: Runs entirely within Kubernetes
 - **GitOps-Friendly**: Declarative workflow definitions in Git
 - **Resource Efficiency**: Shared cluster resources
 
 ### Hybrid Architecture
+
 - **Performance-Critical**: Rust components for fast loops
 - **AI/ML Processing**: Python for machine learning and analytics
 - **Enterprise Integration**: C#/Java for large-scale systems
@@ -45,12 +48,14 @@ The GitOps Infra Control Plane supports **multi-language consensus-based agent o
 ## Key Capabilities
 
 ### Autonomous Agent Swarms
+
 - **Self-Organization**: Coordinated behavior from local interactions
 - **Distributed Consensus**: Raft-based coordination without single points of failure
 - **Local Optimization**: Agents make decisions based on local state
 - **Global Coherence**: Lightweight consensus protocols maintain system-wide optimization
 
 ### Multi-Cloud Coordination
+
 - **Cross-Cloud Consensus**: Global optimization across providers
 - **Dynamic Membership**: Add/remove agents without system disruption
 - **Load Balancing**: Distributed decision making across all agents
@@ -59,6 +64,7 @@ The GitOps Infra Control Plane supports **multi-language consensus-based agent o
 ## Implementation Examples
 
 ### Rust Performance Agent
+
 ```rust
 // Ultra-fast consensus loop (10-15 seconds)
 use tokio::time::{sleep, Duration};
@@ -78,6 +84,7 @@ async fn consensus_loop() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 ### Go Kubernetes Integration
+
 ```go
 // Standard consensus loop (30 seconds)
 func consensusLoop() {
@@ -93,6 +100,7 @@ func consensusLoop() {
 ```
 
 ### Python AI/ML Analytics
+
 ```python
 # ML-enhanced consensus (30 seconds)
 async def consensus_loop():
@@ -110,6 +118,7 @@ async def consensus_loop():
 ## Deployment Configuration
 
 ### Language-Specific Variants
+
 ```bash
 # Deploy Rust performance stack
 ./scripts/variant-swapper.sh languages rust
@@ -133,11 +142,13 @@ async def consensus_loop():
 ## Performance Considerations
 
 ### Feedback Loop Optimization
+
 - **Rust**: 10-15 seconds for performance-critical decisions
 - **Go/Python/TypeScript/C#/Java**: 30 seconds for standard coordination
 - **Hybrid Approaches**: Mix languages based on specific requirements
 
 ### Resource Allocation
+
 - **CPU**: Rust agents require minimal CPU overhead
 - **Memory**: Python agents need more memory for ML models
 - **Network**: All agents use efficient binary protocols
@@ -146,6 +157,7 @@ async def consensus_loop():
 ## Best Practices
 
 ### Language Selection
+
 1. **Use Rust** for performance-critical consensus operations
 2. **Use Go** for Kubernetes-native integrations
 3. **Use Python** for AI/ML and data analytics
@@ -153,12 +165,14 @@ async def consensus_loop():
 5. **Use C#/Java** for enterprise system integrations
 
 ### Consensus Design
+
 1. **Keep consensus state minimal** for better performance
 2. **Use partitioned consensus** for large-scale deployments
 3. **Implement proper leader election** for high availability
 4. **Monitor consensus health** with comprehensive metrics
 
 ### Integration Patterns
+
 1. **Temporal workflows** for complex orchestration scenarios
 2. **Kubernetes-native** for simple, GitOps-friendly deployments
 3. **Hybrid approaches** for mixed-language environments

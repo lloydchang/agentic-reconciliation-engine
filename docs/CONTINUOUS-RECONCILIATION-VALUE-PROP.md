@@ -21,6 +21,7 @@ This is a common and understandable perspective. The reality is: **configuration
 ## Real-World Drift Scenarios We've Seen
 
 ### 1. The "Quick Fix" That Never Got Committed
+
 ```
 Time: 2:37 AM Saturday
 Issue: Production API latency spikes
@@ -32,6 +33,7 @@ Consequence: 6 months later, security audit finds 47 undocumented security rules
 **With Continuous Reconciliation**: The manual change would be auto-reverted within minutes, forcing the proper fix via Git commit.
 
 ### 2. The Cloud Provider Update
+
 ```
 Time: 3:15 AM Tuesday
 Issue: AWS updates RDS parameter group defaults
@@ -43,6 +45,7 @@ Consequence: Emergency rollback, customer impact, post-mortem required
 **With Continuous Reconciliation**: Controllers detect the drift immediately and restore the desired configuration.
 
 ### 3. The "Shadow IT" Resource
+
 ```
 Time: Thursday afternoon
 Issue: Data science team needs S3 bucket for ML model training
@@ -58,6 +61,7 @@ Consequence: Data breach, compliance violation, $50K fine
 This is like saying "I've never seen my house on fire, so fires don't happen."
 
 **Why you haven't seen drift:**
+
 1. **You're not looking** - No one is continuously monitoring infrastructure state
 2. **It's silent** - Drift doesn't announce itself until it causes problems
 3. **You're lucky** - Your environment hasn't had the "perfect storm" yet
@@ -66,12 +70,14 @@ This is like saying "I've never seen my house on fire, so fires don't happen."
 ## Analogy: Car Insurance vs. Advanced Driver Assistance
 
 Traditional IaC is like **car insurance you only use after an accident**:
+
 - You pay premiums (maintain Terraform code)
 - Something bad happens (configuration drift causes outage)
 - You file a claim (manual investigation and fix)
 - Rates go up (team loses trust in infrastructure)
 
 Continuous Reconciliation is like **advanced driver assistance**:
+
 - Continuous monitoring (lane departure warnings)
 - Automatic correction (automatic braking)
 - Accident prevention (drift never becomes outage)
@@ -80,20 +86,26 @@ Continuous Reconciliation is like **advanced driver assistance**:
 ## Addressing Common Objections
 
 ### "But we have CI/CD pipelines that run Terraform"
+
 **Reality**: Pipelines run on schedules or triggers, not continuously. Drift can occur between runs.
 
 ### "Our team is disciplined, no one makes manual changes"
+
 **Reality**: Even disciplined teams have:
+
 - Emergency outages requiring quick fixes
 - New team members who don't know the process
 - Vendor support teams that need temporary access
 - Cloud provider automated updates
 
 ### "State files work fine for us"
+
 **Reality**: Until they don't. State file corruption is rare but catastrophic when it happens.
 
 ### "This seems complicated"
+
 **Reality**: It's actually simpler:
+
 - No state file management
 - No manual Terraform operations
 - Git is the single source of truth
@@ -111,6 +123,7 @@ Continuous Reconciliation is like **advanced driver assistance**:
 ## The Human Factor
 
 **Resistance is natural** because:
+
 - Change is uncomfortable
 - Current tools feel familiar
 - "If it ain't broke, don't fix it"

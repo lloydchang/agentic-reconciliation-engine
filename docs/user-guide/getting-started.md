@@ -55,6 +55,7 @@ cd backend && docker-compose up -d
 ```
 
 This starts:
+
 - **PostgreSQL** on port 5432 (database for workflow state)
 - **Temporal Server** on port 7233 (workflow orchestration engine)
 - **Temporal UI** on port 8080 (web interface for monitoring workflows)
@@ -68,6 +69,7 @@ go run main.go
 ```
 
 This launches:
+
 - REST API on `:8081`
 - MCP server for AI assistant integration
 - WebMCP client interface

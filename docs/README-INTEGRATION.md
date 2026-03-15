@@ -11,6 +11,7 @@ This guide provides the fastest path to integrating with the Continuous Reconcil
 ## Step 1: Deploy CRE Foundation (15 minutes)
 
 ### Deploy Hub Cluster
+
 ```bash
 # Use provided setup scripts
 ./scripts/hub-clusters/setup-aws-hub-eks.sh
@@ -21,6 +22,7 @@ This guide provides the fastest path to integrating with the Continuous Reconcil
 ```
 
 ### Apply Core Infrastructure
+
 ```bash
 kubectl apply -k control-plane/
 kubectl apply -k infrastructure/
@@ -29,17 +31,20 @@ kubectl apply -k infrastructure/
 ## Step 2: Expose APIs (10 minutes)
 
 ### Option A: Direct Kubernetes API
+
 ```bash
 # Port-forward Flux controllers
 kubectl port-forward svc/flux-controller -n flux-system 8080:80
 ```
 
 ### Option B: REST API Wrapper
+
 Create a simple API service that communicates with CRE via kubectl/GitOps.
 
 ## Step 3: Build Your Proprietary Layer
 
 ### Basic Integration Pattern
+
 ```python
 # Example: Python integration
 import subprocess
@@ -59,6 +64,7 @@ def deploy_infrastructure(manifest):
 ```
 
 ### Webhook Integration
+
 ```javascript
 // Example: Node.js webhook handler
 app.post('/infrastructure/status', (req, res) => {
@@ -72,6 +78,7 @@ app.post('/infrastructure/status', (req, res) => {
 ## Step 4: Add Business Logic
 
 ### Authentication Layer
+
 ```python
 def authenticated_deploy(user, manifest):
     if authorize(user, manifest):
@@ -81,6 +88,7 @@ def authenticated_deploy(user, manifest):
 ```
 
 ### Multi-tenancy
+
 ```python
 def tenant_isolated_deploy(tenant_id, manifest):
     # Prefix all resources with tenant
@@ -91,12 +99,14 @@ def tenant_isolated_deploy(tenant_id, manifest):
 ## Step 5: Monitoring & Alerting
 
 ### Drift Detection Integration
+
 ```bash
 # Monitor CRE status
 kubectl get gitrepositories -n flux-system -w
 ```
 
 ### Custom Alerts
+
 ```yaml
 # Add to your monitoring stack
 apiVersion: monitoring.coreos.com/v1

@@ -9,6 +9,7 @@ Create a comprehensive local development environment that combines Backstage's w
 ## Architecture Components
 
 ### Core Infrastructure
+
 - **Backstage Portal**: Web-based UI for workflow assembly with drag-and-drop modules
 - **Workflow Translation Layer**: Plugin converting Backstage templates to Temporal workflows
 - **Temporal Engine**: Local cluster providing durable orchestration and state management
@@ -17,6 +18,7 @@ Create a comprehensive local development environment that combines Backstage's w
 - **Monitoring Dashboard**: Real-time visibility into workflow executions
 
 ### Agent Communication Protocols
+
 - **Agent-to-Agent**: Message bus/pub/sub (NATS, Redis Streams) or direct API calls
 - **Agent-to-Temporal**: Structured Temporal Activities with input/output contracts
 - **Human-in-the-loop**: Blocking activities integrated with Backstage UI
@@ -24,6 +26,7 @@ Create a comprehensive local development environment that combines Backstage's w
 ## Implementation Steps
 
 ### Phase 1: Foundation Setup (Steps 1-3)
+
 1. **Backstage Setup**: Install local Backstage with workflow catalog containing:
    - Infrastructure emulator modules (AWS, Azure, GCP simulations)
    - AI agent modules (LLM endpoints, specialized task agents)
@@ -41,36 +44,38 @@ Create a comprehensive local development environment that combines Backstage's w
    - Local development configuration
 
 ### Phase 2: Core Implementation (Steps 4-6)
+
 4. **Worker Implementation**:
    - **AI Agent Worker**: Executes local AI models, handles structured I/O
    - **Emulator Worker**: Simulates cloud resources safely
    - Ensure stateless, retryable design patterns
 
-5. **Temporal Workflows**: Define activities for:
+2. **Temporal Workflows**: Define activities for:
    - AI agent task execution
    - Infrastructure emulation
    - Human approval workflows
    - Error handling and retries
 
-6. **Human Integration**: Implement blocking activities that:
+3. **Human Integration**: Implement blocking activities that:
    - Pause workflows for user input
    - Resume based on Backstage UI interactions
    - Record decisions in durable storage
 
 ### Phase 3: Operations & Testing (Steps 7-9)
+
 7. **Monitoring Dashboard**: Build Backstage plugin showing:
    - Real-time workflow execution status
    - AI agent outputs and emulator results
    - Pending human approvals
    - Comprehensive audit logs
 
-8. **Testing Strategy**: Validate:
+2. **Testing Strategy**: Validate:
    - Temporal orchestration correctness
    - AI agent output handling
    - Human-in-the-loop pause/resume functionality
    - Error recovery and idempotency
 
-9. **Optional Extensions**:
+3. **Optional Extensions**:
    - Multi-agent collaboration patterns
    - Conditional workflow branching
    - Performance analytics and metrics
@@ -78,18 +83,21 @@ Create a comprehensive local development environment that combines Backstage's w
 ## Key Technical Requirements
 
 ### Compliance Focus
+
 - **Durable Audit Trails**: Complete workflow history for regulatory requirements
 - **Retry Logic**: Configurable policies for failed compliance checks
 - **Parallel Execution**: Coordinated multi-agent workflows with dependency management
 - **Safe Simulation**: Emulator tasks prevent production infrastructure changes
 
 ### Development Standards
+
 - **Local-First**: All components run locally without external dependencies
 - **Stateless Workers**: All persistent state managed by Temporal
 - **Modular Design**: Easy addition of new agents and emulators
 - **Replayability**: Full workflow replay for debugging and analysis
 
 ## Success Criteria
+
 - Safe local experimentation with AI agents
 - Complete audit trails for compliance workflows
 - Reliable orchestration through Temporal
@@ -97,6 +105,7 @@ Create a comprehensive local development environment that combines Backstage's w
 - Comprehensive monitoring and debugging capabilities
 
 ## Next Steps
+
 1. Set up local development environment
 2. Implement core Backstage plugin structure
 3. Deploy Temporal cluster with PostgreSQL

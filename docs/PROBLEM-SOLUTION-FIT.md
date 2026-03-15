@@ -14,18 +14,21 @@ simpler tool solves better.
 Before evaluating any solution, answer these questions honestly:
 
 **Infrastructure complexity**
+
 - How many cloud providers are you running in production today?
 - How frequently does infrastructure drift cause production incidents or audit findings?
 - How much engineering time is spent on manual drift remediation each week?
 - How many Kubernetes clusters are you managing or planning to manage?
 
 **Team and operational context**
+
 - Does your team have existing Kubernetes operational depth — can they read controller logs,
   debug CRD status conditions, and diagnose a stuck reconcile loop?
 - Is the hub cluster going to run on a managed Kubernetes control plane (EKS, AKS, GKE)?
 - What is the realistic time available for the upfront adoption phase?
 
 **Scale and cost**
+
 - Is infrastructure drift already a recurring production cost, or is it a hypothetical concern?
 - What is the cost of the hub cluster infrastructure plus per-spoke cloud vault instances?
 - Does that cost justify the drift reduction benefit at your current scale?

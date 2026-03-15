@@ -5,6 +5,7 @@ The AI Agents Sandbox is designed for easy extension and contribution. This guid
 ## Contribution Guidelines
 
 ### Development Workflow
+
 1. **Fork the repository** and create a feature branch
 2. **Follow the coding standards** outlined in agent behavior rules
 3. **Write comprehensive tests** for new functionality
@@ -12,6 +13,7 @@ The AI Agents Sandbox is designed for easy extension and contribution. This guid
 5. **Submit a pull request** with detailed description
 
 ### Code Standards
+
 - **Go backend**: Follow standard Go conventions and effective Go practices
 - **TypeScript/React frontend**: Use ESLint configuration and TypeScript strict mode
 - **Documentation**: Use Markdown with consistent formatting
@@ -20,6 +22,7 @@ The AI Agents Sandbox is designed for easy extension and contribution. This guid
 ## Adding New AI Skills
 
 ### Skill Directory Structure
+
 Create a new directory under `.agents/skills/your-skill-name/`:
 
 ```
@@ -34,6 +37,7 @@ Create a new directory under `.agents/skills/your-skill-name/`:
 ```
 
 ### Skill Definition Format
+
 Each skill requires a `SKILL.md` file with YAML frontmatter:
 
 ```markdown
@@ -110,18 +114,23 @@ curl -X POST http://localhost:8081/api/skills/your-skill/execute \
 ```
 
 ### Advanced Usage
+
 Describe complex usage patterns and edge cases.
 
 ## Implementation Details
 
 ### Workflow Logic
+
 Describe the step-by-step execution logic.
 
 ### Error Scenarios
+
 Document common failure modes and recovery procedures.
 
 ### Performance Characteristics
+
 Expected execution times, resource usage, scaling considerations.
+
 ```
 
 ### Implementing Skill Activities
@@ -229,6 +238,7 @@ func YourSkillWorkflow(ctx workflow.Context, input YourSkillInput) (YourSkillOut
 ### Adding New Interface Types
 
 #### REST API Extensions
+
 Extend the backend with new endpoints:
 
 ```go
@@ -261,6 +271,7 @@ func yourEndpointHandler(w http.ResponseWriter, r *http.Request) {
 ```
 
 #### MCP Server Extensions
+
 Add new tools to the MCP server:
 
 ```go
@@ -297,6 +308,7 @@ func yourToolHandler(ctx context.Context, request *mcpserver.ToolRequest) (*mcps
 ```
 
 #### Frontend Plugins
+
 Create new Backstage plugins:
 
 ```typescript
@@ -320,6 +332,7 @@ export const YourPluginPage = yourPlugin.provide(
 ```
 
 ### WebMCP Client Extensions
+
 Enhance the browser-based MCP client:
 
 ```typescript
@@ -369,6 +382,7 @@ export const WebMCPClient = () => {
 ## Advanced Orchestration Patterns
 
 ### Multi-Agent Collaboration
+
 Implement workflows that coordinate multiple agents:
 
 ```go
@@ -429,6 +443,7 @@ func MultiAgentWorkflow(ctx workflow.Context, input MultiAgentInput) (MultiAgent
 ```
 
 ### Dynamic Workflow Generation
+
 Create workflows based on runtime conditions:
 
 ```go
@@ -472,6 +487,7 @@ func DynamicWorkflow(ctx workflow.Context, input DynamicInput) (DynamicOutput, e
 ## Cloud Provider Integrations
 
 ### Adding New Cloud Providers
+
 Extend the infrastructure emulator:
 
 ```go
@@ -522,6 +538,7 @@ func init() {
 ```
 
 ### Multi-Cloud Orchestration
+
 Create workflows that span multiple cloud providers:
 
 ```go
@@ -561,6 +578,7 @@ func MultiCloudWorkflow(ctx workflow.Context, input MultiCloudInput) (MultiCloud
 ## Compliance Framework Extensions
 
 ### Adding New Compliance Standards
+
 Implement additional regulatory compliance checks:
 
 ```go
@@ -639,6 +657,7 @@ func init() {
 ## Testing & Validation
 
 ### Skill Testing Framework
+
 Create comprehensive tests for new skills:
 
 ```go
@@ -683,6 +702,7 @@ func TestYourSkillActivity(t *testing.T) {
 ```
 
 ### Integration Testing
+
 Test skill integration with the broader system:
 
 ```bash
@@ -702,6 +722,7 @@ go test ./backend/api/... -run TestYourSkillAPI
 ## Documentation Updates
 
 ### Updating Skill Documentation
+
 When adding new skills, update the documentation:
 
 1. **Add to skills reference**: Update `docs/user-guide/skills-reference.md`
@@ -710,7 +731,9 @@ When adding new skills, update the documentation:
 4. **Update implementation**: Document in `docs/developer-guide/implementation.md`
 
 ### Version Management
+
 Follow semantic versioning for skill updates:
+
 - **MAJOR**: Breaking changes to input/output schemas
 - **MINOR**: New features or enhancements
 - **PATCH**: Bug fixes and minor improvements

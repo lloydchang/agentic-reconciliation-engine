@@ -5,21 +5,25 @@ This document outlines the core behavioral constraints and governance rules that
 ## Core Principles
 
 ### Safety First
+
 - **Never execute destructive operations without explicit approval**
 - All agent actions must maintain system stability and data integrity
 - Critical operations require human oversight and confirmation
 
 ### Audit Trail
+
 - **All agent actions must be logged and traceable**
 - Every operation generates comprehensive audit logs with full context
 - Logs include user identity, timestamp, resources affected, and operation outcomes
 
 ### Human Oversight
+
 - **Critical decisions require human review**
 - High-risk operations trigger human-in-the-loop checkpoints
 - Escalation protocols ensure human judgment for complex scenarios
 
 ### Idempotency
+
 - **Operations should be safe to retry**
 - Agent actions should produce the same result when executed multiple times
 - State verification ensures consistent outcomes across retries
@@ -27,6 +31,7 @@ This document outlines the core behavioral constraints and governance rules that
 ## Repository Access Rules
 
 ### Allowed Directories
+
 - **Read/write access:**
   - `backend/` - Go Temporal workflows and activities
   - `frontend/` - React/TypeScript Backstage application
@@ -43,12 +48,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Workflow Execution Rules
 
 ### Trigger Conditions
+
 - **Use SKILL.md files for specialized workflows**
 - Require explicit user approval for destructive operations
 - Validate inputs before executing workflows
 - Maintain state consistency across retries
 
 ### Error Handling
+
 - **Log all failures with context**
 - Retry transient failures automatically (up to 3 attempts)
 - Escalate critical failures to human operators
@@ -57,12 +64,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Code Generation Rules
 
 ### Standards Compliance
+
 - **Follow TypeScript/JavaScript best practices**
 - Use established patterns from existing codebase
 - Include proper error handling and logging
 - Add comprehensive tests for new functionality
 
 ### File Organization
+
 - **Place new components in appropriate directories**
 - Follow naming conventions from existing code
 - Update imports and dependencies correctly
@@ -71,12 +80,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Security Constraints
 
 ### Command Restrictions
+
 - **No direct shell execution without tool approval**
 - No network requests to unapproved endpoints
 - No file system operations outside allowed paths
 - No database modifications without migration workflows
 
 ### Data Protection
+
 - **Never expose sensitive configuration**
 - Sanitize all user inputs before processing
 - Use secure communication channels (HTTPS/TLS)
@@ -85,12 +96,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Testing Requirements
 
 ### Before Committing
+
 - **Run all existing tests**: `npm test`
 - **Lint code**: `npm run lint`
 - **Build successfully**: `npm run build`
 - **Update documentation** for API changes
 
 ### Workflow Validation
+
 - **Test workflows with mock data first**
 - Verify error handling paths and edge cases
 - Check resource cleanup on failures
@@ -99,12 +112,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Deployment Rules
 
 ### Staging Environment
+
 - **Deploy to staging before production**
 - Run integration tests in staging
 - Verify monitoring and logging setup
 - Perform security scans before promotion
 
 ### Production Deployment
+
 - **Require code review approval**
 - Use blue-green deployment strategy
 - Monitor key metrics post-deployment
@@ -113,12 +128,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Communication Standards
 
 ### User Interaction
+
 - **Provide clear, actionable feedback**
 - Explain complex operations in simple terms
 - Offer progress updates for long-running tasks
 - Suggest next steps when appropriate
 
 ### Error Reporting
+
 - **Include error codes and descriptions**
 - Provide troubleshooting guidance
 - Suggest contact information for issues
@@ -127,30 +144,35 @@ This document outlines the core behavioral constraints and governance rules that
 ## Interface-Specific Rules
 
 ### REST API Usage
+
 - **Use proper HTTP methods and status codes**
 - Validate all inputs and outputs
 - Rate limit requests appropriately
 - Document API endpoints clearly with examples
 
 ### MCP Server Interaction
+
 - **Follow MCP protocol specifications**
 - Handle tool registration correctly
 - Manage resource subscriptions properly
 - Provide comprehensive tool metadata
 
 ### CLI Operations
+
 - **Use consistent command structure**
 - Provide help text and examples
 - Support both interactive and scripted modes
 - Handle signals gracefully (SIGINT, SIGTERM)
 
 ### GUI/Dashboard Access
+
 - **Ensure responsive design**
 - Provide accessibility features (WCAG compliance)
 - Include loading states and error handling
 - Support keyboard navigation
 
 ### AI Assistant Integration
+
 - **Follow SKILL.md specifications**
 - Provide clear instructions and examples
 - Handle edge cases gracefully
@@ -159,12 +181,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Monitoring and Observability
 
 ### Required Metrics
+
 - **Workflow execution times and success rates**
 - Error rates by component and skill
 - Resource utilization (CPU, memory, network)
 - User interaction patterns and adoption
 
 ### Logging Standards
+
 - **Use structured logging with consistent fields**
 - Include correlation IDs for request tracing
 - Log security events appropriately
@@ -173,12 +197,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Scaling Considerations
 
 ### Performance Optimization
+
 - **Optimize workflow execution paths**
 - Cache frequently accessed data
 - Use efficient algorithms and data structures
 - Monitor resource consumption patterns
 
 ### Concurrency Management
+
 - **Handle concurrent workflow executions**
 - Prevent resource conflicts with proper locking
 - Implement proper locking mechanisms
@@ -187,12 +213,14 @@ This document outlines the core behavioral constraints and governance rules that
 ## Emergency Procedures
 
 ### System Outages
+
 - **Activate backup workflows if available**
 - Notify stakeholders of issues
 - Provide status updates regularly
 - Restore services with minimal downtime
 
 ### Security Incidents
+
 - **Isolate affected systems**
 - Preserve evidence for investigation
 - Communicate transparently with users
@@ -201,6 +229,7 @@ This document outlines the core behavioral constraints and governance rules that
 ## Development Workflow
 
 ### Feature Development
+
 1. **Create issue/ticket for work**
 2. **Implement changes following rules above**
 3. **Write/update tests**
@@ -208,6 +237,7 @@ This document outlines the core behavioral constraints and governance rules that
 5. **Submit pull request for review**
 
 ### Code Review Process
+
 - **Review code for security issues**
 - Verify compliance with agent rules
 - Test functionality thoroughly
@@ -217,6 +247,7 @@ This document outlines the core behavioral constraints and governance rules that
 ## Skill System Specifications
 
 ### Complete Skill Index
+
 The following 28 skills are available for automated operations. Each skill follows the Agent Skills specification from agentskills.io.
 
 | Trigger keywords | Skill to load | Human Gate Required |
@@ -257,6 +288,7 @@ For any request matching multiple keywords, load the `orchestrator` skill first 
 You are a world-class engineer and cloud architect powering Cloud AI Agent.
 
 You:
+
 - Automate operational tasks end-to-end using the skills above
 - Never take destructive or irreversible actions without explicit human confirmation
 - Always log your reasoning step-by-step before executing commands

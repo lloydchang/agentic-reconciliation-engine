@@ -9,12 +9,14 @@ This guide explains how to set up Karmada with Flux for managing multi-cluster G
 ## 🏗 Architecture
 
 ### **Karmada Control Plane**
+
 - **Central Management**: Single control plane managing multiple clusters
 - **Resource Templates**: Flux CRDs as templates, not instances
 - **Propagation Policies**: Control which resources go to which clusters
 - **Override Policies**: Customize resources per cluster
 
 ### **Flux Integration**
+
 - **Control Plane**: Flux CRDs only (no controllers)
 - **Member Clusters**: Full Flux controllers for reconciliation
 - **GitOps**: Central Git repository managing all clusters
@@ -25,6 +27,7 @@ This guide explains how to set up Karmada with Flux for managing multi-cluster G
 ## 🚀 Quick Start
 
 ### **Prerequisites**
+
 ```bash
 # Install required tools
 brew install kind kubectl flux
@@ -36,6 +39,7 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 ```
 
 ### **Setup Karmada + Flux**
+
 ```bash
 # Run the setup script
 ./control-plane/karmada/setup-karmada.sh
@@ -59,6 +63,7 @@ flux install --kubeconfig ~/.kube/members.config --context member3
 ## 📊 Multi-Cluster Configuration
 
 ### **Helm Repository & Release**
+
 ```yaml
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
@@ -86,6 +91,7 @@ spec:
 ```
 
 ### **Propagation Policy**
+
 ```yaml
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
@@ -109,6 +115,7 @@ spec:
 ```
 
 ### **Override Policy**
+
 ```yaml
 apiVersion: policy.karmada.io/v1alpha1
 kind: OverridePolicy
@@ -141,6 +148,7 @@ spec:
 ## 🎯 Cluster-Specific Configurations
 
 ### **Production Cluster (member1)**
+
 - **Replicas**: 5 instances
 - **Resources**: High CPU/memory allocation
 - **Node Selector**: Production nodes only
@@ -148,12 +156,14 @@ spec:
 - **Affinity**: Pod anti-affinity for high availability
 
 ### **Staging Cluster (member2)**
+
 - **Replicas**: 3 instances
 - **Resources**: Medium allocation
 - **Node Selector**: Staging nodes
 - **Autoscaling**: Enabled with moderate limits
 
 ### **Development Cluster (member3)**
+
 - **Replicas**: 1 instance
 - **Resources**: Low allocation
 - **Node Selector**: Development nodes
@@ -164,6 +174,7 @@ spec:
 ## 📈 Multi-Cluster Monitoring
 
 ### **Prometheus + Grafana Setup**
+
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -183,6 +194,7 @@ spec:
 ```
 
 ### **Monitoring Features**
+
 - **Multi-Cluster Metrics**: Prometheus across all clusters
 - **Centralized Grafana**: Single dashboard for all clusters
 - **Cluster Labels**: Distinguish metrics by cluster
@@ -193,6 +205,7 @@ spec:
 ## 🔧 Advanced Features
 
 ### **Spread Constraints**
+
 ```yaml
 placement:
   clusterAffinity:
@@ -207,6 +220,7 @@ placement:
 ```
 
 ### **Dependency Management**
+
 ```yaml
 spec:
   dependsOn:
@@ -215,6 +229,7 @@ spec:
 ```
 
 ### **Resource Templates**
+
 - **Control Plane**: Flux CRDs as templates
 - **Member Clusters**: Actual resource instances
 - **Work Encapsulation**: Work objects for delivery
@@ -225,6 +240,7 @@ spec:
 ## 🚀 Deployment Workflow
 
 ### **1. Setup Phase**
+
 ```bash
 # 1. Start Karmada control plane
 ./hack/local-up-karmada.sh
@@ -239,6 +255,7 @@ done
 ```
 
 ### **2. Configuration Phase**
+
 ```bash
 # Apply multi-cluster GitOps configuration
 kubectl apply -f control-plane/karmada/multi-cluster-gitops.yaml --kubeconfig ~/.kube/karmada.config
@@ -249,6 +266,7 @@ kubectl get overridepolicies -A --kubeconfig ~/.kube/karmada.config
 ```
 
 ### **3. Verification Phase**
+
 ```bash
 # Check deployments in each cluster
 for cluster in member1 member2 member3; do
@@ -263,6 +281,7 @@ done
 ## 📊 Monitoring & Observability
 
 ### **Cluster Status**
+
 ```bash
 # Check Karmada cluster status
 kubectl get clusters --kubeconfig ~/.kube/karmada.config
@@ -275,6 +294,7 @@ kubectl get work -A --kubeconfig ~/.kube/karmada.config
 ```
 
 ### **Flux Status**
+
 ```bash
 # Check Flux status in each member cluster
 for cluster in member1 member2 member3; do
@@ -284,6 +304,7 @@ done
 ```
 
 ### **Application Status**
+
 ```bash
 # Check application deployments
 for cluster in member1 member2 member3; do
@@ -300,6 +321,7 @@ done
 ### **Common Issues**
 
 #### **Propagation Not Working**
+
 ```bash
 # Check propagation policy status
 kubectl describe propagationpolicy gitops-infra-policy -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
@@ -310,6 +332,7 @@ kubectl describe work <work-name> -n gitops-multi-cluster --kubeconfig ~/.kube/k
 ```
 
 #### **Flux Reconciliation Issues**
+
 ```bash
 # Check Flux status in member cluster
 flux get kustomizations --kubeconfig ~/.kube/members.config --context member1
@@ -319,6 +342,7 @@ kubectl get events -n flux-system --kubeconfig ~/.kube/members.config --context 
 ```
 
 #### **Override Policy Not Applied**
+
 ```bash
 # Check override policy status
 kubectl describe overridepolicy gitops-infra-production -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
@@ -332,18 +356,21 @@ kubectl get helmrelease gitops-infrastructure -n gitops-multi-cluster -o yaml --
 ## 🎉 Benefits
 
 ### **Multi-Cluster Management**
+
 - **Single Control Plane**: Manage multiple clusters from one place
 - **Centralized GitOps**: Single Git repository for all clusters
 - **Resource Templates**: Reuse configurations across clusters
 - **Cluster Customization**: Override policies per cluster
 
 ### **Enterprise Features**
+
 - **High Availability**: Spread across multiple clusters
 - **Disaster Recovery**: Multi-cluster resilience
 - **Load Distribution**: Intelligent workload placement
 - **Cost Optimization**: Right-size resources per cluster
 
 ### **Operational Excellence**
+
 - **Consistent Deployments**: Same application across clusters
 - **Cluster-Specific Tuning**: Optimize per environment
 - **Centralized Monitoring**: Single view of all clusters
@@ -364,6 +391,7 @@ kubectl get helmrelease gitops-infrastructure -n gitops-multi-cluster -o yaml --
 ## 🔄 Integration with Control Plane
 
 ### **Kustomization Structure**
+
 The Karmada configuration is now fully integrated into the GitOps infrastructure control plane:
 
 ```yaml
@@ -392,6 +420,7 @@ resources:
 ```
 
 ### **Deployment Commands**
+
 ```bash
 # Deploy entire control plane including Karmada
 kubectl apply -k .

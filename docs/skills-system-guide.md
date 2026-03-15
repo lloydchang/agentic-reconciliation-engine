@@ -83,53 +83,65 @@ Priority order: Enterprise > Personal > Project (repo root) > Project (subdirs)
 ### Core Skills
 
 #### `compliance-check`
+
 Initiates compliance validation workflows for infrastructure resources.
 
 **Usage:**
+
 ```
 /compliance-check <resource-id> [compliance-type] [priority]
 ```
 
 **Parameters:**
+
 - `resource-id`: Target resource identifier
 - `compliance-type`: "SOC2", "GDPR", "HIPAA", "full-scan"
 - `priority`: "low", "normal", "high", "critical"
 
 #### `security-scan`
+
 Executes security analysis workflows.
 
 **Usage:**
+
 ```
 /security-scan <resource-id> [scan-type] [priority]
 ```
 
 **Parameters:**
+
 - `resource-id`: Target resource identifier
 - `scan-type`: "vulnerability", "malware", "configuration", "full"
 - `priority`: "low", "normal", "high", "critical"
 
 #### `cost-analysis`
+
 Performs cost optimization analysis.
 
 **Usage:**
+
 ```
 /cost-analysis <resource-id> [analysis-type] [timeframe]
 ```
 
 **Parameters:**
+
 - `resource-id`: Target resource identifier
 - `analysis-type`: "usage", "optimization", "forecast", "full"
 - `timeframe`: "7d", "30d", "90d", "1y"
 
 #### `workflow-management`
+
 Manages Temporal AI Agents workflows.
 
 **Usage:**
+
 ```
 /workflow-management <action> [parameters]
 ```
 
 **Actions:**
+
 - `list [type]`: List active workflows
 - `details <id>`: Get workflow details
 - `cancel <id> [reason]`: Cancel workflow
@@ -167,16 +179,19 @@ temporal-agents --interactive
 ## Using Skills via API
 
 ### List Skills
+
 ```bash
 GET /api/skills
 ```
 
 ### Get Skill Details
+
 ```bash
 GET /api/skills/{name}
 ```
 
 ### Execute Skill
+
 ```bash
 POST /api/skills/{name}/execute
 Content-Type: application/json
@@ -187,6 +202,7 @@ Content-Type: application/json
 ```
 
 ### Discover Skills
+
 ```bash
 POST /api/skills/discover
 ```
