@@ -6,6 +6,19 @@ Orchestrates resource optimization operations across multiple cloud providers
 to ensure consistent resource utilization analysis and optimization.
 """
 
+# /// script
+# dependencies = [
+#   "boto3>=1.26.0",
+#   "azure-mgmt-compute>=29.0.0",
+#   "google-cloud-compute>=1.8.0",
+#   "kubernetes>=25.0.0",
+#   "pydantic>=1.10.0",
+#   "requests>=2.28.0",
+#   "pandas>=1.5.0",
+#   "numpy>=1.24.0"
+# ]
+# ///
+
 import json
 import logging
 import asyncio
@@ -14,6 +27,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import statistics
 
 from resource_optimizer_handler import (
