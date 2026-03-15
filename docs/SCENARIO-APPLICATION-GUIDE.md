@@ -102,7 +102,7 @@ If you don't have these drivers, **multi-cloud solutions may be overkill.**
 
 The good news: **Individual components of this solution work beautifully in non-multi-cloud scenarios.**
 
-#### Local Development to Cloud Operations (Most Common Use Case)
+#### Local Development to Cloud AI (Most Common Use Case)
 
 **This is likely the most common and practical application scenario:**
 
