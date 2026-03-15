@@ -14,6 +14,10 @@ fail() { echo -e "  ${RED}✗${RESET} $*"; ERRORS=$((ERRORS + 1)); }
 warn() { echo -e "  ${YELLOW}!${RESET} $*"; WARNINGS=$((WARNINGS + 1)); }
 info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
+ensure_wsl_sanity "scripts/bootstrap.sh" warn info
+
 ERRORS=0
 WARNINGS=0
 SKILL_DIR="${SKILL_DIR:-./.agents/skills}"

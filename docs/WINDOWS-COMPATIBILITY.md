@@ -31,6 +31,19 @@ cd /path/to/gitops-infra-control-plane
 scripts/run-local-automation.sh
 ```
 
+### WSL quick-start
+
+If the Windows host does not yet have WSL enabled, the following commands install it and a default distro (Ubuntu) so you can run the repo’s automation:
+
+```powershell
+wsl --install
+wsl --list --online             # optional: see available distro names
+wsl --set-default-version 2
+wsl --install -d Ubuntu
+```
+
+After the distro installs, launch it from the Start menu, install the needed tooling (`sudo apt update && sudo apt install -y bash curl git jq yq kubectl helm python3 python3-pip pika`), clone the repo inside the distro, then run the scripts from that shell. This ensures the helper logs report WSL and avoids the native Windows warning.
+
 The helper script runs `scripts/bootstrap.sh`, which validates CLI tooling, and then calls `scripts/migration_wizard.py` with the Azure emulator + GitHub connector sequence. Because both scripts are bash-compatible, Windows sees them as just another shell automation.
 
 ## 4. Git host connectors and PR flow
@@ -42,6 +55,16 @@ The helper script runs `scripts/bootstrap.sh`, which validates CLI tooling, and 
 
 1. Run `scripts/bootstrap.sh` from your Windows shell; everything should pass or fail with clear diagnostics (paths, env vars, CLI tools).  
 2. Run `scripts/run-local-automation.sh`; the logs under `logs/local-automation/` provide the same output as on macOS/Linux.  
-3. Because Windows uses the same bash environment, this also validates the `scripts/migration_wizard.py` path, ensuring the zero-touch scenario works identically.  
+3. Because Windows uses the same bash environment, this also validates the `scripts/migration_wizard.py` path, ensuring the zero-touch scenario works identically. 
 
 If you encounter issues due to Windows line endings or path translation, re-run `git status` to confirm there are no unwanted changes (Git Bash/WSL preserves LF by default).
+
+## 6. Automatic WSL detection
+
+The main automation entry points (`scripts/bootstrap.sh`, `scripts/run-local-automation.sh`, and `scripts/run-emulator-then-cloud.sh`) now source `scripts/helpers/wsl-detect.sh`. That helper logs a warning when the shell appears to be Windows-native (without WSL/Git Bash) and emits an informational message when it detects WSL. It also exports `WINDOWS_SHELL_ENVIRONMENT` and `WSL_ENVIRONMENT`, so other scripts can adjust behavior if they need to gate Windows-specific checks.
+
+## 7. When WSL is unavailable
+
+WSL is the best-supported experience because it is a full Linux distribution running inside Windows and nothing in this repo needs to change when you move from macOS/Linux into WSL. If WSL is disabled or impossible to enable in your environment, run the same automation inside any Linux host you can reach (for example, GitHub Codespaces, an Azure/Linux VM, or any other Linux workstation/VM). Those environments already meet the POSIX requirements (`bash`, `python3`, `set -euo pipefail`, `mkdir -p`, etc.) and avoid the Windows tooling gaps altogether.
+
+If a native Windows shell must be used, Git Bash, msys2, or Cygwin are still second-best alternatives, but they may require enabling `core.symlinks true` in Git and paying attention to path translation issues; the helper warning makes this visible before the scripts start validating tooling.
