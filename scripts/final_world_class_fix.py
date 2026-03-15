@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 def add_missing_api_patterns(content: str, skill_name: str) -> str:
-    """Add missing API pattern types to achieve world-class compliance"""
+    """Add missing API pattern types to achieve compliance"""
     
     # Find the API Patterns section
     api_patterns_start = content.find('## API Patterns')
@@ -450,7 +450,7 @@ def main():
         print(f"❌ Agents directory not found: {agents_dir}")
         return
     
-    print(f"🔧 Starting final world-class fix...")
+    print(f"🔧 Starting final fix...")
     
     # Get all skill directories
     skills = []

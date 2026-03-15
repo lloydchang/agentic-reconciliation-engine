@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List
 
 def create_world_class_skill(skill_name: str) -> str:
-    """Create world-class skill content"""
+    """Create skill content"""
     return f"""---
 name: {skill_name}
 description: >
@@ -368,7 +368,7 @@ def main():
         print(f"❌ Agents directory not found: {agents_dir}")
         return
     
-    print(f"🚀 Starting working world-class upgrade...")
+    print(f"🚀 Starting working upgrade...")
     
     # Get all skill directories
     skills = []
@@ -412,7 +412,7 @@ def main():
     print(f"   ❌ Failed: {failed}")
     
     if failed == 0:
-        print(f"\n🎊 All {upgraded} skills successfully upgraded to world-class level!")
+        print(f"\n🎊 All {upgraded} skills successfully upgraded to level!")
         print(f"📈 Achievement: 0% → 100% compliance with both specifications!")
     else:
         print(f"\n⚠️  {failed} skills failed to upgrade.")

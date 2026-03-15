@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 def create_multi_cloud_skill_content(skill_name):
-    """Create multi-cloud world-class skill content"""
+    """Create multi-cloud skill content"""
     return f"""---
 name: {skill_name}
 description: >

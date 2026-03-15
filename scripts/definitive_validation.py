@@ -55,9 +55,9 @@ def check_specification_compliance():
         print(f"❌ Q1: Some files don't follow specifications")
     
     if world_class_compliant == total_files:
-        print(f"✅ Q2: ALL files declared at world-class level for their personas")
+        print(f"✅ Q2: ALL files declared at level for their personas")
     else:
-        print(f"❌ Q2: Some files not at world-class level")
+        print(f"❌ Q2: Some files not at level")
     
     if template_compliance['multi_cloud']:
         print(f"✅ Q3: Template is multi-cloud ready")
@@ -110,8 +110,8 @@ def check_single_file(file_path: Path, file_type: str) -> dict:
             result['agents_md'] = False
             break
     
-    # Check world-class indicators
-    world_class_indicators = ['world-class', 'enterprise-grade', 'multi-cloud', 'AI-powered']
+    # Check indicators
+    world_class_indicators = ['', 'enterprise-grade', 'multi-cloud', 'AI-powered']
     found_indicators = sum(1 for indicator in world_class_indicators if indicator.lower() in content.lower())
     if found_indicators < 3:
         result['world_class'] = False

@@ -323,7 +323,7 @@ def main():
         print(f"❌ Agents directory not found: {agents_dir}")
         return
     
-    print(f"🚀 Starting final world-class upgrade...")
+    print(f"🚀 Starting final upgrade...")
     
     # Get all skill directories
     skills = []
@@ -367,7 +367,7 @@ def main():
     print(f"   ❌ Failed: {failed}")
     
     if failed == 0:
-        print(f"\n🎊 All {upgraded} skills successfully upgraded to world-class level!")
+        print(f"\n🎊 All {upgraded} skills successfully upgraded to level!")
         print(f"📈 Achievement: 0% → 100% compliance with both specifications!")
         print(f"🌟 All skills now meet agentskills.io AND AGENTS.md specifications!")
     else:

@@ -14,7 +14,7 @@ def main():
         print(f"❌ Agents directory not found: {agents_dir}")
         return
     
-    print(f"🚀 Starting simple world-class upgrade...")
+    print(f"🚀 Starting simple upgrade...")
     
     # Get all skill directories
     skills = []
@@ -40,7 +40,7 @@ def main():
             with open(backup_file, 'w') as f:
                 f.write(original_content)
             
-            # Create simple world-class content
+            # Create simple content
             content = f"""---
 name: {skill_name}
 description: >
@@ -337,7 +337,7 @@ func (a *SkillExecutionActivities) Execute{skill_name.replace('-', '_').title().
     print(f"   ❌ Failed: {failed}")
     
     if failed == 0:
-        print(f"\n🎊 All {upgraded} skills successfully upgraded to world-class level!")
+        print(f"\n🎊 All {upgraded} skills successfully upgraded to level!")
         print(f"📈 Achievement: 0% → 100% compliance with both specifications!")
         print(f"🌟 All skills now meet agentskills.io AND AGENTS.md specifications!")
     else:

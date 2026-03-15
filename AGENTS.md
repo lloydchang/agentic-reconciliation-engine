@@ -2,7 +2,7 @@
 
 ## Preface
 
-This document defines a **world-class AI agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following open standard specifications at https://agentskills.io/specification web page.
+This document defines an **AI agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following open standard specifications at https://agentskills.io/specification web page.
 
 Two complementary layers coexist:
 
