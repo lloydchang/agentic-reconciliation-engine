@@ -1,4 +1,4 @@
-# AI Inference Cost Comparison: Local vs Cloud Platforms
+# AI Inference Cost Comparison: Local vs Cloud Providers
 
 ## Executive Summary
 

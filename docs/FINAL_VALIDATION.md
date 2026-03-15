@@ -40,7 +40,7 @@
 - **Authentication**: ✅ Azure Workload Identity
 - **Status**: 💠 Ready for credentials
 
-### GCP (Google Cloud Platform)
+### GCP (Google Cloud Provider)
 - **Controller**: ✅ Crossplane provider-gcp
 - **Resources**: ✅ Networks, Subnets, GKE, NodePools, IAM
 - **Authentication**: ✅ GCP Workload Identity  

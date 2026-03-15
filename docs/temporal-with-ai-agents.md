@@ -5181,7 +5181,7 @@ Credit: VentureBeat made with GPT-Image-1.5
 
 Google senior AI product manager Shubham Saboo has turned one of the thorniest problems in agent design into an open-source engineering exercise: persistent memory.
 
-This week, he published an open-source “Always On Memory Agent” on the official Google Cloud Platform Github page under a permissive MIT License, allowing for commercial usage.
+This week, he published an open-source “Always On Memory Agent” on the official Google Cloud Provider Github page under a permissive MIT License, allowing for commercial usage.
 
 It was built with Google's Agent Development Kit, or ADK introduced last Spring in 2025, and Gemini 3.1 Flash-Lite, a low-cost model Google introduced on March 3, 2026 as its fastest and most cost-efficient Gemini 3 series model. 
 
