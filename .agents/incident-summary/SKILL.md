@@ -1,43 +1,48 @@
-# incident-summary
+# Incident Summary Skill
+
+## Name
+incident-summary
 
 ## Purpose
-Summarize alerts and incidents from monitoring systems into structured operational insights.
+Summarize alerts and incidents from monitoring systems to provide structured operational insights.
 
 ## When to Use
-- When operational alerts are detected (e.g., high error rates, pod crashes, latency spikes)
-- When incident triage requires quick summarization of events
-- For generating incident reports or postmortem drafts
+- When an alert is triggered from Prometheus, Grafana, or other monitoring tools
+- When analyzing operational signals from cluster events
+- When generating incident reports or postmortems
+- When converting raw logs or metrics into actionable summaries
 
 ## Inputs
-- Alert payload from monitoring systems (Prometheus, Grafana, etc.)
-- Pod events and logs from Kubernetes
-- Deployment history and recent changes
-- Metrics summary (error rates, latency, resource usage)
+- Alert payload (JSON or structured data)
+- Pod events and logs
+- Deployment history
+- Metrics summary from Prometheus/Grafana
+- Cluster state information
 
 ## Process
 1. Analyze operational signals from monitoring systems
-2. Identify key events, timelines, and patterns
-3. Correlate alerts with recent deployments or configuration changes
-4. Generate concise summary focusing on impact, likely causes, and next steps
+2. Identify key events, timestamps, and affected components
+3. Correlate related events to determine likely causes
+4. Generate a concise timeline of events
+5. Produce probable root causes and impact assessment
+6. Suggest immediate next actions
 
 ## Outputs
-- Incident summary with service impact assessment
+- Structured incident summary with title and description
 - Timeline of key events
-- List of probable root causes
-- Recommended immediate actions and investigation steps
+- List of likely root causes with confidence levels
+- Recommended immediate actions and remediation steps
+- Severity rating and escalation recommendations
 
 ## Environment
 - Kubernetes cluster with monitoring stack
-- Access to Prometheus/Grafana APIs
-- kubectl access for pod event queries
+- Access to Prometheus, Grafana, and kubectl
+- Optional: Integration with incident management tools
 
-## Safety Considerations
-- Do not execute remediation actions without human approval
-- Focus on analysis and recommendation, not direct intervention
+## Dependencies
+- Monitoring data access
+- Cluster event logs
+- Historical incident data (optional)
 
-## Optional Scripts
-scripts/summarize_alerts.py
-
-## Optional Manifests
-manifests/example.yaml
-
+## Scripts
+- scripts/summarize_alerts.py: Python script to parse alerts and generate summaries
