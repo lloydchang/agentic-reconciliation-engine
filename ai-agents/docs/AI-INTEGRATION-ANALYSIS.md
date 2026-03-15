@@ -5988,7 +5988,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 **Integration Approach**: Extends cluster operations.
 
-### terraform-provisioning
+### infrastructure-provisioning
 
 **SKILL.md Content**: Use this skill to automate cloud infrastructure provisioning, modification, and teardown using Terraform, CDK, CloudFormation, ARM templates, Google Cloud Infrastructure Manager Terraform Blueprint across AWS, Azure, and GCP. Also validates IaC changes against company standards during code reviews or before merging infrastructure changes. Triggers: any request to provision, destroy, plan, or validate cloud infrastructure; generate or review Terraform, CDK, CloudFormation, ARM templates, or Blueprints; manage state files; run drift detection; or enforce infrastructure-as-code standards.
 
@@ -6161,7 +6161,7 @@ The system includes 64 specialized skills across multiple operational domains:
 - **orchestrator**: Top-level orchestrator for complex multi-step tasks
 
 #### Infrastructure & Provisioning (6 skills)
-- **terraform-provisioning**: IaC provisioning, drift detection, and validation
+- **infrastructure-provisioning**: IaC provisioning, drift detection, and validation
 - **kubernetes-cluster-manager**: Full cluster lifecycle (provision, upgrade, scale)
 - **multi-cloud-networking**: Network infrastructure across Azure/AWS/GCP
 - **container-registry**: Image management, scanning, and promotion

@@ -135,7 +135,7 @@ func showHelp() {
 	fmt.Println("  curl http://localhost:8081/api/v1/health")
 	fmt.Println()
 	fmt.Println("Supported Skills (from AGENTS.md):")
-	fmt.Println("  terraform-provisioning, cicd-pipeline-monitor, incident-triage-runbook")
+	fmt.Println("  infrastructure-provisioning, cicd-pipeline-monitor, incident-triage-runbook")
 	fmt.Println("  tenant-lifecycle-manager, compliance-security-scanner, sla-monitoring-alerting")
 	fmt.Println("  deployment-validation, kpi-report-generator, runbook-documentation-gen")
 	fmt.Println("  kubernetes-cluster-manager, cost-optimisation, secrets-certificate-manager")

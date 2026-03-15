@@ -85,8 +85,8 @@ List all available skills.
 ```json
 {
   "skills": {
-    "terraform-provisioning": {
-      "name": "terraform-provisioning",
+    "infrastructure-provisioning": {
+      "name": "infrastructure-provisioning",
       "description": "Automated Terraform provisioning with validation, planning, and execution",
       "tools": ["terraform", "aws-cli", "git"]
     }
@@ -111,7 +111,7 @@ Execute a skill with AI agent processing.
   "status": "success",
   "message": "Skill executed successfully",
   "request": "provision new EKS cluster in us-east-1",
-  "skill_used": "terraform-provisioning",
+  "skill_used": "infrastructure-provisioning",
   "result": {
     "operation": "plan",
     "environment": "production",
@@ -133,7 +133,7 @@ Execute a skill with AI agent processing.
       "step": 1,
       "action": "skill_execution",
       "result": "success",
-      "output": "Executed terraform-provisioning skill"
+      "output": "Executed infrastructure-provisioning skill"
     }
   ],
   "timestamp": "2026-03-13T02:43:29.877684-07:00"
@@ -159,7 +159,7 @@ The system fully uses AGENTS.md:
 ## Supported Skills
 
 ### Core Skills
-- **terraform-provisioning**: Infrastructure provisioning with Terraform
+- **infrastructure-provisioning**: Infrastructure provisioning with Terraform
 - **compliance-security-scanner**: Security and compliance scanning
 - **cicd-pipeline-monitor**: CI/CD pipeline monitoring and analysis
 - **incident-triage-runbook**: Incident response and runbook execution
@@ -173,7 +173,7 @@ The system fully uses AGENTS.md:
 ```json
 {
   "request": "provision new AKS cluster in eastus for production",
-  "skill_used": "terraform-provisioning",
+  "skill_used": "infrastructure-provisioning",
   "status": "success",
   "result": {
     "operation": "plan",
@@ -206,7 +206,7 @@ The system fully uses AGENTS.md:
   "result": {
     "workflow_id": "WF-1640995200",
     "workflow_type": "composite",
-    "skills_executed": ["capacity-planning", "terraform-provisioning"],
+    "skills_executed": ["capacity-planning", "infrastructure-provisioning"],
     "overall_status": "completed"
   }
 }

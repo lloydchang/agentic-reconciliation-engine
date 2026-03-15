@@ -22,7 +22,7 @@ ERRORS=0
 WARNINGS=0
 SKILL_DIR="${SKILL_DIR:-./.agents/skills}"
 REQUIRED_SKILLS=(
-  terraform-provisioning       cicd-pipeline-monitor
+  infrastructure-provisioning       cicd-pipeline-monitor
   incident-triage-runbook      tenant-lifecycle-manager
   compliance-security-scanner  sla-monitoring-alerting
   deployment-validation        kpi-report-generator
@@ -203,10 +203,10 @@ echo ""
 # ── 6. Quick Smoke Test ───────────────────────────────────────────────────────
 echo -e "${BOLD}[6/6] Running skill smoke tests${RESET}"
 
-# Test terraform-provisioning skill is parseable
+# Test infrastructure-provisioning skill is parseable
 if command -v terraform &>/dev/null; then
   if terraform version &>/dev/null; then
-    pass "terraform-provisioning: CLI functional"
+    pass "infrastructure-provisioning: CLI functional"
   fi
 fi
 
@@ -234,7 +234,7 @@ fi
 # Test Azure CLI skills
 if az account show &>/dev/null; then
   RESOURCE_GROUPS=$(az group list --query "length(@)" -o tsv 2>/dev/null || echo "?")
-  pass "terraform-provisioning/kubernetes-cluster-manager: Azure CLI functional (${RESOURCE_GROUPS} RGs visible)"
+  pass "infrastructure-provisioning/kubernetes-cluster-manager: Azure CLI functional (${RESOURCE_GROUPS} RGs visible)"
 fi
 
 echo ""

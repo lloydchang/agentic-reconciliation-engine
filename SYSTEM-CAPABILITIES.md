@@ -105,7 +105,7 @@ Raft Consensus ← Distributed State Management
 - **compliance-security-scanner:** Continuous compliance and security monitoring
 - **observability-stack:** 24/7 metrics, logs, traces, and alerting
 - **cost-optimization:** AI-driven cloud cost management
-- **terraform-provisioning:** Infrastructure as Code automation
+- **infrastructure-provisioning:** Infrastructure as Code automation
 - **kubernetes-cluster-manager:** K8s fleet operations
 - **temporal-workflow:** Workflow orchestration and monitoring
 

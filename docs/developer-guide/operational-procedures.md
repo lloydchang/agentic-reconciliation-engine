@@ -91,7 +91,7 @@ Pre-defined multi-step workflows coordinate multiple skills for complex operatio
 
 ### WF-01: Full Tenant Onboarding
 **Trigger:** "Onboard [tenant] as enterprise tier in [region]"  
-**Skills:** terraform-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
+**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
 
 ### WF-02: P0/P1 Incident Response
 **Trigger:** "Take over P0/P1 incident response"  
@@ -115,7 +115,7 @@ Pre-defined multi-step workflows coordinate multiple skills for complex operatio
 
 ### WF-07: New Cluster Provisioning
 **Trigger:** "Provision a new [env] cluster in [region]"  
-**Skills:** terraform-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
+**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
 
 ### WF-08: Security Incident Response
 **Trigger:** "Sentinel fired — investigate [alert]"  
@@ -285,7 +285,7 @@ const performanceMetrics = {
   overall_success_rate: 0.987,
   skill_specific_rates: {
     "compliance-security-scanner": 0.992,
-    "terraform-provisioning": 0.978
+    "infrastructure-provisioning": 0.978
   },
 
   // Resource utilization

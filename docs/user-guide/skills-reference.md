@@ -39,7 +39,7 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
-| **terraform-provisioning** | "run terraform plan/apply", "provision infra", "check for drift" | `apply` in prod | 90% |
+| **infrastructure-provisioning** | "run terraform plan/apply", "provision infra", "check for drift" | `apply` in prod | 90% |
 | **kubernetes-cluster-manager** | "provision/upgrade/scale the cluster", "AKS node pool", "AKS automatic", "AKS managed system node pool", "EKS managed node group", "EKS AWS fargate", "EKS karpenter", "EKS auto mode", "EKS self-managed nodes", "EKS AWS outposts", "GKE node pool", "GKE Autopilot", "K8s version upgrade" | Any prod cluster change | 80% |
 | **multi-cloud-networking** | "create VNet/VPC", "private endpoint", "NSG", "Network Security Group", "Azure NSG", "Azure Network Security Group", "ASG", "Azure ASG", "Azure Application Security Group", "SG", "Security Group", "AWS SG", "AWS Security Group", "AWS NACLs", "AWS NACL", "AWS Network Access Control Lists", "GCP VPC Firewall Rules", "GCP Network Tags", "diagnose connectivity", "DNS zone" | Hub firewall changes | 80% |
 | **container-registry** | "scan this image", "promote to prod registry", "purge old images", "ACR setup", "ECR setup", "GCR setup" | Prod registry push | 85% |

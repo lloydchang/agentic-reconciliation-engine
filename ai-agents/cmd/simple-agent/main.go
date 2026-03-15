@@ -64,7 +64,7 @@ func NewSimpleAIAgent() *SimpleAIAgent {
 func (agent *SimpleAIAgent) LoadSkills(skillsDir string) error {
 	// Load skills from directory (simplified for demo)
 	skills := []string{
-		"terraform-provisioning",
+		"infrastructure-provisioning",
 		"compliance-security-scanner", 
 		"cicd-pipeline-monitor",
 		"incident-triage-runbook",
@@ -134,9 +134,9 @@ func (agent *SimpleAIAgent) LoadSkills(skillsDir string) error {
 func (agent *SimpleAIAgent) addTriggerKeywords() {
 	// Simplified trigger keywords from AGENTS.md
 	triggers := map[string][]string{
-		"terraform":           {"terraform-provisioning"},
-		"provision":           {"terraform-provisioning"},
-		"infra":               {"terraform-provisioning"},
+		"terraform":           {"infrastructure-provisioning"},
+		"provision":           {"infrastructure-provisioning"},
+		"infra":               {"infrastructure-provisioning"},
 		"pipeline":            {"cicd-pipeline-monitor"},
 		"cicd":               {"cicd-pipeline-monitor"},
 		"deploy":              {"cicd-pipeline-monitor"},
@@ -273,7 +273,7 @@ func (agent *SimpleAIAgent) requiresHumanGate(request string) bool {
 // executeSkill executes a skill (simplified implementation)
 func (agent *SimpleAIAgent) executeSkill(skill *SimpleSkill, request string) map[string]interface{} {
 	switch skill.Name {
-	case "terraform-provisioning":
+	case "infrastructure-provisioning":
 		return map[string]interface{}{
 			"operation":     "plan",
 			"environment":   "production",

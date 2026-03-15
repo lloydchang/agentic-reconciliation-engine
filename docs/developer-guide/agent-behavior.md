@@ -221,7 +221,7 @@ The following 28 skills are available for automated operations. Each skill follo
 
 | Trigger keywords | Skill to load | Human Gate Required |
 |------------------|---------------|---------------------|
-| terraform, provision infra, IaC, drift detect | `terraform-provisioning` | `apply` in prod |
+| terraform, provision infra, IaC, drift detect | `infrastructure-provisioning` | `apply` in prod |
 | pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
 | incident, alert, P1, P2, outage, degraded | `incident-triage-runbook` | Novel P0/P1 decisions |
 | tenant, onboard, new customer, offboard | `tenant-lifecycle-manager` | Offboard/delete |
