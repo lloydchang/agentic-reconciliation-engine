@@ -15,7 +15,7 @@ or failure.
 |---|---|---|
 | Operation | Run once → exit | Monitor 24/7 → automatic drift correction |
 | Drift detection | Manual `plan` runs | Automatic within minutes |
-| Multi-cloud API | Per-provider CLI/SDK (Terraform, AWS CDK, CloudFormation, Azure Bicep, ARM, GCP Terraform Blueprints) | Unified Crossplane XRDs |
+| Multi-cloud API | Per-provider CLI/SDK (Terraform, AWS CDK, CloudFormation, Azure Bicep, ARM, GCP Terraform Blueprints) | Unified Crossplane Composite Resource Definitions (XRDs) |
 | Spoke resilience | N/A | Spokes run on last-applied state during hub outage |
 
 Note: Terraform fits under the "Per-provider CLI/SDK" column because it is a traditional IaC tool that:
@@ -111,7 +111,7 @@ Secrets strategy - Secrets OPerationS (SOPS) / age, fallback:
   - Use only where ESO + workload identity is not available
 
 CI policy gate:
-  - Deletion guard: removing a stateful Composite Resource Definition (XRD)
+  - Deletion guard: removing a stateful XRD
     XDatabase, XVolume- without an explicit platform.example.com/allow-deletion
     annotation fails CI and cannot be merged
   - Schema validation: kubeconform against current Crossplane XRD schemas
