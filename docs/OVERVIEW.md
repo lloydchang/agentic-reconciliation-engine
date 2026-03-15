@@ -59,7 +59,7 @@ Refer to the individual docs for hub recovery, compositions, ESO, CI gate, contr
 
 - `scripts/run-local-automation.sh` runs bootstrap → migration wizard → CI gate and stores logs under `logs/local-automation/`.
 - `scripts/run-emulator-then-cloud.sh` lets you run the migration wizard twice (`--emulator=enable` then `--emulator=disable`).
-- Use `.github/workflows/run-local-automation.yml` or `azure-pipelines-zero-touch.yml` to trigger the wrapper in CI; both pipelines publish the `logs/local-automation/` summary and optionally call `scripts/publish-summary.sh`.
+- Use `.github/workflows/run-local-automation.yml` or `azure-pipelines-run-local-automation.yml` to trigger the wrapper in CI; both pipelines publish the `logs/local-automation/` summary and optionally call `scripts/publish-summary.sh`.
 - Override connectors/overlays via CLI arguments for the wizard or pass `SUMMARY_ENDPOINT`/`NOTIFY_WEBHOOK` to `scripts/publish-summary.sh`.
 
 ## Comparison with managed alternatives
