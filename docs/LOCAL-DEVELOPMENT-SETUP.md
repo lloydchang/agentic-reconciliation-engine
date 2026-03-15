@@ -9,13 +9,25 @@ After cloning the repository, run a single command to get a fully functional aut
 ./scripts/setup-local-ai-agents.sh
 ```
 
-This script automatically:
-- ✅ Installs Docker Desktop, kubectl, Helm, Minikube
-- ✅ Starts local Kubernetes cluster with ingress
-- ✅ Builds AI agent container images
-- ✅ Deploys complete ecosystem (AI agents, skills, monitoring, dashboard)
-- ✅ Sets up port forwarding for local access
-- ✅ Opens dashboard in web browser
+This script automatically detects your operating system and installs all prerequisites:
+
+### **Supported Platforms**
+- ✅ **macOS** (Intel/Apple Silicon) - Homebrew
+- ✅ **Windows** (10/11) - Chocolatey + PowerShell
+- ✅ **Linux** (Ubuntu, CentOS, Fedora, etc.) - apt/yum/dnf
+
+### **Auto-Installed Prerequisites**
+- ✅ **Docker Desktop/Engine** - Container runtime
+- ✅ **kubectl** - Kubernetes CLI
+- ✅ **Helm** - Package manager
+- ✅ **Minikube** - Local Kubernetes cluster
+- ✅ **Package Managers** - Homebrew/Chocolatey/system packages
+
+The script then:
+- Builds AI agent container images
+- Deploys complete ecosystem (AI agents, skills, monitoring, dashboard)
+- Sets up port forwarding for local access
+- Opens dashboard in your default web browser
 
 ## What You Get
 

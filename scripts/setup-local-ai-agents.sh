@@ -45,24 +45,62 @@ log_agent() {
     echo -e "${CYAN}[AGENT]${NC} $1"
 }
 
-# Check if running on macOS
-check_os() {
-    if [[ "$OSTYPE" != "darwin"* ]]; then
-        log_error "This setup script is designed for macOS. For other platforms, please install prerequisites manually."
+# Detect operating system and set package manager
+detect_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        OS="macos"
+        PACKAGE_MANAGER="brew"
+        log_success "macOS detected - using Homebrew"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        OS="windows"
+        PACKAGE_MANAGER="choco"
+        log_success "Windows detected - using Chocolatey"
+    elif [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        OS="linux"
+        if command -v apt &> /dev/null; then
+            PACKAGE_MANAGER="apt"
+            log_success "Linux (Debian/Ubuntu) detected - using apt"
+        elif command -v yum &> /dev/null; then
+            PACKAGE_MANAGER="yum"
+            log_success "Linux (RedHat/CentOS) detected - using yum"
+        elif command -v dnf &> /dev/null; then
+            PACKAGE_MANAGER="dnf"
+            log_success "Linux (Fedora) detected - using dnf"
+        else
+            log_error "Unsupported Linux distribution. Please install prerequisites manually."
+            exit 1
+        fi
+    else
+        log_error "Unsupported operating system. This script supports macOS, Windows, and Linux."
         exit 1
     fi
-    log_success "macOS detected - proceeding with automated setup"
 }
 
-# Install Homebrew if not present
-install_homebrew() {
-    if ! command -v brew &> /dev/null; then
-        log_step "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-        log_success "Homebrew installed"
+# Install package manager (Chocolatey for Windows, etc.)
+install_package_manager() {
+    case $OS in
+        macos)
+            install_homebrew
+            ;;
+        windows)
+            install_chocolatey
+            ;;
+        linux)
+            log_success "Using system package manager: $PACKAGE_MANAGER"
+            ;;
+    esac
+}
+
+# Install Chocolatey for Windows
+install_chocolatey() {
+    if ! command -v choco &> /dev/null; then
+        log_step "Installing Chocolatey..."
+        powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+        export PATH="$PATH:/c/ProgramData/chocolatey/bin"
+        log_success "Chocolatey installed"
     else
-        log_success "Homebrew already installed"
+        log_success "Chocolatey already installed"
     fi
 }
 
@@ -70,8 +108,34 @@ install_homebrew() {
 install_docker() {
     if ! command -v docker &> /dev/null; then
         log_step "Installing Docker Desktop..."
-        brew install --cask docker
-        log_warning "Docker Desktop installed. Please start Docker Desktop manually if not already running."
+        case $OS in
+            macos)
+                brew install --cask docker
+                ;;
+            windows)
+                choco install docker-desktop
+                ;;
+            linux)
+                # Install Docker Engine for Linux
+                case $PACKAGE_MANAGER in
+                    apt)
+                        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+                        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                        sudo apt update
+                        sudo apt install -y docker-ce docker-ce-cli containerd.io
+                        sudo usermod -aG docker $USER
+                        ;;
+                    yum|dnf)
+                        sudo $PACKAGE_MANAGER config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+                        sudo $PACKAGE_MANAGER install -y docker-ce docker-ce-cli containerd.io
+                        sudo systemctl start docker
+                        sudo systemctl enable docker
+                        sudo usermod -aG docker $USER
+                        ;;
+                esac
+                ;;
+        esac
+        log_warning "Docker installed. You may need to restart your terminal and start Docker Desktop (if applicable)."
         log_info "Waiting 10 seconds for Docker to start..."
         sleep 10
         log_success "Docker installation complete"
@@ -95,7 +159,17 @@ install_kubectl() {
 install_helm() {
     if ! command -v helm &> /dev/null; then
         log_step "Installing Helm..."
-        brew install helm
+        case $OS in
+            macos)
+                brew install helm
+                ;;
+            windows)
+                choco install kubernetes-helm
+                ;;
+            linux)
+                curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                ;;
+        esac
         log_success "Helm installed"
     else
         log_success "Helm already installed"
@@ -197,12 +271,26 @@ open_dashboard() {
     # Wait a moment for services to be ready
     sleep 5
 
-    # Open dashboard
-    if command -v open &> /dev/null; then
-        open "http://localhost:8080"
-    else
-        log_info "Please open http://localhost:8080 in your web browser"
-    fi
+    # Open dashboard based on OS
+    case $OS in
+        macos)
+            if command -v open &> /dev/null; then
+                open "http://localhost:8080"
+            fi
+            ;;
+        windows)
+            if command -v start &> /dev/null; then
+                start "http://localhost:8080"
+            fi
+            ;;
+        linux)
+            if command -v xdg-open &> /dev/null; then
+                xdg-open "http://localhost:8080"
+            elif command -v firefox &> /dev/null; then
+                firefox "http://localhost:8080" &
+            fi
+            ;;
+    esac
 
     log_success "Dashboard opened - AI agents are now running autonomously!"
 }
@@ -245,8 +333,8 @@ main() {
     log_info "🚀 Starting Zero-Touch AI Agents Local Development Setup"
     echo ""
 
-    check_os
-    install_homebrew
+    detect_os
+    install_package_manager
     install_docker
     install_kubectl
     install_helm
