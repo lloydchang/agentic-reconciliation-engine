@@ -220,39 +220,48 @@ repo/
 
 ### Complete Skill Index
 
-The following 64 skills are available for automated operations. Each skill follows the Agent Skills specification from agentskills.io.
+The following 39 skills are available for automated operations. Each skill follows the Agent Skills specification from agentskills.io.
 
 | Trigger keywords | Skill to load | Human Gate Required |
 |------------------|---------------|---------------------|
-| terraform, provision infra, IaC, drift detect | `terraform-provisioning` | `apply` in prod |
-| pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
-| incident, alert, P1, P2, outage, degraded | `incident-triage-runbook` | Novel P0/P1 decisions |
-| tenant, onboard, new customer, offboard | `tenant-lifecycle-manager` | Offboard/delete |
-| scan, CVE, compliance, checkov, trivy, az policy state list, kubectl get events, kube-bench | `compliance-security-scanner` | No (scan only) |
-| SLA, SLO, error budget, breach | `sla-monitoring-alerting` | No (monitoring only) |
-| deploy, rollout, smoke test, canary gate | `deployment-validation` | GO/NO-GO in prod |
-| KPI, metrics, report, DORA, quarterly | `kpi-report-generator` | Before send |
-| runbook, documentation, ADR, wiki | `runbook-documentation-gen` | No |
-| email, comms, announcement, stakeholder | `stakeholder-comms-drafter` | Always (never auto-sends) |
-| kubernetes, cluster, AKS, node pool, upgrade | `kubernetes-cluster-manager` | Any prod cluster change |
-| cost, spend, waste, FinOps, savings | `cost-optimisation` | Resource deletion |
-| secret, certificate, rotation, Key Vault, cert-manager | `secrets-certificate-manager` | Root CA rotation |
-| migrate, migration, move workload, cutover | `workload-migration` | Prod cutover |
-| policy, OPA, Gatekeeper, governance, tagging | `policy-as-code` | Deny-all policy changes |
+| multi-agent flows, shared memory, dispatcher routing | `ai-agent-orchestration` | High-risk composite workflows |
+| audit, SIEM, Sentinel, log query, compliance evidence | `audit-siem` | Suspicious/high-severity responses |
+| Backstage catalog, component, API, metadata, template | `backstage-catalog` | Production catalog changes |
 | capacity, forecast, headroom, growth | `capacity-planning` | No (analysis only) |
-| monitoring, Prometheus, Grafana, Loki, tracing | `observability-stack` | Prod alerting changes |
-| networking, VNet, VPC, private endpoint, DNS, NSG | `multi-cloud-networking` | Hub firewall changes |
-| database, PostgreSQL, SQL, backup, restore, failover | `database-operations` | PITR restore, failover |
-| disaster recovery, DR, failover, RPO, RTO, drill | `disaster-recovery` | Any prod failover |
+| change request, CAB, freeze, risk score | `change-management` | Major/emergency changes |
+| chaos, load test, resilience, stun, autoscaler | `chaos-load-testing` | Any prod chaos |
+| pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
+| compliance, policy, scan, CVE, checkov, trivy | `compliance-security-scanner` | No (scan only) |
+| container, image, sign, scan, promote | `container-registry` | Prod registry push |
+| cost, spend, waste, FinOps, savings | `cost-optimization` | Resource deletion |
+| database, PostgreSQL, backup, failover, restore | `database-operations` | PITR restore/failover |
+| deploy, rollout, smoke test, canary, gate | `deployment-validation` | GO/NO-GO in prod |
+| onboarding, scaffold, catalog, portal, templates | `developer-self-service` | Enterprise resource prep |
+| disaster recovery, DR, failover, RTO, RPO | `disaster-recovery` | Any prod failover |
 | GitOps, ArgoCD, Flux, sync, ApplicationSet | `gitops-workflow` | Prod promotion |
-| service mesh, Istio, mTLS, circuit breaker, traffic split | `service-mesh` | Strict mTLS in prod |
-| container, image, ACR, scan, sign, promote | `container-registry` | Prod registry push |
-| developer portal, Backstage, self-service, golden path | `developer-self-service` | Enterprise resource requests |
-| audit, SIEM, Sentinel, security event, log query | `audit-siem` | No (read-only queries) |
-| change request, CAB, change freeze, risk score | `change-management` | Major/emergency changes |
-| chaos, load test, resilience, fault injection, k6 | `chaos-load-testing` | Any prod chaos |
-| roadmap, milestone tracking, strategy execution, transformation phase, project tracking, goal achievement | `roadmap-execution` | No |
-| deploy, rollout, smoke test, canary gate, deployment failure analysis, pipeline reliability issues, CI/CD troubleshooting, deployment success rate analysis, failure pattern detection | `deployment-reliability-analysis` | No |
+| incident, alert, P1–P4, outage, degraded | `incident-triage-runbook` | Novel P0/P1 decisions |
+| infrastructure inventory, topology, discovery, cost | `infrastructure-discovery` | Sensitive topology exports |
+| KPI, metrics, reports, DORA, executive, QBR | `kpi-report-generator` | Sensitive leadership send |
+| kubectl, explain, generate, safe delete, gating | `kubectl-assistant` | Destructive commands |
+| Kubernetes cluster, AKS/EKS/GKE, upgrade, node pool | `kubernetes-cluster-manager` | Prod cluster changes |
+| log classification, summary, context, severity | `log-classifier` | Critical remediation actions |
+| manifest, Helm, K8s config, policy validation | `manifest-generator` | High-risk manifests |
+| multi-cloud networking, VNet, VPC, DNS, peering | `multi-cloud-networking` | Hub firewall changes |
+| node scaling, autoscaler, capacity, forecast | `node-scale-assistant` | Production-scale decisions |
+| observability, Prometheus, Grafana, alerting | `observability-stack` | Prod alerting changes |
+| orchestration, multi-skill, workflow, gating | `orchestrator` | Composite human gates |
+| policy, OPA, Gatekeeper, governance, tagging | `policy-as-code` | Deny-all policy changes |
+| runbook, ADR, postmortem, docs | `runbook-documentation-gen` | Sensitive narrative |
+| secrets, certificates, rotation, Key Vault, TLS | `secrets-certificate-manager` | Root CA rotation |
+| vulnerability, threat, posture, AI hunt | `security-analysis` | High-impact detections |
+| service mesh, Istio, traffic split, mTLS | `service-mesh` | Production traffic policy |
+| SLA, SLO, error budget, breach, burn-rate | `sla-monitoring-alerting` | No (monitoring only) |
+| comms, exec update, incident messaging, change notes | `stakeholder-comms-drafter` | Always review before send |
+| Temporal workflows, creation, monitor, debug, test | `temporal-workflow` | Production workflow changes |
+| tenant onboarding, scale, suspend, deprovision | `tenant-lifecycle-manager` | Offboard/delete |
+| Terraform/CDK provisioning, planner, drift | `terraform-provisioning` | Apply/destroy in prod |
+| workflow control, Temporal orchestration, monitoring | `workflow-management` | Critical workflow retries |
+| workload move, migration, cutover, failover | `workload-migration` | Prod cutover |
 
 For any request matching multiple keywords, load the `orchestrator`
 skill first to determine if a composite workflow applies.
