@@ -1,0 +1,6 @@
+./bootstrap
+./hub
+./cloud-azure
+./cloud-aws
+./cloud-gcp
+./local-emulator

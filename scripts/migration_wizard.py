@@ -505,6 +505,17 @@ def main() -> None:
         help="Ordered list of overlays to apply.",
     )
     parser.add_argument(
+        "--overlay-order-file",
+        default="control-plane/flux/overlay-order.txt",
+        help="Path to a file containing the overlay order list.",
+    )
+    parser.add_argument(
+        "--use-overlay-order",
+        choices=["true", "false"],
+        default="true",
+        help="Run scripts/apply-overlay-order.sh before manual ordering.",
+    )
+    parser.add_argument(
         "--helper-script",
         nargs="*",
         default=["./scripts/enable-cloud.sh"],
@@ -559,8 +570,30 @@ def main() -> None:
     repo_path = workdir / "repo"
     subprocess.run(["git", "checkout", "-B", args.branch], cwd=repo_path, check=True)
 
-    overlay_file = repo_path / "control-plane" / "flux" / "kustomization.yaml"
-    reorder_overlays(overlay_file, args.overlay_order)
+    apply_order_script = Path("scripts/apply-overlay-order.sh")
+    temp_order = None
+    if args.use_overlay_order == "true" and apply_order_script.exists():
+        order_file = Path(args.overlay_order_file)
+        if args.overlay_order:
+            import tempfile
+
+            fd, path = tempfile.mkstemp()
+            temp_order = Path(path)
+            Path(fd).close()
+            temp_order.write_text("\n".join(args.overlay_order) + "\n")
+            order_arg = str(temp_order)
+        else:
+            order_arg = args.overlay_order_file
+        subprocess.run([str(apply_order_script), order_arg], cwd=repo_path, check=True)
+    else:
+        overlay_file = repo_path / "control-plane" / "flux" / "kustomization.yaml"
+        reorder_overlays(overlay_file, args.overlay_order)
+
+    logician_script = Path("scripts/overlay-logician.py")
+    if logician_script.exists():
+        subprocess.run([str(logician_script)], cwd=repo_path, check=True)
+    if temp_order:
+        temp_order.unlink()
 
     if args.emulator:
         run_helper(Path("scripts/enable-cloud.sh"), ["azure", f"--emulator={args.emulator}"])

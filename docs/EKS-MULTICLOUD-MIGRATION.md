@@ -78,6 +78,22 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 - Remove the overlay entry from `control-plane/flux/kustomization.yaml` (or run `git revert` if you committed the change). Flux will prune the overlay’s resources, giving you a clean rollback path.
 - Keep the original single-cloud Argo CD instance running until you are confident the new multi-cloud stacks are stable to avoid downtime.
 
+## Automation via migration wizard
+
+Run the migration wizard automation helper as part of this playbook to ensure the overlay ordering, emulator toggles, and CI gate execute in one shot. Example:
+
+```bash
+./scripts/migration_wizard.py \
+  --repo-url git@github.com:your-org/gitops-infra-control-plane.git \
+  --branch migration-eks \
+  --connector gitlab \
+  --overlay-order ./bootstrap ./hub ./cloud-aws \
+  --helper-script ./scripts/enable-cloud.sh \
+  --ci-gate ./scripts/bootstrap.sh
+```
+
+Adjust `--connector` to match your Git host (`azure-devops`, `github-enterprise-server`, `bitbucket-cloud`, etc.), and add `--emulator=enable`/`disable` when you want the local emulator stacked. The wizard handles overlay ordering, toggles the emulator, runs the helper scripts listed in the command, executes the CI gate, and pushes the branch for an automated migration flow.
+
 ## Validation checklist
 
 - [ ] Flux `kustomization control-plane` stays `Ready` after each change.
