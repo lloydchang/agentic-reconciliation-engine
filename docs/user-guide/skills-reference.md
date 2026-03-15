@@ -82,6 +82,8 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 |-------|-----------------|------------|-------------|
 | **cost-optimisation** | "cloud spend", "idle resources", "right-size", "RI coverage", "reserved instance", "spot instance", "cost by tenant" | Resource deletion | 75% |
 | **capacity-planning** | "headroom", "forecast capacity", "will we hit limits?", "autoscaler config" | No (analysis only) | 65% |
+| **autoscaler-advisor** | "validate autoscaler", "recommend scaling", "forecast exhaustion" | Human gate for production impact | 70% |
+| **capacity-planner** | "simulate launch scenario", "validate capacity", "issue alerts" | Human gate for production impact | 70% |
 
 ### Tenant & Developer Experience
 
