@@ -192,7 +192,8 @@ the problem you are solving.
 - [ESO Workload Identity](./docs/ESO-WORKLOAD-IDENTITY.md) - Per-spoke secret delivery setup
 - [CI Policy Gate](./docs/CI-POLICY-GATE.md) - Deletion guard, schema validation, OPA policies
 - [Controller Runbooks](./docs/CONTROLLER-RUNBOOKS.md) - Per-controller failure playbooks
-- [Windows Compatibility Guide](./docs/WINDOWS-COMPATIBILITY.md) - How to run this repo with WSL/Git Bash so it works the same on Windows, macOS, and Linux
+- [Windows Compatibility Guide](./docs/WINDOWS-COMPATIBILITY.md) - How to run this repo with WSL/Git Bash so it works the same on Windows, macOS, and Linux; now explains the automatic WSL detection helper and the Linux (Codespaces/VM) fallback when WSL can't be enabled
+- [Agent clients & Azure support](./docs/AGENT-CLIENTS.md) - Azure’s Claude Code-first experience, the additional quick-start for Windows, and the secondary Codex option backed by Azure OpenAI/Foundry
 
 ### Implementation Examples
 - [Complete Hub-Spoke](./examples/complete-hub-spoke/) - Full deployment with all features
@@ -259,6 +260,8 @@ Before building this architecture, evaluate whether a managed product meets your
   only in this architecture
 
 ## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onboarding, and documentation expectations.
 
 [Pull Requests](https://github.com/lloydchang/gitops-infra-control-plane/pulls)
 
