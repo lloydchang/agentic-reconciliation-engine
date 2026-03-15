@@ -53,3 +53,112 @@ Generate and explain kubectl commands for Kubernetes cluster operations with saf
 ## Scripts
 - scripts/gen_kubectl_cmds.py: Python script to generate and validate commands
 
+## Trigger Keywords
+kubectl, explain, generate, safe delete, gating
+
+## Human Gate Requirements
+Destructive commands
+
+## API Patterns
+
+### JavaScript
+```javascript
+// Generate kubectl command
+const kubectlCmd = await generate_kubectl_command({
+  operation: "get|describe|delete|apply",
+  resourceType: "pods|services|deployments",
+  namespace: "default",
+  targetResource: "resource-name",
+  priority: "normal"
+});
+
+// Get command status
+const status = await get_kubectl_status({
+  workflowId: kubectlCmd.workflowId
+});
+```
+
+### Rust
+```rust
+// Rust-based kubectl command generation
+use tokio::process::Command;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct KubectlRequest {
+    pub operation: Operation,
+    pub resource_type: ResourceType,
+    pub namespace: String,
+    pub target_resource: String,
+    pub priority: Priority,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Operation {
+    Get,
+    Describe,
+    Delete,
+    Apply,
+}
+
+pub async fn generate_kubectl_command(request: KubectlRequest) -> Result<KubectlWorkflow, Box<dyn std::error::Error>> {
+    // Safe kubectl command generation with validation
+    let workflow = KubectlWorkflow::new(request).await?;
+    
+    // Execute with safety checks
+    workflow.execute_safe().await?;
+    
+    Ok(workflow)
+}
+```
+
+## Parameter Schema
+```json
+{
+  "operation": "string (required) - kubectl operation: get|describe|delete|apply|create",
+  "resourceType": "string (required) - Kubernetes resource type: pods|services|deployments|configmaps|secrets",
+  "namespace": "string (optional) - target namespace, defaults to 'default'",
+  "targetResource": "string (optional) - specific resource name to target",
+  "environment": "string (optional) - dev|staging|prod",
+  "priority": "string (optional) - low|normal|high|critical",
+  "dryRun": "boolean (optional) - perform dry run only, defaults to false"
+}
+```
+
+## Return Schema
+```json
+{
+  "workflowId": "uuid",
+  "status": "started|running|completed|failed",
+  "startedAt": "ISO8601 timestamp",
+  "result": {
+    "command": "string - the generated kubectl command",
+    "explanation": "string - detailed explanation of the command",
+    "warnings": "array - safety warnings for destructive operations",
+    "alternatives": "array - alternative commands for different scenarios",
+    "expectedOutput": "string - description of expected command output"
+  },
+  "errors": [],
+  "metadata": {
+    "clusterContext": "string - kubectl context used",
+    "namespace": "string - namespace targeted",
+    "riskScore": "number - operation risk score 1-10"
+  }
+}
+```
+
+## Error Handling
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR|PERMISSION_DENIED|CLUSTER_UNREACHABLE|TIMEOUT",
+    "message": "Human-readable description",
+    "details": {
+      "field": "parameter_name",
+      "expected": "expected_format",
+      "actual": "provided_value"
+    }
+  }
+}
+```
+

@@ -23,13 +23,14 @@ This repository implements the Temporal AI Agents system, providing a comprehens
 ## Repository Structure
 ```
 repo/
-├── backend/           # Go Temporal workflows and activities
-├── frontend/          # React dashboard and WebMCP client
-├── cli/              # Command-line interface
-├── docs/             # Documentation and interface specs
-├── SKILL.md          # AI assistant skill definitions
-├── AGENTS.md         # This file - agent operating rules
-└── tools/            # Tool permissions and configurations
+├── .agents/[skill]SKILL.md # AI assistant skill definitions
+├── AGENTS.md               # This file - agent operating rules
+├── ai-agents/
+    ├── backend/            # Go Temporal workflows and activities
+    ├── frontend/           # React dashboard and WebMCP client
+    ├── cli/                # Command-line interface
+    └── tools/              # Tool permissions and configurations
+├── docs/                   # Documentation and interface specs
 ```
 
 ## Agent Behavior Rules
