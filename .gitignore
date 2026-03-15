@@ -388,3 +388,4 @@ tmp/
 temp/
 .sops-keys/
 *.agekey
+memory.db
