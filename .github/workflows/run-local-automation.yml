@@ -22,7 +22,7 @@ jobs:
       EMULATOR_ACTION: ${{ github.event.inputs.emulator_action }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install policy + validation tooling
         run: |
@@ -38,7 +38,7 @@ jobs:
         run: bash scripts/run-local-automation.sh --connector "$CONNECTOR" --overlay-order "$OVERLAY_ORDER" --emulator-action "$EMULATOR_ACTION"
 
       - name: Upload automation logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zero-touch-automation-logs
           path: logs/local-automation/*
