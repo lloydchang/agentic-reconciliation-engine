@@ -1,225 +1,151 @@
 ---
 name: deployment-validation
 description: >
-  Use this skill to validate deployments before and after they go live, and
-  to execute automated rollbacks when issues are detected. Triggers: any
-  request to validate a deployment, run smoke tests, check rollout health,
-  perform a canary or blue-green promotion decision, trigger or assess a
-  rollback, or review deployment reliability metrics.
-tools:
-  - bash
-  - computer
+  Validate deployments with AI risk assessment, canary analysis, and rollback readiness before promoting, then automate go/no-go decisions.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Deployment Validation & Rollback Skill
+# Deployment Validation — World-class Gatekeeper
 
-Automate the full deployment quality gate lifecycle: pre-flight checks →
-progressive rollout → real-time validation → automated rollback when
-failure signals are detected.
+Combines pre-flight checks, telemetry-driven canary analysis, automated rollback, and contextual go/no-go decisions. Trigger when deploying to any environment where user impact matters—especially prod, staging, or multi-tenant surfaces.
 
----
+## When to invoke
+- Before approving or promoting any new release (rolling, blue/green, canary, canary + progressive).
+- When realtime telemetry (golden signals) must gate traffic shifts.
+- During incident post-mortem to confirm if a deployment triggered degradation.
+- From `ai-agent-orchestration` when memory agents flag risky deployments or `cost-optimization`/`incident-triage` demand rollback validation.
 
-## Deployment Strategy Support
+## Capabilities
+- AI deployment risk assessment scoring (pre-flight and runtime) combining test, metric, and dependency data.
+- Smart canary analysis that evaluates metrics per step, surfaces drift, and recommends promotion/rollback.
+- Intelligent rollback triggers that pre-empt user impact by detecting early deviation.
+- Automated GO/NO-GO gating that factors in deployment risk, business impact, and human approvals.
+- Observability ties into Prometheus, Grafana, Slack/Teams, and audit logs for traceability.
 
-| Strategy      | Description                              | Rollback method         |
-|---------------|------------------------------------------|-------------------------|
-| Rolling       | Gradual pod replacement in-place         | `kubectl rollout undo`  |
-| Blue/Green    | Full swap at load balancer level         | Switch traffic back      |
-| Canary        | % traffic shift with metric gates        | Reduce weight to 0%     |
-| Recreate      | Kill all → deploy new (dev only)         | Re-deploy previous tag  |
-
----
-
-## Pre-Deployment Checks (Gate 0)
-
-Run before any deployment is initiated:
+## Invocation patterns
 
 ```bash
-# 1. Image exists and is scanned clean
-trivy image $IMAGE_REF --exit-code 1 --severity CRITICAL
-
-# 2. IaC / manifest validation
-kubeval k8s/${ENV}/*.yaml
-conftest test k8s/${ENV}/ -p policy/
-
-# 3. Required secrets exist
-kubectl get secret ${APP_SECRET} -n $NAMESPACE
-
-# 4. Resource quota headroom
-kubectl describe quota -n $NAMESPACE
-
-# 5. Dependency services healthy
-for SVC in $DEPENDENCIES; do
-  curl -sf "https://${SVC}/health" || exit 1
-done
-
-# 6. Change freeze / maintenance window check
-[[ "$CHANGE_FREEZE" == "true" ]] && echo "BLOCKED: change freeze active" && exit 1
+/deployment-validation preflight --deploymentId=DEP-2026-081 --strategy=canary
+/deployment-validation canary --deploymentId=DEP-2026-081 --thresholds=latency=1.5,errorRate=1%
+/deployment-validation rollback --deploymentId=DEP-2026-081 --reason=healthy_check_failed
+/deployment-validation decision --deploymentId=DEP-2026-081 --humanGate=true
 ```
 
-All gates must pass before deployment proceeds.
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `deploymentId` | Deployment identifier (tracker). | `DEP-2026-081` |
+| `strategy` | Deployment strategy (rolling, canary, blue-green). | `canary` |
+| `thresholds` | Metric thresholds per strategy. | `latency:1.5,errorRate:1%` |
+| `region` | Region/tenant scope. | `us-east-1` |
+| `approval` | Whether human gate already approved. | `true|false` |
 
----
+## Output contract
 
-## Deployment Execution
-
-### Kubernetes Rolling Deploy
-```bash
-kubectl set image deployment/$APP $CONTAINER=$IMAGE_REF -n $NAMESPACE
-kubectl rollout status deployment/$APP -n $NAMESPACE --timeout=10m
-```
-
-### Canary (Argo Rollouts)
-```bash
-kubectl argo rollouts set image $APP $CONTAINER=$IMAGE_REF
-kubectl argo rollouts status $APP --watch --timeout 15m
-```
-The canary progresses automatically if analysis passes at each step.
-
-### Blue/Green (via Ingress weight)
-```bash
-# Shift 10% to green
-kubectl patch ingress $APP -p '{"metadata":{"annotations":{"nginx.ingress.kubernetes.io/canary-weight":"10"}}}'
-# After validation, shift 100%
-kubectl patch ingress $APP -p '{"metadata":{"annotations":{"nginx.ingress.kubernetes.io/canary-weight":"100"}}}'
-```
-
----
-
-## Post-Deployment Validation Gates
-
-### Gate 1 — Smoke Tests (0–2 min post-deploy)
-```bash
-# Run the smoke test suite
-pytest tests/smoke/ -v --timeout=60 \
-  --base-url="https://${TENANT_ID}.app.example.com"
-```
-Must pass within 2 minutes or trigger rollback.
-
-### Gate 2 — Health Check Polling (2–5 min)
-```bash
-for i in {1..30}; do
-  STATUS=$(curl -sf "https://${APP_URL}/health" | jq -r '.status')
-  [[ "$STATUS" == "healthy" ]] && break
-  sleep 10
-done
-[[ "$STATUS" != "healthy" ]] && trigger_rollback "health_check_failed"
-```
-
-### Gate 3 — Golden Signals (5–15 min)
-Query Prometheus for the four golden signals vs baseline:
-
-```promql
-# Error rate (must be < 1%)
-sum(rate(http_requests_total{status=~"5..",app="$APP"}[5m])) /
-sum(rate(http_requests_total{app="$APP"}[5m])) < 0.01
-
-# Latency p99 (must be < 1.5× baseline)
-histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{app="$APP"}[5m]))
-  < ($BASELINE_P99 * 1.5)
-
-# Saturation (CPU must be < 80%)
-rate(container_cpu_usage_seconds_total{container="$APP"}[5m]) < 0.8
-```
-
-Fail any gate → auto-rollback.
-
-### Gate 4 — Business Metric Validation (15–30 min)
-Custom checks per application (define in `validation/${APP}.yaml`):
-- API success rate above threshold
-- Queue depth not growing
-- Database connection pool healthy
-- Downstream error rates unchanged
-
----
-
-## Automated Rollback
-
-### Trigger Conditions
-| Signal                              | Auto-rollback |
-|-------------------------------------|---------------|
-| Smoke tests fail                    | ✅ Immediate  |
-| Health check fails for 5 min        | ✅ Immediate  |
-| Error rate > 2× baseline for 5 min  | ✅ Immediate  |
-| Latency p99 > 3× baseline for 5 min | ✅ Immediate  |
-| Manual trigger                      | ✅ Immediate  |
-| Slow degradation (soft signal)      | ⚠️ Alert only |
-
-### Rollback Execution
-```bash
-trigger_rollback() {
-  local reason=$1
-  echo "ROLLBACK triggered: $reason"
-
-  # Kubernetes rolling rollback
-  kubectl rollout undo deployment/$APP -n $NAMESPACE
-  kubectl rollout status deployment/$APP -n $NAMESPACE --timeout=5m
-
-  # Canary — abort and reset
-  kubectl argo rollouts abort $APP
-  kubectl argo rollouts undo $APP
-
-  # Post-rollback validation
-  sleep 30
-  curl -sf "https://${APP_URL}/health" || echo "WARNING: still unhealthy post-rollback"
-
-  # Notify
-  post_slack_alert "🔴 Rollback executed for $APP — reason: $reason"
-  create_incident "Automatic rollback: $APP" "$reason" "P2"
-}
-```
-
----
-
-## Deployment History & Audit
-
-Maintain a deployment ledger:
 ```json
 {
-  "deployment_id": "DEPLOY-20250601-042",
-  "app": "payments-api",
-  "image": "registry/payments-api:v2.3.1",
-  "environment": "prod",
+  "deploymentId": "DEP-2026-081",
   "strategy": "canary",
-  "started_at": "ISO8601",
-  "completed_at": "ISO8601",
-  "status": "success|rolled_back|failed",
-  "rollback_reason": null,
-  "gates_passed": ["smoke", "health", "golden_signals"],
-  "gates_failed": [],
-  "deployer": "cicd-pipeline"
-}
-```
-
----
-
-## Examples
-
-- "Validate the current deployment of payments-api in prod"
-- "The canary for order-service is at 20% — check metrics and decide whether to promote"
-- "Roll back the last deployment to tenant-42's AKS cluster"
-- "Show me all rollbacks in the last 30 days and their root causes"
-- "Run pre-deployment checks for the new identity-service image"
-
----
-
-## Output Format
-
-```json
-{
-  "service": "string",
-  "deployment_id": "string",
-  "go_nogo": "GO|NO-GO",
-  "gate_results": {},
-  "status": "success|rolled_back|gates_failed",
+  "riskScore": 0.72,
+  "aiDecision": "GO|NO-GO|HUMAN_GATE",
   "gates": {
-    "smoke": "pass|fail|skip",
-    "health": "pass|fail|skip",
-    "golden_signals": "pass|fail|skip",
-    "business_metrics": "pass|fail|skip"
+    "smoke": "pass",
+    "health": "pass",
+    "goldenSignals": "pass",
+    "canary": "warning"
   },
-  "rollback_triggered": false,
-  "rollback_reason": null,
-  "duration_seconds": 0
+  "rollbackTriggered": false,
+  "recommendations": [
+    {
+      "metric": "errorRate",
+      "value": 1.2,
+      "threshold": 1.0,
+      "action": "delay-promotion"
+    }
+  ],
+  "logs": "shared-context://memory-store/deployments/DEP-2026-081",
+  "decisionContext": "redis://memory-store/deployments/DEP-2026-081",
+  "humanGate": {
+    "required": true,
+    "impact": "Canary promotion blocked",
+    "reversible": "Yes"
+  }
 }
 ```
+
+## World-class workflow templates
+
+### Pre-flight AI risk assessment
+1. Validate manifests/images (kubeval, trivy).
+2. Run regression smoke suite.
+3. Score readiness using AI risk model (tests, change volume, dependency health).
+4. Emit `deployment-risk` event with `riskScore` and recommended gate.
+
+### Smart canary analysis
+1. Analyze golden signals per step (latency, error rate, saturation, throughput).
+2. Compare sliding window metrics to baseline with anomaly detection.
+3. Recommend `promote`, `hold`, or `rollback` with confidence and rationale.
+4. Use `/deployment-validation canary` to implement decision.
+
+### Intelligent rollback triggers & automation
+1. Detect soft signals (latency drift, downstream error) before hitting threshold.
+2. Evaluate cost/risk tradeoff to decide immediate rollback vs hold.
+3. Trigger `rollback` command with reason, notify stakeholders, log to `deployment-history`.
+
+### Automated GO/NO-GO decisions
+1. Combine AI risk, canary metrics, change volume, dependency status.
+2. If risk < threshold and metrics pass, auto-approve (GO).
+3. If risk high or metrics degrade, require human confirmation (NO-GO/human gate).
+
+## AI intelligence highlights
+- **AI Deployment Risk Assessment**: Models combine test coverage, change size, dependency health, and past MTTR to score deployment risk.
+- **Smart Canary Analysis**: Evaluates per-step metrics, anomaly deviation, and recommends promotion/rollback with explanations.
+- **Intelligent Rollback Triggers**: Detects subtle drift (latency, saturation) and triggers rollback before significant impact.
+- **Automated GO/NO-GO Decisions**: Context-aware gating that fuses AI risk, telemetry, and policy to output actionable decisions.
+
+## Memory agent & dispatcher integration
+- Write decision context to `shared-context://memory-store/deployments/{deploymentId}` for other skills.
+- Emit events `deployment-risk`, `deployment-go`, `deployment-no-go`, `deployment-rollback`.
+- Subscribe to memory agent insights (cost spike, compliance risk) to adjust thresholds on the fly.
+
+## Communication protocol
+- Primary: CLI/webhook invocation, event bus messages for canary and rollback states.
+- Secondary: HTTP webhook to Slack/Teams using `SLACK_WEBHOOK`, `TEAMS_WEBHOOK`.
+- Fallback: Artifact store entries (`artifact-store://deployments/{id}.json`) if event bus is unavailable.
+
+## Observability & telemetry
+- Metrics: gates per deployment, risk score distribution, rollback frequency, model confidence.
+- Logs: structured `log.event` for `deployment-risk`, `canary-eval`, `rollback`.
+- Dashboards: integrate `/deployment-validation metrics --format=prometheus` for deployment health.
+- Alerts: risk scores > 0.85, >2 alerts per deployment, rollback rate > 5% per week.
+
+## Failure handling & retries
+- Retry telemetry pulls (Prometheus/Datadog) up to 3 times before failing gate.
+- If rollback command fails, log error, notify on-call, and escalate to `incident-triage-runbook`.
+- Preserve artifacts (`reports/deployments/{deploymentId}.json`) for auditing; never delete until retention policy reached.
+
+## Human gates
+- Required when:
+ 1. AI decision is `NO-GO` or `HUMAN_GATE`.
+ 2. Rollback affects >20 tenants or production-critical services.
+ 3. Risk score ≥ 0.9 despite gate passing.
+- Use the standard confirmation template.
+
+## Testing & validation
+- Dry-run: `/deployment-validation preflight --deploymentId=DEP-DRY-RUN --dry-run=true`.
+- Unit tests: `backend/deployments/validation` covers AI risk scoring and canary logic.
+- Integration: `scripts/validate-deployment-coordinator.sh` triggers full runbook and monitors event bus.
+- Regression: nightly script `scripts/nightly-deployment-smoke.sh` ensures GO/NO-GO logic remains stable.
+
+## References
+- Deployment history ledger: `logs/deployments/`.
+- Canary/rollout metrics: `monitoring/deployments/`.
+- Runbook templates: `docs/DEPLOYMENT_STATUS.md`, `docs/DEPLOYMENT_STRATEGIES.md`.
+
+## Related skills
+- `/ai-agent-orchestration`: orchestrates multi-skill remediation based on risk and findings.
+- `/workflow-management`: tracks deployment workflows and can rerun validations.
+- `/incident-triage-runbook`: coordinates rollback-triggered incidents.

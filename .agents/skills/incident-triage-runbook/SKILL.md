@@ -1,202 +1,146 @@
 ---
 name: incident-triage-runbook
 description: >
-  Use this skill to detect, triage, and execute runbooks
-  incidents. Triggers: any incident, alert, P1, P2, P3, P4, page, outage, cluster error,
-  503, 5xx, service degraded, degradation, anomaly, or request to investigate; execute a runbook step-by-step; create a post-mortem;
-  automate top incident response patterns; or reduce mean-time-to-resolution
-  (MTTR) for recurring issues.
-tools:
-  - bash
-  - computer
+  Detect, classify, and resolve incidents while keeping humans in the loop for high-risk cases.
+  Use this skill for any alert (P1–P4), outage, degradation, or incident requiring a runbook, report,
+  or automated remediation.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Incident Triage & Runbook Execution Skill
+# Incident Triage & Runbook Execution — World-class Response Playbook
 
-Structured incident lifecycle management: detect → classify → execute runbook
-→ resolve → post-mortem. Automates the top N recurring incidents using
-codified runbooks while maintaining a human-in-the-loop for novel or P1 events.
+Automates detection, AI classification, intelligent runbook selection, remediation, and rapid post-mortem delivery. Use this skill to stabilize affected tenants fast while preserving traceability for compliance and learning loops.
 
----
-name: incident-triage-runbook
-description: >
-  Use this skill to detect, triage, and execute runbooks
-  incidents. Triggers: any incident, alert, P1, P2, P3, P4, page, outage, cluster error,
-  503, 5xx, service degraded, degradation, anomaly, or request to investigate; execute a runbook step-by-step; create a post-mortem;
-  automate top incident response patterns; or reduce mean-time-to-resolution
-  (MTTR) for recurring issues.
-tools:
-  - bash
-  - computer
----
+## When to invoke
+- PagerDuty/Prometheus/DataDog/Azure Monitor alerts with severity P1–P4.
+- Manual requests to investigate degraded services, recurring incidents, or new CVEs.
+- Post-mortem generation, incident reviews, or human-in-the-loop escalation for observed anomalies.
+- `ai-agent-orchestration` dispatchers route `incident-ready` or `risk-bump` events here when memory agents detect high-risk states.
 
-# Incident Triage & Runbook Execution Skill
+## Capabilities
+- AI incident classification (P1/P2/P3/P4) that evaluates impact, scope, and automation confidence.
+- Intelligent runbook selection that matches incidents to the best-matched remediation plans.
+- Smart post-mortem generation with timelines, root causes, SLA impact, and action items.
+- Human-gated escalation for novel/unresolved incidents with risk-aware communication.
+- Telemetry capture across detection, remediation, and verification for audit readiness.
 
-Structured incident lifecycle management: detect → classify → execute runbook
-→ resolve → post-mortem. Automates the top N recurring incidents using
-codified runbooks while maintaining a human-in-the-loop for novel or P1 events.
+## Invocation patterns
 
-## Enhanced Incident Response Automation
-
-### Automated Detection & Response
-Automate detection, triage, and response workflows for infrastructure incidents.
-
-**Trigger:** Use when monitoring systems report alerts.
-
-**Workflow:**
-1. Receive alert from monitoring systems
-2. Correlate logs and telemetry data
-3. Determine root cause category:
-   - infrastructure failure
-   - deployment error
-   - configuration drift
-4. Execute remediation workflow automatically
-5. Generate incident report with root cause and SLA impact
-
-### Integration with Monitoring Systems
-- **PagerDuty**: Webhook integration for incident alerts
-- **DataDog**: Event correlation and metric analysis
-- **Azure Monitor**: Cloud resource health monitoring
-- **Prometheus**: Alertmanager webhook processing
-
----
-
-## Incident Severity Model
-
-| Severity | Definition                                    | Response SLA | Auto-runbook |
-|----------|-----------------------------------------------|--------------|--------------|
-| P1       | Production down, data loss risk               | 15 min       | Partial      |
-| P2       | Major degradation, SLA at risk                | 30 min       | Full         |
-| P3       | Minor degradation, workaround available       | 2 hr         | Full         |
-| P4       | Cosmetic / low impact                         | 8 hr         | Full         |
-
----
-
-## Triage Workflow
-
-### Step 1 — Detect & Ingest
-Sources (configure via env vars):
-- PagerDuty webhook → `PD_WEBHOOK_SECRET`
-- Azure Monitor alerts → `AZURE_ALERT_WEBHOOK`
-- Prometheus Alertmanager → `ALERTMANAGER_URL`
-- DataDog events → `DD_API_KEY`
-
-Parse incoming alert payload:
-```json
-{
-  "source": "pagerduty|azure|prometheus|datadog",
-  "alert_name": "string",
-  "severity": "P1-P4",
-  "resource": "string",
-  "region": "string",
-  "tenant_id": "string",
-  "timestamp": "ISO8601",
-  "raw_payload": {}
-}
-```
-
-### Step 2 — Classify
-Match `alert_name` against runbook registry:
 ```bash
-grep -r "trigger_pattern:" ./runbooks/ | grep "$ALERT_NAME"
-```
-If match found → execute runbook automatically (P2-P4) or with approval (P1).
-If no match → escalate to on-call with full context.
-
-### Step 3 — Execute Runbook
-
-Each runbook follows this structure:
-```yaml
-name: high-memory-aks-node
-trigger_pattern: "KubeletTooManyPods|NodeMemoryPressure"
-severity: P3
-steps:
-  - id: 1
-    action: diagnose
-    cmd: "kubectl top nodes && kubectl describe node $NODE"
-    auto: true
-  - id: 2
-    action: cordon
-    cmd: "kubectl cordon $NODE"
-    auto: true
-    rollback: "kubectl uncordon $NODE"
-  - id: 3
-    action: drain
-    cmd: "kubectl drain $NODE --ignore-daemonsets --delete-emptydir-data"
-    auto: false   # requires approval for P1/P2
-  - id: 4
-    action: validate
-    cmd: "kubectl get pods -A | grep -v Running | grep -v Completed"
-    auto: true
+/incident-triage-runbook respond --incident-id=INC-2026-0050 --source=pagerduty
+/incident-triage-runbook classify --alert=HighErrorRate --tenant=tenant-42 --region=us-east-1
+/incident-triage-runbook runbook --name=high-memory-aks-node --auto-approve=true
+/incident-triage-runbook postmortem --incident-id=INC-2026-0048 --format=json
 ```
 
-Execute each step, capturing stdout/stderr. On step failure:
-1. Attempt rollback if defined
-2. Halt and escalate with full context
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `incidentId` | Unique ID of the alert/incident. | `INC-2026-0050` |
+| `severity` | P1–P4 derived from AI classification. | `P2` |
+| `tenant` | Tenant or workspace identifier. | `tenant-42` |
+| `region` | Cloud region scope. | `us-east-1` |
+| `runbook` | Runbook name or trigger pattern. | `high-memory-aks-node` |
+| `autoApprove` | Whether low-risk steps run without human gate. | `true` |
 
-### Step 4 — Communicate
-Post structured updates to the incident channel (Slack/Teams):
-```
-🔴 [P2 INCIDENT] High memory on AKS node pool – tenant-42
-Time: 14:32 UTC | Owner: @on-call-eng
-Status: Executing runbook step 2/4 — cordoning node
-ETA to resolution: ~15 min
-```
-
-Update every 10 minutes until resolved.
-
-### Step 5 — Resolve & Post-Mortem
-On resolution:
-- Close the incident ticket
-- Record timeline (detection → resolution)
-- Auto-generate post-mortem draft:
-  - **What happened** (timeline)
-  - **Impact** (affected tenants, duration, SLA status)
-  - **Root cause** (from runbook diagnosis output)
-  - **Action items** (with owner and due date fields)
-  - **Runbook gaps identified**
-
----
-
-## Top Automatable Incident Runbooks
-
-Implement these as the initial library:
-
-1. **AKS node memory/CPU pressure** — cordon, drain, replace
-2. **Pod CrashLoopBackOff** — log capture, restart, alert if persists
-3. **Certificate expiry** — auto-renew via cert-manager or Key Vault
-4. **Database connection pool exhaustion** — scale pool, kill idle connections
-5. **Disk I/O saturation** — identify top consumers, trigger volume expansion
-6. **Deployment rollback** — detect failed rollout, auto-rollback to last good
-7. **DNS resolution failure** — flush caches, validate CoreDNS config
-8. **High 5xx error rate** — identify upstream, circuit-break, alert
-9. **Blob storage quota exceeded** — archive old objects, notify tenant
-10. **VPN / ExpressRoute flap** — failover to secondary, open carrier ticket
-
----
-
-## Examples
-
-- "Triage the PagerDuty alert that just fired for tenant-7 AKS cluster"
-- "Run the certificate renewal runbook for the payments namespace"
-- "Show me all P1/P2 incidents in the last 30 days and their MTTR"
-- "Generate a post-mortem for last night's database outage"
-- "Which runbook gaps caused the most manual interventions this quarter?"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "incident_id": "INC-1234",
-  "severity": "P1|P2|P3|P4",
-  "runbook_applied": "string",
-  "runbook": "high-memory-aks-node",
-  "steps_completed": 3,
-  "steps_total": 4,
-  "status": "resolved|in_progress|escalated",
-  "mttr_minutes": 18,
-  "postmortem_url": "string"
+  "incidentId": "INC-2026-0050",
+  "severity": "P1",
+  "classificationConfidence": 0.94,
+  "runbookApplied": "high-memory-aks-node",
+  "steps": [
+    { "id": 1, "name": "diagnose-node", "status": "success" },
+    { "id": 2, "name": "cordon-node", "status": "success" }
+  ],
+  "status": "resolved",
+  "mttrMinutes": 18,
+  "postmortemUrl": "https://reports/incidents/INC-2026-0050",
+  "decisionContext": "redis://memory-store/incident/INC-2026-0050",
+  "humanGate": {
+    "required": true,
+    "impact": "Production node drainage",
+    "reversible": "Yes"
+  }
 }
 ```
+
+## World-class workflow templates
+
+### AI incident classification →
+1. Ingest alert payload (PagerDuty/Azure/Prometheus/DataDog).  
+2. AI classifier scores severity (P1–P4) and identifies impacted tenants/services.  
+3. Dispatcher chooses runbook or escalates to human gate if novelty/high uncertainty.  
+4. Runbook executes steps (with rollbacks if necessary) and streams `insight-ready` events.  
+5. Post-mortem draft produced automatically with timeline, root cause, impact, and action items.
+
+### Intelligent runbook selection
+- Match alert to runbooks via `trigger_pattern`, telemetry signatures, and past resolutions.  
+- Evaluate risk and automation readiness to determine whether human gate is required.  
+- Example runbooks: node memory pressure, failed rollout, certificate expiry, database connection pool.
+
+### Smart post-mortem generation
+- Collect timeline entries across detection/resolution (API events, runbook steps, alerts).  
+- Analyze root cause using causal graph (dependencies, config changes), severity, SLA impact, and human actions.  
+- Produce structured report and publish to `reports/postmortems/{incidentId}.json`.
+
+## AI intelligence highlights
+- **AI Incident Classification**: Multi-model ensemble that balances telemetry, change history, and business-criticality to determine severity and guardrail exemptions.
+- **Smart Post-Mortem Generation**: Auto-populates timelines, impact statements, mitigation steps, and action owners for rapid review.
+- **Intelligent Runbook Selection**: Uses semantic similarity and past success rates to pick the most effective remediation plan while factoring rollback complexity.
+
+## Memory agent integration
+- Subscribe to `agent-completed` and `insight-ready` events from memory agents; read context via `shared-context://memory-store/<tenant>/incident`.
+- Emit `incident-resolved`, `postmortem-ready`, and `risk-adjustment` events so other skills (compliance, cost, deployment validation) update context.
+- Update Redis metadata (`riskScore`, `confidence`, `stepsCompleted`) so dispatchers know whether to escalate or rerun workflows.
+
+## Communication protocol
+- Primary: HTTP/webhook ingestion of alerts; internal commands issued via `/incident-triage-runbook`.
+- Secondary: Event bus topics `incident-classified`, `runbook-step`, `incident-triaged`, `postmortem-finished`.
+- Fallback: If event bus is unavailable, write JSON artifacts to `artifact-store://incidents/{incidentId}.json` for other skills to pick up.
+
+## Observability & telemetry
+- Metrics: incidents classified per minute, runbook success rate, time to human gate, MTTR p95.
+- Logs: structured `log.event` (classification/runbook step/postmortem) with `decisionId`, `orchestrationId`, `tenant`.
+- Dashboards: integrate `/incident-triage-runbook metrics --format=prometheus` for on-call visibility.
+- Alerts: trigger when classification confidence < 0.65 or when MTTR > 60min for P1 events.
+
+## Failure handling & retries
+- Retry classification/runbook execution up to 2 times with exponential backoff (30s → 120s).  
+- On runbook failure, execute rollback steps if defined and escalate to human gate.  
+- Persist context (`shared-context://memory-store/incident/{incidentId}`) for post-failure analysis; do not delete logs to maintain audit trail.
+
+## Human gates
+- Required whenever:
+ 1. Severity is P1 or automation confidence < 70%.
+ 2. Runbook impacts production-facing services (e.g., draining nodes, firewall changes).
+ 3. Dispatcher requests escalation after >2 failed steps.
+- Confirmation template:
+
+```
+⚠️  HUMAN GATE: [description]
+    Impact: [what will change]
+    Reversible: [Yes/No]
+    Type YES to proceed or NO to abort:
+```
+
+## Testing & validation
+- Dry-run: `/incident-triage-runbook respond --incident-id=INC-DRY-RUN --dry-run=true`.
+- Unit tests: focus on classification models and runbook selection heuristics under `backend/incidents/`.
+- Integration: `scripts/validate-incident-flow.sh` simulates alerts from all sources and verifies event flow plus postmortem payload.
+- Regression: nightly `scripts/nightly-incident-smoke.sh` ensures human gate logic and telemetry events keep working.
+
+## References
+- Alert ingestion helpers: `api/alerts/**`.
+- Runbooks: `runbooks/*.yaml`.
+- Postmortem templates: `docs/RUNBOOKS.md`, `docs/SECURITY-INCIDENT-RESPONSE.md`.
+
+## Related skills
+- `/ai-agent-orchestration`: route events and orchestrate multi-skill remediation.
+- `/compliance-security-scanner`: contextualize compliance impact of incidents.
+- `/workflow-management`: monitor workflows triggered by incidents.
