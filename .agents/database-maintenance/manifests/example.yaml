@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: database-maintenance-config
-data:
-  example: "placeholder for database-maintenance"
-
