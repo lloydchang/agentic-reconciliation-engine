@@ -1,225 +1,146 @@
 ---
 name: kpi-report-generator
 description: >
-  Use this skill to automatically collect, aggregate, and generate KPI and
-  quarterly progress reports for teams. Triggers:
-  any request to generate a platform report, build a quarterly review,
-  calculate DORA metrics, summarise operational health, produce an executive
-  dashboard, or track progress against OKRs and roadmap milestones.
-tools:
-  - bash
-  - computer
+  Collect, aggregate, and deliver KPI/exec reports with AI trending, RAG scoring, and dispatcher telemetry.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# KPI Report Generator Skill
+# KPI Report Generator — World-class Insight Playbook
 
-Automate the collection and presentation of Cloud AI platform KPIs: pull
-data from observability, CI/CD, incident, and deployment systems → aggregate
-→ trend → present as a structured report in Markdown, HTML, or PPTX.
+Aggregates telemetry from observability, CI/CD, incidents, governance, and cost into weekly/monthly/quarterly executive reports (Markdown/PPTX/HTML) with AI risk insights, RAG indicators, and shared-context metadata. Use when summarizing health, DORA metrics, adoption, security posture, or cost/OKR progress.
 
-# KPI Report Generator Skill
+## When to invoke
+- Generate weekly ops snapshots, monthly exec reports, QBR decks, or ad-hoc KPI summaries.
+- Calculate DORA metrics, reliability, adoption, compliance, and cost indicators.
+- Combine high-risk insights from dispatchers (`incident-ready`, `policy-risk`, `capacity-alert`).
+- Feed structured reports into leadership, auditing, or automation channels.
 
-Automate the collection and presentation of Cloud AI platform KPIs: pull
-data from observability, CI/CD, incident, and deployment systems → aggregate
-→ trend → present as a structured report in Markdown, HTML, or PPTX.
+## Capabilities
+- Pull data from Prometheus, Azure Monitor, CI/CD platforms, incident DB, compliance sources, and billing.
+- AI RAG scoring using historical trends and target baselines.
+- Export results to Markdown/HTML/PPTX with narrative, charts, and embedded links.
+- Shared context `shared-context://memory-store/kpi/<operationId>` for downstream workflows.
+- Human gates for sensitive executive distributions or strategic decisions.
 
-## Enhanced Executive Status Reporting
-
-### Generate Executive Progress Reports Summarizing Health and Project Milestones
-Generate executive progress reports summarizing health and project milestones for leadership communication.
-
-**Purpose:** Communicate operational progress and business outcomes to leadership.
-
-**Workflow:**
-1. Aggregate comprehensive operational metrics across all systems
-2. Summarize incident impact and resolution trends
-3. Evaluate roadmap progress against milestones and timelines
-4. Identify key risks and mitigation strategies
-5. Generate executive-ready report with actionable insights
-
-**Output:** Quarterly executive report including KPI summary, major milestones achieved, current risks, and strategic recommendations.
-
----
-
-## Data Sources
-
-| KPI category            | Source system                      | Query method         |
-|-------------------------|------------------------------------|----------------------|
-| Uptime / availability   | Prometheus, Azure Monitor          | PromQL / REST API    |
-| Deployment metrics      | ArgoCD, GitHub Actions, ADO        | API / webhooks       |
-| Incident metrics        | PagerDuty, ServiceNow              | REST API             |
-| Change fail rate        | Deployment ledger                  | DB query             |
-| Platform adoption       | Usage telemetry, feature flags     | REST API / SQL       |
-| Security / compliance   | Scanner results, audit logs        | File / API           |
-| Cost                    | Azure Cost Management, AWS CE      | REST API             |
-
----
-
-## Standard KPI Set
-
-### DORA Metrics (Engineering Throughput)
-```
-Deployment Frequency:   deployments per day/week (elite ≥ 1/day)
-Lead Time for Change:   commit → production (elite < 1 hour)
-Change Failure Rate:    failed deployments / total (elite < 5%)
-MTTR:                   time to restore service (elite < 1 hour)
-```
-
-### Reliability Metrics
-```
-Platform uptime %       (vs SLA target)
-Error budget remaining  (% remaining for current month)
-P1/P2 incident count    (count, trend)
-Mean MTTR by severity   (minutes)
-Incidents auto-resolved by runbook (%)
-```
-
-### Platform Adoption Metrics
-```
-Teams onboarded to platform / total target (%)
-Deployments via standard pipelines vs manual (%)
-IaC coverage: resources managed by Terraform (%)
-Tenant onboarding time: median days
-Runbook coverage: % incidents with runbook
-```
-
-### Security & Compliance
-```
-Critical/High CVEs open            (count, SLA adherence %)
-Secret scan violations (30d)       (count)
-CIS benchmark score                (% passing)
-Compliance report status           (SOC2 / ISO / CIS)
-```
-
-### Cost & Efficiency
-```
-Cloud spend (month-over-month %)
-Cost per tenant                    (avg, by tier)
-Resource utilisation: AKS CPU/Mem  (avg %)
-Idle / orphaned resource cost      ($)
-```
-
----
-
-## Report Types
-
-### 1. Weekly Ops Snapshot (Markdown → Slack)
-```
-🟢 Platform Health — Week of [DATE]
-
-Uptime:          99.96% (target 99.9%) ✅
-Deployments:     47 total, 46 success (97.9%) ✅
-Incidents:       3 (P2×1, P3×2) — MTTR avg 22min ✅
-Error budget:    73% remaining (enterprise tier)
-Open CVEs (High+): 2 (both in remediation)
-
-Top action this week: Canary failure on payments-api v2.3.1 → rolled back,
-root cause identified, fix in review.
-```
-
-### 2. Monthly Executive Report (PPTX/PDF)
-Structure:
-- Slide 1: Executive summary scorecard (Red/Amber/Green per KPI)
-- Slide 2: DORA metrics with trend (90-day)
-- Slide 3: Reliability & SLA status
-- Slide 4: Platform adoption progress
-- Slide 5: Security posture
-- Slide 6: Cost summary
-- Slide 7: Roadmap milestone status (30/60/90 day plan)
-- Slide 8: Top risks & mitigations
-- Slide 9: Next 30 days priorities
-
-### 3. Quarterly Business Review (QBR)
-Extends monthly report with:
-- OKR scoring (0.0–1.0 per objective)
-- Year-to-date trends
-- Comparison vs industry benchmarks (DORA State of DevOps data)
-- Budget vs actuals
-- Headcount and team capacity
-
----
-
-## Data Collection Script
+## Invocation patterns
 
 ```bash
-#!/usr/bin/env bash
-# Collect all KPI data for the reporting period
-PERIOD_START="${1:-$(date -d '-30 days' +%Y-%m-%d)}"
-PERIOD_END="${2:-$(date +%Y-%m-%d)}"
-
-# DORA — deployment frequency
-DEPLOYS=$(curl -s "$ARGOCD_URL/api/v1/applications" \
-  | jq "[.items[].status.history[] | select(.deployedAt >= \"$PERIOD_START\")] | length")
-
-# DORA — change fail rate
-FAILED=$(sqlite3 deployment.db \
-  "SELECT COUNT(*) FROM deployments WHERE status='rolled_back' AND date >= '$PERIOD_START'")
-TOTAL=$(sqlite3 deployment.db \
-  "SELECT COUNT(*) FROM deployments WHERE date >= '$PERIOD_START'")
-CFR=$(echo "scale=2; $FAILED / $TOTAL * 100" | bc)
-
-# Uptime — from Prometheus
-UPTIME=$(curl -s "$PROMETHEUS_URL/api/v1/query" \
-  --data-urlencode "query=avg_over_time(up{job='platform'}[30d])*100" \
-  | jq '.data.result[0].value[1]')
-
-echo "{\"period_start\":\"$PERIOD_START\",\"period_end\":\"$PERIOD_END\",
-      \"deployments\":$DEPLOYS,\"change_fail_rate\":$CFR,\"uptime\":$UPTIME}"
+/kpi-report-generator report --type=weekly --window=7d --format=markdown
+/kpi-report-generator report --type=monthly --format=pptx --output=reports/monthly.pptx
+/kpi-report-generator metrics --include=dora,uptime,cost --period=30d
+/kpi-report-generator trends --window=90d --focus=incident-metrics
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `type` | Report type (weekly/monthly/quarterly). | `monthly` |
+| `window` | Lookback window (days). | `30d` |
+| `format` | Output format (`markdown|html|pptx`). | `pptx` |
+| `include` | Metric subsets (dora, uptime, security). | `dora,security` |
+| `period` | Time span for KPIs. | `90d` |
+| `focus` | Specific area (incident, cost, adoption). | `incident-metrics` |
 
-## Trend Calculation
-
-For each metric, compute:
-- Current period value
-- Previous period value
-- % change (positive/negative)
-- 90-day rolling average
-- RAG status (Red/Amber/Green) vs target
-
-```python
-def rag_status(value, target, higher_is_better=True):
-    ratio = value / target
-    if higher_is_better:
-        if ratio >= 1.0: return "GREEN"
-        if ratio >= 0.9: return "AMBER"
-        return "RED"
-    else:  # lower is better (e.g. incident count)
-        if ratio <= 1.0: return "GREEN"
-        if ratio <= 1.2: return "AMBER"
-        return "RED"
-```
-
----
-
-## Examples
-
-- "Generate the weekly platform health snapshot for Slack"
-- "Build the monthly executive report for June as a PowerPoint"
-- "What are our DORA metrics for Q2 vs Q1?"
-- "Show me platform adoption progress — what % of teams are on the standard pipeline?"
-- "Create the QBR deck for the team"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "report_type": "weekly|monthly|quarterly",
+  "operationId": "KPI-2026-0315-01",
   "status": "success|failure",
-  "period": { "start": "ISO8601", "end": "ISO8601" },
+  "reportType": "weekly",
+  "period": { "start": "2026-02-15", "end": "2026-03-15" },
   "metrics": {
-    "uptime_pct": 0.0,
-    "deployment_frequency": 0.0,
-    "change_fail_rate_pct": 0.0,
-    "mttr_minutes": 0.0,
-    "platform_adoption_pct": 0.0,
-    "open_high_cves": 0,
-    "cost_delta_pct": 0.0
+    "uptimePct": 99.96,
+    "deploymentFrequency": 12,
+    "changeFailRatePct": 4,
+    "mttrMinutes": 15,
+    "platformAdoptionPct": 82,
+    "openHighCves": 2,
+    "costDeltaPct": -3
   },
-  "rag_statuses": {},
-  "report_url": "string"
+  "ragStatuses": {
+    "uptime": "GREEN",
+    "changeFailRate": "AMBER",
+    "cost": "GREEN"
+  },
+  "aiInsights": {
+    "riskScore": 0.41,
+    "trend": "lead time improving vs last month"
+  },
+  "reportUrl": "https://reports/kpi/KPI-2026-0315-01",
+  "decisionContext": "redis://memory-store/kpi/KPI-2026-0315-01",
+  "logs": "shared-context://memory-store/kpi/KPI-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Weekly ops snapshot (Markdown/Slack)
+1. Pull DORA, reliability, incident, adoption, security, cost metrics.
+2. Compute RAG statuses vs targets and include narrative on top trends.
+3. Export summary and push to Slack or email stakeholders.
+4. Emit `kpi-report-ready` event with links for dispatcher to react.
+
+### Monthly executive report (PPTX/HTML)
+1. Compose slides covering executive summary, DORA, reliability, adoption, security, cost, roadmap.
+2. Include AI insights (riskScore, trend direction, anomalies).
+3. Attach supporting dashboards and evidence (KQL queries, cost exports).
+4. Emit structured JSON for automation and store context for follow-ups.
+
+### Quarterly business review (QBR)
+1. Extend monthly content with OKR scoring, YTD trends, benchmarks, risk mitigation.
+2. Highlight top risks, incidents, capacity/cost callouts, and roadmap commitments.
+3. Notify leadership and update scoreboard documentation.
+
+## AI intelligence highlights
+- **AI Trend Detection**: spot deviations from expectations early and surface trend explanations.
+- **Risk Impact Scoring**: prioritize metric changes with business impact (e.g., uptime vs cost).
+- **Narrative Assistance**: suggest phrasing about key risks/resolutions for exec readability.
+
+## Memory agent & dispatcher integration
+- Store report summaries under `shared-context://memory-store/kpi/<operationId>`.
+- Emit events: `kpi-report-ready`, `kpi-metrics`, `kpi-anomaly`.
+- Subscribe to dispatcher signals (`incident-ready`, `policy-risk`) to include relevant metrics or escalate urgencies.
+- Tag context with `decisionId`, `reportType`, `riskScore`, `tenants`.
+
+## Communication protocols
+- Primary: Bash/python scripts hitting Prometheus/K8s/CI/CD/incident/observer APIs.
+- Secondary: Event bus for `kpi-*` signals.
+- Fallback: JSON exports to `artifact-store://kpi/<operationId>.json`.
+
+## Observability & telemetry
+- Metrics: report count, DORA metrics, trend direction, riskScore distribution.
+- Logs: structured `log.event="kpi.report"` containing `reportType`, `period`, `distance`.
+- Dashboards: integrate `/kpi-report-generator metrics --format=prometheus`.
+- Alerts: repeated report generation failures, rink ratio dropout, riskScore ≥ 0.8.
+
+## Failure handling & retries
+- Retry data collection up to 3× on API/timeout errors; if still failing escalate to `incident-triage-runbook`.
+- Keep raw metric snapshots/logs until dispatcher/human acknowledges.
+- On repeated failures, trigger alert to platform ops for manual intervention.
+
+## Human gates
+- Required when:
+ 1. Reports include sensitive strategic data (M&A, cost war room).
+ 2. RiskScore ≥ 0.9 and change fail rate indicates major disruption.
+ 3. Dispatcher demands manual review after generated anomalies.
+- Use standard sentence template capturing impact and reversibility.
+
+## Testing & validation
+- Dry-run: `/kpi-report-generator report --type=weekly --format=json --dry-run`.
+- Unit tests: `backend/kpi/` ensures metric calculations and trend detection satisfy expectations.
+- Integration: `scripts/validate-kpi-report.sh` collects data from all sources and generates report exports.
+- Regression: nightly `scripts/nightly-kpi-smoke.sh` ensures report plumbing, metrics, and alerts are stable.
+
+## References
+- Script templates: `scripts/kpi/`.
+- Dashboard examples: `monitoring/grafana/kpi`.
+- Evidence docs: `docs/EXECUTION-CHECKLIST.md`.
+
+## Related skills
+- `/workflow-management`: orchestrates report generation pipelines.
+- `/stakeholder-comms-drafter`: uses KPI output to craft narratives.
+- `/ai-agent-orchestration`: coordinates multi-skill report prep + follow-ups.
