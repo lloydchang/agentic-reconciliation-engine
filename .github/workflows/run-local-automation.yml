@@ -1,0 +1,51 @@
+name: Zero-Touch Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      connector:
+        description: Git host connector to use (see README connectors list)
+        default: github-enterprise-cloud
+      overlay_order:
+        description: Comma-separated overlay order
+        default: "./bootstrap,./hub,./emulator-azure,./spoke-local"
+      emulator_action:
+        description: Emulator toggle action
+        default: enable
+
+jobs:
+  zero-touch:
+    runs-on: ubuntu-latest
+    env:
+      CONNECTOR: ${{ github.event.inputs.connector }}
+      OVERLAY_ORDER: ${{ github.event.inputs.overlay_order }}
+      EMULATOR_ACTION: ${{ github.event.inputs.emulator_action }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install policy + validation tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl tar
+          curl -sL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest-linux-amd64 -o conftest
+          chmod +x conftest
+          sudo mv conftest /usr/local/bin/
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz -C /tmp
+          sudo mv /tmp/kubeconform /usr/local/bin/
+
+      - name: Run zero-touch automation
+        run: bash scripts/run-local-automation.sh --connector "$CONNECTOR" --overlay-order "$OVERLAY_ORDER" --emulator-action "$EMULATOR_ACTION"
+
+      - name: Upload automation logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: zero-touch-automation-logs
+          path: logs/local-automation/*
+
+      - name: Publish summary / notify downstream systems
+        run: scripts/publish-summary.sh logs/local-automation/latest-summary.json
+        env:
+          SUMMARY_ENDPOINT: ${{ secrets.SUMMARY_ENDPOINT }}
+          SUMMARY_TOKEN: ${{ secrets.SUMMARY_TOKEN }}
+          NOTIFY_WEBHOOK: ${{ secrets.NOTIFY_WEBHOOK }}
