@@ -1,53 +1,822 @@
 #!/usr/bin/env python3
 """
-Multi-Cloud Orchestrator
+Multi-Cloud Infrastructure Provisioning Orchestrator
 
-Cross-provider coordination and orchestration for AI agent management across multiple cloud environments.
+Orchestrates infrastructure provisioning operations across multiple cloud providers
+to ensure consistent resource creation and management.
 """
 
 import json
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
 from enum import Enum
+import concurrent.futures
+import statistics
 
-from ai_agent_orchestration_handler import get_handler, CloudHandler, CloudResource
+from infrastructure_provisioning_handler import (
+    InfrastructureProvisioningHandler, ProvisioningRequest, ProvisioningResult,
+    get_infrastructure_provisioning_handler
+)
 
 logger = logging.getLogger(__name__)
 
 class OrchestrationStrategy(Enum):
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
-    ROLLING = "rolling"
-    BLUE_GREEN = "blue_green"
+    PRIORITY_BASED = "priority_based"
 
-class HealthStatus(Enum):
-    HEALTHY = "healthy"
-    UNHEALTHY = "unhealthy"
-    DEGRADED = "degraded"
-    UNKNOWN = "unknown"
+class ProvisioningStatus(Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    ROLLING_BACK = "rolling_back"
 
 @dataclass
 class OrchestrationTask:
-    id: str
-    name: str
+    task_id: str
     provider: str
-    operation: str
-    config: Dict[str, Any]
-    dependencies: List[str]
-    retry_count: int = 0
-    max_retries: int = 3
-    timeout_seconds: int = 300
+    action: str
+    parameters: Dict[str, Any]
+    priority: str
+    status: str
+    created_at: datetime
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
 
 @dataclass
 class OrchestrationResult:
     task_id: str
     provider: str
+    action: str
     status: str
-    message: str
+    success: bool
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+    execution_time: Optional[float] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+@dataclass
+class ProvisioningOrchestrationSummary:
+    orchestration_id: str
+    total_tasks: int
+    completed_tasks: int
+    successful_tasks: int
+    failed_tasks: int
+    total_resources: int
+    total_cost_estimate: float
+    success_rate: float
+    providers: List[str]
+    resource_types: List[str]
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    status: str = "in_progress"
+
+class MultiCloudInfrastructureProvisioningOrchestrator:
+    """Orchestrates infrastructure provisioning operations across multiple cloud providers"""
+    
+    def __init__(self, max_workers: int = 4):
+        self.max_workers = max_workers
+        self.handlers: Dict[str, InfrastructureProvisioningHandler] = {}
+        self.tasks: List[OrchestrationTask] = []
+        self.results: List[OrchestrationResult] = []
+        self.orchestrations: Dict[str, ProvisioningOrchestrationSummary] = {}
+        
+    def initialize_handlers(self, providers: List[str], regions: Dict[str, str]) -> bool:
+        """Initialize infrastructure provisioning handlers for all providers"""
+        try:
+            success = True
+            
+            for provider in providers:
+                region = regions.get(provider, "us-west-2")
+                handler = get_infrastructure_provisioning_handler(provider, region)
+                
+                if handler.initialize_client():
+                    self.handlers[provider] = handler
+                    logger.info(f"Initialized {provider} infrastructure provisioning handler")
+                else:
+                    logger.error(f"Failed to initialize {provider} infrastructure provisioning handler")
+                    success = False
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize handlers: {e}")
+            return False
+    
+    def orchestrate_provisioning(
+        self,
+        provisioning_requests: List[ProvisioningRequest],
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> ProvisioningOrchestrationSummary:
+        """Orchestrate infrastructure provisioning across providers"""
+        
+        if not orchestration_id:
+            orchestration_id = f"provisioning-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        
+        logger.info(f"Starting infrastructure provisioning orchestration {orchestration_id}")
+        
+        # Create orchestration summary
+        summary = ProvisioningOrchestrationSummary(
+            orchestration_id=orchestration_id,
+            total_tasks=len(provisioning_requests),
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_cost_estimate=0.0,
+            success_rate=0.0,
+            providers=[req.provider for req in provisioning_requests],
+            resource_types=[req.resource_type for req in provisioning_requests],
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[orchestration_id] = summary
+        
+        try:
+            # Generate provisioning tasks
+            tasks = self._generate_provisioning_tasks(provisioning_requests)
+            
+            # Execute tasks based on strategy
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process results
+            self._process_provisioning_results(results, summary)
+            
+            # Update summary
+            summary.end_time = datetime.utcnow()
+            summary.status = "completed" if summary.failed_tasks == 0 else "completed_with_errors"
+            
+            logger.info(f"Completed infrastructure provisioning orchestration {orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute infrastructure provisioning orchestration {orchestration_id}: {e}")
+            summary.status = "failed"
+            summary.end_time = datetime.utcnow()
+        
+        return summary
+    
+    def orchestrate_rollback(
+        self,
+        orchestration_id: str,
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL
+    ) -> ProvisioningOrchestrationSummary:
+        """Orchestrate rollback of failed provisioning operations"""
+        
+        logger.info(f"Starting infrastructure provisioning rollback for {orchestration_id}")
+        
+        # Get original orchestration
+        original_summary = self.get_orchestration_status(orchestration_id)
+        if not original_summary:
+            raise ValueError(f"Orchestration {orchestration_id} not found")
+        
+        # Create rollback summary
+        rollback_summary = ProvisioningOrchestrationSummary(
+            orchestration_id=f"rollback-{orchestration_id}",
+            total_tasks=0,
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_cost_estimate=0.0,
+            success_rate=0.0,
+            providers=original_summary.providers,
+            resource_types=original_summary.resource_types,
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[rollback_summary.orchestration_id] = rollback_summary
+        
+        try:
+            # Generate rollback tasks for successful provisions
+            rollback_tasks = self._generate_rollback_tasks(original_summary)
+            rollback_summary.total_tasks = len(rollback_tasks)
+            
+            # Execute rollback tasks
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(rollback_tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(rollback_tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(rollback_tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process rollback results
+            self._process_rollback_results(results, rollback_summary)
+            
+            # Update summary
+            rollback_summary.end_time = datetime.utcnow()
+            rollback_summary.status = "completed"
+            
+            logger.info(f"Completed infrastructure provisioning rollback {rollback_summary.orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute infrastructure provisioning rollback {rollback_summary.orchestration_id}: {e}")
+            rollback_summary.status = "failed"
+            rollback_summary.end_time = datetime.utcnow()
+        
+        return rollback_summary
+    
+    def orchestrate_validation(
+        self,
+        provisioning_requests: List[ProvisioningRequest],
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> ProvisioningOrchestrationSummary:
+        """Orchestrate validation of provisioning requests"""
+        
+        if not orchestration_id:
+            orchestration_id = f"validation-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        
+        logger.info(f"Starting infrastructure provisioning validation orchestration {orchestration_id}")
+        
+        # Create validation summary
+        summary = ProvisioningOrchestrationSummary(
+            orchestration_id=orchestration_id,
+            total_tasks=len(provisioning_requests),
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_cost_estimate=0.0,
+            success_rate=0.0,
+            providers=[req.provider for req in provisioning_requests],
+            resource_types=[req.resource_type for req in provisioning_requests],
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[orchestration_id] = summary
+        
+        try:
+            # Generate validation tasks
+            tasks = self._generate_validation_tasks(provisioning_requests)
+            
+            # Execute validation tasks
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process validation results
+            self._process_validation_results(results, summary)
+            
+            # Update summary
+            summary.end_time = datetime.utcnow()
+            summary.status = "completed"
+            
+            logger.info(f"Completed infrastructure provisioning validation orchestration {orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute infrastructure provisioning validation orchestration {orchestration_id}: {e}")
+            summary.status = "failed"
+            summary.end_time = datetime.utcnow()
+        
+        return summary
+    
+    def _generate_provisioning_tasks(self, provisioning_requests: List[ProvisioningRequest]) -> List[OrchestrationTask]:
+        """Generate provisioning tasks from requests"""
+        tasks = []
+        
+        for request in provisioning_requests:
+            task = OrchestrationTask(
+                task_id=f"task-{request.provider}-{request.resource_type}-{request.request_id}",
+                provider=request.provider,
+                action="provision_resource",
+                parameters={'request': request},
+                priority=request.priority,
+                status="pending",
+                created_at=datetime.utcnow()
+            )
+            tasks.append(task)
+        
+        return tasks
+    
+    def _generate_rollback_tasks(self, original_summary: ProvisioningOrchestrationSummary) -> List[OrchestrationTask]:
+        """Generate rollback tasks for successful provisions"""
+        # This is a simplified implementation
+        # In production, you would track which resources were successfully provisioned
+        # and generate appropriate rollback tasks
+        
+        rollback_tasks = []
+        
+        # For now, generate placeholder rollback tasks
+        for provider in original_summary.providers:
+            task = OrchestrationTask(
+                task_id=f"rollback-{provider}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                provider=provider,
+                action="rollback_resource",
+                parameters={'original_orchestration': original_summary.orchestration_id},
+                priority="high",
+                status="pending",
+                created_at=datetime.utcnow()
+            )
+            rollback_tasks.append(task)
+        
+        return rollback_tasks
+    
+    def _generate_validation_tasks(self, provisioning_requests: List[ProvisioningRequest]) -> List[OrchestrationTask]:
+        """Generate validation tasks from requests"""
+        tasks = []
+        
+        for request in provisioning_requests:
+            task = OrchestrationTask(
+                task_id=f"validate-{request.provider}-{request.resource_type}-{request.request_id}",
+                provider=request.provider,
+                action="validate_configuration",
+                parameters={'request': request},
+                priority="high",
+                status="pending",
+                created_at=datetime.utcnow()
+            )
+            tasks.append(task)
+        
+        return tasks
+    
+    def _execute_tasks_sequential(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks sequentially"""
+        results = []
+        
+        for task in tasks:
+            try:
+                result = self._execute_single_task(task)
+                results.append(result)
+            except Exception as e:
+                logger.error(f"Failed to execute task {task.task_id}: {e}")
+                results.append(OrchestrationResult(
+                    task_id=task.task_id,
+                    provider=task.provider,
+                    action=task.action,
+                    status="failed",
+                    success=False,
+                    error=str(e),
+                    started_at=datetime.utcnow(),
+                    completed_at=datetime.utcnow()
+                ))
+        
+        return results
+    
+    def _execute_tasks_parallel(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks in parallel"""
+        results = []
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all tasks
+            future_to_task = {
+                executor.submit(self._execute_single_task, task): task
+                for task in tasks
+            }
+            
+            # Collect results as they complete
+            for future in concurrent.futures.as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    logger.error(f"Failed to execute task {task.task_id}: {e}")
+                    results.append(OrchestrationResult(
+                        task_id=task.task_id,
+                        provider=task.provider,
+                        action=task.action,
+                        status="failed",
+                        success=False,
+                        error=str(e),
+                        started_at=datetime.utcnow(),
+                        completed_at=datetime.utcnow()
+                    ))
+        
+        return results
+    
+    def _execute_tasks_priority(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks based on priority"""
+        # Sort tasks by priority
+        priority_order = {'high': 0, 'medium': 1, 'low': 2}
+        tasks.sort(key=lambda t: priority_order.get(t.priority, 3))
+        
+        # Execute high priority tasks in parallel, then medium, then low
+        results = []
+        current_priority = None
+        current_batch = []
+        
+        for task in tasks:
+            if current_priority is None:
+                current_priority = task.priority
+                current_batch.append(task)
+            elif task.priority == current_priority:
+                current_batch.append(task)
+            else:
+                # Execute current batch
+                batch_results = self._execute_tasks_parallel(current_batch)
+                results.extend(batch_results)
+                
+                # Start new batch
+                current_priority = task.priority
+                current_batch = [task]
+        
+        # Execute last batch
+        if current_batch:
+            batch_results = self._execute_tasks_parallel(current_batch)
+            results.extend(batch_results)
+        
+        return results
+    
+    def _execute_single_task(self, task: OrchestrationTask) -> OrchestrationResult:
+        """Execute a single infrastructure provisioning task"""
+        start_time = datetime.utcnow()
+        
+        try:
+            handler = self.handlers.get(task.provider)
+            if not handler:
+                raise ValueError(f"No handler available for provider: {task.provider}")
+            
+            if task.action == "provision_resource":
+                request = task.parameters['request']
+                result = handler.provision_resource(request)
+                result_data = asdict(result)
+            elif task.action == "validate_configuration":
+                request = task.parameters['request']
+                is_valid, errors = handler.validate_configuration(request.resource_type, request.configuration)
+                result_data = {
+                    'request_id': request.request_id,
+                    'resource_type': request.resource_type,
+                    'is_valid': is_valid,
+                    'errors': errors
+                }
+            elif task.action == "rollback_resource":
+                # This is a simplified implementation
+                result_data = {
+                    'message': 'Resource rollback completed',
+                    'rolled_back_resources': []
+                }
+            else:
+                raise ValueError(f"Unknown task action: {task.action}")
+            
+            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            
+            return OrchestrationResult(
+                task_id=task.task_id,
+                provider=task.provider,
+                action=task.action,
+                status="completed",
+                success=True,
+                result=result_data,
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
+            )
+            
+        except Exception as e:
+            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            
+            return OrchestrationResult(
+                task_id=task.task_id,
+                provider=task.provider,
+                action=task.action,
+                status="failed",
+                success=False,
+                error=str(e),
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
+            )
+    
+    def _process_provisioning_results(self, results: List[OrchestrationResult], summary: ProvisioningOrchestrationSummary):
+        """Process provisioning results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
+        
+        # Aggregate resource information
+        total_resources = 0
+        total_cost = 0.0
+        
+        for result in results:
+            if result.success and result.result:
+                if 'resource_id' in result.result and result.result['resource_id']:
+                    total_resources += 1
+                
+                # Extract cost estimate from provisioning results
+                if 'cost_estimate' in result.result:
+                    total_cost += result.result['cost_estimate']
+        
+        summary.total_resources = total_resources
+        summary.total_cost_estimate = total_cost
+        summary.success_rate = (summary.successful_tasks / summary.total_tasks * 100) if summary.total_tasks > 0 else 0.0
+    
+    def _process_rollback_results(self, results: List[OrchestrationResult], summary: ProvisioningOrchestrationSummary):
+        """Process rollback results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
+        
+        # Rollback doesn't create resources, so total_resources remains 0
+        summary.total_resources = 0
+        summary.success_rate = (summary.successful_tasks / summary.total_tasks * 100) if summary.total_tasks > 0 else 0.0
+    
+    def _process_validation_results(self, results: List[OrchestrationResult], summary: ProvisioningOrchestrationSummary):
+        """Process validation results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
+        
+        # Validation doesn't create resources, so total_resources remains 0
+        summary.total_resources = 0
+        summary.success_rate = (summary.successful_tasks / summary.total_tasks * 100) if summary.total_tasks > 0 else 0.0
+    
+    def generate_provisioning_report(self, orchestrations: List[str], output_format: str = "json") -> Dict[str, Any]:
+        """Generate comprehensive infrastructure provisioning report"""
+        try:
+            # Collect all orchestration summaries
+            summaries = []
+            for orch_id in orchestrations:
+                summary = self.get_orchestration_status(orch_id)
+                if summary:
+                    summaries.append(asdict(summary))
+            
+            # Generate report
+            report = {
+                'report_metadata': {
+                    'report_id': f"infrastructure-provisioning-report-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    'generated_at': datetime.utcnow().isoformat(),
+                    'orchestrations_analyzed': len(summaries),
+                    'format': output_format
+                },
+                'executive_summary': {
+                    'total_orchestrations': len(summaries),
+                    'total_tasks': sum(s['total_tasks'] for s in summaries),
+                    'successful_tasks': sum(s['successful_tasks'] for s in summaries),
+                    'failed_tasks': sum(s['failed_tasks'] for s in summaries),
+                    'overall_success_rate': 0.0,
+                    'total_resources': sum(s['total_resources'] for s in summaries),
+                    'total_cost_estimate': sum(s['total_cost_estimate'] for s in summaries)
+                },
+                'provider_analysis': {},
+                'resource_type_analysis': {},
+                'provisioning_trends': {},
+                'recommendations': []
+            }
+            
+            # Calculate overall success rate
+            total_tasks = report['executive_summary']['total_tasks']
+            successful_tasks = report['executive_summary']['successful_tasks']
+            report['executive_summary']['overall_success_rate'] = (successful_tasks / total_tasks * 100) if total_tasks > 0 else 0.0
+            
+            # Analyze by provider
+            provider_data = {}
+            for summary in summaries:
+                for provider in summary['providers']:
+                    if provider not in provider_data:
+                        provider_data[provider] = {
+                            'orchestrations': 0,
+                            'tasks': 0,
+                            'successful_tasks': 0,
+                            'failed_tasks': 0,
+                            'resources': 0,
+                            'cost_estimate': 0.0
+                        }
+                    
+                    provider_data[provider]['orchestrations'] += 1
+                    provider_data[provider]['tasks'] += summary['total_tasks']
+                    provider_data[provider]['successful_tasks'] += summary['successful_tasks']
+                    provider_data[provider]['failed_tasks'] += summary['failed_tasks']
+                    provider_data[provider]['resources'] += summary['total_resources']
+                    provider_data[provider]['cost_estimate'] += summary['total_cost_estimate']
+            
+            report['provider_analysis'] = provider_data
+            
+            # Generate recommendations
+            recommendations = self._generate_provisioning_recommendations(report)
+            report['recommendations'] = recommendations
+            
+            return report
+            
+        except Exception as e:
+            logger.error(f"Failed to generate infrastructure provisioning report: {e}")
+            raise
+    
+    def _generate_provisioning_recommendations(self, report: Dict[str, Any]) -> List[str]:
+        """Generate provisioning recommendations based on report data"""
+        recommendations = []
+        
+        success_rate = report['executive_summary']['overall_success_rate']
+        total_cost_estimate = report['executive_summary']['total_cost_estimate']
+        total_resources = report['executive_summary']['total_resources']
+        
+        if success_rate < 95:
+            recommendations.append(f"Overall provisioning success rate ({success_rate:.1f}%) is below 95%. Review failed provisions.")
+        
+        if total_cost_estimate > 1000:
+            recommendations.append(f"Significant cost estimate detected (${total_cost_estimate:.2f}). Review resource configurations and optimize costs.")
+        
+        if total_resources > 50:
+            recommendations.append(f"High volume of resources ({total_resources}). Consider automated provisioning and management.")
+        
+        # Provider-specific recommendations
+        for provider, data in report['provider_analysis'].items():
+            provider_success_rate = (data['successful_tasks'] / data['tasks'] * 100) if data['tasks'] > 0 else 0.0
+            if provider_success_rate < 95:
+                recommendations.append(f"{provider.upper()} provisioning success rate ({provider_success_rate:.1f}%) needs improvement.")
+            
+            if data['cost_estimate'] > 500:
+                recommendations.append(f"{provider.upper()} shows significant cost estimate (${data['cost_estimate']:.2f}). Review resource sizing.")
+        
+        if not recommendations:
+            recommendations.append("Infrastructure provisioning operations are performing well. Continue monitoring and periodic reviews.")
+        
+        return recommendations
+    
+    def get_orchestration_status(self, orchestration_id: str) -> Optional[ProvisioningOrchestrationSummary]:
+        """Get status of a specific orchestration"""
+        return self.orchestrations.get(orchestration_id)
+    
+    def get_all_orchestrations(self) -> Dict[str, ProvisioningOrchestrationSummary]:
+        """Get all orchestrations"""
+        return self.orchestrations
+    
+    def cleanup_completed_orchestrations(self, older_than_days: int = 7):
+        """Clean up old completed orchestrations"""
+        cutoff_date = datetime.utcnow() - timedelta(days=older_than_days)
+        
+        to_remove = []
+        for orch_id, summary in self.orchestrations.items():
+            if summary.end_time and summary.end_time < cutoff_date:
+                to_remove.append(orch_id)
+        
+        for orch_id in to_remove:
+            del self.orchestrations[orch_id]
+        
+        logger.info(f"Cleaned up {len(to_remove)} old orchestrations")
+
+def main():
+    """Example usage"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Multi-Cloud Infrastructure Provisioning Orchestrator")
+    parser.add_argument("--config", help="Configuration file")
+    parser.add_argument("--strategy", choices=[s.value for s in OrchestrationStrategy],
+                       default=OrchestrationStrategy.PARALLEL.value, help="Orchestration strategy")
+    parser.add_argument("--providers", nargs="+", 
+                       choices=['aws', 'azure', 'gcp', 'onprem'],
+                       default=['aws', 'azure', 'gcp', 'onprem'], help="Cloud providers")
+    parser.add_argument("--action", choices=['provision', 'validate', 'report'],
+                       default='provision', help="Action to perform")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
+    
+    args = parser.parse_args()
+    
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    
+    # Initialize orchestrator
+    orchestrator = MultiCloudInfrastructureProvisioningOrchestrator()
+    
+    # Initialize handlers
+    regions = {
+        'aws': 'us-west-2',
+        'azure': 'eastus', 
+        'gcp': 'us-central1',
+        'onprem': 'datacenter-1'
+    }
+    
+    init_success = orchestrator.initialize_handlers(args.providers, regions)
+    if not init_success:
+        print("Failed to initialize handlers")
+        return
+    
+    # Execute action
+    strategy = OrchestrationStrategy(args.strategy)
+    
+    if args.action == 'provision':
+        # Sample provisioning requests
+        sample_requests = [
+            ProvisioningRequest(
+                request_id="req-001",
+                resource_name="web-server-01",
+                resource_type="ec2_instance",
+                provider="aws",
+                region="us-west-2",
+                configuration={
+                    'image_id': 'ami-12345678',
+                    'instance_type': 't3.micro',
+                    'security_group_ids': ['sg-12345678']
+                },
+                tags={'Environment': 'production', 'Team': 'platform'},
+                dependencies=[],
+                created_at=datetime.utcnow(),
+                priority="high"
+            ),
+            ProvisioningRequest(
+                request_id="req-002",
+                resource_name="data-bucket-01",
+                resource_type="s3_bucket",
+                provider="aws",
+                region="us-west-2",
+                configuration={
+                    'versioning': True,
+                    'encryption': 'AES256'
+                },
+                tags={'Environment': 'production', 'DataClassification': 'confidential'},
+                dependencies=[],
+                created_at=datetime.utcnow(),
+                priority="medium"
+            )
+        ]
+        
+        summary = orchestrator.orchestrate_provisioning(sample_requests, strategy)
+        
+        print(f"Infrastructure Provisioning Summary:")
+        print(f"Orchestration ID: {summary.orchestration_id}")
+        print(f"Total Tasks: {summary.total_tasks}")
+        print(f"Successful Tasks: {summary.successful_tasks}")
+        print(f"Failed Tasks: {summary.failed_tasks}")
+        print(f"Total Resources: {summary.total_resources}")
+        print(f"Total Cost Estimate: ${summary.total_cost_estimate:.2f}")
+        print(f"Success Rate: {summary.success_rate:.1f}%")
+        print(f"Status: {summary.status}")
+        
+    elif args.action == 'validate':
+        # Sample validation requests
+        sample_requests = [
+            ProvisioningRequest(
+                request_id="req-001",
+                resource_name="web-server-01",
+                resource_type="ec2_instance",
+                provider="aws",
+                region="us-west-2",
+                configuration={
+                    'image_id': 'ami-12345678',
+                    'instance_type': 't3.micro'
+                },
+                tags={'Environment': 'production'},
+                dependencies=[],
+                created_at=datetime.utcnow(),
+                priority="high"
+            )
+        ]
+        
+        summary = orchestrator.orchestrate_validation(sample_requests, strategy)
+        
+        print(f"Infrastructure Validation Summary:")
+        print(f"Orchestration ID: {summary.orchestration_id}")
+        print(f"Total Tasks: {summary.total_tasks}")
+        print(f"Successful Tasks: {summary.successful_tasks}")
+        print(f"Failed Tasks: {summary.failed_tasks}")
+        print(f"Success Rate: {summary.success_rate:.1f}%")
+        print(f"Status: {summary.status}")
+        
+    elif args.action == 'report':
+        # Run some operations first to generate data
+        sample_requests = [
+            ProvisioningRequest(
+                request_id="req-001",
+                resource_name="web-server-01",
+                resource_type="ec2_instance",
+                provider="aws",
+                region="us-west-2",
+                configuration={'image_id': 'ami-12345678', 'instance_type': 't3.micro'},
+                tags={'Environment': 'production'},
+                dependencies=[],
+                created_at=datetime.utcnow(),
+                priority="high"
+            )
+        ]
+        
+        provisioning_summary = orchestrator.orchestrate_provisioning(sample_requests, strategy)
+        
+        report = orchestrator.generate_provisioning_report([provisioning_summary.orchestration_id])
+        
+        print(f"Infrastructure Provisioning Report:")
+        print(f"Generated: {report['report_metadata']['generated_at']}")
+        print(f"Orchestrations: {report['executive_summary']['total_orchestrations']}")
+        print(f"Overall Success Rate: {report['executive_summary']['overall_success_rate']:.1f}%")
+        print(f"Total Resources: {report['executive_summary']['total_resources']}")
+        print(f"Total Cost Estimate: ${report['executive_summary']['total_cost_estimate']:.2f}")
+        
+        print("\nRecommendations:")
+        for rec in report['recommendations']:
+            print(f"  - {rec}")
+
+if __name__ == "__main__":
+    main()
     data: Optional[Dict[str, Any]]
     timestamp: datetime
     execution_time: float

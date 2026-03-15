@@ -1,53 +1,746 @@
 #!/usr/bin/env python3
 """
-Multi-Cloud Orchestrator
+Multi-Cloud Infrastructure Manager Orchestrator
 
-Cross-provider coordination and orchestration for AI agent management across multiple cloud environments.
+Orchestrates infrastructure management operations across multiple cloud providers
+to ensure consistent resource lifecycle management and operations.
 """
 
 import json
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
 from enum import Enum
+import concurrent.futures
+import statistics
 
-from ai_agent_orchestration_handler import get_handler, CloudHandler, CloudResource
+from infrastructure_manager_handler import (
+    InfrastructureManagerHandler, InfrastructureResource, InfrastructureOperation,
+    get_infrastructure_manager_handler
+)
 
 logger = logging.getLogger(__name__)
 
 class OrchestrationStrategy(Enum):
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
-    ROLLING = "rolling"
-    BLUE_GREEN = "blue_green"
+    PRIORITY_BASED = "priority_based"
 
 class HealthStatus(Enum):
     HEALTHY = "healthy"
-    UNHEALTHY = "unhealthy"
-    DEGRADED = "degraded"
+    WARNING = "warning"
+    CRITICAL = "critical"
     UNKNOWN = "unknown"
 
 @dataclass
 class OrchestrationTask:
-    id: str
-    name: str
+    task_id: str
     provider: str
-    operation: str
-    config: Dict[str, Any]
-    dependencies: List[str]
-    retry_count: int = 0
-    max_retries: int = 3
-    timeout_seconds: int = 300
+    action: str
+    parameters: Dict[str, Any]
+    priority: str
+    status: str
+    created_at: datetime
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
 
 @dataclass
 class OrchestrationResult:
     task_id: str
     provider: str
+    action: str
     status: str
-    message: str
+    success: bool
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+    execution_time: Optional[float] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+@dataclass
+class InfrastructureOrchestrationSummary:
+    orchestration_id: str
+    total_tasks: int
+    completed_tasks: int
+    successful_tasks: int
+    failed_tasks: int
+    total_resources: int
+    total_operations: int
+    total_cost_impact: float
+    success_rate: float
+    providers: List[str]
+    resource_types: List[str]
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    status: str = "in_progress"
+
+class MultiCloudInfrastructureManagerOrchestrator:
+    """Orchestrates infrastructure management operations across multiple cloud providers"""
+    
+    def __init__(self, max_workers: int = 4):
+        self.max_workers = max_workers
+        self.handlers: Dict[str, InfrastructureManagerHandler] = {}
+        self.tasks: List[OrchestrationTask] = []
+        self.results: List[OrchestrationResult] = []
+        self.orchestrations: Dict[str, InfrastructureOrchestrationSummary] = {}
+        
+    def initialize_handlers(self, providers: List[str], regions: Dict[str, str]) -> bool:
+        """Initialize infrastructure manager handlers for all providers"""
+        try:
+            success = True
+            
+            for provider in providers:
+                region = regions.get(provider, "us-west-2")
+                handler = get_infrastructure_manager_handler(provider, region)
+                
+                if handler.initialize_client():
+                    self.handlers[provider] = handler
+                    logger.info(f"Initialized {provider} infrastructure manager handler")
+                else:
+                    logger.error(f"Failed to initialize {provider} infrastructure manager handler")
+                    success = False
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize handlers: {e}")
+            return False
+    
+    def orchestrate_resource_discovery(
+        self,
+        providers: List[str],
+        resource_types: Optional[List[str]] = None,
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> InfrastructureOrchestrationSummary:
+        """Orchestrate infrastructure resource discovery across providers"""
+        
+        if not orchestration_id:
+            orchestration_id = f"discovery-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        
+        logger.info(f"Starting infrastructure discovery orchestration {orchestration_id} for providers: {providers}")
+        
+        # Create orchestration summary
+        summary = InfrastructureOrchestrationSummary(
+            orchestration_id=orchestration_id,
+            total_tasks=0,
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_operations=0,
+            total_cost_impact=0.0,
+            success_rate=0.0,
+            providers=providers,
+            resource_types=resource_types or [],
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[orchestration_id] = summary
+        
+        try:
+            # Generate discovery tasks
+            tasks = self._generate_discovery_tasks(providers, resource_types)
+            summary.total_tasks = len(tasks)
+            
+            # Execute tasks based on strategy
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process results
+            self._process_discovery_results(results, summary)
+            
+            # Update summary
+            summary.end_time = datetime.utcnow()
+            summary.status = "completed" if summary.failed_tasks == 0 else "completed_with_errors"
+            
+            logger.info(f"Completed infrastructure discovery orchestration {orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute infrastructure discovery orchestration {orchestration_id}: {e}")
+            summary.status = "failed"
+            summary.end_time = datetime.utcnow()
+        
+        return summary
+    
+    def orchestrate_resource_operations(
+        self,
+        providers: List[str],
+        operations: List[Dict[str, Any]],
+        strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL,
+        orchestration_id: Optional[str] = None
+    ) -> InfrastructureOrchestrationSummary:
+        """Orchestrate infrastructure resource operations across providers"""
+        
+        if not orchestration_id:
+            orchestration_id = f"operations-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        
+        logger.info(f"Starting infrastructure operations orchestration {orchestration_id} for providers: {providers}")
+        
+        # Create orchestration summary
+        summary = InfrastructureOrchestrationSummary(
+            orchestration_id=orchestration_id,
+            total_tasks=0,
+            completed_tasks=0,
+            successful_tasks=0,
+            failed_tasks=0,
+            total_resources=0,
+            total_operations=len(operations),
+            total_cost_impact=0.0,
+            success_rate=0.0,
+            providers=providers,
+            resource_types=[],
+            start_time=datetime.utcnow()
+        )
+        
+        self.orchestrations[orchestration_id] = summary
+        
+        try:
+            # Generate operation tasks
+            tasks = self._generate_operation_tasks(operations)
+            summary.total_tasks = len(tasks)
+            
+            # Execute operation tasks based on strategy
+            if strategy == OrchestrationStrategy.SEQUENTIAL:
+                results = self._execute_tasks_sequential(tasks)
+            elif strategy == OrchestrationStrategy.PARALLEL:
+                results = self._execute_tasks_parallel(tasks)
+            elif strategy == OrchestrationStrategy.PRIORITY_BASED:
+                results = self._execute_tasks_priority(tasks)
+            else:
+                raise ValueError(f"Unknown orchestration strategy: {strategy}")
+            
+            # Process results
+            self._process_operation_results(results, summary)
+            
+            # Update summary
+            summary.end_time = datetime.utcnow()
+            summary.status = "completed" if summary.failed_tasks == 0 else "completed_with_errors"
+            
+            logger.info(f"Completed infrastructure operations orchestration {orchestration_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to execute infrastructure operations orchestration {orchestration_id}: {e}")
+            summary.status = "failed"
+            summary.end_time = datetime.utcnow()
+        
+        return summary
+    
+    def orchestrate_continuous_monitoring(
+        self,
+        providers: List[str],
+        resource_types: Optional[List[str]] = None,
+        interval_hours: int = 24
+    ) -> Dict[str, Any]:
+        """Orchestrate continuous infrastructure monitoring"""
+        
+        logger.info(f"Starting continuous infrastructure monitoring with {interval_hours}h interval")
+        
+        monitoring_config = {
+            'monitoring_id': f"monitoring-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            'providers': providers,
+            'resource_types': resource_types or ['compute', 'storage', 'networking'],
+            'interval_hours': interval_hours,
+            'last_run': None,
+            'next_run': datetime.utcnow() + timedelta(hours=interval_hours),
+            'status': 'active'
+        }
+        
+        # In a real implementation, this would set up a scheduler
+        # For now, just run one discovery and return config
+        
+        discovery_summary = self.orchestrate_resource_discovery(providers, resource_types)
+        
+        monitoring_config['last_run'] = discovery_summary.start_time.isoformat()
+        monitoring_config['last_discovery'] = asdict(discovery_summary)
+        
+        return monitoring_config
+    
+    def _generate_discovery_tasks(self, providers: List[str], resource_types: Optional[List[str]] = None) -> List[OrchestrationTask]:
+        """Generate resource discovery tasks"""
+        tasks = []
+        
+        for provider in providers:
+            task = OrchestrationTask(
+                task_id=f"task-{provider}-discovery-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                provider=provider,
+                action="discover_resources",
+                parameters={'resource_types': resource_types},
+                priority="high",
+                status="pending",
+                created_at=datetime.utcnow()
+            )
+            tasks.append(task)
+        
+        return tasks
+    
+    def _generate_operation_tasks(self, operations: List[Dict[str, Any]]) -> List[OrchestrationTask]:
+        """Generate infrastructure operation tasks"""
+        tasks = []
+        
+        for operation in operations:
+            provider = operation.get('provider', 'aws')
+            
+            task = OrchestrationTask(
+                task_id=f"task-{provider}-{operation.get('operation_type', 'unknown')}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                provider=provider,
+                action=operation.get('operation_type', 'unknown'),
+                parameters=operation,
+                priority=operation.get('priority', 'medium'),
+                status="pending",
+                created_at=datetime.utcnow()
+            )
+            tasks.append(task)
+        
+        return tasks
+    
+    def _execute_tasks_sequential(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks sequentially"""
+        results = []
+        
+        for task in tasks:
+            try:
+                result = self._execute_single_task(task)
+                results.append(result)
+            except Exception as e:
+                logger.error(f"Failed to execute task {task.task_id}: {e}")
+                results.append(OrchestrationResult(
+                    task_id=task.task_id,
+                    provider=task.provider,
+                    action=task.action,
+                    status="failed",
+                    success=False,
+                    error=str(e),
+                    started_at=datetime.utcnow(),
+                    completed_at=datetime.utcnow()
+                ))
+        
+        return results
+    
+    def _execute_tasks_parallel(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks in parallel"""
+        results = []
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all tasks
+            future_to_task = {
+                executor.submit(self._execute_single_task, task): task
+                for task in tasks
+            }
+            
+            # Collect results as they complete
+            for future in concurrent.futures.as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    logger.error(f"Failed to execute task {task.task_id}: {e}")
+                    results.append(OrchestrationResult(
+                        task_id=task.task_id,
+                        provider=task.provider,
+                        action=task.action,
+                        status="failed",
+                        success=False,
+                        error=str(e),
+                        started_at=datetime.utcnow(),
+                        completed_at=datetime.utcnow()
+                    ))
+        
+        return results
+    
+    def _execute_tasks_priority(self, tasks: List[OrchestrationTask]) -> List[OrchestrationResult]:
+        """Execute tasks based on priority"""
+        # Sort tasks by priority
+        priority_order = {'high': 0, 'medium': 1, 'low': 2}
+        tasks.sort(key=lambda t: priority_order.get(t.priority, 3))
+        
+        # Execute high priority tasks in parallel, then medium, then low
+        results = []
+        current_priority = None
+        current_batch = []
+        
+        for task in tasks:
+            if current_priority is None:
+                current_priority = task.priority
+                current_batch.append(task)
+            elif task.priority == current_priority:
+                current_batch.append(task)
+            else:
+                # Execute current batch
+                batch_results = self._execute_tasks_parallel(current_batch)
+                results.extend(batch_results)
+                
+                # Start new batch
+                current_priority = task.priority
+                current_batch = [task]
+        
+        # Execute last batch
+        if current_batch:
+            batch_results = self._execute_tasks_parallel(current_batch)
+            results.extend(batch_results)
+        
+        return results
+    
+    def _execute_single_task(self, task: OrchestrationTask) -> OrchestrationResult:
+        """Execute a single infrastructure management task"""
+        start_time = datetime.utcnow()
+        
+        try:
+            handler = self.handlers.get(task.provider)
+            if not handler:
+                raise ValueError(f"No handler available for provider: {task.provider}")
+            
+            if task.action == "discover_resources":
+                resource_types = task.parameters.get('resource_types')
+                resources = handler.discover_resources(resource_types)
+                result_data = {
+                    'resources': [asdict(resource) for resource in resources],
+                    'count': len(resources),
+                    'provider': task.provider
+                }
+            elif task.action == "create_resource":
+                resource_type = task.parameters.get('resource_type')
+                configuration = task.parameters.get('configuration', {})
+                operation = handler.create_resource(resource_type, configuration)
+                result_data = asdict(operation)
+            elif task.action == "update_resource":
+                resource_id = task.parameters.get('resource_id')
+                configuration = task.parameters.get('configuration', {})
+                operation = handler.update_resource(resource_id, configuration)
+                result_data = asdict(operation)
+            elif task.action == "delete_resource":
+                resource_id = task.parameters.get('resource_id')
+                operation = handler.delete_resource(resource_id)
+                result_data = asdict(operation)
+            elif task.action == "scale_resource":
+                resource_id = task.parameters.get('resource_id')
+                target_capacity = task.parameters.get('target_capacity')
+                operation = handler.scale_resource(resource_id, target_capacity)
+                result_data = asdict(operation)
+            elif task.action == "monitor_resource":
+                resource_id = task.parameters.get('resource_id')
+                monitoring_data = handler.monitor_resource(resource_id)
+                result_data = monitoring_data
+            else:
+                raise ValueError(f"Unknown task action: {task.action}")
+            
+            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            
+            return OrchestrationResult(
+                task_id=task.task_id,
+                provider=task.provider,
+                action=task.action,
+                status="completed",
+                success=True,
+                result=result_data,
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
+            )
+            
+        except Exception as e:
+            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            
+            return OrchestrationResult(
+                task_id=task.task_id,
+                provider=task.provider,
+                action=task.action,
+                status="failed",
+                success=False,
+                error=str(e),
+                execution_time=execution_time,
+                started_at=start_time,
+                completed_at=datetime.utcnow()
+            )
+    
+    def _process_discovery_results(self, results: List[OrchestrationResult], summary: InfrastructureOrchestrationSummary):
+        """Process discovery results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
+        
+        # Aggregate resource information
+        total_resources = 0
+        total_cost = 0.0
+        all_resource_types = set()
+        
+        for result in results:
+            if result.success and result.result:
+                total_resources += result.result.get('count', 0)
+                
+                # Calculate total cost from discovered resources
+                resources = result.result.get('resources', [])
+                for resource in resources:
+                    total_cost += resource.get('cost_per_hour', 0.0)
+                    all_resource_types.add(resource.get('resource_type', 'unknown'))
+        
+        summary.total_resources = total_resources
+        summary.total_cost_impact = total_cost
+        summary.resource_types = list(all_resource_types)
+    
+    def _process_operation_results(self, results: List[OrchestrationResult], summary: InfrastructureOrchestrationSummary):
+        """Process operation results and update summary"""
+        summary.completed_tasks = len(results)
+        summary.successful_tasks = len([r for r in results if r.success])
+        summary.failed_tasks = len([r for r in results if not r.success])
+        
+        # Aggregate operation information
+        total_cost_impact = 0.0
+        
+        for result in results:
+            if result.success and result.result:
+                # Extract cost impact from operations
+                if 'cost_impact' in result.result:
+                    total_cost_impact += result.result['cost_impact']
+        
+        summary.total_cost_impact = total_cost_impact
+        summary.success_rate = (summary.successful_tasks / summary.total_tasks * 100) if summary.total_tasks > 0 else 0.0
+    
+    def generate_infrastructure_report(self, orchestrations: List[str], output_format: str = "json") -> Dict[str, Any]:
+        """Generate comprehensive infrastructure management report"""
+        try:
+            # Collect all orchestration summaries
+            summaries = []
+            for orch_id in orchestrations:
+                summary = self.get_orchestration_status(orch_id)
+                if summary:
+                    summaries.append(asdict(summary))
+            
+            # Generate report
+            report = {
+                'report_metadata': {
+                    'report_id': f"infrastructure-management-report-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    'generated_at': datetime.utcnow().isoformat(),
+                    'orchestrations_analyzed': len(summaries),
+                    'format': output_format
+                },
+                'executive_summary': {
+                    'total_orchestrations': len(summaries),
+                    'total_tasks': sum(s['total_tasks'] for s in summaries),
+                    'successful_tasks': sum(s['successful_tasks'] for s in summaries),
+                    'failed_tasks': sum(s['failed_tasks'] for s in summaries),
+                    'overall_success_rate': 0.0,
+                    'total_resources': sum(s['total_resources'] for s in summaries),
+                    'total_operations': sum(s['total_operations'] for s in summaries),
+                    'total_cost_impact': sum(s['total_cost_impact'] for s in summaries)
+                },
+                'provider_analysis': {},
+                'resource_type_analysis': {},
+                'operation_analysis': {},
+                'recommendations': []
+            }
+            
+            # Calculate overall success rate
+            total_tasks = report['executive_summary']['total_tasks']
+            successful_tasks = report['executive_summary']['successful_tasks']
+            report['executive_summary']['overall_success_rate'] = (successful_tasks / total_tasks * 100) if total_tasks > 0 else 0.0
+            
+            # Analyze by provider
+            provider_data = {}
+            for summary in summaries:
+                for provider in summary['providers']:
+                    if provider not in provider_data:
+                        provider_data[provider] = {
+                            'orchestrations': 0,
+                            'tasks': 0,
+                            'successful_tasks': 0,
+                            'failed_tasks': 0,
+                            'resources': 0,
+                            'operations': 0,
+                            'cost_impact': 0.0
+                        }
+                    
+                    provider_data[provider]['orchestrations'] += 1
+                    provider_data[provider]['tasks'] += summary['total_tasks']
+                    provider_data[provider]['successful_tasks'] += summary['successful_tasks']
+                    provider_data[provider]['failed_tasks'] += summary['failed_tasks']
+                    provider_data[provider]['resources'] += summary['total_resources']
+                    provider_data[provider]['operations'] += summary['total_operations']
+                    provider_data[provider]['cost_impact'] += summary['total_cost_impact']
+            
+            report['provider_analysis'] = provider_data
+            
+            # Generate recommendations
+            recommendations = self._generate_infrastructure_recommendations(report)
+            report['recommendations'] = recommendations
+            
+            return report
+            
+        except Exception as e:
+            logger.error(f"Failed to generate infrastructure management report: {e}")
+            raise
+    
+    def _generate_infrastructure_recommendations(self, report: Dict[str, Any]) -> List[str]:
+        """Generate infrastructure management recommendations based on report data"""
+        recommendations = []
+        
+        success_rate = report['executive_summary']['overall_success_rate']
+        total_cost_impact = report['executive_summary']['total_cost_impact']
+        total_operations = report['executive_summary']['total_operations']
+        
+        if success_rate < 95:
+            recommendations.append(f"Overall operation success rate ({success_rate:.1f}%) is below 95%. Review failed operations.")
+        
+        if total_cost_impact > 1000:
+            recommendations.append(f"Significant cost impact detected (${total_cost_impact:.2f}). Review resource utilization and optimize costs.")
+        
+        if total_operations > 100:
+            recommendations.append(f"High volume of operations ({total_operations}). Consider automation and batch processing.")
+        
+        # Provider-specific recommendations
+        for provider, data in report['provider_analysis'].items():
+            provider_success_rate = (data['successful_tasks'] / data['tasks'] * 100) if data['tasks'] > 0 else 0.0
+            if provider_success_rate < 95:
+                recommendations.append(f"{provider.upper()} operation success rate ({provider_success_rate:.1f}%) needs improvement.")
+            
+            if data['cost_impact'] > 500:
+                recommendations.append(f"{provider.upper()} shows significant cost impact (${data['cost_impact']:.2f}). Focus optimization efforts here.")
+        
+        if not recommendations:
+            recommendations.append("Infrastructure management operations are performing well. Continue monitoring and periodic reviews.")
+        
+        return recommendations
+    
+    def get_orchestration_status(self, orchestration_id: str) -> Optional[InfrastructureOrchestrationSummary]:
+        """Get status of a specific orchestration"""
+        return self.orchestrations.get(orchestration_id)
+    
+    def get_all_orchestrations(self) -> Dict[str, InfrastructureOrchestrationSummary]:
+        """Get all orchestrations"""
+        return self.orchestrations
+    
+    def cleanup_completed_orchestrations(self, older_than_days: int = 7):
+        """Clean up old completed orchestrations"""
+        cutoff_date = datetime.utcnow() - timedelta(days=older_than_days)
+        
+        to_remove = []
+        for orch_id, summary in self.orchestrations.items():
+            if summary.end_time and summary.end_time < cutoff_date:
+                to_remove.append(orch_id)
+        
+        for orch_id in to_remove:
+            del self.orchestrations[orch_id]
+        
+        logger.info(f"Cleaned up {len(to_remove)} old orchestrations")
+
+def main():
+    """Example usage"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Multi-Cloud Infrastructure Manager Orchestrator")
+    parser.add_argument("--config", help="Configuration file")
+    parser.add_argument("--strategy", choices=[s.value for s in OrchestrationStrategy],
+                       default=OrchestrationStrategy.PARALLEL.value, help="Orchestration strategy")
+    parser.add_argument("--providers", nargs="+", 
+                       choices=['aws', 'azure', 'gcp', 'onprem'],
+                       default=['aws', 'azure', 'gcp', 'onprem'], help="Cloud providers")
+    parser.add_argument("--resource-types", nargs="+",
+                       choices=['compute', 'storage', 'networking', 'database'],
+                       default=['compute', 'storage'], help="Resource types")
+    parser.add_argument("--action", choices=['discover', 'operations', 'report'],
+                       default='discover', help="Action to perform")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
+    
+    args = parser.parse_args()
+    
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    
+    # Initialize orchestrator
+    orchestrator = MultiCloudInfrastructureManagerOrchestrator()
+    
+    # Initialize handlers
+    regions = {
+        'aws': 'us-west-2',
+        'azure': 'eastus', 
+        'gcp': 'us-central1',
+        'onprem': 'datacenter-1'
+    }
+    
+    init_success = orchestrator.initialize_handlers(args.providers, regions)
+    if not init_success:
+        print("Failed to initialize handlers")
+        return
+    
+    # Execute action
+    strategy = OrchestrationStrategy(args.strategy)
+    
+    if args.action == 'discover':
+        summary = orchestrator.orchestrate_resource_discovery(args.providers, args.resource_types, strategy)
+        
+        print(f"Infrastructure Discovery Summary:")
+        print(f"Orchestration ID: {summary.orchestration_id}")
+        print(f"Total Tasks: {summary.total_tasks}")
+        print(f"Completed Tasks: {summary.completed_tasks}")
+        print(f"Successful Tasks: {summary.successful_tasks}")
+        print(f"Failed Tasks: {summary.failed_tasks}")
+        print(f"Total Resources: {summary.total_resources}")
+        print(f"Total Cost Impact: ${summary.total_cost_impact:.2f}")
+        print(f"Providers: {', '.join(summary.providers)}")
+        print(f"Status: {summary.status}")
+        
+    elif args.action == 'operations':
+        # Sample operations
+        sample_operations = [
+            {
+                'provider': 'aws',
+                'operation_type': 'create_resource',
+                'resource_type': 'ec2_instance',
+                'configuration': {'name': 'test-instance', 'instance_type': 't3.micro'},
+                'priority': 'high'
+            },
+            {
+                'provider': 'azure',
+                'operation_type': 'create_resource',
+                'resource_type': 'virtual_machine',
+                'configuration': {'name': 'test-vm', 'vm_size': 'Standard_B1s'},
+                'priority': 'medium'
+            }
+        ]
+        
+        summary = orchestrator.orchestrate_resource_operations(args.providers, sample_operations, strategy)
+        
+        print(f"Infrastructure Operations Summary:")
+        print(f"Orchestration ID: {summary.orchestration_id}")
+        print(f"Total Tasks: {summary.total_tasks}")
+        print(f"Successful Tasks: {summary.successful_tasks}")
+        print(f"Failed Tasks: {summary.failed_tasks}")
+        print(f"Total Operations: {summary.total_operations}")
+        print(f"Total Cost Impact: ${summary.total_cost_impact:.2f}")
+        print(f"Success Rate: {summary.success_rate:.1f}%")
+        print(f"Status: {summary.status}")
+        
+    elif args.action == 'report':
+        # Run some operations first to generate data
+        discovery_summary = orchestrator.orchestrate_resource_discovery(args.providers, args.resource_types, strategy)
+        
+        report = orchestrator.generate_infrastructure_report([discovery_summary.orchestration_id])
+        
+        print(f"Infrastructure Management Report:")
+        print(f"Generated: {report['report_metadata']['generated_at']}")
+        print(f"Orchestrations: {report['executive_summary']['total_orchestrations']}")
+        print(f"Overall Success Rate: {report['executive_summary']['overall_success_rate']:.1f}%")
+        print(f"Total Resources: {report['executive_summary']['total_resources']}")
+        print(f"Total Operations: {report['executive_summary']['total_operations']}")
+        print(f"Total Cost Impact: ${report['executive_summary']['total_cost_impact']:.2f}")
+        
+        print("\nRecommendations:")
+        for rec in report['recommendations']:
+            print(f"  - {rec}")
+
+if __name__ == "__main__":
+    main()
     data: Optional[Dict[str, Any]]
     timestamp: datetime
     execution_time: float
