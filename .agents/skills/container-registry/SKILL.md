@@ -1,279 +1,138 @@
 ---
 name: container-registry
 description: >
-  Use this skill to manage container registries, image lifecycle, vulnerability
-  scanning, and image promotion pipelines. Triggers: any request to set up or
-  manage Azure Container Registry (ACR), push or pull images, scan for CVEs,
-  promote images from dev to prod registries, enforce image signing, clean up
-  old images, configure replication, manage access controls, or audit what
-  images are running in production.
-tools:
-  - bash
-  - computer
+  Manage container registries, image promotion, scanning, signing, and governance with AI guidance and dispatcher telemetry.
+allowed-tools:
+  - Bash
+  - Read
+  - Write
 ---
 
-# Container Registry Skill
+# Container Registry — World-class Supply Chain Playbook
 
-Manage the full container image lifecycle: build → scan → sign → promote →
-run → retire. Enforce supply chain security across all environments.
+Controls image lifecycle across dev/staging/prod registries (ACR, ECR, GCR, Harbor) with scanning/signing, promotion, retention, and access controls. Trigger for provisioning, vulnerability scanning, signing, promotion, cleanup, or audit/shielding requests.
 
----
+## When to invoke
+- Provision registries with geo-replication and private network access.
+- Scan images (trivy/cosign) pre-push or continuously.
+- Sign images, enforce policies, and promote from staging to prod.
+- Clean up stale images and report registry usage.
+- Respond to dispatcher alerts (`policy-risk`, `incident-ready`, `capacity-alert`) tied to image usage or CVE exposure.
 
-## Registry Architecture
+## Capabilities
+- Multi-tier registry architecture with scanning/promotions.
+- AI risk scoring for image promotions or scans (CVE criticality, policy violations).
+- Smart remediation (block, require re-scan, auto-rotate tags) and supply chain proofing.
+- Shared context `shared-context://memory-store/registry/<operationId>` for other skills.
+- Human-gated promotions or policy violations.
 
-```
-dev-registry.azurecr.io       (dev builds, unverified)
-       ↓ scan + sign
-staging-registry.azurecr.io   (verified, pre-prod)
-       ↓ approved promotion only
-prod-registry.azurecr.io      (signed, scanned, approved images only)
-       ↑
-  Geo-replicated to DR region
-```
-
----
-
-## ACR Provisioning
+## Invocation patterns
 
 ```bash
-az acr create \
-  --resource-group "$REGISTRY_RG" \
-  --name "$REGISTRY_NAME" \
-  --sku Premium \
-  --location "$REGION" \
-  --admin-enabled false \
-  --public-network-enabled false \
-  --tags "managed_by=container-registry" "env=$ENV"
-
-# Private endpoint for registry
-az network private-endpoint create \
-  --resource-group "$REGISTRY_RG" \
-  --name "pe-acr-${REGISTRY_NAME}" \
-  --vnet-name "vnet-hub-${REGION}" \
-  --subnet "snet-shared" \
-  --private-connection-resource-id "${ACR_ID}" \
-  --group-id registry
-
-# Geo-replication (Premium tier)
-az acr replication create \
-  --registry "$REGISTRY_NAME" \
-  --location "$DR_REGION"
+/container-registry provision --registry=prod --region=eastus --tier=premium
+/container-registry scan --image=tenant-app:v2.3.1 --severity=critical
+/container-registry sign --image=prod-registry.azurecr.io/tenant-app:v2.3.1 --backend=notation
+/container-registry promote --source=staging-registry --dest=prod-registry --image=tenant-app --tag=v2.3.1
+/container-registry audit --scope=production --policy=signature
 ```
 
----
+## Common parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `registry` | Registry alias (`dev-registry`, `prod-registry`). | `prod-registry` |
+| `image` | Image reference (registry/app:tag). | `tenant-app:v2.3.1` |
+| `severity` | CVE severities to fail on. | `critical` |
+| `backend` | Signing backend (notation/cosign). | `notation` |
+| `source` | Source registry for promotion. | `staging-registry` |
+| `policy` | Policy to audit (signature, policy-as-code). | `signature` |
 
-## Image Scanning
-
-### Pre-Push CVE Scan (CI gate)
-```bash
-scan_image() {
-  local image=$1
-  local fail_on=$2  # CRITICAL,HIGH
-
-  trivy image \
-    --format json \
-    --severity "${fail_on}" \
-    --exit-code 1 \
-    --ignore-unfixed \
-    "${image}" > "scan-${image//\//-}.json"
-
-  CRIT=$(jq '[.Results[].Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length' \
-    "scan-${image//\//-}.json")
-  HIGH=$(jq '[.Results[].Vulnerabilities[]? | select(.Severity=="HIGH")] | length' \
-    "scan-${image//\//-}.json")
-
-  echo "Scan complete: CRITICAL=$CRIT HIGH=$HIGH"
-  [[ "$fail_on" =~ "CRITICAL" && $CRIT -gt 0 ]] && return 1
-  [[ "$fail_on" =~ "HIGH" && $HIGH -gt 0 ]] && return 1
-  return 0
-}
-```
-
-### Continuous Scan (ACR Tasks)
-```bash
-# Enable continuous vulnerability scanning in ACR
-az acr task create \
-  --registry "$REGISTRY_NAME" \
-  --name continuous-scan \
-  --image "registry.hub.docker.com/aquasec/trivy:latest" \
-  --schedule "0 2 * * *" \
-  --cmd "trivy image --exit-code 0 --format json \
-    ${REGISTRY_NAME}.azurecr.io/\$IMAGE:\$TAG" \
-  --timeout 3600
-```
-
----
-
-## Image Signing (Notation / Cosign)
-
-```bash
-# Sign image with Notation + Azure Key Vault key
-notation sign "${REGISTRY_NAME}.azurecr.io/${IMAGE}:${TAG}" \
-  --plugin azure-kv \
-  --id "${KEY_VAULT_KEY_ID}" \
-  --signature-format cose
-
-# Verify signature
-notation verify "${REGISTRY_NAME}.azurecr.io/${IMAGE}:${TAG}" \
-  --policy policy.json
-
-# Enforce signed images via OPA Gatekeeper
-# (ImageSignatureRequired constraint — see policy-as-code skill)
-```
-
----
-
-## Image Promotion Pipeline
-
-```bash
-promote_image() {
-  local image=$1
-  local tag=$2
-  local source_reg=$3  # staging
-  local dest_reg=$4    # prod
-
-  # Step 1: Verify scan is clean
-  scan_image "${source_reg}.azurecr.io/${image}:${tag}" "CRITICAL" || {
-    echo "BLOCKED: Critical CVEs found — cannot promote to ${dest_reg}"
-    return 1
-  }
-
-  # Step 2: Verify signature
-  notation verify "${source_reg}.azurecr.io/${image}:${tag}" || {
-    echo "BLOCKED: Image not signed — cannot promote to ${dest_reg}"
-    return 1
-  }
-
-  # Step 3: Copy to destination registry
-  az acr import \
-    --name "$dest_reg" \
-    --source "${source_reg}.azurecr.io/${image}:${tag}" \
-    --image "${image}:${tag}" \
-    --force
-
-  # Step 4: Re-sign in destination registry
-  notation sign "${dest_reg}.azurecr.io/${image}:${tag}" \
-    --plugin azure-kv --id "${PROD_KEY_ID}" \
-    --signature-format cose
-
-  # Step 5: Quarantine source tag (prevent re-use)
-  az acr repository update \
-    --name "$source_reg" \
-    --image "${image}:${tag}" \
-    --write-enabled false
-
-  echo "Promoted: ${image}:${tag} → ${dest_reg}"
-}
-```
-
----
-
-## Image Lifecycle Management
-
-### Retention Policy (Auto-purge old images)
-```bash
-# Purge untagged manifests older than 7 days
-az acr run \
-  --registry "$REGISTRY_NAME" \
-  --cmd "acr purge \
-    --filter '${IMAGE_NAME}:.*' \
-    --untagged \
-    --ago 7d" \
-  /dev/null
-
-# Purge tagged images older than 90 days (non-prod only)
-az acr run \
-  --registry "$DEV_REGISTRY" \
-  --cmd "acr purge \
-    --filter '.*:.*' \
-    --ago 90d \
-    --keep 5" \
-  /dev/null
-```
-
-### Registry Storage Report
-```bash
-az acr show-usage --name "$REGISTRY_NAME" \
-  --query "[].{Name:name, Used:currentValue, Limit:limit, Unit:unit}" \
-  --output table
-
-# Top repositories by size
-az acr repository list --name "$REGISTRY_NAME" --output tsv | \
-  while read repo; do
-    size=$(az acr repository show-manifests --name "$REGISTRY_NAME" \
-      --repository "$repo" --query "[].imageSize" --output tsv | \
-      awk '{sum += $1} END {print sum}')
-    echo "${size} ${repo}"
-  done | sort -rn | head -20
-```
-
----
-
-## Access Control
-
-```bash
-# Assign AcrPull to AKS cluster identity (per-cluster)
-az role assignment create \
-  --assignee "$AKS_IDENTITY_ID" \
-  --role AcrPull \
-  --scope "/subscriptions/${SUB}/resourceGroups/${REGISTRY_RG}/providers/Microsoft.ContainerRegistry/registries/${REGISTRY_NAME}"
-
-# Grant CI pipeline push access
-az role assignment create \
-  --assignee "$CI_SP_ID" \
-  --role AcrPush \
-  --scope "${ACR_ID}"
-
-# Audit all role assignments on registry
-az role assignment list \
-  --scope "${ACR_ID}" \
-  --output json | \
-  jq -r '.[] | "\(.principalName): \(.roleDefinitionName)"'
-```
-
----
-
-## Production Image Audit
-
-```bash
-# What images are running in production right now?
-kubectl get pods -A -o json | \
-  jq -r '.items[] | .spec.containers[].image' | \
-  sort -u | \
-  while read image; do
-    # Check if it's from approved registry
-    [[ "$image" =~ "prod-registry.azurecr.io" ]] || \
-      echo "WARN: Non-prod image in cluster: $image"
-    # Check if signed
-    notation verify "$image" 2>/dev/null || \
-      echo "WARN: Unsigned image: $image"
-  done
-```
-
----
-
-## Examples
-
-- "Scan the payments-api:v2.3.1 image and block promotion if there are critical CVEs"
-- "Promote tenant-app:v1.5.0 from staging to prod registry after all gates pass"
-- "Clean up all untagged images in the dev registry older than 7 days"
-- "What images are currently running in production and are they all signed?"
-- "Set up ACR with geo-replication to West Europe and private endpoint access"
-
----
-
-## Output Format
+## Output contract
 
 ```json
 {
-  "operation": "scan|sign|promote|purge|audit|provision",
-  "image": "string",
-  "tag": "string",
-  "registry": "string",
-  "scan_result": { "critical": 0, "high": 0, "medium": 0 },
+  "operationId": "REG-2026-0315-01",
+  "operation": "provision|scan|sign|promote|purge|audit",
+  "status": "success|failure",
+  "image": "tenant-app:v2.3.1",
+  "registry": "prod-registry",
+  "riskScore": 0.45,
+  "scanResult": {
+    "critical": 0,
+    "high": 1,
+    "medium": 2
+  },
   "signed": true,
-  "promotion_status": "approved|blocked|pending",
-  "block_reason": null,
-  "status": "success|failure"
+  "promotionStatus": "approved",
+  "issues": [],
+  "decisionContext": "redis://memory-store/registry/REG-2026-0315-01",
+  "logs": "shared-context://memory-store/registry/REG-2026-0315-01"
 }
 ```
+
+## World-class workflow templates
+
+### Registry provisioning & hardening
+1. Provision registry (ACR/ECR/GCR) with private endpoints, geo-replication, and access policies.
+2. Set up scanning tasks, retention policies, and event subscriptions for CVE alerts.
+3. Emit `registry-provisioned` event with control-plane metadata.
+
+### Scanning, signing, and promotion
+1. Perform vulnerability scan (trivy/grype) pre-push or scheduled.
+2. Evaluate AI risk score (CVE severities, exposure, dependencies) and human gate for critical fixes.
+3. Sign images (notation/cosign) using vault-stored keys, enforce Gatekeeper policies.
+4. Promote approved images to prod, re-sign, quarantine old tags, and emit `image-promoted`.
+
+### Lifecycle/retention and auditing
+1. Purge stale/untagged images based on retention policies.
+2. Audit running images vs approved list; check signature status.
+3. Emit `registry-audit` event logging compliance posture.
+
+## AI intelligence highlights
+- **AI Risk Scoring**: combines CVE severity, dependency risk, and policy scores to decide gating/human approval.
+- **Smart Remediation**: suggests blocker vs continue actions, outlines effort/impact (e.g., rebase, re-scan).
+- **Predictive Supply Chain Alerts**: forecasts CVE churn to notify registries needing scans.
+
+## Memory agent & dispatcher integration
+- Store scan/sign/promotion metadata in `shared-context://memory-store/registry/<operationId>`.
+- Emit events: `registry-scanned`, `image-signed`, `image-promoted`, `registry-audit`.
+- Subscribe to dispatcher alerts (`policy-risk`, `incident-ready`, `capacity-alert`) to adjust promotions or scanning urgency.
+- Tag records with `decisionId`, `tenant`, `image`, `riskScore`.
+
+## Communication protocols
+- Primary: CLI commands (az acr, aws ecr, gcloud) and scanning tools outputting JSON.
+- Secondary: Event bus for `registry-*` events consumed by dispatcher and other skills.
+- Fallback: Artifact store entries (`artifact-store://registry/<operationId>.json`) for offline processing.
+
+## Observability & telemetry
+- Metrics: scans per window, critical findings, promotion success rate, rotation actions, riskScore distribution.
+- Logs: structured `log.event="registry.operation"` with `operation`, `image`, `decisionId`.
+- Dashboards: integrat `/container-registry metrics --format=prometheus`.
+- Alerts: riskScore ≥ 0.85, critical vulnerabilities > 0, promotion blocked > 2 in 1h.
+
+## Failure handling & retries
+- Retry scans/sign/promotion up to 2× on transient errors (API throttling, network).
+- On failure, emit `registry-operation-failed`, retain logs, notify `incident-triage-runbook`.
+- Preserve shared-context entries until downstream ack for audit.
+
+## Human gates
+- Required when:
+ 1. riskScore ≥ 0.7 or blocking critical CVEs.
+ 2. Promotion affects production/regulatory workloads.
+ 3. Dispatcher requests manual review after retries/failures.
+- Use standard human gate template.
+
+## Testing & validation
+- Dry-run: `/container-registry scan --image=test-app:latest --dry-run`.
+- Unit tests: `backend/registry/` ensures scan/promotion parser and risk scoring.
+- Integration: `scripts/validate-registry-stream.sh` runs scan → sign → promote flows.
+- Regression: nightly `scripts/nightly-registry-smoke.sh` ensures CVE detection accuracy and promotion gating.
+
+## References
+- Provisioning guides: `infrastructure/registry/`.
+- Scanning tools: `scripts/registry/trivy`.
+- Signing policies: `policy-as-code`.
+
+## Related skills
+- `/policy-as-code`: ensures signature/scan compliance.
+- `/incident-triage-runbook`: handles critical image findings.
+- `/ai-agent-orchestration`: orchestrates registry workflows with other skills.
