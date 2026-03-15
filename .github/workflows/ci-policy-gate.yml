@@ -1,0 +1,519 @@
+name: CI Policy Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.agents/**'
+      - 'docs/**'
+  push:
+    branches: [main]
+    paths:
+      - '.agents/**'
+      - 'docs/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate-agentskills-spec:
+    name: Validate Agent Skills Specification
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate SKILL.md Files
+        run: |
+          echo "Validating agent skills specification compliance..."
+          
+          # Check for required SKILL.md files
+          REQUIRED_SKILLS=("infrastructure-provisioning" "cluster-health-check" "resource-optimizer")
+          MISSING_SKILLS=()
+          
+          for skill in "${REQUIRED_SKILLS[@]}"; do
+            if [[ ! -f ".agents/$skill/SKILL.md" ]]; then
+              MISSING_SKILLS+=("$skill")
+            fi
+          done
+          
+          if [[ ${#MISSING_SKILLS[@]} -gt 0 ]]; then
+            echo "❌ Missing SKILL.md files: ${MISSING_SKILLS[*]}"
+            exit 1
+          fi
+          
+          echo "✅ All required SKILL.md files found"
+
+      - name: Validate SKILL.md Structure
+        run: |
+          echo "Validating SKILL.md frontmatter structure..."
+          
+          for skill_dir in .agents/*/; do
+            if [[ -f "$skill_dir/SKILL.md" ]]; then
+              skill_name=$(basename "$skill_dir")
+              echo "Validating $skill_name..."
+              
+              # Check for required frontmatter fields
+              if ! grep -q "^name:" "$skill_dir/SKILL.md"; then
+                echo "❌ $skill_name: Missing 'name' field"
+                exit 1
+              fi
+              
+              if ! grep -q "^description:" "$skill_dir/SKILL.md"; then
+                echo "❌ $skill_name: Missing 'description' field"
+                exit 1
+              fi
+              
+              if ! grep -q "^risk-level:" "$skill_dir/SKILL.md"; then
+                echo "❌ $skill_name: Missing 'risk-level' field"
+                exit 1
+              fi
+              
+              if ! grep -q "^autonomy:" "$skill_dir/SKILL.md"; then
+                echo "❌ $skill_name: Missing 'autonomy' field"
+                exit 1
+              fi
+              
+              echo "✅ $skill_name: SKILL.md structure valid"
+            fi
+          done
+
+  validate-python-code:
+    name: Validate Python Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8 mypy pydantic typer
+          pip install -r requirements.txt 2>/dev/null || echo "No requirements.txt found"
+
+      - name: Check Python formatting
+        run: |
+          echo "Checking Python code formatting with black..."
+          black --check .agents/ || {
+            echo "❌ Python code formatting issues found"
+            echo "Run 'black .agents/' to fix formatting"
+            exit 1
+          }
+          echo "✅ Python code formatting is correct"
+
+      - name: Lint Python code
+        run: |
+          echo "Linting Python code with flake8..."
+          flake8 .agents/ --max-line-length=100 --ignore=E203,W503 || {
+            echo "❌ Python linting issues found"
+            exit 1
+          }
+          echo "✅ Python code linting passed"
+
+      - name: Type checking
+        run: |
+          echo "Running type checking with mypy..."
+          mypy .agents/ --ignore-missing-imports --no-strict-optional || {
+            echo "❌ Type checking issues found"
+            exit 1
+          }
+          echo "✅ Type checking passed"
+
+  validate-dependencies:
+    name: Validate PEP 723 Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for PEP 723 Dependencies
+        run: |
+          echo "Validating PEP 723 dependency declarations..."
+          
+          PYTHON_SCRIPTS=$(find .agents -name "*.py" -type f)
+          MISSING_DEPS=()
+          
+          for script in $PYTHON_SCRIPTS; do
+            # Check if script has PEP 723 dependencies
+            if grep -q "# /// script" "$script"; then
+              if ! grep -q "dependencies = \[" "$script"; then
+                MISSING_DEPS+=("$script")
+              fi
+            else
+              # Scripts without PEP 723 should be in requirements.txt or have local imports
+              echo "⚠️  $script: No PEP 723 dependencies found"
+            fi
+          done
+          
+          if [[ ${#MISSING_DEPS[@]} -gt 0 ]]; then
+            echo "❌ Scripts with PEP 723 but missing dependencies:"
+            for script in "${MISSING_DEPS[@]}"; do
+              echo "  - $script"
+            done
+            exit 1
+          fi
+          
+          echo "✅ PEP 723 dependency validation passed"
+
+      - name: Validate Shared Models
+        run: |
+          echo "Validating shared models integration..."
+          
+          # Check if shared models exist
+          if [[ ! -f ".agents/shared/models.py" ]]; then
+            echo "❌ Shared models file not found"
+            exit 1
+          fi
+          
+          # Check if agents import shared models correctly
+          for agent_dir in .agents/*/scripts/; do
+            main_script="$agent_dir/main.py"
+            if [[ -f "$main_script" ]]; then
+              if grep -q "from.*shared.*models import" "$main_script"; then
+                echo "✅ $(basename $(dirname $agent_dir)): Imports shared models"
+              else
+                echo "⚠️  $(basename $(dirname $agent_dir)): No shared models import"
+              fi
+            fi
+          done
+
+  run-tests:
+    name: Run Agent Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agent: [infrastructure-provisioning, cluster-health-check, resource-optimizer]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pydantic typer
+          pip install boto3 azure-mgmt-compute google-cloud-compute kubernetes prometheus-client pandas numpy
+          
+          # Install agent-specific dependencies
+          cd .agents/${{ matrix.agent }}/scripts
+          pip install -e .
+
+      - name: Run Unit Tests
+        run: |
+          cd .agents/${{ matrix.agent }}/scripts
+          
+          # Find and run test files
+          if [[ -f "test_${{ matrix.agent }}_simple.py" ]]; then
+            python test_${{ matrix.agent }}_simple.py
+          elif [[ -f "test_${{ matrix.agent }}.py" ]]; then
+            python test_${{ matrix.agent }}.py
+          else
+            echo "⚠️  No test files found for ${{ matrix.agent }}"
+          fi
+
+      - name: Run Integration Tests
+        run: |
+          cd .agents/${{ matrix.agent }}/scripts
+          
+          # Test CLI interfaces
+          if [[ -f "main.py" ]]; then
+            python main.py --help
+            echo "✅ ${{ matrix.agent }} CLI interface working"
+          fi
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.agent }}
+          path: |
+            .agents/${{ matrix.agent }}/scripts/test-*.xml
+            .agents/${{ matrix.agent }}/scripts/.coverage
+          retention-days: 7
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Check for secrets
+        run: |
+          echo "Scanning for potential secrets..."
+          
+          # Check for common secret patterns
+          SECRETS_PATTERNS=(
+            "AKIA[0-9A-Z]{16}"
+            "[a-f0-9]{32}"
+            "-----BEGIN.*PRIVATE KEY-----"
+            "-----BEGIN.*CERTIFICATE-----"
+            "password[\"']?\s*[:=][\"']?\s*[^\s\"']+"
+            "secret[\"']?\s*[:=][\"']?\s*[^\s\"']+"
+            "token[\"']?\s*[:=][\"']?\s*[^\s\"']+"
+            "key[\"']?\s*[:=][\"']?\s*[^\s\"']+"
+          )
+          
+          FOUND_SECRETS=()
+          
+          for pattern in "${SECRETS_PATTERNS[@]}"; do
+            if grep -r -E "$pattern" .agents/ --exclude-dir=__pycache__; then
+              echo "❌ Potential secret found with pattern: $pattern"
+              FOUND_SECRETS+=("$pattern")
+            fi
+          done
+          
+          if [[ ${#FOUND_SECRETS[@]} -gt 0 ]]; then
+            echo "❌ Potential secrets detected. Please review and remove."
+            exit 1
+          fi
+          
+          echo "✅ No obvious secrets detected"
+
+  validate-documentation:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate README
+        run: |
+          echo "Validating documentation..."
+          
+          # Check main README exists
+          if [[ ! -f ".agents/README.md" ]]; then
+            echo "❌ Main agents README.md not found"
+            exit 1
+          fi
+          
+          # Check for required sections
+          REQUIRED_SECTIONS=(
+            "Quick Start"
+            "Available Skills"
+            "Usage Examples"
+            "Configuration"
+          )
+          
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if ! grep -q "$section" ".agents/README.md"; then
+              echo "❌ Missing section: $section"
+              exit 1
+            fi
+          done
+          
+          echo "✅ Documentation validation passed"
+
+      - name: Validate Examples
+        run: |
+          echo "Validating configuration examples..."
+          
+          if [[ ! -f ".agents/examples/config.template.json" ]]; then
+            echo "❌ Configuration template not found"
+            exit 1
+          fi
+          
+          # Validate JSON syntax
+          if ! python -m json.tool .agents/examples/config.template.json > /dev/null; then
+            echo "❌ Configuration template has invalid JSON syntax"
+            exit 1
+          fi
+          
+          echo "✅ Configuration examples are valid"
+
+  policy-compliance:
+    name: Policy Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Risk Levels
+        run: |
+          echo "Validating risk level assignments..."
+          
+          for skill_dir in .agents/*/; do
+            if [[ -f "$skill_dir/SKILL.md" ]]; then
+              skill_name=$(basename "$skill_dir")
+              
+              # Extract risk level
+              risk_level=$(grep "^risk-level:" "$skill_dir/SKILL.md" | sed 's/risk-level: //' | tr -d ' ')
+              
+              # Extract autonomy level
+              autonomy=$(grep "^autonomy:" "$skill_dir/SKILL.md" | sed 's/autonomy: //' | tr -d ' ')
+              
+              echo "$skill_name: risk=$risk_level, autonomy=$autonomy"
+              
+              # Validate risk/autonomy combinations
+              case "$risk_level" in
+                "low")
+                  # Low risk can be any autonomy
+                  ;;
+                "medium")
+                  # Medium risk should not be fully_auto
+                  if [[ "$autonomy" == "fully_auto" ]]; then
+                    echo "❌ $skill_name: Medium risk with fully_auto autonomy not allowed"
+                    exit 1
+                  fi
+                  ;;
+                "high")
+                  # High risk must require PR
+                  if [[ "$autonomy" != "requires_PR" ]]; then
+                    echo "❌ $skill_name: High risk must have requires_PR autonomy"
+                    exit 1
+                  fi
+                  ;;
+              esac
+            fi
+          done
+          
+          echo "✅ Risk level validation passed"
+
+      - name: Check Human Gates
+        run: |
+          echo "Validating human gate configurations..."
+          
+          for skill_dir in .agents/*/; do
+            if [[ -f "$skill_dir/SKILL.md" ]]; then
+              skill_name=$(basename "$skill_dir")
+              
+              # Check if human gate section exists
+              if grep -q "## Human Gate Requirements" "$skill_dir/SKILL.md"; then
+                echo "✅ $skill_name: Has human gate requirements"
+              else
+                echo "⚠️  $skill_name: No human gate requirements section"
+              fi
+            fi
+          done
+
+  generate-report:
+    name: Generate Validation Report
+    runs-on: ubuntu-latest
+    needs: [validate-agentskills-spec, validate-python-code, validate-dependencies, run-tests, security-scan, validate-documentation, policy-compliance]
+    if: always()
+    
+    steps:
+      - name: Generate Summary Report
+        run: |
+          echo "# CI Policy Gate Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check each job status
+          if [[ "${{ needs.validate-agentskills-spec.result }}" == "success" ]]; then
+            echo "✅ Agent Skills Specification: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Agent Skills Specification: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.validate-python-code.result }}" == "success" ]]; then
+            echo "✅ Python Code Quality: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Python Code Quality: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.validate-dependencies.result }}" == "success" ]]; then
+            echo "✅ Dependencies: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Dependencies: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.run-tests.result }}" == "success" ]]; then
+            echo "✅ Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.security-scan.result }}" == "success" ]]; then
+            echo "✅ Security Scan: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Security Scan: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.validate-documentation.result }}" == "success" ]]; then
+            echo "✅ Documentation: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Documentation: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.policy-compliance.result }}" == "success" ]]; then
+            echo "✅ Policy Compliance: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Policy Compliance: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Overall Status" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine overall status
+          FAILED_JOBS=()
+          if [[ "${{ needs.validate-agentskills-spec.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Agent Skills Specification")
+          fi
+          if [[ "${{ needs.validate-python-code.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Python Code Quality")
+          fi
+          if [[ "${{ needs.validate-dependencies.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Dependencies")
+          fi
+          if [[ "${{ needs.run-tests.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Tests")
+          fi
+          if [[ "${{ needs.security-scan.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Security Scan")
+          fi
+          if [[ "${{ needs.validate-documentation.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Documentation")
+          fi
+          if [[ "${{ needs.policy-compliance.result }}" != "success" ]]; then
+            FAILED_JOBS+=("Policy Compliance")
+          fi
+          
+          if [[ ${#FAILED_JOBS[@]} -eq 0 ]]; then
+            echo "🎉 **ALL CHECKS PASSED** - Ready for merge!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **FAILED CHECKS** - Please address the following:" >> $GITHUB_STEP_SUMMARY
+            for job in "${FAILED_JOBS[@]}"; do
+              echo "- $job" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
+      - name: Notify Results
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#ci-cd'
+          text: |
+            CI Policy Gate ${{ job.status }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

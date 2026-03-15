@@ -1,0 +1,539 @@
+name: Agent Skills - Resource Optimizer
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        description: Action to perform
+        options:
+          - analyze
+          - optimize
+          - report
+      resource_type:
+        required: false
+        type: choice
+        description: Resource type to analyze
+        options:
+          - all
+          - compute
+          - storage
+          - network
+          - database
+        default: all
+      provider:
+        required: false
+        type: choice
+        description: Cloud provider
+        options:
+          - aws
+          - azure
+          - gcp
+          - all
+        default: all
+      environment:
+        required: false
+        type: choice
+        description: Target environment
+        options:
+          - development
+          - staging
+          - production
+        default: production
+      optimization_type:
+        required: false
+        type: choice
+        description: Optimization type
+        options:
+          - cost
+          - performance
+          - security
+        default: cost
+      savings_target:
+        required: false
+        type: string
+        description: Target savings percentage (for analyze action)
+      auto_apply:
+        required: false
+        type: boolean
+        description: Automatically apply optimizations (optimize action only)
+        default: false
+      dry_run:
+        required: false
+        type: boolean
+        description: Dry run mode
+        default: true
+      time_range:
+        required: false
+        type: choice
+        description: Time range for reports
+        options:
+          - 1d
+          - 7d
+          - 30d
+        default: 7d
+      output_format:
+        required: false
+        type: choice
+        description: Report output format
+        options:
+          - table
+          - json
+          - csv
+        default: table
+
+  schedule:
+    # Run cost analysis daily at 3 AM
+    - cron: '0 3 * * *'
+    # Run comprehensive optimization weekly on Sunday at 2 AM
+    - cron: '0 2 * * 0'
+    # Generate monthly reports on the 1st at 1 AM
+    - cron: '0 1 1 * *'
+
+  push:
+    branches: [main]
+    paths:
+      - '.agents/resource-optimizer/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate:
+    name: Validate Optimization Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      risk-level: ${{ steps.risk-assessment.outputs.risk-level }}
+      requires-approval: ${{ steps.risk-assessment.outputs.requires-approval }}
+      estimated-savings: ${{ steps.estimate-savings.outputs.estimated-savings }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
+          cd .agents/resource-optimizer/scripts
+          pip install -e .
+
+      - name: Risk Assessment
+        id: risk-assessment
+        run: |
+          # Determine risk level based on inputs
+          RISK_LEVEL="low"
+          REQUIRES_APPROVAL="false"
+          
+          if [[ "${{ github.event.inputs.action }}" == "optimize" ]]; then
+            RISK_LEVEL="medium"
+            REQUIRES_APPROVAL="true"
+          fi
+          
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            if [[ "${{ github.event.inputs.action }}" == "optimize" && "${{ github.event.inputs.auto_apply }}" == "true" ]]; then
+              RISK_LEVEL="high"
+            fi
+          fi
+          
+          if [[ "${{ github.event.inputs.auto_apply }}" == "true" ]]; then
+            REQUIRES_APPROVAL="true"
+          fi
+          
+          echo "risk-level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+          echo "requires-approval=$REQUIRES_APPROVAL" >> $GITHUB_OUTPUT
+          
+          echo "Risk Level: $RISK_LEVEL"
+          echo "Requires Approval: $REQUIRES_APPROVAL"
+
+      - name: Estimate Potential Savings
+        id: estimate-savings
+        run: |
+          # Quick estimation based on resource type and environment
+          ESTIMATED_SAVINGS="0"
+          
+          case "${{ github.event.inputs.resource_type }}" in
+            "compute")
+              ESTIMATED_SAVINGS="500"
+              ;;
+            "storage")
+              ESTIMATED_SAVINGS="200"
+              ;;
+            "network")
+              ESTIMATED_SAVINGS="150"
+              ;;
+            "database")
+              ESTIMATED_SAVINGS="300"
+              ;;
+            "all")
+              ESTIMATED_SAVINGS="1150"
+              ;;
+          esac
+          
+          # Adjust for environment
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            ESTIMATED_SAVINGS=$(($ESTIMATED_SAVINGS * 3))
+          elif [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
+            ESTIMATED_SAVINGS=$(($ESTIMATED_SAVINGS * 2))
+          fi
+          
+          echo "estimated-savings=$ESTIMATED_SAVINGS" >> $GITHUB_OUTPUT
+          echo "Estimated Monthly Savings: $$ESTIMATED_SAVINGS"
+
+      - name: Validate Configuration
+        run: |
+          cd .agents/resource-optimizer/scripts
+          python main.py validate-config --config ../../examples/config.template.json
+
+      - name: Check Cost Thresholds
+        run: |
+          echo "Checking cost optimization thresholds..."
+          # Add logic to validate against organizational cost policies
+
+  human-approval:
+    name: Human Approval Required
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.requires-approval == 'true'
+    
+    steps:
+      - name: Request Human Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: team/infrastructure,team/finance
+          minimum-approvals: 2
+          issue-title: "Resource Optimization Approval Required"
+          issue-body: |
+            ## Resource Optimization Approval Request
+            
+            **Action:** ${{ github.event.inputs.action }}
+            **Resource Type:** ${{ github.event.inputs.resource_type }}
+            **Provider:** ${{ github.event.inputs.provider }}
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Optimization Type:** ${{ github.event.inputs.optimization_type }}
+            **Auto Apply:** ${{ github.event.inputs.auto_apply }}
+            **Dry Run:** ${{ github.event.inputs.dry_run }}
+            **Risk Level:** ${{ needs.validate.outputs.risk-level }}
+            **Estimated Savings:** ${{ needs.validate.outputs.estimated-savings }}$/month
+            
+            Please review and approve if this optimization is safe and beneficial.
+            
+            **Cost Impact:** This optimization could save approximately ${{ needs.validate.outputs.estimated-savings }} per month.
+            **Risk Assessment:** ${{ needs.validate.outputs.risk-level }} risk level.
+
+  execute-analysis:
+    name: Execute Resource Analysis
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event.inputs.action == 'analyze' || github.event.action == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure Cloud Credentials
+        run: |
+          # Configure credentials based on provider
+          if [[ "${{ github.event.inputs.provider }}" == "aws" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring AWS credentials..."
+            # AWS credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "azure" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring Azure credentials..."
+            # Azure credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "gcp" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring GCP credentials..."
+            # GCP credentials setup
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
+          cd .agents/resource-optimizer/scripts
+          pip install -e .
+
+      - name: Execute Resource Analysis
+        run: |
+          cd .agents/resource-optimizer/scripts
+          
+          # Build command based on inputs
+          CMD="python main.py analyze"
+          CMD="$CMD --type ${{ github.event.inputs.resource_type }}"
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          CMD="$CMD --optimization ${{ github.event.inputs.optimization_type }}"
+          
+          if [[ "${{ github.event.inputs.savings_target }}" != "" ]]; then
+            CMD="$CMD --savings-target ${{ github.event.inputs.savings_target }}"
+          fi
+          
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+
+      - name: Upload Analysis Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resource-analysis-results
+          path: |
+            resource-analysis-*.json
+            resource-analysis-*.csv
+            optimization-recommendations-*.json
+          retention-days: 30
+
+      - name: Create Summary Report
+        run: |
+          echo "## Resource Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Type:** ${{ github.event.inputs.resource_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Provider:** ${{ github.event.inputs.provider }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Optimization Type:** ${{ github.event.inputs.optimization_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Estimated Savings:** ${{ needs.validate.outputs.estimated-savings }}$/month" >> $GITHUB_STEP_SUMMARY
+
+  execute-optimization:
+    name: Execute Resource Optimization
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: github.event.inputs.action == 'optimize' && (needs.validate.outputs.requires-approval == 'false' || success())
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure Cloud Credentials
+        run: |
+          # Configure credentials based on provider
+          if [[ "${{ github.event.inputs.provider }}" == "aws" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring AWS credentials..."
+            # AWS credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "azure" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring Azure credentials..."
+            # Azure credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "gcp" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring GCP credentials..."
+            # GCP credentials setup
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
+          cd .agents/resource-optimizer/scripts
+          pip install -e .
+
+      - name: Execute Resource Optimization
+        run: |
+          cd .agents/resource-optimizer/scripts
+          
+          # Build command based on inputs
+          CMD="python main.py optimize"
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --optimization ${{ github.event.inputs.optimization_type }}"
+          
+          if [[ "${{ github.event.inputs.auto_apply }}" == "true" ]]; then
+            CMD="$CMD --apply"
+          fi
+          
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            CMD="$CMD --dry-run"
+          fi
+          
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+
+      - name: Upload Optimization Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resource-optimization-results
+          path: |
+            resource-optimization-*.json
+            applied-optimizations-*.json
+            optimization-rollback-*.json
+          retention-days: 30
+
+      - name: Track Actual Savings
+        run: |
+          echo "Tracking actual savings from optimizations..."
+          # Add logic to track and report actual cost savings
+
+  generate-report:
+    name: Generate Optimization Report
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event.inputs.action == 'report' || github.event.action == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer pandas numpy
+          cd .agents/resource-optimizer/scripts
+          pip install -e .
+
+      - name: Generate Optimization Report
+        run: |
+          cd .agents/resource-optimizer/scripts
+          
+          CMD="python main.py report"
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          CMD="$CMD --range ${{ github.event.inputs.time_range }}"
+          CMD="$CMD --format ${{ github.event.inputs.output_format }}"
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Generating optimization report: $CMD"
+          eval $CMD
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimization-report
+          path: |
+            optimization-report-*.json
+            optimization-report-*.html
+            optimization-report-*.csv
+          retention-days: 90
+
+      - name: Publish to Dashboard
+        run: |
+          echo "Publishing optimization report to dashboard..."
+          # Add logic to publish report to internal dashboard
+
+  cost-threshold-alert:
+    name: Cost Threshold Alert
+    runs-on: ubuntu-latest
+    needs: [execute-analysis]
+    if: failure() && needs.execute-analysis.result == 'failure'
+    
+    steps:
+      - name: Download Analysis Results
+        uses: actions/download-artifact@v4
+        with:
+          name: resource-analysis-results
+          path: ./results
+
+      - name: Check Cost Thresholds
+        id: check-costs
+        run: |
+          EXCEEDS_THRESHOLD=false
+          
+          if [[ -f "./results/resource-analysis-*.json" ]]; then
+            # Check if costs exceed thresholds
+            if grep -q '"estimated_savings"' ./results/resource-analysis-*.json; then
+              # Parse and check savings against thresholds
+              SAVINGS=$(grep '"estimated_savings"' ./results/resource-analysis-*.json | jq -r '.estimated_savings' 2>/dev/null || echo "0")
+              
+              if [[ $SAVINGS -gt 1000 ]]; then
+                EXCEEDS_THRESHOLD=true
+              fi
+            fi
+          fi
+          
+          echo "exceeds-threshold=$EXCEEDS_THRESHOLD" >> $GITHUB_OUTPUT
+
+      - name: Create Cost Alert Issue
+        if: steps.check-costs.outputs.exceeds-threshold == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '💰 High Cost Savings Opportunity Detected',
+              body: `Significant cost savings opportunities have been identified.
+              
+              **Resource Type:** ${{ github.event.inputs.resource_type }}
+              **Provider:** ${{ github.event.inputs.provider }}
+              **Environment:** ${{ github.event.inputs.environment }}
+              **Optimization Type:** ${{ github.event.inputs.optimization_type }}
+              **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              **Estimated Monthly Savings:** ${{ needs.validate.outputs.estimated-savings }}
+              
+              Please review and consider implementing these cost optimizations.`,
+              labels: ['cost-optimization', 'savings-opportunity', 'alert']
+            })
+
+      - name: Notify Finance Team
+        if: steps.check-costs.outputs.exceeds-threshold == 'true'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#finance-alerts'
+          text: |
+            💰 **HIGH COST SAVINGS OPPORTUNITY**
+            
+            Resource Type: ${{ github.event.inputs.resource_type }}
+            Environment: ${{ github.event.inputs.environment }}
+            Provider: ${{ github.event.inputs.provider }}
+            Estimated Monthly Savings: ${{ needs.validate.outputs.estimated-savings }}
+            
+            Review optimization recommendations in workflow artifacts.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  notify-results:
+    name: Notify Optimization Results
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: always()
+    
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#optimization'
+          text: |
+            Resource Optimization ${{ job.status }}
+            Action: ${{ github.event.inputs.action }}
+            Environment: ${{ github.event.inputs.environment }}
+            Estimated Savings: ${{ needs.validate.outputs.estimated-savings }}$/month
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Update Cost Dashboard
+        run: |
+          echo "Updating cost optimization dashboard..."
+          # Add logic to update cost dashboard with latest results

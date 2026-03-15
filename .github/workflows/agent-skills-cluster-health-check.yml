@@ -1,0 +1,402 @@
+name: Agent Skills - Cluster Health Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        description: Action to perform
+        options:
+          - check
+          - monitor
+          - report
+      cluster_name:
+        required: false
+        type: string
+        description: Cluster name to check
+      provider:
+        required: false
+        type: choice
+        description: Cloud provider
+        options:
+          - aws
+          - azure
+          - gcp
+          - onprem
+          - all
+        default: all
+      environment:
+        required: false
+        type: choice
+        description: Target environment
+        options:
+          - development
+          - staging
+          - production
+        default: production
+      check_types:
+        required: false
+        type: string
+        description: Health check types (comma-separated: node,pod,network,storage)
+        default: "node,pod,network"
+      severity:
+        required: false
+        type: choice
+        description: Minimum severity to report
+        options:
+          - info
+          - warning
+          - critical
+        default: warning
+      interval:
+        required: false
+        type: string
+        description: Monitoring interval in seconds (for monitor action)
+        default: "300"
+
+  schedule:
+    # Run health checks every hour
+    - cron: '0 * * * *'
+    # Run comprehensive health checks daily at 2 AM
+    - cron: '0 2 * * *'
+
+  push:
+    branches: [main]
+    paths:
+      - '.agents/cluster-health-check/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate:
+    name: Validate Health Check Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      risk-level: ${{ steps.risk-assessment.outputs.risk-level }}
+      requires-approval: ${{ steps.risk-assessment.outputs.requires-approval }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer kubernetes prometheus-client
+          cd .agents/cluster-health-check/scripts
+          pip install -e .
+
+      - name: Risk Assessment
+        id: risk-assessment
+        run: |
+          # Health checks are generally low risk
+          RISK_LEVEL="low"
+          REQUIRES_APPROVAL="false"
+          
+          # Production monitoring might require approval for automated actions
+          if [[ "${{ github.event.inputs.action }}" == "monitor" && "${{ github.event.inputs.environment }}" == "production" ]]; then
+            RISK_LEVEL="medium"
+            REQUIRES_APPROVAL="true"
+          fi
+          
+          echo "risk-level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+          echo "requires-approval=$REQUIRES_APPROVAL" >> $GITHUB_OUTPUT
+          
+          echo "Risk Level: $RISK_LEVEL"
+          echo "Requires Approval: $REQUIRES_APPROVAL"
+
+      - name: Validate Configuration
+        run: |
+          cd .agents/cluster-health-check/scripts
+          python main.py validate-config --config ../../examples/config.template.json
+
+      - name: Test Cluster Connectivity
+        run: |
+          cd .agents/cluster-health-check/scripts
+          python main.py test-connectivity --config ../../examples/config.template.json
+
+  execute-health-check:
+    name: Execute Health Check
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event.inputs.action == 'check' || github.event.action == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure AWS Credentials
+        if: contains(github.event.inputs.provider, 'aws') || github.event.inputs.provider == 'all'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Configure Azure Credentials
+        if: contains(github.event.inputs.provider, 'azure') || github.event.inputs.provider == 'all'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure GCP Credentials
+        if: contains(github.event.inputs.provider, 'gcp') || github.event.inputs.provider == 'all'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer kubernetes prometheus-client boto3 azure-mgmt-compute google-cloud-compute
+          cd .agents/cluster-health-check/scripts
+          pip install -e .
+
+      - name: Execute Health Check
+        run: |
+          cd .agents/cluster-health-check/scripts
+          
+          # Build command based on inputs
+          CMD="python main.py check"
+          
+          if [[ "${{ github.event.inputs.cluster_name }}" != "" ]]; then
+            CMD="$CMD ${{ github.event.inputs.cluster_name }}"
+          else
+            CMD="$CMD all-clusters"
+          fi
+          
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --checks ${{ github.event.inputs.check_types }}"
+          CMD="$CMD --severity ${{ github.event.inputs.severity }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+
+      - name: Upload Health Check Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: health-check-results
+          path: |
+            health-check-*.json
+            health-check-*.log
+          retention-days: 7
+
+      - name: Update Health Status Dashboard
+        run: |
+          echo "Updating health status dashboard..."
+          # Add logic to update Grafana dashboard or internal monitoring system
+
+  continuous-monitoring:
+    name: Continuous Monitoring
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event.inputs.action == 'monitor'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Configure Cloud Credentials
+        run: |
+          # Configure credentials based on provider
+          if [[ "${{ github.event.inputs.provider }}" == "aws" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring AWS credentials..."
+            # AWS credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "azure" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring Azure credentials..."
+            # Azure credentials setup
+          fi
+          
+          if [[ "${{ github.event.inputs.provider }}" == "gcp" || "${{ github.event.inputs.provider }}" == "all" ]]; then
+            echo "Configuring GCP credentials..."
+            # GCP credentials setup
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer kubernetes prometheus-client
+          cd .agents/cluster-health-check/scripts
+          pip install -e .
+
+      - name: Start Continuous Monitoring
+        timeout-minutes: 60
+        run: |
+          cd .agents/cluster-health-check/scripts
+          
+          # Build monitoring command
+          CMD="python main.py monitor"
+          
+          if [[ "${{ github.event.inputs.cluster_name }}" != "" ]]; then
+            CMD="$CMD ${{ github.event.inputs.cluster_name }}"
+          else
+            CMD="$CMD all-clusters"
+          fi
+          
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --interval ${{ github.event.inputs.interval }}"
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Starting continuous monitoring: $CMD"
+          eval $CMD
+
+      - name: Upload Monitoring Logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: monitoring-logs
+          path: |
+            monitoring-*.log
+            cluster-metrics-*.json
+          retention-days: 3
+
+  generate-report:
+    name: Generate Health Report
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event.inputs.action == 'report' || github.event.action == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typer kubernetes prometheus-client
+          cd .agents/cluster-health-check/scripts
+          pip install -e .
+
+      - name: Generate Health Report
+        run: |
+          cd .agents/cluster-health-check/scripts
+          
+          CMD="python main.py report"
+          CMD="$CMD --provider ${{ github.event.inputs.provider }}"
+          CMD="$CMD --env ${{ github.event.inputs.environment }}"
+          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --verbose"
+          
+          echo "Generating health report: $CMD"
+          eval $CMD
+
+      - name: Upload Health Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: |
+            health-report-*.json
+            health-report-*.html
+          retention-days: 30
+
+      - name: Publish Report to Dashboard
+        run: |
+          echo "Publishing health report to dashboard..."
+          # Add logic to publish report to internal dashboard
+
+  alert-on-critical-issues:
+    name: Alert on Critical Issues
+    runs-on: ubuntu-latest
+    needs: [execute-health-check]
+    if: failure() && needs.execute-health-check.result == 'failure'
+    
+    steps:
+      - name: Download Results
+        uses: actions/download-artifact@v4
+        with:
+          name: health-check-results
+          path: ./results
+
+      - name: Check for Critical Issues
+        id: check-issues
+        run: |
+          CRITICAL_ISSUES=false
+          
+          if [[ -f "./results/health-check-*.json" ]]; then
+            # Check for critical health issues in results
+            if grep -q "critical" ./results/health-check-*.json; then
+              CRITICAL_ISSUES=true
+            fi
+          fi
+          
+          echo "critical-issues=$CRITICAL_ISSUES" >> $GITHUB_OUTPUT
+
+      - name: Create Alert Issue
+        if: steps.check-issues.outputs.critical-issues == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Critical Cluster Health Issues Detected',
+              body: `Critical health issues have been detected in the cluster health check.
+              
+              **Environment:** ${{ github.event.inputs.environment }}
+              **Provider:** ${{ github.event.inputs.provider }}
+              **Cluster:** ${{ github.event.inputs.cluster_name }}
+              **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              Please investigate immediately and resolve the critical issues.
+              
+              **Health Check Results:** Available in workflow artifacts.`,
+              labels: ['cluster-health', 'critical', 'alert']
+            })
+
+      - name: Notify Slack
+        if: steps.check-issues.outputs.critical-issues == 'true'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#cluster-alerts'
+          text: |
+            🚨 **CRITICAL CLUSTER HEALTH ISSUES DETECTED**
+            
+            Environment: ${{ github.event.inputs.environment }}
+            Provider: ${{ github.event.inputs.provider }}
+            Cluster: ${{ github.event.inputs.cluster_name }}
+            
+            Immediate attention required!
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Page On-Call Engineer
+        if: steps.check-issues.outputs.critical-issues == 'true'
+        run: |
+          echo "Paging on-call engineer for critical cluster issues..."
+          # Add pager duty or other alerting integration
