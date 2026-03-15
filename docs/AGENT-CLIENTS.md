@@ -1,4 +1,4 @@
-# Agent clients & Locally and Remotely (GitHub Codespaces via Azure)
+# Agent clients: Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure)
 
 This repo's automation is provider-agnostic, but many contributors run the scripts through an AI agent or coding assistant. Documented below are the six major agentic coding clients we support, along with platform-specific guidance for getting a POSIX shell in each environment.
 
