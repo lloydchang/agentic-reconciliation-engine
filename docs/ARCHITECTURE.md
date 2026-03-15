@@ -137,10 +137,12 @@ annotations:
 ```
 
 **Schema validation**
+
 - `kubeconform` against current Crossplane XRD schemas
 - Flux Kustomization dry-run against hub API server (read-only)
 
 **OPA / Conftest policies**
+
 - Naming conventions enforced
 - Required tags/labels on all cloud resources
 - Cost guardrail: flag resources above defined threshold for platform team review
@@ -223,6 +225,7 @@ The hub is a single coordination point. Hub failure pauses new reconciliation an
 provisioning. Spokes continue on last-applied state.
 
 **Minimum HA configuration:**
+
 - 3+ control plane nodes across availability zones (managed by the cloud provider)
 - Dedicated node pools for Crossplane and CAPI controllers
 - etcd backup to object storage on a schedule; verify restores quarterly

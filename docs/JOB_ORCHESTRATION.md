@@ -9,6 +9,7 @@ This guide explains how to implement comprehensive job orchestration with Flux f
 ## 🏗 Architecture
 
 ### **Deployment Pipeline**
+
 ```
 Pre-Deploy Jobs → Application Deployment → Post-Deploy Jobs → Monitoring
        ↓                    ↓                    ↓              ↓
@@ -18,6 +19,7 @@ Pre-Deploy Jobs → Application Deployment → Post-Deploy Jobs → Monitoring
 ```
 
 ### **Job Categories**
+
 - **Pre-Deploy**: Database migrations, backups, environment preparation
 - **Deploy**: Application deployment with dependency management
 - **Post-Deploy**: Cache refresh, health checks, monitoring setup
@@ -29,6 +31,7 @@ Pre-Deploy Jobs → Application Deployment → Post-Deploy Jobs → Monitoring
 ### **🔄 Pre-Deployment Jobs**
 
 #### **Database Migration Job**
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -50,6 +53,7 @@ spec:
 ```
 
 #### **Database Backup Job**
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -68,6 +72,7 @@ spec:
 ```
 
 ### **🚀 Application Deployment**
+
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -83,6 +88,7 @@ spec:
 ### **📊 Post-Deployment Jobs**
 
 #### **Cache Refresh Job**
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -98,6 +104,7 @@ spec:
 ```
 
 #### **Health Check Job**
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -117,6 +124,7 @@ spec:
 ## 🔧 Flux Configuration
 
 ### **Dependency Management**
+
 ```yaml
 # Pre-Deploy Jobs
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -155,6 +163,7 @@ spec:
 ```
 
 ### **Key Configuration Options**
+
 - **force: true**: Recreate jobs when immutable fields change
 - **wait: true**: Wait for jobs to complete before marking as ready
 - **timeout: 15m**: Maximum time to wait for job completion
@@ -186,6 +195,7 @@ infrastructure/tenants/3-workloads/job-orchestration/
 ## 🚀 Deployment Workflow
 
 ### **1. Pre-Deployment Phase**
+
 ```bash
 # Flux starts pre-deploy jobs
 flux reconcile kustomization pre-deploy-jobs
@@ -201,6 +211,7 @@ kubectl logs job/database-migration
 ```
 
 ### **2. Application Deployment**
+
 ```bash
 # Flux waits for pre-deploy jobs to complete
 # Then starts application deployment
@@ -212,6 +223,7 @@ kubectl rollout status deployment/sample-app
 ```
 
 ### **3. Post-Deployment Phase**
+
 ```bash
 # Flux starts post-deploy jobs after app deployment
 flux reconcile kustomization post-deploy-jobs
@@ -231,6 +243,7 @@ kubectl logs job/health-check
 ## 📊 Monitoring & Observability
 
 ### **Job Status Monitoring**
+
 ```bash
 # Check all jobs
 kubectl get jobs -l component=job-orchestration
@@ -246,6 +259,7 @@ kubectl get jobs -o wide --sort-by=.metadata.creationTimestamp
 ```
 
 ### **Flux Status Monitoring**
+
 ```bash
 # Check kustomization status
 flux get kustomizations
@@ -257,6 +271,7 @@ flux get kustomization post-deploy-jobs
 ```
 
 ### **Alerting Setup**
+
 ```yaml
 # Job failure alert
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
@@ -279,6 +294,7 @@ spec:
 ## 🔧 Configuration Management
 
 ### **Job Configuration**
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -294,6 +310,7 @@ data:
 ```
 
 ### **Migration Scripts**
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -312,18 +329,21 @@ data:
 ## 🎯 Best Practices
 
 ### **Job Design**
+
 - **Idempotency**: Jobs should be safe to run multiple times
 - **Error Handling**: Proper error handling and rollback capabilities
 - **Timeouts**: Set appropriate timeouts for job completion
 - **Resource Limits**: Define CPU and memory limits
 
 ### **Flux Configuration**
+
 - **Dependencies**: Use explicit `dependsOn` for proper sequencing
 - **Force**: Use `force: true` for job recreation on changes
 - **Wait**: Use `wait: true` to ensure job completion
 - **Timeout**: Set reasonable timeouts for job execution
 
 ### **Security**
+
 - **Secrets**: Use Kubernetes secrets for sensitive data
 - **RBAC**: Implement proper role-based access control
 - **Network Policies**: Restrict network access for jobs
@@ -336,6 +356,7 @@ data:
 ### **Common Issues**
 
 #### **Job Not Starting**
+
 ```bash
 # Check kustomization status
 flux get kustomization pre-deploy-jobs
@@ -348,6 +369,7 @@ kubectl get events --field-selector involvedObject.name=database-migration
 ```
 
 #### **Job Failing**
+
 ```bash
 # Check job status
 kubectl describe job database-migration
@@ -360,6 +382,7 @@ kubectl get job database-migration -o yaml
 ```
 
 #### **Dependencies Not Working**
+
 ```bash
 # Check dependency chain
 flux get kustomizations
@@ -376,16 +399,19 @@ flux reconcile kustomization application-deployment --with-source
 ## 🎉 Benefits
 
 ### **Deployment Safety**
+
 - **Pre-Deploy Validation**: Database migrations before deployment
 - **Rollback Protection**: Backup creation before changes
 - **Health Verification**: Post-deployment health checks
 
 ### **Operational Excellence**
+
 - **Automated Workflows**: Hands-off deployment pipeline
 - **Dependency Management**: Proper sequencing of operations
 - **Error Handling**: Automatic failure detection and rollback
 
 ### **Observability**
+
 - **Job Tracking**: Complete visibility into job execution
 - **Health Monitoring**: Continuous health verification
 - **Alert Integration**: Real-time failure notifications
@@ -395,6 +421,7 @@ flux reconcile kustomization application-deployment --with-source
 ## 📚 Advanced Features
 
 ### **Rollback Jobs**
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -410,6 +437,7 @@ spec:
 ```
 
 ### **Canary Deployments**
+
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -423,6 +451,7 @@ spec:
 ```
 
 ### **Blue-Green Deployments**
+
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

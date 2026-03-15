@@ -132,7 +132,7 @@ spec:
       restartPolicy: OnFailure
 ```
 
-3. **Raw cloud CRD** (last resort) — only when no Composition exists and no
+1. **Raw cloud CRD** (last resort) — only when no Composition exists and no
    operator is available. Document the reason and add a Composition authoring task to the backlog.
 
 ---

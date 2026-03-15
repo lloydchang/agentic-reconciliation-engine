@@ -5,11 +5,13 @@ This guide explains how to integrate Honeycomb observability into the GitOps Inf
 ## Overview
 
 Honeycomb provides powerful observability capabilities for Kubernetes clusters including:
+
 - **Metrics**: Node and pod metrics, cluster-level metrics
 - **Logs**: Kubernetes events and application logs
 - **Traces**: Distributed tracing for applications
 
 The integration uses OpenTelemetry collectors deployed in two modes:
+
 1. **Deployment mode**: Cluster-level collector for cluster metrics and events
 2. **DaemonSet mode**: Node-level collectors for pod metrics and application telemetry
 
@@ -56,6 +58,7 @@ kubectl exec -n honeycomb configmap/honeycomb-monitoring -- /bin/bash /etc/confi
 ### Datasets
 
 The collectors send data to the following Honeycomb datasets:
+
 - `k8s-metrics`: Cluster-level metrics (deployments, nodes, etc.)
 - `k8s-events`: Kubernetes events
 - `k8s-node-metrics`: Node and pod metrics
@@ -73,13 +76,15 @@ endpoint: "api.eu1.honeycomb.io:443"
 ## Architecture
 
 ### Deployment Mode Collector
+
 - **Purpose**: Cluster-wide metrics and events
-- **Components**: 
+- **Components**:
   - `k8s_cluster` receiver for cluster metrics
   - `k8sobjects` receiver for Kubernetes events
 - **Replicas**: 1 (to avoid duplicate data)
 
 ### DaemonSet Mode Collector
+
 - **Purpose**: Node-level metrics and application telemetry
 - **Components**:
   - `kubeletstats` receiver for node/pod metrics
@@ -89,16 +94,19 @@ endpoint: "api.eu1.honeycomb.io:443"
 ## Collected Data
 
 ### Metrics
+
 - Node and pod resource usage (CPU, memory)
 - Kubernetes object counts and status
 - Custom application metrics (if instrumented)
 
 ### Events
+
 - All Kubernetes events with full metadata
 - Event severity classification (Normal/Warning)
 - Resource attribute enrichment
 
 ### Traces
+
 - Application distributed traces
 - Service dependency mapping
 - Performance bottleneck identification
@@ -122,6 +130,7 @@ kubectl exec -n honeycomb configmap/honeycomb-monitoring -- /bin/bash /etc/confi
 ### Common Issues
 
 #### API Key Not Configured
+
 ```bash
 # Check if API key is set
 kubectl get secret honeycomb -n honeycomb --template="{{.data.api-key}}" | base64 -d
@@ -131,6 +140,7 @@ kubectl create secret generic honeycomb --from-literal=api-key=$HONEYCOMB_API_KE
 ```
 
 #### Collectors Not Starting
+
 ```bash
 # Check RBAC permissions
 kubectl auth can-i get nodes --as=system:serviceaccount:honeycomb:otel-collector
@@ -140,6 +150,7 @@ kubectl get serviceaccount otel-collector -n honeycomb
 ```
 
 #### No Data in Honeycomb
+
 ```bash
 # Check collector configuration
 kubectl get configmap honeycomb-config -n honeycomb -o yaml
@@ -173,16 +184,19 @@ spec:
 ## Security Considerations
 
 ### API Key Management
+
 - Use SealedSecrets or external secret management in production
 - Rotate API keys regularly
 - Limit API key permissions to necessary datasets
 
 ### Network Security
+
 - Ensure outbound connectivity to Honeycomb endpoints
 - Consider using VPC endpoints for enhanced security
 - Enable TLS for all communications
 
 ### RBAC
+
 - Collectors require read-only access to Kubernetes APIs
 - Service account permissions are scoped to necessary resources only
 - Regular audit of RBAC permissions recommended
@@ -190,6 +204,7 @@ spec:
 ## Advanced Configuration
 
 ### Custom Metrics
+
 Add custom receivers and processors to collect application-specific metrics:
 
 ```yaml
@@ -203,6 +218,7 @@ receivers:
 ```
 
 ### Sampling
+
 Configure trace sampling to control volume:
 
 ```yaml
@@ -212,6 +228,7 @@ processors:
 ```
 
 ### Resource Filtering
+
 Filter which resources send metrics:
 
 ```yaml
@@ -226,11 +243,13 @@ processors:
 ## Cost Optimization
 
 ### Metric Volume Control
+
 - Disable high-volume metrics (replicasets by default)
 - Increase collection intervals for less critical metrics
 - Use metric filtering to exclude unnecessary data
 
 ### Sampling Strategies
+
 - Implement probabilistic sampling for traces
 - Use tail-based sampling for high-value traces
 - Configure per-service sampling rates

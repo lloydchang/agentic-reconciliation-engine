@@ -52,6 +52,7 @@ kubectl -n flux-system port-forward svc/flux-operator 9080:9080
 ```
 
 This script will:
+
 - Create the Flux Status Page service
 - Configure monitoring and alerting
 - Set up RBAC permissions
@@ -312,6 +313,7 @@ spec:
 ```
 
 This script will:
+
 - Install Dex OIDC Provider
 - Configure OAuth2 Proxy
 - Set up user management

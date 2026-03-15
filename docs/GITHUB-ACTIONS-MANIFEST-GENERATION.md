@@ -90,7 +90,7 @@ The script `update-k8s.sh`:
 #!/bin/bash
 
 # update-k8s.sh
-set -feu	# Usage: $0 <GIT_SHA>	# Fails when GIT_SHA is not provided
+set -feu # Usage: $0 <GIT_SHA> # Fails when GIT_SHA is not provided
 
 GIT_SHA=${1:0:8}
 sed -i "s|image: kingdonb/any-old-app:.*|image: kingdonb/any-old-app:$GIT_SHA|" k8s.yml

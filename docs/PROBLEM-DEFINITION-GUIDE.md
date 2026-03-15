@@ -9,30 +9,36 @@
 ### Step 1: Scenario Classification
 
 #### 🟢 Greenfield Scenarios
+
 **Definition**: Starting from scratch with no existing infrastructure constraints.
 
 **Common Problems**:
+
 - New application deployment requiring multi-cloud setup
 - Startup building infrastructure from zero
 - Organization entering cloud with no legacy systems
 - Research projects needing flexible, experimental infrastructure
 
 **Repository Components to Use**:
+
 - ✅ `examples/complete-hub-spoke/` - Full multi-cloud with AI
 - ✅ `docs/AI-INTEGRATION-ANALYSIS.md` - Comprehensive integration options
 - ✅ `docs/AGENT-SKILLS-NEXT-LEVEL.md` - Advanced orchestration patterns
 - ❌ Legacy migration tools (not needed for greenfield)
 
 **Success Indicators**:
+
 - Time to production: < 2 weeks
 - Infrastructure flexibility: High
 - Team learning curve: Moderate
 - Future adaptability: Maximum
 
 #### 🟡 Brownfield Scenarios  
+
 **Definition**: Migrating from existing infrastructure with constraints and legacy systems.
 
 **Common Problems**:
+
 - Migrating from Terraform/CloudFormation to GitOps
 - Consolidating multi-cloud infrastructure under unified control
 - Modernizing legacy deployment patterns
@@ -40,21 +46,25 @@
 - Reducing costs in established environments
 
 **Repository Components to Use**:
+
 - ✅ `control-plane/` - Core Flux controllers first
 - ✅ `docs/LEGACY-IAC-MIGRATION-STRATEGY.md` - Migration guidance
 - ✅ `infrastructure/tenants/` - Phased deployment approach
 - ❌ Full AI consensus (start simple, add incrementally)
 
 **Success Indicators**:
+
 - Migration time: 3-12 months
 - Zero downtime during migration
 - Cost reduction: 20-40%
 - Compliance improvement: Measurable
 
 #### 🟡 Hybrid Scenarios
+
 **Definition**: Combining local infrastructure with cloud resources or development with production.
 
 **Common Problems**:
+
 - Local development teams needing cloud integration
 - Edge computing with cloud coordination
 - Progressive cloud migration strategies
@@ -62,12 +72,14 @@
 - Disaster recovery across on-premise and cloud
 
 **Repository Components to Use**:
+
 - ✅ `variants/` - Environment-specific configurations
 - ✅ `examples/complete-hub-spoke/ai-cronjobs/` - Gradual AI integration
 - ✅ `docs/DAG-ARCHITECTURE.md` - Dependency management
 - ❌ Full consensus deployment (use hybrid approach)
 
 **Success Indicators**:
+
 - Seamless local-cloud integration
 - Gradual migration capability
 - Development productivity: High
@@ -115,18 +127,21 @@ flowchart TD
 Before implementing ANY component, validate:
 
 ### ✅ Problem Clarity
+
 - [ ] Specific problem statement written down
 - [ ] Success criteria defined
 - [ ] Failure acceptance criteria established
 - [ ] Timeline and budget constraints identified
 
 ### ✅ Scenario Appropriateness  
+
 - [ ] Deployment scenario classified (greenfield/brownfield/hybrid)
 - [ ] Existing constraints documented
 - [ ] Team skills and capabilities assessed
 - [ ] Risk tolerance evaluated
 
 ### ✅ Solution Fit
+
 - [ ] Solution directly addresses defined problem
 - [ ] No over-engineering for current needs
 - [ ] Incremental implementation path identified
@@ -134,6 +149,7 @@ Before implementing ANY component, validate:
 - [ ] Success metrics are measurable
 
 ### ✅ Repository Alignment
+
 - [ ] Selected components match scenario requirements
 - [ ] Dependencies between components understood
 - [ ] Integration complexity assessed
@@ -143,24 +159,28 @@ Before implementing ANY component, validate:
 ## 🚨 Common Anti-Patterns
 
 ### ❌ Multi-Cloud for Single-Cloud Problems
+
 **Anti-Pattern**: Deploying full multi-cloud stack when only using one cloud provider
 **Problem**: Creates unnecessary complexity and cost
 **Solution**: Start with single-cloud deployment, add multi-cloud only when cross-cloud problems emerge
 **Repository Path**: Use `infrastructure/tenants/` with single provider first
 
 ### ❌ AI Agents for Simple Automation
+
 **Anti-Pattern**: Deploying consensus agents for basic automation
 **Problem**: Over-engineering simple problems
 **Solution**: Use Flux CronJobs or basic scripts, evolve to AI when complexity warrants
 **Repository Path**: Start with `ai-cronjobs/` not `agent-workflows/`
 
 ### ❌ Technology-First Decisions
+
 **Anti-Pattern**: Choosing technology stack before understanding requirements
 **Problem**: Solution may not fit actual problem
 **Solution**: Problem-first approach, then minimal technology to solve it
 **Repository Path**: Use `variants/` to match technology to problem
 
 ### ❌ Big-Bang Migrations
+
 **Anti-Pattern**: Attempting to migrate everything at once
 **Problem**: High risk, high failure probability
 **Solution**: Phased migration with rollback capability
@@ -169,6 +189,7 @@ Before implementing ANY component, validate:
 ## 📊 Implementation Examples
 
 ### Example 1: Startup Greenfield Multi-Cloud
+
 ```yaml
 # Problem: New SaaS application needs multi-cloud deployment
 apiVersion: v1
@@ -190,6 +211,7 @@ implementation_path:
 ```
 
 ### Example 2: Enterprise Brownfield Migration
+
 ```yaml
 # Problem: Migrate Terraform to GitOps with zero downtime
 apiVersion: v1
@@ -213,6 +235,7 @@ implementation_path:
 ```
 
 ### Example 3: Hybrid Local-Cloud AI
+
 ```yaml
 # Problem: Local development team needs cloud integration
 apiVersion: v1
@@ -241,45 +264,55 @@ implementation_path:
 ### Problems That Cannot Be Solved With This Solution
 
 #### ❌ **Non-Kubernetes Environments**
+
 **Problem**: Infrastructure not running on Kubernetes
 **Why Not Adaptable**: This solution requires Kubernetes as the foundation
 **Alternative Solutions**:
+
 - **Terraform/OpenTofu**: For multi-cloud IaC without Kubernetes
 - **CloudFormation/CDK**: Provider-native IaC tools
 - **Pulumi**: Multi-language IaC for non-Kubernetes environments
 - **Crossplane**: If you can add Kubernetes for infrastructure management
 
 #### ❌ **Non-Cloud Environments**
+
 **Problem**: On-premises, air-gapped, or edge environments without cloud integration
 **Why Not Adaptable**: Architecture assumes cloud provider APIs and multi-cloud coordination
 **Alternative Solutions**:
+
 - **Ansible**: For traditional configuration management
 - **Puppet/Chef**: For legacy infrastructure automation
 - **MAAS/OpenStack**: For private cloud infrastructure
 - **Kubernetes-only solutions**: If you have Kubernetes but no cloud providers
 
 #### ❌ **Single-Application Focus**
+
 **Problem**: Building or optimizing a single application, not infrastructure management
 **Why Not Adaptable**: This is infrastructure control plane, not application platform
 **Alternative Solutions**:
+
 - **Heroku/Railway**: For single application deployment
 - **Vercel/Netlify**: For frontend/web applications
 - **Docker Compose**: For local development stacks
 - **Application-specific platforms**: Based on your tech stack
 
 #### ❌ **No GitOps Requirements**
+
 **Problem**: Traditional imperative infrastructure management preferences
 **Why Not Adaptable**: Core philosophy is declarative GitOps
 **Alternative Solutions**:
+
 - **Manual provisioning**: For experimental/learning environments
 - **GUI-based tools**: Cloud provider consoles, Terraform Cloud UI
 - **Scripted automation**: Bash/Python scripts for simple automation
 - **Commercial IaC platforms**: With imperative workflows
 
 #### ❌ **Cost Optimization as Primary Goal**
+
 **Problem**: "Save money on cloud costs" without other infrastructure challenges
 **Why Not Adaptable**: AI consensus adds complexity that may not justify cost savings
 **Alternative Solutions**:
+
 - **Cloud provider cost tools**: AWS Cost Explorer, Azure Cost Management
 - **FinOps platforms**: CloudHealth, Cloudability, Apptio
 - **Reserved Instances**: Simple purchasing optimizations
@@ -288,28 +321,34 @@ implementation_path:
 ### Problems That Can Be Adapted But May Not Be Worth It
 
 #### ⚠️ **Very Small Teams (< 3 engineers)**
+
 **Problem**: Too much complexity for tiny teams
 **Adaptation Possible**: Yes, but may not be worth the overhead
 **Recommendation**: Consider simpler alternatives first
 **Alternative Solutions**:
+
 - **Manual GitOps**: Git + kubectl for small teams
 - **GitHub Actions/Azure DevOps**: Simple CI/CD pipelines
 - **Terraform modules**: Reusable infrastructure patterns
 
 #### ⚠️ **Short-Term Projects (< 6 months)**
+
 **Problem**: Setup time exceeds project duration
 **Adaptation Possible**: Yes, but ROI may not materialize
 **Recommendation**: Use simpler solutions for short-term needs
 **Alternative Solutions**:
+
 - **Direct cloud provisioning**: For temporary infrastructure
 - **Managed services**: Fully managed cloud offerings
 - **Container platforms**: Docker/Kubernetes without GitOps
 
 #### ⚠️ **Highly Regulated Environments Without Kubernetes Expertise**
+
 **Problem**: Compliance requirements + lack of Kubernetes knowledge
 **Adaptation Possible**: Technically yes, but risk of non-compliance
 **Recommendation**: Build internal Kubernetes expertise first
 **Alternative Solutions**:
+
 - **Traditional IaC**: Terraform with compliance modules
 - **Managed services**: SOC2/HIPAA compliant platforms
 - **Consulting services**: For regulated Kubernetes adoption
@@ -329,6 +368,7 @@ implementation_path:
 ### When to Adapt vs When to Walk Away
 
 #### ✅ **Adapt This Solution When:**
+
 - You have Kubernetes infrastructure (current or planned)
 - You need multi-cloud coordination
 - You want GitOps principles
@@ -337,6 +377,7 @@ implementation_path:
 - You have complex deployment requirements
 
 #### ❌ **Walk Away When:**
+
 - Your infrastructure is not Kubernetes-based
 - You don't need multi-cloud capabilities
 - You prefer imperative over declarative approaches
@@ -346,19 +387,23 @@ implementation_path:
 
 ### Adjacent Problems & Solutions
 
-#### If You Have Kubernetes But Not Multi-Cloud:
+#### If You Have Kubernetes But Not Multi-Cloud
+
 **Use**: Basic Flux + Helm, skip this repository
 **Alternative**: ArgoCD, Flux without consensus agents
 
-#### If You Have Multi-Cloud But Not Kubernetes:
+#### If You Have Multi-Cloud But Not Kubernetes
+
 **Use**: Crossplane, Terraform Cloud
 **Alternative**: Provider-specific multi-cloud tools
 
-#### If You Have Complex Apps But Simple Infrastructure:
+#### If You Have Complex Apps But Simple Infrastructure
+
 **Use**: Application platforms (Heroku, Railway)
 **Alternative**: Kubernetes application-focused tools
 
-#### If You Have Simple Infrastructure But Complex Compliance:
+#### If You Have Simple Infrastructure But Complex Compliance
+
 **Use**: Traditional IaC with compliance modules
 **Alternative**: Managed compliance platforms
 
@@ -398,6 +443,7 @@ This repository's power comes from its **modularity and problem-first design**. 
 **Your Responsibility**: Clearly define your problem, assess fit honestly, and choose the right tool for the job. Sometimes the wisest decision is choosing a different solution entirely., and that's OK.
 
 #### 🔍 Misfit Indicators
+
 - **Implementation Complexity**: Solution feels overly complex for your problem
 - **Feature Mismatch**: Repository capabilities don't align with your needs
 - **Team Skill Gap**: Required expertise doesn't match your team's capabilities
@@ -406,6 +452,7 @@ This repository's power comes from its **modularity and problem-first design**. 
 #### ✅ What to Do When Misfit Occurs
 
 **1. Acknowledge Early**
+
 ```yaml
 # Document the misfit assessment
 apiVersion: v1
@@ -420,6 +467,7 @@ data:
 ```
 
 **2. Partial Implementation Strategy**
+
 ```bash
 # Use only the components that fit
 kubectl apply -f control-plane/  # Core components only
@@ -429,6 +477,7 @@ kubectl apply -f infrastructure/tenants/1-network/  # Specific problem areas
 ```
 
 **3. Adaptation Path**
+
 ```yaml
 # Plan for evolution toward better fit
 apiVersion: v1
@@ -458,6 +507,7 @@ spec:
 #### Adjacent Problem Evolution Examples
 
 **Example 1: From Simple Automation to Coordination**
+
 ```yaml
 # Original problem: Basic deployment automation
 initial_solution:
@@ -473,6 +523,7 @@ evolved_solution:
 ```
 
 **Example 2: From Single Cloud to Multi-Cloud**
+
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
@@ -491,6 +542,7 @@ evolved_solution:
 ```
 
 **Example 3: From Manual to AI-Assisted**
+
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
@@ -523,6 +575,7 @@ evolved_solution:
 **Critical Reality**: No single solution fits every problem perfectly. This repository may not solve YOUR specific challenge, and that's OK.
 
 #### 🔍 Misfit Indicators
+
 - **Implementation Complexity**: Solution feels overly complex for your problem
 - **Feature Mismatch**: Repository capabilities don't align with your needs
 - **Team Skill Gap**: Required expertise doesn't match your team's capabilities
@@ -532,6 +585,7 @@ evolved_solution:
 #### ✅ What to Do When Misfit Occurs
 
 **1. Acknowledge Early**
+
 ```yaml
 # Document the misfit assessment
 apiVersion: v1
@@ -546,6 +600,7 @@ data:
 ```
 
 **2. Partial Implementation Strategy**
+
 ```bash
 # Use only the components that fit
 kubectl apply -f control-plane/  # Core components only
@@ -555,6 +610,7 @@ kubectl apply -f infrastructure/tenants/1-network/  # Specific problem areas
 ```
 
 **3. Adaptation Path**
+
 ```yaml
 # Plan for evolution toward better fit
 apiVersion: v1
@@ -584,6 +640,7 @@ spec:
 #### Adjacent Problem Evolution Examples
 
 **Example 1: From Simple Automation to Coordination**
+
 ```yaml
 # Original problem: Basic deployment automation
 initial_solution:
@@ -599,6 +656,7 @@ evolved_solution:
 ```
 
 **Example 2: From Single Cloud to Multi-Cloud**
+
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
@@ -617,6 +675,7 @@ evolved_solution:
 ```
 
 **Example 3: From Manual to AI-Assisted**
+
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
@@ -636,6 +695,7 @@ evolved_solution:
 When this repository truly doesn't fit your problem:
 
 ### 🌐 External Solutions
+
 - **Terraform/CloudFormation**: For declarative IaC preference
 - **Ansible/Puppet**: For configuration management preference  
 - **Jenkins/GitLab CI**: For alternative GitOps approaches
@@ -643,12 +703,14 @@ When this repository truly doesn't fit your problem:
 - **Kustomize/Helm**: For package management preference
 
 ### 🛠️ Custom Development
+
 - **Build domain-specific tools**: When general solutions don't fit your unique problem
 - **Extend existing components**: Add custom controllers for your specific needs
 - **Create specialized operators**: When existing operators don't solve your problem
 - **Develop custom scripts**: For unique automation requirements
 
 ### 📚 Hybrid Approaches
+
 - **Partial repository adoption**: Use only components that fit, supplement with custom solutions
 - **Gradual migration**: Evolve from current state to desired architecture
 - **Multi-repository strategy**: Combine this repository with others for complete solution

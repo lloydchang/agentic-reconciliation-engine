@@ -7,13 +7,16 @@ This document provides comprehensive guidance on when and how to apply the GitOp
 ## 🎯 Problem-First Methodology
 
 ### Core Principle
+
 **Before adopting any architecture, clearly define:**
+
 1. **The Problem You're Trying to Solve**
 2. **The Constraints You're Operating Under**
 3. **The Success Criteria for Your Context**
 4. **The Trade-offs You're Willing to Make**
 
 ### Decision Framework
+
 ```yaml
 # Scenario Evaluation Framework
 apiVersion: decision.framework/v1
@@ -84,9 +87,11 @@ spec:
 ### Scenario 1: Single Cloud, Simple Infrastructure
 
 #### Problem Definition
+
 **Core Challenge**: "We need reliable infrastructure management for a single cloud provider with basic deployment needs."
 
 **Typical Characteristics**:
+
 - Small to medium organization
 - Single cloud provider (AWS, Azure, or GCP)
 - Basic web applications or services
@@ -97,12 +102,14 @@ spec:
 #### Applicability Assessment: ✅ **HIGH**
 
 **Why This Architecture Fits**:
+
 - **Flux Declarative Management**: Perfect for single-cloud GitOps
 - **Consensus Overkill**: Fast feedback loops may be unnecessary complexity
 - **Temporal Optional**: Durable workflows valuable but not critical
 - **Multi-Language Support**: Choose based on team skills (Go recommended)
 
 #### Recommended Configuration
+
 ```yaml
 # Simplified single-cloud setup
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -126,11 +133,13 @@ spec:
 ```
 
 #### Adaptation Path
+
 1. **Phase 1**: Deploy Flux-only for basic infrastructure management
 2. **Phase 2**: Add Temporal workflows for complex deployments
 3. **Phase 3**: Consider consensus for advanced automation needs
 
 #### Success Metrics
+
 - **Deployment Reliability**: > 99%
 - **Time to Production**: < 2 weeks
 - **Team Productivity**: 2x improvement
@@ -141,9 +150,11 @@ spec:
 ### Scenario 2: Multi-Cloud, Complex Infrastructure
 
 #### Problem Definition
+
 **Core Challenge**: "We need to manage infrastructure across multiple cloud providers with complex interdependencies and coordination requirements."
 
 **Typical Characteristics**:
+
 - Large organization with multi-cloud strategy
 - Complex service interdependencies
 - High availability and disaster recovery requirements
@@ -154,12 +165,14 @@ spec:
 #### Applicability Assessment: ✅ **HIGH**
 
 **Why This Architecture Fits**:
+
 - **Flux Multi-Cloud**: Native support for multi-cloud deployments
 - **Temporal Coordination**: Essential for cross-cloud workflows
 - **Consensus Critical**: Fast feedback loops for multi-cloud optimization
 - **Multi-Language Essential**: Different teams may need different runtimes
 
 #### Recommended Configuration
+
 ```yaml
 # Full multi-cloud setup with consensus
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -188,11 +201,13 @@ spec:
 ```
 
 #### Adaptation Path
+
 1. **Phase 1**: Deploy Flux + Temporal for multi-cloud coordination
 2. **Phase 2**: Add consensus agents for optimization
 3. **Phase 3**: Implement full multi-language support
 
 #### Success Metrics
+
 - **Multi-Cloud Coordination**: < 60 seconds for cross-cloud decisions
 - **Cost Optimization**: 20-40% reduction across providers
 - **Availability**: > 99.9% with automatic failover
@@ -203,9 +218,11 @@ spec:
 ### Scenario 3: Legacy Migration
 
 #### Problem Definition
+
 **Core Challenge**: "We need to migrate existing infrastructure from traditional IaC to modern GitOps without disrupting operations."
 
 **Typical Characteristics**:
+
 - Existing Terraform, CloudFormation, Bicep deployments
 - Production systems that cannot go down
 - Risk-averse organization
@@ -216,6 +233,7 @@ spec:
 #### Applicability Assessment: ✅ **HIGH**
 
 **Why This Architecture Fits**:
+
 - **Gradual Migration**: Can run in parallel with existing systems
 - **Flux Declarative**: Clear desired state for migration targets
 - **Temporal Bridge**: Durable workflows can orchestrate migration steps
@@ -223,6 +241,7 @@ spec:
 - **Risk Mitigation**: Multiple fallback options during transition
 
 #### Recommended Configuration
+
 ```yaml
 # Legacy migration with parallel operation
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -250,12 +269,14 @@ spec:
 ```
 
 #### Migration Strategy
+
 1. **Phase 1**: Shadow mode - observe existing infrastructure
 2. **Phase 2**: Parallel operation - manage new infrastructure
 3. **Phase 3**: Gradual cutover - shift traffic to new systems
 4. **Phase 4**: Decommission - retire legacy systems
 
 #### Success Metrics
+
 - **Zero Downtime**: During migration cutover
 - **Data Consistency**: < 0.1% drift between systems
 - **Team Skill Transfer**: > 80% team trained on new systems
@@ -268,15 +289,18 @@ spec:
 #### Scenario 4A: Simple Static Website
 
 #### Problem Definition
+
 **Core Challenge**: "We need to host a simple static website with minimal maintenance overhead."
 
 **Why This Architecture is NOT Ideal**:
+
 - **Overkill**: Consensus agents and fast feedback loops unnecessary
 - **Complexity**: Three-layer architecture adds unnecessary operational overhead
 - **Cost**: Higher infrastructure costs for simple needs
 - **Team Skills**: May require expertise team doesn't have
 
 #### Better Alternative Solutions
+
 ```yaml
 # Simple static site hosting
 apiVersion: v1
@@ -289,6 +313,7 @@ data:
 ```
 
 **Recommended Approach**:
+
 1. **Static Hosting**: Vercel, Netlify, AWS S3 + CloudFront
 2. **Simple CI/CD**: GitHub Actions or similar
 3. **Optional Flux**: Only if organization already uses Flux heavily
@@ -297,15 +322,18 @@ data:
 #### Scenario 4B: Single Developer, Local Development
 
 #### Problem Definition
+
 **Core Challenge**: "I'm a solo developer who needs local Kubernetes development for learning and small projects."
 
 **Why This Architecture is NOT Ideal**:
+
 - **Multi-Cloud Overkill**: Single developer doesn't need multi-cloud coordination
 - **Consensus Complexity**: No need for distributed decision making
 - **Operational Overhead**: Managing three-layer architecture for one person
 - **Learning Curve**: Steep learning curve for simple needs
 
 #### Better Alternative Solutions
+
 ```yaml
 # Local development setup
 apiVersion: v1
@@ -318,6 +346,7 @@ data:
 ```
 
 **Recommended Approach**:
+
 1. **Local Kubernetes**: Docker Desktop or minikube
 2. **Simple Manifests**: Basic Kubernetes YAML files
 3. **Optional GitOps**: Only if learning enterprise patterns
@@ -326,15 +355,18 @@ data:
 #### Scenario 4C: Emergency Response Team
 
 #### Problem Definition
+
 **Core Challenge**: "We need rapid emergency response to infrastructure incidents with manual override capabilities."
 
 **Why This Architecture is NOT Ideal**:
+
 - **Autonomous Conflict**: Autonomous agents may conflict with emergency manual actions
 - **Consensus Delays**: 15-30 second loops too slow for emergency response
 - **Complexity**: Three-layer coordination too complex for crisis management
 - **Accountability**: Difficult to assign responsibility in autonomous systems
 
 #### Better Alternative Solutions
+
 ```yaml
 # Emergency response setup
 apiVersion: v1
@@ -347,6 +379,7 @@ data:
 ```
 
 **Recommended Approach**:
+
 1. **Simple GitOps**: Basic Flux for infrastructure state
 2. **Manual Override**: Clear emergency procedures
 3. **Rapid Response**: Direct access without consensus delays
@@ -359,6 +392,7 @@ data:
 The GitOps Infra Control Plane is designed for **selective adoption** based on specific needs:
 
 #### Core Modules (Always Recommended)
+
 ```yaml
 # Core infrastructure management
 modules:
@@ -374,6 +408,7 @@ modules:
 ```
 
 #### Advanced Modules (Scenario-Dependent)
+
 ```yaml
 # Advanced capabilities
 modules:
@@ -393,14 +428,18 @@ modules:
 ### Adaptation Guidelines
 
 #### 1. Problem Definition First
+
 **Before implementation, answer these questions:**
+
 1. **What specific problem are you solving?**
 2. **What are your success criteria?**
 3. **What constraints do you operate under?**
 4. **What trade-offs are you willing to make?**
 
 #### 2. Start Simple, Add Complexity as Needed
+
 **Progressive Adoption Strategy**:
+
 ```yaml
 # Gradual complexity addition
 adoptionStrategy:
@@ -421,7 +460,9 @@ adoptionStrategy:
 ```
 
 #### 3. Continuous Evaluation
+
 **Regular Assessment Criteria**:
+
 - **Problem-Solution Fit**: Are we solving the right problem?
 - **Value Delivered**: Are we achieving success criteria?
 - **Complexity Appropriateness**: Is the complexity justified?
@@ -443,6 +484,7 @@ adoptionStrategy:
 ### When to Adopt This Architecture
 
 **Green Lights** ✅:
+
 - **Multi-cloud coordination needs**
 - **Complex deployment requirements**
 - **High automation priorities**
@@ -451,12 +493,14 @@ adoptionStrategy:
 - **Legacy system modernization**
 
 **Yellow Lights** ⚠️:
+
 - **Single cloud with moderate complexity**
 - **Growing organization anticipating multi-cloud**
 - **Team learning advanced patterns**
 - **Cost optimization becoming critical**
 
 **Red Lights** ❌:
+
 - **Simple static hosting needs**
 - **Single developer local setup**
 - **Basic blog/portfolio sites**
@@ -466,6 +510,7 @@ adoptionStrategy:
 ### Implementation Checklist
 
 **Pre-Implementation**:
+
 - [ ] Clear problem definition documented
 - [ ] Success criteria established
 - [ ] Team skills assessment completed
@@ -473,6 +518,7 @@ adoptionStrategy:
 - [ ] Adaptation plan created
 
 **Post-Implementation**:
+
 - [ ] Success metrics defined and tracked
 - [ ] Regular evaluation schedule established
 - [ ] Adaptation process documented
@@ -492,6 +538,7 @@ adoptionStrategy:
 ### Community Contribution
 
 **Help Improve This Guide**:
+
 - Share your scenario experiences
 - Contribute new scenario analyses
 - Suggest improvements to decision matrices
@@ -503,6 +550,7 @@ adoptionStrategy:
 The GitOps Infra Control Plane's Flux + Temporal + Consensus hybrid architecture is **not a universal solution** for all infrastructure management needs. It is a **powerful, specialized solution** that excels in specific scenarios:
 
 **✅ Ideal For**:
+
 - Multi-cloud environments with complex coordination needs
 - Organizations requiring high automation and optimization
 - Teams with diverse technical skills
@@ -510,6 +558,7 @@ The GitOps Infra Control Plane's Flux + Temporal + Consensus hybrid architecture
 - Enterprise environments with compliance requirements
 
 **⚠️ Consider Carefully For**:
+
 - Simple static hosting needs
 - Single-developer local setups
 - Emergency response situations
@@ -517,6 +566,7 @@ The GitOps Infra Control Plane's Flux + Temporal + Consensus hybrid architecture
 - Scenarios where simplicity is more valuable than automation
 
 **❌ Not Recommended For**:
+
 - Basic websites and simple applications
 - Learning and development environments
 - Small-scale personal projects

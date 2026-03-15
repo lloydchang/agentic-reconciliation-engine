@@ -118,12 +118,14 @@ Create `~/.vscode/mcp.json`:
 ### Flux Instance Management
 
 #### List Flux Instances
+
 ```bash
 # Available MCP command: list_flux_instances
 "List all Flux instances in the flux-system namespace"
 ```
 
 #### Get Flux Instance
+
 ```bash
 # Available MCP command: get_flux_instance
 "Get the details of the flux FluxInstance"
@@ -131,6 +133,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Create Flux Instance
+
 ```bash
 # Available MCP command: create_flux_instance
 "Create a new FluxInstance named 'app-flux' with the following configuration:
@@ -141,6 +144,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Update Flux Instance
+
 ```bash
 # Available MCP command: update_flux_instance
 "Update the flux FluxInstance to use the staging branch instead of main"
@@ -148,6 +152,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Delete Flux Instance
+
 ```bash
 # Available MCP command: delete_flux_instance
 "Delete the app-flux FluxInstance"
@@ -156,12 +161,14 @@ Create `~/.vscode/mcp.json`:
 ### ResourceSet Management
 
 #### List ResourceSets
+
 ```bash
 # Available MCP command: list_resourcesets
 "List all ResourceSets in the flux-system namespace"
 ```
 
 #### Get ResourceSet
+
 ```bash
 # Available MCP command: get_resourceset
 "Get the details of the infrastructure ResourceSet"
@@ -169,6 +176,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Create ResourceSet
+
 ```bash
 # Available MCP command: create_resourceset
 "Create a ResourceSet named 'app-resources' with the following resources:
@@ -180,6 +188,7 @@ Create `~/.vscode/mcp.json`:
 ### Sync and Reconciliation
 
 #### Sync Status
+
 ```bash
 # Available MCP command: sync_status
 "What is the current sync status of all Flux instances?"
@@ -188,6 +197,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Trigger Reconciliation
+
 ```bash
 # Available MCP command: reconcile_flux_instance
 "Trigger reconciliation for the flux FluxInstance"
@@ -197,6 +207,7 @@ Create `~/.vscode/mcp.json`:
 ### Health and Monitoring
 
 #### Health Check
+
 ```bash
 # Available MCP command: health_check
 "Check the health status of all Flux components"
@@ -205,6 +216,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Get Events
+
 ```bash
 # Available MCP command: get_events
 "Get recent events for the flux FluxInstance"
@@ -213,6 +225,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Component Status
+
 ```bash
 # Available MCP command: component_status
 "Check the status of all Flux components"
@@ -225,6 +238,7 @@ Create `~/.vscode/mcp.json`:
 ### Basic GitOps Operations
 
 #### Deploy New Application
+
 ```bash
 "Create a new FluxInstance for my-app that:
 - Syncs from https://github.com/user/my-app-manifests
@@ -235,6 +249,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Update Deployment
+
 ```bash
 "Update the my-app FluxInstance to:
 - Use the develop branch
@@ -243,6 +258,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Troubleshooting
+
 ```bash
 "My FluxInstance is not syncing properly. Can you:
 1. Check the sync status
@@ -254,6 +270,7 @@ Create `~/.vscode/mcp.json`:
 ### Multi-Environment Management
 
 #### Create Staging Environment
+
 ```bash
 "Create a staging FluxInstance that:
 - Syncs from https://github.com/user/infrastructure-manifests
@@ -263,6 +280,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Promote to Production
+
 ```bash
 "Update the production FluxInstance to:
 - Use the latest commit from main branch
@@ -274,6 +292,7 @@ Create `~/.vscode/mcp.json`:
 ### Advanced Operations
 
 #### Multi-Source Sync
+
 ```bash
 "Create a FluxInstance that syncs from multiple sources:
 1. GitRepository for infrastructure manifests
@@ -284,6 +303,7 @@ Create `~/.vscode/mcp.json`:
 ```
 
 #### Enable Monitoring
+
 ```bash
 "Update the flux FluxInstance to:
 - Enable Prometheus monitoring
@@ -590,10 +610,10 @@ flux-operator-mcp serve \
 
 ### Getting Help
 
-- **Documentation**: https://fluxoperator.dev/mcp/
-- **GitHub Issues**: https://github.com/controlplaneio-fluxcd/flux-operator-mcp/issues
-- **Discord**: https://discord.gg/fluxcd
-- **Discussions**: https://github.com/controlplaneio-fluxcd/flux-operator-mcp/discussions
+- **Documentation**: <https://fluxoperator.dev/mcp/>
+- **GitHub Issues**: <https://github.com/controlplaneio-fluxcd/flux-operator-mcp/issues>
+- **Discord**: <https://discord.gg/fluxcd>
+- **Discussions**: <https://github.com/controlplaneio-fluxcd/flux-operator-mcp/discussions>
 
 ### Contributing
 

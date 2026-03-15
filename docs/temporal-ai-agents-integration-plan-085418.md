@@ -16,26 +16,31 @@ The current sandbox has basic Temporal workflows and a Backstage UI. We will ext
 ## Implementation Phases
 
 ### Phase 1: Extend Backend Activities
+
 1. Add AI agent activities (e.g., `AgentCheckActivity` for compliance verification).
 2. Implement API calls to AI agents (initially mocked, later integrated with Azure Foundry or local LLMs).
 3. Update workflows to include AI steps alongside existing FetchData and ProcessData activities.
 
 ### Phase 2: Workflow Enhancement
+
 1. Create `ComplianceCheckWorkflow` with activities: FetchData, AgentCheck, AggregateResults, HumanReview.
 2. Add retry policies, timers, and signals for long-running processes.
 3. Implement parallel agent calls and branching logic.
 
 ### Phase 3: Frontend Updates
+
 1. Enhance Backstage plugin to display AI agent outputs and compliance reports.
 2. Add forms for human review and approval steps.
 3. Integrate real-time status updates for AI-involved workflows.
 
 ### Phase 4: Audit and Observability
+
 1. Leverage Temporal's execution history for audit trails.
 2. Add logging and reporting for compliance workflows.
 3. Implement sandbox environment provisioning via Backstage.
 
 ### Phase 5: Testing and Extensions
+
 1. Test end-to-end compliance workflows.
 2. Add support for agent-to-agent communication within activities.
 3. Optionally integrate with Azure Foundry for cloud agents.

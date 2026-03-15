@@ -37,6 +37,7 @@ Avoid this architecture for single-cloud/single-region setups, teams lacking Kub
 ## Documentation surface
 
 ### Essential reading
+
 1. [Problem-Solution Fit](./PROBLEM-SOLUTION-FIT.md)
 2. [Architecture](./ARCHITECTURE.md)
 3. [Implementation Plan](./implementation_plan.md)
@@ -44,9 +45,11 @@ Avoid this architecture for single-cloud/single-region setups, teams lacking Kub
 5. [Execution Checklist](./EXECUTION-CHECKLIST.md)
 
 ### Operations
+
 Refer to the individual docs for hub recovery, compositions, ESO, CI gate, controller runbooks, and platform compatibility. See the quicklinks in the README or the dedicated compatibility guides (`WINDOWS`, `MAC`, `LINUX`, `SHELL`, `AGENT-CLIENTS`).
 
 ### Implementation examples
+
 - [Complete Hub-Spoke](../examples/complete-hub-spoke/)
 - [Crossplane Compositions](../examples/crossplane-compositions/)
 - [ESO Per Spoke](../examples/eso-workload-identity/)

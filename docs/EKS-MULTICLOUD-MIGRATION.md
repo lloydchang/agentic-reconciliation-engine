@@ -15,12 +15,14 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 ## 1. Audit & export existing state
 
 - Capture Argo CD apps and ApplicationSets so you can compare before/after.
+
   ```bash
   argocd app list --output yaml > /tmp/argocd-apps.yaml
   argocd app set \
     --output yaml > /tmp/argocd-appsets.yaml
   kubectl get secret -n argocd argocd-secret -o yaml > /tmp/argocd-secret.yaml
   ```
+
 - Record cluster registrations (`argocd cluster list --output yaml`) and store them under version control as part of the migration checklist.
 - Note Git repo URLs, TLS secrets, webhook/SSH keys, and RBAC policies so you can restore them in the new control plane if needed.
 
@@ -28,6 +30,7 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 
 1. Choose the hub cluster: use the existing EKS Argo CD cluster as the hub or provision a dedicated hub (the bootstrap cluster described in `docs/BOOTSTRAP-CLUSTER.md` if you want separation).
 2. Install Flux so it watches this repo:
+
    ```bash
    flux bootstrap github \
      --owner=<org> \
@@ -36,6 +39,7 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
      --path=control-plane/flux \
      --personal
    ```
+
 3. Confirm Flux syncs the core manifests (`control-plane/flux/gotk-sync.yaml`); `flux get kustomization control-plane` should report `Ready`.
 4. Ensure Argo CD continues managing workloads during this bootstrap. You can run `argocd app list` to validate the apps remain healthy while Flux converges the control plane manifests.
 
@@ -43,10 +47,12 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 
 1. Customize `control-plane/flux/cloud-aws/kustomization.yaml` for your VPC, node pools, IAM policies, and Argo CD registration needs (patch the referenced manifests if necessary).
 2. Run the helper that edits the parent kustomization and starts reconciliation:
+
    ```bash
    scripts/enable-cloud.sh aws
    flux reconcile kustomization control-plane --with-source
    ```
+
 3. Validate the overlay:
    - `flux get kustomization control-plane` shows the overlay resources listed and `Ready`.
    - Crossplane `Composition`/`Managed` resources (if any) under `control-plane/crossplane/` reach `Ready`.
@@ -56,15 +62,19 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 
 1. Inspect the cluster(s) the overlays created (e.g., Argo CD cluster entries created via `gcp-clusters.yaml` or `aws-clusters.yaml`). You can list them with `kubectl get managed -A` if Crossplane produced them.
 2. Register any new clusters with Argo CD so apps can target the new environment:
+
    ```bash
    argocd cluster add <context-name> --name <stable-label> --yes
    ```
+
 3. Update Application/ApplicationSet specs to include the new cluster (`clusters:` selectors or `destinations`). Optionally, script this:
+
    ```bash
    scripts/migrate-app.sh <app-name> <new-cluster-context>
    argocd app sync <app-name>
    argocd app wait <app-name> --health
    ```
+
 4. After you verify the app health on the new cluster, disable the old sync targets gradually (e.g., remove the legacy Argo CD app, or let the overlay takeover while keeping the old Argo CD running for rollback).
 
 ## 5. Add additional clouds / Crossplane resources

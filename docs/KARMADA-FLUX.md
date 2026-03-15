@@ -154,8 +154,8 @@ helm --kubeconfig ~/.kube/members.config --kube-context member1 list
 The output is similar to:
 
 ```
-NAME   	NAMESPACE	REVISION	UPDATED                               	STATUS  	CHART        	APP VERSION
-podinfo	default  	1       	2022-05-27 01:44:35.24229175 +0000 UTC	deployed	podinfo-5.0.3	5.0.3
+NAME    NAMESPACE REVISION UPDATED                                STATUS   CHART         APP VERSION
+podinfo default   1        2022-05-27 01:44:35.24229175 +0000 UTC deployed podinfo-5.0.3 5.0.3
 ```
 
 Based on Karmada's propagation policy, you can schedule Helm releases to your desired cluster flexibly, just like Kubernetes scheduling Pods to the desired node.

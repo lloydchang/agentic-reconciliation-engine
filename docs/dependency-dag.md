@@ -3,6 +3,7 @@
 ## Complete DAG Overview
 
 ### Root Level Dependencies
+
 ```
 gitops-infra-control-plane-root
 ├── control-plane/ (gitops-infra-control-plane)
@@ -21,6 +22,7 @@ gitops-infra-control-plane-root
 ```
 
 ### Kustomization Level Dependencies
+
 ```
 flux-system [ROOT]
     ↓ dependsOn
@@ -36,6 +38,7 @@ karmada-infra (karmada/)
 ```
 
 ### Example Variant Dependencies
+
 ```
 complete-hub-spoke-with-consensus-ai
     ↓ dependsOn
@@ -55,6 +58,7 @@ flux-system
 ## Resource Level Dependencies
 
 ### AWS Dependencies
+
 ```
 VPC (gitops-vpc) [order: 1]
     ↓ dependsOn
@@ -78,6 +82,7 @@ EKS Nodegroup (gitops-eks-nodegroup) [order: 5]
 ```
 
 ### Azure Dependencies
+
 ```
 ResourceGroup (gitops-resource-group) [order: 1]
     ↓ dependsOn
@@ -89,6 +94,7 @@ AKS Cluster (gitops-aks-cluster) [order: 2]
 ```
 
 ### GCP Dependencies
+
 ```
 ComputeNetwork (gitops-network) [order: 1]
     ↓ dependsOn
@@ -102,6 +108,7 @@ GKE NodePool (gitops-gke-nodepool) [order: 3]
 ```
 
 ## Benefits
+
 - ✅ Explicit resource ordering through Flux dependsOn
 - ✅ Parallel execution where possible for independent components
 - ✅ Failure isolation through modular boundaries
@@ -114,6 +121,7 @@ GKE NodePool (gitops-gke-nodepool) [order: 3]
 ## Variant Support Matrix
 
 ### Open Source Variant
+
 - Basic Flux controllers
 - Core monitoring (Prometheus/Grafana)
 - Standard networking
@@ -121,6 +129,7 @@ GKE NodePool (gitops-gke-nodepool) [order: 3]
 - **Labels:** `variant: opensource`
 
 ### Small Business Variant
+
 - Enhanced monitoring
 - Backup solutions
 - Security scanning
@@ -128,6 +137,7 @@ GKE NodePool (gitops-gke-nodepool) [order: 3]
 - **Labels:** `variant: small-business`
 
 ### Enterprise Variant
+
 - Full AI integration
 - Advanced security
 - Multi-cloud controllers
@@ -137,6 +147,7 @@ GKE NodePool (gitops-gke-nodepool) [order: 3]
 ## Ecosystem Modularity
 
 ### Rust Ecosystem
+
 ```
 workload-infra/
 ├── rust/
@@ -146,6 +157,7 @@ workload-infra/
 ```
 
 ### Go Ecosystem
+
 ```
 workload-infra/
 ├── go/
@@ -155,6 +167,7 @@ workload-infra/
 ```
 
 ### Python/uv Ecosystem
+
 ```
 workload-infra/
 ├── python/
@@ -165,6 +178,7 @@ workload-infra/
 ```
 
 ### TypeScript/Node.js Ecosystem
+
 ```
 workload-infra/
 ├── typescript/
@@ -175,6 +189,7 @@ workload-infra/
 ```
 
 ### C#/.NET Ecosystem
+
 ```
 workload-infra/
 ├── dotnet/
@@ -184,6 +199,7 @@ workload-infra/
 ```
 
 ### Java/JVM Ecosystem
+
 ```
 workload-infra/
 ├── java/
@@ -193,6 +209,7 @@ workload-infra/
 ```
 
 ### Shell/Bash Ecosystem
+
 ```
 workload-infra/
 ├── shell/

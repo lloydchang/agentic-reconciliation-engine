@@ -13,23 +13,28 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 ## 1. Audit & export existing state
 
 - Capture Argo CD applications/datasets:
+
   ```bash
   argocd app list --output yaml >/tmp/argocd-apps.yaml
   argocd app set --output yaml >/tmp/argocd-appsets.yaml
   kubectl get secret -n argocd argocd-secret -o yaml >/tmp/argocd-secret.yaml
   ```
+
 - Export existing cluster registration and Azure context:
+
   ```bash
   argocd cluster list --output yaml >/tmp/argocd-clusters.yaml
   az account show --output yaml >/tmp/az-account.yaml
   az aks show --resource-group <rg> --name <cluster> --output yaml >/tmp/aks-cluster.yaml
   ```
+
 - Record Git repo URLs, TLS secrets, and Azure RBAC assignments for mapping into the new setup.
 
 ## 2. Bootstrap the hub/Flux control plane
 
 1. Use the existing AKS cluster as the hub, or create a dedicated hub/bootstrap cluster per `docs/BOOTSTRAP-CLUSTER.md`.
 2. Bootstrap Flux pointing at this repo:
+
    ```bash
    flux bootstrap github \
      --owner=<org> \
@@ -38,6 +43,7 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
      --path=control-plane/flux \
      --personal
    ```
+
 3. Confirm core Kustomization is `Ready` (`flux get kustomization control-plane`).
 4. Keep Argo CD running to ensure apps stay healthy while Flux reconciles the control plane artifacts.
 
@@ -45,18 +51,22 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 
 1. Tailor `control-plane/flux/cloud-azure/kustomization.yaml`’s references to the correct resource group, network, and workload definitions. Update any `azure-*.yaml` manifests for your subscription, virtual network, and node pools.
 2. Activate the overlay:
+
    ```bash
    scripts/enable-cloud.sh azure
    flux reconcile kustomization control-plane --with-source
    ```
+
 3. Validate overlay sync status, Crossplane compositions, and Azure managed resources (virtual networks, AKS clusters) via `az aks list`, `kubectl get managed`, or `flux get kustomization control-plane`.
 
 ## 4. Register workload clusters & cut over apps
 
 1. When the overlay provisions AKS clusters, register them with Argo CD:
+
    ```bash
    argocd cluster add <context> --name aks-<region> --yes
    ```
+
 2. Adjust Application/ApplicationSet destinations to include the new AKS context and region-specific selectors.
 3. Optionally use `scripts/migrate-app.sh <app> <context>` to update each app and trigger sync/health checks.
 4. Gradually disable legacy workloads once health is confirmed on the new cluster; keep the old Argo CD apps as a rollback path until cutover is fully validated.

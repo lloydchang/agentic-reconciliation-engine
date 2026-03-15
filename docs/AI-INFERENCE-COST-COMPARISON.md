@@ -7,24 +7,30 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 ## 2026 Model Landscape Update
 
 ### Claude's Cross-Platform Availability
+
 **All three major cloud providers now offer Anthropic Claude models:**
+
 - **AWS Bedrock**: Claude Haiku 4.5, Sonnet 4.5, Opus 4.5
 - **Azure AI Foundry**: Claude Haiku 4.5, Sonnet 4.5, Opus 4.1
 - **Google Vertex AI**: Claude Haiku 4.5, Sonnet 4.5, Opus 4.5
 
 ### Claude: The Reasoning Leader
+
 **Claude Opus 4.5 dominates coding and reasoning benchmarks:**
+
 - **80.9% SWE-bench Verified** - First model to exceed 80% on real-world GitHub bug fixing
 - **59.3% Terminal-Bench** - Command-line task automation
 - **4.7% prompt injection rate** - Industry-leading security
 - **65% fewer tokens** - Higher efficiency than competitors
 
 **Claude Sonnet 4.5 excels at:**
+
 - Long-running agents and coding workflows
 - Cybersecurity and financial analysis
 - Computer use and research tasks
 
 ### 2026 Competitive Landscape
+
 **GPT-5.2**: Mathematical reasoning champion (100% AIME 2025 score)
 **Gemini 3 Pro**: Multimodal leader with 1M token context
 **Claude Opus 4.5**: Coding and safety leader with best efficiency
@@ -41,6 +47,7 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 ## Total Cost of Ownership Analysis
 
 ### Scenario 1: New Hardware Purchase
+
 *For teams without existing GPU infrastructure*
 
 | Platform | Upfront Investment | Marginal Cost (per million tokens) | Monthly Cost at 50M tokens |
@@ -51,6 +58,7 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 | **Google Vertex AI** | $0 | $0.01-$30+ (varies by model/context) | $500-15,000/month |
 
 ### Scenario 2: Existing Kubernetes Cluster
+
 *For GitOps control plane teams with existing infrastructure*
 
 | Platform | Additional Upfront Cost | Marginal Cost (per million tokens) | Monthly Cost at 50M tokens |
@@ -63,16 +71,19 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 ### Break-Even Analysis
 
 **Existing cluster scenario changes everything:**
+
 - **Immediate savings** from day 1 (no hardware ROI period)
 - **Only incremental cost**: Adding GPU node or using existing spare capacity
 - **Break-even**: Instant - local is cheaper from first token
 
 **GPU node addition options:**
+
 - **Cloud GPU instance**: $200-500/month (still cheaper than cloud AI at volume)
 - **On-premise GPU**: $500-1,000 one-time + electricity
 - **Spot/preemptible GPUs**: 50-70% cost reduction
 
 **Example with existing cluster:**
+
 - **Current cluster cost**: Already being paid for GitOps workloads
 - **Additional GPU node**: $300/month
 - **AI workload cost**: $3-7/month electricity
@@ -99,6 +110,7 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 | **Spot GPU node** | $60-150 | $3-7 | $63-157 | 87-98% |
 
 **Why GitOps teams have the biggest advantage:**
+
 - **Cluster already running** 24/7 for infrastructure management
 - **Existing monitoring/logging** infrastructure can be reused
 - **GitOps workflows** can manage AI model deployments
@@ -106,6 +118,7 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 - **Team expertise** in Kubernetes operations
 
 **Recommended deployment pattern for GitOps:**
+
 ```yaml
 # Add to existing GitOps repo
 apiVersion: apps/v1
@@ -133,17 +146,20 @@ spec:
 ## Local Inference Economics
 
 ### Hardware Requirements
+
 - **7B quantized model**: 8-12GB RAM, optional consumer GPU
 - **13B quantized model**: 12-16GB RAM, GPU recommended
 - **Electricity cost**: 10-30 watts average load
 - **Monthly electricity**: $2-8 depending on region
 
 ### Operational Costs
+
 - **High usage** (200M tokens/month): $0.20-$8.00
 - **Moderate usage** (50M tokens/month): $0.05-$2.00  
 - **Low usage** (10M tokens/month): $0.01-$0.40
 
 ### Advantages
+
 - ✅ Predictable costs (electricity only)
 - ✅ Data stays inside cluster
 - ✅ No token billing surprises
@@ -151,6 +167,7 @@ spec:
 - ✅ Works offline
 
 ### Disadvantages
+
 - ❌ Requires GPU nodes
 - ❌ Operations complexity
 - ❌ Limited scaling
@@ -159,7 +176,9 @@ spec:
 ## Cloud Provider Economics
 
 ### True Cost Structure
+
 Base token pricing + 15-40% additional overhead:
+
 - Model inference tokens
 - GPU hosting charges
 - Data transfer fees
@@ -167,6 +186,7 @@ Base token pricing + 15-40% additional overhead:
 - Monitoring and logging
 
 ### Advantages
+
 - ✅ No infrastructure to manage
 - ✅ Infinite scaling
 - ✅ Better large models (70B+)
@@ -174,6 +194,7 @@ Base token pricing + 15-40% additional overhead:
 - ✅ Multi-region availability
 
 ### Disadvantages
+
 - ❌ Recurring cost forever
 - ❌ Token billing can spike unexpectedly
 - ❌ Data leaves cluster environment
@@ -184,12 +205,14 @@ Base token pricing + 15-40% additional overhead:
 ### Hybrid Approach (90/10 Rule)
 
 **Local Model (90% of workload)**
+
 - Model: Llama 3 7B/13B quantized
 - Runtime: Ollama or vLLM in Kubernetes
 - Use cases: Incident summarization, runbook execution, K8s troubleshooting, GitOps patch generation
 - Cost: $2-8/month electricity
 
 **Cloud Model (10% of workload)**
+
 - Provider: Amazon Bedrock, Azure Microsoft Foundry, or Vertex AI
 - Use cases: Complex architecture decisions, multi-system debugging, developer conversations
 - Cost: $20-200/month for occasional usage
@@ -231,19 +254,22 @@ spec:
 
 ## Practical Recommendations
 
-### Start Local If:
+### Start Local If
+
 - You already have GPU nodes in your cluster
 - Workload is primarily operational (alerts, incidents, runbooks)
 - Data sovereignty is a concern
 - Budget is constrained
 
-### Use Cloud If:
+### Use Cloud If
+
 - You need 70B+ parameter models
 - Enterprise compliance requires managed services
 - Multi-cloud integrations are critical
 - Usage is sporadic and unpredictable
 
-### Migration Path:
+### Migration Path
+
 1. **Phase 1**: Deploy local 7B model for basic operations
 2. **Phase 2**: Add cloud fallback for complex tasks
 3. **Phase 3**: Optimize based on actual usage patterns
@@ -251,12 +277,14 @@ spec:
 ## Real-World Examples
 
 ### Kubernetes Team Experience
+
 - **Local setup**: 7B model on single GPU node
 - **Monthly cost**: $6 electricity + $20 cloud fallback = $26 total
 - **Equivalent cloud-only cost**: $400-800/month
 - **Savings**: 94-97%
 
 ### Enterprise Deployment
+
 - **Local setup**: 13B model on dedicated GPU cluster
 - **Monthly cost**: $45 electricity + $100 cloud fallback = $145 total
 - **Equivalent cloud-only cost**: $2,000-5,000/month
@@ -264,14 +292,16 @@ spec:
 
 ## Decision Framework
 
-### Questions to Ask:
+### Questions to Ask
+
 1. **Model Size**: Do you need 70B+ parameters? (If no, go local)
 2. **Data Sensitivity**: Can operational data leave your cluster? (If no, go local)
 3. **Usage Volume**: >50M tokens/month? (If yes, go local)
 4. **Expertise**: Do you have K8s/GPU operations skills? (If no, consider cloud)
 5. **Compliance**: Do you need managed enterprise features? (If yes, use cloud)
 
-### Cost Tipping Points:
+### Cost Tipping Points
+
 - **<10M tokens/month**: Cloud might be simpler
 - **10-50M tokens/month**: Local becomes cost-effective
 - **>50M tokens/month**: Local is dramatically cheaper
@@ -279,6 +309,7 @@ spec:
 ## Implementation Checklist
 
 ### Local Deployment
+
 - [ ] GPU nodes available in cluster
 - [ ] Ollama/vLLM runtime deployed
 - [ ] Quantized model downloaded
@@ -286,6 +317,7 @@ spec:
 - [ ] Fallback to cloud API configured
 
 ### Cloud Integration
+
 - [ ] API keys secured in Kubernetes Secrets
 - [ ] Rate limiting configured
 - [ ] Cost alerts set up
