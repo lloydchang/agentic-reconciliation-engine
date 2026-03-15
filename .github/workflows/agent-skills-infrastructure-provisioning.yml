@@ -252,34 +252,46 @@ jobs:
     
     steps:
       - name: Notify Slack
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          channel: '#infrastructure'
-          text: |
-            Infrastructure Provisioning ${{ job.status }}
-            Action: ${{ github.event.inputs.action }}
-            Environment: ${{ github.event.inputs.environment }}
-            Provider: ${{ github.event.inputs.provider }}
+        uses: rtCamp/action-slack-notify@v2
+        if: env.SLACK_WEBHOOK_URL != null
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: GitHub Actions
+          SLACK_ICON: :github:
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_CHANNEL: '#infrastructure'
+          SLACK_TITLE: 'Infrastructure Provisioning ${{ job.status }}'
+          SLACK_MESSAGE: |
+            **Action:** ${{ github.event.inputs.action }}
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Provider:** ${{ github.event.inputs.provider }}
+            **Resource Type:** ${{ github.event.inputs.resource_type }}
+            **Dry Run:** ${{ github.event.inputs.dry_run }}
+            
+            **Risk Level:** ${{ needs.validate.outputs.risk-level }}
+            **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - name: Create Issue on Failure
-        if: failure()
-        uses: actions/github-script@v7
+      - name: Notify Microsoft Teams
+        if: env.TEAMS_WEBHOOK_URL != null
+        uses: azure/microsoft-teams-notify@v1
         with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Infrastructure Provisioning Failed',
-              body: `The infrastructure provisioning action failed.
-              
-              **Action:** ${{ github.event.inputs.action }}
-              **Environment:** ${{ github.event.inputs.environment }}
-              **Provider:** ${{ github.event.inputs.provider }}
-              **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-              
-              Please investigate and resolve the issue.`,
-              labels: ['infrastructure', 'failed-action']
-            })
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: 'Infrastructure Provisioning ${{ job.status }}'
+          text: |
+            **Action:** ${{ github.event.inputs.action }}
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Provider:** ${{ github.event.inputs.provider }}
+            **Resource Type:** ${{ github.event.inputs.resource_type }}
+            **Dry Run:** ${{ github.event.inputs.dry_run }}
+            
+            **Risk Level:** ${{ needs.validate.outputs.risk-level }}
+            **Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Notify Google Chat
+        if: env.GOOGLE_CHAT_WEBHOOK_URL != null
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+            "${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}" \
+            -d '{
+              "text": "*Infrastructure Provisioning ${{ job.status }}*\n\n**Action:** ${{ github.event.inputs.action }}\n**Environment:** ${{ github.event.inputs.environment }}\n**Provider:** ${{ github.event.inputs.provider }}\n**Resource Type:** ${{ github.event.inputs.resource_type }}\n**Dry Run:** ${{ github.event.inputs.dry_run }}\n\n**Risk Level:** ${{ needs.validate.outputs.risk-level }}\n**Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }'

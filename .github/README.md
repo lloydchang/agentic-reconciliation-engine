@@ -326,6 +326,60 @@ gh workflow run agent-skills-coordination.yml \
    - Verify test environment setup
    - Review test configuration
 
+### **Migration from Deprecated Action**
+
+#### **❌ Deprecated: `8398a7/action-slack`**
+
+The `8398a7/action-slack` action was archived on 2025-09-13 and is no longer maintained.
+
+**Migration Path:**
+1. **Replace action**: Use `rtCamp/action-slack-notify@v2` (recommended) or `slackapi/slack-github-action`
+2. **Update parameters**: Change from `with:` block to `env:` variables
+3. **Test notifications**: Verify webhook URLs and message formatting
+
+**Before (Deprecated):**
+```yaml
+- name: Notify Slack
+  uses: 8398a7/action-slack@v3
+  with:
+    status: ${{ job.status }}
+    channel: '#channel'
+    text: |
+      Message content
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+**After (Recommended):**
+```yaml
+- name: Notify Slack
+  uses: rtCamp/action-slack-notify@v2
+  env:
+    SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+    SLACK_USERNAME: GitHub Actions
+    SLACK_ICON: :github:
+    SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+    SLACK_CHANNEL: '#channel'
+    SLACK_TITLE: 'Workflow Status'
+    SLACK_MESSAGE: |
+      Message content
+```
+
+#### **Alternative Actions**
+
+- **`slackapi/slack-github-action`** (Official Slack action)
+- **`rtCamp/action-slack-notify`** (Community maintained, used in these workflows)
+- **`pullreminders/slack-action`** (Another maintained alternative)
+
+### **Best Practices**
+
+- **Use conditional notifications**: Only notify configured channels
+- **Include actionable information**: Provide links to workflows and detailed context
+- **Handle failures gracefully**: Don't fail workflows on notification errors
+- **Test webhook URLs**: Validate webhooks before deploying to production
+- **Use environment-specific channels**: Route notifications appropriately
+- **Include workflow context**: Provide links and actionable information
+
 ### **Debugging Commands**
 
 ```bash
