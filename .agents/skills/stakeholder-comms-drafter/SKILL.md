@@ -72,21 +72,25 @@ Creates incident alerts, resolution notes, change announcements, SLA breach repo
 1. Gather timeline, severity, impacted services, and remediation steps from incident context.
 2. Compose Slack/Teams/email updates using templates keyed by severity/audience, including actions and expectations.
 3. Emit `comm-drafted`, require human approval, then mark `sent` once confirmed.
+4. Command stub: `/stakeholder-comms-drafter incident --severity=P2 --audience=engineering --context=shared-context://memory-store/incident/INC-2026-0315-01`.
 
 ### Resolution summaries
 1. Summarize root cause, resolution steps, SLAs affected, and postmortem links.
 2. Provide action items, owners, and next steps for follow-up.
 3. Emit `comm-resolution` and link to postmortem artifacts.
+4. Command stub: `/stakeholder-comms-drafter resolution --incident=INC-2026-0315-01 --format=markdown`.
 
 ### Executive status & risk notes
 1. Combine KPI metrics, risk insights, and cost/incident context into succinct executive language.
 2. Highlight recommended decisions, approvals, or escalations.
 3. Emit `comm-exec` for dashboards or review cycles.
+4. Command stub: `/stakeholder-comms-drafter exec --report=KPI-2026-0315-01 --audience=executive`.
 
 ### Change announcements & SLA breach reports
 1. Draft communications describing change scope, rollback strategy, or SLA impact.
 2. Tailor technical detail level for operations vs external customers.
 3. Emit `comm-change` or `comm-sla` events and await human gate before distribution.
+4. Command stub: `/stakeholder-comms-drafter sla-breach --tenant=tenant-42 --audience=customer`.
 
 ## AI intelligence highlights
 - **AI Risk Scoring** adjusts message urgency and tone using incident data, KPIs, and policy context.
