@@ -71,6 +71,7 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
 | **database-operations** | "restore database", "scale DB", "slow queries", "failover DB", "HA status" | PITR restore, failover | 75% |
+| **backup-validator** | "validate backups", "DR drill", "compliance evidence" | Human gate for production restores | 70% |
 | **secrets-certificate-manager** | "rotate secret", "cert expiry", "Key Vault", "Azure Key Vault", "AWS Key Management Service", "AWS KMS", "AWS Secrets Manager", "AWS Certificate Manager", "ACM", "Google Cloud Certificate Manager", "Certificate Manager", "Cloud Key Management Service", "Cloud KMS", "cert-manager", "leaked credential" | Root CA rotation | 85% |
 | **compliance-security-scanner** | "CVE scan", "checkov", "SOC2 report", "ISO standard", "CIS benchmark", "compliance posture", "az policy state list", "kubectl get events", "kube-bench" | No (scan only) | 80% |
 | **policy-as-code** | "enforce policy", "OPA/Gatekeeper", "tagging standard", "governance", "RBAC audit" | Deny-all policy changes | 85% |
