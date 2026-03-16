@@ -33,4 +33,4 @@ This repository uses dual licensing:
 - `Apache-2.0`: Specific sample snippets requiring user adaptations
   - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
-![logo.svg](agents/dashboard/src/logo.svg)8b27dc4dd3f2" />
+![logo.svg](agents/dashboard/src/logo.svg)
