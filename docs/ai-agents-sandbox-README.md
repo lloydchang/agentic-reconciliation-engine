@@ -222,7 +222,7 @@ Temporal Server <──> PostgreSQL (Durable State & Workflows)
 
 This is not a production-ready framework — it is a testbed. Use this repository to experiment with:
 
-- **The Coordination Layer** — Define agent behaviors via `AGENTS.md` and structured `SKILL.md` schemas
+- **The Coordination Layer** — Define agent behaviors via [AGENTS.md](AGENTS.md) and structured [SKILL.md](SKILL.md) schemas
 - **Interface Interoperability** — Test how the same Skill behaves across CLI, REST API, WebMCP, and Backstage GUI
 - **Tool Boundaries** — Push the limits of what agents can safely do using isolated execution configs that define the blast radius for every agent action
 - **Multi-Agent Orchestration** — Run agents in parallel, with consensus-building and human-in-the-loop escalation
@@ -240,7 +240,7 @@ This is not a production-ready framework — it is a testbed. Use this repositor
 **AI Agent Orchestration**
 
 - *Durable Execution* — Powered by Temporal, ensuring long-running multi-agent workflows survive server crashes and timeouts
-- *Skill System (Claude/Codex Compatible)* — Priority-based auto-discovery of tools defined via `SKILL.md` (YAML frontmatter + markdown) in `.agents/skills/`
+- *Skill System (Claude/Codex Compatible)* — Priority-based auto-discovery of tools defined via [SKILL.md](SKILL.md) (YAML frontmatter + markdown) in `.agents/skills/`
 
 **Multi-Interface Platform**
 
@@ -410,7 +410,7 @@ The MCP server exposes standardized tools so local AI assistants (e.g., Claude D
 
 ## Core Governance
 
-`AGENTS.md` and `SKILL.md` are the most important assets in the repository — the rules of the road for all agents in the lab.
+[AGENTS.md](AGENTS.md) and [SKILL.md](SKILL.md) are the most important assets in the repository — the rules of the road for all agents in the lab.
 
 **AGENTS.md** — Global behavioral constraints and repository-wide safety policies: allowed operations, forbidden directories, code generation standards, and interface-specific rules.
 
@@ -564,7 +564,7 @@ cat frontend/app-config.yaml
 
 This sandbox is built for safe, bleeding-edge experimentation. Contributions are welcome in:
 
-**New AI Skills** — Create a directory under `.agents/skills/your-skill-name/`, add a `SKILL.md` with YAML frontmatter defining inputs, outputs, and tool requirements, and optionally add supporting scripts and templates. Skills are auto-discovered on next backend startup.
+**New AI Skills** — Create a directory under `.agents/skills/your-skill-name/`, add a [SKILL.md](SKILL.md) with YAML frontmatter defining inputs, outputs, and tool requirements, and optionally add supporting scripts and templates. Skills are auto-discovered on next backend startup.
 
 **Interface Development** — Expand WebMCP, add Jira/Slack/Discord hooks, or integrate GitHub Actions CI/CD.
 
@@ -596,7 +596,7 @@ The name was chosen deliberately, and every word carries meaning.
 
 **`sandbox`** — "Sandbox" does double duty here. In software, a sandbox is a safe, isolated environment for experimentation without production consequences. It also signals that this is a high-velocity testbed: patterns here are designed for rapid iteration, the specifications are evolving, and breaking changes are expected. If this were called a "platform" or "orchestrator," users would expect stability guarantees it doesn't claim to provide. "Sandbox" sets honest expectations while still being attractive to developers who want to work on the bleeding edge in a contained, safe way.
 
-**The bonus ambiguity** — Some readers will parse it as *AI Agents Sandbox* (a sandbox for multiple AI agents), others as *AI Agent's Sandbox* (the agent's own playground). Both readings are accurate and intentional. The first describes what you do with it; the second describes what it is from the agent's perspective — a home environment governed by `AGENTS.md`, `SKILL.md`, and defined tool boundaries.
+**The bonus ambiguity** — Some readers will parse it as *AI Agents Sandbox* (a sandbox for multiple AI agents), others as *AI Agent's Sandbox* (the agent's own playground). Both readings are accurate and intentional. The first describes what you do with it; the second describes what it is from the agent's perspective — a home environment governed by [AGENTS.md](AGENTS.md), [SKILL.md](SKILL.md), and defined tool boundaries.
 
 **Why not something else?**
 

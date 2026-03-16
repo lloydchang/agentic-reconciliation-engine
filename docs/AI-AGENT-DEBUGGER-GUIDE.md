@@ -13,7 +13,7 @@ The debugging system consists of multiple layers:
 - **Risk Level**: Low (read-only operations)
 - **Autonomy**: Fully automated for safe debugging operations
 - **Components**:
-  - `SKILL.md`: Skill definition and metadata
+  - [SKILL.md](SKILL.md): Skill definition and metadata
   - `scripts/debug.py`: Main Python debugging engine
   - `scripts/kubernetes-debugger.py`: Kubernetes-specific debugging
   - `scripts/distributed-debug-runner.sh`: End-to-end debugging runner
@@ -376,8 +376,8 @@ NAMESPACE=custom NAMESPACE ./scripts/deploy-ai-agents-ecosystem.sh
 ### Documentation
 - `.agents/debug/documentation/debugging-workflows.md`
 - `.agents/debug/documentation/regression-prevention.md`
-- `docs/AI-AGENTS-ARCHITECTURE.md`
-- `docs/MONITORING_SETUP.md`
+- [docs/AI-AGENTS-ARCHITECTURE.md](docs/AI-AGENTS-ARCHITECTURE.md)
+- [docs/MONITORING_SETUP.md](docs/MONITORING_SETUP.md)
 
 ### Scripts and Tools
 - `.agents/debug/scripts/`: Debugging utilities
@@ -386,8 +386,8 @@ NAMESPACE=custom NAMESPACE ./scripts/deploy-ai-agents-ecosystem.sh
 
 ### References
 - `.agents/debug/references/`: Best practices
-- `AGENTS.md`: Agent architecture overview
-- `AGENT-SKILLS-NEXT-LEVEL.md`: Advanced skills guide
+- [AGENTS.md](AGENTS.md): Agent architecture overview
+- [AGENT-SKILLS-NEXT-LEVEL.md](AGENT-SKILLS-NEXT-LEVEL.md): Advanced skills guide
 
 ---
 

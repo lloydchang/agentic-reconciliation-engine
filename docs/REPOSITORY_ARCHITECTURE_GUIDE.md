@@ -110,7 +110,7 @@ examples/
 
 | Type | Pattern | Example |
 |------|---------|---------|
-| Documentation | `TITLE.md` | `DEVELOPMENT_GUIDE.md` |
+| Documentation | [TITLE.md](TITLE.md) | [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md) |
 | Configuration | `config.yaml` | `cluster-config.yaml` |
 | Scripts | `action.sh` | `setup-cluster.sh` |
 | Components | `ComponentName.tsx` | `Dashboard.tsx` |

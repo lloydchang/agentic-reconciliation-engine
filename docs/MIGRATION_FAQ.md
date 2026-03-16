@@ -29,7 +29,7 @@ This document answers common questions about the March 2026 directory restructur
 ### Q: Why `agents/` instead of `ai-agents/`?
 **A:** Several reasons:
 1. **Less verbose** - `agents` is more concise
-2. **Consistency** - Matches `.agents/` and `AGENTS.md`
+2. **Consistency** - Matches `.agents/` and [AGENTS.md](AGENTS.md)
 3. **Clarity** - Context makes it clear these are AI agents
 4. **Industry standard** - Simple, descriptive names
 

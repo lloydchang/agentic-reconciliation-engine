@@ -392,9 +392,9 @@ tctl wf query --ns ai-infrastructure -w <workflow-id> -q my-query
 ## Support and Resources
 
 ### Documentation
-- `docs/AI-AGENT-DEBUGGER-GUIDE.md`: Comprehensive debugging guide
-- `docs/AI-AGENTS-ARCHITECTURE.md`: Architecture overview
-- `docs/MONITORING_SETUP.md`: Monitoring configuration
+- [docs/AI-AGENT-DEBUGGER-GUIDE.md](docs/AI-AGENT-DEBUGGER-GUIDE.md): Comprehensive debugging guide
+- [docs/AI-AGENTS-ARCHITECTURE.md](docs/AI-AGENTS-ARCHITECTURE.md): Architecture overview
+- [docs/MONITORING_SETUP.md](docs/MONITORING_SETUP.md): Monitoring configuration
 - `.agents/debug/documentation/`: Detailed guides
 
 ### Scripts and Tools

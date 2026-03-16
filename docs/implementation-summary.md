@@ -41,9 +41,9 @@ infrastructure/fallback/
 
 See:
 
-- `control-plane/crossplane/README.md`
-- `control-plane/capi/README.md`
-- `docs/SETUP.md`
+- [control-plane/crossplane/README.md](control-plane/crossplane/README.md)
+- [control-plane/capi/README.md](control-plane/capi/README.md)
+- [docs/SETUP.md](docs/SETUP.md)
 
 ## CI Policy Gate
 

@@ -44,7 +44,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Integration Plan:** `A2A-RAFT-INTEGRATION-PLAN.md`
+- **Integration Plan:** [A2A-RAFT-INTEGRATION-PLAN.md](A2A-RAFT-INTEGRATION-PLAN.md)
 - **Consensus Layer:** `control-plane/consensus/` implements A2A feedback loops
 - **Multi-language:** Rust, C#, Java, Go, Python implementations
 - **Features:**
@@ -194,7 +194,7 @@ Raft Consensus ← Distributed State Management
 
 ### Key Configuration Files
 
-- `AGENTS.md` - Skill index and human gate requirements
+- [AGENTS.md](AGENTS.md) - Skill index and human gate requirements
 - `.agents/skills/*/SKILL.md` - Individual skill definitions
 - `control-plane/consensus/` - A2A and Raft implementations
 - `ai-agents/backend/mcp/` - MCP server configuration

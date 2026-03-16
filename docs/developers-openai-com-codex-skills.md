@@ -4,9 +4,9 @@ Use agent skills to extend Codex with task-specific capabilities. A skill packag
 
 Skills are available in the Codex CLI, IDE extension, and Codex app.
 
-Skills use **progressive disclosure** to manage context efficiently: Codex starts with each skill's metadata (`name`, `description`, file path, and optional metadata from `agents/openai.yaml`). Codex loads the full `SKILL.md` instructions only when it decides to use a skill.
+Skills use **progressive disclosure** to manage context efficiently: Codex starts with each skill's metadata (`name`, `description`, file path, and optional metadata from `agents/openai.yaml`). Codex loads the full [SKILL.md](SKILL.md) instructions only when it decides to use a skill.
 
-A skill is a directory with a `SKILL.md` file plus optional scripts and references. The `SKILL.md` file must include `name` and `description`.
+A skill is a directory with a [SKILL.md](SKILL.md) file plus optional scripts and references. The [SKILL.md](SKILL.md) file must include `name` and `description`.
 
 <FileTree
   class="mt-4"
@@ -66,7 +66,7 @@ $skill-creator
 
 The creator asks what the skill does, when it should trigger, and whether it should stay instruction-only or include scripts. Instruction-only is the default.
 
-You can also create a skill manually by creating a folder with a `SKILL.md` file:
+You can also create a skill manually by creating a folder with a [SKILL.md](SKILL.md) file:
 
 ```md
 ---

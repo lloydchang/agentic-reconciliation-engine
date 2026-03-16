@@ -38,7 +38,7 @@ def fix_markdown_links(file_path):
 
 def main():
     """Main function to process all markdown files."""
-    repo_root = Path(__file__).parent
+    repo_root = Path('.')
     fixed_files = []
     error_files = []
     

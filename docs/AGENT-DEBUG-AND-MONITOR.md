@@ -382,7 +382,7 @@ Solution: Check database performance and optimize queries
 - **Skill Definition**: `.agents/debug/SKILL.md`
 - **Metrics System**: `ai-agents/backend/monitoring/metrics.go`
 - **Deployment Script**: `scripts/deploy-ai-agents-ecosystem.sh`
-- **Monitoring Plan**: `docs/REAL_MONITORING_IMPLEMENTATION.md`
+- **Monitoring Plan**: [docs/REAL_MONITORING_IMPLEMENTATION.md](docs/REAL_MONITORING_IMPLEMENTATION.md)
 
 ### Important Endpoints
 - **Dashboard**: `http://dashboard.local`

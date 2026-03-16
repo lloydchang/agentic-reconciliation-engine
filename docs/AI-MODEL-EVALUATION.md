@@ -517,7 +517,7 @@ SmolLM-360M, Phi-3 Mini, Qwen2.5 0.3B, Gemma 2 2B, TinyLlama 1.1B, Qwen3 and Qwe
 **Implementation**:
 * `agent.py`: Core always-on memory agent adapted for Ollama/Qwen2.5
 * `enhanced-agent.py`: RAG-enhanced version with ddgs search integration
-* `knowledge-base.md`: Curated AI domain knowledge for retrieval
+* [knowledge-base.md](knowledge-base.md): Curated AI domain knowledge for retrieval
 
 ### Programming Language: Python
 

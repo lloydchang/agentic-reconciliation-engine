@@ -15,7 +15,7 @@ Two major improvements were implemented:
 
 The previous naming had several issues:
 - **`dashboard-frontend`** - Redundant (dashboard = frontend by definition)
-- **`ai-agents`** - Verbose when `.agents/` and `AGENTS.md` already exist
+- **`ai-agents`** - Verbose when `.agents/` and [AGENTS.md](AGENTS.md) already exist
 - **Poor organization** - Dashboard was separate from its backend
 
 ### Changes Made
@@ -50,9 +50,9 @@ The previous naming had several issues:
 
 All documentation and configuration files were updated:
 
-- `AGENTS.md` - Repository structure
-- `docs/SYSTEM-CAPABILITIES.md` - MCP server and interface paths
-- `workspace/repo/docs/SYSTEM-CAPABILITIES.md` - Duplicate documentation
+- [AGENTS.md](AGENTS.md) - Repository structure
+- [docs/SYSTEM-CAPABILITIES.md](docs/SYSTEM-CAPABILITIES.md) - MCP server and interface paths
+- [workspace/repo/docs/SYSTEM-CAPABILITIES.md](workspace/repo/docs/SYSTEM-CAPABILITIES.md) - Duplicate documentation
 - `.agents/debug/MEMORY.md` - Memory reference paths
 
 ## Vite Migration

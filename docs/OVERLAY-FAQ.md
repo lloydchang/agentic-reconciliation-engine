@@ -130,7 +130,7 @@ python scripts/test-overlays.py .
 - `overlay-metadata.yaml`: Overlay metadata
 
 Optional files:
-- `README.md`: Documentation
+- [README.md](README.md): Documentation
 - `patches/`: Resource patches
 - `config/`: Configuration files
 - `assets/`: Static assets

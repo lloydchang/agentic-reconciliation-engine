@@ -19,7 +19,7 @@ along with platform-specific guidance for getting a POSIX shell in each environm
 | **gitops-infra-control-plane** | experimental | via containers | yes |
 
 > **Windows note:** Most POSIX shell requirements across these tools are best satisfied by WSL 2,
-Git Bash, or a Linux remote via VS Code Remote – SSH/WSL. See `docs/WINDOWS-COMPATIBILITY.md` for
+Git Bash, or a Linux remote via VS Code Remote – SSH/WSL. See [docs/WINDOWS-COMPATIBILITY.md](docs/WINDOWS-COMPATIBILITY.md) for
 the fallback paths (GitHub Codespaces, Azure Linux VM) if WSL cannot be enabled locally.
 
 ---
@@ -100,7 +100,7 @@ switch to Git Bash or WSL before invoking the automation scripts.
 - **macOS:** macOS 12 Monterey or later (Sonoma/Ventura ideal). 8 GB RAM minimum, 16 GB recommended.
 - **Linux:** Distributed as an AppImage for x86_64; Ubuntu 20.04 or later is the tested baseline.
 
-Contributors unable to enable WSL locally can use GitHub Codespaces or an Azure Linux VM as a fallback; see `docs/WINDOWS-COMPATIBILITY.md`.
+Contributors unable to enable WSL locally can use GitHub Codespaces or an Azure Linux VM as a fallback; see [docs/WINDOWS-COMPATIBILITY.md](docs/WINDOWS-COMPATIBILITY.md).
 
 ---
 

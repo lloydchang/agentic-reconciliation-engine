@@ -33,9 +33,9 @@ This document outlines the implementation plan for the Overlays Architecture in 
    - Discovery mechanism implementation
 
 #### Deliverables
-- [x] `docs/OVERLAY-ARCHITECTURE.md`
-- [x] `docs/OVERLAY-PLANNING.md`
-- [ ] `overlays/README.md`
+- [x] [docs/OVERLAY-ARCHITECTURE.md](docs/OVERLAY-ARCHITECTURE.md)
+- [x] [docs/OVERLAY-PLANNING.md](docs/OVERLAY-PLANNING.md)
+- [ ] [overlays/README.md](overlays/README.md)
 - [ ] Overlay templates in `overlays/templates/`
 - [ ] Basic registry schema in `overlays/registry/`
 

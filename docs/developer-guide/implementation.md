@@ -362,7 +362,7 @@ func loadSkills() ([]Skill, error) {
 
 ### Skill Definition Format
 
-Each skill is defined by a `SKILL.md` file with YAML frontmatter:
+Each skill is defined by a [SKILL.md](SKILL.md) file with YAML frontmatter:
 
 ```markdown
 ---

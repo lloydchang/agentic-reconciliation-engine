@@ -10,14 +10,14 @@ This document outlines the comprehensive repository reorganization completed to 
 
 **Changes Made:**
 
-- Moved root `SKILL.md` → `docs/system-interface.md`
-- Created 40 individual `SKILL.md` files in `.agents/skills/*/SKILL.md` directories
+- Moved root [SKILL.md](SKILL.md) → [docs/system-interface.md](docs/system-interface.md)
+- Created 40 individual [SKILL.md](SKILL.md) files in `.agents/skills/*/SKILL.md` directories
 - Each skill file follows proper YAML frontmatter format with `name`, `description`, `tools` fields
 
 **Justification:**
 
-- `agentskills.io` specification requires individual skills to be in their own directories with `SKILL.md` files
-- Root-level `SKILL.md` violated the specification which states: "A skill is a folder containing a SKILL.md file"
+- `agentskills.io` specification requires individual skills to be in their own directories with [SKILL.md](SKILL.md) files
+- Root-level [SKILL.md](SKILL.md) violated the specification which states: "A skill is a folder containing a SKILL.md file"
 - Citation: `agentskills.io/specification` - "Directory structure" section
 
 **Reasoning:**
@@ -30,9 +30,9 @@ This document outlines the comprehensive repository reorganization completed to 
 
 **Changes Made:**
 
-- Maintained `AGENTS.md` in repository root
-- Created `CLAUDE.md` as symlink to `AGENTS.md`
-- Moved legacy `CLAUDE.md` and `GEMINI.md` to `docs/legacy-configs/`
+- Maintained [AGENTS.md](AGENTS.md) in repository root
+- Created [CLAUDE.md](CLAUDE.md) as symlink to [AGENTS.md](AGENTS.md)
+- Moved legacy [CLAUDE.md](CLAUDE.md) and [GEMINI.md](GEMINI.md) to `docs/legacy-configs/`
 
 **Existing Symlinks (Pre-existing):**
 
@@ -43,7 +43,7 @@ This document outlines the comprehensive repository reorganization completed to 
 
 **Justification:**
 
-- 2025 community convention established `AGENTS.md` as unified configuration for AI coding tools
+- 2025 community convention established [AGENTS.md](AGENTS.md) as unified configuration for AI coding tools
 - Eliminates need for tool-specific config files (CLAUDE.md, GEMINI.md, .cursorrules)
 - Citation: Cobus Greyling Substack - "In mid-2025 the community converged on one convention… A single plain-Markdown file called AGENTS.md"
 
@@ -70,7 +70,7 @@ This document outlines the comprehensive repository reorganization completed to 
   - Go modules: `go.mod`, `go.sum` → `infrastructure/`
   - Kubernetes manifests: `*.yaml` → `infrastructure/`
   - Shell scripts: `*.sh`, `*.js` → `scripts/`
-  - Documentation: `LICENSE`, `README.md`, diagrams → `docs/`
+  - Documentation: `LICENSE`, [README.md](README.md), diagrams → `docs/`
   - Sample data: `agent-data.json` → `examples/`
 
 **Justification:**
@@ -89,9 +89,9 @@ This document outlines the comprehensive repository reorganization completed to 
 
 **Changes Made:**
 
-- Added implementation references in `docs/system-interface.md`
-- Updated `ai-agents/README.md` and `ai-agents/docs/README.md` with links to system docs
-- Modified `AGENTS.md` repository structure diagram to reflect new layout
+- Added implementation references in [docs/system-interface.md](docs/system-interface.md)
+- Updated [ai-agents/README.md](ai-agents/README.md) and [ai-agents/docs/README.md](ai-agents/docs/README.md) with links to system docs
+- Modified [AGENTS.md](AGENTS.md) repository structure diagram to reflect new layout
 
 **Justification:**
 

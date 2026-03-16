@@ -10,7 +10,7 @@ Modern AI agent ecosystems support multiple interface patterns for agent-to-syst
 
 **Purpose**: Global behavior rules and repository governance for AI agents
 
-**Location**: Repository root (`/AGENTS.md`)
+**Location**: Repository root ([/AGENTS.md](/AGENTS.md))
 
 **Controls**:
 

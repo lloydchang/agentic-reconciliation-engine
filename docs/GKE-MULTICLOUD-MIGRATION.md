@@ -32,7 +32,7 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
 
 ## 2. Bootstrap the hub/Flux control plane
 
-1. Use the existing GKE cluster as the hub or spin up a dedicated bootstrap cluster (`docs/BOOTSTRAP-CLUSTER.md`).
+1. Use the existing GKE cluster as the hub or spin up a dedicated bootstrap cluster ([docs/BOOTSTRAP-CLUSTER.md](docs/BOOTSTRAP-CLUSTER.md)).
 2. Bootstrap Flux:
 
    ```bash

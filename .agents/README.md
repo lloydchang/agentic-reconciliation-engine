@@ -319,7 +319,7 @@ CMD ["uv", "run", "python", "main.py", "--help"]
 ### Adding New Skills
 
 1. Create skill directory: `.agents/new-skill/`
-2. Add `SKILL.md` following agentskills.io specification
+2. Add [SKILL.md](SKILL.md) following agentskills.io specification
 3. Implement scripts with PEP 723 dependencies
 4. Add comprehensive tests
 5. Update documentation

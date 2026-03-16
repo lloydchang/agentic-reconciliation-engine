@@ -28,7 +28,7 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 
 ## 2. Bootstrap the hub/Flux control plane
 
-1. Choose the hub cluster: use the existing EKS Argo CD cluster as the hub or provision a dedicated hub (the bootstrap cluster described in `docs/BOOTSTRAP-CLUSTER.md` if you want separation).
+1. Choose the hub cluster: use the existing EKS Argo CD cluster as the hub or provision a dedicated hub (the bootstrap cluster described in [docs/BOOTSTRAP-CLUSTER.md](docs/BOOTSTRAP-CLUSTER.md) if you want separation).
 2. Install Flux so it watches this repo:
 
    ```bash
