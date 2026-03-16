@@ -131,7 +131,7 @@ class FlockAlignment:
 apiVersion: consensus.gitops.io/v1alpha1
 kind: HierarchicalConsensus
 metadata:
-  name: multi-cloud-consensus
+  name: multi-agent-consensus
 spec:
   levels:
   - name: "local"
@@ -152,7 +152,7 @@ spec:
   - name: "global"
     agents: ["global-coordinators"] 
     consensusProtocol: "raft"
-    scope: ["multi-region", "multi-cloud"]
+    scope: ["multi-region", "multi-provider"]
     dependsOn: ["regional"]
     decisionThreshold: 0.8
     feedbackLoop: "60s"
@@ -178,7 +178,7 @@ spec:
 
 - **Linear Agent Scaling**: Add agents without architectural changes
 - **Distributed Load**: Decision making across all agents
-- **Cross-Cloud Coordination**: Global optimization across providers
+- **Cross-Provider Coordination**: Global optimization across providers
 - **Swarm Coordination**: Complex behavior from local rules
 
 ### 4. **Autonomous Organization**
@@ -219,15 +219,15 @@ spec:
       AUTONOMOUS_ORGANIZATION: "true"
 ```
 
-### Multi-Cloud Agent Coordination
+### Multi-Agent Coordination
 
 ```yaml
 apiVersion: consensus.gitops.io/v1alpha1
-kind: MultiCloudConsensus
+kind: MultiProviderConsensus
 metadata:
   name: global-infrastructure-optimization
 spec:
-  clouds:
+  providers:
   - provider: "aws"
     agents: ["aws-cost-optimizer", "aws-security-validator"]
     consensusWeight: 0.4
@@ -245,7 +245,7 @@ spec:
     operationalChanges: "majority"      # 50% consensus
     securityChanges: "supermajority"    # 66% consensus
     criticalChanges: "unanimous"       # 100% consensus
-    costOptimization: "weighted"         # Weighted by cloud spend
+    costOptimization: "weighted"         # Weighted by provider spend
     reputationWeighting: "enabled"        # Reputation affects voting power
 ```
 
@@ -267,7 +267,7 @@ spec:
 
 1. **Hierarchical Consensus**
    - Multi-level consensus hierarchy
-   - Cross-cloud coordination
+   - Cross-provider coordination
    - Byzantine fault tolerance
 
 2. **Self-Learning Systems**
@@ -350,7 +350,7 @@ spec:
     ports:
     - protocol: TCP
       port: 8080
-  - to: []  # Cloud API access
+  - to: []  # Provider API access
     ports:
     - protocol: TCP
       port: 443

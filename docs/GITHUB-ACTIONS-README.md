@@ -1,6 +1,6 @@
 # GitHub Actions - Agent Skills GitOps Integration
 
-.github directory contains GitHub Actions workflows that implement GitOps control plane integration for the multi-cloud agent skills ecosystem.
+.github directory contains GitHub Actions workflows that implement GitOps control plane integration for the multi-Agent skills ecosystem.
 
 ## 🏗️ Architecture Overview
 

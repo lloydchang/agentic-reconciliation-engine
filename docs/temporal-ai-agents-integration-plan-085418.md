@@ -43,7 +43,7 @@ The current sandbox has basic Temporal workflows and a Backstage UI. We will ext
 
 1. Test end-to-end compliance workflows.
 2. Add support for agent-to-agent communication within activities.
-3. Optionally integrate with Azure Foundry for cloud agents.
+3. Optionally integrate with Azure Foundry for Agents.
 
 ## Technical Considerations
 
