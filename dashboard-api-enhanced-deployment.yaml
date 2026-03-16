@@ -21,11 +21,17 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
+        command: ["/bin/sh", "-c"]
+        args: ["pip install flask flask-cors requests && python /app/dashboard-api-enhanced.py"]
         env:
         - name: USE_REAL_METRICS
           value: "true"
         - name: METRICS_SERVER_URL
           value: "http://ai-metrics-service.ai-infrastructure.svc.cluster.local:8080"
+        volumeMounts:
+        - name: api-code
+          mountPath: /app/dashboard-api-enhanced.py
+          subPath: dashboard-api-enhanced.py
         resources:
           requests:
             memory: "128Mi"
@@ -45,6 +51,10 @@ spec:
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 5
+      volumes:
+      - name: api-code
+        configMap:
+          name: dashboard-api-enhanced-code
 ---
 apiVersion: v1
 kind: Service
