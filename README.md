@@ -1,4 +1,4 @@
-# GitOps Infra Control Plane
+# GitOps Infra Control Plane - README.md
 
 A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that combines Flux, Crossplane, and Cluster API to keep your GitOps state enforced 24/7 across AWS, Azure, GCP, and on-prem.
 
