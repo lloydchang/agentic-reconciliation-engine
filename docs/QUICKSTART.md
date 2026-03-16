@@ -23,13 +23,16 @@ Or run steps manually:
 # 2. Setup GitOps configuration
 ./scripts/setup-gitops-config.sh
 
-# 3. Create bootstrap cluster (local recovery anchor)
+# 3. Create bootstrap cluster (recovery anchor)
 ./scripts/create-bootstrap-cluster.sh
 
-# 4. Create hub cluster (local for MVP)
+# 4. Create hub cluster (GitOps control plane)
 ./scripts/create-hub-cluster.sh --provider local
 
-# 5. Create spoke cluster (MVP - local emulation)
+# 5. Install Crossplane on hub (cloud resource management)
+./scripts/install-crossplane.sh --providers local
+
+# 6. Create spoke cluster (MVP - local emulation)
 ./scripts/create-spoke-clusters.sh
 ```
 
