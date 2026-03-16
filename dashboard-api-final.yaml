@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-api
+  namespace: ai-infrastructure
+  labels:
+    component: dashboard-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: dashboard-api
+  template:
+    metadata:
+      labels:
+        component: dashboard-api
+    spec:
+      containers:
+      - name: api
+        image: python:3.9-alpine
+        ports:
+        - containerPort: 5000
+        command: ["/bin/sh", "-c"]
+        args: ["pip install flask flask-cors && python /app/api-server.py"]
+        volumeMounts:
+        - name: api-code
+          mountPath: /app/api-server.py
+          subPath: api-server.py
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: api-code
+        configMap:
+          name: dashboard-api-code
