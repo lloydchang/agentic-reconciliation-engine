@@ -74,16 +74,41 @@ create_namespace() {
     log_success "Namespace created"
 }
 
-# Deploy Ollama for AI inference fallback
-deploy_ollama() {
-    log_info "Deploying Ollama with $OLLAMA_MODEL model..."
+# Deploy inference backend (Llama.cpp primary, Ollama fallback)
+deploy_inference_backend() {
+    log_info "Deploying AI inference backend..."
+    
+    # Try Llama.cpp first (primary)
+    log_info "Attempting to deploy Llama.cpp as primary inference backend..."
+    
+    # Check if Llama.cpp manifests exist and can be deployed
+    if [ -f "infrastructure/ai-inference/shared/llamacpp.yaml" ]; then
+        kubectl apply -f infrastructure/ai-inference/shared/llamacpp.yaml -n $NAMESPACE 2>/dev/null
+        if kubectl wait --for=condition=available --timeout=180s deployment/llamacpp -n $NAMESPACE 2>/dev/null; then
+            log_success "Llama.cpp deployed successfully as primary backend"
+            return 0
+        else
+            log_warning "Llama.cpp deployment failed, falling back to Ollama"
+            kubectl delete -f infrastructure/ai-inference/shared/llamacpp.yaml -n $NAMESPACE 2>/dev/null || true
+        fi
+    else
+        log_warning "Llama.cpp manifests not found, using Ollama fallback"
+    fi
+    
+    # Deploy Ollama as fallback
+    deploy_ollama
+}
 
+# Deploy Ollama for AI inference (only if Llama.cpp fails)
+deploy_ollama() {
+    log_info "Deploying Ollama as fallback inference backend..."
+    
     # Apply Ollama manifests - use ai-infrastructure namespace
     sed 's/namespace: ai-inference/namespace: ai-infrastructure/g' infrastructure/ai-inference/shared/ollama.yaml | kubectl apply -f -
-
+    
     # Wait for Ollama deployment
     kubectl wait --for=condition=available --timeout=300s deployment/ollama -n $NAMESPACE
-
+    
     log_success "Ollama deployed and ready"
 }
 
