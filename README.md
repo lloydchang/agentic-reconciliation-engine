@@ -1,3 +1,5 @@
+<img width="312" height="180" alt="Image" src="https://github.com/user-attachments/assets/3fa4fc53-e083-49e8-ae99-882d06663a98" />
+
 # GitOps Infra Control Plane - README.md
 
 A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that combines Flux, Crossplane, and Cluster API to keep your GitOps state enforced 24/7 across AWS, Azure, GCP, and on-prem.
@@ -30,3 +32,5 @@ This repository uses dual licensing:
   - See [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
 - `Apache-2.0`: Specific sample snippets requiring user adaptations
   - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
+
+![logo.svg](agents/dashboard/src/logo.svg)8b27dc4dd3f2" />
