@@ -11,7 +11,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOG_DIR="${ROOT_DIR}/logs/local-automation"
 START_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
-CONNECTOR_DEFAULT="github"
+CONNECTOR_DEFAULT="local"
 OVERLAY_DEFAULT=("./bootstrap" "./hub" "./emulator-azure" "./spoke-local")
 EMULATOR_ACTION_DEFAULT="enable"
 HELPERS_DEFAULT=("enable-cloud.sh" "export-argocd-state.sh")
@@ -119,7 +119,7 @@ done
 
 run_bootstrap() {
   echo "$(timestamp) - Running prerequisites.sh" | tee "$LOG_DIR/prerequisites.sh.log"
-  ./prerequisites.sh 2>&1 | tee -a "$LOG_DIR/prerequisites.sh.log"
+  "${SCRIPT_DIR}/prerequisites.sh" 2>&1 | tee -a "$LOG_DIR/prerequisites.sh.log"
 }
 
 # Determine the provider from connector or overlay order
@@ -147,7 +147,7 @@ get_provider() {
 
 run_wizard() {
   local provider=$(get_provider)
-  local command=("python" "migration_wizard.py" "--repo-url" "$REPO_URL")
+  local command=("python" "${SCRIPT_DIR}/migration_wizard.py" "--repo-url" "$REPO_URL")
   command+=("--connector" "$CONNECTOR")
   command+=("--provider" "$provider")
   command+=("--overlay-order" "${OVERLAY_ORDER[@]}")
