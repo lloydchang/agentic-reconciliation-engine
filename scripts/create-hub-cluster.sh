@@ -455,9 +455,9 @@ verify_hub_cluster() {
   done
   
   # Check Flux pods
-  if ! kubectl get pods -n flux-system --no-headers | grep -q "Running"; then
+  if ! kubectl get pods -n flux-system --no-headers -l app.kubernetes.io/part-of=flux -o jsonpath={.items[*].status.phase} | grep -q "Running"; then
     sleep 5  # Give pods more time to stabilize
-    if ! kubectl get pods -n flux-system --no-headers | grep -q "Running"; then
+    if ! kubectl get pods -n flux-system --no-headers -l app.kubernetes.io/part-of=flux -o jsonpath={.items[*].status.phase} | grep -q "Running"; then
       fail "Flux pods are not running"
     fi
   fi
