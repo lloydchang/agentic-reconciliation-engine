@@ -1,344 +1,333 @@
-# AI Agent Debugger - Memory and Documentation
+# AI System Debugger
 
-This directory contains comprehensive debugging capabilities for AI agents running in Kubernetes distributed systems. This skill enables automated debugging, LLM-to-LLM analysis, tight feedback loops, and prevention strategies.
+Comprehensive debugging skill for AI agents, Temporal workflows, and Kubernetes infrastructure in distributed environments.
 
-## Quick Reference
+## 🚀 Quick Start
 
-### Debugging Commands
+### Prerequisites
+- Python 3.8+
+- kubectl configured for your cluster
+- Access to the temporal namespace
+- Optional: temporal-cli for advanced workflow debugging
 
-```bash
-# Basic health check
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "diagnose", "targetAgent": "memory-agent", "namespace": "ai-infrastructure"}'
-
-# Deep behavioral analysis
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "analyze", "targetAgent": "all", "debugLevel": "deep"}'
-
-# LLM-to-LLM collaborative debugging
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "llm-analyze", "targetAgent": "ai-inference-gateway", "sessionMode": "llm-collaborative"}'
-
-# Interactive debugging session
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "debug", "targetAgent": "all", "sessionMode": "interactive"}'
-
-# Generate prevention strategies
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "prevent", "targetAgent": "all", "outputFormat": "comprehensive"}'
-
-# Automated fixes
-python .agents/ai-agent-debugger/scripts/main.py '{"operation": "automate", "targetAgent": "memory-agent", "namespace": "ai-infrastructure"}'
-```
-
-### Shell Scripts for Quick Debugging
+### Installation
 
 ```bash
-# Use the comprehensive debugging script
-./scripts/debug-ai-agents-k8s.sh memory-agent DEBUG_LEVEL=detailed
+# Navigate to the debugger directory
+cd .agents/ai-system-debugger/scripts
 
-# LLM-to-LLM debugging automation
-./scripts/llm-debug-automation.sh ai-inference-gateway ANALYSIS_DEPTH=deep AUTO_FIX=true
+# Install dependencies
+pip install -r requirements.txt  # or let PEP 723 handle it automatically
 
-# GitOps infrastructure debugging
-./scripts/debug-dependency-chain.sh network-infrastructure kustomization
+# Make the shell script executable
+chmod +x quick_debug.sh
 ```
 
-## Agent Types and Debugging Strategies
+### Basic Usage
 
-### Memory Agent
-- **Common Issues**: Memory leaks, state corruption, persistence failures
-- **Debugging Focus**: PVC status, memory usage patterns, state consistency
-- **Key Metrics**: Memory utilization, restart counts, state sync latency
-- **Prevention**: Memory limits monitoring, state validation, backup verification
-
-### AI Inference Gateway
-- **Common Issues**: Model loading failures, request routing errors, performance degradation
-- **Debugging Focus**: Model availability, request latency, error rates
-- **Key Metrics**: Inference latency, throughput, error rates, model health
-- **Prevention**: Model health checks, circuit breakers, performance monitoring
-
-### Temporal Worker
-- **Common Issues**: Workflow timeouts, activity failures, state consistency
-- **Debugging Focus**: Workflow execution history, activity logs, state transitions
-- **Key Metrics**: Workflow success rate, activity duration, state size
-- **Prevention**: Workflow timeouts, retry policies, state monitoring
-
-### Consensus Agent
-- **Common Issues**: Leader election failures, consensus timeouts, network partitions
-- **Debugging Focus**: Consensus state, leader status, network connectivity
-- **Key Metrics**: Consensus rounds, leader changes, network latency
-- **Prevention**: Network monitoring, quorum health, split-brain detection
-
-## Debugging Workflows
-
-### 1. Immediate Issue Resolution
 ```bash
-# Check pod status
-kubectl get pods -n ai-infrastructure -l component=memory-agent
+# Quick agent debugging with auto-fix
+./quick_debug.sh agents errors true
 
-# Check recent events
-kubectl get events -n ai-infrastructure --field-selector involvedObject.name=memory-agent
+# Comprehensive Python-based debugging
+python main.py debug \
+  --target-component all \
+  --issue-type performance \
+  --time-range 2h \
+  --namespace temporal \
+  --verbose \
+  --auto-fix
 
-# Check logs for errors
-kubectl logs -n ai-infrastructure -l component=memory-agent --tail=100
-
-# Quick health check
-./scripts/debug-ai-agents-k8s.sh memory-agent DEBUG_LEVEL=basic
+# Generate debug report
+python main.py debug \
+  --target-component workflows \
+  --issue-type timeouts \
+  --output debug-report.json
 ```
 
-### 2. Deep Analysis
-```bash
-# Start comprehensive analysis
-python .agents/ai-agent-debugger/scripts/main.py '{
-  "operation": "analyze",
-  "targetAgent": "all",
-  "debugLevel": "deep",
-  "namespace": "ai-infrastructure",
-  "correlationId": "deep-analysis-001"
-}'
+## 📊 Debugging Components
 
-# LLM collaborative debugging
-./scripts/llm-debug-automation.sh all ANALYSIS_DEPTH=deep
-```
+### 1. AI Agents Debugging
+- Pod status and restart analysis
+- Agent execution log analysis
+- Resource utilization monitoring
+- Skill execution error tracking
+- Performance bottleneck identification
 
-### 3. Prevention Implementation
-```bash
-# Generate prevention strategies
-python .agents/ai-agent-debugger/scripts/main.py '{
-  "operation": "prevent",
-  "targetAgent": "all",
-  "outputFormat": "comprehensive"
-}'
+### 2. Temporal Workflows Debugging
+- Workflow execution history
+- Activity timeout analysis
+- Task queue health monitoring
+- Workflow correlation and tracing
+- Stuck workflow detection
 
-# Apply automated fixes
-python .agents/ai-agent-debugger/scripts/main.py '{
-  "operation": "automate",
-  "targetAgent": "memory-agent",
-  "namespace": "ai-infrastructure"
-}'
-```
+### 3. Kubernetes Infrastructure Debugging
+- Node health and resource availability
+- Storage and network issues
+- Service connectivity validation
+- Resource quota and limit analysis
+- Event-driven problem detection
 
-## Common Debugging Patterns
+## 🔧 Advanced Features
 
-### Resource Issues
-```bash
-# Check resource usage
-kubectl top pods -n ai-infrastructure -l component=memory-agent
+### Auto-Fix Capabilities
+When `--auto-fix` is enabled, the debugger can:
+- Restart failing pods automatically
+- Clear stuck workflows
+- Adjust resource limits
+- Restart unhealthy agents
+- Clear temporary cache issues
 
-# Describe pod for resource limits
-kubectl describe pod -n ai-infrastructure -l component=memory-agent
+### Real-time Monitoring
+- Live metrics streaming from monitoring endpoints
+- WebSocket-based progress updates
+- Alert integration and notification
+- Performance trend analysis
 
-# Check OOM kills
-kubectl get events -n ai-infrastructure --field-selector reason=OOMKilling
-```
+### Distributed System Support
+- Multi-cluster debugging capabilities
+- Namespace isolation handling
+- Remote log aggregation
+- Cross-component correlation
 
-### Network Issues
-```bash
-# Check service endpoints
-kubectl get endpoints -n ai-infrastructure -l component=memory-agent
+## 📈 Integration Points
 
-# Test connectivity
-kubectl port-forward -n ai-infrastructure service/memory-agent 8080:8080
-curl http://localhost:8080/health
-
-# Check network policies
-kubectl get networkpolicies -n ai-infrastructure
-```
-
-### State Issues
-```bash
-# Check PVC status
-kubectl get pvc -n ai-infrastructure -l component=memory-agent
-
-# Check configmaps
-kubectl get configmaps -n ai-infrastructure -l component=memory-agent -o yaml
-
-# Check secrets
-kubectl get secrets -n ai-infrastructure -l component=memory-agent -o yaml
-```
-
-## LLM-to-LLM Debugging Sessions
-
-### Starting Collaborative Session
-```bash
-# Create LLM debugging session
-./scripts/llm-debug-automation.sh memory-agent \
-  DEBUG_SESSION_ID=collab-debug-001 \
-  ANALYSIS_DEPTH=deep \
-  OUTPUT_DIR=./llm-sessions
-```
-
-### Session Artifacts
-- `llm-debug-session-{id}.json`: Complete agent state for LLM analysis
-- `{id}-behavior-analysis.md`: Behavioral pattern analysis
-- `{id}-llm-prompts.md`: Specific debugging prompts for LLMs
-- `{id}-final-report.md`: Comprehensive debugging report
-
-### Using LLM Prompts
-1. Copy prompts from the generated session file
-2. Provide agent state data as context
-3. Follow LLM recommendations for fixes
-4. Validate fixes and update session
-5. Share session with other LLMs for collaborative analysis
-
-## Prevention Strategies
-
-### Monitoring Enhancements
-```yaml
-# Example Prometheus rules for AI agents
-groups:
-- name: ai-agent-alerts
-  rules:
-  - alert: MemoryAgentHighRestartCount
-    expr: kube_pod_container_status_restarts_total{component="memory-agent"} > 5
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "Memory agent restarting frequently"
-      
-  - alert: InferenceGatewayHighLatency
-    expr: http_request_duration_seconds{service="ai-inference-gateway"} > 2
-    for: 2m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Inference gateway high latency detected"
-```
-
-### Health Checks
-```python
-# Example health check implementation
-def health_check():
-    checks = {
-        'memory_status': check_memory_health(),
-        'model_availability': check_model_status(),
-        'connectivity': check_connectivity(),
-        'state_consistency': check_state_consistency()
-    }
-    
-    overall_health = all(checks.values())
-    return {
-        'status': 'healthy' if overall_health else 'unhealthy',
-        'checks': checks,
-        'timestamp': datetime.utcnow().isoformat()
-    }
-```
-
-### Automated Recovery
-```bash
-# Example automated recovery script
-#!/bin/bash
-AGENT_NAME=$1
-NAMESPACE=${2:-ai-infrastructure}
-
-# Restart failing pods
-kubectl get pods -n $NAMESPACE -l component=$AGENT_NAME \
-  --field-selector=status.phase!=Running \
-  -o jsonpath='{.items[*].metadata.name}' | \
-  xargs -I {} kubectl delete pod {} -n $NAMESPACE --wait=false
-
-# Scale up if needed
-kubectl scale deployment $AGENT_NAME --replicas=1 -n $NAMESPACE
-```
-
-## Troubleshooting Checklist
-
-### Before Debugging
-- [ ] Kubernetes cluster accessible
-- [ ] kubectl configured correctly
-- [ ] Required permissions available
-- [ ] Agent namespace exists
-- [ ] Debugging scripts executable
-
-### During Debugging
-- [ ] Collect comprehensive state
-- [ ] Use correlation IDs for tracing
-- [ ] Save session artifacts
-- [ ] Document findings
-- [ ] Validate fixes
-
-### After Debugging
-- [ ] Verify issue resolution
-- [ ] Monitor for regression
-- [ ] Update documentation
-- [ ] Share learnings
-- [ ] Implement prevention
-
-## Integration with Existing Tools
-
-### GitOps Integration
-```bash
-# Check Flux reconciliation
-flux get kustomizations -n ai-infrastructure
-
-# Check GitOps status
-./scripts/debug-dependency-chain.sh ai-infrastructure kustomization
-```
+### Monitoring System
+The debugger integrates with your existing monitoring infrastructure:
+- Metrics API: `/monitoring/metrics`
+- Alerts API: `/monitoring/alerts`
+- Health Checks: `/health`
+- Audit Logs: `/audit/events`
 
 ### Temporal Integration
-```bash
-# Check Temporal workflow status
-tctl --namespace ai-infrastructure workflow list
+- Workflow History API access
+- Activity execution monitoring
+- Task queue status tracking
+- Worker health validation
 
-# Check activity execution
-tctl --namespace ai-infrastructure activity list
+### Kubernetes Integration
+- Pod lifecycle management
+- Service discovery validation
+- Resource utilization tracking
+- Network policy analysis
+
+## 🛠️ Development and Testing
+
+### Running Tests
+```bash
+# Run the test suite
+cd scripts
+python test_debugger.py
+
+# Run with pytest for more options
+pytest test_debugger.py -v --tb=short
 ```
 
-### Monitoring Integration
+### Development Setup
 ```bash
-# Check Prometheus metrics
-kubectl port-forward svc/prometheus 9090:9090 -n monitoring
-curl http://localhost:9090/api/v1/query?query=up{job="ai-agents"}
+# Install development dependencies
+pip install pytest pytest-asyncio kubernetes requests pydantic
 
-# Check Grafana dashboards
-kubectl port-forward svc/grafana 3000:3000 -n monitoring
+# Run in development mode
+python main.py debug --target-component agents --issue-type errors --verbose
 ```
 
-## Best Practices
+## 📋 Common Debugging Scenarios
 
-### Debugging Approach
-1. **Start Broad**: Begin with basic health assessment
-2. **Narrow Down**: Use detailed analysis to focus on issues
-3. **Collaborate**: Leverage LLM-to-LLM debugging for complex issues
-4. **Validate**: Always validate applied fixes
-5. **Document**: Record findings and prevention strategies
-
-### Session Management
-1. **Unique IDs**: Use correlation IDs for all debugging
-2. **Artifact Preservation**: Save all session data
-3. **Reproducibility**: Ensure sessions can be recreated
-4. **Knowledge Sharing**: Share sessions between LLMs
-5. **Continuous Learning**: Update debugging strategies based on results
-
-### Prevention Focus
-1. **Proactive Monitoring**: Implement comprehensive monitoring
-2. **Automated Recovery**: Create self-healing mechanisms
-3. **Performance Baselines**: Establish normal behavior patterns
-4. **Security Integration**: Include security in debugging
-5. **Scalability Considerations**: Design for distributed debugging
-
-## Emergency Procedures
-
-### Critical Agent Failure
+### Scenario 1: Agent Pod Failures
 ```bash
-# Immediate recovery
-kubectl scale deployment memory-agent --replicas=0 -n ai-infrastructure
-kubectl scale deployment memory-agent --replicas=1 -n ai-infrastructure
+# Quick diagnosis
+./quick_debug.sh agents errors false
 
-# Check for data loss
-kubectl get pvc -n ai-infrastructure -l component=memory-agent
-
-# Restore from backup if needed
-kubectl apply -f backups/memory-agent-backup.yaml
+# Detailed analysis
+python main.py debug \
+  --target-component agents \
+  --issue-type errors \
+  --time-range 1h \
+  --verbose
 ```
 
-### Multi-Agent Coordination Failure
+### Scenario 2: Workflow Timeouts
 ```bash
-# Check consensus state
-kubectl get agentconsensus -n control-plane
-
-# Restart consensus agents
-kubectl delete pods -n control-plane -l app=consensus-agent
-
-# Verify network connectivity
-kubectl run connectivity-test --image=nicolaka/netshoot --rm -it -- /bin/bash
+# Workflow-specific debugging
+python main.py debug \
+  --target-component workflows \
+  --issue-type timeouts \
+  --time-range 30m \
+  --auto-fix
 ```
 
-This comprehensive debugging system ensures that AI agents running in distributed Kubernetes environments can be effectively debugged, monitored, and maintained with both automated and collaborative approaches.
+### Scenario 3: Performance Issues
+```bash
+# Performance analysis
+python main.py debug \
+  --target-component all \
+  --issue-type performance \
+  --time-range 2h \
+  --output performance-report.json
+```
+
+### Scenario 4: Infrastructure Health
+```bash
+# Infrastructure check
+./quick_debug.sh infrastructure general false
+
+# Full infrastructure analysis
+python main.py debug \
+  --target-component infrastructure \
+  --issue-type resource \
+  --namespace temporal
+```
+
+## 📊 Output Formats
+
+### Console Output
+The debugger provides rich console output with:
+- Color-coded severity levels
+- Progress indicators for long operations
+- Structured findings with evidence
+- Actionable recommendations
+
+### JSON Reports
+When using `--output`, the debugger generates comprehensive JSON reports:
+```json
+{
+  "debug_session_id": "uuid",
+  "findings": [
+    {
+      "component": "agents",
+      "severity": "critical",
+      "issue": "Agent pod restart loop",
+      "root_cause": "Memory exhaustion",
+      "evidence": ["Pod restarted 5 times in 10 minutes"],
+      "recommendations": ["Increase memory limits", "Investigate memory leaks"]
+    }
+  ],
+  "metrics_summary": {
+    "total_issues": 3,
+    "critical_issues": 1,
+    "warnings": 2,
+    "auto_fixes_applied": 0
+  },
+  "execution_time": 45.2,
+  "next_steps": ["Address critical issues", "Monitor applied fixes"]
+}
+```
+
+## 🔍 Troubleshooting the Debugger
+
+### Common Issues
+
+1. **kubectl not found**
+   ```bash
+   # Install kubectl
+   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/amd64/kubectl"
+   chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+   ```
+
+2. **Permission denied accessing cluster**
+   ```bash
+   # Check kubeconfig
+   kubectl config current-context
+   kubectl cluster-info
+   ```
+
+3. **Monitoring endpoints not reachable**
+   ```bash
+   # Check service status
+   kubectl get svc -n temporal
+   kubectl port-forward svc/temporal-worker 8080:8080 -n temporal
+   ```
+
+### Debug Mode
+Enable verbose logging for troubleshooting:
+```bash
+python main.py debug --target-component agents --issue-type errors --verbose
+```
+
+## 🚀 Production Deployment
+
+### Kubernetes Deployment
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ai-debugger
+  namespace: temporal
+spec:
+  template:
+    spec:
+      serviceAccountName: temporal-worker-sa
+      containers:
+      - name: debugger
+        image: your-registry/ai-debugger:latest
+        command: ["python", "main.py", "debug"]
+        args:
+        - "--target-component"
+        - "all"
+        - "--issue-type"
+        - "performance"
+        - "--auto-fix"
+        env:
+        - name: NAMESPACE
+          value: "temporal"
+      restartPolicy: Never
+```
+
+### Scheduled Debugging
+Create a CronJob for regular health checks:
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-debugger-scheduled
+  namespace: temporal
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: debugger
+            image: your-registry/ai-debugger:latest
+            command: ["python", "main.py", "debug"]
+            args: ["--target-component", "all", "--issue-type", "general"]
+          restartPolicy: OnFailure
+```
+
+## 🤝 Contributing
+
+### Adding New Debugging Capabilities
+1. Create new functions in `debug_utils.py`
+2. Add corresponding CLI options in `main.py`
+3. Write tests in `test_debugger.py`
+4. Update documentation
+
+### Testing
+```bash
+# Run all tests
+pytest test_debugger.py -v
+
+# Run specific test
+pytest test_debugger.py::TestAISystemDebugger::test_debug_agents -v
+```
+
+## 📚 Related Documentation
+
+- [Agent Skills Specification](https://agentskills.io/specification)
+- [Temporal Documentation](https://docs.temporal.io/)
+- [Kubernetes Troubleshooting](https://kubernetes.io/docs/tasks/debug-application-cluster/)
+- [AI Agents Architecture](../../AGENTS.md)
+
+## 📞 Support
+
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review the debug logs with `--verbose`
+3. Check the memory knowledge base
+4. Review the skill execution logs
+
+---
+
+**Built with ❤️ following the Agent Skills Specification and Kubernetes best practices.**
