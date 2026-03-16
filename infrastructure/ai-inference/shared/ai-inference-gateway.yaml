@@ -5,7 +5,7 @@ metadata:
   namespace: ai-infrastructure
 spec:
   selector:
-    component: memory-agent
+    component: agent-memory
   ports:
   - port: 8080
     targetPort: 8080
