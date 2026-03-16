@@ -11,7 +11,7 @@ Get a working GitOps control plane running locally in minutes.
 
 ```bash
 # One-command MVP setup
-./scripts/setup-mvp.sh
+./scripts/quickstart.sh
 ```
 
 Or run steps manually:
@@ -37,14 +37,14 @@ Or run steps manually:
 
 ```bash
 # Full MVP setup
-./scripts/setup-mvp.sh
+./scripts/quickstart.sh
 
 # Preview commands without running
-./scripts/setup-mvp.sh --dry-run
+./scripts/quickstart.sh --dry-run
 
 # Skip specific steps (useful for re-running)
-./scripts/setup-mvp.sh --skip-spoke    # Setup bootstrap + hub only
-./scripts/setup-mvp.sh --skip-hub       # Setup bootstrap + spokes only
+./scripts/quickstart.sh --skip-spoke    # Setup bootstrap + hub only
+./scripts/quickstart.sh --skip-hub       # Setup bootstrap + spokes only
 ```
 
 ## What You Get
