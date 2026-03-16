@@ -10,9 +10,16 @@ Get a working GitOps control plane running locally in minutes.
 ## MVP Setup (One Command)
 
 ```bash
-# One-command MVP setup
+# One-command MVP setup with AI agents and dashboard
 ./scripts/quickstart.sh
 ```
+
+**What it deploys:**
+1. Bootstrap Cluster (recovery anchor)
+2. Hub Cluster with Flux + Crossplane + Kubernetes Provider
+3. Spoke Cluster (local workloads)
+4. AI Agents Ecosystem with Temporal orchestration
+5. Interactive Dashboard for monitoring and control
 
 Or run steps manually:
 
@@ -27,32 +34,37 @@ Or run steps manually:
 ./scripts/create-bootstrap-cluster.sh
 
 # 4. Create hub cluster (GitOps control plane)
-./scripts/create-hub-cluster.sh --provider local
+./scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
 
-# 5. Install Crossplane on hub (cloud resource management)
+# 5. Install Crossplane with Kubernetes provider for local development
 ./scripts/install-crossplane.sh --providers local
 
 # 6. Create spoke cluster (MVP - local emulation)
 ./scripts/create-spoke-clusters.sh
+
+# 7. Deploy AI agents ecosystem with dashboard
+./scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ## MVP Options
 
 ```bash
-# Full MVP setup
+# Full MVP setup (recommended)
 ./scripts/quickstart.sh
 
-# Preview commands without running
-./scripts/quickstart.sh --dry-run
+# Show help
+./scripts/quickstart.sh --help
 ```
 
 ## What You Get
 
 ✅ **Bootstrap Cluster** - Recovery anchor for hub cluster  
-✅ **Hub Cluster** - Runs Flux, Crossplane, Cluster API  
+✅ **Hub Cluster** - Runs Flux, Crossplane with Kubernetes Provider, Cluster API  
 ✅ **Spoke Cluster** - Local kind cluster for workloads  
 ✅ **GitOps Workflow** - Full continuous reconciliation  
-✅ **Zero Cloud Costs** - Everything runs locally  
+✅ **AI Agents Ecosystem** - 64+ operational skills with Temporal orchestration  
+✅ **Interactive Dashboard** - Real-time monitoring and control  
+✅ **Zero Cloud Costs** - Everything runs locally with full functionality  
 
 ## Verify Your MVP
 
@@ -63,26 +75,43 @@ kubectl get clusters -n gitops-system
 # Check Flux status
 kubectl get pods -n flux-system
 
-# Check Crossplane
+# Check Crossplane with Kubernetes provider
 kubectl get providers -n crossplane-system
+kubectl get providerconfig -n crossplane-system
+
+# Check AI agents
+kubectl get pods -n ai-infrastructure
+
+# Access AI Dashboard
+kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80
+open http://localhost:8080
 ```
 
 ## Next Steps
 
+- **Learn Crossplane Local Development**: See `docs/CROSSPLANE-LOCAL-DEVELOPMENT.md`
 - **Add Real Cloud**: `./scripts/create-spoke-clusters.sh --providers azure`
 - **Multi-Cloud**: `./scripts/create-spoke-clusters.sh --providers azure,aws,gcp`
 - **Production**: Use real cloud providers for hub cluster
+- **AI Agents Guide**: See `docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md`
 
 ## Architecture
 
 ```
 Bootstrap Cluster (local) → Hub Cluster (local) → Spoke Cluster (local)
         ↓                           ↓                      ↓
-   Recovery Config         Flux + Crossplane      Workloads + Apps
+   Recovery Config         Flux + Crossplane +      Workloads + Apps
+                              Kubernetes Provider
+                              ↓
+                        AI Agents + Temporal
+                              ↓
+                         Interactive Dashboard
 ```
 
 ---
 
-**MVP Benefits**: No cloud costs, no credentials, full GitOps validation.  
+**MVP Benefits**: No cloud costs, no credentials, full GitOps validation, complete Crossplane functionality.  
 
 **For production deployment**, see `docs/OVERVIEW.md`.
+
+**For Crossplane local development details**, see `docs/CROSSPLANE-LOCAL-DEVELOPMENT.md`.

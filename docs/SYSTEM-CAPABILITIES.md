@@ -16,7 +16,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 ### AI Models & Grounding
 
 - **Primary Model:** Qwen2.5B with RAG augmentation
-- **RAG Implementation:** `ai-agents/backend/ragai/` provides context from agentskills.io
+- **RAG Implementation:** `agents/backend/ragai/` provides context from agentskills.io
 - **Knowledge Base:** Retrieves skill specifications and system documentation
 - **Context Injection:** Augments prompts with framework conventions and tool schemas
 
@@ -26,7 +26,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Server:** `ai-agents/backend/mcp/` - Complete MCP server with tools and resources
+- **Server:** `agents/backend/mcp/` - Complete MCP server with tools and resources
 - **Client:** WebSocket/HTTP client for external MCP server connections
 - **Dynamic Tools:** Skills auto-convert to MCP tools with JSON schemas
 - **Registry:** `MCPRegistry` manages tool discovery and registration
@@ -35,7 +35,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Interface:** `ai-agents/frontend/src/components/WebMCPClient.tsx`
+- **Interface:** `agents/dashboard/src/components/WebMCPClient.tsx`
 - **Purpose:** Human operators access MCP tools through web UI
 - **Real-time:** WebSocket connections for live tool execution
 - **Integration:** Connects frontend to backend MCP servers

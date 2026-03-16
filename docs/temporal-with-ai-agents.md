@@ -849,7 +849,7 @@ Yes, you can absolutely conceptually start with Backstage if you frame it as a u
    |-- Handles retries, branching, timers, human review
    |-- Records durable execution history for audit
    v
-[Activity: Local or Cloud AI Agents]
+[Activity: Local or AI Agents]
    |-- Non-deterministic execution
    |-- Optional A2A communication inside Activity
    |-- Examples: data pre-processing, analysis, aggregation
@@ -894,7 +894,7 @@ Exactly. If compliance checks are automatic and continuous, Backstage becomes mo
    |-- Handles retries, branching, timers, human review if needed
    |-- Records durable execution history for audit
    v
-[Activity: Local or Cloud AI Agents]
+[Activity: Local or AI Agents]
    |-- Non-deterministic execution
    |-- Optional A2A communication inside Activity
    |-- Examples: scanning documents, analyzing transactions, aggregating results
@@ -946,7 +946,7 @@ Here’s how that changes the architecture sketch:
    |-- Handles retries, branching, timers, human review if needed
    |-- Records durable execution history for audit
    v
-[Activity: Local or Cloud AI Agents]
+[Activity: Local or AI Agents]
    |-- Non-deterministic execution
    |-- Optional A2A communication inside Activity
    |-- Performs compliance checks, data processing, aggregation
@@ -2114,7 +2114,7 @@ yes
 
 // File: multi_cloud_temporal_backstage_architecture.txt
 
-Multi-Cloud AI + Infrastructure Workflow Architecture with Temporal and Backstage
+Multi-AI + Infrastructure Workflow Architecture with Temporal and Backstage
 
 [Backstage Portal - User Interface]
 |-- Users assemble workflow modules:
@@ -2179,7 +2179,7 @@ what if remote cloud, use local emulators/simulators?
 
 // File: multi_cloud_temporal_with_emulators.txt
 
-Multi-Cloud AI + Infrastructure Workflow with Temporal, Backstage, and Local Emulators
+Multi-AI + Infrastructure Workflow with Temporal, Backstage, and Local Emulators
 
 [Backstage Portal - User Interface]
 |-- Users assemble workflow modules:
@@ -2545,7 +2545,7 @@ These can be integrated as Activities in Temporal workflows, giving you durable 
 
 True autonomous multi-step AI agents (like LangChain agents) still require an orchestration layer (Temporal) for workflow management, retries, and human-in-the-loop steps.
 
-Bottom line: Cloud AI services are building blocks, but Temporal + Backstage provides the orchestration, multi-cloud management, and durability that real-world AI-driven workflows need.
+Bottom line: AI services are building blocks, but Temporal + Backstage provides the orchestration, multi-cloud management, and durability that real-world AI-driven workflows need.
 
 If you want, I can make a diagram showing AWS, Azure, GCP AI services as agents connected to Temporal workers in a multi-cloud workflow, including human-in-the-loop and emulators. Do you want me to do that?
 
@@ -2568,7 +2568,7 @@ Tool/Environment aware: can call APIs, cloud resources, or even other AI agents
 Long-running workflows: capable of multi-step chains over hours or days
 
 1. Where they differ from cloud AI services
-Feature Cloud AI (AWS/Azure/GCP) LLM AI Agents
+Feature AI (AWS/Azure/GCP) LLM AI Agents
 Execution API calls / endpoints Autonomous execution loop
 Planning External orchestration required Built-in reasoning and planning
 Non-determinism Low (single inference) High (multi-step reasoning, can branch)
@@ -2694,7 +2694,7 @@ What it does: Agents plan, reason, and use tools to complete multi‑step goals,
 Use case: Personal assistants in apps or custom enterprise agents built with Vertex AI / Gemini models.
 
 Comparison: Cloud Agents vs Simple LLM APIs
-Aspect Basic LLM API Cloud AI Agent Platform
+Aspect Basic LLM API AI Agent Platform
 Intent Single response to prompt Autonomous, multi‑step tasks with planning
 Tool usage Manual via function calls Built‑in planning and tool invocation
 Memory Session‑based Persistent memory/context across interactions

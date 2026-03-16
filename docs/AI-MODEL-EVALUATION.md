@@ -1,10 +1,10 @@
 # AI-MODEL-EVALUATION.md
 
-# AI Model Evaluation for Low-Cost Local Cloud AI
+# AI Model Evaluation for Low-Cost Local AI
 
 ## Problem Space
 
-This document evaluates AI models for a low-cost local Cloud AI architecture designed for structured Cloud AI pipelines. The architecture requires:
+This document evaluates AI models for a low-cost local AI architecture designed for structured AI pipelines. The architecture requires:
 
 * **Memory Usage**: <500MB to keep electricity costs under $1/month
 * **Reliability**: 100% pass rate on structured instruction-following tasks
@@ -13,7 +13,7 @@ This document evaluates AI models for a low-cost local Cloud AI architecture des
 
 ## Test Cases and Criteria
 
-All models are evaluated on a comprehensive set of 73+ operational Cloud AI and infrastructure tasks, including both foundational and advanced scenarios. Each task specifies a prompt, criteria, and expected output.
+All models are evaluated on a comprehensive set of 73+ operational AI and infrastructure tasks, including both foundational and advanced scenarios. Each task specifies a prompt, criteria, and expected output.
 
 ### 1. incident-summary
 
@@ -496,7 +496,7 @@ All models are evaluated on a comprehensive set of 73+ operational Cloud AI and 
 
 ### Other Models
 
-SmolLM-360M, Phi-3 Mini, Qwen2.5 0.3B, Gemma 2 2B, TinyLlama 1.1B, Qwen3 and Qwen3.5 series - performance, memory, reliability, and cost vary. Only Qwen2.5 0.5B meets full ultra-cheap local Cloud AI requirements.
+SmolLM-360M, Phi-3 Mini, Qwen2.5 0.3B, Gemma 2 2B, TinyLlama 1.1B, Qwen3 and Qwen3.5 series - performance, memory, reliability, and cost vary. Only Qwen2.5 0.5B meets full ultra-cheap local AI requirements.
 
 ## Architecture and Implementation Decisions
 
@@ -511,13 +511,13 @@ SmolLM-360M, Phi-3 Mini, Qwen2.5 0.3B, Gemma 2 2B, TinyLlama 1.1B, Qwen3 and Qwe
 **Why Hybrid Instead of Pure Always-On**:
 * Always-On handles long-term memory management and insight generation
 * RAG provides immediate access to relevant knowledge and current information
-* Combined approach achieves better performance on complex Cloud AI queries than either method alone
+* Combined approach achieves better performance on complex AI queries than either method alone
 * Addresses knowledge gaps through both accumulated experience and real-time retrieval
 
 **Implementation**:
 * `agent.py`: Core always-on memory agent adapted for Ollama/Qwen2.5
 * `enhanced-agent.py`: RAG-enhanced version with ddgs search integration
-* `knowledge-base.md`: Curated Cloud AI domain knowledge for retrieval
+* `knowledge-base.md`: Curated AI domain knowledge for retrieval
 
 ### Programming Language: Python
 
@@ -740,10 +740,10 @@ spec:
 
 ## Conclusion
 
-Qwen2.5 0.5B is the optimal model for ultra-cheap local Cloud AI pipelines. It combines minimal memory usage, reliable structured outputs, open-source availability, and low electricity cost. Future monitoring will track improvements, but it remains the recommended choice.
+Qwen2.5 0.5B is the optimal model for ultra-cheap local AI pipelines. It combines minimal memory usage, reliable structured outputs, open-source availability, and low electricity cost. Future monitoring will track improvements, but it remains the recommended choice.
 
 **Deployment**: `qwen2.5:0.5b` in Ollama service with minimal resources (200Mi/100m requests, 500Mi/250m limits).
 
-**Testing**: Automated suite validates performance on 73+ operational Cloud AI tasks.
+**Testing**: Automated suite validates performance on 73+ operational AI tasks.
 
 **Citations**: See above references for 2026 validation.

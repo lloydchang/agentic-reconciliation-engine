@@ -246,7 +246,7 @@ Claude will see the tool run_compliance_check, trigger the Python script, receiv
 
 How to use this?
 
-To make your entire Cloud AI Agent work, you follow this pattern for every skill you created:
+To make your entire AI Agent work, you follow this pattern for every skill you created:
 
 Componentize: Keep one .py or .ts file per skill (e.g., incident_server.py/.ts, iac_server.py/.ts).
 
@@ -446,11 +446,11 @@ Version Control: Store your SKILL.md and your MCP server code in a Git repo. Tre
 
 Transparency: If you use this to report to executive stakeholders, always keep a human-in-the-loop for the final send button. The AI is your co-pilot, but you are the captain.
 
-Would you like me to generate a README.md for your entire Cloud AI Agent project so you can document this for your team or for your own reference?
+Would you like me to generate a README.md for your entire AI Agent project so you can document this for your team or for your own reference?
 
 Model
 
-This README.md is designed to be the master documentation for your Cloud AI Agent project. You can keep this in the root folder of your repository. It defines the mission, architecture, and how to operate your new AI co-pilot.
+This README.md is designed to be the master documentation for your AI Agent project. You can keep this in the root folder of your repository. It defines the mission, architecture, and how to operate your new AI co-pilot.
 
 File: README.md
 
@@ -458,7 +458,7 @@ code
 
 Markdown
 
-# Cloud AI Agent Ecosystem
+# AI Agent Ecosystem
 
 ## Overview
 
@@ -539,7 +539,7 @@ code
 
 Markdown
 
-# Cloud AI Agent Ecosystem
+# AI Agent Ecosystem
 
 ## Overview
 
@@ -777,7 +777,7 @@ Model
 
 Since you’ve confirmed, let’s move to the next critical technical pillar: The iac-deployment-validator.
 
-This skill is essential for a Cloud AI Agent because it acts as an automated guardrail. It ensures that no infrastructure code (Terraform/CDK/CloudFormation/Bicep/ARM/Google Cloud Infrastructure Manager/IBM HCP Terraform/Terraform Enterprise) is deployed unless it complies with your defined standards (naming conventions, tagging, security).
+This skill is essential for a AI Agent because it acts as an automated guardrail. It ensures that no infrastructure code (Terraform/CDK/CloudFormation/Bicep/ARM/Google Cloud Infrastructure Manager/IBM HCP Terraform/Terraform Enterprise) is deployed unless it complies with your defined standards (naming conventions, tagging, security).
 
 1. The iac-deployment-validator Server (mcp-servers/iac_validator.py)
 
