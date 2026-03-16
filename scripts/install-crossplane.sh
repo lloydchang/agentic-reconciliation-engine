@@ -555,19 +555,22 @@ diagnose_installation_failure() {
   echo -e "${RED}Installation failed. Run the diagnostic commands above to identify the root cause.${RESET}"
   exit "$exit_code"
 }
+# Verify Crossplane installation
 verify_installation() {
   info "Verifying Crossplane installation..."
   
   # Check Crossplane pods
   if ! kubectl get pods -n "$NAMESPACE" --no-headers | grep -q "Running"; then
-    fail "Crossplane pods are not running"
+    diagnose_installation_failure "verification - pod check" $?
+    return 1
   fi
   
   # Check providers
   local provider_count
   provider_count=$(kubectl get providers.pkg.crossplane.io -n "$NAMESPACE" --no-headers | wc -l)
   if [[ "$provider_count" -eq 0 ]]; then
-    fail "No providers installed"
+    diagnose_installation_failure "verification - provider check" $?
+    return 1
   fi
   
   # Check XRDs
@@ -608,6 +611,10 @@ main() {
   echo -e "${BOLD}║   GitOps Infra Control Plane — Crossplane Setup         ║${RESET}"
   echo -e "${BOLD}╚══════════════════════════════════════════════════════════╝${RESET}"
   echo
+  
+  # Set error handling to use diagnostic function
+  set -Eeo pipefail
+  trap 'diagnose_installation_failure "unknown operation" $?' ERR
   
   validate_prerequisites
   install_crossplane
