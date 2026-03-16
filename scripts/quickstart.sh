@@ -96,13 +96,16 @@ main() {
   # Step 2: GitOps Configuration
   run_step "gitops-config" "./scripts/setup-gitops-config.sh"
   
-  # Step 3: Bootstrap Cluster (required for recovery)
+  # Step 3: Bootstrap Cluster (recovery anchor)
   run_step "bootstrap-cluster" "./scripts/create-bootstrap-cluster.sh"
   
-  # Step 4: Hub Cluster (required for spokes)
+  # Step 4: Hub Cluster (GitOps control plane)
   run_step "hub-cluster" "./scripts/create-hub-cluster.sh --provider local"
   
-  # Step 5: Spoke Cluster
+  # Step 5: Install Crossplane on hub
+  run_step "install-crossplane" "./scripts/install-crossplane.sh --providers local"
+  
+  # Step 6: Create Spoke Clusters
   if [[ "$SKIP_SPOKE" != "true" ]]; then
     run_step "spoke-cluster" "./scripts/create-spoke-clusters.sh"
   else
