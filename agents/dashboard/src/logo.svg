@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- CAPI Bootstrap Connections (Rotated 90° Clockwise) -->
-  <g transform="rotate(90 32 32)">
+  <!-- CAPI Bootstrap Connections (Rotated 60° to sit equidistant between spokes) -->
+  <g transform="rotate(60 32 32)">
     <line x1="32" y1="32" x2="32" y2="10" stroke="#94A3B8" stroke-width="3" />
     <line x1="32" y1="32" x2="13" y2="43" stroke="#94A3B8" stroke-width="3" />
     <line x1="32" y1="32" x2="51" y2="43" stroke="#94A3B8" stroke-width="3" />
