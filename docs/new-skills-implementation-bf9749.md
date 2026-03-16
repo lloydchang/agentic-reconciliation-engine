@@ -38,7 +38,7 @@ The plan adds 11+ new skills to the existing 28, bringing the total to 40+ skill
 
 ## Phase 5: Validation & Testing
 
-- Run bootstrap.sh and run_evals.py to validate all skills
+- Run prerequisites.sh and run_evals.py to validate all skills
 - Test documentation links and references
 - Verify skill discovery and loading works correctly
 - Update any hardcoded skill counts throughout the codebase

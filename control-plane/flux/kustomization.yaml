@@ -13,6 +13,7 @@ resources:
   - ./cloud-aws
   # - ./cloud-azure
   # - ./cloud-gcp
+  - ./cloud-azure
 # SOPS configuration for secret decryption
 decryption:
   provider: sops

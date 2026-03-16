@@ -1,6 +1,6 @@
 # macOS Compatibility Guide
 
-This repository’s automation is fully compatible with macOS as long as you use a bash-compatible shell (the default macOS Terminal/zsh shell qualifies). The scripts (`scripts/bootstrap.sh`, `scripts/migration_wizard.py`, `scripts/run-local-automation.sh`, etc.) rely on POSIX tools, so no special emulator or compatibility layer is needed on macOS. This guide highlights the extra checks that macOS users should perform before running the zero-touch workflow.
+This repository’s automation is fully compatible with macOS as long as you use a bash-compatible shell (the default macOS Terminal/zsh shell qualifies). The scripts (`scripts/prerequisites.sh`, `scripts/migration_wizard.py`, `scripts/run-local-automation.sh`, etc.) rely on POSIX tools, so no special emulator or compatibility layer is needed on macOS. This guide highlights the extra checks that macOS users should perform before running the zero-touch workflow.
 
 ## 1. Install prerequisites
 
@@ -16,7 +16,7 @@ This repository’s automation is fully compatible with macOS as long as you use
 ## 2. Environment setup
 
 - Clone the repository and `cd` into it from your default shell.  
-- Export the same environment variables used on Linux/WSL (see `scripts/bootstrap.sh`). You can add them to `~/.zshrc`/`~/.bash_profile` so the zero-touch script sees them automatically.  
+- Export the same environment variables used on Linux/WSL (see `scripts/prerequisites.sh`). You can add them to `~/.zshrc`/`~/.bash_profile` so the zero-touch script sees them automatically.  
 - Verify `git config --global core.autocrlf input` so that Git preserves LF line endings (default on macOS).
 
 ## 3. Running zero-touch automation
@@ -30,7 +30,7 @@ Because macOS shells understand `bash`, `mkdir`, `tee`, `python`, etc., the same
 
 ## 4. Validation suggestions
 
-1. Run `scripts/bootstrap.sh` to ensure all tool versions meet expectations.  
+1. Run `scripts/prerequisites.sh` to ensure all tool versions meet expectations.  
 2. Run `scripts/run-local-automation.sh` to exercise the Azure emulator/GitHub path, capturing logs for each command.  
 3. Inspect `logs/local-automation/migration-wizard.log` to ensure the CI gate (kubeconform, Conftest) completed successfully.  
 

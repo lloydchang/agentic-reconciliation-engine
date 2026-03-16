@@ -436,7 +436,7 @@ async function executeSkillChain(skillSequence, context) {
 
 ```bash
 # Check agent prerequisites
-./bootstrap.sh
+./prerequisites.sh
 
 # Run all skill evaluations
 python3 eval/run_evals.py

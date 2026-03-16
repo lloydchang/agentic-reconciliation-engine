@@ -2,7 +2,6 @@ resources:
   - ../../infrastructure/tenants/azure/network
   - ../../infrastructure/tenants/azure/clusters
   - ../../infrastructure/tenants/azure/workloads
-  - local-emulator
 patchesStrategicMerge:
   - patches/vnet-overrides.yaml
   - patches/aks-overrides.yaml

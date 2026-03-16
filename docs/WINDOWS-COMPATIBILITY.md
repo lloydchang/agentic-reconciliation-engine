@@ -2,7 +2,7 @@
 
 This repo ships the same automation for macOS, Linux, and Windows—provided the Windows host uses
 a POSIX-compatible environment such as **WSL** (Windows Subsystem for Linux), **Git Bash**, or another
-bash-aware shell. The underlying scripts (`scripts/bootstrap.sh`, `scripts/migration_wizard.py`,
+bash-aware shell. The underlying scripts (`scripts/prerequisites.sh`, `scripts/migration_wizard.py`,
 `scripts/run-local-automation.sh`, etc.) rely on familiar UNIX utilities (`bash`, `mkdir -p`, `tee`,
 `python`, etc.), so they run on Windows only if the shell beneath them understands those commands.
 This guide explains how to achieve that compatibility in a zero-touch way.
@@ -25,7 +25,7 @@ This guide explains how to achieve that compatibility in a zero-touch way.
 ## 2. Environment bootstrap
 
 - Export the necessary environment variables inside WSL or Git Bash the same way as on macOS/Linux.
-  You can source `scripts/bootstrap.sh` while remaining in the same shell, ensuring the script can see the values.
+  You can source `scripts/prerequisites.sh` while remaining in the same shell, ensuring the script can see the values.
 - Ensure the `python` command you invoke maps to Python 3. If it does not, install Python 3 and add a
   symlink (`ln -s $(which python3) ~/bin/python`).
 - Confirm `git` on your Windows environment respects symlinks when cloning (WSL does this by default;
@@ -58,7 +58,7 @@ sudo apt install -y bash curl git jq yq kubectl helm python3 python3-pip pika`),
 distro, then run the scripts from that shell. This ensures the helper logs report WSL and avoids the
 native Windows warning.
 
-The helper script runs `scripts/bootstrap.sh`, which validates CLI tooling, and then calls
+The helper script runs `scripts/prerequisites.sh`, which validates CLI tooling, and then calls
 `scripts/migration_wizard.py` with the Azure emulator + GitHub connector sequence. Because both scripts
 are bash-compatible, Windows sees them as just another shell automation.
 
@@ -71,7 +71,7 @@ are bash-compatible, Windows sees them as just another shell automation.
 
 ## 5. Validation and testing
 
-1. Run `scripts/bootstrap.sh` from your Windows shell; everything should pass or fail with clear
+1. Run `scripts/prerequisites.sh` from your Windows shell; everything should pass or fail with clear
    diagnostics (paths, env vars, CLI tools).  
 2. Run `scripts/run-local-automation.sh`; the logs under `logs/local-automation/` provide the same
    output as on macOS/Linux.  
@@ -83,7 +83,7 @@ there are no unwanted changes (Git Bash/WSL preserves LF by default).
 
 ## 6. Automatic WSL detection
 
-The main automation entry points (`scripts/bootstrap.sh`, `scripts/run-local-automation.sh`, and
+The main automation entry points (`scripts/prerequisites.sh`, `scripts/run-local-automation.sh`, and
 `scripts/run-emulator-then-cloud.sh`) now source `scripts/helpers/wsl-detect.sh`. That helper logs a warning
 when the shell appears to be Windows-native (without WSL/Git Bash) and emits an informational message when
 it detects WSL. It also exports `WINDOWS_SHELL_ENVIRONMENT` and `WSL_ENVIRONMENT`, so other scripts can
