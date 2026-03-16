@@ -13,8 +13,8 @@ resources:
   # Reference to base skill
   - ../../../../.agents/debug
 # Patches to add ML correlation and predictive capabilities
-patchesStrategicMerge:
-  - patches/deployment-patch.yaml
+# patchesStrategicMerge:
+#   - patches/deployment-patch.yaml
 # Additional configurations
 configMapGenerator:
   - name: debug-enhanced-config
@@ -49,7 +49,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-
@@ -60,7 +60,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-
@@ -71,7 +71,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/resources/requests/memory
@@ -80,7 +80,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/resources/limits/memory
