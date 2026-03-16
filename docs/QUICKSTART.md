@@ -7,7 +7,14 @@ Get a working GitOps control plane running locally in minutes.
 - `kubectl`, `helm`, `kind` (for local clusters)
 - POSIX shell (bash, WSL, Git Bash)
 
-## MVP Setup (5 commands)
+## MVP Setup (One Command)
+
+```bash
+# One-command MVP setup
+./scripts/setup-mvp.sh
+```
+
+Or run steps manually:
 
 ```bash
 # 1. Validate your environment
@@ -24,6 +31,20 @@ Get a working GitOps control plane running locally in minutes.
 
 # 5. Create spoke cluster (MVP - local emulation)
 ./scripts/create-spoke-clusters.sh
+```
+
+## MVP Options
+
+```bash
+# Full MVP setup
+./scripts/setup-mvp.sh
+
+# Preview commands without running
+./scripts/setup-mvp.sh --dry-run
+
+# Skip specific steps (useful for re-running)
+./scripts/setup-mvp.sh --skip-spoke    # Setup bootstrap + hub only
+./scripts/setup-mvp.sh --skip-hub       # Setup bootstrap + spokes only
 ```
 
 ## What You Get
