@@ -115,7 +115,7 @@ create_kind_cluster() {
   info "Creating kind cluster..."
   
   # Kind config for lightweight bootstrap
-  cat > /tmp/kind-config.yaml <<EOF
+  cat > /tmp/${BOOTSTRAP_CLUSTER_NAME}-kind-config.yaml <<EOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
