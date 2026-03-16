@@ -1458,7 +1458,7 @@ spec:
       AGENT_QUORUM: "3"
 ```
 
-#### 2. Multi-Cloud Agent Consensus
+#### 2. Multi-Agent Consensus
 
 ```yaml
 # Cross-cloud consensus for critical changes
