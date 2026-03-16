@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: memory-agent-pvc
+  name: agent-memory-pvc
   namespace: ai-inference
   annotations:
     volume.beta.kubernetes.io/storage-class: "default"
@@ -18,27 +18,27 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
   labels:
-    component: memory-agent
+    component: agent-memory
     language: rust
     backend: llama-cpp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     metadata:
       labels:
-        component: memory-agent
+        component: agent-memory
         language: rust
         backend: llama-cpp
     spec:
       initContainers:
-      - name: init-memory-db
+      - name: init-agent-memory-db
         image: alpine:latest
         command: ["sh", "-c"]
         args:
@@ -60,8 +60,8 @@ spec:
             memory: "64Mi"
             cpu: "50m"
       containers:
-      - name: memory-agent
-        image: memory-agent-rust:latest  # Build from rust-agent/
+      - name: agent-memory
+        image: agent-memory-rust:latest  # Build from rust-agent/
         ports:
         - containerPort: 8080
         env:
@@ -90,4 +90,4 @@ spec:
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
-          claimName: memory-agent-pvc
+          claimName: agent-memory-pvc
