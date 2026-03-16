@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-api-config
+  namespace: ai-infrastructure
+data:
+  cluster-status.json: |
+    {
+      "status": "running",
+      "agents": {
+        "memory-agent-rust": {
+          "status": "running",
+          "backend": "llama.cpp",
+          "language": "rust"
+        }
+      },
+      "services": {
+        "agent-dashboard": "running",
+        "temporal": "partial",
+        "ai-inference": "running"
+      },
+      "timestamp": "2025-03-15T21:59:00Z"
+    }
