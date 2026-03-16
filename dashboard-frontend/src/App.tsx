@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container, Paper, Typography, Grid, Card, CardContent,
+  Container, Paper, Typography, Card, CardContent,
   Box, Chip, LinearProgress, Alert, Button, IconButton,
-  Dialog, DialogTitle, DialogContent, DialogActions, Tabs, Tab
+  Dialog, DialogTitle, DialogContent, DialogActions, Tabs, Tab,
+  Grid
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
   Memory as MemoryIcon,
-  Timeline as TimelineIcon,
   BugReport as BugReportIcon,
-  TrendingUp as TrendingUpIcon,
   Error as ErrorIcon,
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
