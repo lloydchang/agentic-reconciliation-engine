@@ -1,4 +1,4 @@
-<img width="312" height="180" alt="Image" src="https://github.com/user-attachments/assets/3fa4fc53-e083-49e8-ae99-882d06663a98" />
+<img width="180" height="180" alt="Image" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
 
 # GitOps Infra Control Plane - README.md
 
