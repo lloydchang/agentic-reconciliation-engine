@@ -42,6 +42,8 @@ config.json
 .azure/
 .gcloud/
 kubeconfig*
+bootstrap-kubeconfig
+hub-kubeconfig
 
 # API Keys and Secrets (CRITICAL - Prevent leaks)
 tskey-*
