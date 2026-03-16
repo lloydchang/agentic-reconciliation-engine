@@ -22,7 +22,7 @@ spec:
         ports:
         - containerPort: 5000
         command: ["/bin/sh", "-c"]
-        args: ["pip install flask flask-cors requests && python /app/dashboard-api-enhanced.py"]
+        args: ["pip install flask flask-cors requests && export FLASK_ENV=production && export FLASK_DEBUG=false && python /app/dashboard-api-enhanced.py"]
         env:
         - name: USE_REAL_METRICS
           value: "true"
