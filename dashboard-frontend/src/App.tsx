@@ -316,20 +316,34 @@ function Dashboard() {
                     System Components
                   </Typography>
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" component="span">
                       Temporal Orchestration: <Chip label="Healthy" color="success" size="small" />
                     </Typography>
                   </Box>
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" component="span">
                       Memory Persistence: <Chip label="Active" color="success" size="small" />
                     </Typography>
                   </Box>
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" component="span">
                       AI Inference Gateway: <Chip label="Ready" color="info" size="small" />
                     </Typography>
                   </Box>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" component="span">
+                      Kubernetes Cluster: <Chip label="Operational" color="success" size="small" />
+                    </Typography>
+                  </Box>
+                  <Typography variant="h6" gutterBottom>
+                    Error Summary (Last 24h)
+                  </Typography>
+                  <Typography variant="h4" color="error">
+                    {metrics?.errors_last_24h || 0}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Errors requiring attention
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
