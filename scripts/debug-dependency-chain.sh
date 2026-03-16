@@ -4,6 +4,7 @@
 # Provides comprehensive debugging for GitOps infrastructure dependency chains
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 NAMESPACE="${NAMESPACE:-flux-system}"

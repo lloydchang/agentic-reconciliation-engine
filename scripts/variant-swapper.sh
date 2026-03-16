@@ -3,6 +3,7 @@
 # Allows switching between different deployment variants
 
 set -euo pipefail
+cd $(dirname $0)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"

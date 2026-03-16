@@ -4,6 +4,7 @@
 # This script performs a complete security audit of the infrastructure
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

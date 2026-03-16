@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+cd $(dirname $0)
 
 ORDER_FILE=${1:-control-plane/flux/overlay-order.txt}
 KUSTOMIZATION=control-plane/flux/kustomization.yaml

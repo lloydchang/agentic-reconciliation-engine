@@ -4,6 +4,7 @@
 # This script encrypts all .secret.yaml files in the infrastructure/tenants directory
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Colors for output
 RED='\033[0;31m'

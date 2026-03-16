@@ -4,6 +4,7 @@
 # This script performs health checks on SOPS operations and provides status reporting
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Colors for output
 RED='\033[0;31m'

@@ -4,6 +4,7 @@
 # Validates prerequisites, checks env config, and verifies the skill suite
 # =============================================================================
 set -euo pipefail
+cd $(dirname $0)
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; YELLOW='\033[1;33m'; GREEN='\033[0;32m'

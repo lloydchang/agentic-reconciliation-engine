@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+cd $(dirname $0)
 
 STATEFUL_KINDS="Database|XDatabase|Volume|XVolume|Queue|XQueue|XCluster"
 

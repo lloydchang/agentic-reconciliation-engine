@@ -4,6 +4,7 @@
 # This script validates the deployment and functionality of sealed secrets
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

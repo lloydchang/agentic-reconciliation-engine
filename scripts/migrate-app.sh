@@ -3,6 +3,7 @@
 # Cloud AI Agent — migrate an Argo CD application to a new cluster context
 # =============================================================================
 set -euo pipefail
+cd $(dirname $0)
 
 usage() {
   cat <<USAGE
