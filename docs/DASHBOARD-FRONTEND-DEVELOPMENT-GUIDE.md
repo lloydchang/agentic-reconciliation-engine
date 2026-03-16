@@ -41,8 +41,8 @@ dashboard-frontend/
 <meta name="description" content="Web site created using create-react-app">
 
 <!-- After -->
-<title>Cloud AI Agents Dashboard</title>
-<meta name="description" content="Cloud AI Agents Dashboard - Real-time monitoring and orchestration of AI agents in Kubernetes infrastructure">
+<title>AI Agents Dashboard</title>
+<meta name="description" content="AI Agents Dashboard - Real-time monitoring and orchestration of AI agents in Kubernetes infrastructure">
 ```
 
 #### PWA Manifest Updates
@@ -51,7 +51,7 @@ dashboard-frontend/
 ```json
 {
   "short_name": "AI Dashboard",
-  "name": "Cloud AI Agents Dashboard",
+  "name": "AI Agents Dashboard",
   "theme_color": "#1976d2",
   "background_color": "#ffffff"
 }
@@ -194,7 +194,7 @@ const Dashboard: () => JSX.Element = () => {
       <Box sx={{ py: 4 }}>
         {/* Header */}
         <Typography variant="h4" component="h1" gutterBottom>
-          🚀 Cloud AI Agents Dashboard
+          🚀 AI Agents Dashboard
         </Typography>
         
         {/* Metrics Overview */}

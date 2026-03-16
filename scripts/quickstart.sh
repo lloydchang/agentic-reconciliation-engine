@@ -26,46 +26,15 @@ SUMMARY_FILE="$LOG_DIR/summary-$(date -u +"%Y%m%dT%H%M%SZ").json"
 timestamp() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 
 # Parse arguments
-DRY_RUN=false
-SKIP_BOOTSTRAP=false
-SKIP_HUB=false
-SKIP_SPOKE=false
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --dry-run)
-      DRY_RUN=true
-      shift
-      ;;
-    --skip-bootstrap)
-      SKIP_BOOTSTRAP=true
-      shift
-      ;;
-    --skip-hub)
-      SKIP_HUB=true
-      shift
-      ;;
-    --skip-spoke)
-      SKIP_SPOKE=true
-      shift
-      ;;
     --help)
       cat <<EOF
-Usage: $0 [options]
+Usage: $0
 
-One-command MVP GitOps infrastructure setup.
+One-command MVP GitOps infrastructure setup with AI agents.
 
-Options:
-  --dry-run           Show commands without executing
-  --skip-bootstrap    Skip bootstrap cluster creation
-  --skip-hub          Skip hub cluster creation  
-  --skip-spoke        Skip spoke cluster creation
-  --help              Show this help
-
-Examples:
-  $0                  # Full MVP setup
-  $0 --dry-run        # Preview commands
-  $0 --skip-spoke     # Setup without spoke clusters
+Deploys complete GitOps infrastructure and AI agents ecosystem with dashboard.
 EOF
       exit 0
       ;;
@@ -87,11 +56,6 @@ run_step() {
   echo "Log: $log_file"
   echo
   
-  if [[ "$DRY_RUN" == "true" ]]; then
-    info "[DRY RUN] Would run: $step_command"
-    return 0
-  fi
-  
   if eval "$step_command" 2>&1 | tee "$log_file"; then
     pass "$step_name completed successfully"
     return 0
@@ -103,7 +67,7 @@ run_step() {
 # Main execution
 main() {
   echo -e "${BOLD}╔══════════════════════════════════════════════════════════╗${RESET}"
-  echo -e "${BOLD}║   GitOps Infra Control Plane — Quickstart (One Command)     ║${RESET}"
+  echo -e "${BOLD}║   GitOps Infra Control Plane — Quickstart (One Command)  ║${RESET}"
   echo -e "${BOLD}╚══════════════════════════════════════════════════════════╝${RESET}"
   echo
   echo "Start Time: $START_TIME"
@@ -117,39 +81,26 @@ main() {
   run_step "gitops-config" "${SCRIPT_DIR}/setup-gitops-config.sh"
   
   # Step 3: Bootstrap Cluster (recovery anchor)
-  if [[ "$SKIP_BOOTSTRAP" != "true" ]]; then
-    run_step "bootstrap-cluster" "${SCRIPT_DIR}/create-bootstrap-cluster.sh"
-  else
-    warn "Skipping bootstrap cluster creation"
-  fi
+  run_step "bootstrap-cluster" "${SCRIPT_DIR}/create-bootstrap-cluster.sh"
   
   # Step 4: Hub Cluster (GitOps control plane)
-  if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "hub-cluster" "${SCRIPT_DIR}/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig ${ROOT_DIR}/bootstrap-kubeconfig"
-  else
-    warn "Skipping hub cluster creation"
-  fi
+  run_step "hub-cluster" "${SCRIPT_DIR}/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig ${ROOT_DIR}/bootstrap-kubeconfig"
   
   # Step 5: Install Crossplane on hub
-  if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "install-crossplane" "${SCRIPT_DIR}/install-crossplane.sh --providers local"
-  else
-    warn "Skipping Crossplane installation"
-  fi
+  run_step "install-crossplane" "${SCRIPT_DIR}/install-crossplane.sh --providers local"
   
   # Step 6: Create Spoke Clusters
-  if [[ "$SKIP_SPOKE" != "true" ]]; then
-    run_step "spoke-cluster" "${SCRIPT_DIR}/create-spoke-clusters.sh"
-  else
-    warn "Skipping spoke cluster creation"
-  fi
+  run_step "spoke-cluster" "${SCRIPT_DIR}/create-spoke-clusters.sh"
+  
+  # Step 7: Deploy AI Agents Ecosystem
+  run_step "ai-agents-ecosystem" "${SCRIPT_DIR}/deploy-ai-agents-ecosystem.sh"
   
   # Summary
   echo
   echo -e "${BOLD}Quickstart Complete!${RESET}"
   echo "=================="
   
-  if [[ "$DRY_RUN" != "true" ]]; then
+  if [[ true ]]; then
     echo "Your GitOps infrastructure is ready:"
     echo
     echo "Next steps:"
@@ -167,6 +118,14 @@ main() {
     echo "     export KUBECONFIG=\${SCRIPT_DIR}/../gitops-spoke-local-kubeconfig"
     echo "     kubectl get nodes"
     echo
+    echo "  5. Access AI Agents Dashboard:"
+    echo "     kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80"
+    echo "     open http://localhost:8080"
+    echo
+    echo "  6. Access Temporal Workflow UI:"
+    echo "     kubectl port-forward -n ai-infrastructure svc/temporal-frontend 7233:7233"
+    echo "     open http://localhost:7233"
+    echo
     echo "Logs available in: $LOG_DIR"
     echo "Summary saved to: $SUMMARY_FILE"
   fi
@@ -177,10 +136,6 @@ main() {
   "start_time": "$START_TIME",
   "end_time": "$(timestamp)",
   "status": "success",
-  "skip_bootstrap": $SKIP_BOOTSTRAP,
-  "skip_hub": $SKIP_HUB,
-  "skip_spoke": $SKIP_SPOKE,
-  "dry_run": $DRY_RUN,
   "log_directory": "$LOG_DIR",
   "steps": [
     "prerequisites",
@@ -188,12 +143,13 @@ main() {
     "bootstrap-cluster",
     "hub-cluster",
     "install-crossplane",
-    "spoke-cluster"
+    "spoke-cluster",
+    "ai-agents-ecosystem"
   ]
 }
 EOF
   
-  echo -e "${GREEN}${BOLD}Quickstart GitOps infrastructure deployed successfully!${RESET}"
+  echo -e "${GREEN}${BOLD}Quickstart GitOps infrastructure with AI agents deployed successfully!${RESET}"
 }
 
 # Run main function

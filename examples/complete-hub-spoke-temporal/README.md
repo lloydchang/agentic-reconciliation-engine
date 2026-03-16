@@ -11,7 +11,7 @@ This example implements all three phases of Temporal integration with comprehens
        │              [Temporal AI Workflows]
        │                        │
        ▼                        ▼
-[AI Agent Swarms] ◄─────► [Durable Consensus] ◄─────► [Multi-Cloud AI]
+[AI Agent Swarms] ◄─────► [Durable Consensus] ◄─────► [Multi-AI]
 ```
 
 ## Phase 1: Foundation (✅ COMPLETED)

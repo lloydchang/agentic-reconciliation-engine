@@ -277,8 +277,8 @@ func (c *CLIClient) getSkill(name string) (map[string]interface{}, error) {
 
 var rootCmd = &cobra.Command{
 	Use:   "temporal-agents",
-	Short: "Temporal AI Agents CLI",
-	Long:  `Command-line interface for managing Temporal AI agent workflows and MCP interactions.`,
+	Short: "Temporal Agents CLI",
+	Long:  `Command-line interface for managing Temporal agent workflows and MCP interactions.`,
 }
 
 var startCmd = &cobra.Command{
@@ -396,7 +396,7 @@ var listCmd = &cobra.Command{
 var healthCmd = &cobra.Command{
 	Use:   "health",
 	Short: "Check server health",
-	Long:  `Check the health status of the Temporal AI Agents server.`,
+	Long:  `Check the health status of the Temporal Agents server.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := NewCLIClient(serverURL, apiKey)
 
@@ -574,7 +574,7 @@ var interactiveCmd = &cobra.Command{
 }
 
 func runInteractiveMode(client *CLIClient) {
-	fmt.Println("Temporal AI Agents Interactive Mode")
+	fmt.Println("Temporal Agents Interactive Mode")
 	fmt.Println("Type 'help' for available commands, 'quit' to exit")
 	fmt.Println()
 

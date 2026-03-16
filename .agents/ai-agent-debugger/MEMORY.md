@@ -26,7 +26,7 @@ This file serves as a comprehensive memory and knowledge base for debugging AI a
 ### 3. Prevention-First Mindset
 - Every debugging session should generate prevention strategies
 - Document patterns to build knowledge base
-- Implement automated monitoring based on findings
+- Implement agents/backend/monitoring/metrics.go based on findings
 - Create self-healing mechanisms for common issues
 
 ## Agent-Specific Debugging Patterns

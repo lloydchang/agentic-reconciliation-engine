@@ -254,6 +254,30 @@ Before building this architecture, evaluate whether a managed product meets your
 - On-prem spoke infra provider (Metal3, CAPV, CAPO) selection depends on hardware environment
 - Flux SOPS integration has documented edge-case decryption failures; SOPS is the fallback path only in this architecture
 
+## Documentation
+
+### Quick Start
+- [Quickstart Guide](./docs/QUICKSTART.md) - One-command deployment with AI agents and dashboard
+- [Crossplane Local Development](./docs/CROSSPLANE-LOCAL-DEVELOPMENT.md) - Local development with Kind clusters
+- [Local Development Setup](./docs/LOCAL-DEVELOPMENT-SETUP.md) - Development environment configuration
+
+### AI Agents and Automation
+- [AI Agents Complete Deployment Guide](./docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md) - Deploy AI agents ecosystem
+- [AI System Debugging and Monitoring](./docs/AI-SYSTEM-DEBUGGING-MONITORING-GUIDE.md) - Debug distributed AI systems
+- [AI Agents Architecture](./docs/AI-AGENTS-ARCHITECTURE.md) - AI agents system design
+- [AI Agents Dashboard Guide](./docs/AI-AGENTS-DASHBOARD-GUIDE.md) - Interactive dashboard usage
+
+### Core Infrastructure
+- [Flux Architecture Diagrams](./docs/FLUX-ARCHITECTURE-DIAGRAMS.md) - Flux reconciliation patterns
+- [Flux End-to-End Guide](./docs/FLUX-END-TO-END-GUIDE.md) - Complete Flux setup
+- [Crossplane Compositions](./docs/CROSSPLANE-COMPOSITIONS.md) - XRDs and compositions
+- [Bootstrap Cluster](./docs/BOOTSTRAP-CLUSTER.md) - Recovery anchor setup
+
+### Advanced Topics
+- [AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md) - Experimental automation patterns (research only)
+- [Migration Strategy](./docs/LEGACY-IAC-MIGRATION-STRATEGY.md) - Converting from traditional IaC
+- [Local Development Hybrid Guide](./docs/LOCAL-DEVELOPMENT-HYBRID-GUIDE.md) - Local + cloud patterns
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onboarding, and documentation expectations.
@@ -263,5 +287,5 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onbo
 ## License
 
 This repository uses dual licensing:
-- `AGPL-3.0`: Core infrastructure manifests, logic, documentation, examples, and more — see [LICENSE](LICENSE)
+- `AGPL-3.0`: Core manifests, logic, documentation, examples, and more — see [LICENSE](LICENSE)
 - `Apache-2.0`: Specific sample snippets requiring user adaptations — see [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)

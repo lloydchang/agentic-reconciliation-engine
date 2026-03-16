@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # File: setup_full_cloud_ai_skills_macos.sh
-# Purpose: All-in-one Cloud AI skill scaffold for macOS-compatible Bash (no associative arrays)
+# Purpose: All-in-one AI skill scaffold for macOS-compatible Bash (no associative arrays)
 
 REPO_DIR="${1:-.}"  # default to current directory
 SKILLS_DIR="$REPO_DIR/.agents/skills"
@@ -73,7 +73,7 @@ create_skill_md() {
   local actionable=$5
   cat > "$path" <<EOF
 name: $skill-$platform
-description: Cloud AI skill "$skill" for platform "$platform".
+description: AI skill "$skill" for platform "$platform".
 instructions: |
   This skill is $( [[ $advisory == "true" ]] && echo "Advisory (read-only)" || echo "Actionable (can generate PRs or run fixes)" ).
 metadata:
@@ -145,4 +145,4 @@ EOF
 done
 
 echo
-echo "All 1600 Cloud AI skill entries created (macOS-compatible)."
+echo "All 1600 AI skill entries created (macOS-compatible)."

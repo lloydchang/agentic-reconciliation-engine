@@ -1,10 +1,10 @@
 ---
 name: ai-system-debugger
-description: Comprehensive debugging skill for AI agents, Temporal workflows, and Kubernetes infrastructure in distributed environments
+description: Comprehensive debugging skill for agents, Temporal workflows, and Kubernetes infrastructure in distributed environments
 version: 1.0.0
 risk_level: low
 autonomy: fully_auto
-action_name: debug_ai_system
+action_name: debug_system
 
 input_schema:
   type: object
@@ -110,21 +110,21 @@ tags:
   - monitoring
   - troubleshooting
   - distributed-systems
-  - ai-agents
+  - agents
   - kubernetes
   - temporal
 ---
 
-# AI System Debugger Skill
+# System Debugger Skill
 
 ## Overview
 
-This skill provides comprehensive debugging capabilities for AI agents running in distributed Kubernetes environments with Temporal orchestration. It systematically diagnoses issues across the entire stack - from individual agent behavior to infrastructure health.
+This skill provides comprehensive debugging capabilities for agents running in distributed Kubernetes environments with Temporal orchestration. It systematically diagnoses issues across the entire stack - from individual agent behavior to infrastructure health.
 
 ## Capabilities
 
 ### Component Debugging
-- **AI Agents**: Analyze agent execution logs, performance metrics, and failure patterns
+- **Agents**: Analyze agent execution logs, performance metrics, and failure patterns
 - **Temporal Workflows**: Inspect workflow execution history, timeouts, and activity failures  
 - **Kubernetes Infrastructure**: Check pod health, resource utilization, and network connectivity
 - **Integration Points**: Validate communication between agents, workflows, and external services

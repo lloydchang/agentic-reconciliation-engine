@@ -1,6 +1,6 @@
 #!/bin/bash
 # File: setup_and_commit_cloud_ai_agents.sh
-# macOS-compatible script to create .agents Cloud AI skills, git commit
+# macOS-compatible script to create .agents AI skills, git commit
 
 set -e
 
@@ -16,7 +16,7 @@ if [ ! -d ".git" ]; then
     git init
 fi
 
-# List of 40 Cloud AI skills
+# List of 40 AI skills
 SKILLS=(
 incident-summary
 k8s-troubleshoot
@@ -91,7 +91,7 @@ RUST_TEMPLATE='fn main() {
 '
 
 SKILL_MD_TEMPLATE='Name: __SKILL__
-Purpose: Placeholder for __SKILL__ skill in Cloud AI
+Purpose: Placeholder for __SKILL__ skill in AI
 Inputs: Input payload or event
 Process: Analyze input and perform placeholder logic
 Outputs: Example output or action
@@ -111,7 +111,7 @@ data:
   example: "placeholder for __SKILL__"
 '
 
-echo "Creating Cloud AI .agents workspace inside $AGENTS_DIR..."
+echo "Creating AI .agents workspace inside $AGENTS_DIR..."
 
 SKILL_INDEX=1
 
@@ -146,12 +146,12 @@ for skill in "${SKILLS[@]}"; do
 
     # Git add & commit
     git add "$SKILL_DIR"
-    git commit -m "Add Cloud AI skill #$SKILL_INDEX: $skill"
+    git commit -m "Add AI skill #$SKILL_INDEX: $skill"
 
     echo "Created, committed, and tagged skill #$SKILL_INDEX: '$skill'"
 
     SKILL_INDEX=$((SKILL_INDEX+1))
 done
 
-echo "All 40 Cloud AI skills created, committed, and tagged in $AGENTS_DIR"
+echo "All 40 AI skills created, committed, and tagged in $AGENTS_DIR"
 echo "Go skills ready for Temporal, Rust skills ready for high-performance Kubernetes execution."

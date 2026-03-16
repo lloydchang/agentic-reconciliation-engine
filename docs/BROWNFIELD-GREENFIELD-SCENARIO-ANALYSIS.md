@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides comprehensive guidance on how the GitOps Infra Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + Cloud AI). Each scenario requires different approaches, components, and success metrics.
+This document provides comprehensive guidance on how the GitOps Infra Control Plane applies to different infrastructure scenarios: **brownfield** (existing infrastructure), **greenfield** (new projects), and **hybrid** (local development + AI). Each scenario requires different approaches, components, and success metrics.
 
 ## 🎯 Scenario Definition Framework
 
@@ -22,9 +22,9 @@ This document provides comprehensive guidance on how the GitOps Infra Control Pl
 
 ### Hybrid Scenario
 
-**Definition**: Local development combined with Cloud AI operations
+**Definition**: Local development combined with AI operations
 
-- **Characteristics**: Development on local machines, Cloud AI-based production, CI/CD pipelines
+- **Characteristics**: Development on local machines, AI-based production, CI/CD pipelines
 - **Primary Challenge**: Environment parity, deployment consistency, developer experience
 
 ## 📊 Scenario Applicability Matrix
@@ -335,7 +335,7 @@ hybrid_phase1:
     - "Local database and caching"
     - "Git hooks and pre-commit validation"
   cloud_integration:
-    - "Cloud AI provider setup (AWS, Azure, GCP)"
+    - "AI provider setup (AWS, Azure, GCP)"
     - "CI/CD pipeline configuration"
     - "Environment-specific configurations"
     - "Secret management across environments"
