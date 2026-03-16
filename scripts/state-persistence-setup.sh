@@ -4,7 +4,6 @@
 # Configures infrastructure state persistence in Kubernetes etcd
 
 set -euo pipefail
-cd $(dirname $0)
 
 echo "🗄️ Setting up Infrastructure State Persistence"
 

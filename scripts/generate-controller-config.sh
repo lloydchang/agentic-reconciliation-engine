@@ -4,7 +4,6 @@
 # Generates standardized controller configurations for all cloud providers
 
 set -euo pipefail
-cd $(dirname $0)
 
 # Default values
 CLOUD_PROVIDER="${1:-aws}"

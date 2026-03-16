@@ -3,7 +3,6 @@
 # filename: insert_cd_after_set.sh
 
 set -euo pipefail
-cd $(dirname $0)
 
 # This script safely inserts `cd $(dirname $0)` after `set -euo pipefail`
 # in all shell scripts in the current repository, avoiding duplicates and preserving sourced scripts.

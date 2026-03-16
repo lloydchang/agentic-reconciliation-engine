@@ -3,7 +3,6 @@
 # Cloud AI Agent — enable a cloud overlay in the Flux control-plane kustomization
 # =============================================================================
 set -euo pipefail
-cd $(dirname $0)
 
 usage() {
   cat <<-USAGE

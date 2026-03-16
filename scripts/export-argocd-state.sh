@@ -3,7 +3,6 @@
 # Cloud AI Agent — export Argo CD state for migration
 # =============================================================================
 set -euo pipefail
-cd $(dirname $0)
 
 usage() {
   cat <<USAGE

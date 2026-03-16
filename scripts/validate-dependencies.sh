@@ -4,7 +4,6 @@
 # Validates and tests the practical implementation of all mitigation strategies
 
 set -euo pipefail
-cd $(dirname $0)
 
 # Configuration
 NAMESPACE="${NAMESPACE:-flux-system}"

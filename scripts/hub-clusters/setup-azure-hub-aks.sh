@@ -15,7 +15,6 @@
 # - Avoids IaC lock-in during transition period, enables gradual migration from legacy IaC
 
 set -euo pipefail
-cd $(dirname $0)
 
 # Configuration
 CLUSTER_NAME="${CLUSTER_NAME:-gitops-hub-aks}"

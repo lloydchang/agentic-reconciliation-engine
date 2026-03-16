@@ -4,7 +4,6 @@
 # Configures comprehensive health monitoring and alerting
 
 set -euo pipefail
-cd $(dirname $0)
 
 echo "🔍 Setting up Git Repository Health Monitoring"
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Publish the zero-touch summary to an external endpoint and optionally notify on failure.
 set -euo pipefail
-cd $(dirname $0)
 
 SUMMARY_PATH="${1:-logs/local-automation/latest-summary.json}"
 
