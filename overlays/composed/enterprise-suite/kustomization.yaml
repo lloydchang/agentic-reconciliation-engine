@@ -18,7 +18,7 @@ resources:
   - ../../agents
   - ../../control-plane
   # Enhanced debugging overlay
-  - ../.agents/ai-agent-debugger/enhanced
+  - ../.agents/debug/enhanced
   # Dark theme overlay
   - ../agents/dashboard/themes/dark-mode
   # Enhanced monitoring (to be created)
@@ -57,7 +57,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
@@ -82,7 +82,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-

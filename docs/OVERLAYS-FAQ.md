@@ -93,16 +93,16 @@ python scripts/overlay-registry.py get overlay-name
 **A**: 
 ```bash
 # Validate overlay
-python scripts/overlay-cli.py validate overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py validate overlays/.agents/debug/enhanced
 
 # Build overlay
-python scripts/overlay-cli.py build overlays/.agents/ai-agent-debugger/enhanced --output enhanced.yaml
+python scripts/overlay-cli.py build overlays/.agents/debug/enhanced --output enhanced.yaml
 
 # Apply overlay (dry run)
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced --dry-run
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced --dry-run
 
 # Apply to cluster
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced
 ```
 
 ### Q: How do I create my first overlay?

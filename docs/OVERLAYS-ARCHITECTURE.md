@@ -16,7 +16,7 @@ Overlays mirror the base directory structure for intuitive mapping:
 
 ```
 Base Components                    Overlay Extensions
-.agents/ai-agent-debugger/    →  overlays/.agents/ai-agent-debugger/
+.agents/debug/    →  overlays/.agents/debug/
 agents/dashboard/               →  overlays/agents/dashboard/
 control-plane/flux/             →  overlays/control-plane/flux/
 ```
@@ -36,7 +36,7 @@ gitops-infra-control-plane/
 ├── control-plane/              # Base infrastructure (upstream)
 ├── overlays/                   # Overlay extensions
 │   ├── .agents/                # Skill overlays
-│   │   ├── ai-agent-debugger/
+│   │   ├── debug/
 │   │   │   ├── enhanced/       # ML-enhanced debugging
 │   │   │   ├── enterprise/     # Enterprise features
 │   │   │   └── custom/         # Custom implementations
@@ -79,7 +79,7 @@ Extend AI agent capabilities while maintaining agentskills.io compliance.
 
 **Structure:**
 ```
-overlays/.agents/ai-agent-debugger/enhanced/
+overlays/.agents/debug/enhanced/
 ├── kustomization.yaml          # Overlay composition
 ├── SKILL.md                   # Extended skill definition
 ├── scripts/
@@ -157,13 +157,13 @@ overlays/composed/enterprise-suite/
 
 ### 1. **Kustomize-Based Composition**
 ```yaml
-# overlays/.agents/ai-agent-debugger/enhanced/kustomization.yaml
+# overlays/.agents/debug/enhanced/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: ai-agent-debugger-enhanced
+  name: debug-enhanced
 resources:
-  - ../../../../.agents/ai-agent-debugger  # Base reference
+  - ../../../../.agents/debug  # Base reference
 patchesStrategicMerge:
   - enhanced-features.yaml                 # Feature patches
 configMapGenerator:
@@ -186,7 +186,7 @@ resources:
   - ../../agents
   - ../../control-plane
   # Overlay components
-  - ../.agents/ai-agent-debugger/enterprise
+  - ../.agents/debug/enterprise
   - ../agents/dashboard/themes/corporate
   - ../control-plane/flux/enhanced-monitoring
 ```
@@ -200,10 +200,10 @@ metadata:
   name: overlay-catalog
 overlays:
   - category: skills
-    base_path: ".agents/ai-agent-debugger"
+    base_path: ".agents/debug"
     overlays:
       - name: enhanced
-        path: "overlays/.agents/ai-agent-debugger/enhanced"
+        path: "overlays/.agents/debug/enhanced"
         description: "ML-enhanced debugging capabilities"
         dependencies:
           - scikit-learn>=1.0.0
@@ -259,7 +259,7 @@ my-fork/
 ├── control-plane/              # Base (upstream, read-only)
 ├── overlays/                   # Customizations (active)
 │   ├── .agents/
-│   │   └── ai-agent-debugger/
+│   │   └── debug/
 │   │       └── my-org-enhancements/
 │   ├── agents/
 │   │   └── dashboard/
@@ -278,7 +278,7 @@ git fetch upstream
 git merge upstream/main
 
 # Resolve any overlay conflicts
-cd overlays/.agents/ai-agent-debugger/my-enhancements/
+cd overlays/.agents/debug/my-enhancements/
 # Update overlay compatibility if needed
 
 # Test composition

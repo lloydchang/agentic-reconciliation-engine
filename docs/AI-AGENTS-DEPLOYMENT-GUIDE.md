@@ -170,7 +170,7 @@ OLLAMA_MODEL="llama2:7b" ./scripts/deploy-ai-agents-ecosystem.sh
 ### Post-Deployment Debugging
 ```bash
 # Use AI Agent Debugger skill
-./.agents/ai-agent-debugger/scripts/distributed-debug-runner.sh \
+./.agents/debug/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
   --agent-type agent-memory \
   --debug-level detailed
@@ -235,7 +235,7 @@ kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- curl dashboard
 ### Debug Commands
 ```bash
 # Full system debug
-python3 .agents/ai-agent-debugger/scripts/ai-agent-debugger.py '{
+python3 .agents/debug/scripts/debug.py '{
   "targetComponent": "kubernetes",
   "debugLevel": "deep",
   "namespace": "ai-infrastructure"
@@ -395,11 +395,11 @@ tctl wf query --ns ai-infrastructure -w <workflow-id> -q my-query
 - `docs/AI-AGENT-DEBUGGER-GUIDE.md`: Comprehensive debugging guide
 - `docs/AI-AGENTS-ARCHITECTURE.md`: Architecture overview
 - `docs/MONITORING_SETUP.md`: Monitoring configuration
-- `.agents/ai-agent-debugger/documentation/`: Detailed guides
+- `.agents/debug/documentation/`: Detailed guides
 
 ### Scripts and Tools
 - `scripts/deploy-ai-agents-ecosystem.sh`: Main deployment script
-- `.agents/ai-agent-debugger/scripts/`: Debugging utilities
+- `.agents/debug/scripts/`: Debugging utilities
 - `scripts/debug-ai-agents-k8s.sh`: Kubernetes debugging
 - `scripts/llm-debug-automation.sh`: LLM-assisted debugging
 

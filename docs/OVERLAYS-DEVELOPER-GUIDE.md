@@ -690,7 +690,7 @@ metadata:
   name: my-skill-enhanced
   labels:
     overlay-type: skill
-    base-skill: ai-agent-debugger
+    base-skill: debug
 
 # Bad
 metadata:

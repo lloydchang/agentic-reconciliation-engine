@@ -17,7 +17,7 @@ resources:
   - ../../../../.agents
   - ../../../../agents
   # Community overlays
-  - ../.agents/ai-agent-debugger/enhanced
+  - ../.agents/debug/enhanced
   - ../agents/dashboard/themes/dark-mode
   - ../agents/dashboard/widgets/cost-calculator
   - ../.agents/infrastructure-provisioning/multi-cloud-enhanced

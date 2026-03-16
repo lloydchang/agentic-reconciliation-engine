@@ -314,7 +314,7 @@ resource_planning:
 #### Specialized Scripts
 ```bash
 # Quick debug runner
-./.agents/ai-agent-debugger/scripts/distributed-debug-runner.sh \
+./.agents/debug/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
   --debug-level detailed
 

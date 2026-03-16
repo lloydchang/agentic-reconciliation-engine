@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ai-agent-debugger-enhanced-config
+  name: debug-enhanced-config
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 data:
   # ML correlation configuration
   ml_correlation.yaml: |
@@ -108,15 +108,15 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ai-agent-debugger
+  name: debug
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 spec:
   template:
     spec:
       # Add ML-specific environment variables
       containers:
-      - name: ai-agent-debugger
+      - name: debug
         env:
         - name: ML_CORRELATION_ENABLED
           value: "true"
@@ -153,20 +153,20 @@ spec:
       volumes:
       - name: enhanced-config
         configMap:
-          name: ai-agent-debugger-enhanced-config
+          name: debug-enhanced-config
       # Add ML models volume (persistent)
       - name: ml-models
         persistentVolumeClaim:
-          claimName: ai-agent-debugger-ml-models
+          claimName: debug-ml-models
 
 ---
 # PersistentVolumeClaim for ML models
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ai-agent-debugger-ml-models
+  name: debug-ml-models
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 spec:
   accessModes:
     - ReadWriteOnce
@@ -180,12 +180,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ai-agent-debugger-enhanced
+  name: debug-enhanced
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 spec:
   selector:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
   ports:
   - name: http
     port: 8080
@@ -203,13 +203,13 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: ai-agent-debugger-enhanced
+  name: debug-enhanced
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 spec:
   selector:
     matchLabels:
-      overlay: ai-agent-debugger-enhanced
+      overlay: debug-enhanced
   endpoints:
   - port: metrics
     interval: 30s
@@ -225,19 +225,19 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: ai-agent-debugger-enhanced-rules
+  name: debug-enhanced-rules
   labels:
-    overlay: ai-agent-debugger-enhanced
+    overlay: debug-enhanced
 spec:
   groups:
-  - name: ai-agent-debugger-enhanced
+  - name: debug-enhanced
     rules:
     - alert: HighCorrelationDetected
       expr: correlation_score > 0.9
       for: 5m
       labels:
         severity: warning
-        overlay: ai-agent-debugger-enhanced
+        overlay: debug-enhanced
       annotations:
         summary: "High correlation detected between components"
         description: "Correlation score {{ $value }} indicates strong relationship between components"
@@ -247,7 +247,7 @@ spec:
       for: 2m
       labels:
         severity: critical
-        overlay: ai-agent-debugger-enhanced
+        overlay: debug-enhanced
       annotations:
         summary: "Predictive failure alert triggered"
         description: "Model predicts failure with {{ $value }} confidence"
@@ -257,7 +257,7 @@ spec:
       for: 3m
       labels:
         severity: warning
-        overlay: ai-agent-debugger-enhanced
+        overlay: debug-enhanced
       annotations:
         summary: "Anomaly detected in system behavior"
         description: "Anomaly score {{ $value }} indicates unusual behavior"
@@ -267,7 +267,7 @@ spec:
       for: 10m
       labels:
         severity: warning
-        overlay: ai-agent-debugger-enhanced
+        overlay: debug-enhanced
       annotations:
         summary: "ML model performance degraded"
         description: "Model performance {{ $value }} is below threshold"

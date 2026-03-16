@@ -8,7 +8,7 @@ This document provides comprehensive documentation for the AI agents system debu
 
 ### 1. AI System Debugger Skill
 
-**Location**: `.agents/ai-agent-debugger/SKILL.md`
+**Location**: `.agents/debug/SKILL.md`
 **Purpose**: Comprehensive debugging skill for AI agents, Temporal workflows, and Kubernetes infrastructure
 
 #### Key Capabilities
@@ -379,7 +379,7 @@ Solution: Check database performance and optimize queries
 ## Quick Reference
 
 ### Key Files and Locations
-- **Skill Definition**: `.agents/ai-agent-debugger/SKILL.md`
+- **Skill Definition**: `.agents/debug/SKILL.md`
 - **Metrics System**: `ai-agents/backend/monitoring/metrics.go`
 - **Deployment Script**: `scripts/deploy-ai-agents-ecosystem.sh`
 - **Monitoring Plan**: `docs/REAL_MONITORING_IMPLEMENTATION.md`
