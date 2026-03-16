@@ -110,7 +110,7 @@ install_crossplane() {
     --namespace "$NAMESPACE" \
     --create-namespace \
     --set version="$CROSSPLANE_VERSION" \
-    --set args="--enable-environment-configs=true" \
+    --set args[0]="--enable-environment-configs=true" \
     --wait
   
   # Wait for Crossplane to be ready
