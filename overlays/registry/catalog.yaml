@@ -263,17 +263,17 @@ overlays:
             command: "kustomize build overlays/composed/community-bundle"
 
 statistics:
-  total_overlays: 7
+  total_overlays: 12
   overlays_by_category:
-    skills: 2
+    skills: 3
     dashboard: 2
     infrastructure: 1
-    composed: 2
+    composed: 6
   overlays_by_risk_level:
-    low: 5
-    medium: 2
+    low: 8
+    medium: 4
     high: 0
   overlays_by_autonomy:
-    fully_auto: 5
-    conditional: 2
+    fully_auto: 8
+    conditional: 4
     requires_pr: 0
