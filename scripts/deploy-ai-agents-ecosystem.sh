@@ -37,18 +37,27 @@ log_error() {
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-
+    
     # Check kubectl
     if ! command -v kubectl &> /dev/null; then
         log_error "kubectl not found. Please install kubectl."
         exit 1
     fi
-
+    
+    # Set KUBECONFIG to hub cluster (where AI agents should be deployed)
+    export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+    
+    # Switch to hub cluster context
+    kubectl config use-context kind-gitops-hub &> /dev/null || log_warning "Could not switch to hub context"
+    
     # Check if connected to cluster
     if ! kubectl cluster-info &> /dev/null; then
-        log_error "Not connected to a Kubernetes cluster."
+        log_error "Not connected to hub cluster. Make sure hub cluster is running."
+        log_error "Try: ./scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig"
         exit 1
     fi
+    
+    log_success "Connected to hub cluster"
 
     # Check Docker (for building images)
     if ! command -v docker &> /dev/null; then

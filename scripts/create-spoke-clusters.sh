@@ -111,9 +111,13 @@ validate_prerequisites() {
   fi
   
   # Check Crossplane
-  if ! kubectl get providers.pkg.crossplane.io -n crossplane-system --no-headers | grep -q "Running"; then
-    fail "Crossplane not running on hub cluster"
-    fail "Run 'scripts/install-crossplane.sh' first"
+  if [[ "$CLOUD_PROVIDERS" != "local" ]]; then
+    if ! kubectl get providers.pkg.crossplane.io -n crossplane-system --no-headers | grep -q "Running"; then
+      fail "Crossplane not running on hub cluster"
+      fail "Run 'scripts/install-crossplane.sh' first"
+    fi
+  else
+    info "Local provider - skipping Crossplane check"
   fi
   
   # Check cloud CLI tools for all providers

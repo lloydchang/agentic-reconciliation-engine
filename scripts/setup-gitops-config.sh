@@ -14,8 +14,8 @@ START_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 CONNECTOR_DEFAULT="local"
 OVERLAY_DEFAULT=("./bootstrap" "./hub" "./emulator-azure" "./spoke-local")
 EMULATOR_ACTION_DEFAULT="enable"
-HELPERS_DEFAULT=("enable-cloud.sh" "export-argocd-state.sh")
-CI_GATE_COMMAND="./local-ci-gate.sh"
+HELPERS_DEFAULT=("scripts/enable-cloud.sh" "scripts/export-argocd-state.sh")
+CI_GATE_COMMAND=""
 # Add required repo URL - for local development, use current directory
 REPO_URL_DEFAULT="file://$(pwd)"
 
