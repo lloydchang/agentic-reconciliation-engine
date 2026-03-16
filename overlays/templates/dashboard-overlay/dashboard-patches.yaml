@@ -1,0 +1,249 @@
+# Dashboard Patches Template
+# This file contains patches to modify or extend the base dashboard functionality
+# Customize these patches based on your overlay requirements
+
+---
+# Enhanced ConfigMap for dashboard overlay
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-overlay-config
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+data:
+  # Overlay configuration
+  overlay.json: |
+    {
+      "name": "{{overlay-name}}",
+      "version": "{{overlay-version}}",
+      "type": "{{overlay-type}}",
+      "enabled": true,
+      "features": {
+        "customTheme": true,
+        "enhancedWidgets": true,
+        "customNavigation": false
+      }
+    }
+  
+  # Custom component configuration
+  components.json: |
+    {
+      "widgets": [
+        {
+          "name": "custom-widget",
+          "type": "chart",
+          "position": "sidebar",
+          "config": {
+            "title": "Custom Widget",
+            "dataSource": "/api/custom-data"
+          }
+        }
+      ],
+      "navigation": {
+        "customItems": [],
+        "sidebarItems": []
+      }
+    }
+  
+  # Integration configuration
+  integrations.json: |
+    {
+      "externalAPIs": [],
+      "monitoring": {
+        "enabled": true,
+        "metricsEndpoint": "/metrics"
+      },
+      "notifications": {
+        "enabled": false,
+        "channels": []
+      }
+    }
+
+---
+# Enhanced Deployment patch for dashboard
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+spec:
+  template:
+    spec:
+      # Add overlay-specific environment variables
+      containers:
+      - name: dashboard
+        env:
+        - name: OVERLAY_NAME
+          value: "{{overlay-name}}"
+        - name: OVERLAY_VERSION
+          value: "{{overlay-version}}"
+        - name: OVERLAY_TYPE
+          value: "{{overlay-type}}"
+        - name: OVERLAY_ENABLED
+          value: "true"
+        - name: THEME_MODE
+          value: "auto"
+        - name: DEBUG_MODE
+          value: "false"
+        # Mount overlay configuration
+        volumeMounts:
+        - name: overlay-config
+          mountPath: /app/overlay-config
+          readOnly: true
+        - name: overlay-assets
+          mountPath: /app/overlay-assets
+          readOnly: true
+        # Add custom resources
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      # Add overlay configuration volumes
+      volumes:
+      - name: overlay-config
+        configMap:
+          name: dashboard-overlay-config
+      - name: overlay-assets
+        configMap:
+          name: {{overlay-name}}-config
+
+---
+# Enhanced Service patch for dashboard
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+spec:
+  selector:
+    overlay: {{overlay-name}}
+    component: dashboard
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+
+---
+# Enhanced Ingress patch (if using Ingress)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: dashboard-overlay.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dashboard-overlay
+            port:
+              number: 80
+
+---
+# Enhanced ServiceMonitor for dashboard metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dashboard-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+spec:
+  selector:
+    matchLabels:
+      overlay: {{overlay-name}}
+      component: dashboard
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+
+---
+# Custom HorizontalPodAutoscaler for dashboard
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dashboard-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dashboard
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Custom NetworkPolicy for dashboard
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dashboard-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: dashboard
+spec:
+  podSelector:
+    matchLabels:
+      overlay: {{overlay-name}}
+      component: dashboard
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53

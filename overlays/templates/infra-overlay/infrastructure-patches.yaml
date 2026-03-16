@@ -1,0 +1,377 @@
+# Infrastructure Patches Template
+# This file contains patches to modify or extend base infrastructure functionality
+# Customize these patches based on your overlay requirements
+
+---
+# Enhanced ConfigMap for infrastructure overlay
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{base-component}}-overlay-config
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+data:
+  # Overlay configuration
+  overlay.yaml: |
+    name: "{{overlay-name}}"
+    version: "{{overlay-version}}"
+    component: "{{base-component}}"
+    enabled: true
+    features:
+      enhanced_monitoring: true
+      security_hardening: true
+      custom_integrations: true
+  
+  # Enhanced monitoring configuration
+  monitoring.yaml: |
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        interval: 30s
+        scrapeTimeout: 10s
+      rules:
+        enabled: true
+        alerting: true
+    grafana:
+      enabled: true
+      dashboards:
+        enabled: true
+        customDashboards: []
+  
+  # Security configuration
+  security.yaml: |
+    networkPolicy:
+      enabled: true
+      defaultDeny: false
+    podSecurityPolicy:
+      enabled: true
+      runAsUser: 1000
+      runAsGroup: 3000
+    rbac:
+      enabled: true
+      serviceAccount:
+        create: true
+        name: "{{overlay-name}}-sa"
+
+---
+# Enhanced Deployment patch for infrastructure components
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kustomize-controller
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  template:
+    spec:
+      # Add overlay-specific environment variables
+      containers:
+      - name: kustomize-controller
+        env:
+        - name: OVERLAY_NAME
+          value: "{{overlay-name}}"
+        - name: OVERLAY_VERSION
+          value: "{{overlay-version}}"
+        - name: OVERLAY_COMPONENT
+          value: "{{base-component}}"
+        - name: OVERLAY_ENABLED
+          value: "true"
+        - name: DEBUG_MODE
+          value: "false"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: SECURITY_LEVEL
+          value: "standard"
+        # Mount overlay configuration
+        volumeMounts:
+        - name: overlay-config
+          mountPath: /etc/overlay-config
+          readOnly: true
+        # Add custom resources
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        # Add security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      # Add overlay configuration volumes
+      volumes:
+      - name: overlay-config
+        configMap:
+          name: {{base-component}}-overlay-config
+
+---
+# Enhanced Deployment patch for helm-controller
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helm-controller
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  template:
+    spec:
+      containers:
+      - name: helm-controller
+        env:
+        - name: OVERLAY_NAME
+          value: "{{overlay-name}}"
+        - name: OVERLAY_ENABLED
+          value: "true"
+        volumeMounts:
+        - name: overlay-config
+          mountPath: /etc/overlay-config
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: overlay-config
+        configMap:
+          name: {{base-component}}-overlay-config
+
+---
+# Enhanced Deployment patch for source-controller
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: source-controller
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  template:
+    spec:
+      containers:
+      - name: source-controller
+        env:
+        - name: OVERLAY_NAME
+          value: "{{overlay-name}}"
+        - name: OVERLAY_ENABLED
+          value: "true"
+        volumeMounts:
+        - name: overlay-config
+          mountPath: /etc/overlay-config
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+      volumes:
+      - name: overlay-config
+        configMap:
+          name: {{base-component}}-overlay-config
+
+---
+# Enhanced Service patch for infrastructure components
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{base-component}}-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  selector:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  - name: webhook
+    port: 9443
+    targetPort: webhook
+  type: ClusterIP
+
+---
+# Enhanced ServiceMonitor for infrastructure metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{base-component}}-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  selector:
+    matchLabels:
+      overlay: {{overlay-name}}
+      component: {{base-component}}
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+  - port: http
+    interval: 30s
+    path: /metrics
+
+---
+# Custom HorizontalPodAutoscaler for infrastructure components
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kustomize-controller-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kustomize-controller
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Custom NetworkPolicy for infrastructure components
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{base-component}}-overlay
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  podSelector:
+    matchLabels:
+      overlay: {{overlay-name}}
+      component: {{base-component}}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: flux-system
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+    - protocol: TCP
+      port: 9443
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+
+---
+# Custom PrometheusRule for infrastructure alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{base-component}}-overlay-rules
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  groups:
+  - name: {{base-component}}-overlay
+    rules:
+    - alert: {{base-component}}Down
+      expr: up{job="{{base-component}}-overlay"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "{{base-component}} overlay is down"
+        description: "{{base-component}} overlay has been down for more than 5 minutes."
+    - alert: {{base-component}}HighErrorRate
+      expr: rate(http_requests_total{job="{{base-component}}-overlay",status=~"5.."}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate for {{base-component}} overlay"
+        description: "Error rate is above 10% for {{base-component}} overlay."
+    - alert: {{base-component}}HighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"{{base-component}}-overlay-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage for {{base-component}} overlay"
+        description: "Memory usage is above 90% for {{base-component}} overlay."
+
+---
+# Custom ConfigMap for additional configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{base-component}}-overlay-additional-config
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+data:
+  # Additional feature flags
+  features.yaml: |
+    enhanced_monitoring: true
+    security_hardening: true
+    custom_integrations: true
+    advanced_logging: true
+    performance_optimization: true
+  
+  # Custom environment variables
+  env.yaml: |
+    CUSTOM_VAR_1: "value1"
+    CUSTOM_VAR_2: "value2"
+    OVERLAY_DEBUG: "false"
+    OVERLAY_LOG_LEVEL: "info"
+  
+  # Custom scripts
+  scripts.yaml: |
+    pre_deploy: |
+      #!/bin/bash
+      echo "Pre-deploy script for {{overlay-name}}"
+      # Add pre-deployment logic here
+    
+    post_deploy: |
+      #!/bin/bash
+      echo "Post-deploy script for {{overlay-name}}"
+      # Add post-deployment logic here

@@ -1,0 +1,229 @@
+---
+name: ai-agent-debugger-enhanced
+version: "2.0.0"
+description: "ML-enhanced debugging skill with correlation analysis, predictive insights, and automated root cause detection for distributed AI agent systems"
+category: skills
+base_path: ".agents/ai-agent-debugger"
+base_version: "1.0.0"
+license: "AGPLv3"
+risk_level: low
+autonomy: fully_auto
+
+maintainer:
+  name: "Community"
+  email: "community@gitops-infra-control-plane.org"
+  organization: "GitOps Infrastructure Control Plane"
+  url: "https://github.com/gitops-infra-control-plane"
+
+tags:
+  - skills
+  - debugging
+  - machine-learning
+  - correlation
+  - predictive
+  - ai-agents
+  - distributed-systems
+
+compatibility:
+  min_base: "1.0.0"
+  max_base: "1.9.9"
+  agentskills.io: ">=1.0"
+  python: ">=3.8"
+  kubernetes: ">=1.20"
+
+dependencies:
+  - name: "ai-agent-debugger"
+    version: ">=1.0.0"
+    optional: false
+  - name: "scikit-learn"
+    version: ">=1.0.0"
+    optional: false
+  - name: "pandas"
+    version: ">=1.3.0"
+    optional: false
+  - name: "numpy"
+    version: ">=1.21.0"
+    optional: false
+  - name: "matplotlib"
+    version: ">=3.5.0"
+    optional: true
+
+environment_variables:
+  - name: OVERLAY_ENABLED
+    required: true
+    description: "Enable enhanced debugging features"
+    default: "true"
+  - name: ML_CORRELATION_ENABLED
+    required: false
+    description: "Enable ML-based correlation analysis"
+    default: "true"
+  - name: PREDICTIVE_ANALYSIS_ENABLED
+    required: false
+    description: "Enable predictive failure analysis"
+    default: "true"
+  - name: DEBUG_MODE
+    required: false
+    description: "Enable debug logging for overlay"
+    default: "false"
+  - name: LOG_LEVEL
+    required: false
+    description: "Logging level"
+    default: "INFO"
+
+inputs:
+  type: object
+  properties:
+    target_component:
+      type: string
+      enum: ["agents", "workflows", "infrastructure", "all"]
+      description: "Component to debug"
+    issue_type:
+      type: string
+      enum: ["performance", "errors", "timeouts", "connectivity", "resource", "behavior"]
+      description: "Type of issue to investigate"
+    time_range:
+      type: string
+      pattern: "^\\d+[mhd]$"
+      description: "Time range for analysis (e.g., 30m, 2h, 1d)"
+    namespace:
+      type: string
+      default: "temporal"
+      description: "Kubernetes namespace to investigate"
+    ml_analysis:
+      type: boolean
+      default: true
+      description: "Enable ML-based correlation analysis"
+    predictive_insights:
+      type: boolean
+      default: true
+      description: "Enable predictive failure analysis"
+    correlation_threshold:
+      type: number
+      default: 0.7
+      minimum: 0.0
+      maximum: 1.0
+      description: "Correlation threshold for ML analysis"
+    verbose:
+      type: boolean
+      default: false
+      description: "Enable verbose logging"
+    auto_fix:
+      type: boolean
+      default: false
+      description: "Attempt automatic fixes for common issues"
+  required:
+    - target_component
+    - issue_type
+
+outputs:
+  type: object
+  properties:
+    debug_session_id:
+      type: string
+      description: "Unique identifier for this debug session"
+    findings:
+      type: array
+      items:
+        type: object
+        properties:
+          component:
+            type: string
+          severity:
+            type: string
+            enum: ["critical", "warning", "info"]
+          issue:
+            type: string
+          root_cause:
+            type: string
+          evidence:
+            type: array
+            items:
+              type: string
+          correlations:
+            type: array
+            items:
+              type: object
+              properties:
+                component:
+                  type: string
+                correlation_score:
+                  type: number
+                pattern:
+                  type: string
+          recommendations:
+            type: array
+            items:
+              type: string
+          predictive_insights:
+            type: object
+            properties:
+              failure_probability:
+                type: number
+              time_to_failure:
+                type: string
+              confidence:
+                type: number
+    ml_analysis:
+      type: object
+      properties:
+        correlation_matrix:
+          type: object
+        patterns_detected:
+          type: array
+          items:
+            type: string
+        anomaly_score:
+          type: number
+        model_confidence:
+          type: number
+    metrics_summary:
+      type: object
+      properties:
+        total_issues:
+          type: integer
+        critical_issues:
+          type: integer
+        warnings:
+          type: integer
+        auto_fixes_applied:
+          type: integer
+        correlations_found:
+          type: integer
+        predictive_alerts:
+          type: integer
+    execution_time:
+      type: number
+      description: "Debug session duration in seconds"
+    next_steps:
+      type: array
+      items:
+        type: string
+  required:
+    - debug_session_id
+    - findings
+    - ml_analysis
+    - metrics_summary
+    - execution_time
+
+examples:
+  - name: "Enhanced debugging with ML correlation"
+    description: "Run enhanced debugging with ML correlation analysis"
+    command: "python main.py debug --target-component all --issue-type performance --time-range 2h --ml-analysis --predictive-insights"
+    expected_output: "Enhanced debugging session with ML correlation and predictive insights"
+  - name: "Predictive failure analysis"
+    description: "Run predictive failure analysis for agents"
+    command: "python main.py debug --target-component agents --issue-type errors --predictive-insights --correlation-threshold 0.8"
+    expected_output: "Predictive failure analysis with correlation threshold 0.8"
+  - name: "Comprehensive system analysis"
+    description: "Full system analysis with all enhanced features"
+    command: "python main.py debug --target-component all --issue-type all --time-range 4h --ml-analysis --predictive-insights --verbose --auto-fix"
+    expected_output: "Comprehensive analysis with ML correlation, predictive insights, and auto-fix"
+
+resources:
+  cpu: "500m"
+  memory: "1Gi"
+  storage: "5Gi"
+
+human_gate:
+  required: false
+  description: "No human approval required for enhanced debugging operations (read-only analysis)"

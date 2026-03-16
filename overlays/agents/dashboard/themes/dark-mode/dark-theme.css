@@ -1,0 +1,398 @@
+/* Dark Theme for GitOps Infrastructure Control Plane Dashboard */
+
+/* CSS Variables for Dark Theme */
+:root {
+  /* Primary Colors - Lighter for dark mode */
+  --overlay-primary-color: #90caf9;
+  --overlay-primary-light: #e3f2fd;
+  --overlay-primary-dark: #42a5f5;
+  
+  /* Secondary Colors */
+  --overlay-secondary-color: #f48fb1;
+  --overlay-secondary-light: #fce4ec;
+  --overlay-secondary-dark: #ad1457;
+  
+  /* Background Colors - Dark palette */
+  --overlay-background-color: #121212;
+  --overlay-surface-color: #1e1e1e;
+  --overlay-paper-color: #2d2d2d;
+  
+  /* Text Colors - Light for dark backgrounds */
+  --overlay-text-primary: #ffffff;
+  --overlay-text-secondary: #b0b0b0;
+  --overlay-text-disabled: #666666;
+  
+  /* Border and Divider Colors - Subtle dark tones */
+  --overlay-border-color: #404040;
+  --overlay-divider-color: #333333;
+  
+  /* Status Colors - Adjusted for dark mode */
+  --overlay-success-color: #4caf50;
+  --overlay-warning-color: #ff9800;
+  --overlay-error-color: #f44336;
+  --overlay-info-color: #2196f3;
+  
+  /* Enhanced shadows for dark mode */
+  --overlay-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --overlay-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --overlay-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  
+  /* Glassmorphism effect */
+  --overlay-glass-bg: rgba(30, 30, 30, 0.7);
+  --overlay-glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Base Dark Theme Styles */
+body {
+  background-color: var(--overlay-background-color);
+  color: var(--overlay-text-primary);
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+/* Glassmorphism Container */
+.overlay-container {
+  background: var(--overlay-glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--overlay-glass-border);
+  border-radius: var(--overlay-border-radius-md);
+  box-shadow: var(--overlay-shadow-md);
+  padding: var(--overlay-spacing-md);
+  margin-bottom: var(--overlay-spacing-md);
+  transition: all 0.3s ease;
+}
+
+.overlay-container:hover {
+  background: rgba(30, 30, 30, 0.8);
+  box-shadow: var(--overlay-shadow-lg);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Dark Header */
+.overlay-header {
+  background: linear-gradient(135deg, var(--overlay-primary-dark) 0%, var(--overlay-primary-color) 100%);
+  color: white;
+  padding: var(--overlay-spacing-lg);
+  border-radius: var(--overlay-border-radius-md) var(--overlay-border-radius-md) 0 0;
+  margin: calc(-1 * var(--overlay-spacing-md)) calc(-1 * var(--overlay-spacing-md)) var(--overlay-spacing-md) calc(-1 * var(--overlay-spacing-md));
+  box-shadow: var(--overlay-shadow-md);
+}
+
+/* Dark Cards */
+.overlay-card {
+  background: var(--overlay-paper-color);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-md);
+  padding: var(--overlay-spacing-lg);
+  margin-bottom: var(--overlay-spacing-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--overlay-shadow-sm);
+}
+
+.overlay-card:hover {
+  border-color: var(--overlay-primary-color);
+  box-shadow: var(--overlay-shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Dark Navigation */
+.overlay-nav {
+  background: var(--overlay-surface-color);
+  border-bottom: 1px solid var(--overlay-border-color);
+  padding: var(--overlay-spacing-sm) 0;
+  box-shadow: var(--overlay-shadow-sm);
+}
+
+.overlay-nav-item {
+  color: var(--overlay-text-secondary);
+  text-decoration: none;
+  padding: var(--overlay-spacing-sm) var(--overlay-spacing-md);
+  border-radius: var(--overlay-border-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.overlay-nav-item:hover,
+.overlay-nav-item.active {
+  color: var(--overlay-primary-color);
+  background: rgba(144, 202, 249, 0.1);
+}
+
+/* Dark Buttons */
+.overlay-button {
+  background: var(--overlay-primary-color);
+  color: var(--overlay-background-color);
+  border: none;
+  border-radius: var(--overlay-border-radius-sm);
+  padding: var(--overlay-spacing-sm) var(--overlay-spacing-md);
+  font-size: var(--overlay-font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--overlay-shadow-sm);
+}
+
+.overlay-button:hover {
+  background: var(--overlay-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--overlay-shadow-md);
+}
+
+.overlay-button.secondary {
+  background: var(--overlay-secondary-color);
+  color: var(--overlay-background-color);
+}
+
+.overlay-button.secondary:hover {
+  background: var(--overlay-secondary-dark);
+}
+
+/* Dark Form Elements */
+.overlay-form-input {
+  width: 100%;
+  padding: var(--overlay-spacing-sm);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-sm);
+  background: var(--overlay-surface-color);
+  color: var(--overlay-text-primary);
+  font-size: var(--overlay-font-size-sm);
+  transition: all 0.2s ease;
+}
+
+.overlay-form-input:focus {
+  outline: none;
+  border-color: var(--overlay-primary-color);
+  box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
+  background: var(--overlay-paper-color);
+}
+
+.overlay-form-input::placeholder {
+  color: var(--overlay-text-disabled);
+}
+
+/* Dark Charts */
+.overlay-chart {
+  background: var(--overlay-paper-color);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-md);
+  padding: var(--overlay-spacing-lg);
+  margin-bottom: var(--overlay-spacing-md);
+  box-shadow: var(--overlay-shadow-sm);
+}
+
+.overlay-chart-title {
+  font-size: var(--overlay-font-size-lg);
+  font-weight: 500;
+  margin-bottom: var(--overlay-spacing-md);
+  color: var(--overlay-text-primary);
+}
+
+/* Dark Status Indicators */
+.overlay-status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--overlay-spacing-xs) var(--overlay-spacing-sm);
+  border-radius: var(--overlay-border-radius-sm);
+  font-size: var(--overlay-font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  backdrop-filter: blur(5px);
+}
+
+.overlay-status.success {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--overlay-success-color);
+  border: 1px solid var(--overlay-success-color);
+}
+
+.overlay-status.warning {
+  background: rgba(255, 152, 0, 0.2);
+  color: var(--overlay-warning-color);
+  border: 1px solid var(--overlay-warning-color);
+}
+
+.overlay-status.error {
+  background: rgba(244, 67, 54, 0.2);
+  color: var(--overlay-error-color);
+  border: 1px solid var(--overlay-error-color);
+}
+
+.overlay-status.info {
+  background: rgba(33, 150, 243, 0.2);
+  color: var(--overlay-info-color);
+  border: 1px solid var(--overlay-info-color);
+}
+
+/* Dark Sidebar */
+.overlay-sidebar {
+  background: var(--overlay-surface-color);
+  border-right: 1px solid var(--overlay-border-color);
+  box-shadow: var(--overlay-shadow-md);
+}
+
+.overlay-sidebar-item {
+  color: var(--overlay-text-secondary);
+  padding: var(--overlay-spacing-sm) var(--overlay-spacing-md);
+  transition: all 0.2s ease;
+}
+
+.overlay-sidebar-item:hover,
+.overlay-sidebar-item.active {
+  color: var(--overlay-primary-color);
+  background: rgba(144, 202, 249, 0.1);
+}
+
+/* Dark Tables */
+.overlay-table {
+  background: var(--overlay-paper-color);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-md);
+  overflow: hidden;
+}
+
+.overlay-table th {
+  background: var(--overlay-surface-color);
+  color: var(--overlay-text-primary);
+  border-bottom: 1px solid var(--overlay-border-color);
+  padding: var(--overlay-spacing-sm) var(--overlay-spacing-md);
+}
+
+.overlay-table td {
+  color: var(--overlay-text-secondary);
+  border-bottom: 1px solid var(--overlay-divider-color);
+  padding: var(--overlay-spacing-sm) var(--overlay-spacing-md);
+}
+
+.overlay-table tr:hover {
+  background: rgba(144, 202, 249, 0.05);
+}
+
+/* Dark Code Blocks */
+.overlay-code {
+  background: var(--overlay-background-color);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-sm);
+  padding: var(--overlay-spacing-md);
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  color: var(--overlay-text-primary);
+  overflow-x: auto;
+}
+
+/* Dark Tooltips */
+.overlay-tooltip {
+  background: var(--overlay-surface-color);
+  color: var(--overlay-text-primary);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-sm);
+  padding: var(--overlay-spacing-xs) var(--overlay-spacing-sm);
+  font-size: var(--overlay-font-size-xs);
+  box-shadow: var(--overlay-shadow-lg);
+}
+
+/* Dark Modals */
+.overlay-modal {
+  background: var(--overlay-paper-color);
+  border: 1px solid var(--overlay-border-color);
+  border-radius: var(--overlay-border-radius-lg);
+  box-shadow: var(--overlay-shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+/* Dark Loading States */
+.overlay-loading {
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+/* Dark Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--overlay-surface-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--overlay-border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--overlay-text-disabled);
+}
+
+/* Responsive Dark Theme */
+@media (max-width: 768px) {
+  .overlay-container {
+    padding: var(--overlay-spacing-sm);
+    margin-bottom: var(--overlay-spacing-sm);
+  }
+  
+  .overlay-header {
+    padding: var(--overlay-spacing-md);
+  }
+  
+  .overlay-card {
+    padding: var(--overlay-spacing-md);
+  }
+  
+  .overlay-nav {
+    padding: var(--overlay-spacing-xs) 0;
+  }
+  
+  .overlay-nav-item {
+    padding: var(--overlay-spacing-xs) var(--overlay-spacing-sm);
+  }
+}
+
+/* Dark Theme Animations */
+@keyframes fadeInDark {
+  from { 
+    opacity: 0;
+    background: var(--overlay-background-color);
+  }
+  to { 
+    opacity: 1;
+    background: var(--overlay-glass-bg);
+  }
+}
+
+@keyframes slideUpDark {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+    background: var(--overlay-background-color);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+    background: var(--overlay-glass-bg);
+  }
+}
+
+.overlay-fade-in {
+  animation: fadeInDark 0.3s ease-in-out;
+}
+
+.overlay-slide-up {
+  animation: slideUpDark 0.3s ease-in-out;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --overlay-border-color: #666666;
+    --overlay-divider-color: #555555;
+    --overlay-text-secondary: #cccccc;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

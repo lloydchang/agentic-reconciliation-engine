@@ -1,0 +1,118 @@
+# Enhanced Features Patch Template
+# This file contains patches to modify or extend base skill functionality
+# Customize these patches based on your overlay requirements
+
+---
+# Enhanced ConfigMap for overlay functionality
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{base-skill}}-enhanced-config
+  labels:
+    overlay: {{overlay-name}}
+data:
+  # Enhanced configuration parameters
+  enhanced_features.yaml: |
+    # Enhanced features configuration
+    features:
+      ml_analysis: true
+      correlation_engine: true
+      predictive_insights: true
+      custom_logic: true
+    
+    # Performance settings
+    performance:
+      timeout_seconds: 300
+      retry_attempts: 3
+      batch_size: 100
+    
+    # Integration settings
+    integrations:
+      external_apis: []
+      databases: []
+      monitoring_systems: []
+  
+  # Custom logic configuration
+  custom_logic.yaml: |
+    # Custom business logic configuration
+    business_rules:
+      - name: "rule_1"
+        condition: "always_true"
+        action: "log_event"
+      - name: "rule_2"
+        condition: "error_detected"
+        action: "escalate"
+    
+    # Validation rules
+    validation:
+      strict_mode: true
+      required_fields: ["operation", "targetResource"]
+      optional_fields: ["enhanced_features", "custom_config"]
+
+---
+# Enhanced Deployment patch
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{base-skill}}
+  labels:
+    overlay: {{overlay-name}}
+spec:
+  template:
+    spec:
+      # Add overlay-specific environment variables
+      containers:
+      - name: {{base-skill}}
+        env:
+        - name: OVERLAY_CONFIG_PATH
+          value: "/etc/overlay/config"
+        - name: ENHANCED_FEATURES_ENABLED
+          value: "true"
+        - name: CUSTOM_LOGIC_ENABLED
+          value: "true"
+        # Mount overlay configuration
+        volumeMounts:
+        - name: overlay-config
+          mountPath: /etc/overlay/config
+          readOnly: true
+      # Add overlay configuration volume
+      volumes:
+      - name: overlay-config
+        configMap:
+          name: {{base-skill}}-enhanced-config
+
+---
+# Enhanced Service patch (if needed)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{base-skill}}-enhanced
+  labels:
+    overlay: {{overlay-name}}
+spec:
+  selector:
+    overlay: {{overlay-name}}
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+
+---
+# Enhanced ServiceMonitor for metrics (if using Prometheus)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{base-skill}}-enhanced
+  labels:
+    overlay: {{overlay-name}}
+spec:
+  selector:
+    matchLabels:
+      overlay: {{overlay-name}}
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

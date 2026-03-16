@@ -1,0 +1,52 @@
+# Skill Overlay Template
+# Copy this template to create new skill overlays
+# Instructions:
+# 1. Copy this entire directory: cp -r overlays/templates/skill-overlay overlays/.agents/my-skill
+# 2. Copy kustomization-template.yaml to kustomization.yaml
+# 3. Replace placeholder values (overlay-name, base-skill, etc.)
+# 4. Customize the overlay functionality
+# 5. Update overlay-metadata.yaml with your overlay details
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: overlay-name-template
+  namespace: flux-system
+  annotations:
+    overlay.name: "overlay-name-template"
+    overlay.version: "1.0.0"
+    overlay.category: "skills"
+    overlay.base-skill: "base-skill-template"
+    overlay.compatibility: "1.0.0+"
+resources:
+  # Reference to base skill (adjust path as needed)
+  - ../../../../.agents/base-skill-template
+# Patches to modify or extend base functionality
+patchesStrategicMerge:
+  - enhanced-features.yaml
+# Additional configurations
+configMapGenerator:
+  - name: overlay-name-config
+    literals:
+      - OVERLAY_ENABLED=true
+      - OVERLAY_VERSION="1.0.0"
+      - OVERLAY_TYPE="skill-extension"
+      - BASE_SKILL="base-skill-template"
+      - ENHANCED_FEATURES=true
+# Secret generation for sensitive data
+secretGenerator:
+  - name: overlay-name-secrets
+    envs:
+      - .env.secret
+# Common labels for overlay resources
+commonLabels:
+  overlay: "overlay-name-template"
+  overlay-type: "skill"
+  base-skill: "base-skill-template"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Images for overlay (if custom containers needed)
+images:
+  - name: python
+    newTag: "3.11-slim"
