@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# MVP GitOps Infrastructure - One-Command Setup
+# Quickstart - MVP GitOps Infrastructure (One-Command Setup)
 # =============================================================================
 set -euo pipefail
 
@@ -14,9 +14,9 @@ info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
-ensure_wsl_sanity "setup-mvp.sh" warn info
+ensure_wsl_sanity "quickstart.sh" warn info
 
-LOG_DIR="${SCRIPT_DIR}/../logs/mvp-setup"
+LOG_DIR="${SCRIPT_DIR}/../logs/quickstart"
 START_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 mkdir -p "$LOG_DIR"
@@ -102,7 +102,7 @@ run_step() {
 # Main execution
 main() {
   echo -e "${BOLD}╔══════════════════════════════════════════════════════════╗${RESET}"
-  echo -e "${BOLD}║   GitOps Infra Control Plane — MVP Setup (One Command)     ║${RESET}"
+  echo -e "${BOLD}║   GitOps Infra Control Plane — Quickstart (One Command)     ║${RESET}"
   echo -e "${BOLD}╚══════════════════════════════════════════════════════════╝${RESET}"
   echo
   echo "Start Time: $START_TIME"
@@ -138,7 +138,7 @@ main() {
   
   # Summary
   echo
-  echo -e "${BOLD}MVP Setup Complete!${RESET}"
+  echo -e "${BOLD}Quickstart Complete!${RESET}"
   echo "=================="
   
   if [[ "$DRY_RUN" != "true" ]]; then
@@ -184,7 +184,7 @@ main() {
 }
 EOF
   
-  echo -e "${GREEN}${BOLD}MVP GitOps infrastructure deployed successfully!${RESET}"
+  echo -e "${GREEN}${BOLD}Quickstart GitOps infrastructure deployed successfully!${RESET}"
 }
 
 # Run main function
