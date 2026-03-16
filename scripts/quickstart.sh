@@ -3,7 +3,6 @@
 # Quickstart - MVP GitOps Infrastructure (One-Command Setup)
 # =============================================================================
 set -euo pipefail
-cd $(dirname $0)
 
 # Colors
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
@@ -111,35 +110,35 @@ main() {
   echo
   
   # Step 1: Prerequisites
-  run_step "prerequisites" "./prerequisites.sh"
+  run_step "prerequisites" "${SCRIPT_DIR}/prerequisites.sh"
   
   # Step 2: GitOps Configuration
-  run_step "gitops-config" "./setup-gitops-config.sh"
+  run_step "gitops-config" "${SCRIPT_DIR}/setup-gitops-config.sh"
   
   # Step 3: Bootstrap Cluster (recovery anchor)
   if [[ "$SKIP_BOOTSTRAP" != "true" ]]; then
-    run_step "bootstrap-cluster" "./create-bootstrap-cluster.sh"
+    run_step "bootstrap-cluster" "${SCRIPT_DIR}/create-bootstrap-cluster.sh"
   else
     warn "Skipping bootstrap cluster creation"
   fi
   
   # Step 4: Hub Cluster (GitOps control plane)
   if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "hub-cluster" "./create-hub-cluster.sh --provider local"
+    run_step "hub-cluster" "${SCRIPT_DIR}/create-hub-cluster.sh --provider local"
   else
     warn "Skipping hub cluster creation"
   fi
   
   # Step 5: Install Crossplane on hub
   if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "install-crossplane" "./install-crossplane.sh --providers local"
+    run_step "install-crossplane" "${SCRIPT_DIR}/install-crossplane.sh --providers local"
   else
     warn "Skipping Crossplane installation"
   fi
   
   # Step 6: Create Spoke Clusters
   if [[ "$SKIP_SPOKE" != "true" ]]; then
-    run_step "spoke-cluster" "./create-spoke-clusters.sh"
+    run_step "spoke-cluster" "${SCRIPT_DIR}/create-spoke-clusters.sh"
   else
     warn "Skipping spoke cluster creation"
   fi
