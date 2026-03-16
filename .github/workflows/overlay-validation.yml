@@ -1,0 +1,291 @@
+name: Overlay Validation and Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'overlays/**'
+      - 'scripts/validate-overlays.py'
+      - 'scripts/test-overlays.py'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'overlays/**'
+      - 'scripts/validate-overlays.py'
+           - 'scripts/test-overlays.py'
+  workflow_dispatch:
+    inputs:
+      overlay_path:
+        description: 'Specific overlay path to validate'
+        required: false
+        type: string
+      test_only:
+        description: 'Run tests only (skip validation)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  validate-overlays:
+    name: Validate Overlays
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema
+        
+    - name: Install Kustomize
+      uses: imranismail/setup-kustomize@v2
+      
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Validate all overlays
+      if: github.event.inputs.overlay_path == ''
+      run: |
+        echo "Validating all overlays..."
+        python scripts/validate-overlays.py overlays/ --verbose
+        
+    - name: Validate specific overlay
+      if: github.event.inputs.overlay_path != ''
+      run: |
+        echo "Validating overlay: ${{ github.event.inputs.overlay_path }}"
+        python scripts/validate-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
+        
+    - name: Upload validation results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-results
+        path: |
+          validation-*.log
+          validation-*.json
+
+  test-overlays:
+    name: Test Overlays
+    runs-on: ubuntu-latest
+    needs: validate-overlays
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema
+        
+    - name: Install Kustomize
+      uses: imranismail/setup-kustomize@v2
+      
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Test all overlays
+      if: github.event.inputs.overlay_path == ''
+      run: |
+        echo "Testing all overlays..."
+        python scripts/test-overlays.py overlays/ --verbose
+        
+    - name: Test specific overlay
+      if: github.event.inputs.overlay_path != ''
+      run: |
+        echo "Testing overlay: ${{ github.event.inputs.overlay_path }}"
+        python scripts/test-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
+        
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          test-*.log
+          test-*.json
+
+  build-overlays:
+    name: Build Overlays
+    runs-on: ubuntu-latest
+    needs: [validate-overlays, test-overlays]
+    strategy:
+      matrix:
+        category: [skills, dashboard, infrastructure, composed]
+        fail-fast: false
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Kustomize
+      uses: imranismail/setup-kustomize@v2
+      
+    - name: Find overlays in category
+      id: find-overlays
+      run: |
+        overlays=$(find overlays/ -name "kustomization.yaml" -path "*/${{ matrix.category }}/*" | head -10)
+        echo "overlays=$overlays" >> $GITHUB_OUTPUT
+        echo "Found overlays:"
+        echo "$overlays"
+        
+    - name: Build overlays
+      run: |
+        for overlay_dir in ${{ steps.find-overlays.outputs.overlays }}; do
+          echo "Building overlay: $overlay_dir"
+          kustomize build "$overlay_dir" > /tmp/build-$(basename $(dirname $overlay_dir)).yaml
+          echo "✅ Built: $overlay_dir"
+        done
+        
+    - name: Validate built manifests
+      run: |
+        for yaml_file in /tmp/build-*.yaml; do
+          if [ -f "$yaml_file" ]; then
+            echo "Validating: $yaml_file"
+            kubectl apply --dry-run=client -f "$yaml_file"
+          fi
+        done
+        
+    - name: Upload built manifests
+      uses: actions/upload-artifact@v3
+      with:
+        name: built-manifests-${{ matrix.category }}
+        path: /tmp/build-*.yaml
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: validate-overlays
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: 'overlays/'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  registry-update:
+    name: Update Registry
+    runs-on: ubuntu-latest
+    needs: [validate-overlays, test-overlays, build-overlays]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema
+        
+    - name: Update overlay catalog
+      run: |
+        python scripts/overlay-registry.py update-catalog
+        
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit and push changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add overlays/registry/catalog.yaml
+        git add overlays/registry/index.json
+        git commit -m "Auto-update overlay catalog [skip ci]"
+        git push
+
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: [validate-overlays, test-overlays, build-overlays]
+    if: github.event_name == 'workflow_dispatch'
+    
+    services:
+      k3s:
+        image: rancher/k3s:latest
+        options: --privileged
+        ports:
+          - 6443:6443
+          
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up k3s
+      run: |
+        curl -sfL https://get.k3s.io | sh -
+        sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+        sudo chmod 600 ~/.kube/config
+        
+    - name: Install Kustomize
+      uses: imranismail/setup-kustomize@v2
+      
+    - name: Test overlay deployment
+      run: |
+        # Test a sample overlay deployment
+        kubectl create namespace test-overlays
+        kustomize build overlays/.agents/ai-agent-debugger/enhanced | kubectl apply --dry-run=client -n test-overlays -f -
+        kubectl delete namespace test-overlays
+
+  notify-results:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [validate-overlays, test-overlays, build-overlays, security-scan]
+    if: always()
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Notify on success
+      if: ${{ needs.validate-overlays.result == 'success' && needs.test-overlays.result == 'success' && needs.build-overlays.result == 'success' }}
+      run: |
+        echo "✅ All overlay validations and tests passed successfully!"
+        
+    - name: Notify on failure
+      if: ${{ needs.validate-overlays.result == 'failure' || needs.test-overlays.result == 'failure' || needs.build-overlays.result == 'failure' }}
+      run: |
+        echo "❌ Overlay validation or testing failed!"
+        echo "Check the job logs for details."
