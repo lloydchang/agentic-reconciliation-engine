@@ -15,7 +15,7 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: memory-agent-pvc
+  name: agent-memory-pvc
   namespace: ai-infrastructure
   annotations:
     # Enable volume expansion monitoring
