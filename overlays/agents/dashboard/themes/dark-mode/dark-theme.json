@@ -1,0 +1,145 @@
+{
+  "theme": {
+    "name": "dark-theme",
+    "version": "1.2.0",
+    "mode": "dark",
+    "description": "Dark theme for the GitOps Infrastructure Control Plane dashboard"
+  },
+  "colors": {
+    "primary": {
+      "main": "#90caf9",
+      "light": "#e3f2fd",
+      "dark": "#42a5f5",
+      "contrastText": "#000000"
+    },
+    "secondary": {
+      "main": "#f48fb1",
+      "light": "#fce4ec",
+      "dark": "#ad1457",
+      "contrastText": "#000000"
+    },
+    "background": {
+      "default": "#121212",
+      "paper": "#1e1e1e",
+      "surface": "#2d2d2d"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#b0b0b0",
+      "disabled": "#666666"
+    },
+    "divider": "#333333",
+    "border": "#404040",
+    "success": "#4caf50",
+    "warning": "#ff9800",
+    "error": "#f44336",
+    "info": "#2196f3"
+  },
+  "typography": {
+    "fontFamily": "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    "fontSize": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "md": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "xxl": "1.5rem"
+    },
+    "fontWeight": {
+      "light": 300,
+      "normal": 400,
+      "medium": 500,
+      "bold": 700
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px",
+    "xxl": "48px"
+  },
+  "shadows": {
+    "sm": "0 1px 3px rgba(0, 0, 0, 0.3)",
+    "md": "0 4px 6px rgba(0, 0, 0, 0.4)",
+    "lg": "0 10px 25px rgba(0, 0, 0, 0.5)"
+  },
+  "borderRadius": {
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px"
+  },
+  "components": {
+    "card": {
+      "backgroundColor": "#1e1e1e",
+      "borderColor": "#404040",
+      "shadow": "0 4px 6px rgba(0, 0, 0, 0.4)"
+    },
+    "button": {
+      "primary": {
+        "backgroundColor": "#42a5f5",
+        "color": "#ffffff",
+        "hoverBackgroundColor": "#1e88e5"
+      },
+      "secondary": {
+        "backgroundColor": "#f48fb1",
+        "color": "#000000",
+        "hoverBackgroundColor": "#f06292"
+      }
+    },
+    "navbar": {
+      "backgroundColor": "#1e1e1e",
+      "borderColor": "#404040",
+      "textColor": "#ffffff"
+    },
+    "sidebar": {
+      "backgroundColor": "#2d2d2d",
+      "borderColor": "#404040",
+      "textColor": "#b0b0b0"
+    },
+    "chart": {
+      "backgroundColor": "#1e1e1e",
+      "gridColor": "#333333",
+      "textColor": "#b0b0b0",
+      "lineColors": {
+        "primary": "#90caf9",
+        "secondary": "#f48fb1",
+        "success": "#4caf50",
+        "warning": "#ff9800",
+        "error": "#f44336"
+      }
+    }
+  },
+  "features": {
+    "autoMode": true,
+    "systemPreference": true,
+    "customAnimations": true,
+    "enhancedContrast": true,
+    "reducedMotion": false
+  },
+  "customCSS": true,
+  "responsive": {
+    "breakpoints": {
+      "xs": "0px",
+      "sm": "600px",
+      "md": "960px",
+      "lg": "1280px",
+      "xl": "1920px"
+    }
+  },
+  "accessibility": {
+    "highContrast": false,
+    "largeText": false,
+    "reducedTransparency": true
+  },
+  "branding": {
+    "logo": {
+      "light": "/assets/logo-dark.svg",
+      "dark": "/assets/logo-dark.svg"
+    },
+    "favicon": "/assets/favicon-dark.ico",
+    "title": "GitOps Infrastructure Control Plane"
+  }
+}

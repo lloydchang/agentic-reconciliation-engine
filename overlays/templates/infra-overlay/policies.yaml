@@ -1,0 +1,370 @@
+# {{overlay-name}} Infrastructure Policies
+# Security and compliance policies for infrastructure overlay
+
+# Network Policies
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{overlay-name}}-network-policy
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  podSelector:
+    matchLabels:
+      overlay: {{overlay-name}}
+      component: {{base-component}}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from same namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: flux-system
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+  # Allow traffic from ingress controllers
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow external APIs
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+
+---
+# Pod Security Policy
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: {{overlay-name}}-psp
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: false
+
+---
+# Resource Quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{overlay-name}}-quota
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+    persistentvolumeclaims: "10"
+    pods: "10"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+
+---
+# Limit Range
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{overlay-name}}-limits
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+  - max:
+      cpu: "2"
+      memory: 2Gi
+    min:
+      cpu: 50m
+      memory: 64Mi
+    type: Container
+
+---
+# Role-Based Access Control
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ServiceAccount
+metadata:
+  name: {{overlay-name}}-sa
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{overlay-name}}-role
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets", "services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{overlay-name}}-binding
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+subjects:
+- kind: ServiceAccount
+  name: {{overlay-name}}-sa
+  namespace: flux-system
+roleRef:
+  kind: Role
+  name: {{overlay-name}}-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Security Context
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{overlay-name}}-security-context
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+  containers:
+  - name: {{base-component}}
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+---
+# Compliance Policies
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{overlay-name}}-compliance-policies
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+data:
+  policies.yaml: |
+    # SOC2 Compliance Policies
+    soc2:
+      - name: "access-control"
+        description: "Implement proper access controls"
+        enabled: true
+        checks:
+          - rbac-enabled
+          - service-account-isolation
+          - network-policies
+      - name: "data-protection"
+        description: "Protect data at rest and in transit"
+        enabled: true
+        checks:
+          - encryption-at-rest
+          - tls-in-transit
+          - secret-management
+    
+    # GDPR Compliance Policies
+    gdpr:
+      - name: "data-minimization"
+        description: "Minimize data collection and retention"
+        enabled: true
+        checks:
+          - log-retention-policy
+          - data-cleanup-automated
+      - name: "consent-management"
+        description: "Manage user consent and preferences"
+        enabled: true
+        checks:
+          - consent-tracking
+          - preference-management
+    
+    # HIPAA Compliance Policies
+    hipaa:
+      - name: "phi-protection"
+        description: "Protect Protected Health Information"
+        enabled: true
+        checks:
+          - phi-encryption
+          - audit-logging
+          - access-logging
+      - name: "audit-requirements"
+        description: "Meet HIPAA audit requirements"
+        enabled: true
+        checks:
+          - comprehensive-auditing
+          - log-retention-6-years
+          - tamper-protection
+
+---
+# Monitoring Policies
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{overlay-name}}-monitoring-policies
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+data:
+  monitoring.yaml: |
+    # Monitoring Configuration
+    prometheus:
+      enabled: true
+      scrapeInterval: 30s
+      evaluationInterval: 30s
+      rules:
+        - alert: HighErrorRate
+          expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High error rate detected"
+        - alert: HighMemoryUsage
+          expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage detected"
+    
+    grafana:
+      enabled: true
+      dashboards:
+        - name: "Overview"
+          panels:
+            - title: "Request Rate"
+              type: graph
+            - title: "Error Rate"
+              type: graph
+            - title: "Memory Usage"
+              type: graph
+    
+    alerting:
+      enabled: true
+      receivers:
+        - name: default
+          email_configs:
+            - to: "admin@example.com"
+              from: "alerts@example.com"
+              smarthost: "smtp.example.com:587"
+
+---
+# Backup Policies
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{overlay-name}}-backup-policies
+  labels:
+    overlay: {{overlay-name}}
+    component: {{base-component}}
+data:
+  backup.yaml: |
+    # Backup Configuration
+    schedule: "0 2 * * *"
+    retention: "30d"
+    encryption: true
+    
+    destinations:
+      - name: "s3-backup"
+        type: "s3"
+        endpoint: "s3.amazonaws.com"
+        bucket: "overlay-backups"
+        prefix: "{{overlay-name}}/"
+        encryption: true
+    
+    resources:
+      - type: "configmaps"
+        selector:
+          overlay: {{overlay-name}}
+      - type: "secrets"
+        selector:
+          overlay: {{overlay-name}}
+      - type: "persistentvolumes"
+        selector:
+          overlay: {{overlay-name}}
+    
+    policies:
+      - name: "daily-backup"
+        schedule: "0 2 * * *"
+        retention: "30d"
+      - name: "weekly-backup"
+        schedule: "0 3 * * 0"
+        retention: "90d"
+      - name: "monthly-backup"
+        schedule: "0 4 1 * *"
+        retention: "365d"

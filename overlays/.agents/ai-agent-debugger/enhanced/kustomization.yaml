@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: ai-agent-debugger-enhanced
+  namespace: flux-system
+  annotations:
+    overlay.name: "ai-agent-debugger-enhanced"
+    overlay.version: "2.0.0"
+    overlay.category: "skills"
+    overlay.base-skill: "ai-agent-debugger"
+    overlay.compatibility: "1.0.0+"
+resources:
+  # Reference to base skill
+  - ../../../../.agents/ai-agent-debugger
+# Patches to add ML correlation and predictive capabilities
+patchesStrategicMerge:
+  - enhanced-features.yaml
+# Additional configurations
+configMapGenerator:
+  - name: ai-agent-debugger-enhanced-config
+    literals:
+      - OVERLAY_ENABLED=true
+      - OVERLAY_VERSION="2.0.0"
+      - OVERLAY_TYPE="skill-extension"
+      - BASE_SKILL="ai-agent-debugger"
+      - ML_CORRELATION=true
+      - PREDICTIVE_ANALYSIS=true
+      - ADVANCED_METRICS=true
+# Secret generation for ML models
+secretGenerator:
+  - name: ai-agent-debugger-enhanced-secrets
+    envs:
+      - .env.secret
+# Common labels for overlay resources
+commonLabels:
+  overlay: "ai-agent-debugger-enhanced"
+  overlay-type: "skill"
+  base-skill: "ai-agent-debugger"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Images for ML enhanced debugging
+images:
+  - name: python
+    newTag: "3.11-slim"
+# Custom resource configurations
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: ML_CORRELATION_ENABLED
+          value: "true"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: PREDICTIVE_ANALYSIS_ENABLED
+          value: "true"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "512Mi"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "1Gi"

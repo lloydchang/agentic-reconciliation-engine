@@ -1,0 +1,251 @@
+# {{overlay-name}} Infrastructure Configuration
+# Configuration for infrastructure overlay extensions
+
+overlay:
+  name: "{{overlay-name}}"
+  version: "{{overlay-version}}"
+  component: "{{base-component}}"
+  enabled: true
+
+# Enhanced Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+    rules:
+      enabled: true
+      alerting: true
+    retention: "30d"
+  grafana:
+    enabled: true
+    dashboards:
+      enabled: true
+      defaultDashboards: true
+      customDashboards: []
+    persistence:
+      enabled: true
+      size: "10Gi"
+  customMetrics:
+    enabled: true
+    endpoints:
+      - path: "/metrics"
+        port: 9090
+    labels:
+      overlay: "{{overlay-name}}"
+      component: "{{base-component}}"
+
+# Security Configuration
+security:
+  enabled: true
+  networkPolicy:
+    enabled: true
+    defaultDeny: false
+    ingress: []
+    egress: []
+  podSecurityPolicy:
+    enabled: false
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+  rbac:
+    enabled: true
+    serviceAccount:
+      create: true
+      name: "{{overlay-name}}-sa"
+    clusterRoles: []
+    roles: []
+  secrets:
+    enabled: true
+    encryption: true
+    rotation: "monthly"
+
+# Networking Configuration
+networking:
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations: {}
+    hosts: []
+    tls: []
+  service:
+    type: ClusterIP
+    annotations: {}
+    ports:
+      - name: http
+        port: 80
+        targetPort: 8080
+      - name: metrics
+        port: 9090
+        targetPort: 9090
+  loadBalancer:
+    enabled: false
+    annotations: {}
+    ip: ""
+
+# Resource Configuration
+resources:
+  controller:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  webhook:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  source:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# Storage Configuration
+storage:
+  enabled: true
+  class: "standard"
+  size: "10Gi"
+  accessMode: "ReadWriteOnce"
+  annotations: {}
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retention: "30d"
+  destination: ""
+  encryption: true
+
+# Logging Configuration
+logging:
+  enabled: true
+  level: "info"
+  format: "json"
+  outputs:
+    - type: console
+    - type: file
+      path: "/var/log/overlay.log"
+    - type: elasticsearch
+      endpoint: ""
+      index: "overlay-logs"
+
+# Compliance Configuration
+compliance:
+  enabled: true
+  standards:
+    - SOC2
+    - GDPR
+    - HIPAA
+  policies:
+    - name: "resource-limits"
+      enabled: true
+    - name: "image-scanning"
+      enabled: true
+    - name: "network-segmentation"
+      enabled: true
+  reporting:
+    enabled: true
+    schedule: "weekly"
+    format: "pdf"
+
+# Integration Configuration
+integrations:
+  externalAPIs:
+    - name: "monitoring-api"
+      endpoint: ""
+      authentication: "bearer"
+      timeout: "30s"
+  databases:
+    - name: "overlay-db"
+      type: "postgresql"
+      endpoint: ""
+      authentication: "basic"
+  messageQueues:
+    - name: "overlay-queue"
+      type: "rabbitmq"
+      endpoint: ""
+      authentication: "basic"
+
+# Performance Configuration
+performance:
+  caching:
+    enabled: true
+    ttl: 300
+    maxSize: "1GB"
+  compression:
+    enabled: true
+    level: 6
+  rateLimiting:
+    enabled: true
+    requestsPerSecond: 100
+    burst: 200
+
+# Custom Configuration
+custom:
+  featureFlags:
+    - name: "enhanced-metrics"
+      enabled: true
+    - name: "advanced-security"
+      enabled: true
+    - name: "custom-integrations"
+      enabled: false
+  environmentVariables:
+    - name: "CUSTOM_VAR_1"
+      value: "value1"
+    - name: "CUSTOM_VAR_2"
+      value: "value2"
+  scripts:
+    - name: "pre-deploy"
+      path: "/scripts/pre-deploy.sh"
+      enabled: false
+    - name: "post-deploy"
+      path: "/scripts/post-deploy.sh"
+      enabled: false
+
+# Health Checks
+healthChecks:
+  enabled: true
+  livenessProbe:
+    httpGet:
+      path: "/healthz"
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: "/readyz"
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Autoscaling Configuration
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilization: 70
+  targetMemoryUtilization: 80
+  customMetrics: []
+
+# Disaster Recovery
+disasterRecovery:
+  enabled: true
+  backupSchedule: "0 2 * * *"
+  retentionPeriod: "30d"
+  recoveryPointObjective: "1h"
+  recoveryTimeObjective: "4h"
+  multiRegion: false

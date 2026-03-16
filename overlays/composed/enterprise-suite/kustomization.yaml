@@ -1,0 +1,117 @@
+# Enterprise Suite Composed Overlay
+# Complete enterprise solution with enhanced debugging, dark theme, and monitoring
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: enterprise-suite
+  namespace: flux-system
+  annotations:
+    overlay.name: "enterprise-suite"
+    overlay.version: "1.0.0"
+    overlay.category: "composed"
+    overlay.description: "Complete enterprise suite with security, compliance, and enhanced monitoring"
+    overlay.compatibility: "main+"
+resources:
+  # Base components
+  - ../../.agents
+  - ../../agents
+  - ../../control-plane
+  # Enhanced debugging overlay
+  - ../.agents/ai-agent-debugger/enhanced
+  # Dark theme overlay
+  - ../agents/dashboard/themes/dark-mode
+  # Enhanced monitoring (to be created)
+  # - ../control-plane/flux/enhanced-monitoring
+# Enterprise-specific configurations
+configMapGenerator:
+  - name: enterprise-suite-config
+    literals:
+      - ENTERPRISE_SUITE_ENABLED=true
+      - SECURITY_LEVEL=enhanced
+      - COMPLIANCE_MODE=strict
+      - MONITORING_LEVEL=comprehensive
+      - AUDIT_LOGGING=true
+      - MULTI_TENANCY=true
+      - RBAC_ENHANCED=true
+      - DATA_ENCRYPTION=true
+      - BACKUP_STRATEGY=multi-region
+      - INCIDENT_RESPONSE=automated
+# Enterprise secrets
+secretGenerator:
+  - name: enterprise-suite-secrets
+    envs:
+      - .env.enterprise
+# Common labels for enterprise suite
+commonLabels:
+  suite: "enterprise"
+  security-level: "enhanced"
+  compliance: "strict"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Enterprise resource requirements
+patchesJson6902:
+  # Enhanced resource limits for enterprise workloads
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "1Gi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "2Gi"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "1Gi"
+  # Enterprise environment variables
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-agent-debugger
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: ENTERPRISE_MODE
+          value: "true"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: SECURITY_LEVEL
+          value: "enhanced"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: COMPLIANCE_MODE
+          value: "strict"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: ENTERPRISE_MODE
+          value: "true"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: SECURITY_LEVEL
+          value: "enhanced"
