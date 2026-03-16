@@ -266,7 +266,7 @@ jobs:
       run: |
         # Test a sample overlay deployment
         kubectl create namespace test-overlays
-        kustomize build overlays/.agents/ai-agent-debugger/enhanced | kubectl apply --dry-run=client -n test-overlays -f -
+        kustomize build overlays/.agents/debug/enhanced | kubectl apply --dry-run=client -n test-overlays -f -
         kubectl delete namespace test-overlays
 
   notify-results:

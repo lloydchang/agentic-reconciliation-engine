@@ -1,41 +1,41 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: ai-agent-debugger-enhanced
+  name: debug-enhanced
   namespace: flux-system
   annotations:
-    overlay.name: "ai-agent-debugger-enhanced"
+    overlay.name: "debug-enhanced"
     overlay.version: "2.0.0"
     overlay.category: "skills"
-    overlay.base-skill: "ai-agent-debugger"
+    overlay.base-skill: "debug"
     overlay.compatibility: "1.0.0+"
 resources:
   # Reference to base skill
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 # Patches to add ML correlation and predictive capabilities
 patchesStrategicMerge:
   - enhanced-features.yaml
 # Additional configurations
 configMapGenerator:
-  - name: ai-agent-debugger-enhanced-config
+  - name: debug-enhanced-config
     literals:
       - OVERLAY_ENABLED=true
       - OVERLAY_VERSION="2.0.0"
       - OVERLAY_TYPE="skill-extension"
-      - BASE_SKILL="ai-agent-debugger"
+      - BASE_SKILL="debug"
       - ML_CORRELATION=true
       - PREDICTIVE_ANALYSIS=true
       - ADVANCED_METRICS=true
 # Secret generation for ML models
 secretGenerator:
-  - name: ai-agent-debugger-enhanced-secrets
+  - name: debug-enhanced-secrets
     envs:
       - .env.secret
 # Common labels for overlay resources
 commonLabels:
-  overlay: "ai-agent-debugger-enhanced"
+  overlay: "debug-enhanced"
   overlay-type: "skill"
-  base-skill: "ai-agent-debugger"
+  base-skill: "debug"
   managed-by: "kustomize"
 # Namespace configuration
 namespace: flux-system

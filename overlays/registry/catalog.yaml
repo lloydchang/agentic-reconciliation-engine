@@ -21,10 +21,10 @@ categories:
 overlays:
   # Skill Overlays
   - category: skills
-    base_path: ".agents/ai-agent-debugger"
+    base_path: ".agents/debug"
     overlays:
       - name: enhanced-debugger
-        path: "overlays/.agents/ai-agent-debugger/enhanced"
+        path: "overlays/.agents/debug/enhanced"
         description: "ML-enhanced debugging with correlation analysis and predictive capabilities"
         version: "2.0.0"
         base_version: "1.0.0"

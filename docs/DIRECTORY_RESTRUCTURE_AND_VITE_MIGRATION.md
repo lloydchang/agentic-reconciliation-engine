@@ -53,7 +53,7 @@ All documentation and configuration files were updated:
 - `AGENTS.md` - Repository structure
 - `docs/SYSTEM-CAPABILITIES.md` - MCP server and interface paths
 - `workspace/repo/docs/SYSTEM-CAPABILITIES.md` - Duplicate documentation
-- `.agents/ai-agent-debugger/MEMORY.md` - Memory reference paths
+- `.agents/debug/MEMORY.md` - Memory reference paths
 
 ## Vite Migration
 

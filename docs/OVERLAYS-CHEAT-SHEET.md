@@ -195,7 +195,7 @@ python scripts/overlay-registry.py list --sort version
 ```bash
 # Get overlay metadata
 python scripts/overlay-registry.py get my-skill
-python scripts/overlay-registry.py get enhanced-debugger
+python scripts/overlay-registry.py get debug-enhanced
 ```
 
 ### Validate Registry

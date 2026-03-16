@@ -46,7 +46,7 @@ python scripts/overlay-cli.py list --format yaml
 
 ```bash
 # Create new skill overlay
-python scripts/overlay-cli.py create my-skill skills ai-agent-debugger --template skill-overlay
+python scripts/overlay-cli.py create my-skill skills debug --template skill-overlay
 
 # Create dashboard theme
 python scripts/overlay-cli.py.py create dark-theme dashboard themes --template dashboard-overlay
@@ -62,7 +62,7 @@ python scripts/overlay-cli.py create enterprise-bundle composed ""
 
 ```bash
 # Validate specific overlay
-python scripts/overlay-cli.py validate overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py validate overlays/.agents/debug/enhanced
 
 # Validate all overlays in directory
 python scripts/overlay-cli.py validate overlays/
@@ -72,7 +72,7 @@ python scripts/overlay-cli.py validate overlays/
 
 ```bash
 # Test overlay functionality
-python scripts/overlay-cli.py test overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py test overlays/.agents/debug/enhanced
 
 # Test composition
 python scripts/overlay-cli.py test overlays/composed/community-bundle
@@ -82,20 +82,20 @@ python scripts/overlay-cli.py test overlays/composed/community-bundle
 
 ```bash
 # Build overlay manifest
-python scripts/overlay-cli.py build overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py build overlays/.agents/debug/enhanced
 
 # Save to file
-python scripts/overlay-cli.py build overlays/.agents/ai-agent-debugger/enhanced --output enhanced.yaml
+python scripts/overlay-cli.py build overlays/.agents/debug/enhanced --output enhanced.yaml
 ```
 
 #### Apply Overlay
 
 ```bash
 # Apply overlay to cluster
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced
 
 # Dry run
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced --dry-run
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced --dry-run
 ```
 
 #### Search Overlays
@@ -138,7 +138,7 @@ python scripts/overlay-registry.py init --registry-dir /path/to/registry
 
 ```bash
 # Register overlay from directory
-python scripts/overlay-registry.py register overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-registry.py register overlays/.agents/debug/enhanced
 
 # Register with custom metadata
 python scripts/overlay-registry.py register overlays/my-overlay --metadata custom-metadata.yaml
@@ -174,7 +174,7 @@ python scripts/overlay-registry.py list --sort version
 
 ```bash
 # Get overlay metadata
-python scripts/overlay-registry.py get ai-agent-debugger-enhanced
+python scripts/overlay-registry.py get debug-enhanced
 ```
 
 #### Validate Registry
@@ -226,7 +226,7 @@ The validation framework ensures overlay quality and compliance.
 
 ```bash
 # Validate single overlay
-python scripts/validate-overlays.py overlays/.agents/ai-agent-debugger/enhanced
+python scripts/validate-overlays.py overlays/.agents/debug/enhanced
 
 # Validate all overlays
 python scripts/validate-overlays.py overlays/
@@ -252,7 +252,7 @@ The validation tool generates detailed reports including:
   },
   "results": [
     {
-      "overlay": "ai-agent-debugger-enhanced",
+      "overlay": "debug-enhanced",
       "status": "PASS",
       "checks": {
         "structure": "PASS",
@@ -294,7 +294,7 @@ The testing framework provides comprehensive overlay testing.
 
 ```bash
 # Test single overlay
-python scripts/test-overlays.py overlays/.agents/ai-agent-debugger/enhanced
+python scripts/test-overlays.py overlays/.agents/debug/enhanced
 
 # Test all overlays
 python scripts/test-overlays.py overlays/
@@ -318,7 +318,7 @@ python scripts/test-overlays.py overlays/ --report test-report.json
   },
   "test_results": [
     {
-      "overlay": "ai-agent-debugger-enhanced",
+      "overlay": "debug-enhanced",
       "tests": {
         "structure": "PASS",
         "build": "PASS",
@@ -430,7 +430,7 @@ curl -X POST http://localhost:8080/mcp \
 {
   "result": [
     {
-      "name": "ai-agent-debugger-enhanced",
+      "name": "debug-enhanced",
       "category": "skills",
       "version": "2.0.0",
       "description": "ML-enhanced debugging skill"

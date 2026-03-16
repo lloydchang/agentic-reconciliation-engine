@@ -27,7 +27,7 @@ metadata:
   name: hello-world
   namespace: flux-system
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 patchesStrategicMerge:
   - patches/hello-world.yaml
 configMapGenerator:
@@ -44,7 +44,7 @@ name: hello-world
 version: "1.0.0"
 description: "Simple hello world overlay for getting started"
 category: skills
-base_path: ".agents/ai-agent-debugger"
+base_path: ".agents/debug"
 license: "AGPLv3"
 risk_level: low
 autonomy: fully_auto
@@ -80,13 +80,13 @@ kind: Kustomization
 metadata:
   name: config-override
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 patchesStrategicMerge:
   - patches/config-override.yaml
 
 # Override configuration
 configMapGenerator:
-  - name: ai-agent-debugger-config
+  - name: debug-config
     behavior: merge
     literals:
       - LOG_LEVEL=debug
@@ -99,7 +99,7 @@ configMapGenerator:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ai-agent-debugger-config
+  name: debug-config
 data:
   # Override existing configuration
   LOG_LEVEL: "debug"
@@ -125,7 +125,7 @@ metadata:
   name: monitoring-enhanced
   namespace: flux-system
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 patchesStrategicMerge:
   - patches/monitoring-patches.yaml
   - patches/metrics-patches.yaml
@@ -162,12 +162,12 @@ resources:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ai-agent-debugger
+  name: debug
 spec:
   template:
     spec:
       containers:
-      - name: ai-agent-debugger
+      - name: debug
         # Add monitoring sidecar
         - name: monitoring-sidecar
           image: prom/prometheus:latest
@@ -193,7 +193,7 @@ kind: Kustomization
 metadata:
   name: security-hardened
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 patchesStrategicMerge:
   - patches/security-patches.yaml
   - patches/rbac-patches.yaml
@@ -215,7 +215,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/securityContext
@@ -244,7 +244,7 @@ kind: Kustomization
 metadata:
   name: multi-region
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 
 # Region-specific configurations
 configurations:
@@ -757,7 +757,7 @@ resources:
   - ../../../../agents
   
   # Enhanced skills
-  - ../.agents/ai-agent-debugger/enhanced
+  - ../.agents/debug/enhanced
   - ../.agents/infrastructure-provisioning/multi-cloud-enhanced
   
   # Dashboard enhancements
@@ -824,7 +824,7 @@ resources:
   - ../../../../agents
   
   # Development tools
-  - ../.agents/ai-agent-debugger/enhanced
+  - ../.agents/debug/enhanced
   - ../agents/dashboard/themes/dark-pro
   
   # Lightweight monitoring
@@ -905,7 +905,7 @@ kind: Kustomization
 metadata:
   name: dynamic-config
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 
 # Dynamic configuration from external source
 configMapGenerator:
@@ -923,7 +923,7 @@ patchesJson6902:
       group: apps
       version: v1
       kind: Deployment
-      name: ai-agent-debugger
+      name: debug
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-

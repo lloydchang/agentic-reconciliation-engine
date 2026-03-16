@@ -130,16 +130,16 @@ python scripts/overlay-cli.py search "debugging"
 
 ```bash
 # Validate overlay
-python scripts/overlay-cli.py validate overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py validate overlays/.agents/debug/enhanced
 
 # Build overlay
-python scripts/overlay-cli.py build overlays/.agents/ai-agent-debugger/enhanced --output enhanced.yaml
+python scripts/overlay-cli.py build overlays/.agents/debug/enhanced --output enhanced.yaml
 
 # Apply overlay (dry run)
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced --dry-run
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced --dry-run
 
 # Apply overlay to cluster
-python scripts/overlay-cli.py apply overlays/.agents/ai-agent-debugger/enhanced
+python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced
 ```
 
 ### 3. Use a Composed Overlay
@@ -160,7 +160,7 @@ The easiest way to create an overlay is using the provided templates:
 
 ```bash
 # Create skill overlay
-python scripts/overlay-cli.py create my-skill skills ai-agent-debugger --template skill-overlay
+python scripts/overlay-cli.py create my-skill skills debug --template skill-overlay
 
 # Create dashboard theme
 python scripts/overlay-cli.py create dark-theme dashboard themes --template dashboard-overlay
@@ -189,7 +189,7 @@ metadata:
   name: my-skill
   namespace: flux-system
 resources:
-  - ../../../../.agents/ai-agent-debugger
+  - ../../../../.agents/debug
 patchesStrategicMerge:
   - patches/enhanced-features.yaml
 configMapGenerator:
@@ -207,7 +207,7 @@ name: my-skill
 version: "1.0.0"
 description: "My custom skill overlay"
 category: skills
-base_path: ".agents/ai-agent-debugger"
+base_path: ".agents/debug"
 license: "AGPLv3"
 risk_level: low
 autonomy: fully_auto
@@ -361,7 +361,7 @@ resources:
 - Include category prefix if helpful
 
 ```
-Good: ai-agent-debugger-enhanced
+Good: debug-enhanced
 Good: dashboard-dark-theme
 Good: infrastructure-monitoring-enhanced
 
@@ -470,7 +470,7 @@ ls -la overlays/.agents/my-skill/
 yamllint overlays/.agents/my-skill/*.yaml
 
 # Use template for correct structure
-python scripts/overlay-cli.py create my-skill skills ai-agent-debugger --template skill-overlay
+python scripts/overlay-cli.py create my-skill skills debug --template skill-overlay
 ```
 
 #### 2. Build Failures

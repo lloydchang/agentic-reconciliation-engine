@@ -53,7 +53,7 @@ git clone https://github.com/your-org/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # 2. Navigate to debugger scripts
-cd .agents/ai-agent-debugger/scripts
+cd .agents/debug/scripts
 
 # 3. Install dependencies
 pip install -r requirements.txt

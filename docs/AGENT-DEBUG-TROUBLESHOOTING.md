@@ -132,7 +132,7 @@ pwd
 ls -la
 
 # Navigate to correct directory
-cd .agents/ai-agent-debugger/scripts
+cd .agents/debug/scripts
 ```
 
 #### Issue: Invalid Arguments

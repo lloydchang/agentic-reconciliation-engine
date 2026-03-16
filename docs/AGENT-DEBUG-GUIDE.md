@@ -9,23 +9,23 @@ This guide provides comprehensive debugging strategies and tools for distributed
 ### Core Components
 
 #### AI Agent Debugger Skill
-- **Location**: `.agents/ai-agent-debugger/SKILL.md`
+- **Location**: `.agents/debug/SKILL.md`
 - **Purpose**: Agent Skills specification-compliant debugging interface
 - **Risk Level**: Low (read-only operations)
 - **Autonomy**: Fully automated for read-only, conditional for fixes
 
 #### Python Debugging CLI
-- **Location**: `.agents/ai-agent-debugger/scripts/main.py`
+- **Location**: `.agents/debug/scripts/main.py`
 - **Purpose**: Comprehensive debugging with rich output and auto-fix
 - **Features**: Real-time monitoring, structured reports, automated fixes
 
 #### Bash Debugging Scripts
-- **Location**: `.agents/ai-agent-debugger/scripts/quick_debug.sh`
+- **Location**: `.agents/debug/scripts/quick_debug.sh`
 - **Purpose**: Fast troubleshooting for common issues
 - **Features**: Immediate feedback, auto-fix capabilities
 
 #### Debug Utilities
-- **Location**: `.agents/ai-agent-debugger/scripts/debug_utils.py`
+- **Location**: `.agents/debug/scripts/debug_utils.py`
 - **Purpose**: Async system metrics collection and analysis
 - **Features**: Kubernetes API integration, log pattern analysis
 
@@ -48,7 +48,7 @@ temporal --version
 
 ```bash
 # Navigate to debugging scripts
-cd .agents/ai-agent-debugger/scripts
+cd .agents/debug/scripts
 
 # Install dependencies (auto-handled by PEP 723)
 python main.py --help
