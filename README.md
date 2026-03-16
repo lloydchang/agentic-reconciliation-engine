@@ -7,8 +7,9 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 ## Quick links
 - [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
 - [Repository Setup](./scripts/quickstart.sh) — Development environment setup and prerequisites.
+- [Overlay Quick Start](./scripts/overlay-quickstart.sh) — Overlay approach to quickstart with hooks and extensions.
+- [Overlay Manager](./scripts/overlay-manager.sh) — Complete overlay lifecycle management.
 - [Overlay System](./docs/OVERLAY-QUICK-START.md) — complete overlay system with documentation, examples, and automation.
-- [Overlay Quick Start](./scripts/overlay-quickstart.sh) — Overlay creation, testing, and deployment.
 - [Overview](./docs/OVERVIEW.md) — architecture narrative, operations references, zero-touch automation, and known limitations.
 - [Agent Runtime](./docs/AGENT-RUNTIME.md) — Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
 - Compatibility: [Windows](./docs/WINDOWS-COMPATIBILITY.md), [Mac](./docs/MAC-COMPATIBILITY.md), [Linux](./docs/LINUX-COMPATIBILITY.md), [Shell](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
