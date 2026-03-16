@@ -19,8 +19,8 @@ ensure_wsl_sanity "provision-spoke-clusters.sh" warn info
 # Default configuration
 HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
 SPOKE_CONFIG="${SCRIPT_DIR}/../spoke-clusters.yaml"
-CLOUD_PROVIDERS="azure,aws,gcp"  # Multi-cloud by design
-SPOKE_COUNT=3  # One per cloud provider
+CLOUD_PROVIDERS="azure"  # Simple: start with one provider
+SPOKE_COUNT=1  # Simple: one spoke at a time
 SPOKE_PREFIX="gitops-spoke"
 FLUX_ENABLED=true
 ESO_ENABLED=true
@@ -65,16 +65,17 @@ Provision spoke clusters using Cluster API on the hub cluster.
 Options:
   --hub-kubeconfig <path>   Hub cluster kubeconfig (default: ./hub-kubeconfig)
   --config <path>          Spoke clusters configuration file (default: ./spoke-clusters.yaml)
-  --providers <list>       Cloud providers: azure,aws,gcp (default: azure,aws,gcp)
-  --count <number>         Number of spoke clusters (default: 3 - one per provider)
+  --providers <list>       Cloud providers: azure,aws,gcp (default: azure)
+  --count <number>         Number of spoke clusters (default: 1 - simple start)
   --prefix <prefix>        Spoke cluster name prefix (default: gitops-spoke)
   --no-flux               Disable Flux installation on spokes
   --no-eso                Disable External Secrets Operator on spokes
   --help                  Show this help
 
 Examples:
-  $0                                    # Create 3 spokes (Azure, AWS, GCP) - multi-cloud by design
+  $0                                    # Create 1 Azure spoke (simple start)
   $0 --providers azure,aws              # Create 2 spokes (Azure, AWS)
+  $0 --providers azure,aws,gcp          # Create 3 spokes (full multi-cloud)
   $0 --count 2 --providers azure,gcp    # Create 2 spokes (Azure, GCP)
   $0 --config custom-spokes.yaml       # Use custom configuration
 EOF
@@ -754,7 +755,7 @@ show_provisioning_info() {
   echo "Flux Enabled: $FLUX_ENABLED"
   echo "ESO Enabled: $ESO_ENABLED"
   echo
-  echo "Multi-cloud spoke clusters:"
+  echo "Spoke clusters to be created:"
   local provider_index=0
   IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
   for provider in "${PROVIDERS[@]}"; do
@@ -768,6 +769,11 @@ show_provisioning_info() {
     local spoke_name="${SPOKE_PREFIX}-${provider}"
     echo "  - $spoke_name ($provider)"
   done
+  echo
+  echo "Progressive deployment:"
+  echo "  1. Start with 1 spoke: $0"
+  echo "  2. Add more spokes: $0 --providers azure,aws"
+  echo "  3. Full multi-cloud: $0 --providers azure,aws,gcp"
   echo
   echo "To check spoke cluster status:"
   echo "  export KUBECONFIG=$HUB_KUBECONFIG"
