@@ -41,10 +41,6 @@ Or run steps manually:
 
 # Preview commands without running
 ./scripts/quickstart.sh --dry-run
-
-# Skip specific steps (useful for re-running)
-./scripts/quickstart.sh --skip-spoke    # Setup bootstrap + hub only
-./scripts/quickstart.sh --skip-hub       # Setup bootstrap + spokes only
 ```
 
 ## What You Get

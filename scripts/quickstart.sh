@@ -25,25 +25,10 @@ SUMMARY_FILE="$LOG_DIR/summary-$(date -u +"%Y%m%dT%H%M%SZ").json"
 timestamp() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 
 # Parse arguments
-SKIP_BOOTSTRAP=false
-SKIP_HUB=false
-SKIP_SPOKE=false
 DRY_RUN=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --skip-bootstrap)
-      SKIP_BOOTSTRAP=true
-      shift
-      ;;
-    --skip-hub)
-      SKIP_HUB=true
-      shift
-      ;;
-    --skip-spoke)
-      SKIP_SPOKE=true
-      shift
-      ;;
     --dry-run)
       DRY_RUN=true
       shift
@@ -55,16 +40,12 @@ Usage: $0 [options]
 One-command MVP GitOps infrastructure setup.
 
 Options:
-  --skip-bootstrap    Skip bootstrap cluster creation
-  --skip-hub          Skip hub cluster creation
-  --skip-spoke        Skip spoke cluster creation
   --dry-run           Show commands without executing
   --help              Show this help
 
 Examples:
   $0                  # Full MVP setup
   $0 --dry-run        # Preview commands
-  $0 --skip-spoke     # Setup bootstrap + hub only
 EOF
       exit 0
       ;;
@@ -115,19 +96,11 @@ main() {
   # Step 2: GitOps Configuration
   run_step "gitops-config" "./scripts/setup-gitops-config.sh"
   
-  # Step 3: Bootstrap Cluster
-  if [[ "$SKIP_BOOTSTRAP" != "true" ]]; then
-    run_step "bootstrap-cluster" "./scripts/create-bootstrap-cluster.sh"
-  else
-    warn "Skipping bootstrap cluster creation"
-  fi
+  # Step 3: Bootstrap Cluster (required for recovery)
+  run_step "bootstrap-cluster" "./scripts/create-bootstrap-cluster.sh"
   
-  # Step 4: Hub Cluster
-  if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "hub-cluster" "./scripts/create-hub-cluster.sh --provider local"
-  else
-    warn "Skipping hub cluster creation"
-  fi
+  # Step 4: Hub Cluster (required for spokes)
+  run_step "hub-cluster" "./scripts/create-hub-cluster.sh --provider local"
   
   # Step 5: Spoke Cluster
   if [[ "$SKIP_SPOKE" != "true" ]]; then
