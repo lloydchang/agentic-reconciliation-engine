@@ -18,7 +18,7 @@ ensure_wsl_sanity "install-crossplane.sh" warn info
 
 # Default configuration
 HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
-CLOUD_PROVIDERS="azure,aws,gcp"
+CLOUD_PROVIDERS="azure,aws,gcp,local"
 CROSSPLANE_VERSION="latest"
 NAMESPACE="crossplane-system"
 
@@ -49,7 +49,7 @@ Install Crossplane and cloud providers on the hub cluster.
 
 Options:
   --kubeconfig <path>     Hub cluster kubeconfig (default: ./hub-kubeconfig)
-  --providers <list>      Cloud providers: azure,aws,gcp (default: azure,aws,gcp)
+  --providers <list>      Cloud providers: azure,aws,gcp,local (default: azure,aws,gcp)
   --version <version>     Crossplane version (default: latest)
   --namespace <namespace> Installation namespace (default: crossplane-system)
   --help                  Show this help
@@ -138,6 +138,9 @@ install_providers() {
         ;;
       gcp)
         install_gcp_provider
+        ;;
+      local)
+        info "Local provider detected - skipping cloud provider installation"
         ;;
       *)
         warn "Unknown provider: $provider. Skipping..."

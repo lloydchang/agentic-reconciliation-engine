@@ -13,6 +13,7 @@ warn() { echo -e "  ${YELLOW}!${RESET} $*"; }
 info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
 ensure_wsl_sanity "create-hub-cluster.sh" warn info
 
@@ -59,7 +60,7 @@ Create a high-availability GitOps hub cluster.
 
 Options:
   --name <name>              Cluster name (default: gitops-hub)
-  --provider <provider>      Cloud provider: azure, aws, gcp (default: azure)
+  --provider <provider>      Cloud provider: azure, aws, gcp, kind (default: azure)
   --nodes <count>            Number of control plane nodes (default: 3)
   --region <region>          Cloud region (default: eastus)
   --kubeconfig <path>        Kubeconfig path (default: ./hub-kubeconfig)
@@ -120,8 +121,12 @@ validate_prerequisites() {
         fail "Not logged into Google Cloud. Run 'gcloud auth login'"
       fi
       ;;
+    kind)
+      # Local Kind cluster - no additional validation needed
+      info "Using local Kind cluster"
+      ;;
     *)
-      fail "Unsupported cloud provider: $CLOUD_PROVIDER. Use: azure, aws, gcp"
+      fail "Unsupported cloud provider: $CLOUD_PROVIDER. Use: azure, aws, gcp, kind"
       ;;
   esac
   
@@ -152,6 +157,9 @@ create_hub_cluster() {
       ;;
     gcp)
       create_gke_cluster
+      ;;
+    kind)
+      create_kind_cluster
       ;;
   esac
 }
@@ -312,6 +320,45 @@ create_gke_cluster() {
   pass "GKE credentials configured"
 }
 
+# Create Kind cluster
+create_kind_cluster() {
+  info "Creating local Kind cluster..."
+  
+  # Check if kind is available
+  if ! command -v kind >/dev/null 2>&1; then
+    fail "kind not found. Install from https://kind.sigs.k8s.io/"
+  fi
+  
+  # Delete existing cluster if it exists
+  if kind get clusters | grep -q "^${HUB_CLUSTER_NAME}$"; then
+    info "Deleting existing Kind cluster: ${HUB_CLUSTER_NAME}"
+    kind delete cluster --name "${HUB_CLUSTER_NAME}"
+  fi
+  
+  # Create kind cluster config
+  cat > "/tmp/${HUB_CLUSTER_NAME}-kind-config.yaml" <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: "gitops-role=hub"
+EOF
+
+  # Create kind cluster
+  info "Creating Kind cluster: ${HUB_CLUSTER_NAME}"
+  kind create cluster --name "${HUB_CLUSTER_NAME}" --config "/tmp/${HUB_CLUSTER_NAME}-kind-config.yaml"
+  
+  # Get kubeconfig
+  kind get kubeconfig --name "${HUB_CLUSTER_NAME}" > "${HUB_KUBECONFIG}"
+  
+  pass "Kind hub cluster created"
+}
+
 # Install GitOps components
 install_gitops_components() {
   info "Installing GitOps components on hub cluster..."
@@ -342,14 +389,20 @@ install_gitops_components() {
 configure_hub_recovery() {
   info "Configuring hub recovery using bootstrap cluster..."
   
+  # Ensure hub kubeconfig exists before trying to use it
+  if [[ ! -f "${HUB_KUBECONFIG}" ]]; then
+    warn "Hub kubeconfig not found, skipping recovery configuration"
+    return
+  fi
+  
   if [[ -f "${BOOTSTRAP_KUBECONFIG}" ]]; then
     # Store bootstrap cluster info in hub
-    cat <<EOF | kubectl apply -f -
+    cat <<EOF | KUBECONFIG="${HUB_KUBECONFIG}" kubectl apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
   name: bootstrap-cluster-kubeconfig
-  namespace gitops-system
+  namespace: gitops-system
 type: Opaque
 data:
   kubeconfig: $(base64 -i "${BOOTSTRAP_KUBECONFIG}")
@@ -358,7 +411,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: hub-recovery-config
-  namespace gitops-system
+  namespace: gitops-system
 data:
   bootstrap-cluster: "${BOOTSTRAP_KUBECONFIG}"
   hub-cluster: "${HUB_KUBECONFIG}"
@@ -377,9 +430,18 @@ verify_hub_cluster() {
   
   # Check node status
   local ready_nodes
-  ready_nodes=$(kubectl get nodes --no-headers | grep -c "Ready" || echo "0")
-  if [[ "$ready_nodes" -lt "$NODE_COUNT" ]]; then
-    fail "Expected $NODE_COUNT ready nodes, found $ready_nodes"
+  if [[ "$CLOUD_PROVIDER" == "kind" ]]; then
+    # Kind clusters are single-node, so expect 1 node
+    ready_nodes=$(kubectl get nodes --no-headers | grep -c "Ready" || echo "0")
+    if [[ "$ready_nodes" -lt 1 ]]; then
+      fail "Expected 1 ready node, found $ready_nodes"
+    fi
+  else
+    # Cloud clusters have multiple nodes
+    ready_nodes=$(kubectl get nodes --no-headers | grep -c "Ready" || echo "0")
+    if [[ "$ready_nodes" -lt "$NODE_COUNT" ]]; then
+      fail "Expected $NODE_COUNT ready nodes, found $ready_nodes"
+    fi
   fi
   
   # Check namespaces
@@ -391,7 +453,10 @@ verify_hub_cluster() {
   
   # Check Flux pods
   if ! kubectl get pods -n flux-system --no-headers | grep -q "Running"; then
-    fail "Flux pods are not running"
+    sleep 5  # Give pods more time to stabilize
+    if ! kubectl get pods -n flux-system --no-headers | grep -q "Running"; then
+      fail "Flux pods are not running"
+    fi
   fi
   
   pass "Hub cluster verified"

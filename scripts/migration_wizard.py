@@ -443,6 +443,9 @@ def reorder_overlays(kustomization: Path, ordered: Iterable[str]) -> None:
 
 
 def run_ci_gate(repo_path: Path, gate_cmd: Sequence[str]) -> None:
+    if not gate_cmd or not gate_cmd[0]:
+        print("[wizard] Skipping CI gate (no command specified)")
+        return
     print(f"[wizard] Running CI gate: {' '.join(gate_cmd)}")
     subprocess.run(list(gate_cmd), cwd=repo_path, check=True)
 
@@ -549,17 +552,21 @@ def main() -> None:
         overlay_file = repo_path / "control-plane" / "flux" / "kustomization.yaml"
         reorder_overlays(overlay_file, args.overlay_order)
 
-    logician_script = Path("scripts/overlay-logician.py")
+    logician_script = repo_path / "scripts" / "overlay-logician.py"
     if logician_script.exists():
         subprocess.run([str(logician_script)], cwd=repo_path, check=True)
     if temp_order:
         temp_order.unlink()
 
     if args.emulator:
-        run_helper(Path("scripts/enable-cloud.sh"), [args.provider, f"--emulator={args.emulator}"])
+        run_helper(Path(repo_path / "scripts/enable-cloud.sh"), [args.provider, f"--emulator={args.emulator}"])
 
     for helper in args.helper_script:
-        run_helper(Path(helper), [args.provider])
+        # Convert relative script paths to absolute paths in the repo
+        helper_path = Path(helper)
+        if not helper_path.is_absolute():
+            helper_path = repo_path / helper_path
+        run_helper(helper_path, [args.provider])
 
     run_ci_gate(repo_path, args.ci_gate)
 

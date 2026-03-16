@@ -13,6 +13,7 @@ warn() { echo -e "  ${YELLOW}!${RESET} $*"; }
 info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
 ensure_wsl_sanity "quickstart.sh" warn info
 
@@ -124,7 +125,7 @@ main() {
   
   # Step 4: Hub Cluster (GitOps control plane)
   if [[ "$SKIP_HUB" != "true" ]]; then
-    run_step "hub-cluster" "${SCRIPT_DIR}/create-hub-cluster.sh --provider local"
+    run_step "hub-cluster" "${SCRIPT_DIR}/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig ${ROOT_DIR}/bootstrap-kubeconfig"
   else
     warn "Skipping hub cluster creation"
   fi
