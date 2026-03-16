@@ -1,622 +1,491 @@
+#!/usr/bin/env python3
 # /// script
 # dependencies = [
-#   "kubernetes>=25.0.0",
 #   "requests>=2.28.0",
+#   "kubernetes>=25.0.0",
 #   "pydantic>=1.10.0",
-#   "asyncio",
-#   "aiohttp>=3.8.0",
-#   "prometheus-client>=0.15.0"
+#   "click>=8.0.0",
+#   "rich>=12.0.0",
+#   "temporalio>=1.0.0"
 # ]
 # ///
 
-#!/usr/bin/env python3
-"""
-AI Agent Debugger - Main Implementation
-Comprehensive debugging for AI agents in Kubernetes distributed systems
-"""
-
 import json
-import sys
-import uuid
-import logging
-import asyncio
-import aiohttp
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List
-from enum import Enum
-import subprocess
 import time
-import os
+import uuid
+import subprocess
+import sys
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 
-# Kubernetes imports
-try:
-    from kubernetes import client, config, watch
-    K8S_AVAILABLE = True
-except ImportError:
-    K8S_AVAILABLE = False
+import click
+import requests
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from pydantic import BaseModel, Field
 
-# Monitoring imports
-try:
-    import requests
-    REQUESTS_AVAILABLE = True
-except ImportError:
-    REQUESTS_AVAILABLE = False
+# Add parent directory to path for imports
+sys.path.append(str(Path(__file__).parent.parent))
 
-class DebugOperation(Enum):
-    DIAGNOSE = "diagnose"
-    ANALYZE = "analyze"
-    DEBUG = "debug"
-    LLM_ANALYZE = "llm-analyze"
-    PREVENT = "prevent"
-    AUTOMATE = "automate"
+class DebugSession(BaseModel):
+    session_id: str
+    start_time: datetime
+    target_component: str
+    issue_type: str
+    time_range: str
+    namespace: str
+    verbose: bool
+    auto_fix: bool
 
-class DebugLevel(Enum):
-    BASIC = "basic"
-    DETAILED = "detailed"
-    DEEP = "deep"
+class DebugFinding(BaseModel):
+    component: str
+    severity: str
+    issue: str
+    root_cause: str
+    evidence: List[str]
+    recommendations: List[str]
 
-class SessionMode(Enum):
-    INTERACTIVE = "interactive"
-    AUTOMATED = "automated"
-    LLM_COLLABORATIVE = "llm-collaborative"
+class DebugResult(BaseModel):
+    debug_session_id: str
+    findings: List[DebugFinding]
+    metrics_summary: Dict[str, int]
+    execution_time: float
+    next_steps: List[str]
 
-class AIAgentDebugger:
-    def __init__(self):
-        self.session_id = str(uuid.uuid4())
-        self.correlation_id = None
-        self.k8s_client = self._initialize_k8s()
-        self.session_artifacts = {}
-        self.start_time = datetime.utcnow()
+class AISystemDebugger:
+    def __init__(self, namespace: str = "temporal", verbose: bool = False):
+        self.namespace = namespace
+        self.verbose = verbose
+        self.console = Console()
+        self.session = None
+        self.findings = []
         
-    def _initialize_k8s(self):
-        """Initialize Kubernetes client with fallback options"""
-        if not K8S_AVAILABLE:
-            logging.warning("Kubernetes client not available")
-            return None
-            
-        try:
-            # Try in-cluster config first
-            config.load_incluster_config()
-            logging.info("Using in-cluster Kubernetes configuration")
-        except:
-            try:
-                # Fall back to kubeconfig
-                config.load_kube_config()
-                logging.info("Using kubeconfig Kubernetes configuration")
-            except Exception as e:
-                logging.error(f"Kubernetes configuration failed: {e}")
-                return None
-        
-        try:
-            return {
-                'core_v1': client.CoreV1Api(),
-                'apps_v1': client.AppsV1Api(),
-                'extensions_v1beta1': client.ExtensionsV1beta1Api(),
-                'custom_objects': client.CustomObjectsApi()
-            }
-        except Exception as e:
-            logging.error(f"Kubernetes client initialization failed: {e}")
-            return None
-    
-    def execute_debugging(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Main debugging execution with comprehensive error handling"""
-        try:
-            validated_params = self._validate_inputs(params)
-            self.correlation_id = validated_params.get('correlationId', f"debug-{int(time.time())}")
-            
-            logging.info(f"Starting debugging session {self.session_id} for agent {validated_params.get('targetAgent')}")
-            
-            # Execute based on operation type
-            operation = DebugOperation(validated_params['operation'])
-            
-            if operation == DebugOperation.DIAGNOSE:
-                result = self._execute_diagnose(validated_params)
-            elif operation == DebugOperation.ANALYZE:
-                result = self._execute_analyze(validated_params)
-            elif operation == DebugOperation.DEBUG:
-                result = self._execute_debug(validated_params)
-            elif operation == DebugOperation.LLM_ANALYZE:
-                result = self._execute_llm_analyze(validated_params)
-            elif operation == DebugOperation.PREVENT:
-                result = self._execute_prevent(validated_params)
-            elif operation == DebugOperation.AUTOMATE:
-                result = self._execute_automate(validated_params)
+    def log(self, message: str, level: str = "info"):
+        """Enhanced logging with rich formatting"""
+        if self.verbose or level in ["error", "warning", "critical"]:
+            if level == "error":
+                self.console.print(f"[red]ERROR: {message}[/red]")
+            elif level == "warning":
+                self.console.print(f"[yellow]WARNING: {message}[/yellow]")
+            elif level == "critical":
+                self.console.print(f"[bold red]CRITICAL: {message}[/bold red]")
             else:
-                raise ValueError(f"Unsupported operation: {operation.value}")
-            
-            return self._format_output(result, "completed")
-            
-        except Exception as e:
-            logging.error(f"Debugging execution failed: {e}")
-            return self._handle_error(e, params)
+                self.console.print(f"[blue]INFO: {message}[/blue]")
     
-    def _execute_diagnose(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute comprehensive diagnosis with multi-layer analysis"""
-        namespace = params.get('namespace', 'ai-infrastructure')
-        target_agent = params.get('targetAgent', 'all')
-        debug_level = DebugLevel(params.get('debugLevel', 'medium'))
-        
-        logging.info(f"Executing diagnosis for {target_agent} in {namespace}")
-        
-        results = {
-            'operation': 'diagnose',
-            'target_agent': target_agent,
-            'namespace': namespace,
-            'debug_level': debug_level.value,
-            'timestamp': datetime.utcnow().isoformat(),
-            'health_assessment': {},
-            'immediate_issues': [],
-            'resource_status': {},
-            'connectivity_check': {},
-            'cluster_health': {}
-        }
-        
-        # Collect agent health
-        results['health_assessment'] = self._collect_agent_health(namespace, target_agent)
-        
-        # Check immediate issues
-        results['immediate_issues'] = self._identify_immediate_issues(results['health_assessment'])
-        
-        # Resource status
-        results['resource_status'] = self._check_resource_status(namespace, target_agent)
-        
-        # Connectivity checks
-        results['connectivity_check'] = self._perform_connectivity_checks(namespace, target_agent)
-        
-        # Cluster health
-        results['cluster_health'] = self._check_cluster_health(namespace)
-        
-        return results
-    
-    def _collect_agent_health(self, namespace: str, target_agent: str) -> Dict[str, Any]:
-        """Collect comprehensive agent health information with detailed analysis"""
-        if not self.k8s_client:
-            return {'error': 'Kubernetes client not available'}
-        
-        health_info = {
-            'pods': {},
-            'services': {},
-            'deployments': {},
-            'configmaps': {},
-            'secrets': {},
-            'events': [],
-            'overall_health': 'unknown',
-            'health_score': 0
-        }
-        
+    def run_kubectl(self, command: str) -> str:
+        """Execute kubectl command and return output"""
         try:
-            # Get pods with detailed status
-            label_selector = f"component={target_agent}" if target_agent != 'all' else None
-            pods = self.k8s_client['core_v1'].list_namespaced_pod(
-                namespace=namespace,
-                label_selector=label_selector
-            )
+            full_command = f"kubectl {command} -n {self.namespace}"
+            if self.verbose:
+                self.log(f"Running: {full_command}")
+            result = subprocess.run(full_command.split(), capture_output=True, text=True, timeout=30)
+            if result.returncode != 0:
+                self.log(f"kubectl command failed: {result.stderr}", "error")
+                return ""
+            return result.stdout
+        except subprocess.TimeoutExpired:
+            self.log(f"kubectl command timed out: {command}", "error")
+            return ""
+        except Exception as e:
+            self.log(f"kubectl command error: {e}", "error")
+            return ""
+    
+    def check_api_endpoint(self, endpoint: str) -> Optional[Dict]:
+        """Check API endpoint availability and return data"""
+        try:
+            # Try to reach the monitoring endpoint
+            url = f"http://temporal-worker.{self.namespace}.svc.cluster.local:8080{endpoint}"
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                self.log(f"API endpoint {endpoint} returned {response.status_code}", "warning")
+                return None
+        except requests.exceptions.RequestException as e:
+            self.log(f"Failed to reach API endpoint {endpoint}: {e}", "warning")
+            return None
+    
+    def debug_agents(self, issue_type: str, time_range: str) -> List[DebugFinding]:
+        """Debug AI agents"""
+        findings = []
+        
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=self.console) as progress:
+            task = progress.add_task("Analyzing AI agents...", total=None)
             
-            total_pods = len(pods.items)
-            healthy_pods = 0
+            # Check agent pod status
+            pods_output = self.run_kubectl("get pods -l app=temporal-worker -o json")
+            if pods_output:
+                try:
+                    pods_data = json.loads(pods_output)
+                    for pod in pods_data.get("items", []):
+                        pod_name = pod["metadata"]["name"]
+                        pod_status = pod["status"]["phase"]
+                        
+                        if pod_status != "Running":
+                            findings.append(DebugFinding(
+                                component="agents",
+                                severity="critical",
+                                issue=f"Agent pod {pod_name} is {pod_status}",
+                                root_cause="Pod lifecycle issue",
+                                evidence=[f"Pod status: {pod_status}"],
+                                recommendations=[f"Check pod logs: kubectl logs {pod_name}", "Restart pod if necessary"]
+                            ))
+                        
+                        # Check for restarts
+                        restart_count = sum(container.get("restartCount", 0) 
+                                        for container in pod.get("status", {}).get("containerStatuses", []))
+                        if restart_count > 3:
+                            findings.append(DebugFinding(
+                                component="agents",
+                                severity="warning",
+                                issue=f"Agent pod {pod_name} has restarted {restart_count} times",
+                                root_cause="Container instability or resource issues",
+                                evidence=[f"Restart count: {restart_count}"],
+                                recommendations=["Check memory/CPU limits", "Review application logs for crashes"]
+                            ))
+                except json.JSONDecodeError as e:
+                    self.log(f"Failed to parse pod JSON: {e}", "error")
             
-            for pod in pods.items:
-                pod_health = {
-                    'status': pod.status.phase,
-                    'ready': self._is_pod_ready(pod),
-                    'restarts': self._get_restart_count(pod),
-                    'age': self._calculate_age(pod.metadata.creation_timestamp),
-                    'node': pod.spec.node_name,
-                    'conditions': self._extract_pod_conditions(pod),
-                    'containers': self._get_container_status(pod),
-                    'resources': self._get_pod_resources(pod),
-                    'ip': pod.status.pod_ip,
-                    'events': self._get_pod_events(namespace, pod.metadata.name)
-                }
+            # Check agent metrics
+            metrics_data = self.check_api_endpoint("/monitoring/metrics")
+            if metrics_data:
+                for metric_name, metric in metrics_data.get("metrics", {}).items():
+                    if "agent" in metric_name.lower():
+                        if "error_rate" in metric_name.lower() and metric.get("value", 0) > 0.1:
+                            findings.append(DebugFinding(
+                                component="agents",
+                                severity="critical",
+                                issue=f"High agent error rate: {metric['value']:.2%}",
+                                root_cause="Agent execution failures",
+                                evidence=[f"Metric {metric_name}: {metric['value']}"],
+                                recommendations["Check agent execution logs", "Review skill configurations"]
+                            ))
+            
+            # Check recent agent logs for errors
+            logs_output = self.run_kubectl("logs deployment/temporal-worker --since=1h --tail=50")
+            if logs_output and "ERROR" in logs_output:
+                error_lines = [line for line in logs_output.split('\n') if "ERROR" in line]
+                findings.append(DebugFinding(
+                    component="agents",
+                    severity="warning",
+                    issue=f"Found {len(error_lines)} error messages in agent logs",
+                    root_cause="Agent execution errors",
+                    evidence=error_lines[:3],  # First 3 errors
+                    recommendations=["Review full agent logs", "Check skill configurations", "Monitor error patterns"]
+                ))
+            
+            progress.update(task, description="Agent analysis complete")
+        
+        return findings
+    
+    def debug_workflows(self, issue_type: str, time_range: str) -> List[DebugFinding]:
+        """Debug Temporal workflows"""
+        findings = []
+        
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=self.console) as progress:
+            task = progress.add_task("Analyzing workflows...", total=None)
+            
+            # Check Temporal server status
+            server_pods = self.run_kubectl("get pods -l app=temporal-server -o json")
+            if server_pods:
+                try:
+                    pods_data = json.loads(server_pods)
+                    if not pods_data.get("items"):
+                        findings.append(DebugFinding(
+                            component="workflows",
+                            severity="critical",
+                            issue="Temporal server pods not found",
+                            root_cause="Temporal server deployment issue",
+                            evidence=["No pods with label app=temporal-server"],
+                            recommendations["Check temporal-server deployment", "Verify namespace configuration"]
+                        ))
+                except json.JSONDecodeError:
+                    pass
+            
+            # Check workflow metrics
+            metrics_data = self.check_api_endpoint("/monitoring/metrics")
+            if metrics_data:
+                for metric_name, metric in metrics_data.get("metrics", {}).items():
+                    if "workflow" in metric_name.lower():
+                        if "duration" in metric_name.lower() and metric.get("value", 0) > 3600:  # 1 hour
+                            findings.append(DebugFinding(
+                                component="workflows",
+                                severity="warning",
+                                issue=f"Long workflow duration: {metric['value']:.0f} seconds",
+                                root_cause="Workflow performance issue",
+                                evidence=[f"Metric {metric_name}: {metric['value']}"],
+                                recommendations["Optimize workflow logic", "Check for infinite loops", "Review activity timeouts"]
+                            ))
+            
+            progress.update(task, description="Workflow analysis complete")
+        
+        return findings
+    
+    def debug_infrastructure(self, issue_type: str, time_range: str) -> List[DebugFinding]:
+        """Debug Kubernetes infrastructure"""
+        findings = []
+        
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=self.console) as progress:
+            task = progress.add_task("Analyzing infrastructure...", total=None)
+            
+            # Check node status
+            nodes_output = self.run_kubectl("get nodes --no-headers")
+            if nodes_output:
+                node_lines = nodes_output.strip().split('\n')
+                for line in node_lines:
+                    if "NotReady" in line:
+                        node_name = line.split()[0]
+                        findings.append(DebugFinding(
+                            component="infrastructure",
+                            severity="critical",
+                            issue=f"Node {node_name} is not ready",
+                            root_cause="Node health issue",
+                            evidence=[f"Node status: {line}"],
+                            recommendations["Check node status", "Verify kubelet service", "Review resource utilization"]
+                        ))
+            
+            # Check resource utilization
+            top_output = self.run_kubectl("top pods --no-headers")
+            if top_output:
+                lines = top_output.strip().split('\n')
+                for line in lines:
+                    if len(line.split()) >= 3:
+                        pod_name = line.split()[0]
+                        cpu = line.split()[1]
+                        memory = line.split()[2]
+                        
+                        # Check for high CPU usage
+                        if "m" in cpu and int(cpu.replace("m", "")) > 1000:  # > 1 CPU core
+                            findings.append(DebugFinding(
+                                component="infrastructure",
+                                severity="warning",
+                                issue=f"High CPU usage for pod {pod_name}: {cpu}",
+                                root_cause="Resource intensive process",
+                                evidence=[f"CPU usage: {cpu}"],
+                                recommendations["Optimize application", "Scale horizontally", "Review resource limits"]
+                            ))
+            
+            # Check storage
+            pv_output = self.run_kubectl("get pv --no-headers")
+            if pv_output:
+                lines = pv_output.strip().split('\n')
+                for line in lines:
+                    if "Failed" in line:
+                        findings.append(DebugFinding(
+                            component="infrastructure",
+                            severity="critical",
+                            issue="PersistentVolume failure detected",
+                            root_cause="Storage system issue",
+                            evidence=[f"PV status: {line}"],
+                            recommendations["Check storage class", "Verify storage backend", "Review PV configuration"]
+                        ))
+            
+            progress.update(task, description="Infrastructure analysis complete")
+        
+        return findings
+    
+    def apply_auto_fixes(self, findings: List[DebugFinding]) -> int:
+        """Apply automatic fixes for common issues"""
+        fixes_applied = 0
+        
+        if not self.session.auto_fix:
+            return fixes_applied
+        
+        for finding in findings:
+            if finding.severity == "critical" and "pod" in finding.component.lower():
+                if "restart" in finding.recommendations[0].lower():
+                    pod_name = finding.evidence[0].split()[-1] if finding.evidence else ""
+                    if pod_name:
+                        self.log(f"Attempting to restart pod: {pod_name}")
+                        result = self.run_kubectl(f"delete pod {pod_name}")
+                        if result:
+                            fixes_applied += 1
+                            self.log(f"Successfully initiated restart for pod: {pod_name}")
+        
+        return fixes_applied
+    
+    def debug(self, target_component: str, issue_type: str, time_range: str, 
+              namespace: str, verbose: bool, auto_fix: bool) -> DebugResult:
+        """Main debugging function"""
+        start_time = time.time()
+        
+        # Initialize session
+        self.session = DebugSession(
+            session_id=str(uuid.uuid4()),
+            start_time=datetime.now(),
+            target_component=target_component,
+            issue_type=issue_type,
+            time_range=time_range,
+            namespace=namespace,
+            verbose=verbose,
+            auto_fix=auto_fix
+        )
+        
+        self.namespace = namespace
+        self.verbose = verbose
+        
+        self.console.print(Panel.fit(
+            f"[bold blue]AI System Debugger[/bold blue]\n"
+            f"Session: {self.session.session_id}\n"
+            f"Target: {target_component} | Issue: {issue_type} | Range: {time_range}",
+            title="Debug Session Started"
+        ))
+        
+        # Collect findings based on target component
+        if target_component in ["agents", "all"]:
+            self.findings.extend(self.debug_agents(issue_type, time_range))
+        
+        if target_component in ["workflows", "all"]:
+            self.findings.extend(self.debug_workflows(issue_type, time_range))
+        
+        if target_component in ["infrastructure", "all"]:
+            self.findings.extend(self.debug_infrastructure(issue_type, time_range))
+        
+        # Apply auto-fixes if enabled
+        fixes_applied = self.apply_auto_fixes(self.findings)
+        
+        # Generate metrics summary
+        critical_issues = len([f for f in self.findings if f.severity == "critical"])
+        warnings = len([f for f in self.findings if f.severity == "warning"])
+        
+        metrics_summary = {
+            "total_issues": len(self.findings),
+            "critical_issues": critical_issues,
+            "warnings": warnings,
+            "auto_fixes_applied": fixes_applied
+        }
+        
+        # Generate next steps
+        next_steps = []
+        if critical_issues > 0:
+            next_steps.append("Address critical issues immediately")
+        if warnings > 0:
+            next_steps.append("Review warnings during maintenance window")
+        if auto_fix and fixes_applied > 0:
+            next_steps.append("Monitor applied fixes for effectiveness")
+        if not self.findings:
+            next_steps.append("Continue monitoring system health")
+        
+        execution_time = time.time() - start_time
+        
+        # Create result
+        result = DebugResult(
+            debug_session_id=self.session.session_id,
+            findings=self.findings,
+            metrics_summary=metrics_summary,
+            execution_time=execution_time,
+            next_steps=next_steps
+        )
+        
+        # Display results
+        self.display_results(result)
+        
+        return result
+    
+    def display_results(self, result: DebugResult):
+        """Display debugging results in a formatted way"""
+        self.console.print("\n")
+        
+        # Summary table
+        summary_table = Table(title="Debug Session Summary")
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="magenta")
+        
+        for key, value in result.metrics_summary.items():
+            summary_table.add_row(key.replace("_", " ").title(), str(value))
+        
+        summary_table.add_row("Execution Time", f"{result.execution_time:.2f}s")
+        self.console.print(summary_table)
+        
+        # Findings
+        if result.findings:
+            self.console.print("\n[bold red]Issues Found:[/bold red]")
+            for i, finding in enumerate(result.findings, 1):
+                severity_color = {
+                    "critical": "red",
+                    "warning": "yellow", 
+                    "info": "blue"
+                }.get(finding.severity, "white")
                 
-                health_info['pods'][pod.metadata.name] = pod_health
+                panel_content = f"[bold]{finding.issue}[/bold]\n\n"
+                panel_content += f"[dim]Component:[/dim] {finding.component}\n"
+                panel_content += f"[dim]Root Cause:[/dim] {finding.root_cause}\n\n"
                 
-                if pod_health['ready'] and pod_health['status'] == 'Running':
-                    healthy_pods += 1
-            
-            # Calculate health score
-            if total_pods > 0:
-                health_info['health_score'] = (healthy_pods / total_pods) * 100
-            
-            # Get services
-            services = self.k8s_client['core_v1'].list_namespaced_service(
-                namespace=namespace,
-                label_selector=label_selector
-            )
-            
-            for service in services.items:
-                health_info['services'][service.metadata.name] = {
-                    'type': service.spec.type,
-                    'ports': [{'port': p.port, 'target_port': p.target_port, 'protocol': p.protocol} for p in service.spec.ports or []],
-                    'selector': service.spec.selector,
-                    'cluster_ip': service.spec.cluster_ip,
-                    'external_ips': service.spec.external_ips or [],
-                    'endpoints': self._get_service_endpoints(namespace, service.metadata.name)
-                }
-            
-            # Get deployments
-            deployments = self.k8s_client['apps_v1'].list_namespaced_deployment(
-                namespace=namespace,
-                label_selector=label_selector
-            )
-            
-            for deployment in deployments.items:
-                health_info['deployments'][deployment.metadata.name] = {
-                    'replicas': deployment.spec.replicas,
-                    'ready_replicas': deployment.status.ready_replicas or 0,
-                    'available_replicas': deployment.status.available_replicas or 0,
-                    'unavailable_replicas': deployment.status.unavailable_replicas or 0,
-                    'conditions': self._extract_deployment_conditions(deployment),
-                    'strategy': deployment.spec.strategy.type if deployment.spec.strategy else 'RollingUpdate',
-                    'rolling_update_config': self._get_rolling_update_config(deployment)
-                }
-            
-            # Get recent events
-            events = self.k8s_client['core_v1'].list_namespaced_event(
-                namespace=namespace,
-                field_selector=f"involvedObject.name={target_agent}" if target_agent != 'all' else None
-            )
-            
-            health_info['events'] = [
-                {
-                    'type': event.type,
-                    'reason': event.reason,
-                    'message': event.message,
-                    'timestamp': event.last_timestamp.isoformat() if event.last_timestamp else None,
-                    'object': event.involved_object.name if event.involved_object else None
-                }
-                for event in events.items[-20:]  # Last 20 events
-            ]
-            
-            # Calculate overall health
-            health_info['overall_health'] = self._calculate_overall_health(health_info)
-            
-        except Exception as e:
-            health_info['error'] = str(e)
-            logging.error(f"Health collection failed: {e}")
-        
-        return health_info
-    
-    def _is_pod_ready(self, pod) -> bool:
-        """Check if pod is ready"""
-        if not pod.status.container_statuses:
-            return False
-        
-        for container_status in pod.status.container_statuses:
-            if not container_status.ready:
-                return False
-        
-        return pod.status.phase == 'Running'
-    
-    def _get_restart_count(self, pod) -> int:
-        """Get total restart count for pod"""
-        if not pod.status.container_statuses:
-            return 0
-        
-        total_restarts = 0
-        for container_status in pod.status.container_statuses:
-            total_restarts += container_status.restart_count
-        
-        return total_restarts
-    
-    def _calculate_age(self, creation_timestamp) -> str:
-        """Calculate age from creation timestamp"""
-        if not creation_timestamp:
-            return "Unknown"
-        
-        age = datetime.utcnow() - creation_timestamp.replace(tzinfo=None)
-        
-        if age.days > 0:
-            return f"{age.days}d"
-        elif age.seconds > 3600:
-            hours = age.seconds // 3600
-            return f"{hours}h"
-        elif age.seconds > 60:
-            minutes = age.seconds // 60
-            return f"{minutes}m"
+                if finding.evidence:
+                    panel_content += "[dim]Evidence:[/dim]\n"
+                    for evidence in finding.evidence[:2]:  # Show first 2
+                        panel_content += f"  • {evidence}\n"
+                
+                if finding.recommendations:
+                    panel_content += "\n[dim]Recommendations:[/dim]\n"
+                    for rec in finding.recommendations[:2]:  # Show first 2
+                        panel_content += f"  • {rec}\n"
+                
+                self.console.print(Panel(
+                    panel_content,
+                    title=f"[{severity_color}]{finding.severity.upper()}[/{severity_color}] #{i}",
+                    border_style=severity_color
+                ))
         else:
-            return f"{age.seconds}s"
-    
-    def _extract_pod_conditions(self, pod) -> List[Dict[str, Any]]:
-        """Extract pod conditions"""
-        conditions = []
-        if pod.status.conditions:
-            for condition in pod.status.conditions:
-                conditions.append({
-                    'type': condition.type,
-                    'status': condition.status,
-                    'reason': condition.reason,
-                    'message': condition.message,
-                    'last_transition_time': condition.last_transition_time.isoformat() if condition.last_transition_time else None
-                })
-        return conditions
-    
-    def _get_container_status(self, pod) -> Dict[str, Any]:
-        """Get detailed container status"""
-        containers = {}
-        if pod.status.container_statuses:
-            for container_status in pod.status.container_statuses:
-                containers[container_status.name] = {
-                    'ready': container_status.ready,
-                    'restart_count': container_status.restart_count,
-                    'image': container_status.image,
-                    'image_id': container_status.image_id,
-                    'state': self._extract_container_state(container_status.state)
-                }
-        return containers
-    
-    def _get_pod_resources(self, pod) -> Dict[str, Any]:
-        """Get pod resource requests and limits"""
-        resources = {'requests': {}, 'limits': {}}
+            self.console.print("[green]No issues found! System appears healthy.[/green]")
         
-        if pod.spec.containers:
-            for container in pod.spec.containers:
-                if container.resources:
-                    if container.resources.requests:
-                        resources['requests'] = dict(container.resources.requests)
-                    if container.resources.limits:
-                        resources['limits'] = dict(container.resources.limits)
+        # Next steps
+        if result.next_steps:
+            self.console.print("\n[bold blue]Next Steps:[/bold blue]")
+            for step in result.next_steps:
+                self.console.print(f"• {step}")
         
-        return resources
-    
-    def _calculate_overall_health(self, health_info: Dict[str, Any]) -> str:
-        """Calculate overall health status"""
-        if 'error' in health_info:
-            return 'error'
-        
-        health_score = health_info.get('health_score', 0)
-        
-        if health_score >= 90:
-            return 'healthy'
-        elif health_score >= 70:
-            return 'degraded'
-        elif health_score >= 50:
-            return 'unhealthy'
-        else:
-            return 'critical'
-    
-    def _identify_immediate_issues(self, health_assessment: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Identify immediate issues that need attention"""
-        issues = []
-        
-        # Check pod issues
-        for pod_name, pod_info in health_assessment.get('pods', {}).items():
-            if pod_info.get('status') != 'Running':
-                issues.append({
-                    'type': 'pod_not_running',
-                    'severity': 'high',
-                    'component': pod_name,
-                    'message': f"Pod {pod_name} is in {pod_info.get('status')} state",
-                    'recommendation': 'Check pod logs and events for troubleshooting'
-                })
-            
-            if pod_info.get('restarts', 0) > 5:
-                issues.append({
-                    'type': 'high_restart_count',
-                    'severity': 'medium',
-                    'component': pod_name,
-                    'message': f"Pod {pod_name} has restarted {pod_info.get('restarts')} times",
-                    'recommendation': 'Investigate crash loops and resource constraints'
-                })
-        
-        # Check deployment issues
-        for deployment_name, deployment_info in health_assessment.get('deployments', {}).items():
-            ready = deployment_info.get('ready_replicas', 0)
-            desired = deployment_info.get('replicas', 0)
-            
-            if ready < desired:
-                issues.append({
-                    'type': 'deployment_not_ready',
-                    'severity': 'high',
-                    'component': deployment_name,
-                    'message': f"Deployment {deployment_name}: {ready}/{desired} replicas ready",
-                    'recommendation': 'Check deployment conditions and resource availability'
-                })
-        
-        # Check service issues
-        for service_name, service_info in health_assessment.get('services', {}).items():
-            endpoints = service_info.get('endpoints', [])
-            if not endpoints:
-                issues.append({
-                    'type': 'no_endpoints',
-                    'severity': 'medium',
-                    'component': service_name,
-                    'message': f"Service {service_name} has no ready endpoints",
-                    'recommendation': 'Check pod selector and pod readiness'
-                })
-        
-        return issues
-    
-    def _perform_connectivity_checks(self, namespace: str, target_agent: str) -> Dict[str, Any]:
-        """Perform connectivity checks between agents and services"""
-        connectivity = {
-            'service_endpoints': {},
-            'health_checks': {},
-            'network_policies': {},
-            'dns_resolution': {}
-        }
-        
-        try:
-            # Check service endpoints
-            services = self.k8s_client['core_v1'].list_namespaced_service(namespace=namespace)
-            
-            for service in services.items:
-                if target_agent == 'all' or service.metadata.labels.get('component') == target_agent:
-                    endpoints = self.k8s_client['core_v1'].list_namespaced_endpoints(
-                        namespace=namespace,
-                        field_selector=f"metadata.name={service.metadata.name}"
-                    )
-                    
-                    connectivity['service_endpoints'][service.metadata.name] = {
-                        'ready': len([addr for addr in endpoints.items[0].subsets if addr.addresses]) > 0 if endpoints.items else False,
-                        'addresses': [addr.ip for subset in endpoints.items[0].subsets for addr in (subset.addresses or [])] if endpoints.items else [],
-                        'ports': [port.port for subset in endpoints.items[0].subsets for port in (subset.ports or [])] if endpoints.items else []
-                    }
-            
-            # Check health endpoints
-            for service_name, service_info in connectivity['service_endpoints'].items():
-                if service_info['ready'] and service_info['ports']:
-                    # Try to connect to health endpoint
-                    port = service_info['ports'][0]  # Use first port
-                    health_status = self._check_health_endpoint(namespace, service_name, port)
-                    connectivity['health_checks'][service_name] = health_status
-        
-        except Exception as e:
-            connectivity['error'] = str(e)
-        
-        return connectivity
-    
-    def _check_health_endpoint(self, namespace: str, service_name: str, port: int) -> Dict[str, Any]:
-        """Check health endpoint of a service"""
-        try:
-            # Port-forward and check health
-            pf_cmd = f"kubectl port-forward -n {namespace} service/{service_name} 8080:{port}"
-            pf_process = subprocess.Popen(pf_cmd.split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
-            # Wait for port-forward
-            time.sleep(2)
-            
-            # Check health endpoint
-            try:
-                response = requests.get("http://localhost:8080/health", timeout=5)
-                health_status = {
-                    'status': 'healthy' if response.status_code == 200 else 'unhealthy',
-                    'response_code': response.status_code,
-                    'response_time': response.elapsed.total_seconds()
-                }
-            except:
-                health_status = {
-                    'status': 'unreachable',
-                    'error': 'Could not reach health endpoint'
-                }
-            finally:
-                # Clean up port-forward
-                pf_process.terminate()
-                pf_process.wait()
-            
-            return health_status
-            
-        except Exception as e:
-            return {
-                'status': 'error',
-                'error': str(e)
-            }
-    
-    def _validate_inputs(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Input validation with comprehensive checks"""
-        required_fields = ['operation', 'targetAgent']
-        for field in required_fields:
-            if field not in params:
-                raise ValueError(f"Missing required field: {field}")
-        
-        # Validate operation
-        operation = params.get('operation')
-        valid_operations = [op.value for op in DebugOperation]
-        if operation not in valid_operations:
-            raise ValueError(f"Invalid operation: {operation}. Valid operations: {valid_operations}")
-        
-        # Validate target agent
-        target_agent = params.get('targetAgent')
-        valid_agents = ['memory-agent', 'ai-inference-gateway', 'temporal-worker', 'consensus-agent', 'all']
-        if target_agent not in valid_agents:
-            raise ValueError(f"Invalid targetAgent: {target_agent}. Valid agents: {valid_agents}")
-        
-        # Validate debug level
-        debug_level = params.get('debugLevel', 'medium')
-        valid_levels = [level.value for level in DebugLevel]
-        if debug_level not in valid_levels:
-            raise ValueError(f"Invalid debugLevel: {debug_level}. Valid levels: {valid_levels}")
-        
-        return params
-    
-    def _format_output(self, results: Dict[str, Any], status: str) -> Dict[str, Any]:
-        """Format output according to skill specification"""
-        execution_time = (datetime.utcnow() - self.start_time).total_seconds()
-        
-        return {
-            "operationId": self.session_id,
-            "correlationId": self.correlation_id,
-            "status": status,
-            "timestamp": datetime.utcnow().isoformat(),
-            "result": results,
-            "metadata": {
-                "execution_time": execution_time,
-                "risk_score": 2,
-                "agent_version": "1.0.0",
-                "debugging_capabilities": [
-                    "health-assessment",
-                    "behavioral-analysis",
-                    "llm-collaboration",
-                    "automated-fixes",
-                    "prevention-strategies",
-                    "connectivity-checks",
-                    "resource-analysis"
-                ]
-            }
-        }
-    
-    def _handle_error(self, error: Exception, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Comprehensive error handling with troubleshooting guidance"""
-        return {
-            "operationId": self.session_id,
-            "correlationId": self.correlation_id,
-            "status": "failed",
-            "timestamp": datetime.utcnow().isoformat(),
-            "error": {
-                "code": "DEBUGGING_ERROR",
-                "message": str(error),
-                "details": {
-                    "parameters": params,
-                    "error_type": type(error).__name__,
-                    "troubleshooting_steps": [
-                        "Check Kubernetes cluster connectivity: kubectl cluster-info",
-                        "Verify agent deployment status: kubectl get pods -n ai-infrastructure",
-                        "Validate debugging parameters",
-                        "Check required tool availability: kubectl, jq, curl",
-                        "Verify RBAC permissions for debugging operations"
-                    ],
-                    "common_solutions": [
-                        "Ensure kubectl is configured correctly",
-                        "Check if namespace exists and is accessible",
-                        "Verify agent labels and selectors",
-                        "Check network policies blocking access",
-                        "Review recent events for issues"
-                    ]
-                }
-            }
-        }
+        # Session info
+        self.console.print(f"\n[dim]Session ID: {result.debug_session_id}[/dim]")
 
-def main():
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
+@click.command()
+@click.option('--target-component', '-t', 
+              type=click.Choice(['agents', 'workflows', 'infrastructure', 'all']),
+              required=True, help='Component to debug')
+@click.option('--issue-type', '-i',
+              type=click.Choice(['performance', 'errors', 'timeouts', 'connectivity', 'resource', 'behavior']),
+              required=True, help='Type of issue to investigate')
+@click.option('--time-range', '-r', default='1h', 
+              help='Time range for analysis (e.g., 30m, 2h, 1d)')
+@click.option('--namespace', '-n', default='temporal',
+              help='Kubernetes namespace to investigate')
+@click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
+@click.option('--auto-fix', '-a', is_flag=True, help='Attempt automatic fixes')
+@click.option('--output', '-o', type=click.Path(), help='Save results to file')
+def main(target_component, issue_type, time_range, namespace, verbose, auto_fix, output):
+    """AI System Debugger - Comprehensive debugging for distributed AI agent systems"""
     
-    # Parse parameters
-    if len(sys.argv) > 1:
-        try:
-            params = json.loads(sys.argv[1])
-        except json.JSONDecodeError:
-            logger.error("Invalid JSON parameters")
+    debugger = AISystemDebugger(namespace=namespace, verbose=verbose)
+    
+    try:
+        result = debugger.debug(
+            target_component=target_component,
+            issue_type=issue_type,
+            time_range=time_range,
+            namespace=namespace,
+            verbose=verbose,
+            auto_fix=auto_fix
+        )
+        
+        # Save results if requested
+        if output:
+            with open(output, 'w') as f:
+                json.dump(result.dict(), f, indent=2, default=str)
+            debugger.console.print(f"\n[green]Results saved to: {output}[/green]")
+        
+        # Exit with error code if critical issues found
+        if result.metrics_summary.get('critical_issues', 0) > 0:
             sys.exit(1)
-    else:
-        # Default parameters for testing
-        params = {
-            'operation': 'diagnose',
-            'targetAgent': 'all',
-            'namespace': 'ai-infrastructure',
-            'debugLevel': 'medium'
-        }
-    
-    # Execute debugging
-    debugger = AIAgentDebugger()
-    result = debugger.execute_debugging(params)
-    
-    # Output result
-    print(json.dumps(result, indent=2))
+            
+    except KeyboardInterrupt:
+        debugger.console.print("\n[yellow]Debug session interrupted by user[/yellow]")
+        sys.exit(130)
+    except Exception as e:
+        debugger.console.print(f"\n[red]Debug session failed: {e}[/red]")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
