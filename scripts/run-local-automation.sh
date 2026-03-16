@@ -16,11 +16,14 @@ OVERLAY_DEFAULT=("./bootstrap" "./hub" "./emulator-azure" "./spoke-local")
 EMULATOR_ACTION_DEFAULT="enable"
 HELPERS_DEFAULT=("scripts/enable-cloud.sh" "scripts/export-argocd-state.sh")
 CI_GATE_COMMAND="./scripts/local-ci-gate.sh"
+# Add required repo URL - for local development, use current directory
+REPO_URL_DEFAULT="file://$(pwd)"
 
 CONNECTOR="$CONNECTOR_DEFAULT"
 EMULATOR_ACTION="$EMULATOR_ACTION_DEFAULT"
 OVERLAY_ORDER=("${OVERLAY_DEFAULT[@]}")
 HELPERS=("${HELPERS_DEFAULT[@]}")
+REPO_URL="$REPO_URL_DEFAULT"
 
 mkdir -p "$LOG_DIR"
 SUMMARY_FILE="$LOG_DIR/summary-$(date -u +"%Y%m%dT%H%M%SZ").json"
@@ -30,11 +33,43 @@ usage() {
   cat <<USAGE
 Usage: $SCRIPT_NAME [options]
 
+A zero-touch automation script that:
+1. Runs prerequisites.sh to validate prerequisites
+2. Invokes the migration wizard to apply overlays and configure GitOps
+3. Generates a summary report with logs
+
+The cloud provider is automatically determined from:
+- The connector (azure-devops→azure, github→aws, gitlab→gcp)
+- Or the overlay order if no connector match
+- Defaults to 'azure' for backward compatibility
+
+Required Environment Variables (depend on connector):
+  - GitHub: GITHUB_ENTERPRISE_TOKEN, GITHUB_ENTERPRISE_HOST (for enterprise)
+  - Azure DevOps: AZURE_DEVOPS_TOKEN, AZURE_DEVOPS_ORG, AZURE_DEVOPS_PROJECT
+  - GitLab: GITLAB_TOKEN, GITLAB_HOST
+  - Bitbucket: BITBUCKET_USER, BITBUCKET_TOKEN (cloud) or BITBUCKET_DC_* (data center)
+
 Options:
   --connector <name>             Git host connector (default: $CONNECTOR_DEFAULT)
+                                Supported: github, azure-devops, gitlab, bitbucket-dc, bitbucket-cloud, codecommit, gcp-ssm, local
+  --repo-url <url>              Git repository URL (default: $REPO_URL_DEFAULT)
   --emulator-action <action>     Toggle action for the Azure emulator (enable|disable, default: $EMULATOR_ACTION_DEFAULT)
   --overlay-order <comma-list>   Comma-separated overlay order (default: ${OVERLAY_DEFAULT[*]})
   --help                         Show this message
+
+Example:
+  # For Azure DevOps
+  export AZURE_DEVOPS_TOKEN="your-token"
+  export AZURE_DEVOPS_ORG="your-org" 
+  export AZURE_DEVOPS_PROJECT="your-project"
+  $SCRIPT_NAME --connector azure-devops --repo-url https://dev.azure.com/your-org/your-project/_git/your-repo
+
+  # For GitHub with AWS
+  export GITHUB_ENTERPRISE_TOKEN="your-token"
+  $SCRIPT_NAME --connector github-enterprise-cloud --repo-url https://github.com/your-org/your-repo
+
+  # For local development
+  $SCRIPT_NAME --connector local --emulator-action enable
 USAGE
 }
 
@@ -58,6 +93,10 @@ while [[ $# -gt 0 ]]; do
       CONNECTOR="$2"
       shift 2
       ;;
+    --repo-url)
+      REPO_URL="$2"
+      shift 2
+      ;;
     --emulator-action)
       EMULATOR_ACTION="$2"
       shift 2
@@ -79,25 +118,51 @@ while [[ $# -gt 0 ]]; do
 done
 
 run_bootstrap() {
-  echo "$(timestamp) - Running scripts/bootstrap.sh" | tee "$LOG_DIR/bootstrap.log"
-  scripts/bootstrap.sh 2>&1 | tee -a "$LOG_DIR/bootstrap.log"
+  echo "$(timestamp) - Running scripts/prerequisites.sh" | tee "$LOG_DIR/prerequisites.sh.log"
+  scripts/prerequisites.sh 2>&1 | tee -a "$LOG_DIR/prerequisites.sh.log"
+}
+
+# Determine the provider from connector or overlay order
+get_provider() {
+  local provider="azure"  # default for backward compatibility
+  
+  # Try to derive from connector
+  case "$CONNECTOR" in
+    "azure-devops") provider="azure" ;;
+    "github"|"github-enterprise-server"|"github-enterprise-cloud") provider="aws" ;;
+    "gitlab") provider="gcp" ;;
+    *) 
+      # Try to derive from overlay order
+      for overlay in "${OVERLAY_ORDER[@]}"; do
+        case "$overlay" in
+          *"azure"*) provider="azure"; break ;;
+          *"aws"*) provider="aws"; break ;;
+          *"gcp"*) provider="gcp"; break ;;
+        esac
+      done
+      ;;
+  esac
+  echo "$provider"
 }
 
 run_wizard() {
-  local command=("python" "scripts/migration_wizard.py" "--connector" "$CONNECTOR")
+  local provider=$(get_provider)
+  local command=("python" "scripts/migration_wizard.py" "--repo-url" "$REPO_URL")
+  command+=("--connector" "$CONNECTOR")
+  command+=("--provider" "$provider")
   command+=("--overlay-order" "${OVERLAY_ORDER[@]}")
   command+=("--helper-script" "${HELPERS[@]}")
   command+=("--emulator" "$EMULATOR_ACTION")
   command+=("--ci-gate" "$CI_GATE_COMMAND")
 
-  echo "$(timestamp) - Invoking migration wizard" | tee "$LOG_DIR/migration-wizard.log"
+  echo "$(timestamp) - Invoking migration wizard with repo URL: $REPO_URL (provider: $provider)" | tee "$LOG_DIR/migration-wizard.log"
   "${command[@]}" 2>&1 | tee -a "$LOG_DIR/migration-wizard.log"
 }
 
 generate_summary() {
   local exit_code="$1"
   python - "$SUMMARY_FILE" <<PY
-import json, os, pathlib
+import json, os, pathlib, sys
 summary_path = pathlib.Path(sys.argv[1])
 data = {
     "start_time": os.environ["START_TIME"],
@@ -105,12 +170,14 @@ data = {
     "status": os.environ["STATUS"],
     "exit_code": int(os.environ["EXIT_CODE"]),
     "connector": os.environ["CONNECTOR"],
+    "repo_url": os.environ["REPO_URL"],
+    "provider": os.environ["PROVIDER"],
     "emulator_action": os.environ["EMULATOR_ACTION"],
     "overlay_order": os.environ["SUMMARY_OVERLAYS"].splitlines(),
     "helpers": os.environ["SUMMARY_HELPERS"].splitlines(),
     "ci_gate": os.environ["CI_GATE_COMMAND"],
     "logs": {
-        "bootstrap": os.environ["LOG_DIR"] + "/bootstrap.log",
+        "bootstrap": os.environ["LOG_DIR"] + "/prerequisites.sh.log",
         "wizard": os.environ["LOG_DIR"] + "/migration-wizard.log"
     }
 }
@@ -128,6 +195,8 @@ trap_handler() {
   export STATUS="$status_text"
   export EXIT_CODE="$exit_code"
   export CONNECTOR
+  export REPO_URL
+  export PROVIDER="$(get_provider)"
   export EMULATOR_ACTION
   export LOG_DIR
   export SUMMARY_OVERLAYS="$(printf '%s\n' "${OVERLAY_ORDER[@]}")"

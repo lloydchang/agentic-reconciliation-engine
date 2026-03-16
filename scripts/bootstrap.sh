@@ -16,7 +16,7 @@ info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
-ensure_wsl_sanity "scripts/bootstrap.sh" warn info
+ensure_wsl_sanity "scripts/prerequisites.sh" warn info
 
 # ── Cross-Platform Support ─────────────────────────────────────────────────────
 detect_platform() {

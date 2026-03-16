@@ -96,7 +96,7 @@ Use `scripts/migration_wizard.py` to automate overlay ordering and CI validation
   --connector github-enterprise-cloud \
   --overlay-order ./bootstrap ./hub ./cloud-gcp \
   --helper-script ./scripts/enable-cloud.sh \
-  --ci-gate ./scripts/bootstrap.sh
+  --ci-gate ./scripts/prerequisites.sh
 ```
 
 Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `scripts/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.

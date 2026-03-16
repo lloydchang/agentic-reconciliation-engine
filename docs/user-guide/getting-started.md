@@ -38,7 +38,7 @@ git clone https://github.com/lloydchang/ai-agents-sandbox.git
 cd ai-agents-sandbox
 
 # Run the automated setup
-./bootstrap.sh
+./prerequisites.sh
 
 # Start everything at once
 ./scripts/dev.sh

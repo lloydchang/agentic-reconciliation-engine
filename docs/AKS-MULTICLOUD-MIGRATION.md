@@ -92,7 +92,7 @@ Invoke `scripts/migration_wizard.py` during this runbook to make the overlay ord
   --branch migration-aks \
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-azure \
-  --ci-gate ./scripts/bootstrap.sh \
+  --ci-gate ./scripts/prerequisites.sh \
   --helper-script ./scripts/enable-cloud.sh
 ```
 

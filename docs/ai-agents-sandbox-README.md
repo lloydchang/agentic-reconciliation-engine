@@ -44,7 +44,7 @@ For comprehensive development and testing, run these validation steps:
 
 ```bash
 # 1. Validate environment and skill suite integrity
-./scripts/bootstrap.sh
+./scripts/prerequisites.sh
 
 # 2. Run skill evaluations and tests
 python3 scripts/run_evals.py
@@ -55,7 +55,7 @@ python3 scripts/run_evals.py
 
 **What these do:**
 
-- **`bootstrap.sh`** - Validates prerequisites, checks skills exist, ensures environment readiness
+- **`prerequisites.sh`** - Validates prerequisites, checks skills exist, ensures environment readiness
 - **`run_evals.py`** - Tests skill definitions, validates SKILL.md formats, checks trigger phrases
 - **`./scripts/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
 

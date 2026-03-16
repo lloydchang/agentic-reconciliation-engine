@@ -99,7 +99,7 @@ Run the migration wizard automation helper as part of this playbook to ensure th
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-aws \
   --helper-script ./scripts/enable-cloud.sh \
-  --ci-gate ./scripts/bootstrap.sh
+  --ci-gate ./scripts/prerequisites.sh
 ```
 
 Adjust `--connector` to match your Git host (`azure-devops`, `github-enterprise-server`, `bitbucket-cloud`, etc.), and add `--emulator=enable`/`disable` when you want the local emulator stacked. The wizard handles overlay ordering, toggles the emulator, runs the helper scripts listed in the command, executes the CI gate, and pushes the branch for an automated migration flow.

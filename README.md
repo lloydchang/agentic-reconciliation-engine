@@ -11,7 +11,7 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 
 ## Getting started
 1. Open a POSIX shell (macOS/Linux, WSL/Git Bash, Azure Linux VM, GitHub Codespaces, etc.) before touching the automation scripts.
-2. Run `scripts/bootstrap.sh` to validate tools, skill files, and environment variables.
+2. Run `scripts/prerequisites.sh` to validate tools, skill files, and environment variables.
 3. Use `scripts/run-local-automation.sh` or `scripts/run-emulator-then-cloud.sh` to execute the full workflow; each script now logs whether you are in WSL or a native Windows shell.
 4. Check `logs/local-automation/latest-summary.json` and the `.log` files in `logs/local-automation/` for details, then iterate on your config or documentation as needed.
 

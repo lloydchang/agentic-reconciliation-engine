@@ -1,6 +1,6 @@
 # Shell Compatibility Guide
 
-The automation in this repository requires a POSIX-style shell that understands `bash` syntax. Scripts such as `scripts/bootstrap.sh`, `scripts/migration_wizard.py`, `scripts/run-local-automation.sh`, and the helper utilities depend on:
+The automation in this repository requires a POSIX-style shell that understands `bash` syntax. Scripts such as `scripts/prerequisites.sh`, `scripts/migration_wizard.py`, `scripts/run-local-automation.sh`, and the helper utilities depend on:
 
 | Feature | Requirement |
 |---|---|

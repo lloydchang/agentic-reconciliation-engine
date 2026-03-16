@@ -414,52 +414,6 @@ class AWSCodeCommitConnector(GitHostConnector):
         print("[connector] AWS CodeCommit does not support PR creation via CLI; please open via AWS Console.")
 
 
-class AzureDevOpsConnector(GitHostConnector):
-    """Connector that uses Azure DevOps CLI for PR automation."""
-
-    def _auth_url(self, repo_url: str) -> str:
-        token = os.environ.get("AZURE_DEVOPS_TOKEN")
-        if not token:
-            raise RuntimeError("AZURE_DEVOPS_TOKEN must be set to clone from Azure DevOps.")
-        if repo_url.startswith("https://"):
-            return repo_url.replace("https://", f"https://{token}@", 1)
-        return repo_url
-
-    def _provider_metadata(self, repo_url: str) -> dict:
-        org = os.environ.get("AZURE_DEVOPS_ORG")
-        project = os.environ.get("AZURE_DEVOPS_PROJECT")
-        if not org or not project:
-            raise RuntimeError("AZURE_DEVOPS_ORG and AZURE_DEVOPS_PROJECT must be set.")
-        repo_path = repo_url.rstrip("/").split("/")[-1]
-        return {"org": org, "project": project, "repo": repo_path}
-
-    def clone_repository(self, repo_url: str, path: Path) -> None:
-        if path.exists():
-            print(f"[connector] Repository path {path} already exists, skipping clone.")
-            return
-        auth_url = self._auth_url(repo_url)
-        print("[connector] Cloning Azure DevOps repository...")
-        subprocess.run(["git", "clone", auth_url, str(path)], check=True)
-
-    def push_branch(self, path: Path, branch: str) -> None:
-        print(f"[connector] Pushing branch {branch} to Azure DevOps...")
-        subprocess.run(["git", "push", "-u", "origin", branch], cwd=path, check=True)
-
-    def create_merge_request(self, path: Path, branch: str) -> None:
-        meta = self._provider_metadata(path.as_uri())
-        print("[connector] Creating Azure DevOps pull request...")
-        subprocess.run([
-            "az", "repos", "pr", "create",
-            "--org", f"https://dev.azure.com/{meta['org']}",
-            "--project", meta["project"],
-            "--repository", meta["repo"],
-            "--source-branch", branch,
-            "--target-branch", "main",
-            "--title", "Migration wizard changes",
-            "--description", "Automated migration wizard results.",
-        ], cwd=path, check=True)
-
-
 def run_helper(script: Path, args: Sequence[str]) -> None:
     subprocess.run([str(script)] + list(args), check=True)
 
@@ -524,10 +478,16 @@ def main() -> None:
     parser.add_argument(
         "--ci-gate",
         nargs="*",
-        default=["./scripts/bootstrap.sh"],
+        default=["./scripts/prerequisites.sh"],
         help="Command (with args) that validates CI policy.",
     )
     parser.add_argument("--emulator", choices=["enable", "disable"], help="Toggle Azure emulator.")
+    parser.add_argument(
+        "--provider",
+        choices=["aws", "azure", "gcp"],
+        default="azure",
+        help="Cloud provider for helper scripts (default: azure).",
+    )
     parser.add_argument(
         "--connector",
         choices=[
@@ -566,7 +526,7 @@ def main() -> None:
         connector = GCPSSMConnector(args.repo_url)
     else:
         connector = LocalGitConnector(args.repo_url)
-    connector.clone_repository(args.repo_url, workdir / "repo")
+    connector.clone_repository(workdir / "repo")
     repo_path = workdir / "repo"
     subprocess.run(["git", "checkout", "-B", args.branch], cwd=repo_path, check=True)
 
@@ -579,7 +539,7 @@ def main() -> None:
 
             fd, path = tempfile.mkstemp()
             temp_order = Path(path)
-            Path(fd).close()
+            os.close(fd)  # Close the file descriptor
             temp_order.write_text("\n".join(args.overlay_order) + "\n")
             order_arg = str(temp_order)
         else:
@@ -596,10 +556,10 @@ def main() -> None:
         temp_order.unlink()
 
     if args.emulator:
-        run_helper(Path("scripts/enable-cloud.sh"), ["azure", f"--emulator={args.emulator}"])
+        run_helper(Path("scripts/enable-cloud.sh"), [args.provider, f"--emulator={args.emulator}"])
 
     for helper in args.helper_script:
-        run_helper(Path(helper), ["azure"])
+        run_helper(Path(helper), [args.provider])
 
     run_ci_gate(repo_path, args.ci_gate)
 

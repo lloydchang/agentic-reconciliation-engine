@@ -19,6 +19,8 @@ const (
 	ProviderCohere     ModelProvider = "cohere"
 	ProviderAI21       ModelProvider = "ai21"
 	ProviderGoogle     ModelProvider = "google"
+	ProviderOllama     ModelProvider = "ollama"     // Local Ollama
+	ProviderLlamaCpp   ModelProvider = "llamacpp"   // Local llama.cpp
 )
 
 // ModelCapability represents a model capability
@@ -147,7 +149,6 @@ func (m *MultiModelManager) initializeDefaultModels() {
 		m.models[model.ModelID] = config
 	}
 
-	// Add OpenAI models (mock)
 	m.models["gpt-4"] = &ModelConfig{
 		ID:          "gpt-4",
 		Name:        "GPT-4",
@@ -157,7 +158,7 @@ func (m *MultiModelManager) initializeDefaultModels() {
 		Temperature: 0.7,
 		TopP:        0.9,
 		Enabled:     true,
-		Priority:    1, // High priority
+		Priority:    3, // Lower priority than local
 	}
 
 	m.models["gpt-3.5-turbo"] = &ModelConfig{
@@ -169,7 +170,7 @@ func (m *MultiModelManager) initializeDefaultModels() {
 		Temperature: 0.7,
 		TopP:        0.9,
 		Enabled:     true,
-		Priority:    2,
+		Priority:    3,
 	}
 
 	// Add Google models (mock)
@@ -182,7 +183,7 @@ func (m *MultiModelManager) initializeDefaultModels() {
 		Temperature: 0.7,
 		TopP:        0.9,
 		Enabled:     true,
-		Priority:    1,
+		Priority:    3, // Lower priority than local
 	}
 }
 
@@ -303,6 +304,10 @@ func (m *MultiModelManager) processWithModel(ctx context.Context, request MultiM
 		return m.processWithOpenAI(ctx, request, model, start)
 	case ProviderGoogle:
 		return m.processWithGoogle(ctx, request, model, start)
+	case ProviderOllama:
+		return m.processWithOllama(ctx, request, model, start)
+	case ProviderLlamaCpp:
+		return m.processWithLlamaCpp(ctx, request, model, start)
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", model.Provider)
 	}
@@ -367,6 +372,71 @@ func (m *MultiModelManager) processWithGoogle(ctx context.Context, request Multi
 		Response:       response,
 		Confidence:     0.88, // Mock confidence
 		Usage:          map[string]interface{}{"prompt_tokens": 90, "completion_tokens": 45},
+		ProcessingTime: time.Since(start).Milliseconds(),
+	}, nil
+}
+
+// processWithOllama processes request with local Ollama
+func (m *MultiModelManager) processWithOllama(ctx context.Context, request MultiModelRequest, model *ModelConfig, start time.Time) (*ModelResult, error) {
+	// Call local Ollama agent service
+	ollamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8080/generate" // Adjust service URL as needed
+
+	payload := map[string]interface{}{
+		"model":  model.ID,
+		"prompt": request.Prompt,
+		"stream": false,
+		"options": map[string]interface{}{
+			"temperature": request.Temperature,
+			"top_p":       request.TopP,
+			"num_predict": request.MaxTokens,
+		},
+	}
+
+	// TODO: Implement HTTP call to local Ollama service
+	// For now, mock response
+	time.Sleep(time.Millisecond * 500) // Simulate local inference
+
+	response := fmt.Sprintf("Ollama %s response to: %s", model.Name, request.Prompt[:100])
+
+	return &ModelResult{
+		ModelID:        model.ID,
+		ModelName:      model.Name,
+		Provider:       model.Provider,
+		Response:       response,
+		Confidence:     0.92, // Higher confidence for local models
+		Usage:          map[string]interface{}{"prompt_tokens": len(request.Prompt) / 4, "completion_tokens": len(response) / 4},
+		ProcessingTime: time.Since(start).Milliseconds(),
+	}, nil
+}
+
+// processWithLlamaCpp processes request with local llama.cpp
+func (m *MultiModelManager) processWithLlamaCpp(ctx context.Context, request MultiModelRequest, model *ModelConfig, start time.Time) (*ModelResult, error) {
+	// Call local llama.cpp agent service
+	llamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8081/generate" // Adjust service URL as needed
+
+	payload := map[string]interface{}{
+		"model":  model.ID,
+		"prompt": request.Prompt,
+		"options": map[string]interface{}{
+			"temperature": request.Temperature,
+			"top_p":       request.TopP,
+			"n_predict":   request.MaxTokens,
+		},
+	}
+
+	// TODO: Implement HTTP call to local llama.cpp service
+	// For now, mock response
+	time.Sleep(time.Millisecond * 600) // Simulate local inference
+
+	response := fmt.Sprintf("Llama.cpp %s response to: %s", model.Name, request.Prompt[:100])
+
+	return &ModelResult{
+		ModelID:        model.ID,
+		ModelName:      model.Name,
+		Provider:       model.Provider,
+		Response:       response,
+		Confidence:     0.90, // Good confidence for local models
+		Usage:          map[string]interface{}{"prompt_tokens": len(request.Prompt) / 4, "completion_tokens": len(response) / 4},
 		ProcessingTime: time.Since(start).Milliseconds(),
 	}, nil
 }

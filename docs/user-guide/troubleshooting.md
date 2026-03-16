@@ -350,7 +350,7 @@ cd frontend && yarn start
 ./scripts/validate.sh
 
 # Check all prerequisites
-./bootstrap.sh
+./prerequisites.sh
 ```
 
 ### Skill Evaluation
