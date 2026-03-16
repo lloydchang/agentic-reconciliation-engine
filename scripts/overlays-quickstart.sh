@@ -3,7 +3,7 @@
 # Overlays Quick Start Script
 # GitOps Infrastructure Control Plane - Quick Start Guide
 # 
-# This script provides a complete quick start experience for the overlays system
+# This script provides a complete quick start experience for the overlay system
 #
 # Usage: ./overlays-quickstart.sh [option]
 # Options:
@@ -668,8 +668,8 @@ run_complete_quickstart() {
     echo -e "     python3 ${SCRIPT_DIR}/overlay-cli.py apply ${OVERLAY_DIR}/examples/composed/production-env --namespace staging"
     echo
     echo -e "${BLUE}  5. Learn more:${NC}"
-    echo -e "     Read the documentation: docs/OVERLAYS-QUICK-START.md"
-    echo -e "     Check examples: docs/OVERLAYS-EXAMPLES.md"
+    echo -e "     Read the documentation: docs/OVERLAY-QUICK-START.md"
+    echo -e "     Check examples: docs/OVERLAY-EXAMPLES.md"
     echo -e "     Join community: https://github.com/gitops-infra-control-plane/discussions"
     
     return 0

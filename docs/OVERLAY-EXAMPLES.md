@@ -1,4 +1,4 @@
-# Overlays Examples Repository
+# Overlay Examples Repository
 
 This document provides a comprehensive collection of overlay examples, patterns, and use cases to help you understand and implement overlays effectively.
 
@@ -1178,9 +1178,9 @@ kubectl auth can-i create configmap --namespace=flux-system
 
 These examples provide a comprehensive foundation for working with overlays. For more specific use cases and advanced patterns, refer to:
 
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Complete user documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[Community Guide](OVERLAYS-COMMUNITY-GUIDE.md)**: Community resources
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Complete user documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
 
 ---
 

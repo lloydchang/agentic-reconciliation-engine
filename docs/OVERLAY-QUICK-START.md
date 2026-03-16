@@ -1,6 +1,6 @@
-# Overlays Quick Start Guide
+# Overlay Quick Start Guide
 
-Complete quick start guide for the GitOps Infrastructure Control Plane Overlays System.
+Complete quick start guide for the GitOps Infrastructure Control Plane Overlay System.
 
 ## Table of Contents
 
@@ -1295,7 +1295,7 @@ commonLabels:
 
 With this quick start guide, you can:
 
-1. ✅ **Understand** the overlays system architecture
+1. ✅ **Understand** the overlay system architecture
 2. ✅ **Install** and configure the overlay tools
 3. ✅ **Create** your first overlay in minutes
 4. ✅ **Deploy** overlays to development and production
@@ -1305,10 +1305,10 @@ With this quick start guide, you can:
 **Start building your overlays today!** 🚀
 
 For more detailed information, refer to:
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Comprehensive documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[Examples](OVERLAYS-EXAMPLES.md)**: Real-world use cases
-- **[Community Guide](OVERLAYS-COMMUNITY-GUIDE.md)**: Community resources
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Comprehensive documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[Examples](OVERLAY-EXAMPLES.md)**: Real-world use cases
+- **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
 
 ---
 

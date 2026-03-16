@@ -1,4 +1,4 @@
-# Overlays Architecture
+# Overlay Architecture
 
 ## Overview
 
@@ -62,8 +62,8 @@ gitops-infra-control-plane/
 │       ├── dashboard-overlay/  # Dashboard overlay template
 │       └── infra-overlay/      # Infrastructure overlay template
 └── docs/                       # Documentation
-    ├── OVERLAYS-ARCHITECTURE.md
-    └── OVERLAYS-PLANNING.md
+    ├── OVERLAY-ARCHITECTURE.md
+    └── OVERLAY-PLANNING.md
 ```
 
 ## Overlay Types

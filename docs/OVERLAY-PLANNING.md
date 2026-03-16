@@ -1,13 +1,13 @@
-# Overlays Implementation Planning
+# Overlay Implementation Planning
 
 ## Executive Summary
 
-This document outlines the implementation plan for the Overlays Architecture in the GitOps Infrastructure Control Plane. The overlays system will enable forks and contributors to extend and customize the platform while maintaining upstream compatibility.
+This document outlines the implementation plan for the Overlays Architecture in the GitOps Infrastructure Control Plane. The overlay system will enable forks and contributors to extend and customize the platform while maintaining upstream compatibility.
 
 ## Implementation Phases
 
 ### Phase 1: Foundation (Weeks 1-2)
-**Goal**: Establish the overlays system foundation and basic structure.
+**Goal**: Establish the overlay system foundation and basic structure.
 
 #### Tasks
 1. **Directory Structure Creation**
@@ -33,8 +33,8 @@ This document outlines the implementation plan for the Overlays Architecture in 
    - Discovery mechanism implementation
 
 #### Deliverables
-- [x] `docs/OVERLAYS-ARCHITECTURE.md`
-- [x] `docs/OVERLAYS-PLANNING.md`
+- [x] `docs/OVERLAY-ARCHITECTURE.md`
+- [x] `docs/OVERLAY-PLANNING.md`
 - [ ] `overlays/README.md`
 - [ ] Overlay templates in `overlays/templates/`
 - [ ] Basic registry schema in `overlays/registry/`
@@ -573,4 +573,4 @@ jobs:
    - Gather feedback and iterate
    - Expand overlay ecosystem
 
-This implementation plan provides a structured approach to building the overlays system while minimizing risk and maximizing community adoption.
+This implementation plan provides a structured approach to building the overlay system while minimizing risk and maximizing community adoption.

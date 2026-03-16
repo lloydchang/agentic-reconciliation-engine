@@ -1,6 +1,6 @@
-# Overlays Developer Guide
+# Overlay Developer Guide
 
-This guide is for developers who want to contribute to the overlays system, create new overlays, or extend the overlay functionality.
+This guide is for developers who want to contribute to the overlay system, create new overlays, or extend the overlay functionality.
 
 ## Table of Contents
 
