@@ -11,7 +11,7 @@ This repository is built around a POSIX automation stack. To get started quickly
    - `scripts/create-bootstrap-cluster.sh` creates the lightweight bootstrap cluster for recovery
    - `scripts/create-hub-cluster.sh` provisions the HA hub cluster (EKS/AKS/GKE)
    - `scripts/install-crossplane.sh` installs Crossplane and cloud providers on the hub
-   - `scripts/provision-spoke-clusters.sh` creates spoke clusters via Cluster API
+   - `scripts/create-spoke-clusters.sh` creates spoke clusters via Cluster API
    - `scripts/run-emulator-then-cloud.sh` lets you run the migration wizard twice (`--emulator=enable` then `--emulator=disable`).
    - `scripts/migration_wizard.py` is the core orchestrator you can call directly for custom connector/overlay combinations.
 6. **Verify Windows feedback.** Each entry point now sources `scripts/helpers/wsl-detect.sh` so the log shows `INFO [WSL check]` when running under WSL or a warning if you’re still in a native Windows shell.
