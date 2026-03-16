@@ -116,7 +116,7 @@ func MultiCloudScatterGatherWorkflow(ctx workflow.Context, input MultiCloudScatt
 	for i, future := range cloudFutures {
 		var result CloudAIResult
 		if err := future.Get(ctx, &result); err != nil {
-			logger.Error("Cloud AI operation failed", "provider", input.CloudProviders[i], "error", err)
+			logger.Error("AI operation failed", "provider", input.CloudProviders[i], "error", err)
 			result = CloudAIResult{
 				Provider:      input.CloudProviders[i],
 				Status:        "failed",

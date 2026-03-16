@@ -357,7 +357,7 @@ func main() {
 		log.Fatalf("Failed to load skills: %v", err)
 	}
 
-	fmt.Println("🤖 Cloud AI Agent Skills Service (agentskills.io Compliant)")
+	fmt.Println("🤖 AI Agent Skills Service (agentskills.io Compliant)")
 	fmt.Println("=============================================================")
 	fmt.Printf("📡 Starting AI agent service on port %s\n", *port)
 	fmt.Printf("📋 Skills loaded from %s\n", skillsDir)
@@ -408,7 +408,7 @@ func main() {
 }
 
 func showHelp() {
-	fmt.Println("Cloud AI Agent Skills Service - agentskills.io Compliant")
+	fmt.Println("AI Agent Skills Service - agentskills.io Compliant")
 	fmt.Println("=============================================================")
 	fmt.Println()
 	fmt.Println("This service provides HTTP API endpoints for executing AI agent skills")

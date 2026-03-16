@@ -580,7 +580,7 @@ If you have local AI agents, the architecture and trade-offs shift a bit, but th
 
 Local agents: Run on your own machines or private infrastructure. Examples include local LLMs, compliance models, or rule-based AI pipelines.
 
-Cloud agents (Foundry/Azure): Managed, scalable, maintained, with APIs for orchestration.
+agents (Foundry/Azure): Managed, scalable, maintained, with APIs for orchestration.
 
 1. What changes with local agents
 
@@ -655,7 +655,7 @@ Debugging is harder: Multi-agent interactions can produce emergent behavior that
 
 Use A2A internally within an Activity if you want agents to collaborate:
 
-Temporal calls an Activity → the Activity runs multiple local or cloud agents that communicate as needed → the Activity returns aggregated results.
+Temporal calls an Activity → the Activity runs multiple local or agents that communicate as needed → the Activity returns aggregated results.
 
 Do not let agents directly orchestrate workflows. Keep Temporal in the loop for:
 
@@ -1655,7 +1655,7 @@ Activities encapsulate non-deterministic operations (LLMs, analysis, A2A communi
 
 Temporal sees them as a black box but guarantees workflow correctness overall.
 
-You can mix local and cloud agents, or even multiple AI agents per module.
+You can mix local and agents, or even multiple AI agents per module.
 
 D. Human-in-the-loop integration
 
@@ -2030,7 +2030,7 @@ Cross-cloud orchestration requires custom integration, event bridges, or glue co
 
 Monitoring, auditing, and retries become fragmented.
 
-Hybrid local + cloud agents are hard to integrate reliably.
+Hybrid local + agents are hard to integrate reliably.
 
 1. Temporal + Backstage solution
 
@@ -2693,7 +2693,7 @@ What it does: Agents plan, reason, and use tools to complete multi‑step goals,
 
 Use case: Personal assistants in apps or custom enterprise agents built with Vertex AI / Gemini models.
 
-Comparison: Cloud Agents vs Simple LLM APIs
+Comparison: Agents vs Simple LLM APIs
 Aspect Basic LLM API AI Agent Platform
 Intent Single response to prompt Autonomous, multi‑step tasks with planning
 Tool usage Manual via function calls Built‑in planning and tool invocation
@@ -2719,7 +2719,7 @@ Microsoft Foundry Agent Service equips agents with tools, governance, and produc
 
 Google Gemini Agents / Vertex AI tooling support planning and function calling for complex tasks.
 
-You can integrate these cloud agents into a larger workflow engine like Temporal, where Temporal provides durability, idempotency, and auditability, and the cloud agents provide autonomous AI task execution and planning.
+You can integrate these agents into a larger workflow engine like Temporal, where Temporal provides durability, idempotency, and auditability, and the agents provide autonomous AI task execution and planning.
 
 If you want, I can outline how these cloud native AI agents would be called within a Temporal workflow, including example invocation patterns and where planning vs orchestration lives. Do you want that?
 
@@ -2754,7 +2754,7 @@ These provide cloud‑native reasoning and tool invocation, not just single LLM 
 
 1. How Temporal Calls These Agents (Invocation Patterns)
 
-Temporal workflow code doesn’t embed heavy AI logic directly — it schedules Activities that call cloud agents:
+Temporal workflow code doesn’t embed heavy AI logic directly — it schedules Activities that call agents:
 
 Temporal Workflow
    │
@@ -2831,14 +2831,14 @@ return gemini_resp
 
 Gemini Agent can autonomously plan API calls or reasoning steps.
 
-1. Best Practices When Integrating Cloud Agents
+1. Best Practices When Integrating Agents
 
 ✔ Idempotent Activities: Agents may return variables; ensure your Activity code handles retries safely.
-✔ Timeouts & Retries: Cloud agents can run long; configure reasonable Temporal timeouts and error handling.
+✔ Timeouts & Retries: Agents can run long; configure reasonable Temporal timeouts and error handling.
 ✔ Human‑in‑the‑loop: After receiving agent output, you can pause the workflow for review before continuing.
 ✔ Observability: Log not just agent outputs but decisions/steps if available from the agent platform.
 
-1. Why You Still Need Temporal With Cloud Agents
+1. Why You Still Need Temporal With Agents
 
 Cloud‑native AI agents provide reasoning, autonomy, memory, and tool use, but they do not:
 
@@ -2852,7 +2852,7 @@ So the pattern is:
 
 Temporal handles control + durability,
 
-Cloud agents handle autonomous reasoning + execution,
+Agents handle autonomous reasoning + execution,
 
 Backstage manages templates, interfaces, and monitoring.
 
@@ -2864,7 +2864,7 @@ Microsoft Foundry Agent Service lets you build secure, production agents with ri
 
 Google’s Gemini Agent Mode provides autonomous task completion (in apps) and can be surfaced via Vertex AI.
 
-In a Temporal workflow, you invoke these agents as Activities — Temporal remains the orchestrator, while cloud agents execute the reasoning tasks.
+In a Temporal workflow, you invoke these agents as Activities — Temporal remains the orchestrator, while agents execute the reasoning tasks.
 
 If you want, I can show a text‑only example of a Temporal workflow code snippet that calls these agents in sequence with error handling and human‑in‑the‑loop checkpoints. Would you like that?
 
@@ -2876,7 +2876,7 @@ Yes — if you’re thinking purely about reliability, support, and operational 
 
 Multiple moving parts
 
-Temporal cluster + workers + Backstage portal + cloud agents (AWS, Foundry, Gemini)
+Temporal cluster + workers + Backstage portal + agents (AWS, Foundry, Gemini)
 
 Each layer can fail independently: network issues, agent throttling, worker crashes
 
@@ -2896,7 +2896,7 @@ Upgrade and versioning complexity
 
 Temporal workflows must handle upgrades safely
 
-Cloud agents may change models, behavior, or API endpoints independently
+Agents may change models, behavior, or API endpoints independently
 
 Operational overhead
 
@@ -2934,7 +2934,7 @@ Observability Custom dashboards in Backstage Native cloud dashboards & logs
 Support DIY, multiple vendors Single vendor SLA / support line
 Bottom line
 
-If your goal is maximum flexibility, multi-cloud, hybrid AI + infrastructure orchestration, Temporal + Backstage + cloud agents is powerful but more brittle and requires experienced ops.
+If your goal is maximum flexibility, multi-cloud, hybrid AI + infrastructure orchestration, Temporal + Backstage + agents is powerful but more brittle and requires experienced ops.
 
 If your goal is reliability, managed service, and operational simplicity, sticking to cloud-native workflow engines + their AI services is safer and better supported.
 
@@ -2946,7 +2946,7 @@ Use Temporal + Backstage for experimental, hybrid, multi-cloud, or autonomous ag
 
 Only introduce Temporal if you need durable multi-cloud orchestration, human-in-loop, or complex replay/retry guarantees.
 
-If you want, I can sketch a side-by-side text-only diagram showing Temporal + cloud agents vs fully cloud-native managed workflows, highlighting where brittleness appears and where durability comes for each approach. Do you want me to do that?
+If you want, I can sketch a side-by-side text-only diagram showing Temporal + agents vs fully cloud-native managed workflows, highlighting where brittleness appears and where durability comes for each approach. Do you want me to do that?
 
 so this is basically good for a local sandbox and experiment
 
@@ -2966,7 +2966,7 @@ Durable state and replay: Temporal ensures you can rerun experiments and track r
 
 1. Weaknesses for production workloads
 
-Operational complexity: Multiple layers to maintain (Temporal cluster, workers, Backstage, cloud agents).
+Operational complexity: Multiple layers to maintain (Temporal cluster, workers, Backstage, agents).
 
 Brittleness: Multi-cloud calls, non-deterministic AI outputs, network issues.
 

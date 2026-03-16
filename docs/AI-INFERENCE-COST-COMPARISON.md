@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-For GitOps infrastructure control plane operations, **local quantized Llama in Kubernetes** is dramatically cheaper than cloud AI platforms - typically $0.001-$0.04 per million tokens vs $0.05-$2.50+ for cloud APIs. The hybrid approach (90% local, 10% cloud) provides the best economics for Cloud AI workloads.
+For GitOps infrastructure control plane operations, **local quantized Llama in Kubernetes** is dramatically cheaper than cloud AI platforms - typically $0.001-$0.04 per million tokens vs $0.05-$2.50+ for cloud APIs. The hybrid approach (90% local, 10% cloud) provides the best economics for AI workloads.
 
 ## 2026 Model Landscape Update
 
@@ -39,7 +39,7 @@ For GitOps infrastructure control plane operations, **local quantized Llama in K
 
 | Platform | Model Access | Pricing (per million tokens) | Enterprise Features | Best For |
 |----------|--------------|----------------------------|---------------------|----------|
-| **Local K8s + Quantized Llama** | Llama 3 7B-13B (4-bit/8-bit) | $0.001-$0.04 (electricity only, after $2k-6k hardware) | Data stays in cluster | 90% of Cloud AI tasks |
+| **Local K8s + Quantized Llama** | Llama 3 7B-13B (4-bit/8-bit) | $0.001-$0.04 (electricity only, after $2k-6k hardware) | Data stays in cluster | 90% of AI tasks |
 | **AWS: Amazon Bedrock** | Claude (Haiku 4.5, Sonnet 4.5, Opus 4.5), Llama, Titan, Jurassic, Command | $0.05-$25+ (includes infrastructure) | AWS ecosystem integrations | Multi-cloud workloads |
 | **Azure: Microsoft Foundry** | Claude (Haiku 4.5, Sonnet 4.5, Opus 4.1), GPT-4/5, Llama, Mistral, Phi | $0.05-$15+ (includes infrastructure) | Microsoft 365 integration | Complex reasoning |
 | **Google: Vertex AI** | Claude (Haiku 4.5, Sonnet 4.5, Opus 4.5), Gemini, GPT, Anthropic, Meta | $0.01-$30+ (varies by model size/context) | Google Cloud services | Large model needs |
@@ -200,7 +200,7 @@ Base token pricing + 15-40% additional overhead:
 - ❌ Data leaves cluster environment
 - ❌ Vendor lock-in risk
 
-## Recommended Architecture for Cloud AI
+## Recommended Architecture for AI
 
 ### Hybrid Approach (90/10 Rule)
 
@@ -328,6 +328,6 @@ spec:
 
 For GitOps infrastructure control plane operations, local quantized models provide the best economics for 90% of use cases. The hybrid architecture combines the cost efficiency of local inference with the power of cloud models when needed.
 
-**Key takeaway**: A small local model (7B-13B) can handle most Cloud AI tasks for under $10/month, while equivalent cloud services cost $200-2000/month.
+**Key takeaway**: A small local model (7B-13B) can handle most AI tasks for under $10/month, while equivalent cloud services cost $200-2000/month.
 
 The economics overwhelmingly favor local inference for operational workloads, with cloud providers' AI services (AWS: Amazon Bedrock, Azure: Microsoft Foundry, GCP: Vertex AI) reserved for complex reasoning tasks that truly require large models.

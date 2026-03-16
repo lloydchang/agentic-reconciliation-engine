@@ -55,8 +55,9 @@ Options:
   --help                  Show this help
 
 Examples:
-  $0                                    # Install all providers
+  $0                                    # Install all cloud providers
   $0 --providers azure,aws             # Install only Azure and AWS
+  $0 --providers local                 # Install Kubernetes provider for local development
   $0 --kubeconfig /path/to/kubeconfig  # Custom kubeconfig
 EOF
       exit 0
@@ -140,7 +141,7 @@ install_providers() {
         install_gcp_provider
         ;;
       local)
-        info "Local provider detected - skipping cloud provider installation"
+        install_kubernetes_provider
         ;;
       *)
         warn "Unknown provider: $provider. Skipping..."
@@ -149,6 +150,39 @@ install_providers() {
   done
   
   pass "Cloud providers installed"
+}
+
+# Install Kubernetes provider for local development
+install_kubernetes_provider() {
+  info "Installing Kubernetes provider for local development..."
+  
+  # Install Kubernetes provider
+  cat <<EOF | kubectl apply -f -
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-kubernetes
+spec:
+  package: "crossplane-contrib/provider-kubernetes:v0.6.0"
+EOF
+  
+  # Wait for provider to be installed
+  info "Waiting for Kubernetes provider to be ready..."
+  kubectl wait --for=condition=Healthy provider/provider-kubernetes -n "$NAMESPACE" --timeout=300s
+  
+  # Create provider config for local cluster access
+  cat <<EOF | kubectl apply -f -
+apiVersion: kubernetes.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: local-cluster
+  namespace: "$NAMESPACE"
+spec:
+  credentials:
+    source: InjectedIdentity
+EOF
+  
+  pass "Kubernetes provider installed for local development"
 }
 
 # Install Azure provider

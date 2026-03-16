@@ -340,9 +340,9 @@ spec:
       labels:
         severity: warning
         service: multi-cloud
-        type: Cloud AI
+        type: AI
       annotations:
-        summary: "Multi-cloud Cloud AI failure rate"
+        summary: "Multi-cloud AI failure rate"
         description: "Multi-cloud AI are failing at rate {{ $value | humanizePercentage }}"
 ---
 apiVersion: v1

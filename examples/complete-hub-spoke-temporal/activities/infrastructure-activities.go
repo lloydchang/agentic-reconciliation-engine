@@ -240,7 +240,7 @@ func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Con
 	}
 
 	if err != nil {
-		logger.Error("Cloud AI operation failed", "error", err)
+		logger.Error("AI operation failed", "error", err)
 		result = CloudAIResult{
 			Provider:      input.Provider,
 			Status:        "failed",
@@ -250,7 +250,7 @@ func (a *InfrastructureActivities) ExecuteCloudOperationActivity(ctx context.Con
 		}
 	} else {
 		result.ExecutionTime = time.Since(startTime)
-		logger.Info("Cloud AI operation completed successfully", 
+		logger.Info("AI operation completed successfully", 
 			"provider", result.Provider,
 			"resourceCount", result.ResourceCount,
 			"executionTime", result.ExecutionTime)

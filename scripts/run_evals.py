@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Cloud AI Agent — Skill Eval Harness
+AI Agent — Skill Eval Harness
 =====================================================
 Tests that each skill:
   1. Has a valid SKILL.md with correct frontmatter
@@ -469,7 +469,7 @@ def print_summary(results: list[EvalResult]) -> int:
 # ── CLI entry point ───────────────────────────────────────────────────────────
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Cloud AI Agent — Skill Eval Runner"
+        description="AI Agent — Skill Eval Runner"
     )
     parser.add_argument(
         "--skills-dir",
