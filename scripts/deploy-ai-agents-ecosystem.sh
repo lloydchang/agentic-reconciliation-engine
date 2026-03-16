@@ -86,32 +86,8 @@ deploy_inference_backend() {
 
 # Build and push AI agent images
 build_agent_images() {
-    if ! command -v docker &> /dev/null; then
-        log_warning "Skipping image building - Docker not available"
-        return
-    fi
-
-    log_info "Building AI agent container images..."
-
-    # Build Rust agent
-    log_info "Building Rust agent image..."
-    cd infrastructure/ai-inference/rust-agent
-    docker build -t cloud-ai-agent-rust:latest .
-    cd ../../../
-
-    # Build Go agent
-    log_info "Building Go agent image..."
-    cd infrastructure/ai-inference/go-agent
-    docker build -t cloud-ai-agent-go:latest .
-    cd ../../../
-
-    # Build Python agent
-    log_info "Building Python agent image..."
-    cd infrastructure/ai-inference/python-agent
-    docker build -t cloud-ai-agent-python:latest .
-    cd ../../../
-
-    log_success "All agent images built"
+    log_info "Skipping image building - will use pre-built images or deploy manifests directly"
+    log_success "Image building skipped"
 }
 
 # Deploy AI agents
