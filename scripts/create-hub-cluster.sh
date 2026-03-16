@@ -356,6 +356,9 @@ EOF
   # Get kubeconfig
   kind get kubeconfig --name "${HUB_CLUSTER_NAME}" > "${HUB_KUBECONFIG}"
   
+  # Rename context to match documentation
+  kubectl config rename-context "kind-${HUB_CLUSTER_NAME}" hub
+  
   pass "Kind hub cluster created"
 }
 

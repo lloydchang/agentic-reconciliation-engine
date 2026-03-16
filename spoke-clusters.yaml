@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spoke-clusters-config
+  namespace: gitops-system
+data:
+  config.yaml: |
+    spoke_clusters:
+      - name: gitops-spoke-local
+        provider: local
+        region: local
+        node_count: 2
+        flux_enabled: true
+        eso_enabled: true
