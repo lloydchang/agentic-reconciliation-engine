@@ -53,5 +53,5 @@ None currently needed - all infrastructure managed by native controllers.
 5. Implement in infrastructure/fallback/ directory
 
 ## See Also
-- **SealedSecrets Documentation**: See `docs/SEALED-SECRETS.md` for comprehensive secret management guide
-- **Secret Management**: See `docs/SECRET-MANAGEMENT.md` for security practices and incident response
+- **SealedSecrets Documentation**: See [docs/SEALED-SECRETS.md](docs/SEALED-SECRETS.md) for comprehensive secret management guide
+- **Secret Management**: See [docs/SECRET-MANAGEMENT.md](docs/SECRET-MANAGEMENT.md) for security practices and incident response

@@ -3,7 +3,7 @@
 Apply in order:
 
 1. Operator inputs
-   - Review `docs/operator-inputs.md`
+   - Review [docs/operator-inputs.md](docs/operator-inputs.md)
    - Update workload identity annotations
    - Update ClusterClass values (region/project/subscription)
    - Configure `control-plane/identity/*`
@@ -26,4 +26,4 @@ Apply in order:
    - Delete a synced secret in a spoke, confirm ESO re‑creates it
 
 6. Hub outage drill (non‑prod)
-   - Follow `control-plane/bootstrap/recovery-procedure.md`
+   - Follow [control-plane/bootstrap/recovery-procedure.md](control-plane/bootstrap/recovery-procedure.md)

@@ -120,4 +120,4 @@ This example demonstrates AI integration on top of the Continuous Reconciliation
 3. **GitOps workflow** ensures all changes are versioned
 4. **Offline operation** maintains security boundaries
 
-See `docs/AI-INTEGRATION-ANALYSIS.md` for detailed integration patterns and security considerations.
+See [docs/AI-INTEGRATION-ANALYSIS.md](docs/AI-INTEGRATION-ANALYSIS.md) for detailed integration patterns and security considerations.
