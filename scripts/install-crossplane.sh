@@ -102,20 +102,33 @@ install_crossplane() {
   info "Installing Crossplane core..."
   
   # Add Crossplane repository
-  helm repo add crossplane https://charts.crossplane.io/stable
-  helm repo update
+  if ! helm repo add crossplane https://charts.crossplane.io/stable; then
+    diagnose_installation_failure "helm repo add" $?
+    return 1
+  fi
+  
+  if ! helm repo update; then
+    diagnose_installation_failure "helm repo update" $?
+    return 1
+  fi
   
   # Install Crossplane
-  helm upgrade --install crossplane crossplane/crossplane \
+  if ! helm upgrade --install crossplane crossplane/crossplane \
     --namespace "$NAMESPACE" \
     --create-namespace \
     --set version="$CROSSPLANE_VERSION" \
     --set args[0]="--enable-environment-configs=true" \
-    --wait
+    --wait; then
+    diagnose_installation_failure "helm install crossplane" $?
+    return 1
+  fi
   
   # Wait for Crossplane to be ready
   info "Waiting for Crossplane to be ready..."
-  kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=crossplane -n "$NAMESPACE" --timeout=300s
+  if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=crossplane -n "$NAMESPACE" --timeout=300s; then
+    diagnose_installation_failure "kubectl wait crossplane pods" $?
+    return 1
+  fi
   
   pass "Crossplane installed"
 }
@@ -408,7 +421,140 @@ EOF
   pass "Sample compositions installed"
 }
 
-# Verify Crossplane installation
+# Diagnose installation failure
+diagnose_installation_failure() {
+  local operation="$1"
+  local exit_code="$2"
+  
+  echo
+  echo -e "${RED}❌ Installation failed during: ${operation}${RESET}"
+  echo -e "${YELLOW}Exit code: ${exit_code}${RESET}"
+  echo
+  
+  # Run network connectivity diagnostic
+  if [[ -f "${SCRIPT_DIR}/network-connectivity-diagnostic.sh" ]]; then
+    echo -e "${CYAN}Running network connectivity diagnostic...${RESET}"
+    "${SCRIPT_DIR}/network-connectivity-diagnostic.sh"
+    echo
+  fi
+  
+  # Analyze specific failure patterns
+  case "$exit_code" in
+    1)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Command execution failure"
+      echo "  • Permission issues"
+      echo "  • Resource not found"
+      ;;
+    2)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Invalid arguments or options"
+      echo "  • Misconfiguration"
+      ;;
+    125)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Command timeout (network connectivity issue)"
+      echo "  • Resource exhaustion"
+      echo "  • Network latency"
+      ;;
+    130)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Script interrupted (Ctrl+C)"
+      echo "  • Process termination"
+      ;;
+    255)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Exit status out of range"
+      echo "  • Signal termination"
+      ;;
+    *)
+      echo -e "${YELLOW}Possible causes:${RESET}"
+      echo "  • Network connectivity issues"
+      echo "  • Service unavailable"
+      echo "  • Authentication/authorization problems"
+      echo "  • Resource constraints"
+      ;;
+  esac
+  
+  # Operation-specific diagnostics
+  echo
+  echo -e "${CYAN}Operation-specific diagnostics:${RESET}"
+  case "$operation" in
+    "helm repo add")
+      echo "  • Check internet connectivity"
+      echo "  • Verify proxy settings: HTTP_PROXY, HTTPS_PROXY"
+      echo "  • Test DNS resolution: nslookup charts.crossplane.io"
+      echo "  • Check firewall rules for HTTPS (port 443)"
+      ;;
+    "helm repo update")
+      echo "  • Repository availability issues"
+      echo "  • Network latency or packet loss"
+      echo "  • Helm cache corruption: Try 'helm repo rm crossplane' and retry"
+      ;;
+    "helm install crossplane")
+      echo "  • Cluster connectivity problems"
+      echo "  • Insufficient cluster resources"
+      echo "  • Namespace creation issues"
+      echo "  • Image pull failures"
+      echo "  • Check: kubectl get nodes, kubectl top nodes"
+      ;;
+    "kubectl wait crossplane pods")
+      echo "  • Pod startup failures"
+      echo "  • Resource constraints (CPU/memory)"
+      echo "  • Image pull issues"
+      echo "  • Configuration errors"
+      echo "  • Check: kubectl get pods -n $NAMESPACE, kubectl describe pods -n $NAMESPACE"
+      ;;
+  esac
+  
+  # Additional debugging commands
+  echo
+  echo -e "${CYAN}Additional debugging commands:${RESET}"
+  echo "  # Check cluster connectivity"
+  echo "  kubectl cluster-info"
+  echo "  kubectl get nodes"
+  echo
+  echo "  # Check Crossplane namespace"
+  echo "  kubectl get namespace $NAMESPACE -o yaml"
+  echo "  kubectl get events -n $NAMESPACE --sort-by=.metadata.creationTimestamp"
+  echo
+  echo "  # Check Helm status"
+  echo "  helm list -n $NAMESPACE"
+  echo "  helm history crossplane -n $NAMESPACE"
+  echo
+  echo "  # Check system resources"
+  echo "  kubectl top nodes"
+  echo "  kubectl top pods --all-namespaces"
+  echo
+  echo "  # Test network connectivity"
+  echo "  curl -I https://charts.crossplane.io/stable"
+  echo "  ping -c 3 charts.crossplane.io"
+  
+  # Recommendations based on common issues
+  echo
+  echo -e "${CYAN}Common solutions:${RESET}"
+  echo "  1. Network issues: Set proxy variables and retry"
+  echo "     export HTTP_PROXY=http://proxy.company.com:8080"
+  echo "     export HTTPS_PROXY=http://proxy.company.com:8080"
+  echo
+  echo "  2. Resource issues: Check cluster capacity"
+  echo "     kubectl describe nodes"
+  echo
+  echo "  3. DNS issues: Restart CoreDNS"
+  echo "     kubectl rollout restart deployment/coredns -n kube-system"
+  echo
+  echo "  4. Helm issues: Clear cache and retry"
+  echo "     helm repo rm crossplane"
+  echo "     helm repo add crossplane https://charts.crossplane.io/stable"
+  echo
+  echo "  5. Permission issues: Check RBAC"
+  echo "     kubectl auth can-i create namespace"
+  echo "     kubectl auth can-i create deployment --namespace=$NAMESPACE"
+  
+  echo
+  echo -e "${RED}Installation failed. Run the diagnostic commands above to identify the root cause.${RESET}"
+  exit "$exit_code"
+}
 verify_installation() {
   info "Verifying Crossplane installation..."
   
