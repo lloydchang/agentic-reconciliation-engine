@@ -69,8 +69,8 @@ function Dashboard() {
     try {
       setLoading(true);
       const [agentsResponse, metricsResponse] = await Promise.all([
-        axios.get('http://localhost:3001/api/agents/detailed'),
-        axios.get('http://localhost:3001/api/metrics/real-time')
+        axios.get('http://localhost:5002/api/agents/detailed'),
+        axios.get('http://localhost:5002/api/metrics/real-time')
       ]);
 
       setAgents(agentsResponse.data);
