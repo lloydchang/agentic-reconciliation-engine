@@ -1,6 +1,7 @@
 # File: remove_age_key_and_reencrypt.sh
 
 set -euo pipefail
+cd $(dirname $0)
 set -x   # optional, only if you want debug output
 
 REPO_URL=git@github.com:lloydchang/gitops-infra-control-plane.git

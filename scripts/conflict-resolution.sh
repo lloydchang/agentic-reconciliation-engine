@@ -4,6 +4,7 @@
 # Handles merge conflicts during bidirectional synchronization
 
 set -euo pipefail
+cd $(dirname $0)
 
 MIRROR_DIR="/tmp/git-mirror/gitops-infra-control-plane.git"
 CONFLICT_LOG="/var/log/git-conflicts.log"

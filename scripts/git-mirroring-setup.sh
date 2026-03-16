@@ -4,6 +4,7 @@
 # Sets up bidirectional synchronization between GitHub, GitLab, and Gitea
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 PRIMARY_REPO="git@github.com:antigravity/gitops-infra-control-plane.git"

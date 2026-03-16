@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+cd $(dirname $0)
 set -x   # optional, only if you want debug output
 
 git add docs/ examples/crossplane-compositions/ examples/eso-workload-identity/

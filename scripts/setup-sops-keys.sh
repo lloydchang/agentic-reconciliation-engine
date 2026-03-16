@@ -4,6 +4,7 @@
 # This script generates age keys and creates the necessary Kubernetes secrets for Flux SOPS decryption
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Colors for output
 RED='\033[0;31m'

@@ -4,6 +4,7 @@
 # Implements geographic distribution and automatic failover
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 PRIMARY_HUB="hub-us-east-1"

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+cd $(dirname $0)
 
 SCHEMA_LOCATION='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 

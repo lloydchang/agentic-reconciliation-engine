@@ -4,6 +4,7 @@
 # Simulates Git outage scenarios and tests recovery procedures
 
 set -euo pipefail
+cd $(dirname $0)
 
 # Configuration
 NAMESPACE="flux-system"
