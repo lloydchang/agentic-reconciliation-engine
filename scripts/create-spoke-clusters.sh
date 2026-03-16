@@ -19,8 +19,8 @@ ensure_wsl_sanity "provision-spoke-clusters.sh" warn info
 # Default configuration
 HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
 SPOKE_CONFIG="${SCRIPT_DIR}/../spoke-clusters.yaml"
-CLOUD_PROVIDER="azure"
-SPOKE_COUNT=2
+CLOUD_PROVIDERS="azure,aws,gcp"  # Multi-cloud by design
+SPOKE_COUNT=3  # One per cloud provider
 SPOKE_PREFIX="gitops-spoke"
 FLUX_ENABLED=true
 ESO_ENABLED=true
@@ -65,16 +65,17 @@ Provision spoke clusters using Cluster API on the hub cluster.
 Options:
   --hub-kubeconfig <path>   Hub cluster kubeconfig (default: ./hub-kubeconfig)
   --config <path>          Spoke clusters configuration file (default: ./spoke-clusters.yaml)
-  --provider <provider>    Cloud provider: azure, aws, gcp (default: azure)
-  --count <number>         Number of spoke clusters (default: 2)
+  --providers <list>       Cloud providers: azure,aws,gcp (default: azure,aws,gcp)
+  --count <number>         Number of spoke clusters (default: 3 - one per provider)
   --prefix <prefix>        Spoke cluster name prefix (default: gitops-spoke)
   --no-flux               Disable Flux installation on spokes
   --no-eso                Disable External Secrets Operator on spokes
   --help                  Show this help
 
 Examples:
-  $0                                    # Create 2 Azure spokes with defaults
-  $0 --count 3 --provider aws          # Create 3 AWS spokes
+  $0                                    # Create 3 spokes (Azure, AWS, GCP) - multi-cloud by design
+  $0 --providers azure,aws              # Create 2 spokes (Azure, AWS)
+  $0 --count 2 --providers azure,gcp    # Create 2 spokes (Azure, GCP)
   $0 --config custom-spokes.yaml       # Use custom configuration
 EOF
       exit 0
@@ -86,7 +87,7 @@ EOF
 done
 
 info "Provisioning spoke clusters"
-info "Cloud provider: ${CLOUD_PROVIDER}"
+info "Cloud providers: ${CLOUD_PROVIDERS}"
 info "Spoke count: ${SPOKE_COUNT}"
 info "Prefix: ${SPOKE_PREFIX}"
 
@@ -113,27 +114,32 @@ validate_prerequisites() {
     fail "Run 'scripts/install-crossplane.sh' first"
   fi
   
-  # Check cloud CLI
-  case "$CLOUD_PROVIDER" in
-    azure)
-      if ! command -v az >/dev/null 2>&1; then
-        fail "Azure CLI not found"
-      fi
-      ;;
-    aws)
-      if ! command -v aws >/dev/null 2>&1; then
-        fail "AWS CLI not found"
-      fi
-      ;;
-    gcp)
-      if ! command -v gcloud >/dev/null 2>&1; then
-        fail "Google Cloud CLI not found"
-      fi
-      ;;
-    *)
-      fail "Unsupported cloud provider: $CLOUD_PROVIDER"
-      ;;
-  esac
+  # Check cloud CLI tools for all providers
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    
+    case "$provider" in
+      azure)
+        if ! command -v az >/dev/null 2>&1; then
+          fail "Azure CLI not found"
+        fi
+        ;;
+      aws)
+        if ! command -v aws >/dev/null 2>&1; then
+          fail "AWS CLI not found"
+        fi
+        ;;
+      gcp)
+        if ! command -v gcloud >/dev/null 2>&1; then
+          fail "Google Cloud CLI not found"
+        fi
+        ;;
+      *)
+        warn "Unknown provider: $provider. Skipping..."
+        ;;
+    esac
+  done
   
   pass "Prerequisites validated"
 }
@@ -153,35 +159,39 @@ data:
     spoke_clusters:
 EOF
 
-  # Add spoke cluster configurations
-  for i in $(seq 1 "$SPOKE_COUNT"); do
-    local spoke_name="${SPOKE_PREFIX}-${i}"
+  # Add spoke cluster configurations - one per provider
+  local provider_index=0
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    provider_index=$((provider_index + 1))
+    
+    if [[ $provider_index -gt $SPOKE_COUNT ]]; then
+      break
+    fi
+    
+    local spoke_name="${SPOKE_PREFIX}-${provider}"
     local spoke_region
     
-    case "$CLOUD_PROVIDER" in
+    case "$provider" in
       azure)
         spoke_region="eastus"
-        if [[ $i -gt 1 ]]; then
-          spoke_region="westus2"
-        fi
         ;;
       aws)
         spoke_region="us-east-1"
-        if [[ $i -gt 1 ]]; then
-          spoke_region="us-west-2"
-        fi
         ;;
       gcp)
         spoke_region="us-central1"
-        if [[ $i -gt 1 ]]; then
-          spoke_region="us-east1"
-        fi
+        ;;
+      *)
+        warn "Skipping unknown provider: $provider"
+        continue
         ;;
     esac
     
     cat >> "$SPOKE_CONFIG" <<EOF
       - name: ${spoke_name}
-        provider: ${CLOUD_PROVIDER}
+        provider: ${provider}
         region: ${spoke_region}
         node_count: 2
         flux_enabled: ${FLUX_ENABLED}
@@ -207,18 +217,26 @@ install_cluster_api() {
     kubectl wait --for=condition=Available deployment/capi-controller-manager -n cluster-api-system --timeout=300s
   fi
   
-  # Install provider based on cloud
-  case "$CLOUD_PROVIDER" in
-    azure)
-      install_capi_azure
-      ;;
-    aws)
-      install_capi_aws
-      ;;
-    gcp)
-      install_capi_gcp
-      ;;
-  esac
+  # Install all required Cluster API providers
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    
+    case "$provider" in
+      azure)
+        install_capi_azure
+        ;;
+      aws)
+        install_capi_aws
+        ;;
+      gcp)
+        install_capi_gcp
+        ;;
+      *)
+        warn "Unknown provider: $provider. Skipping..."
+        ;;
+    esac
+  done
   
   pass "Cluster API providers installed"
 }
@@ -261,11 +279,19 @@ install_capi_gcp() {
 
 # Create spoke clusters
 create_spoke_clusters() {
-  info "Creating spoke clusters..."
-  
-  for i in $(seq 1 "$SPOKE_COUNT"); do
-    local spoke_name="${SPOKE_PREFIX}-${i}"
-    create_single_spoke "$spoke_name" "$i"
+  info "Create spoke clusters - one per cloud provider"
+  local provider_index=0
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    provider_index=$((provider_index + 1))
+    
+    if [[ $provider_index -gt $SPOKE_COUNT ]]; then
+      break
+    fi
+    
+    local spoke_name="${SPOKE_PREFIX}-${provider}"
+    create_single_spoke "$spoke_name" "$provider"
   done
   
   pass "Spoke clusters creation initiated"
@@ -274,19 +300,22 @@ create_spoke_clusters() {
 # Create individual spoke cluster
 create_single_spoke() {
   local spoke_name="$1"
-  local spoke_index="$2"
+  local provider="$2"
   
-  info "Creating spoke cluster: $spoke_name"
+  info "Creating spoke cluster: $spoke_name (provider: $provider)"
   
-  case "$CLOUD_PROVIDER" in
+  case "$provider" in
     azure)
-      create_azure_spoke "$spoke_name" "$spoke_index"
+      create_azure_spoke "$spoke_name"
       ;;
     aws)
-      create_aws_spoke "$spoke_name" "$spoke_index"
+      create_aws_spoke "$spoke_name"
       ;;
     gcp)
-      create_gcp_spoke "$spoke_name" "$spoke_index"
+      create_gcp_spoke "$spoke_name"
+      ;;
+    *)
+      warn "Unknown provider: $provider. Skipping..."
       ;;
   esac
 }
@@ -294,13 +323,9 @@ create_single_spoke() {
 # Create Azure spoke cluster
 create_azure_spoke() {
   local spoke_name="$1"
-  local spoke_index="$2"
   
   local resource_group="gitops-spokes-rg"
   local location="eastus"
-  if [[ $spoke_index -gt 1 ]]; then
-    location="westus2"
-  fi
   
   # Create resource group if needed
   if ! az group show --name "$resource_group" >/dev/null 2>&1; then
@@ -321,14 +346,14 @@ spec:
     vnet:
       name: ${spoke_name}-vnet
       cidrBlocks:
-      - 10.${spoke_index}.0.0/16
+      - 10.0.0.0/16
     subnets:
     - name: ${spoke_name}-node-subnet
       cidrBlocks:
-      - 10.${spoke_index}.1.0/24
+      - 10.0.1.0/24
     - name: ${spoke_name}-lb-subnet
       cidrBlocks:
-      - 10.${spoke_index}.2.0/24
+      - 10.0.2.0/24
   controlPlaneEndpoint:
     host: ""
     port: 6443
@@ -342,10 +367,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.${spoke_index}.0/16
+      - 192.168.1.0/16
     services:
       cidrBlocks:
-      - 10.96.${spoke_index}.0/12
+      - 10.96.1.0/12
     serviceDomain: service.${spoke_name}.local
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -404,12 +429,8 @@ EOF
 # Create AWS spoke cluster
 create_aws_spoke() {
   local spoke_name="$1"
-  local spoke_index="$2"
   
   local region="us-east-1"
-  if [[ $spoke_index -gt 1 ]]; then
-    region="us-west-2"
-  fi
   
   # Create AWSCluster manifest
   cat <<EOF | kubectl apply -f -
@@ -422,7 +443,7 @@ spec:
   region: ${region}
   network:
     vpc:
-      cidrBlock: 10.${spoke_index}.0.0/16
+      cidrBlock: 10.1.0.0/16
   controlPlaneLoadBalancer:
     loadBalancerType: "public"
   sshKeyName: gitops-spoke-${spoke_name}
@@ -436,10 +457,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.${spoke_index}.0/16
+      - 192.168.2.0/16
     services:
       cidrBlocks:
-      - 10.96.${spoke_index}.0/12
+      - 10.96.2.0/12
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
     kind: AWSCluster
@@ -492,12 +513,8 @@ EOF
 # Create GCP spoke cluster
 create_gcp_spoke() {
   local spoke_name="$1"
-  local spoke_index="$2"
   
   local region="us-central1"
-  if [[ $spoke_index -gt 1 ]]; then
-    region="us-east1"
-  fi
   
   # Create GCPCluster manifest
   cat <<EOF | kubectl apply -f -
@@ -522,10 +539,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.${spoke_index}.0/16
+      - 192.168.3.0/16
     services:
       cidrBlocks:
-      - 10.96.${spoke_index}.0/12
+      - 10.96.3.0/12
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: GCPCluster
@@ -664,9 +681,18 @@ monitor_spoke_creation() {
   
   while [[ $total_wait -lt $max_wait ]]; do
     local ready_count=0
+    local provider_index=0
+    IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
     
-    for i in $(seq 1 "$SPOKE_COUNT"); do
-      local spoke_name="${SPOKE_PREFIX}-${i}"
+    for provider in "${PROVIDERS[@]}"; do
+      provider=$(echo "$provider" | xargs)  # trim whitespace
+      provider_index=$((provider_index + 1))
+      
+      if [[ $provider_index -gt $SPOKE_COUNT ]]; then
+        break
+      fi
+      
+      local spoke_name="${SPOKE_PREFIX}-${provider}"
       
       if kubectl get cluster "$spoke_name" -n gitops-system -o jsonpath='{.status.phase}' 2>/dev/null | grep -q "Provisioned"; then
         ready_count=$((ready_count + 1))
@@ -690,8 +716,18 @@ monitor_spoke_creation() {
 verify_spoke_clusters() {
   info "Verifying spoke clusters..."
   
-  for i in $(seq 1 "$SPOKE_COUNT"); do
-    local spoke_name="${SPOKE_PREFIX}-${i}"
+  local provider_index=0
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    provider_index=$((provider_index + 1))
+    
+    if [[ $provider_index -gt $SPOKE_COUNT ]]; then
+      break
+    fi
+    
+    local spoke_name="${SPOKE_PREFIX}-${provider}"
     
     if ! kubectl get cluster "$spoke_name" -n gitops-system >/dev/null 2>&1; then
       fail "Spoke cluster $spoke_name not found"
@@ -699,7 +735,7 @@ verify_spoke_clusters() {
     
     local phase
     phase=$(kubectl get cluster "$spoke_name" -n gitops-system -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
-    info "Spoke $spoke_name status: $phase"
+    info "Spoke $spoke_name ($provider) status: $phase"
   done
   
   pass "Spoke clusters verified"
@@ -710,13 +746,28 @@ show_provisioning_info() {
   echo
   echo -e "${BOLD}Spoke Clusters Provisioning Information${RESET}"
   echo "=========================================="
-  echo "Cloud Provider: $CLOUD_PROVIDER"
+  echo "Cloud Providers: $CLOUD_PROVIDERS"
   echo "Spoke Count: $SPOKE_COUNT"
   echo "Prefix: $SPOKE_PREFIX"
   echo "Hub Kubeconfig: $HUB_KUBECONFIG"
   echo "Config File: $SPOKE_CONFIG"
   echo "Flux Enabled: $FLUX_ENABLED"
   echo "ESO Enabled: $ESO_ENABLED"
+  echo
+  echo "Multi-cloud spoke clusters:"
+  local provider_index=0
+  IFS=',' read -ra PROVIDERS <<< "$CLOUD_PROVIDERS"
+  for provider in "${PROVIDERS[@]}"; do
+    provider=$(echo "$provider" | xargs)  # trim whitespace
+    provider_index=$((provider_index + 1))
+    
+    if [[ $provider_index -gt $SPOKE_COUNT ]]; then
+      break
+    fi
+    
+    local spoke_name="${SPOKE_PREFIX}-${provider}"
+    echo "  - $spoke_name ($provider)"
+  done
   echo
   echo "To check spoke cluster status:"
   echo "  export KUBECONFIG=$HUB_KUBECONFIG"
