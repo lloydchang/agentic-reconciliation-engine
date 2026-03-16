@@ -1610,7 +1610,7 @@ spec:
 #### Phase 2: Advanced Features (3-6 months)
 
 1. **Multi-Cloud Consensus**
-   - Cross-cloud agent communication
+   - Cross-agent communication
    - AI-specific consensus rules
    - Global state synchronization
 
@@ -4756,7 +4756,7 @@ spec:
 
 #### Phase 2: Advanced Features
 
-1. **Multi-Cloud Consensus**: Cross-cloud agent communication
+1. **Multi-Cloud Consensus**: Cross-agent communication
 2. **Emergent Behavior**: Learning algorithms for pattern recognition
 3. **Dynamic Specialization**: Agents adapt based on environment
 
@@ -5666,7 +5666,7 @@ spec:
 
 **Repository Multi-Cloud Consensus** (`examples/complete-hub-spoke/agent-orchestration-demo.md`):
 
-- Cross-cloud agent communication
+- Cross-agent communication
 - Distributed consensus across cloud boundaries
 - Multi-cloud coordination for critical changes
 

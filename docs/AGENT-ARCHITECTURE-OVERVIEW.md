@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Cloud Agents ecosystem is a comprehensive, distributed system designed to provide intelligent automation and orchestration capabilities for cloud infrastructure operations. This document provides a high-level architectural overview of the entire system.
+The Agents ecosystem is a comprehensive, distributed system designed to provide intelligent automation and orchestration capabilities for cloud infrastructure operations. This document provides a high-level architectural overview of the entire system.
 
 ## System Architecture
 

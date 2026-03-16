@@ -2703,7 +2703,7 @@ Enterprise features Limited RBAC, observability, governance
 Integration Requires external code Built‑in connectors and orchestration guidance
 How these agents fit into workflows
 
-These cloud agent platforms provide richer, autonomous behavior than raw LLM calls — they plan, act, and adapt with tools and memory.
+These agent platforms provide richer, autonomous behavior than raw LLM calls — they plan, act, and adapt with tools and memory.
 
 They do not replace workflow orchestrators like Temporal; instead they can be used as execution engines within workflows. Temporal can still manage durable execution, retries, idempotency, and human‑in‑the‑loop steps while agents handle the non‑deterministic reasoning or task execution portions.
 
@@ -2768,7 +2768,7 @@ Execution Flow:
 
 Workflow function emits a task to Temporal.
 
-A worker picks up the task and makes an API call to the cloud agent (Bedrock, Foundry, Gemini).
+A worker picks up the task and makes an API call to the agent (Bedrock, Foundry, Gemini).
 
 The agent runs autonomously, plans steps, calls tools/APIs, and returns results.
 
@@ -4447,7 +4447,7 @@ Agent Orchestration Layer Yes Fully local if linked to local models
 Local Model Backends Yes Ollama / GPT4All etc.
 Emulator Workers Yes Local cloud API simulations
 Human Review UI Yes Backstage/Local interface
-Cloud Agent SDKs No OpenAI/Foundry/Gemini require internet
+Agent SDKs No OpenAI/Foundry/Gemini require internet
 2. Protocols & Interactions
 
 Agent‑to‑Agent Protocols (Local)
