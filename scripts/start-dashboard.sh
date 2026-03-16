@@ -13,7 +13,7 @@ KUBECTL_CMD="kubectl"
 export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
 
 # Switch to hub context
-$KUBECTL_CMD config use-context kind-gitops-hub &> /dev/null || echo "Could not switch to hub context"
+$KUBECTL_CMD config use-context hub &> /dev/null || echo "Could not switch to hub context"
 
 # Kill any existing port-forwards
 pkill -f "$KUBECTL_CMD port-forward.*agent-dashboard" 2>/dev/null || true
