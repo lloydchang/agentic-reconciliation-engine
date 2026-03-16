@@ -6,13 +6,25 @@ networking:
   serviceSubnet: "10.255.0.0/16"
 nodes:
 - role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
   extraPortMappings:
-  - containerPort: 8080
+  - containerPort: 80
     hostPort: 8080
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 8443
     protocol: TCP
   - containerPort: 7233
     hostPort: 7233
     protocol: TCP
   - containerPort: 3000
     hostPort: 3000
+    protocol: TCP
+  - containerPort: 13000
+    hostPort: 13000
     protocol: TCP
