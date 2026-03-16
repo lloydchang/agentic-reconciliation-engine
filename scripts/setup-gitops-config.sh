@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Helper to drive a fully automated, zero-touch local run using the migration wizard.
+# Helper to drive a fully automated local configuration setup using the migration wizard.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,12 +31,12 @@ SUMMARY_FILE="$LOG_DIR/summary-$(date -u +"%Y%m%dT%H%M%SZ").json"
 timestamp() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 usage() {
   cat <<USAGE
-Usage: $SCRIPT_NAME [options]
+Usage: setup-gitops-config.sh [options]
 
-A zero-touch automation script that:
+A local configuration setup script that:
 1. Runs prerequisites.sh to validate prerequisites
-2. Invokes the migration wizard to apply overlays and configure GitOps
-3. Generates a summary report with logs
+2. Invokes the migration wizard to configure GitOps overlays
+3. Generates configuration files and summary logs
 
 The cloud provider is automatically determined from:
 - The connector (azure-devops→azure, github→aws, gitlab→gcp)
@@ -62,14 +62,14 @@ Example:
   export AZURE_DEVOPS_TOKEN="your-token"
   export AZURE_DEVOPS_ORG="your-org" 
   export AZURE_DEVOPS_PROJECT="your-project"
-  $SCRIPT_NAME --connector azure-devops --repo-url https://dev.azure.com/your-org/your-project/_git/your-repo
+  setup-gitops-config.sh --connector azure-devops --repo-url https://dev.azure.com/your-org/your-project/_git/your-repo
 
   # For GitHub with AWS
   export GITHUB_ENTERPRISE_TOKEN="your-token"
-  $SCRIPT_NAME --connector github-enterprise-cloud --repo-url https://github.com/your-org/your-repo
+  setup-gitops-config.sh --connector github-enterprise-cloud --repo-url https://github.com/your-org/your-repo
 
   # For local development
-  $SCRIPT_NAME --connector local --emulator-action enable
+  setup-gitops-config.sh --connector local --emulator-action enable
 USAGE
 }
 
