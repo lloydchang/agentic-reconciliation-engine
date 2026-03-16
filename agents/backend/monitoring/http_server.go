@@ -222,7 +222,7 @@ func (hms *HTTPMetricsServer) buildAgentInfo(metrics map[string]*Metric) []Agent
 		skills           []string
 		defaultActivity  string
 	}{
-		"memory-agent-rust": {
+		"agent-memory-rust": {
 			language:        "Rust",
 			skills:          []string{"memory-consolidation", "context-retention", "inference-caching", "data-persistence"},
 			defaultActivity: "Processing memory consolidation for active workflows",
