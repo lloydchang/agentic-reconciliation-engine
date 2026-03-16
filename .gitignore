@@ -615,3 +615,6 @@ __marimo__/
 
 # Python compiled files
 *.pyc
+workspace/
+azure/
+logs/
