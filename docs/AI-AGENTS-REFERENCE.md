@@ -412,7 +412,7 @@ GET /api/agents/status
   "agents": [
     {
       "id": "agent-1",
-      "name": "memory-agent-rust",
+      "name": "agent-memory-rust",
       "type": "rust",
       "status": "running",
       "last_activity": "2024-03-15T10:29:30Z",
@@ -498,7 +498,7 @@ Temporal Environment Variables:
 
 #### Memory Agent Config
 ```yaml
-# config/memory-agent.yaml
+# config/agent-memory.yaml
 server:
   host: "0.0.0.0"
   port: 8080
@@ -529,7 +529,7 @@ logging:
   level: "info"
   format: "json"
   output: "stdout"
-  file_path: "/var/log/memory-agent.log"
+  file_path: "/var/log/agent-memory.log"
 
 metrics:
   enabled: true
@@ -601,10 +601,10 @@ skills:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
   labels:
-    component: memory-agent
+    component: agent-memory
     language: rust
     version: v1.0.0
 spec:
@@ -616,12 +616,12 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     metadata:
       labels:
-        component: memory-agent
+        component: agent-memory
         language: rust
         version: v1.0.0
       annotations:
@@ -664,8 +664,8 @@ spec:
             drop:
             - ALL
       containers:
-      - name: memory-agent
-        image: memory-agent-rust:v1.0.0
+      - name: agent-memory
+        image: agent-memory-rust:v1.0.0
         ports:
         - containerPort: 8080
           name: http
@@ -733,10 +733,10 @@ spec:
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
-          claimName: memory-agent-pvc
+          claimName: agent-memory-pvc
       - name: config
         configMap:
-          name: memory-agent-config
+          name: agent-memory-config
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
@@ -760,7 +760,7 @@ kubectl describe node <node-name> | grep -A 10 "Allocated resources"
 
 # Check PVC status
 kubectl get pvc -n ai-infrastructure
-kubectl describe pvc memory-agent-pvc -n ai-infrastructure
+kubectl describe pvc agent-memory-pvc -n ai-infrastructure
 ```
 
 #### Database Issues
@@ -810,7 +810,7 @@ kubectl get endpoints -n ai-infrastructure
 
 # Test service connectivity
 kubectl run test-pod --image=busybox --rm -it -- \
-  wget -qO- http://memory-agent-service.ai-infrastructure.svc.cluster.local:8080/health
+  wget -qO- http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/health
 ```
 
 ### Debug Commands
@@ -818,10 +818,10 @@ kubectl run test-pod --image=busybox --rm -it -- \
 #### Memory Agent Debug
 ```bash
 # Enable debug logging
-kubectl set env deployment/memory-agent-rust LOG_LEVEL=debug -n ai-infrastructure
+kubectl set env deployment/agent-memory-rust LOG_LEVEL=debug -n ai-infrastructure
 
 # Restart with debug mode
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 
 # Access debug shell
 kubectl exec -it <pod-name> -n ai-infrastructure -- /bin/sh
@@ -894,12 +894,12 @@ resources:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: memory-agent-hpa
+  name: agent-memory-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: memory-agent-rust
+    name: agent-memory-rust
   minReplicas: 2
   maxReplicas: 10
   metrics:
@@ -935,31 +935,31 @@ cd infrastructure/ai-inference/rust-agent
 cargo build --release
 
 # Build Docker image
-docker build -t memory-agent-rust:dev .
+docker build -t agent-memory-rust:dev .
 
 # Load image into kind
-kind load docker-image memory-agent-rust:dev --name ai-agents-dev
+kind load docker-image agent-memory-rust:dev --name ai-agents-dev
 
 # Deploy for development
 kubectl apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust-dev
+  name: agent-memory-rust-dev
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: memory-agent-rust-dev
+      app: agent-memory-rust-dev
   template:
     metadata:
       labels:
-        app: memory-agent-rust-dev
+        app: agent-memory-rust-dev
     spec:
       containers:
-      - name: memory-agent
-        image: memory-agent-rust:dev
+      - name: agent-memory
+        image: agent-memory-rust:dev
         ports:
         - containerPort: 8080
         env:
