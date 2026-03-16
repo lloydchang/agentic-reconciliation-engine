@@ -1,0 +1,18 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  # Use custom subnet to avoid conflicts with VPNs/local networks
+  podSubnet: "10.254.0.0/16"
+  serviceSubnet: "10.255.0.0/16"
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 8080
+    hostPort: 8080
+    protocol: TCP
+  - containerPort: 7233
+    hostPort: 7233
+    protocol: TCP
+  - containerPort: 3000
+    hostPort: 3000
+    protocol: TCP
