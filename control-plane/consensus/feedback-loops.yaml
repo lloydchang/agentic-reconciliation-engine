@@ -110,7 +110,7 @@ spec:
           serviceAccountName: consensus-agent-sa
           containers:
           - name: feedback-loop
-            image: lloydchang/ai-agents-sandbox:latest
+            image: lloydchang/gitops-infra-control-plane:latest
             command:
             - bash
             - -c

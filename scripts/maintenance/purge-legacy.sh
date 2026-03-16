@@ -3,7 +3,7 @@
 set -xe
 
 # The specific module we want to eradicate
-TARGET="github.com/lloydchang/ai-agents-sandbox"
+TARGET="github.com/lloydchang/gitops-infra-control-plane"
 
 echo "☢️ Purging legacy imports from $TARGET..."
 

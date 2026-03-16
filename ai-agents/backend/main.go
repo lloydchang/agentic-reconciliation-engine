@@ -1352,7 +1352,7 @@ func main() {
 				"apiVersion": "backstage.io/v1alpha1",
 				"kind":       "Component",
 				"metadata": map[string]interface{}{
-					"name":        "ai-agents-sandbox-backend",
+					"name":        "gitops-infra-control-plane-backend",
 					"description": "Temporal AI Agents Backend",
 					"annotations": map[string]string{
 						"backstage.io/managed-by-location": "url:http://localhost:8081/catalog-info.yaml",
@@ -1368,7 +1368,7 @@ func main() {
 				"apiVersion": "backstage.io/v1alpha1",
 				"kind":       "Component",
 				"metadata": map[string]interface{}{
-					"name":        "ai-agents-sandbox-frontend",
+					"name":        "gitops-infra-control-plane-frontend",
 					"description": "Temporal AI Agents Frontend",
 				},
 				"spec": map[string]interface{}{
