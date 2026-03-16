@@ -27,7 +27,7 @@ $KUBECTL_CMD port-forward svc/dashboard-api-service 5000:5000 -n ai-infrastructu
 API_PID=$!
 
 echo "✅ Dashboard: http://localhost:8888/"
-echo "✅ API: http://localhost:5000/api/cluster-status"
+echo "✅ API: http://localhost:5000/api/cluster-status.json"
 echo ""
 echo "Port-forwards are running in background (PIDs: $DASHBOARD_PID, $API_PID)"
 echo "To stop: kill $DASHBOARD_PID $API_PID"
