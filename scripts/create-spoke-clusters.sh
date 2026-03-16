@@ -19,8 +19,8 @@ ensure_wsl_sanity "provision-spoke-clusters.sh" warn info
 # Default configuration
 HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
 SPOKE_CONFIG="${SCRIPT_DIR}/../spoke-clusters.yaml"
-CLOUD_PROVIDERS="azure"  # Simple: start with one provider
-SPOKE_COUNT=1  # Simple: one spoke at a time
+CLOUD_PROVIDERS="local"  # MVP: use local emulation
+SPOKE_COUNT=1  # MVP: one spoke at a time
 SPOKE_PREFIX="gitops-spoke"
 FLUX_ENABLED=true
 ESO_ENABLED=true
@@ -65,18 +65,19 @@ Provision spoke clusters using Cluster API on the hub cluster.
 Options:
   --hub-kubeconfig <path>   Hub cluster kubeconfig (default: ./hub-kubeconfig)
   --config <path>          Spoke clusters configuration file (default: ./spoke-clusters.yaml)
-  --providers <list>       Cloud providers: azure,aws,gcp (default: azure)
-  --count <number>         Number of spoke clusters (default: 1 - simple start)
+  --providers <list>       Cloud providers: local,azure,aws,gcp (default: local - MVP emulation)
+  --count <number>         Number of spoke clusters (default: 1 - MVP start)
   --prefix <prefix>        Spoke cluster name prefix (default: gitops-spoke)
   --no-flux               Disable Flux installation on spokes
   --no-eso                Disable External Secrets Operator on spokes
   --help                  Show this help
 
 Examples:
-  $0                                    # Create 1 Azure spoke (simple start)
-  $0 --providers azure,aws              # Create 2 spokes (Azure, AWS)
-  $0 --providers azure,aws,gcp          # Create 3 spokes (full multi-cloud)
-  $0 --count 2 --providers azure,gcp    # Create 2 spokes (Azure, GCP)
+  $0                                    # Create 1 local spoke (MVP - no cloud costs)
+  $0 --providers azure                  # Create 1 Azure spoke (real cloud)
+  $0 --providers local,azure            # Create local + Azure spoke (hybrid)
+  $0 --providers azure,aws              # Create 2 real cloud spokes
+  $0 --providers azure,aws,gcp          # Create 3 real cloud spokes (full multi-cloud)
   $0 --config custom-spokes.yaml       # Use custom configuration
 EOF
       exit 0
@@ -121,6 +122,10 @@ validate_prerequisites() {
     provider=$(echo "$provider" | xargs)  # trim whitespace
     
     case "$provider" in
+      local)
+        # Local emulation doesn't require cloud CLI
+        pass "Local provider - no cloud CLI needed"
+        ;;
       azure)
         if ! command -v az >/dev/null 2>&1; then
           fail "Azure CLI not found"
@@ -175,6 +180,9 @@ EOF
     local spoke_region
     
     case "$provider" in
+      local)
+        spoke_region="local"
+        ;;
       azure)
         spoke_region="eastus"
         ;;
@@ -224,6 +232,9 @@ install_cluster_api() {
     provider=$(echo "$provider" | xargs)  # trim whitespace
     
     case "$provider" in
+      local)
+        info "Local provider - using kind/k3s, no CAPI needed"
+        ;;
       azure)
         install_capi_azure
         ;;
@@ -278,6 +289,102 @@ install_capi_gcp() {
   pass "CAPG installed"
 }
 
+# Create local spoke cluster (MVP emulation)
+create_local_spoke() {
+  local spoke_name="$1"
+  
+  info "Creating local spoke cluster: $spoke_name (using kind for MVP emulation)"
+  
+  # Check if kind is available
+  if ! command -v kind >/dev/null 2>&1; then
+    fail "kind not found. Install from https://kind.sigs.k8s.io/ for local emulation"
+  fi
+  
+  # Create kind cluster config
+  cat > "/tmp/${spoke_name}-kind-config.yaml" <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: "gitops-role=spoke,gitops-provider=local"
+    extraPortMappings:
+    - containerPort: 80
+      hostPort: 8081
+    - containerPort: 443
+      hostPort: 8444
+  - role: worker
+    kubeadmConfigPatches:
+    - |
+      kind: JoinConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: "gitops-role=spoke,gitops-provider=local"
+EOF
+
+  # Delete existing cluster if it exists
+  if kind get clusters | grep -q "^${spoke_name}$"; then
+    info "Deleting existing local cluster: $spoke_name"
+    kind delete cluster --name "$spoke_name"
+  fi
+
+  # Create kind cluster
+  info "Creating local kind cluster: $spoke_name"
+  kind create cluster --name "$spoke_name" --config "/tmp/${spoke_name}-kind-config.yaml"
+  
+  # Get kubeconfig
+  local spoke_kubeconfig="${SCRIPT_DIR}/../${spoke_name}-kubeconfig"
+  kind get kubeconfig --name "$spoke_name" > "$spoke_kubeconfig"
+  
+  # Create a simple Cluster API representation for local cluster
+  cat <<EOF | kubectl apply -f -
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: ${spoke_name}
+  namespace: gitops-system
+  labels:
+    gitops-provider: local
+    gitops-emulation: "true"
+spec:
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: GenericCluster
+    name: ${spoke_name}-infra
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: GenericCluster
+metadata:
+  name: ${spoke_name}-infra
+  namespace: gitops-system
+  labels:
+    gitops-provider: local
+    gitops-emulation: "true"
+spec:
+  kubeconfigRef:
+    name: ${spoke_name}-kubeconfig
+    namespace: gitops-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${spoke_name}-kubeconfig
+  namespace: gitops-system
+  labels:
+    gitops-provider: local
+    gitops-emulation: "true"
+type: Opaque
+data:
+  kubeconfig: $(base64 -i "$spoke_kubeconfig")
+EOF
+
+  pass "Local spoke cluster created: $spoke_name"
+}
+
 # Create spoke clusters
 create_spoke_clusters() {
   info "Create spoke clusters - one per cloud provider"
@@ -306,6 +413,9 @@ create_single_spoke() {
   info "Creating spoke cluster: $spoke_name (provider: $provider)"
   
   case "$provider" in
+    local)
+      create_local_spoke "$spoke_name"
+      ;;
     azure)
       create_azure_spoke "$spoke_name"
       ;;
@@ -770,10 +880,16 @@ show_provisioning_info() {
     echo "  - $spoke_name ($provider)"
   done
   echo
-  echo "Progressive deployment:"
-  echo "  1. Start with 1 spoke: $0"
-  echo "  2. Add more spokes: $0 --providers azure,aws"
-  echo "  3. Full multi-cloud: $0 --providers azure,aws,gcp"
+  echo "Progressive deployment (MVP-first):"
+  echo "  1. MVP (no cloud costs): $0"
+  echo "  2. Hybrid (local + cloud): $0 --providers local,azure"
+  echo "  3. Production (multi-cloud): $0 --providers azure,aws,gcp"
+  echo
+  echo "MVP Benefits:"
+  echo "  No cloud provider setup required"
+  echo "  No cloud costs or credentials needed"
+  echo "  Fast local development and testing"
+  echo "  Full GitOps workflow validation"
   echo
   echo "To check spoke cluster status:"
   echo "  export KUBECONFIG=$HUB_KUBECONFIG"
