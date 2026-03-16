@@ -15,8 +15,8 @@ START_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 CONNECTOR_DEFAULT="github"
 OVERLAY_DEFAULT=("./bootstrap" "./hub" "./emulator-azure" "./spoke-local")
 EMULATOR_ACTION_DEFAULT="enable"
-HELPERS_DEFAULT=("scripts/enable-cloud.sh" "scripts/export-argocd-state.sh")
-CI_GATE_COMMAND="./scripts/local-ci-gate.sh"
+HELPERS_DEFAULT=("enable-cloud.sh" "export-argocd-state.sh")
+CI_GATE_COMMAND="./local-ci-gate.sh"
 # Add required repo URL - for local development, use current directory
 REPO_URL_DEFAULT="file://$(pwd)"
 
@@ -119,8 +119,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 run_bootstrap() {
-  echo "$(timestamp) - Running scripts/prerequisites.sh" | tee "$LOG_DIR/prerequisites.sh.log"
-  scripts/prerequisites.sh 2>&1 | tee -a "$LOG_DIR/prerequisites.sh.log"
+  echo "$(timestamp) - Running prerequisites.sh" | tee "$LOG_DIR/prerequisites.sh.log"
+  ./prerequisites.sh 2>&1 | tee -a "$LOG_DIR/prerequisites.sh.log"
 }
 
 # Determine the provider from connector or overlay order
@@ -148,7 +148,7 @@ get_provider() {
 
 run_wizard() {
   local provider=$(get_provider)
-  local command=("python" "scripts/migration_wizard.py" "--repo-url" "$REPO_URL")
+  local command=("python" "migration_wizard.py" "--repo-url" "$REPO_URL")
   command+=("--connector" "$CONNECTOR")
   command+=("--provider" "$provider")
   command+=("--overlay-order" "${OVERLAY_ORDER[@]}")
