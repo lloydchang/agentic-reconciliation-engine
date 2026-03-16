@@ -92,15 +92,100 @@ build_agent_images() {
 
 # Deploy AI agents
 deploy_ai_agents() {
-    log_info "Deploying AI memory agents..."
+    log_info "Deploying AI memory agents with placeholder images..."
     
-    # Apply memory agent deployment with namespace fix
-    sed 's/namespace: ai-inference/namespace: ai-infrastructure/g' infrastructure/ai-inference/shared/memory-agent-deployment.yaml | $KUBECTL_CMD apply -f -
+    # Create PVC with correct storage class first
+    cat <<EOF | $KUBECTL_CMD apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: memory-agent-pvc
+  namespace: $NAMESPACE
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+EOF
+    
+    # Create a simple placeholder deployment for now
+    cat <<EOF | $KUBECTL_CMD apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-agent-rust
+  namespace: $NAMESPACE
+  labels:
+    component: memory-agent
+    language: rust
+    backend: llama-cpp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: memory-agent
+      language: rust
+  template:
+    metadata:
+      labels:
+        component: memory-agent
+        language: rust
+        backend: llama-cpp
+    spec:
+      initContainers:
+      - name: init-memory-db
+        image: alpine:latest
+        command: ["sh", "-c"]
+        args:
+        - |
+          if [ ! -f /data/memory.db ]; then
+            echo "Initializing empty memory.db"
+            touch /data/memory.db
+          else
+            echo "Using existing memory.db"
+          fi
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+      containers:
+      - name: memory-agent
+        image: nginx:alpine  # Placeholder image
+        ports:
+        - containerPort: 80
+        env:
+        - name: DATABASE_PATH
+          value: "/data/memory.db"
+        - name: INBOX_PATH
+          value: "/data/inbox"
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: memory-storage
+        persistentVolumeClaim:
+          claimName: memory-agent-pvc
+EOF
     
     # Wait for memory agent deployment
     $KUBECTL_CMD wait --for=condition=available --timeout=120s deployment/memory-agent-rust -n $NAMESPACE
     
-    log_success "AI memory agents deployed"
+    log_success "AI memory agents deployed (with placeholder images)"
 }
 
 # Deploy AI inference gateway
