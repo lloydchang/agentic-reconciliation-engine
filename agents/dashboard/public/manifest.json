@@ -1,6 +1,6 @@
 {
-  "short_name": "AI Dashboard",
-  "name": "Cloud AI Agents Dashboard",
+  "short_name": "Agent Dashboard",
+  "name": "Agent Dashboard",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#1976d2",
+  "theme_color": "#000000",
   "background_color": "#ffffff"
 }
