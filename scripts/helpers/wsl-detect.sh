@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Helper utilities for detecting POSIX shells under Windows/WSL environments.
 set -euo pipefail
-cd $(dirname $0)
 
 _log_message() {
   local logger=$1 fallback=$2 message=$3

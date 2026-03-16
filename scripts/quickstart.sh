@@ -27,11 +27,26 @@ timestamp() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 
 # Parse arguments
 DRY_RUN=false
+SKIP_BOOTSTRAP=false
+SKIP_HUB=false
+SKIP_SPOKE=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=true
+      shift
+      ;;
+    --skip-bootstrap)
+      SKIP_BOOTSTRAP=true
+      shift
+      ;;
+    --skip-hub)
+      SKIP_HUB=true
+      shift
+      ;;
+    --skip-spoke)
+      SKIP_SPOKE=true
       shift
       ;;
     --help)
@@ -42,11 +57,15 @@ One-command MVP GitOps infrastructure setup.
 
 Options:
   --dry-run           Show commands without executing
+  --skip-bootstrap    Skip bootstrap cluster creation
+  --skip-hub          Skip hub cluster creation  
+  --skip-spoke        Skip spoke cluster creation
   --help              Show this help
 
 Examples:
   $0                  # Full MVP setup
   $0 --dry-run        # Preview commands
+  $0 --skip-spoke     # Setup without spoke clusters
 EOF
       exit 0
       ;;
@@ -98,13 +117,25 @@ main() {
   run_step "gitops-config" "./setup-gitops-config.sh"
   
   # Step 3: Bootstrap Cluster (recovery anchor)
-  run_step "bootstrap-cluster" "./create-bootstrap-cluster.sh"
+  if [[ "$SKIP_BOOTSTRAP" != "true" ]]; then
+    run_step "bootstrap-cluster" "./create-bootstrap-cluster.sh"
+  else
+    warn "Skipping bootstrap cluster creation"
+  fi
   
   # Step 4: Hub Cluster (GitOps control plane)
-  run_step "hub-cluster" "./create-hub-cluster.sh --provider local"
+  if [[ "$SKIP_HUB" != "true" ]]; then
+    run_step "hub-cluster" "./create-hub-cluster.sh --provider local"
+  else
+    warn "Skipping hub cluster creation"
+  fi
   
   # Step 5: Install Crossplane on hub
-  run_step "install-crossplane" "./install-crossplane.sh --providers local"
+  if [[ "$SKIP_HUB" != "true" ]]; then
+    run_step "install-crossplane" "./install-crossplane.sh --providers local"
+  else
+    warn "Skipping Crossplane installation"
+  fi
   
   # Step 6: Create Spoke Clusters
   if [[ "$SKIP_SPOKE" != "true" ]]; then
@@ -156,6 +187,7 @@ main() {
     "gitops-config",
     "bootstrap-cluster",
     "hub-cluster",
+    "install-crossplane",
     "spoke-cluster"
   ]
 }
