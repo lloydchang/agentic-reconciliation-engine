@@ -48,7 +48,7 @@ check_prerequisites() {
     export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
     
     # Switch to hub cluster context
-    kubectl config use-context kind-gitops-hub &> /dev/null || log_warning "Could not switch to hub context"
+    kubectl config use-context hub &> /dev/null || log_warning "Could not switch to hub context"
     
     # Check if connected to cluster
     if ! kubectl cluster-info &> /dev/null; then
@@ -463,7 +463,7 @@ main() {
 
     check_prerequisites
     create_namespace
-    deploy_ollama
+    deploy_inference_backend
     build_agent_images
     deploy_ai_agents
     deploy_ai_gateway

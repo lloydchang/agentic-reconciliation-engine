@@ -138,8 +138,11 @@ EOF
     kind delete cluster --name "${BOOTSTRAP_CLUSTER_NAME}"
   fi
 
-  kind create cluster --name "${BOOTSTRAP_CLUSTER_NAME}" --config /tmp/kind-config.yaml
+  kind create cluster --name "${BOOTSTRAP_CLUSTER_NAME}" --config "/tmp/${BOOTSTRAP_CLUSTER_NAME}-kind-config.yaml"
   kind get kubeconfig --name "${BOOTSTRAP_CLUSTER_NAME}" > "${BOOTSTRAP_KUBECONFIG}"
+  
+  # Rename context to match documentation
+  kubectl config rename-context "kind-${BOOTSTRAP_CLUSTER_NAME}" bootstrap
   export KUBECONFIG="${BOOTSTRAP_KUBECONFIG}"
   
   pass "Kind cluster created"
