@@ -37,10 +37,10 @@ Access the dashboard at `http://localhost:8888` and verify:
 #### View Agent Status
 ```bash
 # List all agents with details
-kubectl get pods -n ai-infrastructure -l component=memory-agent -o wide
+kubectl get pods -n ai-infrastructure -l component=agent-memory -o wide
 
 # Check individual agent logs
-kubectl logs -f deployment/memory-agent-rust -n ai-infrastructure
+kubectl logs -f deployment/agent-memory-rust -n ai-infrastructure
 
 # Agent performance metrics
 curl -s http://localhost:5000/api/agents/status | jq .
