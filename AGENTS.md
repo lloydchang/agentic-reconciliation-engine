@@ -49,7 +49,7 @@ repo/
 ### Skills Directory
 The `.agents/` directory contains individual skill definitions that follow the [agentskills.io specification](https://agentskills.io/specification):
 
-- Each skill has a `SKILL.md` file with YAML frontmatter containing `name`, `description`, and optional fields
+- Each skill has a [SKILL.md](SKILL.md) file with YAML frontmatter containing `name`, `description`, and optional fields
 - Skills define specific capabilities like `cost-optimizer`, `alert-prioritizer`, `cluster-health-check`
 - Agents discover and load skills based on task requirements and skill descriptions
 - All 72 skills have been validated to comply with the specification

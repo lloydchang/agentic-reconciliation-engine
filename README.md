@@ -21,7 +21,7 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 3. Use `scripts/run-local-automation.sh` or `scripts/run-emulator-then-cloud.sh` to execute the full workflow; each script now logs whether you are in WSL or a native Windows shell.
 4. Check `logs/local-automation/latest-summary.json` and the `.log` files in `logs/local-automation/` for details, then iterate on your config or documentation as needed.
 
-For deeper architecture context, risk signals, and feature walkthrough, open `docs/OVERVIEW.md`.
+For deeper architecture context, risk signals, and feature walkthrough, open [docs/OVERVIEW.md](docs/OVERVIEW.md).
 
 ## Contributing
 
