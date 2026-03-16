@@ -14,7 +14,7 @@ resources:
   - ../../../../.agents/debug
 # Patches to add ML correlation and predictive capabilities
 patchesStrategicMerge:
-  - enhanced-features.yaml
+  - patches/deployment-patch.yaml
 # Additional configurations
 configMapGenerator:
   - name: debug-enhanced-config
