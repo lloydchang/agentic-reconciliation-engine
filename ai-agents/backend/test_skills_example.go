@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lloydchang/ai-agents-sandbox/backend/skills"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/skills"
 )
 
 func testSkillsMain() {

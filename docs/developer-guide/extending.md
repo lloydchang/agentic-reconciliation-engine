@@ -498,7 +498,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/yourorg/ai-agents-sandbox/backend/infrastructure"
+    "github.com/yourorg/gitops-infra-control-plane/backend/infrastructure"
 )
 
 type YourCloudProvider struct{}

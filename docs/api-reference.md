@@ -4,7 +4,7 @@
 
 ```
 Development: http://localhost:8081
-Production: https://api.ai-agents-sandbox.com
+Production: https://api.gitops-infra-control-plane.com
 ```
 
 ## 📋 Authentication

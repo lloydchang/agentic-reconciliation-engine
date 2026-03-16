@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lloydchang/ai-agents-sandbox/backend/bedrock"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/bedrock"
 )
 
 // ModelProvider represents an AI model provider

@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/ai-agents-sandbox/backend/skills"
-	"github.com/lloydchang/ai-agents-sandbox/backend/emulators"
-	"github.com/lloydchang/ai-agents-sandbox/backend/types"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/skills"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/emulators"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 )
 
 // SkillExecutionActivities provides activities for executing skills
