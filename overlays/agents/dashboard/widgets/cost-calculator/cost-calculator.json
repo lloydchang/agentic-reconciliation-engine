@@ -1,0 +1,194 @@
+{
+  "widget": {
+    "name": "cost-calculator",
+    "version": "1.0.0",
+    "type": "chart",
+    "title": "Cost Calculator",
+    "description": "Real-time cloud cost analysis and optimization calculator",
+    "position": "sidebar",
+    "size": {
+      "width": "100%",
+      "height": "400px"
+    },
+    "refreshInterval": 30,
+    "enabled": true
+  },
+  "dataSource": {
+    "endpoint": "/api/cost-calculator/data",
+    "method": "GET",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 10000
+  },
+  "chart": {
+    "type": "mixed",
+    "charts": [
+      {
+        "id": "cost-trend",
+        "type": "line",
+        "title": "Cost Trend (30 Days)",
+        "xAxis": "date",
+        "yAxis": "cost",
+        "color": "#1976d2",
+        "dataKey": "daily_cost"
+      },
+      {
+        "id": "cost-breakdown",
+        "type": "pie",
+        "title": "Cost Breakdown by Service",
+        "colorScheme": ["#1976d2", "#dc004e", "#4caf50", "#ff9800", "#2196f3"],
+        "dataKey": "cost_by_service"
+      },
+      {
+        "id": "savings-opportunity",
+        "type": "bar",
+        "title": "Savings Opportunities",
+        "xAxis": "service",
+        "yAxis": "potential_savings",
+        "color": "#4caf50",
+        "dataKey": "savings_amount"
+      }
+    ]
+  },
+  "features": {
+    "realTimeUpdates": true,
+    "costOptimization": true,
+    "budgetAlerts": true,
+    "forecasting": true,
+    "exportData": true,
+    "customFilters": true
+  },
+  "currency": {
+    "default": "USD",
+    "supported": ["USD", "EUR", "GBP", "JPY"],
+    "symbol": "$"
+  },
+  "filters": {
+    "timeRange": {
+      "enabled": true,
+      "options": [
+        { "value": "7d", "label": "Last 7 Days" },
+        { "value": "30d", "label": "Last 30 Days" },
+        { "value": "90d", "label": "Last 90 Days" },
+        { "value": "1y", "label": "Last Year" }
+      ],
+      "default": "30d"
+    },
+    "services": {
+      "enabled": true,
+      "multiSelect": true,
+      "options": [
+        "compute",
+        "storage",
+        "network",
+        "database",
+        "ai/ml",
+        "monitoring",
+        "security"
+      ]
+    },
+    "providers": {
+      "enabled": true,
+      "multiSelect": true,
+      "options": [
+        "aws",
+        "azure",
+        "gcp",
+        "onprem"
+      ]
+    },
+    "environments": {
+      "enabled": true,
+      "multiSelect": true,
+      "options": [
+        "production",
+        "staging",
+        "development",
+        "testing"
+      ]
+    }
+  },
+  "alerts": {
+    "enabled": true,
+    "thresholds": {
+      "dailyBudget": {
+        "enabled": true,
+        "value": 1000,
+        "currency": "USD"
+      },
+      "costSpike": {
+        "enabled": true,
+        "percentage": 20
+      },
+      "unusualSpend": {
+        "enabled": true,
+        "multiplier": 1.5
+      }
+    },
+    "notifications": {
+      "email": true,
+      "slack": false,
+      "webhook": false
+    }
+  },
+  "optimization": {
+    "enabled": true,
+    "algorithms": [
+      "right_sizing",
+      "reserved_instances",
+      "spot_instances",
+      "storage_tiering",
+      "network_optimization"
+    ],
+    "recommendations": {
+      "maxItems": 10,
+      "minSavings": 10,
+      "currency": "USD"
+    }
+  },
+  "forecasting": {
+    "enabled": true,
+    "model": "linear_regression",
+    "horizon": "90d",
+    "confidence": 0.8,
+    "factors": [
+      "historical_trend",
+      "seasonal_patterns",
+      "growth_rate",
+      "planned_changes"
+    ]
+  },
+  "export": {
+    "enabled": true,
+    "formats": ["csv", "json", "pdf"],
+    "includeCharts": true,
+    "includeRecommendations": true
+  },
+  "api": {
+    "endpoints": {
+      "costData": "/api/cost-calculator/data",
+      "recommendations": "/api/cost-calculator/recommendations",
+      "forecast": "/api/cost-calculator/forecast",
+      "optimization": "/api/cost-calculator/optimize"
+    },
+    "authentication": {
+      "required": false,
+      "method": "none"
+    }
+  },
+  "styling": {
+    "theme": "inherit",
+    "customCSS": true,
+    "responsive": true,
+    "animations": true
+  },
+  "performance": {
+    "caching": {
+      "enabled": true,
+      "ttl": 300
+    },
+    "lazyLoading": true,
+    "virtualization": false
+  }
+}
