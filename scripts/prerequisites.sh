@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Cloud AI Agent — Bootstrap Script
+# Cloud AI Agent — Prerequisites Script
 # Validates prerequisites, checks env config, and verifies the skill suite
 # =============================================================================
 set -euo pipefail
@@ -112,7 +112,7 @@ done < <(find "${SKILL_DIR}" -name "SKILL.md" -type f | sort)
 # ── Header ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}╔══════════════════════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║   gitops-infra-control-plane — Bootstrap & Validation    ║${RESET}"
+echo -e "${BOLD}║  gitops-infra-control-plane — Prerequisites & Validation ║${RESET}"
 echo -e "${BOLD}╚══════════════════════════════════════════════════════════╝${RESET}"
 echo ""
 
@@ -315,13 +315,13 @@ echo ""
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo -e "${BOLD}══════════════════════════════════════════════════════════${RESET}"
 if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
-  echo -e "${GREEN}${BOLD}  ✓ Bootstrap PASSED — all checks clean${RESET}"
+  echo -e "${GREEN}${BOLD}  ✓ Prerequisites PASSED — all checks clean${RESET}"
   echo -e "${GREEN}  Agent is ready to operate.${RESET}"
 elif [[ $ERRORS -eq 0 ]]; then
-  echo -e "${YELLOW}${BOLD}  ⚠ Bootstrap PASSED with ${WARNINGS} warning(s)${RESET}"
+  echo -e "${YELLOW}${BOLD}  ⚠ Prerequisites PASSED with ${WARNINGS} warning(s)${RESET}"
   echo -e "${YELLOW}  Agent will operate in degraded mode for optional components.${RESET}"
 else
-  echo -e "${RED}${BOLD}  ✗ Bootstrap FAILED — ${ERRORS} error(s), ${WARNINGS} warning(s)${RESET}"
+  echo -e "${RED}${BOLD}  ✗ Prerequisites FAILED — ${ERRORS} error(s), ${WARNINGS} warning(s)${RESET}"
   echo -e "${RED}  Fix the errors above before operating the agent.${RESET}"
   echo ""
   echo -e "  ${CYAN}Quick fixes:${RESET}"
