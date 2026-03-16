@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-cd "$(dirname "$0")"
-
 # filename: ensure_shell_safety.sh
 
 # This script ensures every shell script in the repository has `set -euo pipefail`.

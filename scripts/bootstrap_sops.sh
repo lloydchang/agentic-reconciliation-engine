@@ -4,7 +4,6 @@
 # Minimal SOPS bootstrap for a fresh clone
 
 set -euo pipefail
-cd $(dirname $0)
 set -x   # optional, only if you want debug output
 
 SOPS_KEY_DIR=".sops-keys"

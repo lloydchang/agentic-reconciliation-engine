@@ -8,7 +8,6 @@
 # eksctl is the recommended and most widely used tool for EKS cluster creation and management
 
 set -euo pipefail
-cd $(dirname $0)
 
 # Configuration
 CLUSTER_NAME="${CLUSTER_NAME:-gitops-hub-eks}"

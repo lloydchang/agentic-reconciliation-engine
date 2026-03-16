@@ -4,7 +4,6 @@
 # Configures and validates disaster recovery procedures for Git outages
 
 set -euo pipefail
-cd $(dirname $0)
 
 echo "🚨 Setting up Git Outage Disaster Recovery Procedures"
 

@@ -4,7 +4,6 @@
 # Configures the Hub Cluster to operate from cached Git repository
 
 set -euo pipefail
-cd $(dirname $0)
 
 echo "🔧 Setting up Offline Mode for GitOps Infra Control Plane"
 
