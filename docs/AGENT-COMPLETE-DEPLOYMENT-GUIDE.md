@@ -138,7 +138,7 @@ kubectl apply -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: memory-agent-pvc
+  name: agent-memory-pvc
   namespace: ai-infrastructure
 spec:
   accessModes:
@@ -154,22 +154,22 @@ kubectl apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
   labels:
-    component: memory-agent
+    component: agent-memory
     language: rust
     backend: llama-cpp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     metadata:
       labels:
-        component: memory-agent
+        component: agent-memory
         language: rust
         backend: llama-cpp
     spec:
@@ -189,7 +189,7 @@ spec:
         - name: memory-storage
           mountPath: /data
       containers:
-      - name: memory-agent
+      - name: agent-memory
         image: nginx:alpine  # Placeholder image
         ports:
         - containerPort: 80
@@ -211,11 +211,11 @@ spec:
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
-          claimName: memory-agent-pvc
+          claimName: agent-memory-pvc
 EOF
 
 # Wait for deployment
-kubectl wait --for=condition=available --timeout=120s deployment/memory-agent-rust -n ai-infrastructure
+kubectl wait --for=condition=available --timeout=120s deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 #### 4. AI Inference Gateway
@@ -460,7 +460,7 @@ kubectl get pods -n ai-infrastructure
 
 # Expected output:
 # NAME                                      READY   STATUS    RESTARTS   AGE
-# memory-agent-rust-xxxxxxxxxxxx            1/1     Running   0          5m
+# agent-memory-rust-xxxxxxxxxxxx            1/1     Running   0          5m
 # ai-inference-gateway-xxxxxxxxxxxx        1/1     Running   0          5m
 # temporal-frontend-xxxxxxxxxxxx           1/1     Running   0          5m
 # temporal-history-xxxxxxxxxxxx             1/1     Running   0          5m
@@ -487,7 +487,7 @@ kubectl port-forward svc/agent-dashboard-service 8888:80 -n ai-infrastructure &
 curl -I http://localhost:8888
 
 # Test memory agent
-kubectl port-forward svc/memory-agent-service 8080:80 -n ai-infrastructure &
+kubectl port-forward svc/agent-memory-service 8080:80 -n ai-infrastructure &
 curl http://localhost:8080/api/health
 ```
 
@@ -578,7 +578,7 @@ helm upgrade --install ai-agents ./charts/ai-agents \
 #### Horizontal Scaling
 ```bash
 # Scale memory agents
-kubectl scale deployment memory-agent-rust --replicas=3 -n ai-infrastructure
+kubectl scale deployment agent-memory-rust --replicas=3 -n ai-infrastructure
 
 # Scale dashboard
 kubectl scale deployment agent-dashboard --replicas=2 -n ai-infrastructure
@@ -590,7 +590,7 @@ kubectl scale deployment temporal-worker --replicas=5 -n ai-infrastructure
 #### Resource Scaling
 ```bash
 # Update resource limits
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","resources":{"limits":{"memory":"1Gi","cpu":"1000m"}}}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","resources":{"limits":{"memory":"1Gi","cpu":"1000m"}}}]}}}}'
 ```
 
 #### High Availability Configuration
@@ -716,7 +716,7 @@ kubectl describe pod <pod-name> -n ai-infrastructure | grep -A 10 "Limits:"
 #### Database Backup
 ```bash
 # Backup memory agent database
-kubectl exec -it deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec -it deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db ".backup /backup/memory-$(date +%Y%m%d).db"
 
 # Backup to persistent storage
@@ -738,10 +738,10 @@ kubectl get secrets -n ai-infrastructure -o yaml > secrets-backup.yaml
 kubectl apply -f ai-infrastructure-backup.yaml
 
 # Restore database
-kubectl cp memory-20260316.db memory-agent-rust-xxxxx:/data/memory.db -n ai-infrastructure
+kubectl cp memory-20260316.db agent-memory-rust-xxxxx:/data/memory.db -n ai-infrastructure
 
 # Restart services
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 ## Security Considerations
@@ -802,7 +802,7 @@ kubectl create secret generic ai-agents-secrets \
     --namespace=ai-infrastructure
 
 # Mount secret in pod
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","envFrom":[{"secretRef":{"name":"ai-agents-secrets"}}]}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","envFrom":[{"secretRef":{"name":"ai-agents-secrets"}}]}]}}}}'
 ```
 
 ## Maintenance and Updates
@@ -812,25 +812,25 @@ kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"te
 #### Rolling Updates
 ```bash
 # Update memory agent image
-kubectl set image deployment/memory-agent-rust memory-agent=memory-agent-rust:v2.0.0 -n ai-infrastructure
+kubectl set image deployment/agent-memory-rust agent-memory=agent-memory-rust:v2.0.0 -n ai-infrastructure
 
 # Wait for rollout
-kubectl rollout status deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout status deployment/agent-memory-rust -n ai-infrastructure
 
 # Rollback if needed
-kubectl rollout undo deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout undo deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 #### Health Monitoring
 ```bash
 # Set up health checks
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","livenessProbe":{"httpGet":{"path":"/api/health","port":80},"initialDelaySeconds":30,"periodSeconds":10},"readinessProbe":{"httpGet":{"path":"/api/ready","port":80},"initialDelaySeconds":5,"periodSeconds":5}}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","livenessProbe":{"httpGet":{"path":"/api/health","port":80},"initialDelaySeconds":30,"periodSeconds":10},"readinessProbe":{"httpGet":{"path":"/api/ready","port":80},"initialDelaySeconds":5,"periodSeconds":5}}]}}}}'
 ```
 
 #### Log Rotation
 ```bash
 # Configure log rotation
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","env":[{"name":"LOG_ROTATION","value":"daily"},{"name":"LOG_RETENTION","value":"7"}]}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","env":[{"name":"LOG_ROTATION","value":"daily"},{"name":"LOG_RETENTION","value":"7"}]}]}}}}'
 ```
 
 ## Performance Optimization
@@ -840,7 +840,7 @@ kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"te
 #### Resource Optimization
 ```bash
 # Optimize resource requests and limits
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","resources":{"requests":{"memory":"512Mi","cpu":"200m"},"limits":{"memory":"1Gi","cpu":"500m"}}}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","resources":{"requests":{"memory":"512Mi","cpu":"200m"},"limits":{"memory":"1Gi","cpu":"500m"}}}]}}}}'
 ```
 
 #### Caching Strategy
@@ -855,7 +855,7 @@ helm install redis bitnami/redis \
 #### Database Optimization
 ```bash
 # Optimize SQLite settings
-kubectl exec -it deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec -it deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=10000;"
 ```
 

@@ -25,19 +25,19 @@ This comprehensive reference guide provides detailed documentation for all compo
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     spec:
       containers:
-      - name: memory-agent
-        image: memory-agent-rust:latest
+      - name: agent-memory
+        image: agent-memory-rust:latest
         ports:
         - containerPort: 8080
         env:
@@ -79,19 +79,19 @@ TEMPERATURE=0.7                            # Generation temperature
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-go
+  name: agent-memory-go
   namespace: ai-infrastructure
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: go
   template:
     spec:
       containers:
-      - name: memory-agent
-        image: memory-agent-go:latest
+      - name: agent-memory
+        image: agent-memory-go:latest
         ports:
         - containerPort: 8080
         env:
@@ -119,19 +119,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-python
+  name: agent-memory-python
   namespace: ai-infrastructure
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: python
   template:
     spec:
       containers:
-      - name: memory-agent
-        image: memory-agent-python:latest
+      - name: agent-memory
+        image: agent-memory-python:latest
         ports:
         - containerPort: 8080
         env:
@@ -653,7 +653,7 @@ PROMETHEUS_JOB_NAME=ai-agents
 ```yaml
 # config.yaml
 agent:
-  name: "memory-agent-rust"
+  name: "agent-memory-rust"
   version: "1.0.0"
   
 database:
@@ -756,7 +756,7 @@ notifications:
 ```yaml
 # Chart.yaml
 apiVersion: v2
-name: memory-agent
+name: agent-memory
 description: "Memory Agent for AI Agents Ecosystem"
 type: application
 version: 1.0.0
@@ -764,7 +764,7 @@ appVersion: "1.0.0"
 
 # values.yaml
 image:
-  repository: memory-agent
+  repository: agent-memory
   tag: "latest"
   pullPolicy: IfNotPresent
 
@@ -798,7 +798,7 @@ ingress:
   className: "nginx"
   annotations: {}
   hosts:
-    - host: memory-agent.local
+    - host: agent-memory.local
       paths:
         - path: /
           pathType: Prefix
@@ -945,7 +945,7 @@ main "$@"
 NAMESPACE="ai-infrastructure"
 
 # Check all deployments
-deployments=("memory-agent-rust" "temporal-frontend" "agent-dashboard" "metrics-collector")
+deployments=("agent-memory-rust" "temporal-frontend" "agent-dashboard" "metrics-collector")
 
 for deployment in "${deployments[@]}"; do
     if kubectl rollout status deployment/$deployment -n $NAMESPACE --timeout=60s; then
@@ -957,7 +957,7 @@ for deployment in "${deployments[@]}"; do
 done
 
 # Check services
-services=("memory-agent-service" "temporal-frontend" "agent-dashboard-service")
+services=("agent-memory-service" "temporal-frontend" "agent-dashboard-service")
 
 for service in "${services[@]}"; do
     if kubectl get service $service -n $NAMESPACE &>/dev/null; then
@@ -1032,7 +1032,7 @@ groups:
     for: 2m
     labels:
       severity: critical
-      service: memory-agents
+      service: agent-memorys
     annotations:
       summary: "Agent failure rate above threshold"
       description: "Agent {{ $labels.agent }} failure rate is {{ $value }} (threshold: 0.1)"
@@ -1127,29 +1127,29 @@ kubectl port-forward svc/<service-name> 9999:80 -n ai-infrastructure
 kubectl get pvc -n ai-infrastructure
 
 # Check PVC status
-kubectl describe pvc memory-agent-pvc -n ai-infrastructure
+kubectl describe pvc agent-memory-pvc -n ai-infrastructure
 
 # Check database file
-kubectl exec -it deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec -it deployment/agent-memory-rust -n ai-infrastructure -- \
   ls -la /data/memory.db
 
 # Test database
-kubectl exec -it deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec -it deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db ".tables"
 ```
 
 ##### Database Corruption
 ```bash
 # Backup current database
-kubectl exec deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec deployment/agent-memory-rust -n ai-infrastructure -- \
   cp /data/memory.db /data/memory.db.backup
 
 # Check database integrity
-kubectl exec deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db "PRAGMA integrity_check;"
 
 # Recover database
-kubectl exec deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db ".recover" | sqlite3 /data/memory-recovered.db
 ```
 
@@ -1458,13 +1458,13 @@ data:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: memory-agent-hpa
+  name: agent-memory-hpa
   namespace: ai-infrastructure
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: memory-agent-rust
+    name: agent-memory-rust
   minReplicas: 2
   maxReplicas: 10
   metrics:
