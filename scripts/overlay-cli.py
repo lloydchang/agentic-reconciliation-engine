@@ -80,7 +80,22 @@ class OverlayCLI:
             
             # Use template if specified
             if template:
-                template_dir = self.templates_dir / f"{category}-overlay"
+                # Handle both singular and plural forms
+                template_name = template
+                if category == "skills" and template == "skills-overlay":
+                    template_name = "skill-overlay"
+                elif category == "skills" and template == "skill-overlay":
+                    template_name = "skill-overlay"
+                elif category == "dashboard" and template == "dashboard-overlays":
+                    template_name = "dashboard-overlay"
+                elif category == "dashboard" and template == "dashboard-overlay":
+                    template_name = "dashboard-overlay"
+                elif category == "infrastructure" and template == "infra-overlays":
+                    template_name = "infra-overlay"
+                elif category == "infrastructure" and template == "infra-overlay":
+                    template_name = "infra-overlay"
+                
+                template_dir = self.templates_dir / template_name
                 if not template_dir.exists():
                     logger.error(f"Template not found: {template_dir}")
                     return False

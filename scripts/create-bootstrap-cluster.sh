@@ -150,11 +150,21 @@ EOF
 
 # Create k3s cluster
 create_k3s_cluster() {
-  info "Creating k3s cluster..."
+# Check if we should use existing cluster or create new one
+  if kubectl cluster-info --context=kind-gitops-hub &> /dev/null; then
+    info "Connected to existing hub cluster"
+    use_existing_cluster=true
+  else
+    info "No existing hub cluster found"
+    use_existing_cluster=false
+  fi
   
-  if k3s cluster-exists 2>/dev/null; then
-    warn "k3s cluster already exists. Resetting..."
-    sudo k3s server --cluster-reset || true
+  # If no existing cluster, create bootstrap cluster
+  if [[ "$use_existing_cluster" == "false" ]]; then
+    info "Creating bootstrap cluster for recovery anchor..."
+    create_kind_cluster
+  else
+    info "Using existing cluster as hub"
   fi
 
   # Install k3s with minimal configuration
