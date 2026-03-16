@@ -172,7 +172,7 @@ OLLAMA_MODEL="llama2:7b" ./scripts/deploy-ai-agents-ecosystem.sh
 # Use AI Agent Debugger skill
 ./.agents/ai-agent-debugger/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
-  --agent-type memory-agent \
+  --agent-type agent-memory \
   --debug-level detailed
 
 # Check metrics
@@ -183,10 +183,10 @@ curl http://localhost:5000/api/cluster-status
 ### Health Monitoring
 ```bash
 # Check agent health
-kubectl get pods -n ai-infrastructure -l component=memory-agent
+kubectl get pods -n ai-infrastructure -l component=agent-memory
 
 # View agent logs
-kubectl logs -n ai-infrastructure -l component=memory-agent --tail=50
+kubectl logs -n ai-infrastructure -l component=agent-memory --tail=50
 
 # Check Temporal workflows
 tctl wf list --ns ai-infrastructure
@@ -214,7 +214,7 @@ kubectl config current-context
 kubectl describe nodes
 
 # Scale down if needed
-kubectl scale deployment memory-agent-rust --replicas=0 -n ai-infrastructure
+kubectl scale deployment agent-memory-rust --replicas=0 -n ai-infrastructure
 
 # Check PVC status
 kubectl get pvc -n ai-infrastructure
@@ -229,7 +229,7 @@ kubectl get pods -n ingress-nginx
 kubectl get endpoints -n ai-infrastructure
 
 # Test connectivity
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- curl dashboard.local
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- curl dashboard.local
 ```
 
 ### Debug Commands
@@ -277,7 +277,7 @@ server:
 ### Scaling Configuration
 ```bash
 # Horizontal scaling
-kubectl scale deployment memory-agent-rust --replicas=3 -n ai-infrastructure
+kubectl scale deployment agent-memory-rust --replicas=3 -n ai-infrastructure
 
 # Temporal scaling
 helm upgrade temporal temporal/temporal \
@@ -333,10 +333,10 @@ rules:
 ### Data Backup
 ```bash
 # Backup agent data
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- tar czf /tmp/backup.tar.gz /data
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- tar czf /tmp/backup.tar.gz /data
 
 # Copy backup
-kubectl cp ai-infrastructure/memory-agent-rust-pod:/tmp/backup.tar.gz ./backup.tar.gz
+kubectl cp ai-infrastructure/agent-memory-rust-pod:/tmp/backup.tar.gz ./backup.tar.gz
 ```
 
 ### Configuration Backup
@@ -352,8 +352,8 @@ kubectl get secrets -n ai-infrastructure -o yaml > secrets-backup.yaml
 ./scripts/deploy-ai-agents-ecosystem.sh
 
 # Restore data
-kubectl cp ./backup.tar.gz ai-infrastructure/memory-agent-rust-pod:/tmp/backup.tar.gz
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- tar xzf /tmp/backup.tar.gz -C /
+kubectl cp ./backup.tar.gz ai-infrastructure/agent-memory-rust-pod:/tmp/backup.tar.gz
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- tar xzf /tmp/backup.tar.gz -C /
 ```
 
 ## API Reference
@@ -404,7 +404,7 @@ tctl wf query --ns ai-infrastructure -w <workflow-id> -q my-query
 - `scripts/llm-debug-automation.sh`: LLM-assisted debugging
 
 ### Troubleshooting
-- Check logs: `kubectl logs -n ai-infrastructure -l component=memory-agent`
+- Check logs: `kubectl logs -n ai-infrastructure -l component=agent-memory`
 - Debug with skill: Use AI Agent Debugger skill
 - Monitor resources: `kubectl top pods -n ai-infrastructure`
 - Validate deployment: Run validation steps above
@@ -464,10 +464,10 @@ kubectl create namespace ai-infrastructure
 #### Deploy Memory Agents
 ```bash
 # Deploy memory agents with persistent storage
-kubectl apply -f infrastructure/ai-inference/shared/memory-agent-deployment.yaml
+kubectl apply -f infrastructure/ai-inference/shared/agent-memory-deployment.yaml
 
 # Wait for deployment
-kubectl wait --for=condition=available --timeout=300s deployment/memory-agent-rust -n ai-infrastructure
+kubectl wait --for=condition=available --timeout=300s deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 #### Deploy AI Inference Gateway
@@ -648,7 +648,7 @@ EOF
 Service Monitor:
   selector:
     matchLabels:
-      app: memory-agent
+      app: agent-memory
   endpoints:
   - port: metrics
     interval: 30s
@@ -738,12 +738,12 @@ Horizontal Pod Autoscaler:
   apiVersion: autoscaling/v2
   kind: HorizontalPodAutoscaler
   metadata:
-    name: memory-agent-hpa
+    name: agent-memory-hpa
   spec:
     scaleTargetRef:
       apiVersion: apps/v1
       kind: Deployment
-      name: memory-agent-rust
+      name: agent-memory-rust
     minReplicas: 1
     maxReplicas: 5
     metrics:
@@ -829,7 +829,7 @@ rules:
 ### Data Backup
 ```bash
 # Backup persistent volumes
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- \
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- \
   cp /data/memory.db /backup/memory-$(date +%Y%m%d).db
 
 # Backup configuration
@@ -839,10 +839,10 @@ kubectl get configmaps -n ai-infrastructure -o yaml > config-backup.yaml
 ### Disaster Recovery
 ```bash
 # Restore from backup
-kubectl cp backup/memory-20240315.db memory-agent-rust-xxx:/data/memory.db -n ai-infrastructure
+kubectl cp backup/memory-20240315.db agent-memory-rust-xxx:/data/memory.db -n ai-infrastructure
 
 # Restart services
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 ## Maintenance
@@ -850,11 +850,11 @@ kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
 ### Rolling Updates
 ```bash
 # Update images
-kubectl set image deployment/memory-agent-rust \
-  memory-agent=memory-agent-rust:v2.0.0 -n ai-infrastructure
+kubectl set image deployment/agent-memory-rust \
+  agent-memory=agent-memory-rust:v2.0.0 -n ai-infrastructure
 
 # Monitor rollout
-kubectl rollout status deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout status deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 ### Health Checks

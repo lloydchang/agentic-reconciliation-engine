@@ -99,7 +99,7 @@ deploy_ai_agents() {
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: memory-agent-pvc
+  name: agent-memory-pvc
   namespace: $NAMESPACE
 spec:
   accessModes:
@@ -115,22 +115,22 @@ EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: $NAMESPACE
   labels:
-    component: memory-agent
+    component: agent-memory
     language: rust
     backend: llama-cpp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     metadata:
       labels:
-        component: memory-agent
+        component: agent-memory
         language: rust
         backend: llama-cpp
     spec:
@@ -157,7 +157,7 @@ spec:
             memory: "64Mi"
             cpu: "50m"
       containers:
-      - name: memory-agent
+      - name: agent-memory
         image: nginx:alpine  # Placeholder image
         ports:
         - containerPort: 80
@@ -179,11 +179,11 @@ spec:
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
-          claimName: memory-agent-pvc
+          claimName: agent-memory-pvc
 EOF
     
     # Wait for memory agent deployment
-    $KUBECTL_CMD wait --for=condition=available --timeout=120s deployment/memory-agent-rust -n $NAMESPACE
+    $KUBECTL_CMD wait --for=condition=available --timeout=120s deployment/agent-memory-rust -n $NAMESPACE
     
     log_success "AI memory agents deployed (with placeholder images)"
 }
