@@ -1,6 +1,6 @@
 # Agent Skills Configuration Examples
 
-This directory contains configuration templates and examples for the multi-cloud agent skills.
+This directory contains configuration templates and examples for the multi-Agent skills.
 
 ## 📁 Files
 

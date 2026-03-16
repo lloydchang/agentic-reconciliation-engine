@@ -255,7 +255,7 @@ spec:
 
 ### Flow 2: Multi-Cloud Consensus Coordination
 
-**Cross-Cloud Agent Communication**:
+**Cross-Agent Communication**:
 ```yaml
 # Cross-cloud consensus for critical changes
 apiVersion: consensus.gitops.io/v1alpha1
@@ -280,7 +280,7 @@ spec:
 ```
 
 **Sequence**:
-1. **Local Cloud Agents** optimize within their cloud environment
+1. **Local Agents** optimize within their cloud environment
 2. **Cross-Cloud Proposals** for multi-cloud decisions
 3. **Distributed Consensus** across cloud boundaries
 4. **Coordinated Execution** of agreed-upon changes
