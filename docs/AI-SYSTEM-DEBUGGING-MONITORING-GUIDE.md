@@ -32,8 +32,8 @@ kubectl logs -n temporal deployment/temporal-worker --since=1h | grep ERROR
 
 ```bash
 # Memory agents debugging
-kubectl get pods -n ai-infrastructure -l component=memory-agent
-kubectl logs -n ai-infrastructure deployment/memory-agent-rust --tail=100
+kubectl get pods -n ai-infrastructure -l component=agent-memory
+kubectl logs -n ai-infrastructure deployment/agent-memory-rust --tail=100
 
 # Temporal debugging
 kubectl get pods -n ai-infrastructure -l app=temporal
@@ -98,13 +98,13 @@ curl http://localhost:5000/api/metrics
 **Debugging Steps:**
 ```bash
 # Check agent pod status
-kubectl get pods -n ai-infrastructure -l component=memory-agent
+kubectl get pods -n ai-infrastructure -l component=agent-memory
 
 # Check resource usage
 kubectl top pods -n ai-infrastructure
 
 # Check agent logs for errors
-kubectl logs -n ai-infrastructure deployment/memory-agent-rust --previous
+kubectl logs -n ai-infrastructure deployment/agent-memory-rust --previous
 
 # Check events
 kubectl get events -n ai-infrastructure --sort-by='.lastTimestamp'
@@ -167,7 +167,7 @@ kubectl get pods -o wide
 kubectl get services -o wide
 
 # Check DNS
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- nslookup kubernetes.default.svc.cluster.local
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- nslookup kubernetes.default.svc.cluster.local
 ```
 
 ### 4. Performance Issues
@@ -188,10 +188,10 @@ kubectl top pods -n ai-infrastructure
 curl http://localhost:8080/monitoring/metrics | grep -i performance
 
 # Profile memory usage
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- ps aux
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- ps aux
 
 # Check inference performance
-kubectl logs -n ai-infrastructure deployment/memory-agent-rust | grep -i inference
+kubectl logs -n ai-infrastructure deployment/agent-memory-rust | grep -i inference
 ```
 
 ## Auto-Fix Capabilities
@@ -221,13 +221,13 @@ python .agents/ai-system-debugger/scripts/main.py auto-fix --target=agents --con
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
 spec:
   template:
     spec:
       containers:
-      - name: memory-agent
+      - name: agent-memory
         livenessProbe:
           httpGet:
             path: /health
@@ -282,7 +282,7 @@ resources:
 
 ```bash
 # Configure structured logging with correlation IDs
-kubectl logs -n ai-infrastructure deployment/memory-agent-rust -f | jq '.correlation_id, .level, .message'
+kubectl logs -n ai-infrastructure deployment/agent-memory-rust -f | jq '.correlation_id, .level, .message'
 ```
 
 ## Critical Files and Locations
@@ -369,7 +369,7 @@ kubectl describe namespace ai-infrastructure
 kubectl get networkpolicy -n ai-infrastructure
 
 # Validate RBAC permissions
-kubectl auth can-i create pods --namespace ai-infrastructure --as=system:serviceaccount:ai-infrastructure:memory-agent-sa
+kubectl auth can-i create pods --namespace ai-infrastructure --as=system:serviceaccount:ai-infrastructure:agent-memory-sa
 ```
 
 ### Multi-Cluster Support
@@ -389,10 +389,10 @@ kubectl get clusters -n gitops-system
 
 ```bash
 # Test service connectivity
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- wget -qO- http://temporal-frontend:7233
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- wget -qO- http://temporal-frontend:7233
 
 # Check DNS resolution
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- nslookup temporal-frontend.ai-infrastructure.svc.cluster.local
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- nslookup temporal-frontend.ai-infrastructure.svc.cluster.local
 
 # Monitor network policies
 kubectl get networkpolicy -n ai-infrastructure -o yaml
@@ -422,7 +422,7 @@ kubectl get pods -n ai-infrastructure -o jsonpath='{range .items[*]}{.metadata.n
 kubectl get services -n ai-infrastructure -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.selector}{"\n"}{end}'
 
 # Validate dependency health
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- curl -f http://temporal-frontend:7233/health
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- curl -f http://temporal-frontend:7233/health
 ```
 
 ## Advanced Debugging Techniques
@@ -431,7 +431,7 @@ kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- curl -f http:/
 
 ```bash
 # Enable tracing in agents
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","env":[{"name":"JAEGER_ENDPOINT","value":"http://jaeger-collector:14268"}]}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","env":[{"name":"JAEGER_ENDPOINT","value":"http://jaeger-collector:14268"}]}]}}}}'
 
 # View traces
 open http://localhost:16686
@@ -441,7 +441,7 @@ open http://localhost:16686
 
 ```bash
 # Enable pprof in Go agents
-kubectl exec -n ai-infrastructure deployment/memory-agent-go -- curl http://localhost:6060/debug/pprof/profile > cpu.prof
+kubectl exec -n ai-infrastructure deployment/agent-memory-go -- curl http://localhost:6060/debug/pprof/profile > cpu.prof
 
 # Analyze with go tool
 go tool pprof cpu.prof
@@ -451,10 +451,10 @@ go tool pprof cpu.prof
 
 ```bash
 # Check memory usage
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- ps aux --sort=-%mem
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- ps aux --sort=-%mem
 
 # Dump heap profile
-kubectl exec -n ai-infrastructure deployment/memory-agent-go -- curl http://localhost:6060/debug/pprof/heap > heap.prof
+kubectl exec -n ai-infrastructure deployment/agent-memory-go -- curl http://localhost:6060/debug/pprof/heap > heap.prof
 
 # Analyze memory leaks
 go tool pprof heap.prof
@@ -464,10 +464,10 @@ go tool pprof heap.prof
 
 ```bash
 # Capture network traffic
-kubectl exec -n ai-infrastructure deployment/memory-agent-rust -- tcpdump -i any -w /tmp/capture.pcap
+kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- tcpdump -i any -w /tmp/capture.pcap
 
 # Analyze with Wireshark
-kubectl cp ai-infrastructure/memory-agent-rust-xxx:/tmp/capture.pcap ./capture.pcap
+kubectl cp ai-infrastructure/agent-memory-rust-xxx:/tmp/capture.pcap ./capture.pcap
 ```
 
 ## Troubleshooting Checklist

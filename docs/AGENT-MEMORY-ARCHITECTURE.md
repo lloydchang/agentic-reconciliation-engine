@@ -22,7 +22,7 @@ Memory Agents are persistent, stateful AI agents that maintain conversation hist
 
 ### 🦀 Multi-Language Implementation
 
-#### Rust Implementation (`memory-agent-rust`)
+#### Rust Implementation (`agent-memory-rust`)
 ```rust
 // Core agent structure
 pub struct MemoryAgent {
@@ -39,7 +39,7 @@ pub struct MemoryAgent {
 - Async/await for concurrent operations
 ```
 
-#### Go Implementation (`memory-agent-go`)
+#### Go Implementation (`agent-memory-go`)
 ```go
 // Core agent structure
 type MemoryAgent struct {
@@ -55,7 +55,7 @@ type MemoryAgent struct {
 - Simple deployment model
 ```
 
-#### Python Implementation (`memory-agent-python`)
+#### Python Implementation (`agent-memory-python`)
 ```python
 # Core agent structure
 class MemoryAgent:
@@ -230,13 +230,13 @@ GET /api/model/info
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: memory-agent-rust
+  name: agent-memory-rust
   namespace: ai-infrastructure
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: memory-agent
+      component: agent-memory
       language: rust
   template:
     spec:
@@ -249,8 +249,8 @@ spec:
         - name: memory-storage
           mountPath: /data
       containers:
-      - name: memory-agent
-        image: memory-agent-rust:latest
+      - name: agent-memory
+        image: agent-memory-rust:latest
         ports:
         - containerPort: 8080
         env:
@@ -271,7 +271,7 @@ spec:
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
-          claimName: memory-agent-pvc
+          claimName: agent-memory-pvc
 ```
 
 #### Persistent Volume Claim
@@ -279,7 +279,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: memory-agent-pvc
+  name: agent-memory-pvc
   namespace: ai-infrastructure
 spec:
   accessModes:
@@ -295,11 +295,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: memory-agent-service
+  name: agent-memory-service
   namespace: ai-infrastructure
 spec:
   selector:
-    component: memory-agent
+    component: agent-memory
   ports:
   - port: 8080
     targetPort: 8080
@@ -433,35 +433,35 @@ spec:
 #### Database Connection Errors
 ```bash
 # Check PVC status
-kubectl get pvc memory-agent-pvc -n ai-infrastructure
+kubectl get pvc agent-memory-pvc -n ai-infrastructure
 
 # Check pod logs
-kubectl logs -n ai-infrastructure deployment/memory-agent-rust
+kubectl logs -n ai-infrastructure deployment/agent-memory-rust
 
 # Restart database
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 #### Memory Issues
 ```bash
 # Check memory usage
-kubectl top pods -n ai-infrastructure -l component=memory-agent
+kubectl top pods -n ai-infrastructure -l component=agent-memory
 
 # Check PVC size
-kubectl describe pvc memory-agent-pvc -n ai-infrastructure
+kubectl describe pvc agent-memory-pvc -n ai-infrastructure
 
 # Clean up old data
-kubectl exec -it deployment/memory-agent-rust -n ai-infrastructure -- \
+kubectl exec -it deployment/agent-memory-rust -n ai-infrastructure -- \
   sqlite3 /data/memory.db "DELETE FROM messages WHERE timestamp < datetime('now', '-30 days')"
 ```
 
 #### Backend Issues
 ```bash
 # Check backend status
-curl http://memory-agent-service.ai-infrastructure.svc.cluster.local:8080/api/backend/status
+curl http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/backend/status
 
 # Test inference
-curl -X POST http://memory-agent-service.ai-infrastructure.svc.cluster.local:8080/api/chat \
+curl -X POST http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello"}'
 ```

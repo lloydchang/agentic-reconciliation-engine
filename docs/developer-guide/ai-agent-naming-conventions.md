@@ -31,7 +31,7 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 **Format**: `[component]-[language]`
 
 **Examples**:
-- `memory-agent-rust` - Memory storage agent implemented in Rust
+- `agent-memory-rust` - Memory storage agent implemented in Rust
 - `inference-gateway-go` - AI inference gateway implemented in Go
 - `skills-orchestrator-python` - Skills orchestration service in Python
 
@@ -41,14 +41,14 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 2. **Industry Standard**: Used by Google Cloud, AWS, Kubernetes, and major AI frameworks
 3. **Maintainability**: Essential for complex AI systems with multiple services/languages
 4. **Discoverability**: Easy to find and understand in large codebases and deployments
-5. **Scalability**: Supports evolution (e.g., `memory-agent-rust-v1`, `memory-agent-rust-gpu`)
+5. **Scalability**: Supports evolution (e.g., `agent-memory-rust-v1`, `agent-memory-rust-gpu`)
 
 ## Implementation Guidelines
 
 ### Current Repository Usage
 ```
 /ai-infrastructure/
-├── memory-agent-rust        ✅ (core function + language)
+├── agent-memory-rust        ✅ (core function + language)
 ├── inference-gateway-go     ✅ (service type + language)
 └── skills-orchestrator-python ✅ (capability + language)
 ```
@@ -67,7 +67,7 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 - Support variants: `-v1`, `-gpu`, `-cpu`
 
 #### Versioning
-- Add version suffixes for evolution: `memory-agent-rust-v2`
+- Add version suffixes for evolution: `agent-memory-rust-v2`
 - Use architecture variants: `inference-gateway-go-gpu`
 - Maintain backward compatibility
 
@@ -108,20 +108,20 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 ## Migration & Evolution
 
 ### Current Assessment
-✅ **Repository follows best practices**: `memory-agent-rust` pattern is optimal
+✅ **Repository follows best practices**: `agent-memory-rust` pattern is optimal
 
 ### Future Scaling
 ```
-Current: memory-agent-rust
+Current: agent-memory-rust
 Future:
-├── memory-agent-rust-v1     (versioned)
-├── memory-agent-rust-gpu    (architecture variant)
-└── memory-agent-rust-cpu    (resource variant)
+├── agent-memory-rust-v1     (versioned)
+├── agent-memory-rust-gpu    (architecture variant)
+└── agent-memory-rust-cpu    (resource variant)
 ```
 
 ## Conclusion
 
-The `[function]-[implementation]` pattern used in this repository (`memory-agent-rust`) perfectly aligns with industry best practices and academic research. This naming convention provides optimal clarity, maintainability, and scalability for AI engineering systems.
+The `[function]-[implementation]` pattern used in this repository (`agent-memory-rust`) perfectly aligns with industry best practices and academic research. This naming convention provides optimal clarity, maintainability, and scalability for AI engineering systems.
 
 **Recommendation**: Continue using this pattern for all new AI agents and components.
 
