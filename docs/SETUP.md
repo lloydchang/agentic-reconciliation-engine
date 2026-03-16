@@ -106,8 +106,8 @@ Replace placeholder values in the following files:
 - `control-plane/capi/clusterclass-aws.yaml` - Update `region`, `sshKeyName`
 - `control-plane/capi/clusterclass-azure.yaml` - Update `subscriptionID`, `resourceGroup`
 - `control-plane/capi/clusterclass-gcp.yaml` - Update `project`, `region`
-See `docs/operator-inputs.md` for a consolidated checklist.
-See `docs/EXECUTION-CHECKLIST.md` for the apply/validation sequence.
+See [docs/operator-inputs.md](docs/operator-inputs.md) for a consolidated checklist.
+See [docs/EXECUTION-CHECKLIST.md](docs/EXECUTION-CHECKLIST.md) for the apply/validation sequence.
 
 ### 5. Commit and Push
 
@@ -246,6 +246,6 @@ kubectl describe cluster gitops-eks-cluster -n flux-system
 For issues and questions:
 
 - Check the [implementation plan](./implementation_plan.md)
-- Review the drift test documentation in `tests/README.md`
+- Review the drift test documentation in [tests/README.md](tests/README.md)
 - Examine controller logs and Flux status
 - Verify cloud provider permissions and configurations

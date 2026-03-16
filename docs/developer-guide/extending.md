@@ -38,7 +38,7 @@ Create a new directory under `.agents/skills/your-skill-name/`:
 
 ### Skill Definition Format
 
-Each skill requires a `SKILL.md` file with YAML frontmatter:
+Each skill requires a [SKILL.md](SKILL.md) file with YAML frontmatter:
 
 ```markdown
 ---
@@ -725,10 +725,10 @@ go test ./backend/api/... -run TestYourSkillAPI
 
 When adding new skills, update the documentation:
 
-1. **Add to skills reference**: Update `docs/user-guide/skills-reference.md`
-2. **Add API documentation**: Update `docs/developer-guide/skills-api.md`
-3. **Update workflow docs**: Add to `docs/user-guide/workflows.md` if creating new composite workflows
-4. **Update implementation**: Document in `docs/developer-guide/implementation.md`
+1. **Add to skills reference**: Update [docs/user-guide/skills-reference.md](docs/user-guide/skills-reference.md)
+2. **Add API documentation**: Update [docs/developer-guide/skills-api.md](docs/developer-guide/skills-api.md)
+3. **Update workflow docs**: Add to [docs/user-guide/workflows.md](docs/user-guide/workflows.md) if creating new composite workflows
+4. **Update implementation**: Document in [docs/developer-guide/implementation.md](docs/developer-guide/implementation.md)
 
 ### Version Management
 

@@ -4,7 +4,7 @@ This document describes the AI Agent Skills system implemented for the Temporal 
 
 ## Overview
 
-The Skills system enables AI agents to execute specialized, reusable capabilities through structured skill definitions. Skills are defined as directories containing `SKILL.md` files with YAML frontmatter and markdown instructions, allowing for both explicit invocation and implicit activation based on context.
+The Skills system enables AI agents to execute specialized, reusable capabilities through structured skill definitions. Skills are defined as directories containing [SKILL.md](SKILL.md) files with YAML frontmatter and markdown instructions, allowing for both explicit invocation and implicit activation based on context.
 
 ## Architecture
 
@@ -251,9 +251,9 @@ This skill performs the following tasks:
 
 Add supporting files in the skill directory:
 
-- `template.md`: Structured output templates
-- `examples.md`: Usage examples and patterns
-- `reference.md`: Detailed API documentation
+- [template.md](template.md): Structured output templates
+- [examples.md](examples.md): Usage examples and patterns
+- [reference.md](reference.md): Detailed API documentation
 - `scripts/helper.py`: Utility scripts
 
 #### Agent Metadata

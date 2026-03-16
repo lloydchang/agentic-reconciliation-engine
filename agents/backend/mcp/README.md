@@ -53,7 +53,7 @@ Successfully implemented a comprehensive MCP (Model Context Protocol) server for
 
 ### Configuration & Deployment
 
-**Configuration Guide (`MCP_CONFIGURATION.md`):**
+**Configuration Guide ([MCP_CONFIGURATION.md](MCP_CONFIGURATION.md)):**
 - Complete environment variable documentation
 - Transport configuration examples
 - Authentication setup instructions

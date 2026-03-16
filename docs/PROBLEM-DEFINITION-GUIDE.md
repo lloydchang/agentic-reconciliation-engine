@@ -22,8 +22,8 @@
 **Repository Components to Use**:
 
 - ✅ `examples/complete-hub-spoke/` - Full multi-cloud with AI
-- ✅ `docs/AI-INTEGRATION-ANALYSIS.md` - Comprehensive integration options
-- ✅ `docs/AGENT-SKILLS-NEXT-LEVEL.md` - Advanced orchestration patterns
+- ✅ [docs/AI-INTEGRATION-ANALYSIS.md](docs/AI-INTEGRATION-ANALYSIS.md) - Comprehensive integration options
+- ✅ [docs/AGENT-SKILLS-NEXT-LEVEL.md](docs/AGENT-SKILLS-NEXT-LEVEL.md) - Advanced orchestration patterns
 - ❌ Legacy migration tools (not needed for greenfield)
 
 **Success Indicators**:
@@ -48,7 +48,7 @@
 **Repository Components to Use**:
 
 - ✅ `control-plane/` - Core Flux controllers first
-- ✅ `docs/LEGACY-IAC-MIGRATION-STRATEGY.md` - Migration guidance
+- ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) - Migration guidance
 - ✅ `infrastructure/tenants/` - Phased deployment approach
 - ❌ Full AI consensus (start simple, add incrementally)
 
@@ -75,7 +75,7 @@
 
 - ✅ `variants/` - Environment-specific configurations
 - ✅ `examples/complete-hub-spoke/ai-cronjobs/` - Gradual AI integration
-- ✅ `docs/DAG-ARCHITECTURE.md` - Dependency management
+- ✅ [docs/DAG-ARCHITECTURE.md](docs/DAG-ARCHITECTURE.md) - Dependency management
 - ❌ Full consensus deployment (use hybrid approach)
 
 **Success Indicators**:
@@ -93,7 +93,7 @@
 | **Multi-Cloud Coordination** | ✅ `examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
 | **Cost Optimization** | ⚠️ `examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
 | **Compliance Management** | ✅ `examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
-| **Legacy Migration** | ✅ `docs/LEGACY-IAC-MIGRATION-STRATEGY.md` | Phased migration approach | Zero downtime migration |
+| **Legacy Migration** | ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) | Phased migration approach | Zero downtime migration |
 | **Local Development** | ⚠️ `variants/` + selective AI | Hybrid integration strategy | Developer productivity + 50% cloud adoption |
 
 ### Step 3: Implementation Decision Tree
@@ -184,7 +184,7 @@ Before implementing ANY component, validate:
 **Anti-Pattern**: Attempting to migrate everything at once
 **Problem**: High risk, high failure probability
 **Solution**: Phased migration with rollback capability
-**Repository Path**: Follow `docs/LEGACY-IAC-MIGRATION-STRATEGY.md`
+**Repository Path**: Follow [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md)
 
 ## 📊 Implementation Examples
 
@@ -565,7 +565,7 @@ evolved_solution:
 | **Multi-Cloud Coordination** | ✅ `examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
 | **Cost Optimization** | ⚠️ `examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
 | **Compliance Management** | ✅ `examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
-| **Legacy Migration** | ✅ `docs/LEGACY-IAC-MIGRATION-STRATEGY.md` | Phased migration approach | Zero downtime migration |
+| **Legacy Migration** | ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) | Phased migration approach | Zero downtime migration |
 | **Local Development** | ⚠️ `variants/` + selective AI | Hybrid integration strategy | Developer productivity + 50% cloud adoption |
 
 ## 🚨 Solution Misfit Recognition & Adaptation Strategies

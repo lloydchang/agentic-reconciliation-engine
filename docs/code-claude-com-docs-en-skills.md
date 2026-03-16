@@ -7,7 +7,7 @@
 
 > Create, manage, and share skills to extend Claude's capabilities in Claude Code. Includes custom commands and bundled skills.
 
-Skills extend what Claude can do. Create a `SKILL.md` file with instructions, and Claude adds it to its toolkit. Claude uses skills when relevant, or you can invoke one directly with `/skill-name`.
+Skills extend what Claude can do. Create a [SKILL.md](SKILL.md) file with instructions, and Claude adds it to its toolkit. Claude uses skills when relevant, or you can invoke one directly with `/skill-name`.
 
 <Note>
   For built-in commands like `/help` and `/compact`, see [interactive mode](/en/interactive-mode#built-in-commands).
@@ -49,7 +49,7 @@ This example creates a skill that teaches Claude to explain code using visual di
   </Step>
 
   <Step title="Write SKILL.md">
-    Every skill needs a `SKILL.md` file with two parts: YAML frontmatter (between `---` markers) that tells Claude when to use the skill, and markdown content with instructions Claude follows when the skill is invoked. The `name` field becomes the `/slash-command`, and the `description` helps Claude decide when to load it automatically.
+    Every skill needs a [SKILL.md](SKILL.md) file with two parts: YAML frontmatter (between `---` markers) that tells Claude when to use the skill, and markdown content with instructions Claude follows when the skill is invoked. The `name` field becomes the `/slash-command`, and the `description` helps Claude decide when to load it automatically.
 
     Create `~/.claude/skills/explain-code/SKILL.md`:
 
@@ -106,7 +106,7 @@ When skills share the same name across levels, higher-priority locations win: en
 
 When you work with files in subdirectories, Claude Code automatically discovers skills from nested `.claude/skills/` directories. For example, if you're editing a file in `packages/frontend/`, Claude Code also looks for skills in `packages/frontend/.claude/skills/`. This supports monorepo setups where packages have their own skills.
 
-Each skill is a directory with `SKILL.md` as the entrypoint:
+Each skill is a directory with [SKILL.md](SKILL.md) as the entrypoint:
 
 ```text  theme={null}
 my-skill/
@@ -118,7 +118,7 @@ my-skill/
     └── validate.sh    # Script Claude can execute
 ```
 
-The `SKILL.md` contains the main instructions and is required. Other files are optional and let you build more powerful skills: templates for Claude to fill in, example outputs showing the expected format, scripts Claude can execute, or detailed reference documentation. Reference these files from your `SKILL.md` so Claude knows what they contain and when to load them. See [Add supporting files](#add-supporting-files) for more details.
+The [SKILL.md](SKILL.md) contains the main instructions and is required. Other files are optional and let you build more powerful skills: templates for Claude to fill in, example outputs showing the expected format, scripts Claude can execute, or detailed reference documentation. Reference these files from your [SKILL.md](SKILL.md) so Claude knows what they contain and when to load them. See [Add supporting files](#add-supporting-files) for more details.
 
 <Note>
   Files in `.claude/commands/` still work and support the same [frontmatter](#frontmatter-reference). Skills are recommended since they support additional features like supporting files.
@@ -134,7 +134,7 @@ Skills defined in `.claude/skills/` within directories added via `--add-dir` are
 
 ## Configure skills
 
-Skills are configured through YAML frontmatter at the top of `SKILL.md` and the markdown content that follows.
+Skills are configured through YAML frontmatter at the top of [SKILL.md](SKILL.md) and the markdown content that follows.
 
 ### Types of skill content
 
@@ -170,11 +170,11 @@ Deploy the application:
 3. Push to the deployment target
 ```
 
-Your `SKILL.md` can contain anything, but thinking through how you want the skill invoked (by you, by Claude, or both) and where you want it to run (inline or in a subagent) helps guide what to include. For complex skills, you can also [add supporting files](#add-supporting-files) to keep the main skill focused.
+Your [SKILL.md](SKILL.md) can contain anything, but thinking through how you want the skill invoked (by you, by Claude, or both) and where you want it to run (inline or in a subagent) helps guide what to include. For complex skills, you can also [add supporting files](#add-supporting-files) to keep the main skill focused.
 
 ### Frontmatter reference
 
-Beyond the markdown content, you can configure skill behavior using YAML frontmatter fields between `---` markers at the top of your `SKILL.md` file:
+Beyond the markdown content, you can configure skill behavior using YAML frontmatter fields between `---` markers at the top of your [SKILL.md](SKILL.md) file:
 
 ```yaml  theme={null}
 ---
@@ -212,7 +212,7 @@ Skills support string substitution for dynamic values in the skill content:
 | `$ARGUMENTS[N]`        | Access a specific argument by 0-based index, such as `$ARGUMENTS[0]` for the first argument.                                                                                                                                                                                             |
 | `$N`                   | Shorthand for `$ARGUMENTS[N]`, such as `$0` for the first argument or `$1` for the second.                                                                                                                                                                                               |
 | `${CLAUDE_SESSION_ID}` | The current session ID. Useful for logging, creating session-specific files, or correlating skill output with sessions.                                                                                                                                                                  |
-| `${CLAUDE_SKILL_DIR}`  | The directory containing the skill's `SKILL.md` file. For plugin skills, this is the skill's subdirectory within the plugin, not the plugin root. Use this in bash injection commands to reference scripts or files bundled with the skill, regardless of the current working directory. |
+| `${CLAUDE_SKILL_DIR}`  | The directory containing the skill's [SKILL.md](SKILL.md) file. For plugin skills, this is the skill's subdirectory within the plugin, not the plugin root. Use this in bash injection commands to reference scripts or files bundled with the skill, regardless of the current working directory. |
 
 **Example using substitutions:**
 
@@ -229,7 +229,7 @@ $ARGUMENTS
 
 ### Add supporting files
 
-Skills can include multiple files in their directory. This keeps `SKILL.md` focused on the essentials while letting Claude access detailed reference material only when needed. Large reference docs, API specifications, or example collections don't need to load into context every time the skill runs.
+Skills can include multiple files in their directory. This keeps [SKILL.md](SKILL.md) focused on the essentials while letting Claude access detailed reference material only when needed. Large reference docs, API specifications, or example collections don't need to load into context every time the skill runs.
 
 ```text  theme={null}
 my-skill/
@@ -240,7 +240,7 @@ my-skill/
     └── helper.py (utility script - executed, not loaded)
 ```
 
-Reference supporting files from `SKILL.md` so Claude knows what each file contains and when to load it:
+Reference supporting files from [SKILL.md](SKILL.md) so Claude knows what each file contains and when to load it:
 
 ```markdown  theme={null}
 ## Additional resources
@@ -249,7 +249,7 @@ Reference supporting files from `SKILL.md` so Claude knows what each file contai
 - For usage examples, see [examples.md](examples.md)
 ```
 
-<Tip>Keep `SKILL.md` under 500 lines. Move detailed reference material to separate files.</Tip>
+<Tip>Keep [SKILL.md](SKILL.md) under 500 lines. Move detailed reference material to separate files.</Tip>
 
 ### Control who invokes a skill
 

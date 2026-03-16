@@ -164,7 +164,7 @@ kubectl apply -f control-plane/flux/health-monitoring-controller.yaml
 
 **Files Created**:
 
-- `docs/GIT-OUTAGE-DISASTER-RECOVERY.md`
+- [docs/GIT-OUTAGE-DISASTER-RECOVERY.md](docs/GIT-OUTAGE-DISASTER-RECOVERY.md)
 - `scripts/disaster-recovery-drill.sh`
 - `scripts/setup-disaster-recovery.sh`
 

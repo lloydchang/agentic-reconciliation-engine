@@ -155,7 +155,7 @@ Determining whether an LLM-generated alternative constitutes a "derivative work"
 - **Validate Similarity**: Compare the LLM output to the AGPL core using code diffing or plagiarism tools. If >50% of the logic/structure matches AGPL elements, treat as derivative.
 - **Isolate Components**: Ensure LLM-generated code runs separately (no imports/linking to AGPL code). Deploy in different namespaces/containers.
 - **Documentation and Attribution**: Log LLM usage and include licensing headers. If in doubt, default to AGPL for safety.
-- **Risk Mitigation**: Implement human review workflows for LLM outputs, especially in production. Reference `docs/AI-INTEGRATION-ANALYSIS.md` for safe patterns.
+- **Risk Mitigation**: Implement human review workflows for LLM outputs, especially in production. Reference [docs/AI-INTEGRATION-ANALYSIS.md](docs/AI-INTEGRATION-ANALYSIS.md) for safe patterns.
 
 ## Additional Resources
 

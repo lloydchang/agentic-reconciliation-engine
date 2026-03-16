@@ -81,6 +81,6 @@ Automating these patterns turns the overlay model into an executable migration p
 
 ## Documentation pointers
 
-- Reference `docs/BOOTSTRAP-CLUSTER.md` for details about bootstrap sizing and recovery.
-- Use `docs/MIGRATION_GUIDE.md` as the higher-level playbook; add links there to this overlay-centric doc.
-- Keep `README.md` or `docs/README-INTEGRATION.md` updated with the “one overlay per cloud” pattern so new contributors understand the management strategy immediately.
+- Reference [docs/BOOTSTRAP-CLUSTER.md](docs/BOOTSTRAP-CLUSTER.md) for details about bootstrap sizing and recovery.
+- Use [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) as the higher-level playbook; add links there to this overlay-centric doc.
+- Keep [README.md](README.md) or [docs/README-INTEGRATION.md](docs/README-INTEGRATION.md) updated with the “one overlay per cloud” pattern so new contributors understand the management strategy immediately.

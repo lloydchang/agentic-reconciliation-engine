@@ -89,11 +89,11 @@ open http://localhost:8080
 
 ## Next Steps
 
-- **Learn Crossplane Local Development**: See `docs/CROSSPLANE-LOCAL-DEVELOPMENT.md`
+- **Learn Crossplane Local Development**: See [docs/CROSSPLANE-LOCAL-DEVELOPMENT.md](docs/CROSSPLANE-LOCAL-DEVELOPMENT.md)
 - **Add Real Cloud**: `./scripts/create-spoke-clusters.sh --providers azure`
 - **Multi-Cloud**: `./scripts/create-spoke-clusters.sh --providers azure,aws,gcp`
 - **Production**: Use real cloud providers for hub cluster
-- **AI Agents Guide**: See `docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md`
+- **AI Agents Guide**: See [docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md](docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md)
 
 ## Architecture
 
@@ -112,6 +112,6 @@ Bootstrap Cluster (local) → Hub Cluster (local) → Spoke Cluster (local)
 
 **MVP Benefits**: No cloud costs, no credentials, full GitOps validation, complete Crossplane functionality.  
 
-**For production deployment**, see `docs/OVERVIEW.md`.
+**For production deployment**, see [docs/OVERVIEW.md](docs/OVERVIEW.md).
 
-**For Crossplane local development details**, see `docs/CROSSPLANE-LOCAL-DEVELOPMENT.md`.
+**For Crossplane local development details**, see [docs/CROSSPLANE-LOCAL-DEVELOPMENT.md](docs/CROSSPLANE-LOCAL-DEVELOPMENT.md).

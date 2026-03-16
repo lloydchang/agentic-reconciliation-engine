@@ -4819,7 +4819,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Biological analogies offer novel but theoretically sound approaches.
 
-**Integration Approach**: Explore for advanced agent behavior patterns in `examples/complete-hub-spoke/agent-orchestration-demo.md`.
+**Integration Approach**: Explore for advanced agent behavior patterns in [examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md).
 
 ## 5. <https://www.mdpi.com/2078-2489/16/4/268>
 
@@ -4969,7 +4969,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Established patterns for agent coordination.
 
-**Integration Approach**: Implement patterns in `examples/complete-hub-spoke/agent-orchestration-demo.md`.
+**Integration Approach**: Implement patterns in [examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md).
 
 ## 20. <https://github.com/ruvnet/ruflo>
 
@@ -5427,7 +5427,7 @@ spec:
 
 ### Direct Relevance to Existing Examples
 
-#### 1. **Agent Orchestration Demo** (`examples/complete-hub-spoke/agent-orchestration-demo.md`)
+#### 1. **Agent Orchestration Demo** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md))
 
 **Current State**: Consensus-based self-organizing swarms with 30-second feedback loops
 **Temporal Enhancement**:
@@ -5456,7 +5456,7 @@ spec:
     persistConsensusState: true
 ```
 
-#### 2. **Agent Skills Next Level** (`docs/AGENT-SKILLS-NEXT-LEVEL.md`)
+#### 2. **Agent Skills Next Level** ([docs/AGENT-SKILLS-NEXT-LEVEL.md](docs/AGENT-SKILLS-NEXT-LEVEL.md))
 
 **Current State**: Distributed orchestration evolution from MCP to Agent Skills
 **Temporal Enhancement**:
@@ -5501,7 +5501,7 @@ export async function durableInfrastructureSkill(request: SkillRequest) {
 - **Saga Patterns**: Compensation for failed loop iterations
 - **Observability**: Complete audit trail of consensus decisions
 
-#### 4. **Job Orchestration** (`docs/JOB_ORCHESTRATION.md`)
+#### 4. **Job Orchestration** ([docs/JOB_ORCHESTRATION.md](docs/JOB_ORCHESTRATION.md))
 
 **Current State**: Kubernetes Jobs with Flux for pre/post deployment tasks
 **Temporal Enhancement**:
@@ -5633,7 +5633,7 @@ The Temporal patterns directly enhance the repository's existing **consensus-bas
 
 #### Enhanced Consensus Layer with Temporal Durability
 
-**Current Repository Consensus** (`examples/complete-hub-spoke/agent-orchestration-demo.md`):
+**Current Repository Consensus** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md)):
 
 - Raft-based consensus for agent coordination
 - 30-second feedback loops for local optimization
@@ -5664,7 +5664,7 @@ spec:
 
 #### Scatter/Gather Integration with Multi-Cloud Consensus
 
-**Repository Multi-Cloud Consensus** (`examples/complete-hub-spoke/agent-orchestration-demo.md`):
+**Repository Multi-Cloud Consensus** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md)):
 
 - Cross-agent communication
 - Distributed consensus across cloud boundaries
@@ -5694,7 +5694,7 @@ export async function multiCloudConsensusAnalysis(request: ConsensusRequest) {
 
 #### Durable Agent Skills with Temporal Activities
 
-**Repository Agent Skills** (`docs/AGENT-SKILLS-NEXT-LEVEL.md`):
+**Repository Agent Skills** ([docs/AGENT-SKILLS-NEXT-LEVEL.md](docs/AGENT-SKILLS-NEXT-LEVEL.md)):
 
 - Skill-based agent modularity
 - Infrastructure discovery and analysis skills

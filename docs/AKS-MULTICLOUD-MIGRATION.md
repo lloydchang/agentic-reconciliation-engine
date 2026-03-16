@@ -32,7 +32,7 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
 
 ## 2. Bootstrap the hub/Flux control plane
 
-1. Use the existing AKS cluster as the hub, or create a dedicated hub/bootstrap cluster per `docs/BOOTSTRAP-CLUSTER.md`.
+1. Use the existing AKS cluster as the hub, or create a dedicated hub/bootstrap cluster per [docs/BOOTSTRAP-CLUSTER.md](docs/BOOTSTRAP-CLUSTER.md).
 2. Bootstrap Flux pointing at this repo:
 
    ```bash

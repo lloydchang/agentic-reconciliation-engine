@@ -231,7 +231,7 @@ the problem you are solving.
 - Use `.github/workflows/run-local-automation.yml` to trigger the wrapper via GitHub Actions (runs on `ubuntu-latest`, installs `conftest`/`kubeconform`, uploads logs/summary as artifacts). Supply `connector`, `overlay_order`, and `emulator_action` inputs to target GitHub Enterprise Cloud/Server, Azure DevOps, or other hosts on demand. – [GitHub Action file](./.github/workflows/run-local-automation.yml)
 - Use `azure-pipelines-zero-touch.yml` for Azure Pipelines; it installs the same policy tooling, runs the wrapper with pipeline parameters, and publishes `logs/local-automation/` as an artifact. – [Azure Pipelines template](./azure-pipelines-zero-touch.yml)
 - Both pipelines call `scripts/publish-summary.sh` after automation completes. Set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post `latest-summary.json` to a dashboard/archive service; set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`.
-- `scripts/publish-summary.sh` also generates `logs/local-automation/latest-summary.md` — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
+- `scripts/publish-summary.sh` also generates [logs/local-automation/latest-summary.md](logs/local-automation/latest-summary.md) — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
 
 ## Comparison with Managed Alternatives
 
