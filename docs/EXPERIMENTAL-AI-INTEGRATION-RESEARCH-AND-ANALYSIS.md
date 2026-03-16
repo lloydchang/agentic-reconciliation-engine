@@ -1611,7 +1611,7 @@ spec:
 
 1. **Multi-Cloud Consensus**
    - Cross-cloud agent communication
-   - Cloud AI-specific consensus rules
+   - AI-specific consensus rules
    - Global state synchronization
 
 2. **Emergent Behavior**
