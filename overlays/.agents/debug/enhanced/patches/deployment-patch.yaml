@@ -1,0 +1,59 @@
+---
+# Enhanced Deployment patch for ML debugging
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debug
+  labels:
+    overlay: debug-enhanced
+spec:
+  template:
+    spec:
+      containers:
+      - name: debug
+        env:
+        - name: DEBUG_LEVEL
+          value: "enhanced"
+        - name: ML_CORRELATION
+          value: "enabled"
+        - name: PREDICTIVE_ANALYSIS
+          value: "enabled"
+      # Add ML sidecar
+      - name: ml-processor
+        image: python:3.11-slim
+        command:
+          - python
+          - -c
+          - |
+            import os
+            import time
+            import logging
+            import json
+            
+            logging.basicConfig(level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            logger.info("ML processor started")
+            
+            while True:
+                # Simulate ML processing
+                time.sleep(30)
+                logger.info("ML processing complete")
+        env:
+        - name: ML_ENABLED
+          value: "true"
+        - name: DEBUG_MODE
+          value: "enhanced"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        volumeMounts:
+        - name: ml-models
+          mountPath: /models
+      volumes:
+      - name: ml-models
+        emptyDir: {}
