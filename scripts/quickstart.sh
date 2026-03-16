@@ -92,23 +92,23 @@ main() {
   echo
   
   # Step 1: Prerequisites
-  run_step "prerequisites" "./scripts/prerequisites.sh"
+  run_step "prerequisites" "./prerequisites.sh"
   
   # Step 2: GitOps Configuration
-  run_step "gitops-config" "./scripts/setup-gitops-config.sh"
+  run_step "gitops-config" "./setup-gitops-config.sh"
   
   # Step 3: Bootstrap Cluster (recovery anchor)
-  run_step "bootstrap-cluster" "./scripts/create-bootstrap-cluster.sh"
+  run_step "bootstrap-cluster" "./create-bootstrap-cluster.sh"
   
   # Step 4: Hub Cluster (GitOps control plane)
-  run_step "hub-cluster" "./scripts/create-hub-cluster.sh --provider local"
+  run_step "hub-cluster" "./create-hub-cluster.sh --provider local"
   
   # Step 5: Install Crossplane on hub
-  run_step "install-crossplane" "./scripts/install-crossplane.sh --providers local"
+  run_step "install-crossplane" "./install-crossplane.sh --providers local"
   
   # Step 6: Create Spoke Clusters
   if [[ "$SKIP_SPOKE" != "true" ]]; then
-    run_step "spoke-cluster" "./scripts/create-spoke-clusters.sh"
+    run_step "spoke-cluster" "./create-spoke-clusters.sh"
   else
     warn "Skipping spoke cluster creation"
   fi

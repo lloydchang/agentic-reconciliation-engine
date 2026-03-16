@@ -102,7 +102,7 @@ info "Detected package manager: ${PKG_MANAGER}"
 
 ERRORS=0
 WARNINGS=0
-SKILL_DIR="${SKILL_DIR:-./.agents}"
+SKILL_DIR="${SKILL_DIR:-../.agents}"
 # Discover all skills dynamically
 REQUIRED_SKILLS=()
 while IFS= read -r skill_path; do
@@ -137,7 +137,7 @@ else
 fi
 
 # Verify AGENTS.md exists
-[[ -f "AGENTS.md" ]] && pass "AGENTS.md found" || warn "AGENTS.md not found — agent context will be limited"
+[[ -f "../AGENTS.md" ]] && pass "AGENTS.md found" || warn "AGENTS.md not found — agent context will be limited"
 
 echo ""
 
