@@ -1,4 +1,4 @@
-# Multi-Cloud Agent Skills
+# Multi-Agent Skills
 
 This directory contains agent skills following the [Agent Skills Specification](https://agentskills.io/specification) with Python-first architecture and PEP 723 dependency management.
 
@@ -133,7 +133,7 @@ python main.py provision --type ec2 --name my-instance --provider aws
 
 ### Cluster Health Check
 
-**Purpose**: Comprehensive cluster health monitoring across multi-cloud environments
+**Purpose**: Comprehensive cluster health monitoring across multi-agent environments
 
 **Risk Level**: Low  
 **Autonomy**: Fully automated

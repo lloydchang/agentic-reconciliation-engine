@@ -49,14 +49,14 @@ curl -s http://localhost:5000/api/agents/status | jq .
 #### Agent Operations
 ```bash
 # Restart specific agent
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 
 # Scale agent deployment
-kubectl scale deployment memory-agent-rust --replicas=3 -n ai-infrastructure
+kubectl scale deployment agent-memory-rust --replicas=3 -n ai-infrastructure
 
 # Update agent image
-kubectl set image deployment/memory-agent-rust \
-  memory-agent=memory-agent-rust:v2.1.0 -n ai-infrastructure
+kubectl set image deployment/agent-memory-rust \
+  agent-memory=agent-memory-rust:v2.1.0 -n ai-infrastructure
 ```
 
 ### Skills Management
@@ -158,7 +158,7 @@ The dashboard provides real-time alerts for:
 {
   "timestamp": "2024-03-15T10:30:00Z",
   "level": "info",
-  "component": "memory-agent-rust",
+  "component": "agent-memory-rust",
   "agent_id": "agent-1",
   "skill": "cost-analysis",
   "execution_id": "exec-12345",
@@ -171,7 +171,7 @@ The dashboard provides real-time alerts for:
 #### Log Collection
 ```bash
 # View real-time logs
-kubectl logs -f -n ai-infrastructure -l component=memory-agent
+kubectl logs -f -n ai-infrastructure -l component=agent-memory
 
 # Search logs for errors
 kubectl logs -n ai-infrastructure --since=1h | grep -i error
@@ -204,11 +204,11 @@ kubectl get pvc -n ai-infrastructure
 **Solutions:**
 ```bash
 # Fix resource limits
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","resources":{"limits":{"memory":"1Gi"}}}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","resources":{"limits":{"memory":"1Gi"}}}]}}}}'
 
 # Recreate PVC if corrupted
-kubectl delete pvc memory-agent-pvc -n ai-infrastructure
-kubectl apply -f infrastructure/ai-inference/shared/memory-agent-deployment.yaml
+kubectl delete pvc agent-memory-pvc -n ai-infrastructure
+kubectl apply -f infrastructure/ai-inference/shared/agent-memory-deployment.yaml
 ```
 
 #### Issue 2: Dashboard Not Accessible
@@ -264,8 +264,8 @@ kubectl rollout restart deployment/skills-orchestrator -n ai-infrastructure
 kubectl exec -it temporal-frontend-xxx -n ai-infrastructure -- tctl --ns default workflow terminate --workflow-id <workflow-id>
 
 # Reset memory agent
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- rm /data/memory.db
-kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- rm /data/memory.db
+kubectl rollout restart deployment/agent-memory-rust -n ai-infrastructure
 ```
 
 #### Issue 4: Performance Degradation
@@ -281,22 +281,22 @@ kubectl top pods -n ai-infrastructure
 kubectl top nodes
 
 # Check database size
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- ls -lh /data/
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- ls -lh /data/
 
 # Check network latency
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- ping temporal-frontend.ai-infrastructure.svc.cluster.local
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- ping temporal-frontend.ai-infrastructure.svc.cluster.local
 ```
 
 **Solutions:**
 ```bash
 # Scale horizontally
-kubectl scale deployment memory-agent-rust --replicas=3 -n ai-infrastructure
+kubectl scale deployment agent-memory-rust --replicas=3 -n ai-infrastructure
 
 # Optimize database
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "VACUUM;"
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "VACUUM;"
 
 # Add resources
-kubectl patch deployment memory-agent-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"memory-agent","resources":{"limits":{"cpu":"1000m"}}}]}}}}'
+kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"template":{"spec":{"containers":[{"name":"agent-memory","resources":{"limits":{"cpu":"1000m"}}}]}}}}'
 ```
 
 ## Performance Optimization
@@ -318,12 +318,12 @@ resources:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: memory-agent-hpa
+  name: agent-memory-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: memory-agent-rust
+    name: agent-memory-rust
   minReplicas: 2
   maxReplicas: 10
   metrics:
@@ -344,7 +344,7 @@ spec:
 #### Database Optimization
 ```bash
 # SQLite optimization commands
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "
 PRAGMA journal_mode = WAL;
 PRAGMA synchronous = NORMAL;
 PRAGMA cache_size = 10000;
@@ -363,7 +363,7 @@ kind: DestinationRule
 metadata:
   name: ai-agents
 spec:
-  host: memory-agent-rust.ai-infrastructure.svc.cluster.local
+  host: agent-memory-rust.ai-infrastructure.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: LEAST_CONN
@@ -426,10 +426,10 @@ kubectl get configmaps -n ai-infrastructure -o yaml > backup/config-$(date +%Y%m
 kubectl get deployments -n ai-infrastructure -o yaml > backup/deployments-$(date +%Y%m%d).yaml
 
 # 2. Clean up old logs
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- find /var/log -name "*.log" -mtime +7 -delete
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- find /var/log -name "*.log" -mtime +7 -delete
 
 # 3. Optimize database
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "VACUUM;"
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db "VACUUM;"
 
 # 4. Update certificates
 kubectl get certificates -n ai-infrastructure
@@ -458,7 +458,7 @@ kubectl get vpa -n ai-infrastructure
 kubectl describe nodes | grep -A 5 "Allocated resources"
 
 # 4. Backup verification
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db ".backup /backup/memory-$(date +%Y%m%d).db"
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- sqlite3 /data/memory.db ".backup /backup/memory-$(date +%Y%m%d).db"
 
 # 5. Log rotation
 kubectl logs -n ai-infrastructure --since=30d > backup/logs-$(date +%Y%m%d).log
@@ -529,7 +529,7 @@ kubectl get pods -n ai-infrastructure -o json | jq '.items[].spec.containers[].i
 
 # Check for vulnerabilities
 kubectl run security-scan --image=aquasec/trivy:latest --rm -i -- \
-  image memory-agent-rust:latest --format json > security-scan-$(date +%Y%m%d).json
+  image agent-memory-rust:latest --format json > security-scan-$(date +%Y%m%d).json
 ```
 
 ### Incident Response
@@ -542,7 +542,7 @@ kubectl run security-scan --image=aquasec/trivy:latest --rm -i -- \
 echo "Security incident response initiated..."
 
 # 1. Isolate affected systems
-kubectl scale deployment --replicas=0 memory-agent-rust -n ai-infrastructure
+kubectl scale deployment --replicas=0 agent-memory-rust -n ai-infrastructure
 
 # 2. Preserve evidence
 kubectl get pods -n ai-infrastructure -o yaml > incident/pods-$(date +%Y%m%d-%H%M%S).yaml
@@ -579,7 +579,7 @@ mkdir -p $BACKUP_DIR
 echo "Starting daily backup..."
 
 # 1. Backup persistent data
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- \
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- \
   tar -czf /backup/memory-data-$(date +%Y%m%d).tar.gz /data/
 
 # 2. Backup configurations
@@ -599,8 +599,8 @@ echo "Starting restore from backup..."
 kubectl apply -f kubernetes-resources.yaml
 
 # Restore data
-kubectl cp memory-data-$(date +%Y%m%d).tar.gz memory-agent-rust-xxx:/tmp/ -n ai-infrastructure
-kubectl exec -it memory-agent-rust-xxx -n ai-infrastructure -- tar -xzf /tmp/memory-data-$(date +%Y%m%d).tar.gz -C /
+kubectl cp memory-data-$(date +%Y%m%d).tar.gz agent-memory-rust-xxx:/tmp/ -n ai-infrastructure
+kubectl exec -it agent-memory-rust-xxx -n ai-infrastructure -- tar -xzf /tmp/memory-data-$(date +%Y%m%d).tar.gz -C /
 
 echo "Restore completed"
 EOF
