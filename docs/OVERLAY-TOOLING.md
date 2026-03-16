@@ -1,10 +1,10 @@
-# Overlays Tooling Guide
+# Overlay Tooling Guide
 
 This document describes the comprehensive tooling ecosystem for managing overlays in the GitOps Infrastructure Control Plane.
 
 ## Overview
 
-The overlays system includes a complete set of tools for:
+The overlay system includes a complete set of tools for:
 
 - **CLI Management**: Command-line interface for overlay operations
 - **Registry Management**: Metadata catalog and discovery system
@@ -332,7 +332,7 @@ python scripts/test-overlays.py overlays/ --report test-report.json
 
 ## CI/CD Integration
 
-The overlays system includes comprehensive CI/CD integration through GitHub Actions.
+The overlay system includes comprehensive CI/CD integration through GitHub Actions.
 
 ### Workflow Features
 

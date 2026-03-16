@@ -1398,10 +1398,10 @@ This collection provides:
 **Start building your custom overlays today!** 🎉
 
 For more examples and detailed guides, see:
-- **[Quick Start Guide](OVERLAYS-QUICK-START.md)**: Getting started
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Complete documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[Community Guide](OVERLAYS-COMMUNITY-GUIDE.md)**: Community resources
+- **[Quick Start Guide](OVERLAY-QUICK-START.md)**: Getting started
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Complete documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
 
 ---
 

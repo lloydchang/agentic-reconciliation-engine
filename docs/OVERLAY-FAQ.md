@@ -1,6 +1,6 @@
-# Overlays FAQ
+# Overlay FAQ
 
-Frequently asked questions about the GitOps Infrastructure Control Plane Overlays System.
+Frequently asked questions about the GitOps Infrastructure Control Plane Overlay System.
 
 ## Table of Contents
 
@@ -495,7 +495,7 @@ configMapGenerator:
 
 ## Community
 
-### Q: How can I contribute to the overlays system?
+### Q: How can I contribute to the overlay system?
 
 **A**: There are many ways to contribute:
 - **Create overlays**: Develop new overlays for the community
@@ -554,10 +554,10 @@ configMapGenerator:
 
 If you don't find your answer here, check out:
 
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Comprehensive user documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[Community Guide](OVERLAYS-COMMUNITY-GUIDE.md)**: Community resources
-- **[Examples](OVERLAYS-EXAMPLES.md)**: Real-world examples
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Comprehensive user documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
+- **[Examples](OVERLAY-EXAMPLES.md)**: Real-world examples
 
 Or reach out through our [community channels](https://github.com/gitops-infra-control-plane/discussions).
 

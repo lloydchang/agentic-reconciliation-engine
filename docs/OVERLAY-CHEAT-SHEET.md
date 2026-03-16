@@ -1,4 +1,4 @@
-# Overlays Cheat Sheet
+# Overlay Cheat Sheet
 
 Quick reference for common overlay operations and commands.
 
@@ -618,10 +618,10 @@ kustomize build overlays/.agents/my-overlay --enable-alpha-plugins
 
 ## Need More Help?
 
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Complete documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[FAQ](OVERLAYS-FAQ.md)**: Frequently asked questions
-- **[Examples](OVERLAYS-EXAMPLES.md)**: Real-world examples
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Complete documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[FAQ](OVERLAY-FAQ.md)**: Frequently asked questions
+- **[Examples](OVERLAY-EXAMPLES.md)**: Real-world examples
 
 ---
 

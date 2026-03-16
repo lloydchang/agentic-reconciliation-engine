@@ -1,6 +1,6 @@
-# Overlays User Guide
+# Overlay User Guide
 
-Welcome to the comprehensive user guide for the GitOps Infrastructure Control Plane Overlays System. This guide will help you understand, create, and manage overlays effectively.
+Welcome to the comprehensive user guide for the GitOps Infrastructure Control Plane Overlay System. This guide will help you understand, create, and manage overlays effectively.
 
 ## Table of Contents
 
@@ -706,9 +706,9 @@ Now that you understand overlays, you can:
 
 ## Resources
 
-- [Architecture Documentation](OVERLAYS-ARCHITECTURE.md)
-- [Planning Document](OVERLAYS-PLANNING.md)
-- [Tooling Guide](OVERLAYS-TOOLING.md)
+- [Architecture Documentation](OVERLAY-ARCHITECTURE.md)
+- [Planning Document](OVERLAY-PLANNING.md)
+- [Tooling Guide](OVERLAY-TOOLING.md)
 - [GitHub Repository](https://github.com/gitops-infra-control-plane)
 - [Community Forum](https://github.com/gitops-infra-control-plane/discussions)
 - [Issue Tracker](https://github.com/gitops-infra-control-plane/issues)

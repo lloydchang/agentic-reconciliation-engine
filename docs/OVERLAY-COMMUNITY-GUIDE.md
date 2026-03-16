@@ -1,4 +1,4 @@
-# Overlays Community Guide
+# Overlay Community Guide
 
 Welcome to the GitOps Infrastructure Control Plane Overlays Community! This guide will help you get involved, contribute overlays, and engage with the community.
 
@@ -201,15 +201,15 @@ mkdir -p overlays/templates/my-type-overlay
 ### 1. Documentation Hub
 
 #### Core Documentation
-- **[User Guide](OVERLAYS-USER-GUIDE.md)**: Complete user documentation
-- **[Developer Guide](OVERLAYS-DEVELOPER-GUIDE.md)**: Development guidelines
-- **[Tooling Guide](OVERLAYS-TOOLING.md)**: Tool usage and development
-- **[Architecture](OVERLAYS-ARCHITECTURE.md)**: System architecture
+- **[User Guide](OVERLAY-USER-GUIDE.md)**: Complete user documentation
+- **[Developer Guide](OVERLAY-DEVELOPER-GUIDE.md)**: Development guidelines
+- **[Tooling Guide](OVERLAY-TOOLING.md)**: Tool usage and development
+- **[Architecture](OVERLAY-ARCHITECTURE.md)**: System architecture
 
 #### Quick References
-- **[Cheat Sheet](docs/OVERLAYS-CHEAT-SHEET.md)**: Quick command reference
-- **[FAQ](docs/OVERLAYS-FAQ.md)**: Frequently asked questions
-- **[Glossary](docs/OVERLAYS-GLOSSARY.md)**: Terminology and definitions
+- **[Cheat Sheet](docs/OVERLAY-CHEAT-SHEET.md)**: Quick command reference
+- **[FAQ](docs/OVERLAY-FAQ.md)**: Frequently asked questions
+- **[Glossary](docs/OVERLAY-GLOSSARY.md)**: Terminology and definitions
 
 ### 2. Learning Resources
 
@@ -219,7 +219,7 @@ mkdir -p overlays/templates/my-type-overlay
 - **Best Practices**: Professional overlay development
 
 #### Video Content
-- **Introduction**: Overview of overlays system
+- **Introduction**: Overview of overlay system
 - **Tutorials**: Step-by-step video guides
 - **Talks**: Conference presentations and talks
 
