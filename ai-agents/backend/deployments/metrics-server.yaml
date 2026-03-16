@@ -18,6 +18,7 @@ spec:
       containers:
       - name: metrics-server
         image: ai-metrics-server:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
           name: metrics

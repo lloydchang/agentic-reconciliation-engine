@@ -6,7 +6,7 @@
 
 ## What is AI Agents Sandbox?
 
-`ai-agents-sandbox` is a place that serves as both a **playground for multiple AI agents** and a **local garden** for experimentation. It provides:
+`gitops-infra-control-plane` is a place that serves as both a **playground for multiple AI agents** and a **local garden** for experimentation. It provides:
 
 - **30 Specialized Skills** - Infrastructure provisioning, compliance scanning, cost optimization, and more
 - **Multi-Agent Orchestration** - Coordinate complex workflows
@@ -26,8 +26,8 @@
 
 ```bash
 # Clone and setup
-git clone https://github.com/lloydchang/ai-agents-sandbox.git
-cd ai-agents-sandbox
+git clone https://github.com/lloydchang/gitops-infra-control-plane.git
+cd gitops-infra-control-plane
 
 # Start everything
 ./scripts/dev.sh
@@ -429,7 +429,7 @@ The MCP server exposes standardized tools so local AI assistants (e.g., Claude D
 ## Repository Structure
 
 ```
-ai-agents-sandbox/
+gitops-infra-control-plane/
 ├── AGENTS.md                   # Agent behavior rules
 ├── SKILL.md                    # AI skill definitions
 ├── .agents/skills/             # Skill definitions (Claude/Codex compatible)
@@ -588,7 +588,7 @@ This sandbox is built for safe, bleeding-edge experimentation. Contributions are
 
 ## Why This Name?
 
-**Why `ai-agents-sandbox`?**
+**Why `gitops-infra-control-plane`?**
 
 The name was chosen deliberately, and every word carries meaning.
 
@@ -605,19 +605,19 @@ The name was chosen deliberately, and every word carries meaning.
 - `ai-agent-platform` — Oversells stability and completeness
 - `lab` / `edge` / `experimental` — Overused, too vague, or implies instability rather than intentional exploration
 
-`ai-agents-sandbox` is clean, searchable, accurate, and carries no branding conflicts.
+`gitops-infra-control-plane` is clean, searchable, accurate, and carries no branding conflicts.
 
 ---
 
 ## Open-source software
 
-<https://github.com/lloydchang/ai-agents-sandbox>
+<https://github.com/lloydchang/gitops-infra-control-plane>
 
 ---
 
 ## License
 
-[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/ai-agents-sandbox/blob/main/LICENSE)
+[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/gitops-infra-control-plane/blob/main/LICENSE)
 
 ---
 

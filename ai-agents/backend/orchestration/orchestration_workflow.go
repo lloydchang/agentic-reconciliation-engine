@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lloydchang/ai-agents-sandbox/backend/mcp"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
 	"go.temporal.io/sdk/workflow"
 )
 

@@ -388,7 +388,7 @@ spec:
 - Isolated validation environments
 
 #### AI Agents Sandbox (lloydchang)
-**Source**: https://github.com/lloydchang/ai-agents-sandbox
+**Source**: https://github.com/lloydchang/gitops-infra-control-plane
 
 **Key Features**:
 - 30+ specialized skills
@@ -888,7 +888,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Recommend in docs/ for contributors using macOS, for testing control plane locally.
 
-## 10. https://github.com/lloydchang/ai-agents-sandbox
+## 10. https://github.com/lloydchang/gitops-infra-control-plane
 
 **Content Summary**: Playground for multiple AI agents in local garden, with skills, workflows, infrastructure emulator.
 
@@ -898,7 +898,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Adapt sandbox concepts to infrastructure/tenants/3-workloads/ for AI-assisted ops.
 
-## 11. https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+## 11. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills
 
 **Content Summary**: Skills directory with markdown files for temporal-workflow, backstage-catalog, ai-agent-orchestration, etc.
 
@@ -1217,7 +1217,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 ### Introduction: Beyond Centralized Orchestration
 
-The analysis of ai-agents-sandbox and related distributed systems research reveals a critical insight: **the future of AI agent orchestration lies not in top-down control, but in bottom-up consensus systems**. Traditional centralized orchestration (like Kubernetes controllers) creates bottlenecks and single points of failure. Instead, we can apply distributed consensus algorithms to create self-organizing agent swarms that achieve tight feedback loops through local decision-making.
+The analysis of gitops-infra-control-plane and related distributed systems research reveals a critical insight: **the future of AI agent orchestration lies not in top-down control, but in bottom-up consensus systems**. Traditional centralized orchestration (like Kubernetes controllers) creates bottlenecks and single points of failure. Instead, we can apply distributed consensus algorithms to create self-organizing agent swarms that achieve tight feedback loops through local decision-making.
 
 ### Key Insights from Distributed Systems Research
 
@@ -1573,11 +1573,11 @@ The key insight is that **the tightest feedback loops happen at the local level*
 
 ## Advanced Re-Review: Deep Analysis of Consensus-Based Agent Orchestration
 
-### Key Findings from ai-agents-sandbox Repository
+### Key Findings from gitops-infra-control-plane Repository
 
 #### Enhanced Agent Skills Architecture
 
-The ai-agents-sandbox repository demonstrates **production-ready multi-agent orchestration** with sophisticated consensus-based patterns:
+The gitops-infra-control-plane repository demonstrates **production-ready multi-agent orchestration** with sophisticated consensus-based patterns:
 **Applicability**: Medium - community insights on AI-K8s integration challenges.
 
 **Safety Assessment**: Safe - community observations.
@@ -2281,7 +2281,7 @@ spec:
 
 **Integration Approach**: Use as the primary reference for implementing Agent Skills in the GitOps control plane. Follow the 3-phase migration strategy (Skill Development → Hybrid Integration → Complete Migration) to transition from MCP to Agent Skills while maintaining system reliability and operational continuity.
 
-## 106. https://github.com/lloydchang/ai-agents-sandbox
+## 106. https://github.com/lloydchang/gitops-infra-control-plane
 
 **Content Summary**: AI Agents Sandbox is a comprehensive playground for multiple AI agents featuring consensus-based orchestration, tight feedback loops, and self-organizing agent swarms. It implements a bottom-up orchestration model using distributed consensus algorithms (Raft-inspired) rather than top-down control, with 30 specialized skills including temporal workflows, compliance checking, cost optimization, security analysis, and infrastructure discovery.
 
@@ -2307,7 +2307,7 @@ Key architectural patterns to adopt:
 
 The following URLs were provided for inclusion in this analysis. Many of these resources have already been analyzed in the document above, but they are listed here for reference:
 
-- https://github.com/lloydchang/ai-agents-sandbox
+- https://github.com/lloydchang/gitops-infra-control-plane
 - https://github.com/backstage/backstage
 - https://backstage.io/
 - https://backstage.spotify.com/
@@ -2331,7 +2331,7 @@ The following URLs were provided for inclusion in this analysis. Many of these r
 - https://github.com/Clause-Logic/exoclaw
 - https://github.com/Clause-Logic/exoclaw-temporal
 - https://github.com/Clause-Logic/exoclaw-github
-- https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+- https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills
 
 ## Detailed Analysis of Additional Resources
 
@@ -2669,7 +2669,7 @@ data:
 **Integration Approach**: Use for GitHub-based agent automation.
 
 #### AI Agents Sandbox Skills
-**Source**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+**Source**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills
 
 **Content Summary**: Specialized skills for infrastructure and DevOps automation.
 
@@ -2987,7 +2987,7 @@ spec:
 ### Enhanced AI Agents Sandbox
 
 #### AI Agents Sandbox (Extended Repository)
-**Source**: https://github.com/lloydchang/ai-agents-sandbox
+**Source**: https://github.com/lloydchang/gitops-infra-control-plane
 
 **Enhanced Features**:
 - 30+ specialized infrastructure skills
@@ -2995,7 +2995,7 @@ spec:
 - Human-in-the-loop approval workflows
 - Comprehensive audit trails
 
-**Skills Repository**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills
+**Skills Repository**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills
 
 **Key Infrastructure Skills**:
 - Infrastructure discovery and inventory
@@ -4080,7 +4080,7 @@ This analysis confirms that **Raft remains the optimal choice for most consensus
 ### Enhanced Phase 1: Foundation (Immediate)
 
 1. **Deploy AI Agents Sandbox**
-   - Integrate lloydchang/ai-agents-sandbox skills
+   - Integrate lloydchang/gitops-infra-control-plane skills
    - Configure infrastructure discovery agents
    - Set up human approval workflows
 
@@ -4235,9 +4235,9 @@ The key is to maintain the GitOps-first principles while selectively integrating
 
 ### Architecture: From Centralized Control to Distributed Consensus
 
-The **ai-agents-sandbox** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and coordinated behavior.
+The **gitops-infra-control-plane** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and coordinated behavior.
 
-#### Key Architectural Insights from ai-agents-sandbox
+#### Key Architectural Insights from gitops-infra-control-plane
 
 **Distributed Consensus Framework**:
 - **30+ Specialized Skills**: Infrastructure discovery, compliance checking, cost optimization, security validation, performance tuning
@@ -5690,11 +5690,11 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 ## 37. AI Agents Sandbox Skills Tree Analysis
 
-This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/skills](https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
+This section analyzes the complete skills tree from [gitops-infra-control-plane/.agents/skills](https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
 
 ### temporal-workflow
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/temporal-workflow
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/temporal-workflow
 
 **SKILL.md Content**: Create, manage, and monitor Temporal workflows with AI agent orchestration. Use when developing workflow definitions, monitoring execution, or troubleshooting workflow issues.
 
@@ -5708,7 +5708,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### backstage-catalog
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/backstage-catalog
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/backstage-catalog
 
 **SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
 
@@ -5722,7 +5722,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### ai-agent-orchestration
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/ai-agent-orchestration
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/ai-agent-orchestration
 
 **SKILL.md Content**: Orchestrate and coordinate multiple AI agents for complex workflows. Use when managing agent interactions, coordinating multi-agent tasks, or implementing agent communication patterns.
 
@@ -5736,7 +5736,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### compliance-check
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/compliance-check
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/compliance-check
 
 **SKILL.md Content**: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
 
@@ -5750,7 +5750,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### cost-optimization
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/cost-optimization
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/cost-optimization
 
 **SKILL.md Content**: Analyze and optimize cloud infrastructure costs using specialized subagent. Use when reviewing spending, identifying savings opportunities, or planning cost reduction strategies.
 
@@ -5764,7 +5764,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### security-analysis
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/security-analysis
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/security-analysis
 
 **SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
 
@@ -5778,7 +5778,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### workflow-management
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/workflow-management
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/workflow-management
 
 **SKILL.md Content**: Orchestrate and monitor Temporal AI Agent workflows. Use when managing multiple concurrent workflows, checking status, or coordinating complex multi-agent operations.
 
@@ -5792,7 +5792,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### infrastructure-discovery
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/infrastructure-discovery
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/infrastructure-discovery
 
 **SKILL.md Content**: Discover and visualize infrastructure resources with interactive HTML output. Use when exploring new environments, understanding resource relationships, or creating infrastructure documentation.
 
@@ -5806,7 +5806,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ### developer-self-service
 
-**Location**: https://github.com/lloydchang/ai-agents-sandbox/tree/main/.agents/skills/developer-self-service
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/developer-self-service
 
 **SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
 
@@ -6132,7 +6132,7 @@ This section analyzes the complete skills tree from [ai-agents-sandbox/.agents/s
 
 ## 38. Temporal AI Agents System Analysis
 
-This section analyzes the comprehensive Temporal AI Agents system imported from the [ai-agents-sandbox](https://github.com/lloydchang/ai-agents-sandbox) repository in commit `98a895bfffcdbc3a7302f2809cc98e8f70233c35`. The system provides a complete agent operating platform with 64 specialized skills for enterprise Cloud AI.
+This section analyzes the comprehensive Temporal AI Agents system imported from the [gitops-infra-control-plane](https://github.com/lloydchang/gitops-infra-control-plane) repository in commit `98a895bfffcdbc3a7302f2809cc98e8f70233c35`. The system provides a complete agent operating platform with 64 specialized skills for enterprise Cloud AI.
 
 ### Overview of Temporal AI Agents System
 

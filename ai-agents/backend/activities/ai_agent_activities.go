@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/ai-agents-sandbox/backend/types"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 )
 
 // Infrastructure Discovery Activities

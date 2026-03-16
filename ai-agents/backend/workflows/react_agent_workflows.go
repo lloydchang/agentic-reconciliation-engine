@@ -6,8 +6,8 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/ai-agents-sandbox/backend/activities"
-	"github.com/lloydchang/ai-agents-sandbox/backend/mcp"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
 )
 
 // ReActAgentRequest represents a request for ReAct-style agent execution

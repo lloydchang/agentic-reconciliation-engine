@@ -15,8 +15,8 @@
 #### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/lloydchang/ai-agents-sandbox.git
-cd ai-agents-sandbox
+git clone https://github.com/lloydchang/gitops-infra-control-plane.git
+cd gitops-infra-control-plane
 ```
 
 #### 2. Backend Setup
@@ -119,7 +119,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 
 ```json
 {
-  "family": "ai-agents-sandbox",
+  "family": "gitops-infra-control-plane",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
@@ -149,7 +149,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/ai-agents-sandbox",
+          "awslogs-group": "/ecs/gitops-infra-control-plane",
           "awslogs-region": "us-west-2",
           "awslogs-stream-prefix": "ecs"
         }
@@ -168,7 +168,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ai-agents-sandbox
+  name: gitops-infra-control-plane
 
 ---
 # k8s/configmap.yaml
@@ -176,7 +176,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ai-agents-config
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 data:
   TEMPORAL_HOST: "temporal.namespace.id.tmprl.cloud:7233"
   AWS_REGION: "us-west-2"
@@ -191,7 +191,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-agents-backend
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 spec:
   replicas: 3
   selector:
@@ -235,7 +235,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-agents-backend-service
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 spec:
   selector:
     app: ai-agents-backend
@@ -254,7 +254,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-agents-frontend
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 spec:
   replicas: 2
   selector:
@@ -283,7 +283,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-agents-frontend-service
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 spec:
   selector:
     app: ai-agents-frontend
@@ -302,7 +302,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ai-agents-ingress
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -512,7 +512,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: ai-agents-network-policy
-  namespace: ai-agents-sandbox
+  namespace: gitops-infra-control-plane
 spec:
   podSelector: {}
   policyTypes:
@@ -720,9 +720,9 @@ wscat -c ws://localhost:8081/ws
 
 ### Support
 
-- GitHub Issues: [Create Issue](https://github.com/lloydchang/ai-agents-sandbox/issues)
-- Community Forum: [Discussions](https://github.com/lloydchang/ai-agents-sandbox/discussions)
-- Email Support: <support@ai-agents-sandbox.com>
+- GitHub Issues: [Create Issue](https://github.com/lloydchang/gitops-infra-control-plane/issues)
+- Community Forum: [Discussions](https://github.com/lloydchang/gitops-infra-control-plane/discussions)
+- Email Support: <support@gitops-infra-control-plane.com>
 
 ### Training
 

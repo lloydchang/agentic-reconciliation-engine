@@ -22,10 +22,10 @@ echo "📦 Building Go metrics server..."
 cd "${REPO_DIR}/ai-agents/backend"
 
 # Create a simple Dockerfile if it doesn't exist
-if [ ! -f "Dockerfile" ]; then
-    echo "📝 Creating Dockerfile..."
-    cat > Dockerfile <<'EOF'
-FROM golang:1.21-alpine AS builder
+if [ ! -f "Dockerfile.metrics" ]; then
+    echo "📝 Creating metrics server Dockerfile..."
+    cat > Dockerfile.metrics <<'EOF'
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -46,9 +46,9 @@ CMD ["./metrics-server"]
 EOF
 fi
 
-# Build Docker image
+# Build Docker image using the metrics-specific Dockerfile
 echo "🐳 Building Docker image..."
-docker build -t ai-metrics-server:latest .
+docker build -f Dockerfile.metrics -t ai-metrics-server:latest .
 
 # Step 2: Load image into Kind cluster
 echo "📋 Loading image into Kind cluster..."

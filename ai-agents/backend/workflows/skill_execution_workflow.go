@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/ai-agents-sandbox/backend/activities"
-	"github.com/lloydchang/ai-agents-sandbox/backend/types"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 )
 
 // SkillExecutionWorkflow orchestrates the execution of a skill's steps

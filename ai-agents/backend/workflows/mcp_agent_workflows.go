@@ -6,8 +6,8 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/ai-agents-sandbox/backend/activities"
-	"github.com/lloydchang/ai-agents-sandbox/backend/mcp"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
 )
 
 // GoalBasedAgentRequest represents a request for goal-based agent execution

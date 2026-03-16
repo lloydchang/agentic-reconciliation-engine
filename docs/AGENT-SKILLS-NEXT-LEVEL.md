@@ -72,7 +72,7 @@ spec:
 
 ## Executive Summary: The AI Agents Sandbox Revolution
 
-The **ai-agents-sandbox** repository demonstrates an approach to AI agent orchestration, implementing **distributed consensus systems** that achieve feedback loops through **bottom-up orchestration** rather than centralized control. This approach transforms infrastructure management from reactive monitoring to **proactive, self-organizing optimization**.
+The **gitops-infra-control-plane** repository demonstrates an approach to AI agent orchestration, implementing **distributed consensus systems** that achieve feedback loops through **bottom-up orchestration** rather than centralized control. This approach transforms infrastructure management from reactive monitoring to **proactive, self-organizing optimization**.
 
 ### Key Insights
 
@@ -358,7 +358,7 @@ infrastructure-manager/
 
 ### Analysis of AI Agents Sandbox
 
-The **ai-agents-sandbox** repository demonstrates an approach to AI agent orchestration that achieves feedback loops through **distributed consensus systems** rather than centralized control.
+The **gitops-infra-control-plane** repository demonstrates an approach to AI agent orchestration that achieves feedback loops through **distributed consensus systems** rather than centralized control.
 
 #### Key Architectural Insights
 
@@ -639,7 +639,7 @@ spec:
 
 ### Conclusion
 
-The consensus-based architecture demonstrated in **ai-agents-sandbox** represents an evolution beyond Agent Skills. By implementing:
+The consensus-based architecture demonstrated in **gitops-infra-control-plane** represents an evolution beyond Agent Skills. By implementing:
 
 1. **Distributed consensus algorithms** for coordination
 2. **Multi-scale feedback loops** for optimization
@@ -1373,7 +1373,7 @@ The migration from MCP to Agent Skills represents a significant architectural sh
 
 ### Evolution: Beyond Agent Skills to Autonomous Swarms
 
-**From Analysis of ai-agents-sandbox and Research Papers**: Advanced agent orchestration
+**From Analysis of gitops-infra-control-plane and Research Papers**: Advanced agent orchestration
 
 #### Discovery: RuFlo's Production Architecture
 

@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/lloydchang/ai-agents-sandbox/backend/monitoring"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/monitoring"
 )
 
 func main() {
