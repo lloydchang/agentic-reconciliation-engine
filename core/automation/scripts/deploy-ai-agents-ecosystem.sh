@@ -270,6 +270,60 @@ EOF
 deploy_dashboard() {
     log_info "Deploying agent dashboard..."
 
+    # Create API ConfigMap first
+    cat <<EOF | $KUBECTL_CMD apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-api-script
+  namespace: $NAMESPACE
+data:
+  api.py: |
+from flask import Flask, jsonify
+from flask_cors import CORS
+import json
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/agents')
+def get_agents():
+    return jsonify({
+        'agents': [
+            {'id': 'agent-1', 'name': 'Cost Optimizer', 'type': 'Rust', 'status': 'running', 'skills': 12, 'lastActivity': '2 min ago', 'successRate': 98.5},
+            {'id': 'agent-2', 'name': 'Security Scanner', 'type': 'Go', 'status': 'running', 'skills': 8, 'lastActivity': '5 min ago', 'successRate': 99.1},
+            {'id': 'agent-3', 'name': 'Cluster Monitor', 'type': 'Python', 'status': 'idle', 'skills': 15, 'lastActivity': '12 min ago', 'successRate': 97.2},
+            {'id': 'agent-4', 'name': 'Deployment Manager', 'type': 'Rust', 'status': 'running', 'skills': 10, 'lastActivity': '1 min ago', 'successRate': 96.8}
+        ]
+    })
+
+@app.route('/api/skills')
+def get_skills():
+    return jsonify({
+        'skills': [
+            'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
+            'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
+            'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
+            'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
+        ]
+    })
+
+@app.route('/api/activity')
+def get_activity():
+    return jsonify({
+        'activities': [
+            {'time': '2 min ago', 'type': 'success', 'icon': '🚀', 'message': 'Cost Optimizer completed analysis for production cluster'},
+            {'time': '5 min ago', 'type': 'warning', 'icon': '⚠️', 'message': 'Security Scanner detected unusual network traffic'},
+            {'time': '12 min ago', 'type': 'info', 'icon': '📊', 'message': 'Cluster Monitor generated performance report'},
+            {'time': '18 min ago', 'type': 'success', 'icon': '✅', 'message': 'Deployment Manager successfully rolled out update'},
+            {'time': '25 min ago', 'type': 'error', 'icon': '❌', 'message': 'Backup Manager failed to connect to storage'}
+        ]
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+EOF
+
+    # Deploy dashboard and API
     cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -307,6 +361,63 @@ spec:
       - name: dashboard-html
         configMap:
           name: agent-dashboard-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-api
+  namespace: $NAMESPACE
+  labels:
+    component: dashboard-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: dashboard-api
+  template:
+    metadata:
+      labels:
+        component: dashboard-api
+    spec:
+      containers:
+      - name: api
+        image: python:alpine
+        command: ["sh", "-c"]
+        args:
+        - |
+          apk add --no-cache gcc musl-dev &&
+          pip install flask flask-cors &&
+          python /app/api.py
+        volumeMounts:
+        - name: api-script
+          mountPath: /app/api.py
+          subPath: api.py
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: api-script
+        configMap:
+          name: dashboard-api-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-api-service
+  namespace: $NAMESPACE
+spec:
+  selector:
+    component: dashboard-api
+  ports:
+  - port: 5000
+    targetPort: 5000
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
