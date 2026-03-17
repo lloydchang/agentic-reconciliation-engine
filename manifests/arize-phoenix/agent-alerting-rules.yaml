@@ -1,0 +1,47 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: agent-observability-alerts
+  namespace: staging
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+  - name: agent-performance
+    rules:
+    - alert: LowWorkflowCompletionRate
+      expr: rate(temporal_workflow_completed_total[5m]) / rate(temporal_workflow_started_total[5m]) < 0.95
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Workflow completion rate is below 95%"
+        description: "Only {{ $value | printf \"%.2f\" }}% of workflows are completing successfully"
+
+    - alert: HighSkillFailureRate
+      expr: rate(skill_trigger_failures_total[5m]) / rate(skill_trigger_attempts_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Skill execution failure rate is high"
+        description: "{{ $value | printf \"%.2f\" }}% of skill executions are failing"
+
+    - alert: SlowMemoryQueries
+      expr: histogram_quantile(0.95, rate(memory_query_duration_bucket[5m])) > 5.0
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Memory agent query performance degraded"
+        description: "95th percentile memory query duration is {{ $value }}s"
+
+    - alert: PhoenixDown
+      expr: up{job="arize-phoenix"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Arize Phoenix is down"
+        description: "Arize Phoenix has been down for more than 1 minute"
