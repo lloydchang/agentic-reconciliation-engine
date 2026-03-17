@@ -1095,7 +1095,7 @@ data:
             // Load agents
             async function loadAgents() {
                 try {
-                    const response = await fetch('http://localhost:5006/api/agents');
+                    const response = await fetch('http://localhost:5000/api/agents');
                     const data = await response.json();
                     agents = data;
                     renderAgents();
@@ -1129,7 +1129,7 @@ data:
             // Load skills
             async function loadSkills() {
                 try {
-                    const response = await fetch('http://localhost:5006/api/skills');
+                    const response = await fetch('http://localhost:5000/api/skills');
                     const data = await response.json();
                     skills = data;
                     renderSkills();
@@ -1153,7 +1153,7 @@ data:
             // Load activity
             async function loadActivity() {
                 try {
-                    const response = await fetch('http://localhost:5006/api/activity');
+                    const response = await fetch('http://localhost:5000/api/activity');
                     const data = await response.json();
                     activities = data;
                     renderActivity();
