@@ -63,7 +63,8 @@ Or run steps manually:
 ✅ **Spoke Cluster** - Local kind cluster for workloads  
 ✅ **GitOps Workflow** - Full continuous reconciliation  
 ✅ **AI Agents Ecosystem** - 64+ operational skills with Temporal orchestration  
-✅ **Interactive Dashboard** - Real-time monitoring and control  
+✅ **Interactive Dashboard** - Real-time monitoring and control with FastAPI backend  
+✅ **Auto API Documentation** - Interactive docs at `/docs` endpoint  
 ✅ **Zero Cloud Costs** - Everything runs locally with full functionality  
 
 ## Verify Your MVP
@@ -85,6 +86,10 @@ kubectl get pods -n ai-infrastructure
 # Access AI Dashboard
 kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80
 open http://localhost:8080
+
+# Access API Documentation (FastAPI)
+kubectl port-forward -n ai-infrastructure svc/dashboard-api-service 5000:5000
+open http://localhost:5000/docs
 ```
 
 ## Next Steps

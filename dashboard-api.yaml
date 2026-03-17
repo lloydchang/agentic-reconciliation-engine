@@ -5,23 +5,76 @@ metadata:
   namespace: ai-infrastructure
 data:
   api.py: |
-    from flask import Flask, jsonify
-    from flask_cors import CORS
+    from fastapi import FastAPI, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
+    from pydantic import BaseModel
+    from typing import List, Literal, Optional
     import subprocess
-    import json
+    import asyncio
     import re
-    from datetime import datetime, timedelta
-    app = Flask(__name__)
-    CORS(app)
+    from datetime import datetime
     
-    def get_kubectl_data(command):
+    # Pydantic Models
+    class Agent(BaseModel):
+        id: str
+        name: str
+        type: str
+        status: Literal["running", "idle", "error"]
+        skills: int
+        lastActivity: str
+        successRate: float
+    
+    class Skill(BaseModel):
+        name: str
+        category: Optional[str] = None
+        description: Optional[str] = None
+    
+    class Activity(BaseModel):
+        time: str
+        type: Literal["success", "warning", "error", "info"]
+        icon: str
+        message: str
+    
+    class HealthResponse(BaseModel):
+        status: str
+        timestamp: datetime
+    
+    # FastAPI App
+    app = FastAPI(
+        title="AI Agents Dashboard API",
+        description="Real-time AI agents monitoring and control API",
+        version="2.0.0",
+        docs_url="/docs",
+        redoc_url="/redoc"
+    )
+    
+    # CORS Middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # Async Kubernetes Integration
+    async def get_kubectl_data(command: str) -> str:
+        """Async kubectl command execution"""
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
-            return result.stdout.strip()
-        except Exception as e:
+            process = await asyncio.create_subprocess_shell(
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+            if process.returncode == 0:
+                return stdout.decode().strip()
+            return ""
+        except Exception:
             return ""
     
-    def parse_pod_info(pod_output):
+    def parse_pod_info(pod_output: str) -> List[dict]:
+        """Parse kubectl pod output into agent data"""
         lines = pod_output.split('\n')[1:]  # Skip header
         agents = []
         for line in lines:
@@ -73,128 +126,178 @@ data:
                     })
         return agents
     
-    @app.route('/api/agents')
-    def get_agents():
-        # Get real pod data
-        pod_output = get_kubectl_data("kubectl get pods -n ai-infrastructure --no-headers")
-        agents = parse_pod_info(pod_output)
-        
-        # Add skill counts for known agent types
-        skill_mapping = {
-            "Memory Agent": 15,
-            "Dashboard": 8,
-            "Skills Orchestrator": 64,
-            "Frontend": 6,
-            "History": 6,
-            "Matching": 6,
-            "Worker": 12,
-            "Web": 4,
-            "Grafana": 3,
-            "Prometheus": 5,
-            "Cassandra": 2
-        }
-        
-        for agent in agents:
-            if agent['name'] in skill_mapping:
-                agent['skills'] = skill_mapping[agent['name']]
-        
-        return jsonify({'agents': agents})
-    
-    @app.route('/api/skills')
-    def get_skills():
-        # Get real skills from the .agents directory if available, otherwise use known skills
+    # API Endpoints
+    @app.get("/api/agents", response_model=List[Agent])
+    async def get_agents():
+        """Get list of all AI agents with real-time status"""
         try:
-            skills_output = get_kubectl_data("find .agents -name 'SKILL.md' -type f | head -20")
+            # Get real pod data
+            pod_output = await get_kubectl_data("kubectl get pods -n ai-infrastructure --no-headers")
+            agents_data = parse_pod_info(pod_output)
+            
+            # Add skill counts for known agent types
+            skill_mapping = {
+                "Memory Agent": 15,
+                "Dashboard": 8,
+                "Skills Orchestrator": 64,
+                "Frontend": 6,
+                "History": 6,
+                "Matching": 6,
+                "Worker": 12,
+                "Web": 4,
+                "Grafana": 3,
+                "Prometheus": 5,
+                "Cassandra": 2
+            }
+            
+            for agent in agents_data:
+                if agent['name'] in skill_mapping:
+                    agent['skills'] = skill_mapping[agent['name']]
+            
+            return [Agent(**agent) for agent in agents_data]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to fetch agents: {str(e)}")
+    
+    @app.get("/api/skills", response_model=List[Skill])
+    async def get_skills():
+        """Get list of available skills"""
+        try:
+            # Get real skills from the .agents directory if available
+            skills_output = await get_kubectl_data("find .agents -name 'SKILL.md' -type f | head -20")
             if skills_output:
                 skill_files = skills_output.split('\n')
                 skills = []
                 for skill_file in skill_files:
                     if skill_file.strip():
                         skill_name = skill_file.split('/')[-2]
-                        skills.append(skill_name.replace('-', ' ').title())
+                        skills.append({
+                            'name': skill_name.replace('-', ' ').title(),
+                            'category': 'Operational',
+                            'description': f'AI skill for {skill_name.replace("-", " ")}'
+                        })
                 
                 if not skills:
                     skills = [
-                        'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
-                        'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
-                        'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
-                        'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
+                        {'name': 'Cost Analysis', 'category': 'Optimization', 'description': 'Analyze cloud costs'},
+                        {'name': 'Security Audit', 'category': 'Security', 'description': 'Security compliance checks'},
+                        {'name': 'Cluster Health', 'category': 'Monitoring', 'description': 'Kubernetes cluster health'},
+                        {'name': 'Auto Scaling', 'category': 'Performance', 'description': 'Automatic resource scaling'},
+                        {'name': 'Log Analysis', 'category': 'Monitoring', 'description': 'Analyze system logs'},
+                        {'name': 'Performance Tuning', 'category': 'Performance', 'description': 'Optimize system performance'},
+                        {'name': 'Backup Management', 'category': 'Backup', 'description': 'Manage system backups'},
+                        {'name': 'Network Monitor', 'category': 'Monitoring', 'description': 'Network performance monitoring'},
+                        {'name': 'Resource Planning', 'category': 'Planning', 'description': 'Resource capacity planning'},
+                        {'name': 'Compliance Check', 'category': 'Compliance', 'description': 'Regulatory compliance checks'},
+                        {'name': 'Error Detection', 'category': 'Monitoring', 'description': 'Detect system errors'},
+                        {'name': 'Metrics Collection', 'category': 'Monitoring', 'description': 'Collect system metrics'},
+                        {'name': 'Load Balancing', 'category': 'Performance', 'description': 'Balance system load'},
+                        {'name': 'Patch Management', 'category': 'Security', 'description': 'System patch management'},
+                        {'name': 'Service Discovery', 'category': 'Networking', 'description': 'Discover network services'},
+                        {'name': 'Health Checks', 'category': 'Monitoring', 'description': 'System health monitoring'}
                     ]
             else:
                 skills = [
-                    'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
-                    'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
-                    'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
-                    'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
+                    {'name': 'Cost Analysis', 'category': 'Optimization', 'description': 'Analyze cloud costs'},
+                    {'name': 'Security Audit', 'category': 'Security', 'description': 'Security compliance checks'},
+                    {'name': 'Cluster Health', 'category': 'Monitoring', 'description': 'Kubernetes cluster health'},
+                    {'name': 'Auto Scaling', 'category': 'Performance', 'description': 'Automatic resource scaling'},
+                    {'name': 'Log Analysis', 'category': 'Monitoring', 'description': 'Analyze system logs'},
+                    {'name': 'Performance Tuning', 'category': 'Performance', 'description': 'Optimize system performance'},
+                    {'name': 'Backup Management', 'category': 'Backup', 'description': 'Manage system backups'},
+                    {'name': 'Network Monitor', 'category': 'Monitoring', 'description': 'Network performance monitoring'},
+                    {'name': 'Resource Planning', 'category': 'Planning', 'description': 'Resource capacity planning'},
+                    {'name': 'Compliance Check', 'category': 'Compliance', 'description': 'Regulatory compliance checks'},
+                    {'name': 'Error Detection', 'category': 'Monitoring', 'description': 'Detect system errors'},
+                    {'name': 'Metrics Collection', 'category': 'Monitoring', 'description': 'Collect system metrics'},
+                    {'name': 'Load Balancing', 'category': 'Performance', 'description': 'Balance system load'},
+                    {'name': 'Patch Management', 'category': 'Security', 'description': 'System patch management'},
+                    {'name': 'Service Discovery', 'category': 'Networking', 'description': 'Discover network services'},
+                    {'name': 'Health Checks', 'category': 'Monitoring', 'description': 'System health monitoring'}
                 ]
-        except:
-            skills = [
-                'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
-                'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
-                'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
-                'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
-            ]
-        
-        return jsonify({'skills': skills})
+            
+            return [Skill(**skill) for skill in skills]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to fetch skills: {str(e)}")
     
-    @app.route('/api/activity')
-    def get_activity():
-        # Get real activity from recent events or pod status changes
-        pod_output = get_kubectl_data("kubectl get pods -n ai-infrastructure --no-headers")
-        activities = []
-        
-        # Parse pod statuses to generate realistic activity
-        lines = pod_output.split('\n')[1:]  # Skip header
-        for line in lines[:5]:  # Take first 5 pods
-            if line.strip():
-                parts = re.split(r'\s+', line.strip())
-                if len(parts) >= 3:
-                    name = parts[0]
-                    status = parts[2]
-                    
-                    # Generate activity based on pod status
-                    if status == "Running":
-                        activities.append({
-                            'time': 'just now',
-                            'type': 'success',
-                            'icon': '✅',
-                            'message': f'{name.replace("-", " ").title()} is running normally'
-                        })
-                    elif "CrashLoopBackOff" in status:
-                        activities.append({
-                            'time': '2 min ago',
-                            'type': 'error',
-                            'icon': '❌',
-                            'message': f'{name.replace("-", " ").title()} is experiencing restarts'
-                        })
-                    elif "Init" in status:
-                        activities.append({
-                            'time': '1 min ago',
-                            'type': 'warning',
-                            'icon': '⚠️',
-                            'message': f'{name.replace("-", " ").title()} is initializing'
-                        })
-        
-        # Add some system activities
-        activities.extend([
-            {
-                'time': '5 min ago',
-                'type': 'info',
-                'icon': '📊',
-                'message': 'AI agents ecosystem deployed successfully'
-            },
-            {
-                'time': '10 min ago',
-                'type': 'success',
-                'icon': '🚀',
-                'message': 'Dashboard API backend started'
-            }
-        ])
-        
-        return jsonify({'activities': activities[:10]})  # Return last 10 activities
+    @app.get("/api/activity", response_model=List[Activity])
+    async def get_activity():
+        """Get recent system activity"""
+        try:
+            # Get real activity from recent events or pod status changes
+            pod_output = await get_kubectl_data("kubectl get pods -n ai-infrastructure --no-headers")
+            activities = []
+            
+            # Parse pod statuses to generate realistic activity
+            lines = pod_output.split('\n')[1:]  # Skip header
+            for line in lines[:5]:  # Take first 5 pods
+                if line.strip():
+                    parts = re.split(r'\s+', line.strip())
+                    if len(parts) >= 3:
+                        name = parts[0]
+                        status = parts[2]
+                        
+                        # Generate activity based on pod status
+                        if status == "Running":
+                            activities.append({
+                                'time': 'just now',
+                                'type': 'success',
+                                'icon': '✅',
+                                'message': f'{name.replace("-", " ").title()} is running normally'
+                            })
+                        elif "CrashLoopBackOff" in status:
+                            activities.append({
+                                'time': '2 min ago',
+                                'type': 'error',
+                                'icon': '❌',
+                                'message': f'{name.replace("-", " ").title()} is experiencing restarts'
+                            })
+                        elif "Init" in status:
+                            activities.append({
+                                'time': '1 min ago',
+                                'type': 'warning',
+                                'icon': '⚠️',
+                                'message': f'{name.replace("-", " ").title()} is initializing'
+                            })
+            
+            # Add some system activities
+            activities.extend([
+                {
+                    'time': '5 min ago',
+                    'type': 'info',
+                    'icon': '📊',
+                    'message': 'AI agents ecosystem deployed successfully'
+                },
+                {
+                    'time': '10 min ago',
+                    'type': 'success',
+                    'icon': '🚀',
+                    'message': 'FastAPI backend started successfully'
+                }
+            ])
+            
+            return [Activity(**activity) for activity in activities[:10]]  # Return last 10 activities
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to fetch activity: {str(e)}")
     
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=5000, debug=True)
+    # Health Check Endpoints
+    @app.get("/health", response_model=HealthResponse)
+    async def health_check():
+        """Health check endpoint for Kubernetes"""
+        return HealthResponse(
+            status="healthy",
+            timestamp=datetime.utcnow()
+        )
+    
+    @app.get("/")
+    async def root():
+        """Root endpoint with API info"""
+        return {
+            "message": "AI Agents Dashboard API",
+            "version": "2.0.0",
+            "framework": "FastAPI",
+            "docs": "/docs",
+            "health": "/health"
+        }
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -220,8 +323,8 @@ spec:
         args:
         - |
           apk add --no-cache gcc musl-dev &&
-          pip install flask flask-cors &&
-          python /app/api.py
+          pip install fastapi uvicorn[standard] pydantic &&
+          cd /app && uvicorn api:app --host 0.0.0.0 --port 5000
         volumeMounts:
         - name: api-script
           mountPath: /app/api.py
