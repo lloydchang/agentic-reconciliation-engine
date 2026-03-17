@@ -1,0 +1,74 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argo-events-controller
+  namespace: argo-events-dev
+  labels:
+    environment: development
+    monitoring: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: argo-events-controller
+      environment: development
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+    honorLabels: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-events-dashboard
+  namespace: argo-events-dev
+  labels:
+    grafana_dashboard: "1"
+    environment: development
+data:
+  argo-events-dev.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Argo Events - Development",
+        "tags": ["argo-events", "development"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "Event Processing Rate - Dev",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+            "targets": [
+              {
+                "expr": "rate(argo_events_events_processed_total{namespace=\"argo-events-dev\"}[5m])",
+                "legendFormat": "{{event_source}}/{{event_name}}"
+              }
+            ]
+          },
+          {
+            "title": "Sensor Trigger Rate - Dev",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+            "targets": [
+              {
+                "expr": "rate(argo_events_sensor_triggers_total{namespace=\"argo-events-dev\"}[5m])",
+                "legendFormat": "{{sensor}}"
+              }
+            ]
+          },
+          {
+            "title": "Error Rate - Dev",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+            "targets": [
+              {
+                "expr": "rate(argo_events_errors_total{namespace=\"argo-events-dev\"}[5m])",
+                "legendFormat": "{{component}}"
+              }
+            ]
+          }
+        ],
+        "time": {"from": "now-1h", "to": "now"},
+        "refresh": "5s"
+      }
+    }

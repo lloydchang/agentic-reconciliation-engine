@@ -1,0 +1,96 @@
+# Development Environment Network Policy
+# More permissive for development environment
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-events-dev-netpol
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-events
+      environment: development
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from same namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: argo-events-dev
+  # Allow traffic from monitoring systems
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080  # metrics
+  # Allow traffic from argo-workflows namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: argo-workflows
+  # Allow webhook traffic from anywhere (dev convenience)
+  - ports:
+    - protocol: TCP
+      port: 12001
+    - protocol: TCP
+      port: 12002
+    - protocol: TCP
+      port: 12003
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow HTTPS to external services
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow HTTP to external services
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+  # Allow access to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow access to Redis in same namespace
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+          environment: development
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow access to cleanup service
+  - to:
+    - podSelector:
+        matchLabels:
+          app: cleanup-service
+          environment: development
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow access to config reloader
+  - to:
+    - podSelector:
+        matchLabels:
+          app: config-reloader
+          environment: development
+    ports:
+    - protocol: TCP
+      port: 8080

@@ -1,0 +1,149 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: k8sgpt-alerts
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/version: v1.0.0
+spec:
+  groups:
+  - name: k8sgpt.rules
+    rules:
+    - alert: K8sGPTAnalyzerDown
+      expr: up{job="k8sgpt-analyzer"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT analyzer is down"
+        description: "K8sGPT analyzer has been down for more than 2 minutes."
+    
+    - alert: K8sGPTQwenServerDown
+      expr: k8sgpt_qwen_server_up == 0
+      for: 2m
+      labels:
+        severity: critical
+        component: k8sgpt
+      annotations:
+        summary: "Qwen LLM server is down"
+        description: "Qwen LLM server has been down for more than 2 minutes."
+    
+    - alert: K8sGPTHighErrorRate
+      expr: rate(k8sgpt_analysis_errors_total[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT high error rate"
+        description: "K8sGPT analysis error rate is {{ $value }} errors per second."
+    
+    - alert: K8sGPTAnalysisFailure
+      expr: k8sgpt_analysis_success_rate < 0.9
+      for: 10m
+      labels:
+        severity: critical
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT analysis failure"
+        description: "K8sGPT analysis success rate is {{ $value }} for the last 10 minutes."
+    
+    - alert: K8sGPTHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"k8sgpt-analyzer.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT high memory usage"
+        description: "K8sGPT analyzer memory usage is {{ $value | humanizePercentage }} of limit."
+    
+    - alert: K8sGPTHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{pod=~"k8sgpt-analyzer.*"}[5m]) / container_spec_cpu_quota * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT high CPU usage"
+        description: "K8sGPT analyzer CPU usage is {{ $value }}% of limit."
+    
+    - alert: K8sGPTQwenServerHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"qwen-server.*"} / container_spec_memory_limit_bytes > 0.95
+      for: 5m
+      labels:
+        severity: critical
+        component: k8sgpt
+      annotations:
+        summary: "Qwen server high memory usage"
+        description: "Qwen server memory usage is {{ $value | humanizePercentage }} of limit."
+    
+    - alert: K8sGPTTooManyIssuesFound
+      expr: k8sgpt_issues_found_total > 20
+      for: 0m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT found many issues"
+        description: "K8sGPT found {{ $value }} issues in the cluster analysis."
+    
+    - alert: K8sGPTAnalysisStalled
+      expr: time() - k8sgpt_last_analysis_timestamp > 7200
+      for: 10m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT analysis stalled"
+        description: "K8sGPT has not completed an analysis in over 2 hours."
+    
+    - alert: K8sGPTPodRestartHigh
+      expr: kube_pod_container_status_restarts_total{pod=~"k8sgpt-.*"} > 5
+      for: 5m
+      labels:
+        severity: warning
+        component: k8sgpt
+      annotations:
+        summary: "K8sGPT pod restarts high"
+        description: "K8sGPT pod {{ $labels.pod }} has restarted {{ $value }} times."
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: k8sgpt-analyzer
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/version: v1.0.0
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: analyzer
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: qwen-server
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/version: v1.0.0
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: qwen-server
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s

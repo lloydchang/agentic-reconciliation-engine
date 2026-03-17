@@ -1,0 +1,85 @@
+# Development Environment RBAC
+# More permissive permissions for development
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-events-sa
+  namespace: argo-events-dev
+  labels:
+    environment: development
+  annotations:
+    iam.amazonaws.com/role: "arn:aws:iam::123456789012:role/argo-events-dev-role"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-events-dev-role
+  labels:
+    environment: development
+rules:
+# Development permissions - more permissive
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Additional development-specific permissions
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates", "cronworkflows"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "submit"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-events-dev-binding
+  labels:
+    environment: development
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-events-dev-role
+subjects:
+- kind: ServiceAccount
+  name: argo-events-sa
+  namespace: argo-events-dev
+---
+# Development-specific Role for additional permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-events-dev-additional
+  namespace: argo-events-dev
+  labels:
+    environment: development
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-events-dev-additional-binding
+  namespace: argo-events-dev
+  labels:
+    environment: development
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argo-events-dev-additional
+subjects:
+- kind: ServiceAccount
+  name: argo-events-sa
+  namespace: argo-events-dev

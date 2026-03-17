@@ -1,0 +1,371 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt-analyzer
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: analyzer
+    app.kubernetes.io/version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: analyzer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8sgpt
+        app.kubernetes.io/component: analyzer
+        app.kubernetes.io/version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: k8sgpt-analyzer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+      - name: k8sgpt-analyzer
+        image: k8sgpt/k8sgpt:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for Qwen server to be ready
+          while ! nc -z qwen-server 8000; do
+            echo "Waiting for Qwen server..."
+            sleep 2
+          done
+          
+          # Configure K8sGPT
+          k8sgpt auth add \
+            --backend localai \
+            --model qwen2.5-7b-instruct \
+            --baseurl http://qwen-server:8000/v1 \
+            --password $QWEN_API_KEY
+          
+          # Start analysis loop
+          while true; do
+            echo "Running cluster analysis..."
+            k8sgpt analyze --explain --output json > /tmp/analysis-$(date +%s).json
+            
+            # Clean old analysis files (keep last 10)
+            ls -t /tmp/analysis-*.json | tail -n +11 | xargs -r rm
+            
+            sleep 3600  # Run every hour
+          done
+        env:
+        - name: QWEN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: k8sgpt-secrets
+              key: QWEN_API_KEY
+        - name: QWEN_BASE_URL
+          value: "http://qwen-server:8000"
+        - name: K8SGPT_LOG_LEVEL
+          value: "info"
+        - name: K8SGPT_OUTPUT_FORMAT
+          value: "json"
+        - name: K8SGPT_TIMEOUT
+          value: "300"
+        - name: K8SGPT_CACHE_ENABLED
+          value: "true"
+        - name: K8SGPT_CACHE_TTL
+          value: "300"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: k8sgpt-config
+          mountPath: /root/.k8sgpt
+          readOnly: true
+        - name: analysis-output
+          mountPath: /tmp
+        - name: tmp
+          mountPath: /tmp/k8sgpt
+      - name: metrics-exporter
+        image: prom/metrics-exporter:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Export K8sGPT metrics
+          while true; do
+            # Count analysis files
+            analysis_count=$(ls /tmp/analysis-*.json 2>/dev/null | wc -l)
+            echo "k8sgpt_analysis_files_total $analysis_count"
+            
+            # Get last analysis timestamp
+            if [ -f /tmp/analysis-*.json ]; then
+              latest_file=$(ls -t /tmp/analysis-*.json | head -1)
+              timestamp=$(basename "$latest_file" | sed 's/analysis-//' | sed 's/.json//')
+              echo "k8sgpt_last_analysis_timestamp $timestamp"
+            fi
+            
+            # Check Qwen server connectivity
+            if nc -z qwen-server 8000; then
+              echo "k8sgpt_qwen_server_up 1"
+            else
+              echo "k8sgpt_qwen_server_up 0"
+            fi
+            
+            sleep 30
+          done
+        ports:
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: analysis-output
+          mountPath: /tmp
+          readOnly: true
+      volumes:
+      - name: k8sgpt-config
+        configMap:
+          name: k8sgpt-config
+      - name: k8sgpt-secrets
+        secret:
+          secretName: k8sgpt-secrets
+      - name: analysis-output
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - k8sgpt
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values:
+                  - analyzer
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-server
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: qwen-server
+    app.kubernetes.io/version: v1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: qwen-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8sgpt
+        app.kubernetes.io/component: qwen-server
+        app.kubernetes.io/version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: k8sgpt-analyzer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+      - name: qwen-server
+        image: python:3.9-slim
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Install dependencies
+          pip install torch transformers accelerate fastapi uvicorn
+          
+          # Start Qwen server
+          python3 -c "
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from fastapi import FastAPI
+import uvicorn
+import os
+import json
+
+app = FastAPI(title='Qwen LLM Server')
+
+# Load model
+model_name = os.getenv('QWEN_MODEL', 'Qwen/Qwen2.5-7B-Instruct')
+print(f'Loading {model_name}...')
+tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name, 
+    trust_remote_code=True,
+    torch_dtype=torch.float16,
+    device_map='auto'
+)
+pipe = pipeline('text-generation', model=model, tokenizer=tokenizer)
+print('Model loaded successfully!')
+
+@app.post('/v1/chat/completions')
+async def chat_completions(request: dict):
+    try:
+        messages = request['messages']
+        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        
+        outputs = pipe(
+            prompt,
+            max_new_tokens=request.get('max_tokens', 1000),
+            temperature=request.get('temperature', 0.7),
+            do_sample=True,
+            top_p=0.95,
+        )
+        
+        response_text = outputs[0]['generated_text'][len(prompt):]
+        
+        return {
+            'id': f'chatcmpl-{hash(str(messages))}',
+            'object': 'chat.completion',
+            'created': 1234567890,
+            'model': request['model'],
+            'choices': [{
+                'index': 0,
+                'message': {
+                    'role': 'assistant',
+                    'content': response_text
+                },
+                'finish_reason': 'stop'
+            }],
+            'usage': {
+                'prompt_tokens': len(prompt),
+                'completion_tokens': len(response_text),
+                'total_tokens': len(prompt) + len(response_text)
+            }
+        }
+    except Exception as e:
+        return {'error': str(e)}
+
+@app.get('/v1/models')
+async def list_models():
+    return {
+        'object': 'list',
+        'data': [{
+            'id': 'qwen2.5-7b-instruct',
+            'object': 'model',
+            'created': 1234567890,
+            'owned_by': 'local'
+        }]
+    }
+
+@app.get('/health')
+async def health():
+    return {'status': 'healthy'}
+
+@app.get('/ready')
+async def ready():
+    return {'status': 'ready'}
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)
+"
+        env:
+        - name: QWEN_MODEL
+          value: "Qwen/Qwen2.5-7B-Instruct"
+        - name: TORCH_DEVICE
+          value: "cuda"
+        - name: TRANSFORMERS_CACHE
+          value: "/tmp/models"
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 8Gi
+          limits:
+            cpu: 4000m
+            memory: 16Gi
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 300  # Give model time to load
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 300
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: model-cache
+          mountPath: /tmp/models
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: qwen-model-cache
+      nodeSelector:
+        kubernetes.io/os: linux
+        # Add GPU node selector if available
+        # accelerator: nvidia-tesla-v100
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule

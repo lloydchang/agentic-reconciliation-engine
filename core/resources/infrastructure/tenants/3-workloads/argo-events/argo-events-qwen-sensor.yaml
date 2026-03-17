@@ -1,0 +1,241 @@
+# Argo Events Sensor with Qwen LLM Integration
+# This sensor triggers K8sGPT analysis with Qwen when specific events occur
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: qwen-analysis-source
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: eventsource
+    app.kubernetes.io/llm: qwen
+spec:
+  webhook:
+    k8sgpt-trigger:
+      port: "12020"
+      endpoint: /k8sgpt
+      method: POST
+      authSecret:
+        name: k8sgpt-webhook-secret
+        key: token
+  calendar:
+    periodic-analysis:
+      schedule: "0 */6 * * *"  # Every 6 hours
+  prometheus:
+    alert-events:
+      port: "12021"
+      endpoint: /alerts
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: qwen-analysis-sensor
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: sensor
+    app.kubernetes.io/llm: qwen
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: webhook-dep
+      eventSourceName: qwen-analysis-source
+      eventName: k8sgpt-trigger
+    - name: periodic-dep
+      eventSourceName: qwen-analysis-source
+      eventName: periodic-analysis
+    - name: alert-dep
+      eventSourceName: qwen-analysis-source
+      eventName: alert-events
+  triggers:
+    - template:
+        name: qwen-k8sgpt-analysis-trigger
+        http:
+          url: http://k8sgpt-qwen:8080/analyze
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+            - name: X-Analysis-Type
+              value: argo-events
+          payload:
+            - name: analysis-request
+              value: |
+                {
+                  "event_type": "{{webhook-dep.body.type}}",
+                  "namespace": "argo-events",
+                  "component": "{{webhook-dep.body.component}}",
+                  "severity": "{{webhook-dep.body.severity}}",
+                  "description": "{{webhook-dep.body.description}}",
+                  "timestamp": "{{webhook-dep.body.timestamp}}",
+                  "analysis_context": "argo-events-troubleshooting"
+                }
+    - template:
+        name: qwen-periodic-analysis-trigger
+        http:
+          url: http://k8sgpt-qwen:8080/analyze
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+            - name: X-Analysis-Type
+              value: periodic-health-check
+          payload:
+            - name: analysis-request
+              value: |
+                {
+                  "event_type": "periodic_analysis",
+                  "namespace": "argo-events",
+                  "component": "all",
+                  "severity": "info",
+                  "description": "Periodic health check using Qwen LLM",
+                  "timestamp": "{{periodic-dep.time}}",
+                  "analysis_context": "comprehensive-health-assessment"
+                }
+    - template:
+        name: qwen-alert-analysis-trigger
+        http:
+          url: http://k8sgpt-qwen:8080/analyze
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+            - name: X-Analysis-Type
+              value: prometheus-alert
+          payload:
+            - name: analysis-request
+              value: |
+                {
+                  "event_type": "prometheus_alert",
+                  "namespace": "{{alert-dep.body.namespace}}",
+                  "component": "{{alert-dep.body.labels.alertname}}",
+                  "severity": "{{alert-dep.body.labels.severity}}",
+                  "description": "{{alert-dep.body.annotations.description}}",
+                  "timestamp": "{{alert-dep.body.startsAt}}",
+                  "analysis_context": "alert-correlation-analysis"
+                }
+    - template:
+        name: qwen-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: qwen-analysis-workflow-
+                namespace: argo-workflows
+                labels:
+                  app.kubernetes.io/name: argo-workflows
+                  app.kubernetes.io/llm: qwen
+              spec:
+                entrypoint: main
+                arguments:
+                  parameters:
+                  - name: analysis-type
+                    value: "{{webhook-dep.body.type}}"
+                  - name: component
+                    value: "{{webhook-dep.body.component}}"
+                  - name: severity
+                    value: "{{webhook-dep.body.severity}}"
+                templates:
+                - name: main
+                  steps:
+                  - - name: analyze-with-qwen
+                      template: qwen-analysis
+                  - - name: process-results
+                      template: process-analysis-results
+                - name: qwen-analysis
+                  container:
+                    image: python:3.9-alpine
+                    command: [python]
+                    args: ["-c", |
+                      import json
+                      import requests
+                      import os
+                      
+                      # Get analysis parameters
+                      analysis_type = "{{workflow.parameters.analysis-type}}"
+                      component = "{{workflow.parameters.component}}"
+                      severity = "{{workflow.parameters.severity}}"
+                      
+                      # Call K8sGPT with Qwen
+                      k8sgpt_url = "http://k8sgpt-qwen.argo-events.svc.cluster.local:8080/analyze"
+                      
+                      analysis_request = {
+                        "event_type": analysis_type,
+                        "namespace": "argo-events",
+                        "component": component,
+                        "severity": severity,
+                        "analysis_context": "argo-events-troubleshooting"
+                      }
+                      
+                      try:
+                        response = requests.post(k8sgpt_url, json=analysis_request, timeout=60)
+                        if response.status_code == 200:
+                            analysis_result = response.json()
+                            print(f"Qwen Analysis Result: {json.dumps(analysis_result, indent=2)}")
+                            
+                            # Save results for next step
+                            with open("/tmp/analysis_result.json", "w") as f:
+                                json.dump(analysis_result, f)
+                        else:
+                            print(f"Analysis failed with status {response.status_code}")
+                      except Exception as e:
+                        print(f"Error during analysis: {str(e)}")
+                    "]
+                    env:
+                    - name: K8SGPT_URL
+                      value: "http://k8sgpt-qwen.argo-events.svc.cluster.local:8080"
+                    resources:
+                      requests:
+                        cpu: "100m"
+                        memory: "256Mi"
+                      limits:
+                        cpu: "500m"
+                        memory: "512Mi"
+                - name: process-analysis-results
+                  container:
+                    image: alpine:latest
+                    command: [sh]
+                    args: ["-c", |
+                      echo "Processing Qwen analysis results..."
+                      
+                      if [ -f "/tmp/analysis_result.json" ]; then
+                        echo "Analysis results found:"
+                        cat /tmp/analysis_result.json
+                        
+                        # Create summary
+                        echo "Summary: Qwen LLM analysis completed for {{workflow.parameters.component}}"
+                        echo "Severity: {{workflow.parameters.severity}}"
+                        echo "Analysis Type: {{workflow.parameters.analysis-type}}"
+                      else
+                        echo "No analysis results found to process"
+                      fi
+                    "]
+                    resources:
+                      requests:
+                        cpu: "50m"
+                        memory: "128Mi"
+                      limits:
+                        cpu: "200m"
+                        memory: "256Mi"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8sgpt-webhook-secret
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: secret
+type: Opaque
+data:
+  token: cXdlbi1rd2lza2dwLXdlYmhvb2stc2VjcmV0LTEyMzQ1  # qwen-kwisgpt-webhook-secret-12345

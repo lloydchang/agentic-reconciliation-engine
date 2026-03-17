@@ -1,0 +1,218 @@
+# Development Environment Sensors
+# These are configured for development and testing purposes
+
+---
+# Development Webhook to Workflow Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: dev-webhook-sensor
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: dev-api-dep
+      eventSourceName: dev-webhook-source
+      eventName: dev-api
+    - name: dev-ci-dep
+      eventSourceName: dev-webhook-source
+      eventName: dev-ci
+  triggers:
+    - template:
+        name: dev-api-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: dev-api-workflow-
+                namespace: argo-workflows
+                labels:
+                  environment: development
+              spec:
+                entrypoint: main
+                arguments:
+                  parameters:
+                  - name: event-data
+                    value: "{{dev-api-dep.body}}"
+                  - name: environment
+                    value: "development"
+                templates:
+                - name: main
+                  container:
+                    image: python:3.9-alpine
+                    command: [python]
+                    args: ["-c", "import json; data = json.loads('{{workflow.parameters.event-data}}'); print(f'DEV: Processing API event: {data.get(\"type\", \"unknown\")}')"]
+                    env:
+                    - name: ENVIRONMENT
+                      value: "development"
+    - template:
+        name: dev-ci-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: dev-ci-workflow-
+                namespace: argo-workflows
+                labels:
+                  environment: development
+              spec:
+                entrypoint: ci
+                arguments:
+                  parameters:
+                  - name: ci-data
+                    value: "{{dev-ci-dep.body}}"
+                  - name: environment
+                    value: "development"
+                templates:
+                - name: ci
+                  container:
+                    image: alpine/git:latest
+                    command: [sh]
+                    args: ["-c", "echo 'DEV: Running CI pipeline for {{workflow.parameters.ci-data.repository}} in {{workflow.parameters.environment}}'"]
+                    env:
+                    - name: ENVIRONMENT
+                      value: "development"
+---
+# Development Calendar Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: dev-calendar-sensor
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: dev-cleanup-dep
+      eventSourceName: dev-calendar-source
+      eventName: dev-cleanup
+    - name: dev-health-dep
+      eventSourceName: dev-calendar-source
+      eventName: dev-health-check
+  triggers:
+    - template:
+        name: dev-cleanup-trigger
+        http:
+          url: http://cleanup-service:8080/cleanup
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+            - name: X-Environment
+              value: development
+          payload:
+            - name: cleanup-type
+              value: "development"
+            - name: timestamp
+              value: "{{dev-cleanup-dep.time}}"
+    - template:
+        name: dev-health-check-trigger
+        log:
+          level: info
+          message: "DEV: Health check at {{dev-health-dep.time}}"
+---
+# Development Redis Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: dev-redis-sensor
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: dev-redis-dep
+      eventSourceName: dev-redis-source
+      eventName: dev-redis
+  triggers:
+    - template:
+        name: dev-redis-log-trigger
+        log:
+          level: info
+          message: "DEV: Redis event from channel {{dev-redis-dep.channel}}: {{dev-redis-dep.body}}"
+    - template:
+        name: dev-redis-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: dev-redis-workflow-
+                namespace: argo-workflows
+                labels:
+                  environment: development
+              spec:
+                entrypoint: process-redis-event
+                arguments:
+                  parameters:
+                  - name: redis-data
+                    value: "{{dev-redis-dep.body}}"
+                  - name: channel
+                    value: "{{dev-redis-dep.channel}}"
+                templates:
+                - name: process-redis-event
+                  container:
+                    image: redis:7-alpine
+                    command: [sh]
+                    args: ["-c", "echo 'DEV: Processing Redis event from {{workflow.parameters.channel}}: {{workflow.parameters.redis-data}}'"]
+---
+# Development File Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: dev-file-sensor
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: dev-file-dep
+      eventSourceName: dev-file-source
+      eventName: dev-config-changes
+  triggers:
+    - template:
+        name: dev-file-reload-trigger
+        http:
+          url: http://config-reloader:8080/reload
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+            - name: X-Environment
+              value: development
+          payload:
+            - name: file-path
+              value: "{{dev-file-dep.body.fileName}}"
+            - name: operation
+              value: "{{dev-file-dep.body.operation}}"
+    - template:
+        name: dev-file-log-trigger
+        log:
+          level: info
+          message: "DEV: File change detected: {{dev-file-dep.body.fileName}} ({{dev-file-dep.body.operation}})"

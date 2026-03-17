@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: argo-events-dev
+  namespace: argo-events-dev
+
+bases:
+  - ../../../core/resources/infrastructure/tenants/3-workloads/argo-events
+
+namespace: argo-events-dev
+
+namePrefix: dev-
+
+commonLabels:
+  environment: development
+  tier: development
+  managed-by: kustomize
+  app.kubernetes.io/part-of: argo-events
+
+patchesStrategicMerge:
+  - controller-patch.yaml
+  - resources-patch.yaml
+  - monitoring-patch.yaml
+
+configMapGenerator:
+  - name: argo-events-config
+    literals:
+      - LOG_LEVEL=debug
+      - NAMESPACE=argo-events-dev
+      - ENVIRONMENT=development
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8080
+
+secretGenerator:
+  - name: argo-events-secrets
+    literals:
+      - WEBHOOK_SECRET=dev-webhook-secret-12345
+
+resources:
+  - event-sources-dev.yaml
+  - sensors-dev.yaml
+  - rbac-dev.yaml
+  - networkpolicy-dev.yaml

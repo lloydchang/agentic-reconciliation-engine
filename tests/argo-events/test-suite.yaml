@@ -1,0 +1,309 @@
+# Argo Events Comprehensive Test Suite
+# Tests for event sources, sensors, triggers, and integrations
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argo-events-test
+  labels:
+    environment: test
+    app.kubernetes.io/name: argo-events
+---
+# Test Event Source - Webhook
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: test-webhook-source
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: webhook
+spec:
+  webhook:
+    test-endpoint:
+      port: "12010"
+      endpoint: /test
+      method: POST
+      authSecret:
+        name: test-webhook-secret
+        key: token
+---
+# Test Event Source - Calendar
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: test-calendar-source
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: calendar
+spec:
+  calendar:
+    test-schedule:
+      schedule: "*/1 * * * *"  # Every minute for testing
+---
+# Test Event Source - Redis
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: test-redis-source
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: redis
+spec:
+  redis:
+    test-redis:
+      host: redis-test
+      port: 6379
+      channels:
+        - test-events
+        - test-notifications
+---
+# Test Secret for Webhook
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-webhook-secret
+  namespace: argo-events-test
+type: Opaque
+data:
+  token: dGVzdC10b2tlbi0xMjM0NQ==  # test-token-12345
+---
+# Test Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-test
+  namespace: argo-events-test
+  labels:
+    app: redis
+    environment: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        environment: test
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+---
+# Test Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-test
+  namespace: argo-events-test
+  labels:
+    app: redis
+    environment: test
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+# Test Sensor - Webhook to Log
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-webhook-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: webhook
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-webhook-dep
+      eventSourceName: test-webhook-source
+      eventName: test-endpoint
+  triggers:
+    - template:
+        name: test-log-trigger
+        log:
+          level: info
+          message: "TEST: Webhook received - {{test-webhook-dep.body}}"
+---
+# Test Sensor - Calendar to Log
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-calendar-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: calendar
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-calendar-dep
+      eventSourceName: test-calendar-source
+      eventName: test-schedule
+  triggers:
+    - template:
+        name: test-calendar-trigger
+        log:
+          level: info
+          message: "TEST: Calendar triggered at {{test-calendar-dep.time}}"
+---
+# Test Sensor - Redis to Log
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-redis-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: redis
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-redis-dep
+      eventSourceName: test-redis-source
+      eventName: test-redis
+  triggers:
+    - template:
+        name: test-redis-trigger
+        log:
+          level: info
+          message: "TEST: Redis event from {{test-redis-dep.channel}}: {{test-redis-dep.body}}"
+---
+# Test Sensor - Multiple Dependencies
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-multi-dep-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: multi-dependency
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: webhook-dep
+      eventSourceName: test-webhook-source
+      eventName: test-endpoint
+    - name: calendar-dep
+      eventSourceName: test-calendar-source
+      eventName: test-schedule
+  triggers:
+    - template:
+        name: test-multi-trigger
+        log:
+          level: info
+          message: "TEST: Multi-dependency triggered - Webhook: {{webhook-dep.body.time}}, Calendar: {{calendar-dep.time}}"
+---
+# Test Sensor - Event Filtering
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-filter-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: filtering
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: filter-dep
+      eventSourceName: test-webhook-source
+      eventName: test-endpoint
+      filters:
+        - data:
+            - path: body.type
+              type: string
+              value: ["test", "validation"]
+        - data:
+            - path: body.priority
+              type: string
+              value: ["high", "critical"]
+  triggers:
+    - template:
+        name: test-filter-trigger
+        log:
+          level: info
+          message: "TEST: Filtered event - Type: {{filter-dep.body.type}}, Priority: {{filter-dep.body.priority}}"
+---
+# Test Sensor - Data Transformation
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: test-transform-sensor
+  namespace: argo-events-test
+  labels:
+    environment: test
+    test-type: transformation
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: transform-dep
+      eventSourceName: test-webhook-source
+      eventName: test-endpoint
+  triggers:
+    - template:
+        name: test-transform-trigger
+        log:
+          level: info
+          message: "TEST: Transformed data - Original: {{transform-dep.body.message}}, Processed: {{transform-dep.body.message | upper}}-{{transform-dep.body.timestamp[:8]}}"
+---
+# Test ServiceAccount and RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-events-sa
+  namespace: argo-events-test
+  labels:
+    environment: test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-events-test-role
+  labels:
+    environment: test
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "submit"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-events-test-binding
+  labels:
+    environment: test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-events-test-role
+subjects:
+- kind: ServiceAccount
+  name: argo-events-sa
+  namespace: argo-events-test

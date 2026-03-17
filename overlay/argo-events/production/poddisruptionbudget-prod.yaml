@@ -1,0 +1,29 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: argo-events-controller-pdb
+  namespace: argo-events-prod
+  labels:
+    environment: production
+    app.kubernetes.io/name: argo-events
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: argo-events-controller
+      environment: production
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: argo-events-eventsource-pdb
+  namespace: argo-events-prod
+  labels:
+    environment: production
+    app.kubernetes.io/name: argo-events
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: eventsource
+      environment: production

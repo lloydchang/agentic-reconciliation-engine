@@ -1,0 +1,103 @@
+# Argo Events Event Sources Examples
+# These demonstrate various event source types that can be used
+
+---
+# Webhook Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: webhook-event-source
+  namespace: argo-events
+spec:
+  webhook:
+    example:
+      port: "12000"
+      endpoint: /example
+      method: POST
+---
+# Calendar Event Source (Cron-based)
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: calendar-event-source
+  namespace: argo-events
+spec:
+  calendar:
+    example-schedule:
+      schedule: "*/5 * * * *"  # Every 5 minutes
+---
+# Kafka Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: kafka-event-source
+  namespace: argo-events
+spec:
+  kafka:
+    example-kafka:
+      bootstrapServers:
+        - kafka-broker-1:9092
+        - kafka-broker-2:9092
+      topics:
+        - events
+        - alerts
+      consumerGroup: argo-events
+---
+# GitHub Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github-event-source
+  namespace: argo-events
+spec:
+  github:
+    github-webhook:
+      repositories:
+        - owner: example-org
+          name: example-repo
+      events:
+        - push
+        - pull_request
+      webhookSecret:
+        name: github-webhook-secret
+        key: token
+      apiToken:
+        name: github-api-token
+        key: token
+---
+# S3 Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: s3-event-source
+  namespace: argo-events
+spec:
+  s3:
+    example-bucket:
+      bucket: my-bucket
+      events:
+        - s3:ObjectCreated:*
+      accessKey:
+        name: s3-credentials
+        key: accessKey
+      secretKey:
+        name: s3-credentials
+        key: secretKey
+---
+# Redis Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: redis-event-source
+  namespace: argo-events
+spec:
+  redis:
+    example-redis:
+      host: redis-master
+      port: 6379
+      channels:
+        - events
+        - notifications
+      password:
+        name: redis-password
+        key: password
