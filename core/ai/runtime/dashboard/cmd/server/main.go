@@ -38,6 +38,8 @@ func main() {
 		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
 	defer db.Close()
+	
+	logger.Info("Connected to database", zap.String("database_url", cfg.DatabaseURL))
 
 	// Run migrations
 	if err := database.RunMigrations(db); err != nil {

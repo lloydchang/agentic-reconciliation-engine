@@ -186,6 +186,14 @@ func (h *Handler) GetSystemStatus(c *gin.Context) {
 
 func (h *Handler) GetSystemMetrics(c *gin.Context) {
 	h.logger.Info("GetSystemMetrics handler called")
+	
+	// Test database connection directly
+	if h.systemService != nil {
+		h.logger.Info("SystemService is not nil")
+	} else {
+		h.logger.Error("SystemService is nil")
+	}
+	
 	metrics, err := h.systemService.GetSystemMetrics(c.Request.Context())
 	if err != nil {
 		h.logger.Error("Failed to get system metrics", zap.Error(err))

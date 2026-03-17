@@ -1332,34 +1332,7 @@ func main() {
 		json.NewEncoder(w).Encode(quality)
 	}).Methods("GET", "OPTIONS")
 
-	// Helper function to get Temporal workflow-based agents
-func getTemporalAgents(c client.Client) []map[string]interface{} {
-	var agents []map[string]interface{}
-	
-	// Try to list workflows - this might fail due to permissions
-	defer func() {
-		if r := recover(); r != nil {
-			// If we can't access Temporal, just return empty
-			log.Printf("Could not access Temporal workflows: %v", r)
-		}
-	}()
-	
-	// For now, return a sample Temporal agent if it were running
-	// This shows the structure for when we have actual workflow agents
-	agents = append(agents, map[string]interface{}{
-		"id":           "temporal-workflow-agent",
-		"name":         "Temporal Workflow Agent", 
-		"type":         "Temporal",
-		"status":       "Running",
-		"successRate":  96.8,
-		"lastActivity": time.Now().Add(-time.Duration(45) * time.Minute).Format("3:04 PM"),
-		"skills":       24,
-	})
-	
-	return agents
-}
-
-// Add real-time agents endpoint for dashboard
+	// Add real-time agents endpoint for dashboard
 	r.HandleFunc("/api/agents", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		
@@ -1529,6 +1502,33 @@ func getTemporalAgents(c client.Client) []map[string]interface{} {
 		json.NewEncoder(w).Encode(entities)
 	}).Methods("GET", "OPTIONS")
 
-	log.Printf("Starting enhanced HTTP server on :8081")
-	log.Fatal(http.ListenAndServe(":8081", corsMiddleware(r)))
+	log.Printf("Starting enhanced HTTP server on :8083")
+	log.Fatal(http.ListenAndServe(":8083", corsMiddleware(r)))
+}
+
+// Helper function to get Temporal workflow-based agents
+func getTemporalAgents(c client.Client) []map[string]interface{} {
+	var agents []map[string]interface{}
+	
+	// Try to list workflows - this might fail due to permissions
+	defer func() {
+		if r := recover(); r != nil {
+			// If we can't access Temporal, just return empty
+			log.Printf("Could not access Temporal workflows: %v", r)
+		}
+	}()
+	
+	// For now, return a sample Temporal agent if it were running
+	// This shows the structure for when we have actual workflow agents
+	agents = append(agents, map[string]interface{}{
+		"id":           "temporal-workflow-agent",
+		"name":         "Temporal Workflow Agent", 
+		"type":         "Temporal",
+		"status":       "Running",
+		"successRate":  96.8,
+		"lastActivity": time.Now().Add(-time.Duration(45) * time.Minute).Format("3:04 PM"),
+		"skills":       24,
+	})
+	
+	return agents
 }

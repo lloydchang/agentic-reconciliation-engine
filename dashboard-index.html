@@ -912,7 +912,7 @@
         // Load agents
         async function loadAgents() {
             try {
-                const response = await fetch('http://localhost:8081/api/agents');
+                const response = await fetch('http://localhost:8083/api/agents');
                 const data = await response.json();
                 agents = data;
                 renderAgents();
@@ -971,7 +971,7 @@
         // Load skills
         async function loadSkills() {
             try {
-                const response = await fetch('http://localhost:8081/api/skills');
+                const response = await fetch('http://localhost:8083/api/skills');
                 const data = await response.json();
                 skills = data;
                 renderSkills();
@@ -1000,7 +1000,7 @@
         // Load activity
         async function loadActivity() {
             try {
-                const response = await fetch('http://localhost:8081/api/activity');
+                const response = await fetch('http://localhost:8083/api/activity');
                 const data = await response.json();
                 activities = data;
                 renderActivity();
@@ -1310,7 +1310,7 @@
         // Load performance metrics
         async function loadPerformanceMetrics() {
             try {
-                const response = await fetch('http://localhost:8081/api/metrics');
+                const response = await fetch('http://localhost:8083/api/metrics');
                 const data = await response.json();
                 
                 const performanceCard = document.querySelector('.card h3');
@@ -1347,7 +1347,7 @@
         // Load skills distribution
         async function loadSkillsDistribution() {
             try {
-                const response = await fetch('http://localhost:8081/api/skills');
+                const response = await fetch('http://localhost:8083/api/skills');
                 const data = await response.json();
                 
                 // Group skills by category
