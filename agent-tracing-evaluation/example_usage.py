@@ -178,9 +178,9 @@ def demonstrate_batch_analysis():
     traces = generate_sample_traces(100)
     
     # Save to file
-    sample_file = "batch_traces.json"
+    sample_file = "trend_traces.json"
     with open(sample_file, 'w') as f:
-        json.dumps({"traces": traces}, f, indent=2)
+        json.dump({"traces": traces}, f, indent=2)
     
     print(f"Generated {len(traces)} sample traces for batch analysis")
     
@@ -276,7 +276,7 @@ def demonstrate_cost_optimization():
         })
         
     # Save to file
-    sample_file = "visualization_traces.json"
+    sample_file = "cost_comparison_traces.json"
     with open(sample_file, 'w') as f:
         json.dump({"traces": traces}, f, indent=2)
         

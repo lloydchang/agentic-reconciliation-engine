@@ -18,6 +18,7 @@ sys.path.append(str(Path(__file__).parent / "evaluators"))
 
 from skill_invocation_evaluator import GitOpsSkillEvaluator
 from performance_evaluator import PerformanceEvaluator
+from cost_evaluator import CostEvaluator
 
 class TracingEvaluationFramework:
     """Main framework for evaluating agent traces"""
@@ -27,7 +28,8 @@ class TracingEvaluationFramework:
         self.performance_evaluator = PerformanceEvaluator()
         self.evaluators = {
             "skill_invocation": self.skill_evaluator,
-            "performance": self.performance_evaluator
+            "performance": self.performance_evaluator,
+            "cost": CostEvaluator()
         }
 
     def evaluate_traces(self, traces: List[Dict[str, Any]], 
