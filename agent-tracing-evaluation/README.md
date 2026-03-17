@@ -1,23 +1,135 @@
-# GitOps Agent Tracing and Evaluation
+# AI Agent Tracing Evaluation Framework
 
-This directory contains Langfuse integration for comprehensive agent observability and systematic evaluation.
+Comprehensive evaluation framework for analyzing Pi-Mono agent traces from Langfuse observability data.
 
 ## Overview
 
-Leverages existing Langfuse integration (`docs/LANGFUSE-TEMPORAL-INTEGRATION.md`) to provide:
+This framework provides automated evaluation of AI agent performance and behavior by analyzing trace data from Langfuse. It helps ensure agents are operating correctly, skills are being invoked properly, and performance meets expectations.
 
-- **Complete workflow tracing** across Temporal orchestration
-- **LLM monitoring** for agent prompts, completions, and token usage
-- **Skill evaluation** using custom GitOps-specific metrics
-- **Performance analytics** and regression detection
+## Features
 
-## Architecture Integration
+### Evaluators
 
+1. **Skill Invocation Evaluator** (`skill_invocation_evaluator.py`)
+   - Evaluates whether skills are properly invoked for GitOps operations
+   - Checks timing correctness and skill coverage
+   - Generates skill usage reports
+
+2. **Performance Evaluator** (`performance_evaluator.py`)
+   - Analyzes latency, throughput, and resource utilization
+   - Tracks error rates and performance trends
+   - Provides performance tier classification
+
+### Core Framework
+
+- **Multi-Evaluator Support**: Run multiple evaluators simultaneously
+- **Batch Processing**: Analyze large volumes of trace data
+- **Flexible Input**: Load from files or Langfuse API
+- **Multiple Output Formats**: JSON, summary, detailed reports
+- **Trend Analysis**: Track performance over time
+
+## Installation
+
+```bash
+# Clone repository
+git clone https://github.com/lloydchang/gitops-infra-control-plane.git
+cd gitops-infra-control-plane/agent-tracing-evaluation
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Make executable
+chmod +x main.py
 ```
-Temporal Workflow → Langfuse Tracing → Custom GitOps Evaluators
-                           ↓
-                   Evaluation Dashboard
-                           ↓
+
+## Quick Start
+
+### Basic Usage
+
+```bash
+# Evaluate traces from JSON file
+python main.py --file traces.json
+
+# Run specific evaluators
+python main.py --file traces.json --evaluators skill_invocation performance
+
+# Generate detailed report
+python main.py --file traces.json --format detailed
+
+# Save report to file
+python main.py --file traces.json --output report.txt --format summary
+```
+
+### Advanced Usage
+
+```bash
+# Load traces from Langfuse API
+python main.py --langfuse --config langfuse-config.json
+
+# Run with custom configuration
+python main.py --file traces.json \
+  --evaluators all \
+  --format detailed \
+  --output evaluation-report.json
+```
+
+## Configuration
+
+### Langfuse Configuration
+
+Create `langfuse-config.json`:
+
+```json
+{
+  "secret_key": "sk-lf-...",
+  "public_key": "pk-lf-...",
+  "host": "https://us.cloud.langfuse.com",
+  "project": "pi-mono-agent",
+  "time_range": {
+    "start": "2026-03-16T00:00:00Z",
+    "end": "2026-03-17T00:00:00Z"
+  }
+}
+```
+
+### Trace Data Format
+
+The framework expects trace data in the following format:
+
+```json
+{
+  "traces": [
+    {
+      "id": "trace-123",
+      "timestamp": 1678901234567,
+      "duration": {"duration_ms": 800},
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "memory_usage_mb": 750,
+        "cpu_usage_percent": 45
+      },
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "total_tokens": 150
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info", 
+          "timestamp": 1100
+        }
+      ]
+    }
+  ]
+}
+```
                 Alerting & Optimization
 ```
 
