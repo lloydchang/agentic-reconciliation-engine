@@ -1,0 +1,208 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: langfuse-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  langfuse-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Langfuse AI Agent Observability",
+        "tags": ["langfuse", "ai-agents", "observability", "temporal"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Agent Performance Overview",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "langfuse_traces_total",
+                "legendFormat": "Total Traces"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "green", "value": null},
+                    {"color": "red", "value": 80}
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": 2,
+            "title": "Skill Invocation Success Rate",
+            "type": "gauge",
+            "targets": [
+              {
+                "expr": "langfuse_skill_invocation_success_rate",
+                "legendFormat": "Success Rate"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "min": 0,
+                "max": 100,
+                "unit": "percent"
+              }
+            }
+          },
+          {
+            "id": 3,
+            "title": "Cost Analysis",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "langfuse_cost_total",
+                "legendFormat": "Total Cost"
+              },
+              {
+                "expr": "langfuse_cost_per_request",
+                "legendFormat": "Cost per Request"
+              }
+            ],
+            "yAxes": [
+              {"unit": "currencyUSD"},
+              {"unit": "currencyUSD"}
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Model Usage Breakdown",
+            "type": "piechart",
+            "targets": [
+              {
+                "expr": "langfuse_model_usage{job=\"langfuse\"}",
+                "legendFormat": "{{model}}"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Response Time Distribution",
+            "type": "heatmap",
+            "targets": [
+              {
+                "expr": "langfuse_response_time_bucket",
+                "legendFormat": "{{le}}"
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "title": "Token Usage Trends",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "langfuse_tokens_input_total",
+                "legendFormat": "Input Tokens"
+              },
+              {
+                "expr": "langfuse_tokens_output_total",
+                "legendFormat": "Output Tokens"
+              }
+            ]
+          },
+          {
+            "id": 7,
+            "title": "Error Rate by Operation Type",
+            "type": "barchart",
+            "targets": [
+              {
+                "expr": "langfuse_errors_total{job=\"langfuse\"}",
+                "legendFormat": "{{operation_type}}"
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "title": "Agent Workflow Status",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "temporal_workflow_status",
+                "legendFormat": "{{status}}"
+              }
+            ],
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {},
+                  "indexByName": {},
+                  "renameByName": {}
+                }
+              }
+            ]
+          },
+          {
+            "id": 9,
+            "title": "Cost Efficiency Metrics",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "langfuse_efficiency_tokens_per_dollar",
+                "legendFormat": "Tokens per Dollar"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "locale"
+              }
+            }
+          },
+          {
+            "id": 10,
+            "title": "Agent Skill Performance Matrix",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "langfuse_skill_performance{job=\"langfuse\"}",
+                "legendFormat": "{{skill}}"
+              }
+            ],
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {},
+                  "indexByName": {},
+                  "renameByName": {
+                    "Value": "Performance Score"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "timepicker": {},
+        "templating": {
+          "list": [
+            {
+              "name": "datasource",
+              "query": "prometheus",
+              "type": "datasource"
+            }
+          ]
+        },
+        "annotations": {
+          "list": []
+        },
+        "refresh": "5s",
+        "schemaVersion": 27,
+        "version": 0,
+        "links": []
+      }
+    }
