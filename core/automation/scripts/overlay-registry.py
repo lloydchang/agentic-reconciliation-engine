@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class OverlayRegistry:
-    def __init__(self, registry_dir: str = "core/deployment/overlays/registry"):
+    def __init__(self, registry_dir: str = "overlay/registry"):
         self.registry_dir = Path(registry_dir)
         self.schema_file = self.registry_dir / "schema.yaml"
         self.catalog_file = self.registry_dir / "catalog.yaml"
