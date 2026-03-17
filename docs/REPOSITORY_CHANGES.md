@@ -67,7 +67,7 @@ This document outlines the comprehensive repository reorganization completed to 
 - **Root directory cleanup:** Removed all non-essential files from root
 - **File relocations:**
   - Binaries: `ai-agent` → `tools/`
-  - Go modules: `go.mod`, `go.sum` → `core/resources/`
+  - Go modules: `core/config/go.mod`, `go.sum` → `core/resources/`
   - Kubernetes manifests: `*.yaml` → `core/resources/`
   - Shell scripts: `*.sh`, `*.js` → `core/core/automation/ci-cd/scripts/`
   - Documentation: `LICENSE`, [README.md](README.md), diagrams → `docs/`
