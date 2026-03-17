@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class OverlayCLI:
-    def __init__(self, overlays_dir: str = "overlays"):
+    def __init__(self, overlays_dir: str = "overlay"):
         self.overlays_dir = Path(overlays_dir)
         self.registry_dir = self.overlays_dir / "registry"
         self.templates_dir = self.overlays_dir / "templates"
@@ -57,15 +57,19 @@ class OverlayCLI:
     def create_overlay(self, name: str, category: str, base_path: str, template: Optional[str] = None) -> bool:
         """Create a new overlay"""
         try:
-            # Determine target directory
+            # Determine target directory based on new overlay structure
             if category == "skills":
-                target_dir = self.overlays_dir / ".agents" / base_path / name
+                target_dir = self.overlays_dir / "ai" / "skills" / name
             elif category == "dashboard":
-                target_dir = self.overlays_dir / "agents" / "dashboard" / base_path / name
+                target_dir = self.overlays_dir / "ai" / "runtime" / "dashboard" / name
             elif category == "infrastructure":
-                target_dir = self.overlays_dir / "control-plane" / base_path / name
+                target_dir = self.overlays_dir / "operators" / "control-plane" / name
+            elif category == "config":
+                target_dir = self.overlays_dir / "config" / name
+            elif category == "deployment":
+                target_dir = self.overlays_dir / "deployment" / name
             elif category == "composed":
-                target_dir = self.overlays_dir / "composed" / name
+                target_dir = self.overlays_dir / "examples" / name
             else:
                 logger.error(f"Unknown category: {category}")
                 return False
