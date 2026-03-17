@@ -25,10 +25,10 @@ func main() {
 	}
 	log.Println("Database connection successful")
 
-	// Create Qwen client
+	// Create Qwen client using centralized service
 	qwenClient := rag.NewQwenClient(
-		"http://localhost:8080", // llama.cpp URL
-		"qwen2.5:0.5b",
+		"http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080", // centralized Qwen service
+		"qwen2.5-7b-instruct",
 	)
 
 	// Create RAG service
