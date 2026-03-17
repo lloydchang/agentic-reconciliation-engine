@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/workflows"
 )
 
 // EvaluationActivities contains all evaluation-related activities
@@ -180,7 +180,7 @@ func (ea *EvaluationActivities) GetVisualizationPaths(ctx context.Context, paths
 }
 
 // CheckQualityGates checks quality gate compliance
-func (ea *EvaluationActivities) CheckQualityGates(ctx context.Context, input EvaluationWorkflowInput) error {
+func (ea *EvaluationActivities) CheckQualityGates(ctx context.Context, input workflows.EvaluationWorkflowInput) error {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Checking quality gates")
 
