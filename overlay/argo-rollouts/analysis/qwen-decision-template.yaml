@@ -1,0 +1,128 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: qwen-decision
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+spec:
+  args:
+  - name: rollout-name
+    value: ""
+  - name: namespace
+    value: ""
+  - name: service-name
+    value: ""
+  - name: threshold
+    value: "0.8"
+  metrics:
+  - name: qwen-approval
+    interval: 120s
+    count: 3
+    successCondition: result[0].decision == "approve"
+    failureLimit: 1
+    provider:
+      job:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: qwen-analyzer
+                image: python:3.9-slim
+                command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Installing dependencies..."
+                  pip install requests kubernetes pyyaml
+                  echo "Running Qwen analysis for rollout: {{args.rollout-name}}"
+                  python3 /scripts/qwen-rollout-analysis.py "{{args.rollout-name}}" "{{args.namespace}}" "{{args.service-name}}" "{{args.threshold}}"
+                env:
+                - name: QWEN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: qwen-secret
+                      key: api-key
+                  optional: true
+                - name: QWEN_BASE_URL
+                  value: "http://qwen-server.gitops-infra.svc.cluster.local:8000"
+                - name: QWEN_MODEL
+                  value: "qwen2.5-7b-instruct"
+                - name: KUBERNETES_SERVICE_HOST
+                  value: "kubernetes.default.svc"
+                - name: KUBERNETES_SERVICE_PORT
+                  value: "443"
+                volumeMounts:
+                - name: analysis-scripts
+                  mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
+                resources:
+                  requests:
+                    cpu: 200m
+                    memory: 512Mi
+                  limits:
+                    cpu: 1000m
+                    memory: 1Gi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+              volumes:
+              - name: analysis-scripts
+                configMap:
+                  name: qwen-analysis-scripts
+                  defaultMode: 0755
+              - name: tmp
+                emptyDir: {}
+              restartPolicy: Never
+              serviceAccountName: argo-rollouts
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 999
+                fsGroup: 999
+  - name: qwen-confidence
+    interval: 120s
+    count: 3
+    successCondition: result[0].confidence >= {{args.threshold}}
+    failureLimit: 1
+    provider:
+      job:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: qwen-confidence-checker
+                image: python:3.9-slim
+                command:
+                - /bin/sh
+                - -c
+                - |
+                  pip install requests
+                  python3 /scripts/qwen-confidence-check.py "{{args.rollout-name}}" "{{args.namespace}}" "{{args.threshold}}"
+                env:
+                - name: QWEN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: qwen-secret
+                      key: api-key
+                  optional: true
+                - name: QWEN_BASE_URL
+                  value: "http://qwen-server.gitops-infra.svc.cluster.local:8000"
+                - name: QWEN_MODEL
+                  value: "qwen2.5-7b-instruct"
+                volumeMounts:
+                - name: analysis-scripts
+                  mountPath: /scripts
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi
+              restartPolicy: Never
