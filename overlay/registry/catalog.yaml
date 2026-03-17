@@ -1,0 +1,8 @@
+version: "1.0.0"
+description: "GitOps Infrastructure Control Plane Overlay Registry"
+overlays: []
+statistics:
+  total_overlays: 0
+  overlays_by_category: {}
+  overlays_by_risk_level: {}
+  overlays_by_autonomy: {}

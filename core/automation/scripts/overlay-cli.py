@@ -417,8 +417,11 @@ class OverlayCLI:
         return stats
 
 def main():
+    import os
+    default_overlays_dir = os.environ.get('OVERLAY_DIR', 'overlay')
+    
     parser = argparse.ArgumentParser(description='Overlay CLI Tool')
-    parser.add_argument('--overlays-dir', default='overlays', help='Overlays directory path')
+    parser.add_argument('--overlays-dir', default=default_overlays_dir, help='Overlays directory path')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose logging')
     
     subparsers = parser.add_subparsers(dest='command', help='Available commands')

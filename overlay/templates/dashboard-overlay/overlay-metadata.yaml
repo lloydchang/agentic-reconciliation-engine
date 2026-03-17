@@ -1,0 +1,6 @@
+name: "{{ overlay_name }}"
+description: "Generated dashboard overlay"
+category: "dashboard"
+version: "1.0.0"
+risk_level: "low"
+autonomy: "fully_auto"

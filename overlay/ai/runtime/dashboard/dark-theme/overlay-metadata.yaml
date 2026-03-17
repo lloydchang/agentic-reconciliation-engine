@@ -1,0 +1,17 @@
+autonomy: fully_auto
+base_path: themes
+category: dashboard
+compatibility:
+  kubernetes: '>=1.20'
+  min_base: main
+description: 'Generated dashboard overlay: dark-theme'
+license: AGPLv3
+maintainer:
+  email: generated@example.com
+  name: Generated
+name: dark-theme
+risk_level: low
+tags:
+- dashboard
+- dark-theme
+version: 1.0.0

@@ -1,0 +1,6 @@
+name: "{{ overlay_name }}"
+description: "Generated skill overlay"
+category: "skills"
+version: "1.0.0"
+risk_level: "low"
+autonomy: "fully_auto"

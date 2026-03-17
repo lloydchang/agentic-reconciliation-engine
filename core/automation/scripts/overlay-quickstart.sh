@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Script information
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 print_header() {
     echo -e "${BLUE}=== $1 ===${NC}"
@@ -151,19 +151,19 @@ create_overlay_examples() {
         print_info "Creating example overlays using overlay-cli..."
         
         # Create hello-world skill overlay
-        python3 "$SCRIPT_DIR/overlay-cli.py" create hello-world skills debug --template skills-overlay || {
+        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create hello-world skills debug --template skill-overlay || {
             print_error "Failed to create hello-world overlay"
             return 1
         }
         
         # Create dark-theme dashboard overlay
-        python3 "$SCRIPT_DIR/overlay-cli.py" create dark-theme dashboard themes --template dashboard-overlay || {
+        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create dark-theme dashboard themes --template dashboard-overlay || {
             print_error "Failed to create dark-theme overlay"
             return 1
         }
         
         # Create production-env composed overlay
-        python3 "$SCRIPT_DIR/overlay-cli.py" create production-env composed "" || {
+        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create production-env composed "" || {
             print_error "Failed to create production-env overlay"
             return 1
         }
@@ -203,7 +203,7 @@ test_overlay_system() {
     
     # Test overlay CLI
     if [[ -f "$SCRIPT_DIR/overlay-cli.py" ]]; then
-        if python3 "$SCRIPT_DIR/overlay-cli.py" list > /dev/null 2>&1; then
+        if OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" list > /dev/null 2>&1; then
             print_success "Overlay CLI working"
             ((passed_tests++))
         else
