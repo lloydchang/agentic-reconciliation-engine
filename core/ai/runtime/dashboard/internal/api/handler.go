@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/models"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/ws"
 	"go.uber.org/zap"
@@ -79,7 +78,7 @@ func (h *Handler) StartAgent(c *gin.Context) {
 	}
 
 	// Create activity
-	h.activityService.CreateAgentActivity(c.Request.Context(), id, agent.Name, "info", "Agent started")
+	h.activityService.CreateAgentActivity(c.Request.Context(), id, "Agent", "info", "Agent started")
 
 	c.JSON(http.StatusOK, gin.H{"status": "started"})
 }
@@ -100,7 +99,7 @@ func (h *Handler) StopAgent(c *gin.Context) {
 	}
 
 	// Create activity
-	h.activityService.CreateAgentActivity(c.Request.Context(), id, agent.Name, "info", "Agent stopped")
+	h.activityService.CreateAgentActivity(c.Request.Context(), id, "Agent", "info", "Agent stopped")
 
 	c.JSON(http.StatusOK, gin.H{"status": "stopped"})
 }
@@ -121,7 +120,7 @@ func (h *Handler) RestartAgent(c *gin.Context) {
 	}
 
 	// Create activity
-	h.activityService.CreateAgentActivity(c.Request.Context(), id, agent.Name, "info", "Agent restarted")
+	h.activityService.CreateAgentActivity(c.Request.Context(), id, "Agent", "info", "Agent restarted")
 
 	c.JSON(http.StatusOK, gin.H{"status": "restarted"})
 }

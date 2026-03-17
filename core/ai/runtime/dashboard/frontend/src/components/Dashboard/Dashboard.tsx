@@ -7,7 +7,7 @@ import ActiveAgents from './ActiveAgents';
 import AvailableSkills from './AvailableSkills';
 import RecentActivity from './RecentActivity';
 import SystemControls from './SystemControls';
-import { ApiService } from '../../services/api';
+import ApiService from '../../services/api';
 import { WebSocketService } from '../../services/websocket';
 
 interface SystemMetrics {

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import Dashboard from './components/Dashboard/Dashboard';
 import { WebSocketService } from './services/websocket';
-import { ApiService } from './services/api';
+import ApiService from './services/api';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<any>(null);
+  // const [systemStatus, setSystemStatus] = useState<any>(null);
 
   useEffect(() => {
     // Initialize WebSocket connection
@@ -26,7 +26,8 @@ function App() {
       try {
         const api = new ApiService();
         const status = await api.getSystemStatus();
-        setSystemStatus(status);
+        // setSystemStatus(status);
+        console.log('System status:', status);
       } catch (error) {
         console.error('Failed to fetch system status:', error);
       }
