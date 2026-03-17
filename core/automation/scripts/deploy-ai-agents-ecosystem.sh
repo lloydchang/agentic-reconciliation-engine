@@ -567,6 +567,7 @@ data:
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
         <title>Agents Control Center</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://unpkg.com/feather-icons"></script>
@@ -1265,6 +1266,11 @@ data:
         </script>
     </body>
     </html>
+  favicon.ico: |
+    # Base64 encoded favicon.ico content
+    # To generate: base64 -i core/ai/runtime/agents/dashboard/public/favicon.ico
+    # Placeholder - replace with actual base64 content
+    AAEAAAABAIAAAAAQABAAEAKABAAALAAAAAAQABAAQAJAAUAAgAKAAEACgAAAAMAAAAGAAAABgY...
 ---
 apiVersion: v1
 kind: Service

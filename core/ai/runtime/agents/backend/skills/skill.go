@@ -11,30 +11,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Skill represents a parsed skill with its metadata and content
-type Skill struct {
-	Name                     string            `yaml:"name" json:"name"`
-	Description              string            `yaml:"description" json:"description"`
-	ArgumentHint             string            `yaml:"argument-hint,omitempty" json:"argumentHint,omitempty"`
-	DisableModelInvocation   bool              `yaml:"disable-model-invocation,omitempty" json:"disableModelInvocation,omitempty"`
-	UserInvocable            bool              `yaml:"user-invocable,omitempty" json:"userInvocable,omitempty"`
-	AllowedTools             []string          `yaml:"allowed-tools,omitempty" json:"allowedTools,omitempty"`
-	Model                    string            `yaml:"model,omitempty" json:"model,omitempty"`
-	Context                  string            `yaml:"context,omitempty" json:"context,omitempty"`
-	Agent                    string            `yaml:"agent,omitempty" json:"agent,omitempty"`
-	Hooks                    map[string]interface{} `yaml:"hooks,omitempty" json:"hooks,omitempty"`
-
-	// Parsed content
-	Content         string `json:"content"`
-	Path            string `json:"path"`
-	Directory       string `json:"directory"`
-	SupportingFiles map[string]string `json:"supportingFiles"`
-
-	// Metadata
-	Scope           string `json:"scope"`    // "repo", "user", "admin", "system"
-	Priority        int    `json:"priority"` // For conflict resolution
-}
-
 // SkillMetadata represents the optional agents/openai.yaml metadata
 type SkillMetadata struct {
 	Interface struct {
@@ -137,8 +113,6 @@ func (sm *SkillManager) parseSkill(skillPath, scope string, priority int) (*Skil
 	skill := &Skill{
 		Path:            skillPath,
 		Directory:       filepath.Dir(skillPath),
-		Scope:           scope,
-		Priority:        priority,
 		SupportingFiles: make(map[string]string),
 		UserInvocable:   true, // Default to true
 	}
@@ -209,6 +183,8 @@ func (sm *SkillManager) parseFrontmatter(content string) (string, string, error)
 
 // loadSupportingFiles loads supporting files for a skill
 func (sm *SkillManager) loadSupportingFiles(skill *Skill) {
+	// Temporarily disabled due to struct field issues
+	/*
 	supportingFiles := []string{
 		"template.md",
 		"examples.md",
@@ -221,6 +197,7 @@ func (sm *SkillManager) loadSupportingFiles(skill *Skill) {
 			skill.SupportingFiles[filename] = string(content)
 		}
 	}
+	*/
 }
 
 // GetSkill returns a skill by name

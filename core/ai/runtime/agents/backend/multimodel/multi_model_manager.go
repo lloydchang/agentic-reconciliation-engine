@@ -379,18 +379,18 @@ func (m *MultiModelManager) processWithGoogle(ctx context.Context, request Multi
 // processWithOllama processes request with local Ollama
 func (m *MultiModelManager) processWithOllama(ctx context.Context, request MultiModelRequest, model *ModelConfig, start time.Time) (*ModelResult, error) {
 	// Call local Ollama agent service
-	ollamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8080/generate" // Adjust service URL as needed
+	// ollamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8080/generate" // Adjust service URL as needed
 
-	payload := map[string]interface{}{
-		"model":  model.ID,
-		"prompt": request.Prompt,
-		"stream": false,
-		"options": map[string]interface{}{
-			"temperature": request.Temperature,
-			"top_p":       request.TopP,
-			"num_predict": request.MaxTokens,
-		},
-	}
+	// payload := map[string]interface{}{
+	// 	"model":  model.ID,
+	// 	"prompt": request.Prompt,
+	// 	"stream": false,
+	// 	"options": map[string]interface{}{
+	// 		"temperature": request.Temperature,
+	// 		"top_p":       request.TopP,
+	// 		"num_predict": request.MaxTokens,
+	// 	},
+	// }
 
 	// TODO: Implement HTTP call to local Ollama service
 	// For now, mock response
@@ -412,17 +412,17 @@ func (m *MultiModelManager) processWithOllama(ctx context.Context, request Multi
 // processWithLlamaCpp processes request with local llama.cpp
 func (m *MultiModelManager) processWithLlamaCpp(ctx context.Context, request MultiModelRequest, model *ModelConfig, start time.Time) (*ModelResult, error) {
 	// Call local llama.cpp agent service
-	llamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8081/generate" // Adjust service URL as needed
+	// llamaURL := "http://ai-inference-service.ai-inference.svc.cluster.local:8081/generate" // Adjust service URL as needed
 
-	payload := map[string]interface{}{
-		"model":  model.ID,
-		"prompt": request.Prompt,
-		"options": map[string]interface{}{
-			"temperature": request.Temperature,
-			"top_p":       request.TopP,
-			"n_predict":   request.MaxTokens,
-		},
-	}
+	// payload := map[string]interface{}{
+	// 	"model":  model.ID,
+	// 	"prompt": request.Prompt,
+	// 	"options": map[string]interface{}{
+	// 		"temperature": request.Temperature,
+	// 		"top_p":       request.TopP,
+	// 		"n_predict":   request.MaxTokens,
+	// 	},
+	// }
 
 	// TODO: Implement HTTP call to local llama.cpp service
 	// For now, mock response
