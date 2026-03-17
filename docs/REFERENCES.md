@@ -61,6 +61,7 @@ Hence it draws inspirations from various references.
 
 ## Sandbox: K8sGPT
 - https://github.com/cncf/sandbox/issues/38
+- https://www.cncf.io/projects/k8sgpt/
 
 # 2024
 
