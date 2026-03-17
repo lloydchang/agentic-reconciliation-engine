@@ -1,1 +1,1 @@
-AGENTS.md
+core/ai/AGENTS.md
