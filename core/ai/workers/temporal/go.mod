@@ -1,4 +1,4 @@
-module github.com/lloydchang/gitops-infra-control-plane/ai-workers
+module github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal
 
 go 1.21
 
