@@ -7,10 +7,10 @@ This document explains the current repository structure and the rationale behind
 The repository follows a clear separation of concerns with three main layers:
 
 ```
-├── .agents/          # Skill definitions (agentskills.io)
-├── agents/           # Runtime implementation
-├── control-plane/    # Kubernetes infrastructure
-├── infrastructure/   # Cloud resources
+├── core/ai/skills/          # Skill definitions (agentskills.io)
+├── core/ai/runtime/           # Runtime implementation
+├── core/operators/    # Kubernetes infrastructure
+├── core/resources/   # Cloud resources
 └── docs/            # Documentation
 ```
 
@@ -18,12 +18,12 @@ The repository follows a clear separation of concerns with three main layers:
 
 ### Core Components
 
-#### `.agents/` - Skill Definitions
+#### `core/ai/skills/` - Skill Definitions
 ```
-.agents/
+core/ai/skills/
 ├── [skill_name]/
 │   ├── SKILL.md          # Skill definition with YAML frontmatter
-│   ├── scripts/          # Optional executable code
+│   ├── core/core/automation/ci-cd/scripts/          # Optional executable code
 │   ├── references/       # Documentation
 │   └── assets/           # Templates/resources
 └── README.md             # Skills framework overview
@@ -31,9 +31,9 @@ The repository follows a clear separation of concerns with three main layers:
 
 **Purpose**: Contains agent skill definitions following the [agentskills.io specification](https://agentskills.io/specification).
 
-#### `agents/` - Runtime Implementation
+#### `core/ai/runtime/` - Runtime Implementation
 ```
-agents/
+core/ai/runtime/
 ├── backend/              # Go Temporal workflows and activities
 ├── dashboard/            # React dashboard UI
 ├── cli/                  # Command-line interface
@@ -43,9 +43,9 @@ agents/
 
 **Purpose**: Runtime code for the agent system, including backend services and user interface.
 
-#### `control-plane/` - Kubernetes Infrastructure
+#### `core/operators/` - Kubernetes Infrastructure
 ```
-control-plane/
+core/operators/
 ├── bootstrap/            # Cluster bootstrap configuration
 ├── capi/                 # Cluster API resources
 ├── consensus/            # A2A consensus implementation
@@ -54,9 +54,9 @@ control-plane/
 
 **Purpose**: Kubernetes manifests and infrastructure for running the agent system.
 
-#### `infrastructure/` - Cloud Resources
+#### `core/resources/` - Cloud Resources
 ```
-infrastructure/
+core/resources/
 ├── ai-inference/         # AI model serving
 ├── flux/                 # GitOps configurations
 ├── monitoring/           # Application monitoring
@@ -76,18 +76,18 @@ docs/
 └── [various guides].md  # Topic-specific documentation
 ```
 
-#### `scripts/` - Automation
+#### `core/core/automation/ci-cd/scripts/` - Automation
 ```
-scripts/
+core/core/automation/ci-cd/scripts/
 ├── debug/               # Debugging utilities
 ├── helpers/             # Helper functions
 ├── hub-clusters/        # Cluster setup scripts
 └── maintenance/         # Maintenance automation
 ```
 
-#### `examples/` - Reference Implementations
+#### `overlay/examples/` - Reference Implementations
 ```
-examples/
+overlay/examples/
 ├── complete-hub-spoke/          # Full deployment example
 ├── complete-hub-spoke-temporal/ # Temporal integration
 ├── complete-hub-spoke-kagent/  # Kubernetes agent
@@ -121,7 +121,7 @@ examples/
 
 **Before**:
 ```
-├── ai-agents/                    # Verbose naming
+├── ai-core/ai/runtime/                    # Verbose naming
 │   ├── backend/
 │   ├── cli/
 │   └── tools/
@@ -130,7 +130,7 @@ examples/
 
 **After**:
 ```
-├── agents/                       # Clean naming
+├── core/ai/runtime/                       # Clean naming
 │   ├── backend/
 │   ├── dashboard/                # Logical grouping
 │   ├── cli/
@@ -155,22 +155,22 @@ The dashboard migrated from Create React App to Vite for:
 ### 1. Clear Separation of Concerns
 
 Each directory has a single, well-defined purpose:
-- `.agents/` = Skill specifications
-- `agents/` = Runtime implementation
-- `control-plane/` = Kubernetes infrastructure
-- `infrastructure/` = Cloud resources
+- `core/ai/skills/` = Skill specifications
+- `core/ai/runtime/` = Runtime implementation
+- `core/operators/` = Kubernetes infrastructure
+- `core/resources/` = Cloud resources
 
 ### 2. Logical Grouping
 
 Related components are grouped together:
-- `agents/dashboard/` with `agents/backend/`
-- `control-plane/` with `infrastructure/`
+- `core/ai/runtime/dashboard/` with `core/ai/runtime/backend/`
+- `core/operators/` with `core/resources/`
 
 ### 3. Scalability
 
 Structure accommodates future growth:
-- Room for new agent components in `agents/`
-- Extensible infrastructure in `control-plane/`
+- Room for new agent components in `core/ai/runtime/`
+- Extensible infrastructure in `core/operators/`
 - Modular documentation in `docs/`
 
 ### 4. Minimal Redundancy
@@ -185,28 +185,28 @@ Avoid unnecessary suffixes and prefixes:
 ### API Connections
 
 ```
-agents/dashboard (React UI)
+core/ai/runtime/dashboard (React UI)
     ↓ HTTP/WebSocket
-agents/backend (Go API)
+core/ai/runtime/backend (Go API)
     ↓ gRPC/Protocol
 Temporal Workflows
     ↓ Kubernetes API
-control-plane/ (K8s resources)
+core/operators/ (K8s resources)
 ```
 
 ### Data Flow
 
-1. **User Interface** - `agents/dashboard/` provides web UI
-2. **API Layer** - `agents/backend/` handles business logic
+1. **User Interface** - `core/ai/runtime/dashboard/` provides web UI
+2. **API Layer** - `core/ai/runtime/backend/` handles business logic
 3. **Orchestration** - Temporal workflows coordinate agents
 4. **Infrastructure** - Kubernetes manages deployment
-5. **Skills** - `.agents/` defines agent capabilities
+5. **Skills** - `core/ai/skills/` defines agent capabilities
 
 ### Configuration Management
 
 - **GitOps** - `flux/` manages infrastructure state
-- **Skills** - `.agents/` defines agent behaviors
-- **Environment** - `infrastructure/` handles cloud-specific configs
+- **Skills** - `core/ai/skills/` defines agent behaviors
+- **Environment** - `core/resources/` handles cloud-specific configs
 
 ## Best Practices
 

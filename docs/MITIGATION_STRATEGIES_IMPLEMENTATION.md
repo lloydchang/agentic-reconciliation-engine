@@ -22,8 +22,8 @@ Eliminates single point of failure through geographic distribution and automatic
 
 #### Files Created
 
-- `control-plane/karmada/multi-hub-architecture.yaml` - Karmada configuration for multi-hub setup
-- `scripts/setup-multi-hub.sh` - Automated multi-hub deployment script
+- `core/operators/karmada/multi-hub-architecture.yaml` - Karmada configuration for multi-hub setup
+- `core/core/automation/ci-cd/scripts/setup-multi-hub.sh` - Automated multi-hub deployment script
 
 #### Key Features
 
@@ -36,7 +36,7 @@ Eliminates single point of failure through geographic distribution and automatic
 
 ```bash
 # Test multi-hub setup
-./scripts/setup-multi-hub.sh
+./core/core/automation/ci-cd/scripts/setup-multi-hub.sh
 
 # Validate Karmada integration
 kubectl get clusters
@@ -60,8 +60,8 @@ Simplifies complex setup through automated controller deployment and configurati
 
 #### Files Created
 
-- `control-plane/controllers/unified-controller-installer.yaml` - Helm-based unified installer
-- `scripts/generate-controller-config.sh` - Automated configuration generator
+- `core/operators/controllers/unified-controller-installer.yaml` - Helm-based unified installer
+- `core/core/automation/ci-cd/scripts/generate-controller-config.sh` - Automated configuration generator
 
 #### Key Features
 
@@ -74,12 +74,12 @@ Simplifies complex setup through automated controller deployment and configurati
 
 ```bash
 # Generate controller configurations
-./scripts/generate-controller-config.sh aws all
-./scripts/generate-controller-config.sh azure all
-./scripts/generate-controller-config.sh gcp all
+./core/core/automation/ci-cd/scripts/generate-controller-config.sh aws all
+./core/core/automation/ci-cd/scripts/generate-controller-config.sh azure all
+./core/core/automation/ci-cd/scripts/generate-controller-config.sh gcp all
 
 # Deploy unified controllers
-kubectl apply -k control-plane/controllers/generated-configs/
+kubectl apply -k core/operators/controllers/generated-configs/
 ```
 
 #### Practical Soundness: ✅ **EXCELLENT**
@@ -98,8 +98,8 @@ Provides visual understanding of complex dependency chains.
 
 #### Files Created
 
-- `control-plane/monitoring/dependency-graph.yaml` - Visualization service deployment
-- `control-plane/monitoring/dependency-graph-visualizer` - Graph generation and display
+- `core/operators/monitoring/dependency-graph.yaml` - Visualization service deployment
+- `core/operators/monitoring/dependency-graph-visualizer` - Graph generation and display
 
 #### Key Features
 
@@ -112,7 +112,7 @@ Provides visual understanding of complex dependency chains.
 
 ```bash
 # Deploy dependency graph visualizer
-kubectl apply -f control-plane/monitoring/dependency-graph.yaml
+kubectl apply -f core/operators/monitoring/dependency-graph.yaml
 
 # Access visualization
 kubectl port-forward svc/dependency-graph-visualizer 8080:80
@@ -135,8 +135,8 @@ Enables distributed reconciliation tracking through correlated logs and metrics.
 
 #### Files Created
 
-- `control-plane/monitoring/centralized-observability.yaml` - Complete observability stack
-- `control-plane/monitoring/correlation-id-injector` - Automatic correlation ID injection
+- `core/operators/monitoring/centralized-observability.yaml` - Complete observability stack
+- `core/operators/monitoring/correlation-id-injector` - Automatic correlation ID injection
 
 #### Key Features
 
@@ -149,7 +149,7 @@ Enables distributed reconciliation tracking through correlated logs and metrics.
 
 ```bash
 # Deploy observability stack
-kubectl apply -f control-plane/monitoring/centralized-observability.yaml
+kubectl apply -f core/operators/monitoring/centralized-observability.yaml
 
 # Test correlation ID injection
 kubectl create test-pod --dry-run=client -o yaml | grep correlation-id
@@ -171,9 +171,9 @@ Provides real-time status monitoring of all dependencies and controllers.
 
 #### Files Created
 
-- `control-plane/monitoring/dependency-status-dashboard.yaml` - Complete dashboard service
-- `control-plane/monitoring/dashboard-backend` - FastAPI backend service
-- `control-plane/monitoring/dashboard-frontend` - React-based frontend
+- `core/operators/monitoring/dependency-status-dashboard.yaml` - Complete dashboard service
+- `core/operators/monitoring/dashboard-backend` - FastAPI backend service
+- `core/operators/monitoring/dashboard-frontend` - React-based frontend
 
 #### Key Features
 
@@ -186,7 +186,7 @@ Provides real-time status monitoring of all dependencies and controllers.
 
 ```bash
 # Deploy dashboard
-kubectl apply -f control-plane/monitoring/dependency-status-dashboard.yaml
+kubectl apply -f core/operators/monitoring/dependency-status-dashboard.yaml
 
 # Access dashboard
 kubectl port-forward svc/dependency-status-dashboard 8080:80
@@ -209,8 +209,8 @@ Automates troubleshooting of distributed reconciliation issues.
 
 #### Files Created
 
-- `scripts/debug-dependency-chain.sh` - Comprehensive debugging script
-- `scripts/validate-dependencies.sh` - Validation and testing script
+- `core/core/automation/ci-cd/scripts/debug-dependency-chain.sh` - Comprehensive debugging script
+- `core/core/automation/ci-cd/scripts/validate-dependencies.sh` - Validation and testing script
 
 #### Key Features
 
@@ -223,13 +223,13 @@ Automates troubleshooting of distributed reconciliation issues.
 
 ```bash
 # Debug specific resource
-./scripts/debug-dependency-chain.sh network-infrastructure kustomization
+./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh network-infrastructure kustomization
 
 # Validate entire system
-./scripts/validate-dependencies.sh
+./core/core/automation/ci-cd/scripts/validate-dependencies.sh
 
 # Generate debugging report
-./scripts/debug-dependency-chain.sh OUTPUT_FORMAT=json
+./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh OUTPUT_FORMAT=json
 ```
 
 #### Practical Soundness: ✅ **EXCELLENT**

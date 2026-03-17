@@ -246,7 +246,7 @@ jobs:
           pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute kubernetes prometheus-client
           
           # Install dependencies for all agent skills
-          cd .agents/infrastructure-provisioning/scripts && pip install -e .
+          cd core/ai/skills/infrastructure-provisioning/scripts && pip install -e .
           cd ../cluster-health-check/scripts && pip install -e .
           cd ../resource-optimizer/scripts && pip install -e .
 
@@ -257,18 +257,18 @@ jobs:
           # Execute the specific agent skill
           case "${{ matrix.step.skill }}" in
             "infrastructure-provisioning")
-              cd .agents/infrastructure-provisioning/scripts
+              cd core/ai/skills/infrastructure-provisioning/scripts
               CMD="python main.py ${{ matrix.step.action }}"
               ;;
             "cluster-health-check")
-              cd .agents/cluster-health-check/scripts
+              cd core/ai/skills/cluster-health-check/scripts
               CMD="python main.py ${{ matrix.step.action }}"
               if [[ "${{ matrix.step.action }}" == "check" ]]; then
                 CMD="$CMD all-clusters"
               fi
               ;;
             "resource-optimizer")
-              cd .agents/resource-optimizer/scripts
+              cd core/ai/skills/resource-optimizer/scripts
               CMD="python main.py ${{ matrix.step.action }}"
               if [[ "${{ matrix.step.action }}" == "analyze" ]]; then
                 CMD="$CMD --type all"
@@ -279,7 +279,7 @@ jobs:
           # Add common parameters
           CMD="$CMD --provider ${{ github.event.inputs.provider }}"
           CMD="$CMD --env ${{ github.event.inputs.environment }}"
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           
           if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
             CMD="$CMD --dry-run"

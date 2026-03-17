@@ -7,7 +7,7 @@ This document answers common questions about the March 2026 directory restructur
 ### Q: Why was the restructure necessary?
 **A:** The previous structure had naming redundancy and poor organization:
 - `dashboard-frontend` was redundant (dashboard = frontend)
-- `ai-agents` was verbose when `.agents/` already existed
+- `ai-agents` was verbose when `core/ai/skills/` already existed
 - Dashboard was separate from its backend
 
 ### Q: What were the main benefits?
@@ -26,24 +26,24 @@ This document answers common questions about the March 2026 directory restructur
 
 ## Directory Structure
 
-### Q: Why `agents/` instead of `ai-agents/`?
+### Q: Why `core/ai/runtime/` instead of `ai-core/ai/runtime/`?
 **A:** Several reasons:
 1. **Less verbose** - `agents` is more concise
-2. **Consistency** - Matches `.agents/` and [AGENTS.md](AGENTS.md)
+2. **Consistency** - Matches `core/ai/skills/` and [AGENTS.md](AGENTS.md)
 3. **Clarity** - Context makes it clear these are AI agents
 4. **Industry standard** - Simple, descriptive names
 
-### Q: Why `agents/dashboard/` instead of `dashboard-frontend/`?
+### Q: Why `core/ai/runtime/dashboard/` instead of `dashboard-frontend/`?
 **A:** 
 - **Dashboard = frontend** by definition, no need for suffix
 - **Logical grouping** - Dashboard belongs with its backend
 - **Clear relationship** - Path shows it's the UI for agents
-- **Scalable** - Room for `agents/mobile`, `agents/cli`, etc.
+- **Scalable** - Room for `core/ai/runtime/mobile`, `core/ai/runtime/cli`, etc.
 
-### Q: Won't this confuse `.agents/` (skills) with `agents/` (implementation)?
+### Q: Won't this confuse `core/ai/skills/` (skills) with `core/ai/runtime/` (implementation)?
 **A:** No, they serve different purposes:
-- `.agents/` = Skill definitions (agentskills.io specification)
-- `agents/` = Runtime implementation (Go backend + React UI)
+- `core/ai/skills/` = Skill definitions (agentskills.io specification)
+- `core/ai/runtime/` = Runtime implementation (Go backend + React UI)
 - **Dot prefix** indicates special/configuration directory
 - **Clear documentation** explains the distinction
 
@@ -77,7 +77,7 @@ This document answers common questions about the March 2026 directory restructur
 ### Q: How do I start development now?
 **A:** 
 ```bash
-cd agents/dashboard
+cd core/ai/runtime/dashboard
 npm install
 npm run dev
 ```
@@ -173,7 +173,7 @@ npm run dev
 **A:** 
 1. **Fork the repository**
 2. **Create feature branch**
-3. **Make changes in `agents/dashboard/`**
+3. **Make changes in `core/ai/runtime/dashboard/`**
 4. **Run tests** with `npm run test`
 5. **Submit PR** with clear description
 

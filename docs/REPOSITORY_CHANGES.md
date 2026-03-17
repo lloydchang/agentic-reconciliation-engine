@@ -11,7 +11,7 @@ This document outlines the comprehensive repository reorganization completed to 
 **Changes Made:**
 
 - Moved root [SKILL.md](SKILL.md) → [docs/system-interface.md](docs/system-interface.md)
-- Created 40 individual [SKILL.md](SKILL.md) files in `.agents/skills/*/SKILL.md` directories
+- Created 40 individual [SKILL.md](SKILL.md) files in `core/ai/skills/skills/*/SKILL.md` directories
 - Each skill file follows proper YAML frontmatter format with `name`, `description`, `tools` fields
 
 **Justification:**
@@ -50,7 +50,7 @@ This document outlines the comprehensive repository reorganization completed to 
 **Reasoning for Symlinks:**
 
 - **Tool-specific dotfiles** (`.claude`, `.cursor`, etc.) are IDE/tool conventions for configuration discovery
-- **Pointing to `.agents/`** allows tools to access the skill system while maintaining their expected configuration paths
+- **Pointing to `core/ai/skills/`** allows tools to access the skill system while maintaining their expected configuration paths
 - **Prevents conflicts** between tool-specific expectations and the unified agentskills.io structure
 - **Maintains compatibility** with tools that look for their branded configuration directories
 
@@ -67,11 +67,11 @@ This document outlines the comprehensive repository reorganization completed to 
 - **Root directory cleanup:** Removed all non-essential files from root
 - **File relocations:**
   - Binaries: `ai-agent` → `tools/`
-  - Go modules: `go.mod`, `go.sum` → `infrastructure/`
-  - Kubernetes manifests: `*.yaml` → `infrastructure/`
-  - Shell scripts: `*.sh`, `*.js` → `scripts/`
+  - Go modules: `go.mod`, `go.sum` → `core/resources/`
+  - Kubernetes manifests: `*.yaml` → `core/resources/`
+  - Shell scripts: `*.sh`, `*.js` → `core/core/automation/ci-cd/scripts/`
   - Documentation: `LICENSE`, [README.md](README.md), diagrams → `docs/`
-  - Sample data: `agent-data.json` → `examples/`
+  - Sample data: `agent-data.json` → `overlay/examples/`
 
 **Justification:**
 
@@ -82,7 +82,7 @@ This document outlines the comprehensive repository reorganization completed to 
 **Reasoning:**
 
 - Improves discoverability and reduces clutter
-- Follows standard project layouts (tools/, scripts/, docs/, examples/)
+- Follows standard project layouts (tools/, core/core/automation/ci-cd/scripts/, docs/, overlay/examples/)
 - Maintains tool compatibility (Git, SOPS, AI assistants)
 
 ### 4. Cross-Reference Documentation
@@ -90,7 +90,7 @@ This document outlines the comprehensive repository reorganization completed to 
 **Changes Made:**
 
 - Added implementation references in [docs/system-interface.md](docs/system-interface.md)
-- Updated [ai-agents/README.md](ai-agents/README.md) and [ai-agents/docs/README.md](ai-agents/docs/README.md) with links to system docs
+- Updated [ai-core/ai/runtime/README.md](ai-core/ai/runtime/README.md) and [ai-core/ai/runtime/docs/README.md](ai-core/ai/runtime/docs/README.md) with links to system docs
 - Modified [AGENTS.md](AGENTS.md) repository structure diagram to reflect new layout
 
 **Justification:**

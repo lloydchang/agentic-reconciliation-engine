@@ -171,7 +171,7 @@ Emergency break-glass credential  Cost increase >$5,000/month
 
 ## Skill Development
 
-Skills are defined in `.agents/skills/[skill-name]/SKILL.md` files following the Anthropic Agent Skills specification. Each skill includes:
+Skills are defined in `core/ai/skills/skills/[skill-name]/SKILL.md` files following the Anthropic Agent Skills specification. Each skill includes:
 
 - YAML frontmatter with metadata
 - Input/output schemas

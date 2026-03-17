@@ -25,7 +25,7 @@ other spokes' secrets.
 ESO is bootstrapped onto each spoke by Flux after CAPI provisions the cluster.
 
 ```yaml
-# control-plane/flux/spoke-bootstrap/eso-helmrelease.yaml
+# core/operators/flux/spoke-bootstrap/eso-helmrelease.yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -427,7 +427,7 @@ kubectl create secret generic sops-age \
 
 # .sops.yaml in repository root
 creation_rules:
-  - path_regex: infrastructure/tenants/.*\.yaml
+  - path_regex: core/resources/tenants/.*\.yaml
     age: age1xxxx...  # public key only in repo
 ```
 

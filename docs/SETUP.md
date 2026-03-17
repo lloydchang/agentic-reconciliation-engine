@@ -53,7 +53,7 @@ cd gitops-infra-control-plane
 flux bootstrap git \
   --url=ssh://git@github.com/lloydchang/gitops-infra-control-plane \
   --branch=main \
-  --path=control-plane/flux \
+  --path=core/operators/flux \
   --private-key-file=~/.ssh/id_rsa
 ```
 
@@ -71,7 +71,7 @@ export EKS_CLUSTER_NAME="gitops-management-cluster"
 OIDC_PROVIDER=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
 
 # Create IAM roles for Crossplane and CAPI controllers (IRSA)
-# See control-plane/identity/irsa-setup.yaml for detailed configuration
+# See core/operators/identity/irsa-setup.yaml for detailed configuration
 ```
 
 #### Azure - Workload Identity
@@ -82,7 +82,7 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 export AZURE_RESOURCE_GROUP="gitops-rg"
 
 # Create managed identity for Crossplane and CAPZ controllers
-# See control-plane/identity/azure-workload-identity.yaml
+# See core/operators/identity/azure-workload-identity.yaml
 ```
 
 #### Google Cloud - Workload Identity
@@ -92,20 +92,20 @@ export AZURE_RESOURCE_GROUP="gitops-rg"
 export GCP_PROJECT_ID="your-project-id"
 
 # Configure workload identity for Crossplane and CAPG controllers
-# See control-plane/identity/gcp-workload-identity.yaml
+# See core/operators/identity/gcp-workload-identity.yaml
 ```
 
 ### 4. Update Configuration Files
 
 Replace placeholder values in the following files:
 
-- `control-plane/identity/irsa-setup.yaml` - Update `ACCOUNT_ID`, `REGION`, `CLUSTER_ID`
-- `control-plane/identity/azure-workload-identity.yaml` - Update `SUBSCRIPTION_ID`, `RESOURCE_GROUP`
-- `control-plane/identity/gcp-workload-identity.yaml` - Update `PROJECT_ID`
-- `control-plane/capi/infrastructure-providers.yaml` - Update workload identity annotations
-- `control-plane/capi/clusterclass-aws.yaml` - Update `region`, `sshKeyName`
-- `control-plane/capi/clusterclass-azure.yaml` - Update `subscriptionID`, `resourceGroup`
-- `control-plane/capi/clusterclass-gcp.yaml` - Update `project`, `region`
+- `core/operators/identity/irsa-setup.yaml` - Update `ACCOUNT_ID`, `REGION`, `CLUSTER_ID`
+- `core/operators/identity/azure-workload-identity.yaml` - Update `SUBSCRIPTION_ID`, `RESOURCE_GROUP`
+- `core/operators/identity/gcp-workload-identity.yaml` - Update `PROJECT_ID`
+- `core/operators/capi/infrastructure-providers.yaml` - Update workload identity annotations
+- `core/operators/capi/clusterclass-aws.yaml` - Update `region`, `sshKeyName`
+- `core/operators/capi/clusterclass-azure.yaml` - Update `subscriptionID`, `resourceGroup`
+- `core/operators/capi/clusterclass-gcp.yaml` - Update `project`, `region`
 See [docs/operator-inputs.md](docs/operator-inputs.md) for a consolidated checklist.
 See [docs/EXECUTION-CHECKLIST.md](docs/EXECUTION-CHECKLIST.md) for the apply/validation sequence.
 
@@ -174,7 +174,7 @@ CAPI providers manage spoke cluster lifecycle:
 
 ```bash
 # Execute the drift test to validate continuous reconciliation
-./tests/drift-test.sh
+./core/automation/testing/drift-test.sh
 ```
 
 ### Manual Verification
@@ -246,6 +246,6 @@ kubectl describe cluster gitops-eks-cluster -n flux-system
 For issues and questions:
 
 - Check the [implementation plan](./implementation_plan.md)
-- Review the drift test documentation in [tests/README.md](tests/README.md)
+- Review the drift test documentation in [core/automation/testing/README.md](core/automation/testing/README.md)
 - Examine controller logs and Flux status
 - Verify cloud provider permissions and configurations

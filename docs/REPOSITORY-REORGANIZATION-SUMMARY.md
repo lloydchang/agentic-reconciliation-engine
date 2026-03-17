@@ -11,15 +11,15 @@ This document summarizes a comprehensive analysis and reorganization of the GitO
 The repository contained two directories both named `ci` but serving fundamentally different purposes:
 
 - **`ci-cd/ci/jenkins/`** - Repository-wide CI/CD automation (Jenkins pipelines, build/test/deploy)
-- **`control-plane/ci/`** - Component-specific policy enforcement (OPA policies, validation scripts)
+- **`core/operators/ci/`** - Component-specific policy enforcement (OPA policies, validation scripts)
 
 This naming confusion created significant cognitive load for developers.
 
 ### Solution Implemented
 
 **Adopted: Option 2 - Consolidate by Purpose**
-- `automation/` for all build/deployment concerns
-- `policies/` for all governance concerns
+- `core/automation/ci-cd/` for all build/deployment concerns
+- `core/governance/` for all governance concerns
 
 **Why this approach:**
 - Repository manages unified infrastructure across components with shared policies
@@ -31,35 +31,35 @@ This naming confusion created significant cognitive load for developers.
 
 | Original Path | New Path | Purpose |
 |---------------|----------|---------|
-| `ci-cd/ci/jenkins/Jenkinsfile` | `automation/pipelines/Jenkinsfile` | Build pipeline orchestration |
-| `ci-cd/ci/jenkins/docker-pod.yaml` | `automation/pipelines/docker-pod.yaml` | Kubernetes pod specs for CI |
-| `ci-cd/ci/jenkins/run-tests.sh` | `automation/pipelines/run-tests.sh` | Comprehensive test suite |
-| `ci-cd/azure-pipelines-run-local-automation.yml` | `automation/azure-pipelines-run-local-automation.yml` | Azure DevOps pipeline |
-| `control-plane/ci/policies/cost-guardrail.rego` | `policies/control-plane/policies/cost-guardrail.rego` | Cost management policies |
-| `control-plane/ci/policies/deletion-guard.rego` | `policies/control-plane/policies/deletion-guard.rego` | Resource deletion controls |
-| `control-plane/ci/policies/naming.rego` | `policies/control-plane/policies/naming.rego` | Naming convention enforcement |
-| `control-plane/ci/policies/required-labels.rego` | `policies/control-plane/policies/required-labels.rego` | Labeling requirements |
-| `control-plane/ci/scripts/check-deletions.sh` | `policies/control-plane/scripts/check-deletions.sh` | Deletion validation |
-| `control-plane/ci/scripts/validate-schemas.sh` | `policies/control-plane/scripts/validate-schemas.sh` | Schema validation |
+| `ci-cd/ci/jenkins/Jenkinsfile` | `core/automation/ci-cd/pipelines/Jenkinsfile` | Build pipeline orchestration |
+| `ci-cd/ci/jenkins/docker-pod.yaml` | `core/automation/ci-cd/pipelines/docker-pod.yaml` | Kubernetes pod specs for CI |
+| `ci-cd/ci/jenkins/run-tests.sh` | `core/automation/ci-cd/pipelines/run-tests.sh` | Comprehensive test suite |
+| `ci-cd/azure-pipelines-run-local-automation.yml` | `core/automation/ci-cd/azure-pipelines-run-local-automation.yml` | Azure DevOps pipeline |
+| `core/operators/ci/core/governance/cost-guardrail.rego` | `core/governance/core/operators/core/governance/cost-guardrail.rego` | Cost management policies |
+| `core/operators/ci/core/governance/deletion-guard.rego` | `core/governance/core/operators/core/governance/deletion-guard.rego` | Resource deletion controls |
+| `core/operators/ci/core/governance/naming.rego` | `core/governance/core/operators/core/governance/naming.rego` | Naming convention enforcement |
+| `core/operators/ci/core/governance/required-labels.rego` | `core/governance/core/operators/core/governance/required-labels.rego` | Labeling requirements |
+| `core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/check-deletions.sh` | Deletion validation |
+| `core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/validate-schemas.sh` | Schema validation |
 
 ### New Structure
 
 ```
-automation/              # Build and deployment automation
+core/automation/ci-cd/              # Build and deployment automation
 ├── pipelines/           # Jenkins/GitHub Actions
 │   ├── Jenkinsfile
 │   ├── docker-pod.yaml
 │   └── run-tests.sh
 └── azure-pipelines-run-local-automation.yml
 
-policies/                # Governance and compliance
-└── control-plane/       # Component policies
-    ├── policies/
+core/governance/                # Governance and compliance
+└── core/operators/       # Component policies
+    ├── core/governance/
     │   ├── cost-guardrail.rego
     │   ├── deletion-guard.rego
     │   ├── naming.rego
     │   └── required-labels.rego
-    └── scripts/
+    └── core/core/automation/ci-cd/scripts/
         ├── check-deletions.sh
         └── validate-schemas.sh
 ```
@@ -69,66 +69,66 @@ policies/                # Governance and compliance
 ### Current Root Directory Structure (15 directories)
 
 ```
-├── .agents/         # Hidden skill definitions (MISPLACED)
+├── core/ai/skills/         # Hidden skill definitions (MISPLACED)
 ├── .git/           # Git repository data (appropriate)
 ├── .github/        # GitHub configuration (appropriate)
-├── agents/         # Agent runtime and dashboard (appropriate)
-├── automation/     # Build/deployment automation (newly organized)
+├── core/ai/runtime/         # Agent runtime and dashboard (appropriate)
+├── core/automation/ci-cd/     # Build/deployment automation (newly organized)
 ├── azure/          # Generic ArgoCD templates (MISPLACED)
-├── control-plane/  # Infrastructure control plane (appropriate)
+├── core/operators/  # Infrastructure control plane (appropriate)
 ├── docs/           # Documentation (appropriate)
-├── examples/       # Example configurations (questionable)
+├── overlay/examples/       # Example configurations (questionable)
 ├── flux-operator/  # Flux operator manifests (MISPLACED)
-├── infrastructure/ # Infrastructure manifests (appropriate)
-├── overlays/       # Kustomize overlays (MISPLACED)
-├── policies/       # Governance policies (newly organized)
-├── scripts/        # Utility scripts (appropriate)
-├── tests/          # Test suites (appropriate)
+├── core/resources/ # Infrastructure manifests (appropriate)
+├── core/deployment/overlays/       # Kustomize overlays (MISPLACED)
+├── core/governance/       # Governance policies (newly organized)
+├── core/core/automation/ci-cd/scripts/        # Utility scripts (appropriate)
+├── core/automation/testing/          # Test suites (appropriate)
 └── variants/       # Product variants (poor naming)
 ```
 
 ### Directory Assessment
 
 #### ✅ Well-Organized (8 directories)
-- `.git/`, `.github/`, `agents/`, `control-plane/`, `docs/`, `infrastructure/`, `scripts/`, `tests/`
+- `.git/`, `.github/`, `core/ai/runtime/`, `core/operators/`, `docs/`, `core/resources/`, `core/core/automation/ci-cd/scripts/`, `core/automation/testing/`
 
 #### ⚠️ Questionable Placement (1 directory)
-- `examples/` - Could move to `docs/examples/`
+- `overlay/examples/` - Could move to `docs/overlay/examples/`
 
 #### ❌ Misplaced/Poorly Named (6 directories)
 
-1. **`.agents/`** - Hidden skill definitions
-   - **Problem**: Dot-prefixed directory scatters skills from main `agents/` directory
-   - **Recommendation**: Move to `agents/skills/` (make visible and logical)
+1. **`core/ai/skills/`** - Hidden skill definitions
+   - **Problem**: Dot-prefixed directory scatters skills from main `core/ai/runtime/` directory
+   - **Recommendation**: Move to `core/ai/runtime/skills/` (make visible and logical)
 
 2. **`azure/`** - Generic ArgoCD templates
    - **Problem**: Directory name implies Azure-specific content
    - **Contents**: Generic `applications.yaml`, `applicationsets.yaml`, `clusters.yaml`
-   - **Recommendation**: Move to `control-plane/flux/templates/`
+   - **Recommendation**: Move to `core/operators/flux/templates/`
 
 3. **`flux-operator/`** - Flux operator manifests
    - **Problem**: Infrastructure manifests scattered at root level
-   - **Recommendation**: Move to `infrastructure/flux/operator/`
+   - **Recommendation**: Move to `core/resources/flux/operator/`
 
-4. **`overlays/`** - Kustomize overlays
+4. **`core/deployment/overlays/`** - Kustomize overlays
    - **Problem**: Kustomize overlays separated from infrastructure manifests
-   - **Recommendation**: Move to `infrastructure/overlays/`
+   - **Recommendation**: Move to `core/resources/core/deployment/overlays/`
 
 5. **`variants/`** - Product variants
    - **Problem**: Poor naming - "variants" unclear
-   - **Recommendation**: Rename to `editions/` for clarity
+   - **Recommendation**: Rename to `overlay/editions/` for clarity
 
 ## Phase 3: Implementation and Verification
 
 ### Actions Completed
 
 1. **Directory Reorganization**:
-   - ✅ Moved CI directories to `automation/` and `policies/`
-   - ✅ Removed old empty `ci-cd/ci/` and `control-plane/ci/` directories
+   - ✅ Moved CI directories to `core/automation/ci-cd/` and `core/governance/`
+   - ✅ Removed old empty `ci-cd/ci/` and `core/operators/ci/` directories
 
 2. **Documentation Created**:
-   - ✅ `docs/CI-DIRECTORY-STRUCTURE-REORGANIZATION.md` - CI reorganization details
-   - ✅ `docs/REPOSITORY-STRUCTURE-ANALYSIS.md` - Comprehensive root directory analysis
+   - ✅ [docs/CI-DIRECTORY-STRUCTURE-REORGANIZATION.md](docs/CI-DIRECTORY-STRUCTURE-REORGANIZATION.md) - CI reorganization details
+   - ✅ [docs/REPOSITORY-STRUCTURE-ANALYSIS.md](docs/REPOSITORY-STRUCTURE-ANALYSIS.md) - Comprehensive root directory analysis
    - ✅ This summary document
 
 3. **Git Operations**:
@@ -163,24 +163,24 @@ policies/                # Governance and compliance
 
 ```bash
 # Move misplaced infrastructure directories
-azure/              → control-plane/flux/templates/
-flux-operator/      → infrastructure/flux/operator/
-overlays/           → infrastructure/overlays/
+azure/              → core/operators/flux/templates/
+flux-operator/      → core/resources/flux/operator/
+core/deployment/overlays/           → core/resources/core/deployment/overlays/
 ```
 
 ### Phase 2: Naming and Visibility Improvements
 
 ```bash
 # Rename for clarity and make skills visible
-variants/           → editions/
-.agents/            → agents/skills/
+variants/           → overlay/editions/
+core/ai/skills/            → core/ai/runtime/skills/
 ```
 
 ### Phase 3: Optional Documentation Consolidation
 
 ```bash
 # Move examples closer to docs
-examples/           → docs/examples/
+overlay/examples/           → docs/overlay/examples/
 ```
 
 ## Conclusion

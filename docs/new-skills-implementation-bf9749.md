@@ -15,7 +15,7 @@ The plan adds 11+ new skills to the existing 28, bringing the total to 40+ skill
 
 ## Phase 2: Skill Implementation
 
-- Create new skill directories under .agents/skills/
+- Create new skill directories under core/ai/skills/skills/
 - Implement SKILL.md files for each new skill
 - Consolidate overlapping skills by enhancing existing ones
 - Validate all SKILL.md files follow proper format

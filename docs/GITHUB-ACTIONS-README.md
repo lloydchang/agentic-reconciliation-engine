@@ -246,7 +246,7 @@ auto_approve: false
 
 ```bash
 # Test agent skills locally
-cd .agents/infrastructure-provisioning/scripts
+cd core/ai/skills/infrastructure-provisioning/scripts
 python main.py provision --type ec2 --name test-instance --dry-run
 
 # Test workflows locally

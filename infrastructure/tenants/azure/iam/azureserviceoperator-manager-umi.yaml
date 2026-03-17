@@ -1,8 +1,0 @@
-apiVersion: managedidentity.azure.com/v1alpha1
-kind: UserAssignedIdentity
-metadata:
-  name: azureserviceoperator-manager
-  namespace: azureserviceoperator-system
-spec:
-  location: ${LOCATION}
-  resourceGroup: ${RESOURCE_GROUP}

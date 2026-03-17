@@ -10,7 +10,7 @@ This runbook shows how to migrate an existing single-cloud Amazon EKS + Argo CD 
 4. **Register workload clusters & cut over apps**
 5. **Add additional clouds / Crossplane resources**
 
-Each phase includes checks and commands you can script (see `scripts/enable-cloud.sh`), making the transition repeatable and reversible.
+Each phase includes checks and commands you can script (see `core/core/automation/ci-cd/scripts/enable-cloud.sh`), making the transition repeatable and reversible.
 
 ## 1. Audit & export existing state
 
@@ -36,26 +36,26 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
      --owner=<org> \
      --repository=gitops-infra-control-plane \
      --branch=main \
-     --path=control-plane/flux \
+     --path=core/operators/flux \
      --personal
    ```
 
-3. Confirm Flux syncs the core manifests (`control-plane/flux/gotk-sync.yaml`); `flux get kustomization control-plane` should report `Ready`.
+3. Confirm Flux syncs the core manifests (`core/operators/flux/gotk-sync.yaml`); `flux get kustomization control-plane` should report `Ready`.
 4. Ensure Argo CD continues managing workloads during this bootstrap. You can run `argocd app list` to validate the apps remain healthy while Flux converges the control plane manifests.
 
 ## 3. Enable the AWS overlay
 
-1. Customize `control-plane/flux/cloud-aws/kustomization.yaml` for your VPC, node pools, IAM policies, and Argo CD registration needs (patch the referenced manifests if necessary).
+1. Customize `core/operators/flux/cloud-aws/kustomization.yaml` for your VPC, node pools, IAM policies, and Argo CD registration needs (patch the referenced manifests if necessary).
 2. Run the helper that edits the parent kustomization and starts reconciliation:
 
    ```bash
-   scripts/enable-cloud.sh aws
+   core/core/automation/ci-cd/scripts/enable-cloud.sh aws
    flux reconcile kustomization control-plane --with-source
    ```
 
 3. Validate the overlay:
    - `flux get kustomization control-plane` shows the overlay resources listed and `Ready`.
-   - Crossplane `Composition`/`Managed` resources (if any) under `control-plane/crossplane/` reach `Ready`.
+   - Crossplane `Composition`/`Managed` resources (if any) under `core/operators/crossplane/` reach `Ready`.
    - New IAM roles, VPCs, or node pools appear via `terraform`/`Crossplane` status in the provider namespace.
 
 ## 4. Register workload clusters & cut over apps
@@ -70,7 +70,7 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 3. Update Application/ApplicationSet specs to include the new cluster (`clusters:` selectors or `destinations`). Optionally, script this:
 
    ```bash
-   scripts/migrate-app.sh <app-name> <new-cluster-context>
+   core/core/automation/ci-cd/scripts/migrate-app.sh <app-name> <new-cluster-context>
    argocd app sync <app-name>
    argocd app wait <app-name> --health
    ```
@@ -79,13 +79,13 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 
 ## 5. Add additional clouds / Crossplane resources
 
-1. Repeat Phase 3 with `scripts/enable-cloud.sh <azure|gcp>` to bring up Azure or GCP overlays; Flux will provision their manifests while the hub keeps running.
-2. Use `control-plane/crossplane/compositions/` to instantiate managed resources (databases, buckets). Only enable the compositions your workloads need, keeping Crossplane optional until you wish to manage infra via compositions.
+1. Repeat Phase 3 with `core/core/automation/ci-cd/scripts/enable-cloud.sh <azure|gcp>` to bring up Azure or GCP overlays; Flux will provision their manifests while the hub keeps running.
+2. Use `core/operators/crossplane/compositions/` to instantiate managed resources (databases, buckets). Only enable the compositions your workloads need, keeping Crossplane optional until you wish to manage infra via compositions.
 3. Whenever you add a new cloud overlay, rerun `flux reconcile kustomization control-plane --with-source` and re-check `flux get kustomization control-plane`.
 
 ## Rollback guidance
 
-- Remove the overlay entry from `control-plane/flux/kustomization.yaml` (or run `git revert` if you committed the change). Flux will prune the overlay’s resources, giving you a clean rollback path.
+- Remove the overlay entry from `core/operators/flux/kustomization.yaml` (or run `git revert` if you committed the change). Flux will prune the overlay’s resources, giving you a clean rollback path.
 - Keep the original single-cloud Argo CD instance running until you are confident the new multi-cloud stacks are stable to avoid downtime.
 
 ## Automation via migration wizard
@@ -93,13 +93,13 @@ Each phase includes checks and commands you can script (see `scripts/enable-clou
 Run the migration wizard automation helper as part of this playbook to ensure the overlay ordering, emulator toggles, and CI gate execute in one shot. Example:
 
 ```bash
-./scripts/migration_wizard.py \
+./core/core/automation/ci-cd/scripts/migration_wizard.py \
   --repo-url git@github.com:your-org/gitops-infra-control-plane.git \
   --branch migration-eks \
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-aws \
-  --helper-script ./scripts/enable-cloud.sh \
-  --ci-gate ./scripts/prerequisites.sh
+  --helper-script ./core/core/automation/ci-cd/scripts/enable-cloud.sh \
+  --ci-gate ./core/core/automation/ci-cd/scripts/prerequisites.sh
 ```
 
 Adjust `--connector` to match your Git host (`azure-devops`, `github-enterprise-server`, `bitbucket-cloud`, etc.), and add `--emulator=enable`/`disable` when you want the local emulator stacked. The wizard handles overlay ordering, toggles the emulator, runs the helper scripts listed in the command, executes the CI gate, and pushes the branch for an automated migration flow.
@@ -110,4 +110,4 @@ Adjust `--connector` to match your Git host (`azure-devops`, `github-enterprise-
 - [ ] Crossplane/composition resources report `Ready`.
 - [ ] Argo CD applications remain healthy after cutover (`argocd app wait --health`).
 - [ ] New clusters registered with Argo CD are used by at least one ApplicationSet.
-- [ ] Overlay directories (`control-plane/flux/cloud-*`) contain provider-specific patches committed alongside the playbook.
+- [ ] Overlay directories (`core/operators/flux/cloud-*`) contain provider-specific patches committed alongside the playbook.

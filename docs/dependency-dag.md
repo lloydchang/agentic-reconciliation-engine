@@ -6,13 +6,13 @@
 
 ```
 gitops-infra-control-plane-root
-├── control-plane/ (gitops-infra-control-plane)
+├── core/operators/ (gitops-infra-control-plane)
 │   ├── flux/ (flux-system) [ROOT]
 │   ├── controllers/ [dependsOn: flux]
 │   ├── karmada/ [dependsOn: flux]
 │   ├── monitoring/ [dependsOn: flux]
 │   └── consensus/ [dependsOn: flux]
-└── infrastructure/
+└── core/resources/
     ├── flux/ [dependsOn: flux]
     ├── monitoring/ [dependsOn: flux]
     └── tenants/
@@ -214,6 +214,6 @@ workload-infra/
 workload-infra/
 ├── shell/
 │   ├── cron-jobs/
-│   ├── bash-scripts/
-│   └── system-automation/
+│   ├── bash-core/core/automation/ci-cd/scripts/
+│   └── system-core/automation/ci-cd/
 ```

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `infrastructure/ai-inference` component implements a **multi-language AI inference system** supporting Ollama, llama.cpp, and hybrid backends. The system is written in **three languages**: Rust, Go, and Python, each serving different purposes in the architecture.
+The `core/resources/ai-inference` component implements a **multi-language AI inference system** supporting Ollama, llama.cpp, and hybrid backends. The system is written in **three languages**: Rust, Go, and Python, each serving different purposes in the architecture.
 
 ## Multi-Language Architecture
 
@@ -37,7 +37,7 @@ The AI inference system leverages three programming languages, each chosen for i
 All implementations share common design patterns:
 
 ```
-infrastructure/ai-inference/
+core/resources/ai-inference/
 ├── rust-agent/           # Primary inference with memory
 ├── go-agent/            # Enterprise APIs
 ├── python-agent/        # ML prototyping  
@@ -114,7 +114,7 @@ While Java offers enterprise-grade features, it was not selected for AI inferenc
 
 ### Comparative Analysis
 
-The memory-agent implementation in `infrastructure/ai-inference/rust-agent/` demonstrates why Rust is the optimal choice for AI inference workloads:
+The memory-agent implementation in `core/resources/ai-inference/rust-agent/` demonstrates why Rust is the optimal choice for AI inference workloads:
 
 #### Performance Characteristics
 

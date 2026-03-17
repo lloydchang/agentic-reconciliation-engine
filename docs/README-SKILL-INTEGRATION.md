@@ -6,7 +6,7 @@ This document describes the implemented AI agent skills system that makes the ag
 
 The AI agent skills system now provides:
 
-1. **Skill Registry** - Loads and parses all SKILL.md files from `.agents/skills/`
+1. **Skill Registry** - Loads and parses all SKILL.md files from `core/ai/skills/skills/`
 2. **AI Agent** - Parses AGENTS.md and triggers skills based on keywords
 3. **Skill Executor** - Executes skills with proper parameter handling
 4. **Temporal Integration** - Runs skills as durable workflows
@@ -269,7 +269,7 @@ This implementation is fully compliant with agentskills.io specification:
 
 ### Adding New Skills
 
-1. Create SKILL.md in `.agents/skills/new-skill/`
+1. Create SKILL.md in `core/ai/skills/skills/new-skill/`
 2. Add trigger keywords to AGENTS.md table
 3. Implement skill logic in `executeSkill()` function
 4. Restart skill service to reload

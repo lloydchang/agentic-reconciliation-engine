@@ -28,7 +28,7 @@ This guide explains how to test Crossplane providers and CAPI for provisioning a
       +-------------+ +-------------+ +-------------+
 ```
 
-## Test Script: `tests/test-spoke-provisioning-validation.sh`
+## Test Script: `core/automation/testing/test-spoke-provisioning-validation.sh`
 
 This comprehensive test validates the complete hub-and-spoke architecture with local emulators.
 
@@ -79,10 +79,10 @@ This comprehensive test validates the complete hub-and-spoke architecture with l
 
 ```bash
 # Make executable
-chmod +x tests/test-spoke-provisioning-validation.sh
+chmod +x core/automation/testing/test-spoke-provisioning-validation.sh
 
 # Run the complete test suite
-./tests/test-spoke-provisioning-validation.sh
+./core/automation/testing/test-spoke-provisioning-validation.sh
 ```
 
 ## Expected Results

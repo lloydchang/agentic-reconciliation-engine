@@ -9,14 +9,14 @@ This repository implements a comprehensive AI agent orchestration platform using
 ### SKILL.md System
 
 - **Framework:** agentskills.io compliant skill definitions
-- **Directory Structure:** `.agents/skills/*/SKILL.md` with YAML frontmatter
+- **Directory Structure:** `core/ai/skills/skills/*/SKILL.md` with YAML frontmatter
 - **Dynamic Loading:** Skills auto-discover and convert to MCP tools
 - **Execution:** Temporal workflows for durable, stateful skill execution
 
 ### AI Models & Grounding
 
 - **Primary Model:** Qwen2.5B with RAG augmentation
-- **RAG Implementation:** `agents/backend/ragai/` provides context from agentskills.io
+- **RAG Implementation:** `core/ai/runtime/backend/ragai/` provides context from agentskills.io
 - **Knowledge Base:** Retrieves skill specifications and system documentation
 - **Context Injection:** Augments prompts with framework conventions and tool schemas
 
@@ -26,7 +26,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Server:** `agents/backend/mcp/` - Complete MCP server with tools and resources
+- **Server:** `core/ai/runtime/backend/mcp/` - Complete MCP server with tools and resources
 - **Client:** WebSocket/HTTP client for external MCP server connections
 - **Dynamic Tools:** Skills auto-convert to MCP tools with JSON schemas
 - **Registry:** `MCPRegistry` manages tool discovery and registration
@@ -35,7 +35,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Interface:** `agents/dashboard/src/components/WebMCPClient.tsx`
+- **Interface:** `core/ai/runtime/dashboard/src/components/WebMCPClient.tsx`
 - **Purpose:** Human operators access MCP tools through web UI
 - **Real-time:** WebSocket connections for live tool execution
 - **Integration:** Connects frontend to backend MCP servers
@@ -45,7 +45,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 **✅ Full Implementation**
 
 - **Integration Plan:** [A2A-RAFT-INTEGRATION-PLAN.md](A2A-RAFT-INTEGRATION-PLAN.md)
-- **Consensus Layer:** `control-plane/consensus/` implements A2A feedback loops
+- **Consensus Layer:** `core/operators/consensus/` implements A2A feedback loops
 - **Multi-language:** Rust, C#, Java, Go, Python implementations
 - **Features:**
   - Decentralized agent-to-agent messaging
@@ -56,7 +56,7 @@ This repository implements a comprehensive AI agent orchestration platform using
 
 **✅ Full Implementation**
 
-- **Consensus Module:** `control-plane/consensus/` with Raft implementations
+- **Consensus Module:** `core/operators/consensus/` with Raft implementations
 - **Languages:** Rust (`main.rs`), C# (`ConsensusFeedbackLoop.cs`), Java, Go, Python
 - **Capabilities:**
   - Leader election and log replication
@@ -186,18 +186,18 @@ Raft Consensus ← Distributed State Management
 
 ```bash
 # Deploy to Kubernetes with Temporal and Flux
-./scripts/deploy-gitops-infrastructure.sh
+./core/core/automation/ci-cd/scripts/deploy-gitops-infrastructure.sh
 
 # Start AI agents with MCP servers
-./scripts/setup-local-ai-agents.sh
+./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh
 ```
 
 ### Key Configuration Files
 
 - [AGENTS.md](AGENTS.md) - Skill index and human gate requirements
-- `.agents/skills/*/SKILL.md` - Individual skill definitions
-- `control-plane/consensus/` - A2A and Raft implementations
-- `ai-agents/backend/mcp/` - MCP server configuration
+- `core/ai/skills/skills/*/SKILL.md` - Individual skill definitions
+- `core/operators/consensus/` - A2A and Raft implementations
+- `ai-core/ai/runtime/backend/mcp/` - MCP server configuration
 
 ## Security & Governance
 

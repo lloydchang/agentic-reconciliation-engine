@@ -53,7 +53,7 @@ A declarative pipeline that:
 
 ### 2. Flux Image Automation
 
-**File**: `control-plane/flux/jenkins-image-automation.yaml`
+**File**: `core/operators/flux/jenkins-image-automation.yaml`
 
 Flux resources that:
 
@@ -133,7 +133,7 @@ Comprehensive test suite that validates:
 
 ```bash
 # Apply Flux image automation configuration
-kubectl apply -f control-plane/flux/jenkins-image-automation.yaml
+kubectl apply -f core/operators/flux/jenkins-image-automation.yaml
 
 # Verify resources
 kubectl get imagerepository -n flux-system

@@ -1,0 +1,6 @@
+resources:
+  - ../../core/resources/tenants/gcp/network
+  - ../../core/resources/tenants/gcp/clusters
+patchesStrategicMerge:
+  - patches/network-overrides.yaml
+  - patches/gke-overrides.yaml

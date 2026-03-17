@@ -151,7 +151,7 @@ const App: () => JSX.Element = () => {
       
       // Fetch agents and metrics in parallel
       const [agentsResponse, metricsResponse] = await Promise.all([
-        axios.get('/api/agents/detailed'),
+        axios.get('/api/core/ai/runtime/detailed'),
         axios.get('/api/metrics/real-time')
       ]);
 
@@ -333,7 +333,7 @@ api.interceptors.response.use(
 const fetchDashboardData = async () => {
   try {
     const [agentsResponse, metricsResponse, workflowsResponse] = await Promise.all([
-      api.get('/api/agents/detailed'),
+      api.get('/api/core/ai/runtime/detailed'),
       api.get('/api/metrics/real-time'),
       api.get('/api/workflows/status')
     ]);
@@ -667,7 +667,7 @@ describe('Dashboard Integration', () => {
 
   it('handles API errors gracefully', async () => {
     server.use(
-      rest.get('/api/agents/detailed', (req, res, ctx) => {
+      rest.get('/api/core/ai/runtime/detailed', (req, res, ctx) => {
         return res(ctx.status(504));
       })
     );
@@ -702,7 +702,7 @@ test.describe('Dashboard E2E', () => {
 
   test('handles connection errors', async ({ page }) => {
     // Simulate connection loss
-    await page.route('**/api/agents/detailed', route => route.abort());
+    await page.route('**/api/core/ai/runtime/detailed', route => route.abort());
     
     await page.goto('http://localhost:3001');
     

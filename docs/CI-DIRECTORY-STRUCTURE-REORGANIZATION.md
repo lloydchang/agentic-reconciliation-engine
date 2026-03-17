@@ -9,7 +9,7 @@ This document details the analysis, decision-making, and implementation of a maj
 The repository contained two directories both named `ci` but serving fundamentally different purposes:
 
 - **`ci-cd/ci/jenkins/`** - Repository-wide CI/CD automation (Jenkins pipelines, build/test/deploy)
-- **`control-plane/ci/`** - Component-specific policy enforcement (OPA policies, validation scripts)
+- **`core/operators/ci/`** - Component-specific policy enforcement (OPA policies, validation scripts)
 
 This naming confusion created significant cognitive load for developers trying to understand where different types of automation lived.
 
@@ -36,18 +36,18 @@ This naming confusion created significant cognitive load for developers trying t
   - Flux configuration validation
   - Security checks and performance metrics
 
-### Original `control-plane/ci/` Directory
+### Original `core/operators/ci/` Directory
 
 **Purpose**: Component-specific governance and policy enforcement for infrastructure safety.
 
 **Contents**:
-- **policies/**: OPA Rego policy files for compliance:
+- **core/governance/**: OPA Rego policy files for compliance:
   - `cost-guardrail.rego`: Cost management policies
   - `deletion-guard.rego`: Resource deletion controls
   - `naming.rego`: Naming convention enforcement
   - `required-labels.rego`: Mandatory labeling requirements
 
-- **scripts/**: Validation utilities:
+- **core/core/automation/ci-cd/scripts/**: Validation utilities:
   - `check-deletions.sh`: Validates deletion operations against policies
   - `validate-schemas.sh`: Schema validation for control-plane manifests
 
@@ -55,26 +55,26 @@ This naming confusion created significant cognitive load for developers trying t
 
 ### Option 1: Rename for Clarity
 ```bash
-ci-cd/ci/          → automation/
-control-plane/ci/  → policies/
+ci-cd/ci/          → core/automation/ci-cd/
+core/operators/ci/  → core/governance/
 ```
 
 ### Option 2: Consolidate by Purpose (Chosen)
 ```bash
-automation/        # All build/deployment concerns
-policies/          # All governance concerns
+core/automation/ci-cd/        # All build/deployment concerns
+core/governance/          # All governance concerns
 ```
 
 ### Option 3: Component-Based Structure
 ```bash
-control-plane/
+core/operators/
 ├── build/
-├── policies/
+├── core/governance/
 └── validation/
 
-agents/
+core/ai/runtime/
 ├── build/
-└── policies/
+└── core/governance/
 ```
 
 ## Decision: Why Option 2 Was Chosen
@@ -94,7 +94,7 @@ agents/
 ### Scalability Advantages
 - **Unified standards**: Platform-wide policies and automation patterns stay together
 - **Cross-cutting concerns**: Validation scripts often apply across multiple components
-- **Future growth**: Easy to add `policies/infrastructure/` or `policies/agents/` as needed
+- **Future growth**: Easy to add `core/governance/core/resources/` or `core/governance/core/ai/runtime/` as needed
 
 ### Option 3 Disadvantages for This Repository
 - Would scatter related policies across component directories
@@ -104,21 +104,21 @@ agents/
 ## New Directory Structure Implemented
 
 ```
-automation/              # Build and deployment automation
+core/automation/ci-cd/              # Build and deployment automation
 ├── pipelines/           # Jenkins/GitHub Actions (formerly ci-cd/ci/jenkins/)
 │   ├── Jenkinsfile
 │   ├── docker-pod.yaml
 │   └── run-tests.sh
 └── azure-pipelines-run-local-automation.yml
 
-policies/                # Governance and compliance
-└── control-plane/       # Component policies (formerly control-plane/ci/)
-    ├── policies/
+core/governance/                # Governance and compliance
+└── core/operators/       # Component policies (formerly core/operators/ci/)
+    ├── core/governance/
     │   ├── cost-guardrail.rego
     │   ├── deletion-guard.rego
     │   ├── naming.rego
     │   └── required-labels.rego
-    └── scripts/
+    └── core/core/automation/ci-cd/scripts/
         ├── check-deletions.sh
         └── validate-schemas.sh
 ```
@@ -127,20 +127,20 @@ policies/                # Governance and compliance
 
 | Original Path | New Path |
 |---------------|----------|
-| `ci-cd/ci/jenkins/Jenkinsfile` | `automation/pipelines/Jenkinsfile` |
-| `ci-cd/ci/jenkins/docker-pod.yaml` | `automation/pipelines/docker-pod.yaml` |
-| `ci-cd/ci/jenkins/run-tests.sh` | `automation/pipelines/run-tests.sh` |
-| `ci-cd/azure-pipelines-run-local-automation.yml` | `automation/azure-pipelines-run-local-automation.yml` |
-| `control-plane/ci/policies/cost-guardrail.rego` | `policies/control-plane/policies/cost-guardrail.rego` |
-| `control-plane/ci/policies/deletion-guard.rego` | `policies/control-plane/policies/deletion-guard.rego` |
-| `control-plane/ci/policies/naming.rego` | `policies/control-plane/policies/naming.rego` |
-| `control-plane/ci/policies/required-labels.rego` | `policies/control-plane/policies/required-labels.rego` |
-| `control-plane/ci/scripts/check-deletions.sh` | `policies/control-plane/scripts/check-deletions.sh` |
-| `control-plane/ci/scripts/validate-schemas.sh` | `policies/control-plane/scripts/validate-schemas.sh` |
+| `ci-cd/ci/jenkins/Jenkinsfile` | `core/automation/ci-cd/pipelines/Jenkinsfile` |
+| `ci-cd/ci/jenkins/docker-pod.yaml` | `core/automation/ci-cd/pipelines/docker-pod.yaml` |
+| `ci-cd/ci/jenkins/run-tests.sh` | `core/automation/ci-cd/pipelines/run-tests.sh` |
+| `ci-cd/azure-pipelines-run-local-automation.yml` | `core/automation/ci-cd/azure-pipelines-run-local-automation.yml` |
+| `core/operators/ci/core/governance/cost-guardrail.rego` | `core/governance/core/operators/core/governance/cost-guardrail.rego` |
+| `core/operators/ci/core/governance/deletion-guard.rego` | `core/governance/core/operators/core/governance/deletion-guard.rego` |
+| `core/operators/ci/core/governance/naming.rego` | `core/governance/core/operators/core/governance/naming.rego` |
+| `core/operators/ci/core/governance/required-labels.rego` | `core/governance/core/operators/core/governance/required-labels.rego` |
+| `core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/check-deletions.sh` |
+| `core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/validate-schemas.sh` |
 
 ## Documentation and References Updated
 
-- **CI-POLICY-GATE.md**: Updated all references from `control-plane/ci/` to `policies/control-plane/`
+- **CI-POLICY-GATE.md**: Updated all references from `core/operators/ci/` to `core/governance/core/operators/`
 - **ci-policy-gate.yaml**: GitHub Actions workflow updated to use new paths
 - **Other documentation**: Verified no remaining references to old paths
 
@@ -156,7 +156,7 @@ policies/                # Governance and compliance
 
 ### Developer Experience
 - **Eliminated confusion**: No more dual "ci" directories with different meanings
-- **Intuitive navigation**: `automation/` for build/deploy, `policies/` for governance
+- **Intuitive navigation**: `core/automation/ci-cd/` for build/deploy, `core/governance/` for governance
 - **Faster discovery**: Related tools grouped by function rather than scattered
 
 ### Maintenance
@@ -171,4 +171,4 @@ policies/                # Governance and compliance
 
 ## Conclusion
 
-The reorganization successfully eliminated the confusing dual "ci" directory structure by implementing a purpose-based organization that aligns with the repository's unified infrastructure management architecture. The new `automation/` and `policies/` directories provide clear functional separation while maintaining scalability for future growth.
+The reorganization successfully eliminated the confusing dual "ci" directory structure by implementing a purpose-based organization that aligns with the repository's unified infrastructure management architecture. The new `core/automation/ci-cd/` and `core/governance/` directories provide clear functional separation while maintaining scalability for future growth.

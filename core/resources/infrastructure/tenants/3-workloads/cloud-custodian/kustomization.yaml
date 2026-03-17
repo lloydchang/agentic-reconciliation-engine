@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cloud-custodian-policy-check
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: custodian
+        image: cloudcustodian/c7n:latest
+        command: ["custodian", "run", "--output-dir=/output", "/core/governance/*.yml"]
+        volumeMounts:
+        - name: policies
+          mountPath: /policies
+        - name: output
+          mountPath: /output
+      volumes:
+      - name: policies
+        configMap:
+          name: custodian-policies
+      - name: output
+        emptyDir: {}
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custodian-policies
+  namespace: default
+data:
+  s3-policy.yml: |
+    policies:
+    - name: s3-bucket-public-read
+      resource: s3
+      filters:
+      - type: bucket-encryption
+        state: False

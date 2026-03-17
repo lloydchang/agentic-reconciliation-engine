@@ -12,7 +12,7 @@ The Skills system enables AI agents to execute specialized, reusable capabilitie
 
 - **Skill Manager** (`backend/skills/skill.go`): Core skill parsing and management
 - **Skill Service** (`backend/skills/service.go`): HTTP API endpoints for skill operations
-- **Skill Discovery**: Automatic scanning of `.agents/skills/` directories
+- **Skill Discovery**: Automatic scanning of `core/ai/skills/skills/` directories
 - **Skill Execution**: Runtime skill processing with argument substitution
 
 ### Frontend Components
@@ -30,15 +30,15 @@ The Skills system enables AI agents to execute specialized, reusable capabilitie
 Skills are organized in the following directory structure:
 
 ```
-.agents/skills/
+core/ai/skills/skills/
 ├── skill-name/
 │   ├── SKILL.md          # Required: Skill definition and instructions
 │   ├── template.md       # Optional: Template for structured output
 │   ├── examples.md       # Optional: Usage examples
 │   ├── reference.md      # Optional: Detailed reference material
-│   ├── scripts/          # Optional: Executable scripts
+│   ├── core/core/automation/ci-cd/scripts/          # Optional: Executable scripts
 │   └── assets/           # Optional: Static resources
-│   └── agents/
+│   └── core/ai/runtime/
 │       └── openai.yaml   # Optional: UI metadata and dependencies
 ```
 
@@ -72,8 +72,8 @@ The markdown content after the frontmatter contains the skill's instructions. Sk
 
 Skills are automatically discovered from:
 
-1. **Project Skills**: `.agents/skills/` in current directory and parent directories
-2. **User Skills**: `~/.agents/skills/` (personal skills)
+1. **Project Skills**: `core/ai/skills/skills/` in current directory and parent directories
+2. **User Skills**: `~/core/ai/skills/skills/` (personal skills)
 3. **Enterprise Skills**: Managed settings (future feature)
 
 Priority order: Enterprise > Personal > Project (repo root) > Project (subdirs)
@@ -220,7 +220,7 @@ Navigate to `/skills` in the web application to:
 
 ### Basic Skill Template
 
-Create `.agents/skills/my-skill/SKILL.md`:
+Create [core/ai/skills/skills/my-skill/SKILL.md](core/ai/skills/skills/my-skill/SKILL.md):
 
 ```yaml
 ---
@@ -254,11 +254,11 @@ Add supporting files in the skill directory:
 - [template.md](template.md): Structured output templates
 - [examples.md](examples.md): Usage examples and patterns
 - [reference.md](reference.md): Detailed API documentation
-- `scripts/helper.py`: Utility scripts
+- `core/core/automation/ci-cd/scripts/helper.py`: Utility scripts
 
 #### Agent Metadata
 
-Create `agents/openai.yaml` for UI configuration:
+Create `core/ai/runtime/openai.yaml` for UI configuration:
 
 ```yaml
 interface:

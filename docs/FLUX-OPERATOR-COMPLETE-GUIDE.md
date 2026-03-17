@@ -33,7 +33,7 @@ Flux Operator is a Kubernetes operator that simplifies the installation and mana
 brew install controlplaneio-fluxcd/tap/flux-operator
 
 # Install Flux Operator with basic configuration
-./scripts/install-flux-operator.sh
+./core/core/automation/ci-cd/scripts/install-flux-operator.sh
 ```
 
 ### Manual Installation
@@ -295,7 +295,7 @@ spec:
     kind: GitRepository
     url: "https://github.com/your-org/gitops-infra-control-plane"
     ref: "refs/heads/main"
-    path: "infrastructure/tenants"
+    path: "core/resources/tenants"
     interval: "5m"
     timeout: "3m"
     pullSecret: "flux-system"
@@ -324,7 +324,7 @@ spec:
     kind: GitRepository
     url: "ssh://git@github.com/your-org/gitops-infra-control-plane.git"
     ref: "refs/heads/main"
-    path: "infrastructure/tenants"
+    path: "core/resources/tenants"
     interval: "5m"
     timeout: "3m"
     pullSecret: "flux-ssh-credentials"
@@ -419,7 +419,7 @@ stringData:
 brew install controlplaneio-fluxcd/tap/flux-operator-mcp
 
 # Install MCP server
-./scripts/install-flux-mcp-server.sh
+./core/core/automation/ci-cd/scripts/install-flux-mcp-server.sh
 ```
 
 ### Configuration
@@ -675,7 +675,7 @@ spec:
     sourceRef:
       kind: GitRepository
       name: gitops-infra-control-plane
-    path: infrastructure/tenants/1-network
+    path: core/resources/tenants/1-network
     prune: true
     wait: true
     timeout: 10m
@@ -685,7 +685,7 @@ spec:
     sourceRef:
       kind: GitRepository
       name: gitops-infra-control-plane
-    path: infrastructure/tenants/2-clusters
+    path: core/resources/tenants/2-clusters
     prune: true
     wait: true
     timeout: 15m
@@ -696,7 +696,7 @@ spec:
     sourceRef:
       kind: GitRepository
       name: gitops-infra-control-plane
-    path: infrastructure/tenants/3-workloads
+    path: core/resources/tenants/3-workloads
     prune: true
     wait: true
     timeout: 20m
@@ -718,16 +718,16 @@ spec:
   resources:
   - name: network-infrastructure
     kind: Kustomization
-    path: infrastructure/tenants/1-network
+    path: core/resources/tenants/1-network
     dependsOn: []
   - name: cluster-infrastructure
     kind: Kustomization
-    path: infrastructure/tenants/2-clusters
+    path: core/resources/tenants/2-clusters
     dependsOn:
     - network-infrastructure
   - name: workload-infrastructure
     kind: Kustomization
-    path: infrastructure/tenants/3-workloads
+    path: core/resources/tenants/3-workloads
     dependsOn:
     - cluster-infrastructure
 ```
@@ -902,7 +902,7 @@ kubectl logs -n flux-system deployment/helm-controller
 2. **Install Flux Operator**
 
    ```bash
-   ./scripts/install-flux-operator.sh
+   ./core/core/automation/ci-cd/scripts/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**
@@ -918,7 +918,7 @@ kubectl logs -n flux-system deployment/helm-controller
        kind: GitRepository
        url: "https://github.com/your-org/gitops-infra-control-plane"
        ref: "refs/heads/main"
-       path: "infrastructure/tenants"
+       path: "core/resources/tenants"
      distribution:
        version: "2.x"
        registry: "ghcr.io/fluxcd"
@@ -943,15 +943,15 @@ kubectl logs -n flux-system deployment/helm-controller
      resources:
      - name: network-infrastructure
        kind: Kustomization
-       path: infrastructure/tenants/1-network
+       path: core/resources/tenants/1-network
      - name: cluster-infrastructure
        kind: Kustomization
-       path: infrastructure/tenants/2-clusters
+       path: core/resources/tenants/2-clusters
        dependsOn:
        - network-infrastructure
      - name: workload-infrastructure
        kind: Kustomization
-       path: infrastructure/tenants/3-workloads
+       path: core/resources/tenants/3-workloads
        dependsOn:
        - cluster-infrastructure
    ```
@@ -979,7 +979,7 @@ kubectl logs -n flux-system deployment/helm-controller
 2. **Install Flux Operator**
 
    ```bash
-   ./scripts/install-flux-operator.sh
+   ./core/core/automation/ci-cd/scripts/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**
@@ -995,7 +995,7 @@ kubectl logs -n flux-system deployment/helm-controller
        kind: GitRepository
        url: "https://github.com/your-org/gitops-infra-control-plane"
        ref: "refs/heads/main"
-       path: "infrastructure/tenants"
+       path: "core/resources/tenants"
      distribution:
        version: "2.x"
        registry: "ghcr.io/fluxcd"

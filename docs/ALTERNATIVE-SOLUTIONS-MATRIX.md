@@ -9,7 +9,7 @@ This matrix provides clear alternatives when the GitOps Infra Control Plane is n
 ```
 Do you have multi-cloud complexity?
 ├── YES → Assess if GitOps ICP fits
-│   ├── YES → Use examples/complete-hub-spoke/
+│   ├── YES → Use overlay/examples/complete-hub-spoke/
 │   └── NO → See Multi-Cloud Alternatives below
 └── NO → Single Cloud/Local Infrastructure
     ├── Simple infrastructure? → Basic IaC

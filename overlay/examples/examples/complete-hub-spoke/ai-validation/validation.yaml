@@ -1,0 +1,213 @@
+# Complete AI Validation Pipeline
+# Production-ready validation system for AI-generated infrastructure
+#
+# ⚠️ Architecture Note: This pipeline can use either:
+# 1. AI Gateway for enterprise compliance (default)
+# 2. Direct Claude API for local LLM setups (set GATEWAY_MODE=direct)
+# 3. Local LLM service (set CLAUDE_BASE_URL to local endpoint)
+
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: ai-validation-repo
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+spec:
+  image: gendosu/claude-code-docker
+  interval: 24h
+  secretRef:
+    name: docker-registry-secret
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: ai-validation-policy
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+spec:
+  imageRepositoryRef:
+    name: ai-validation-repo
+  policy:
+    semver:
+      range: ">=1.0.0"
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: ai-validation-source
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+spec:
+  url: https://github.com/lloydchang/gitops-infra-control-plane
+  ref:
+    branch: main
+  interval: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: ai-validation-kustomization
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+spec:
+  interval: 10m
+  path: "./core/resources/"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: ai-validation-source
+  images:
+  - name: gendosu/claude-code-docker
+    newTag: v1.2.0
+  dependsOn:
+  - name: ai-cronjobs
+  # - name: ai-gateway  # Optional: comment out for local LLM setups
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-validation-rules
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+data:
+  validation-rules.yaml: |
+    rules:
+      - name: schema-validation
+        description: "Validate manifests against Kubernetes schema"
+        command: "kubeconform -strict -ignore-missing-schemas -summary"
+        severity: "error"
+      - name: security-check
+        description: "Check for security best practices"
+        patterns:
+          - "privileged: true"
+          - "hostPath:"
+          - "hostNetwork: true"
+        severity: "warning"
+      - name: resource-limits
+        description: "Ensure resource limits are set"
+        required: ["resources.limits.memory", "resources.limits.cpu"]
+        severity: "error"
+      - name: dependency-check
+        description: "Validate Flux dependsOn relationships"
+        command: "flux build kustomization --dry-run"
+        severity: "error"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ai-validation-job
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: ai-validation
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: validator
+        image: gendosu/claude-code-docker:latest
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo "Running AI-powered validation pipeline..."
+          claude -p --dangerously-skip-permissions \
+            --verbose --output-format json \
+            "Validate the following infrastructure against best practices:
+            - Schema compliance using kubeconform
+            - Security policies and RBAC
+            - Resource optimization
+            - Flux dependency correctness
+            Generate detailed validation report with fix suggestions"
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secrets
+              key: token
+        - name: GATEWAY_MODE
+          value: "gateway"  # Options: gateway, direct, local
+        - name: CLAUDE_BASE_URL
+          value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+          # Override with local LLM endpoint when GATEWAY_MODE=local
+        volumeMounts:
+        - name: validation-config
+          mountPath: /config
+        - name: reports-volume
+          mountPath: /reports
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: validation-config
+        configMap:
+          name: ai-validation-rules
+      - name: reports-volume
+        persistentVolumeClaim:
+          claimName: ai-validation-pvc
+      serviceAccountName: ai-validation-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-validation-sa
+  namespace: control-plane
+  labels:
+    app: ai-validation
+    component: ai-integration
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-validation-role
+  labels:
+    app: ai-validation
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+  resourceNames: ["ai-validation-rules", "github-secrets", "claude-secrets"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-validation-binding
+  labels:
+    app: ai-validation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-validation-role
+subjects:
+- kind: ServiceAccount
+  name: ai-validation-sa
+  namespace: control-plane

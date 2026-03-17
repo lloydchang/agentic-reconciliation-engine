@@ -7,7 +7,7 @@ This document outlines the plan to consolidate the current 15+ root-level direct
 ## Current Root Structure
 
 ```
-.agents/ (4 items)        → core/ai/skills/
+core/ai/skills/ (4 items)        → core/ai/skills/
 .claude (7 bytes)         → KEEP (IDE-specific)
 .codex (7 bytes)          → KEEP (IDE-specific)
 .cursor (7 bytes)         → KEEP (IDE-specific)
@@ -21,53 +21,53 @@ CONTRIBUTING.md (3210 bytes) → KEEP (Contributing guide)
 GEMINI.md (9 bytes)       → KEEP (IDE-specific)
 LICENSE (34523 bytes)     → KEEP (License)
 README.md (2959 bytes)    → KEEP (Repository README)
-agents/ (107 items)       → core/ai/runtime/
-automation/ (4 items)     → core/automation/ci-cd/
+core/ai/runtime/ (107 items)       → core/ai/runtime/
+core/automation/ci-cd/ (4 items)     → core/core/automation/ci-cd/ci-cd/
 bootstrap-kubeconfig (5675 bytes) → core/config/kubeconfigs/
-control-plane/ (166 items) → core/operators/
+core/operators/ (166 items) → core/operators/
 docs/ (224 items)         → KEEP (Documentation)
-editions/ (8 items)       → overlay/editions/
-examples/ (92 items)      → overlay/examples/
-fix_workspace_skills.sh (3929 bytes) → core/config/scripts/
+overlay/editions/ (8 items)       → overlay/overlay/editions/
+overlay/examples/ (92 items)      → overlay/overlay/examples/
+fix_workspace_skills.sh (3929 bytes) → core/config/core/core/automation/ci-cd/scripts/
 go.mod (103 bytes)        → KEEP (Go module)
 hub-kubeconfig (5639 bytes) → core/config/kubeconfigs/
-infrastructure/ (365 items) → core/resources/
+core/resources/ (365 items) → core/resources/
 kind-config.yaml (689 bytes) → core/config/kind/
 logs/ (0 items)           → DELETE (Ephemeral logs)
-overlays/ (0 items)       → core/deployment/overlays/
-policies/ (6 items)       → core/governance/
-scripts/ (135 items)      → core/automation/scripts/
-tests/ (22 items)         → core/automation/testing/
+core/deployment/overlays/ (0 items)       → core/deployment/core/deployment/overlays/
+core/governance/ (6 items)       → core/governance/
+core/core/automation/ci-cd/scripts/ (135 items)      → core/core/automation/ci-cd/core/core/automation/ci-cd/scripts/
+core/automation/testing/ (22 items)         → core/core/automation/ci-cd/testing/
 tmp/ (0 items)            → DELETE (Temporary files)
-workspace/ (956 items)    → core/workspace/
+core/workspace/ (956 items)    → core/core/workspace/
 ```
 
 ## Target Structure
 
 ```
 core/                    # Complete GitOps infrastructure system
-├── operators/          # control-plane/ → operators/
-├── resources/          # infrastructure/ → resources/
-├── governance/         # policies/ → governance/
-├── automation/         # scripts/ + automation/ → automation/
-│   ├── ci-cd/         # automation/ (Jenkins, Azure Pipelines)
-│   ├── scripts/       # scripts/ (135+ automation scripts)
-│   └── testing/       # tests/ (test suites)
-├── ai/                # .agents/ + agents/ → ai/
-│   ├── skills/       # .agents/ (72+ AI skills)
-│   └── runtime/      # agents/ (Temporal runtime + dashboard)
-├── deployment/        # overlays/ + deployment configs
-│   └── overlays/     # overlays/ (overlay configurations)
+├── operators/          # core/operators/ → operators/
+├── resources/          # core/resources/ → resources/
+├── governance/         # core/governance/ → governance/
+├── core/automation/ci-cd/         # core/core/automation/ci-cd/scripts/ + core/automation/ci-cd/ → core/automation/ci-cd/
+│   ├── ci-cd/         # core/automation/ci-cd/ (Jenkins, Azure Pipelines)
+│   ├── core/core/automation/ci-cd/scripts/       # core/core/automation/ci-cd/scripts/ (135+ automation scripts)
+│   └── testing/       # core/automation/testing/ (test suites)
+├── ai/                # core/ai/skills/ + core/ai/runtime/ → ai/
+│   ├── skills/       # core/ai/skills/ (72+ AI skills)
+│   └── runtime/      # core/ai/runtime/ (Temporal runtime + dashboard)
+├── deployment/        # core/deployment/overlays/ + deployment configs
+│   └── core/deployment/overlays/     # core/deployment/overlays/ (overlay configurations)
 ├── config/            # Configuration files
 │   ├── sops/         # .sops.pub.age + .sops.yaml
 │   ├── kubeconfigs/  # bootstrap-kubeconfig + hub-kubeconfig
 │   ├── kind/         # kind-config.yaml
-│   └── scripts/      # fix_workspace_skills.sh
-└── workspace/         # workspace/ (working environment)
+│   └── core/core/automation/ci-cd/scripts/      # fix_workspace_skills.sh
+└── core/workspace/         # core/workspace/ (working environment)
 
 overlay/                 # Variants and configurations
-├── editions/          # editions/ (enterprise/opensource)
-└── examples/          # examples/ (reference implementations)
+├── overlay/editions/          # overlay/editions/ (enterprise/opensource)
+└── overlay/examples/          # overlay/examples/ (reference implementations)
 ```
 
 ## Top-Level Directory Contents
@@ -82,15 +82,15 @@ The only directories/files that remain at root level are:
 - `.github/` (GitHub workflows)
 - `.gitignore` (Git ignore rules)
 - `.windsurf` (IDE-specific)
-- `AGENTS.md` (Agent documentation)
-- `CLAUDE.md` (IDE-specific)
-- `CONTRIBUTING.md` (Contributing guide)
+- [AGENTS.md](AGENTS.md) (Agent documentation)
+- [CLAUDE.md](CLAUDE.md) (IDE-specific)
+- [CONTRIBUTING.md](CONTRIBUTING.md) (Contributing guide)
 - `core/` (new consolidated directory)
 - `docs/` (documentation)
-- `GEMINI.md` (IDE-specific)
+- [GEMINI.md](GEMINI.md) (IDE-specific)
 - `LICENSE` (license)
 - `overlay/` (new consolidated directory)
-- `README.md` (repository README)
+- [README.md](README.md) (repository README)
 
 Everything else moves into `core/` by default, unless it belongs in `overlay/` as a variant/configuration.
 
@@ -99,22 +99,22 @@ Everything else moves into `core/` by default, unless it belongs in `overlay/` a
 ### Phase 1: Create New Structure
 ```bash
 # Create new directories
-mkdir -p core/{operators,resources,governance,automation/{ci-cd,scripts,testing},ai/{skills,runtime},deployment/overlays,config/{sops,kubeconfigs,kind,scripts},workspace}
+mkdir -p core/{operators,resources,governance,core/automation/ci-cd/{ci-cd,scripts,testing},ai/{skills,runtime},deployment/overlays,config/{sops,kubeconfigs,kind,scripts},workspace}
 mkdir -p overlay/{editions,examples}
 
 # Move directories
 mv control-plane core/operators/
 mv infrastructure core/resources/
 mv policies core/governance/
-mv automation core/automation/ci-cd/
-mv scripts core/automation/scripts/
-mv tests core/automation/testing/
+mv automation core/core/automation/ci-cd/ci-cd/
+mv scripts core/core/automation/ci-cd/core/core/automation/ci-cd/scripts/
+mv tests core/core/automation/ci-cd/testing/
 mv .agents core/ai/skills/
 mv agents core/ai/runtime/
-mv overlays core/deployment/overlays/
-mv editions overlay/editions/
-mv examples overlay/examples/
-mv workspace core/workspace/
+mv overlays core/deployment/core/deployment/overlays/
+mv editions overlay/overlay/editions/
+mv examples overlay/overlay/examples/
+mv workspace core/core/workspace/
 
 # Move config files
 mv .sops.pub.age core/config/sops/
@@ -122,7 +122,7 @@ mv .sops.yaml core/config/sops/
 mv bootstrap-kubeconfig core/config/kubeconfigs/
 mv hub-kubeconfig core/config/kubeconfigs/
 mv kind-config.yaml core/config/kind/
-mv fix_workspace_skills.sh core/config/scripts/
+mv fix_workspace_skills.sh core/config/core/core/automation/ci-cd/scripts/
 ```
 
 ### Phase 2: Update References

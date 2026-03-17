@@ -29,8 +29,8 @@ spec:
     dist/
     .git/
     # Include only relevant directories
-    !infrastructure/
-    !control-plane/
+    !core/resources/
+    !core/operators/
     !apps/
   gitImplementation: go-git
   timeout: 60s
@@ -286,7 +286,7 @@ status:
   artifact:
     checksum: sha256:abc123...
     lastUpdateTime: "2023-01-01T00:00:00Z"
-    path: gitops-infra-control-plane/sha256:abc123.tar.gz
+    path: gitops-infra-core/operators/sha256:abc123.tar.gz
     revision: main/sha256:abc123
     size: 1234567
   observedGeneration: 1
@@ -307,7 +307,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/1-network
+  path: ./core/resources/tenants/1-network
   prune: true
   wait: true
   timeout: 5m
@@ -329,7 +329,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -358,7 +358,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -392,7 +392,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -642,7 +642,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: production-config
-  path: ./overlays/production/infrastructure
+  path: ./core/deployment/overlays/production/infrastructure
   prune: true
   wait: true
   dependsOn:
@@ -665,7 +665,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/1-network
+  path: ./core/resources/tenants/1-network
   prune: true
   wait: true
   timeout: 5m
@@ -681,7 +681,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/2-clusters
+  path: ./core/resources/tenants/2-clusters
   prune: true
   wait: true
   timeout: 10m
@@ -699,7 +699,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -910,13 +910,13 @@ kubectl get artifacts.source.toolkit.fluxcd.io -n flux-system
 
 ```bash
 # Build kustomization locally
-flux build kustomization infrastructure-networks --path=./infrastructure/tenants/1-network
+flux build kustomization infrastructure-networks --path=./core/resources/tenants/1-network
 
 # Check kustomization status
 kubectl get kustomization infrastructure-networks -n flux-system -o yaml
 
 # Validate manifests
-kubectl apply --dry-run=client -k ./infrastructure/tenants/1-network
+kubectl apply --dry-run=client -k ./core/resources/tenants/1-network
 ```
 
 #### 2. Dependency Issues
@@ -968,8 +968,8 @@ spec:
     test/
     .github/
     # Optimize for specific paths
-    !infrastructure/
-    !control-plane/
+    !core/resources/
+    !core/operators/
   gitImplementation: go-git  # More efficient than libgit2
   timeout: 30s
 ```
@@ -988,7 +988,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: false  # Disable waiting for faster reconciliation
   timeout: 10m

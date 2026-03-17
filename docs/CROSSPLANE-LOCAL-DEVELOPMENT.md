@@ -39,7 +39,7 @@ The enhanced quickstart automatically configures Crossplane for local developmen
 
 ```bash
 # One-command setup with Crossplane local provider
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 ```
 
 This installs:
@@ -226,7 +226,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/crossplane
+  path: ./core/resources/crossplane
   prune: true
   validation: client
 ```
@@ -347,7 +347,7 @@ kubectl delete provider provider-kubernetes -n crossplane-system
 
 # Reset cluster state
 kind delete cluster gitops-hub
-./scripts/create-hub-cluster.sh --provider kind
+./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind
 ```
 
 ### Common Errors

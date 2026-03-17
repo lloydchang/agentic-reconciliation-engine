@@ -50,7 +50,7 @@ chmod +x kind
 sudo mv kind /usr/local/bin/
 
 # Helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl https://raw.githubusercontent.com/helm/helm/main/core/core/automation/ci-cd/scripts/get-helm-3 | bash
 ```
 
 #### Optional Development Tools
@@ -79,15 +79,15 @@ ls -la
 
 ### Repository Structure
 ```
-gitops-infra-control-plane/
+gitops-infra-core/operators/
 ├── dashboard-frontend/          # React dashboard application
 ├── api-server.py               # Flask API server
-├── scripts/                    # Deployment and utility scripts
+├── core/core/automation/ci-cd/scripts/                    # Deployment and utility scripts
 ├── docs/                       # Documentation
-├── .agents/                    # Agent skill definitions
-├── ai-agents/                  # Backend agent implementations
-├── infrastructure/             # Kubernetes manifests
-└── control-plane/             # GitOps configurations
+├── core/ai/skills/                    # Agent skill definitions
+├── ai-core/ai/runtime/                  # Backend agent implementations
+├── core/resources/             # Kubernetes manifests
+└── core/operators/             # GitOps configurations
 ```
 
 ## Frontend Development Setup
@@ -194,7 +194,7 @@ python api-server.py
 
 # 2. Test endpoints
 curl http://localhost:5000/api/cluster-status
-curl http://localhost:5000/api/agents/detailed
+curl http://localhost:5000/api/core/ai/runtime/detailed
 
 # 3. Run with auto-reload (development)
 export FLASK_ENV=development

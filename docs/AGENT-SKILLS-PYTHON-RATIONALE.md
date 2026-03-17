@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `.agents/[skill]/SKILL.md` architecture deliberately chooses Python as the primary language for agent skill scripts. This is a strategic architectural decision that prioritizes **LLM operability** and **dynamic runtime capabilities** over raw performance.
+The `core/ai/skills/[skill]/SKILL.md` architecture deliberately chooses Python as the primary language for agent skill scripts. This is a strategic architectural decision that prioritizes **LLM operability** and **dynamic runtime capabilities** over raw performance.
 
 ## Core Rationale
 
@@ -91,9 +91,9 @@ def optimize_strategy(metrics: Dict[str, float]) -> str:
 
 ### 1. **Skill Structure**
 ```
-.agents/[skill]/
+core/ai/skills/[skill]/
 ├── SKILL.md                    # Skill definition (agentskills.io compliant)
-├── scripts/
+├── core/core/automation/ci-cd/scripts/
 │   ├── main.py                # Primary Python implementation
 │   ├── handlers.py            # Cloud-specific logic
 │   └── orchestrator.py        # Multi-cloud coordination
@@ -179,7 +179,7 @@ Based on research of the broader Agent Skills ecosystem, our Python-first approa
 
 **Anthropic's Implementation:**
 - All built-in Claude skills (PDF, DOCX, XLSX, PPTX) use Python scripts
-- Skills like `xlsx/recalc.py`, `pdf/scripts/extract_form_field_info.py` are Python
+- Skills like `xlsx/recalc.py`, `pdf/core/core/automation/ci-cd/scripts/extract_form_field_info.py` are Python
 - Official skill validation tool `quick_validate.py` is written in Python
 
 **Real-World Usage Patterns:**

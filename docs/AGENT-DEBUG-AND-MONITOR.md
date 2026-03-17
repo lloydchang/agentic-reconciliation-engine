@@ -8,7 +8,7 @@ This document provides comprehensive documentation for the AI agents system debu
 
 ### 1. AI System Debugger Skill
 
-**Location**: `.agents/debug/SKILL.md`
+**Location**: [core/ai/skills/debug/SKILL.md](core/ai/skills/debug/SKILL.md)
 **Purpose**: Comprehensive debugging skill for AI agents, Temporal workflows, and Kubernetes infrastructure
 
 #### Key Capabilities
@@ -74,7 +74,7 @@ The skill produces structured debugging reports with:
 
 ### 2. Go Metrics Collection System
 
-**Location**: `ai-agents/backend/monitoring/metrics.go`
+**Location**: `ai-core/ai/runtime/backend/monitoring/metrics.go`
 **Purpose**: Comprehensive metrics collection and aggregation for AI agents and workflows
 
 #### Core Components
@@ -157,7 +157,7 @@ func GetMetricsActivity(ctx context.Context) (map[string]interface{}, error)
 
 ### 3. AI Agents Ecosystem Deployment
 
-**Location**: `scripts/deploy-ai-agents-ecosystem.sh`
+**Location**: `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
 **Purpose**: Complete deployment automation for the AI agents infrastructure
 
 #### Deployment Components
@@ -200,7 +200,7 @@ func GetMetricsActivity(ctx context.Context) (map[string]interface{}, error)
 🌐 Agent Dashboard: http://dashboard.local
 🔄 Temporal Workflows: http://temporal.local
 📊 Metrics API: http://dashboard.local/api/cluster-status
-🤖 Agent API: http://dashboard.local/api/agents/status
+🤖 Agent API: http://dashboard.local/api/core/ai/runtime/status
 ```
 
 ### 4. Debugging Methodology and Knowledge Base
@@ -379,16 +379,16 @@ Solution: Check database performance and optimize queries
 ## Quick Reference
 
 ### Key Files and Locations
-- **Skill Definition**: `.agents/debug/SKILL.md`
-- **Metrics System**: `ai-agents/backend/monitoring/metrics.go`
-- **Deployment Script**: `scripts/deploy-ai-agents-ecosystem.sh`
+- **Skill Definition**: [core/ai/skills/debug/SKILL.md](core/ai/skills/debug/SKILL.md)
+- **Metrics System**: `ai-core/ai/runtime/backend/monitoring/metrics.go`
+- **Deployment Script**: `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
 - **Monitoring Plan**: [docs/REAL_MONITORING_IMPLEMENTATION.md](docs/REAL_MONITORING_IMPLEMENTATION.md)
 
 ### Important Endpoints
 - **Dashboard**: `http://dashboard.local`
 - **Temporal UI**: `http://temporal.local`
 - **Metrics API**: `/api/cluster-status`
-- **Agent API**: `/api/agents/status`
+- **Agent API**: `/api/core/ai/runtime/status`
 
 ### Emergency Contacts
 - **System Alerts**: Check dashboard for active alerts

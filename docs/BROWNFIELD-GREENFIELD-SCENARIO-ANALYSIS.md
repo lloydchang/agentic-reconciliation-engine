@@ -122,8 +122,8 @@ brownfield_phase4:
 ```yaml
 brownfield_discovery:
   tools:
-    - "examples/complete-hub-spoke-temporal/skills/infrastructure-discovery-fixed.ts"
-    - "examples/complete-hub-spoke/agent-orchestration-demo.md"
+    - "overlay/examples/complete-hub-spoke-temporal/skills/infrastructure-discovery-fixed.ts"
+    - "overlay/examples/complete-hub-spoke/agent-orchestration-demo.md"
   value:
     - "Automated inventory of existing resources"
     - "Dependency mapping and analysis"
@@ -136,10 +136,10 @@ brownfield_discovery:
 ```yaml
 brownfield_migration:
   workflows:
-    - "examples/complete-hub-spoke-temporal/workflows/infrastructure-analysis.go"
-    - "examples/complete-hub-spoke-temporal/workflows/consensus-decision.go"
+    - "overlay/examples/complete-hub-spoke-temporal/workflows/infrastructure-analysis.go"
+    - "overlay/examples/complete-hub-spoke-temporal/workflows/consensus-decision.go"
   activities:
-    - "examples/complete-hub-spoke-temporal/activities/infrastructure-activities.go"
+    - "overlay/examples/complete-hub-spoke-temporal/activities/infrastructure-activities.go"
   value:
     - "Durable migration processes"
     - "Rollback and compensation capabilities"
@@ -152,8 +152,8 @@ brownfield_migration:
 ```yaml
 brownfield_safety:
   components:
-    - "examples/complete-hub-spoke-temporal/security/temporal-rbac.yaml"
-    - "infrastructure/tenants/2-clusters/" # Existing cluster configs
+    - "overlay/examples/complete-hub-spoke-temporal/security/temporal-rbac.yaml"
+    - "core/resources/tenants/2-clusters/" # Existing cluster configs
   features:
     - "Gradual migration with parallel operation"
     - "Instant rollback capabilities"
@@ -250,9 +250,9 @@ greenfield_phase3:
 ```yaml
 greenfield_infrastructure:
   components:
-    - "infrastructure/tenants/1-network/" # Network foundation
-    - "infrastructure/tenants/2-clusters/" # Clean cluster setup
-    - "infrastructure/tenants/3-workloads/" # Application workloads
+    - "core/resources/tenants/1-network/" # Network foundation
+    - "core/resources/tenants/2-clusters/" # Clean cluster setup
+    - "core/resources/tenants/3-workloads/" # Application workloads
   value:
     - "Best practices from day one"
     - "Scalable architecture"
@@ -265,8 +265,8 @@ greenfield_infrastructure:
 ```yaml
 greenfield_gitops:
   patterns:
-    - "examples/complete-hub-spoke/flux/" # Advanced Flux patterns
-    - "examples/complete-hub-spoke-kagent/" # AI-enhanced GitOps
+    - "overlay/examples/complete-hub-spoke/flux/" # Advanced Flux patterns
+    - "overlay/examples/complete-hub-spoke-kagent/" # AI-enhanced GitOps
   value:
     - "Progressive delivery patterns"
     - "Automated testing and validation"
@@ -279,8 +279,8 @@ greenfield_gitops:
 ```yaml
 greenfield_ai:
   components:
-    - "examples/complete-hub-spoke-temporal/skills/" # AI skills
-    - "examples/complete-hub-spoke-temporal/workflows/" # AI workflows
+    - "overlay/examples/complete-hub-spoke-temporal/skills/" # AI skills
+    - "overlay/examples/complete-hub-spoke-temporal/workflows/" # AI workflows
   trigger:
     - "Add when team size > 10"
     - "Add when complexity becomes high"
@@ -381,8 +381,8 @@ hybrid_phase3:
 ```yaml
 hybrid_local:
   tools:
-    - "scripts/setup-local-development.sh"
-    - "examples/complete-hub-spoke/agent-workflows/" # Local agent workflows
+    - "core/core/automation/ci-cd/scripts/setup-local-development.sh"
+    - "overlay/examples/complete-hub-spoke/agent-workflows/" # Local agent workflows
   configurations:
     - "Docker Compose for local stack"
     - "Kubernetes manifests for local dev"
@@ -398,9 +398,9 @@ hybrid_local:
 ```yaml
 hybrid_cloud:
   components:
-    - "infrastructure/tenants/" # Multi-cloud setup
-    - "examples/complete-hub-spoke/flux/" # GitOps automation
-    - "examples/complete-hub-spoke/ai-gateway/" # API management
+    - "core/resources/tenants/" # Multi-cloud setup
+    - "overlay/examples/complete-hub-spoke/flux/" # GitOps automation
+    - "overlay/examples/complete-hub-spoke/ai-gateway/" # API management
   value:
     - "Production reliability"
     - "Scalable infrastructure"
@@ -413,8 +413,8 @@ hybrid_cloud:
 ```yaml
 hybrid_ai:
   components:
-    - "examples/complete-hub-spoke-temporal/skills/" # When complexity requires AI
-    - "examples/complete-hub-spoke-temporal/workflows/" # Intelligent workflows
+    - "overlay/examples/complete-hub-spoke-temporal/skills/" # When complexity requires AI
+    - "overlay/examples/complete-hub-spoke-temporal/workflows/" # Intelligent workflows
   trigger:
     - "When team size > 5"
     - "When application complexity > medium"
@@ -479,27 +479,27 @@ scenario_selection:
 ```yaml
 universal_components:
   flux_gitops:
-    - "examples/flux-flux-end-to-end-guide.md"
-    - "examples/flux-source-reconciliation.md"
-    - "infrastructure/tenants/" # Foundation patterns
+    - "overlay/examples/flux-flux-end-to-end-guide.md"
+    - "overlay/examples/flux-source-reconciliation.md"
+    - "core/resources/tenants/" # Foundation patterns
   value:
     - "Declarative infrastructure management"
     - "Git-based version control"
     - "Automated reconciliation"
   
   monitoring:
-    - "examples/complete-hub-spoke-temporal/monitoring/"
-    - "infrastructure/monitoring/"
-    - "infrastructure/tenants/3-workloads/monitoring/"
+    - "overlay/examples/complete-hub-spoke-temporal/monitoring/"
+    - "core/resources/monitoring/"
+    - "core/resources/tenants/3-workloads/monitoring/"
   value:
     - "Observability across all scenarios"
     - "Performance and security monitoring"
     - "Alerting and incident response"
   
   security:
-    - "examples/complete-hub-spoke-temporal/security/"
-    - "infrastructure/flux-security-network-policies.yaml"
-    - "infrastructure/tenants/1-network/security/"
+    - "overlay/examples/complete-hub-spoke-temporal/security/"
+    - "core/resources/flux-security-network-policies.yaml"
+    - "core/resources/tenants/1-network/security/"
   value:
     - "Enterprise-grade security"
     - "Compliance automation"
@@ -511,19 +511,19 @@ universal_components:
 ```yaml
 scenario_specific:
   brownfield_only:
-    - "examples/complete-hub-spoke-consensus/" # Consensus for migration decisions
+    - "overlay/examples/complete-hub-spoke-consensus/" # Consensus for migration decisions
     - "docs/LEGACY-IAC-MIGRATION-STRATEGY.md" # Migration guidance
-    - "infrastructure/fallback/" # Fallback strategies
+    - "core/resources/fallback/" # Fallback strategies
     
   greenfield_only:
-    - "examples/complete-hub-spoke-kagent/" # Clean GitOps patterns
-    - "examples/complete-hub-spoke/agent-workflows/" # Modern workflow patterns
-    - "infrastructure/tenants/3-workloads/" # Optimized for new projects
+    - "overlay/examples/complete-hub-spoke-kagent/" # Clean GitOps patterns
+    - "overlay/examples/complete-hub-spoke/agent-workflows/" # Modern workflow patterns
+    - "core/resources/tenants/3-workloads/" # Optimized for new projects
     
   hybrid_only:
-    - "examples/complete-hub-spoke/ai-gateway/" # API management for local/cloud
-    - "scripts/setup-local-development.sh" # Local dev automation
-    - "examples/complete-hub-spoke/agent-workflows/" # Development workflows
+    - "overlay/examples/complete-hub-spoke/ai-gateway/" # API management for local/cloud
+    - "core/core/automation/ci-cd/scripts/setup-local-development.sh" # Local dev automation
+    - "overlay/examples/complete-hub-spoke/agent-workflows/" # Development workflows
 ```
 
 ## 📋 Implementation Checklist

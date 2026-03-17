@@ -227,11 +227,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: fluxcd/flux2/action@main
       - run: |
-          flux install --export > infrastructure/bootstrap/flux-system/gotk-components.yaml
+          flux install --export > core/resources/bootstrap/flux-system/gotk-components.yaml
           flux create source git flux-system \
             --url=https://github.com/your-org/your-repo \
             --branch=main \
-            --export > infrastructure/bootstrap/flux-system/gotk-sync.yaml
+            --export > core/resources/bootstrap/flux-system/gotk-sync.yaml
       - uses: peter-evans/create-pull-request@v7
         with:
           title: "🤖 Automated Flux Components Update"

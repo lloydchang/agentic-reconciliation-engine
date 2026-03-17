@@ -40,8 +40,8 @@ cd gitops-infra-control-plane
 
 # Create initial structure
 mkdir -p clusters/production/flux-system
-mkdir -p infrastructure/tenants/{1-network,2-clusters,3-workloads}
-mkdir -p control-plane/{flux,karmada,controllers}
+mkdir -p core/resources/tenants/{1-network,2-clusters,3-workloads}
+mkdir -p core/operators/{flux,karmada,controllers}
 ```
 
 ## Bootstrap Methods
@@ -277,7 +277,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/1-network
+  path: ./core/resources/tenants/1-network
   prune: true
   wait: true
   timeout: 5m
@@ -297,7 +297,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/2-clusters
+  path: ./core/resources/tenants/2-clusters
   prune: true
   wait: true
   timeout: 10m
@@ -315,7 +315,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -381,7 +381,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads/production
+  path: ./core/resources/tenants/3-workloads/production
   kubeConfig:
     secretRef:
       name: production-cluster-kubeconfig
@@ -579,7 +579,7 @@ spec:
     push:
       branch: staging
   update:
-    path: ./infrastructure/tenants/3-workloads
+    path: ./core/resources/tenants/3-workloads
     strategy: Setters
 ```
 
@@ -723,7 +723,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
   timeout: 15m
@@ -850,7 +850,7 @@ flux bootstrap github \
 ### Repository Organization
 
 ```
-gitops-infra-control-plane/
+gitops-infra-core/operators/
 ├── clusters/
 │   ├── production/
 │   │   ├── flux-system/
@@ -862,15 +862,15 @@ gitops-infra-control-plane/
 │   │   └── monitoring.yaml
 │   ├── staging/
 │   └── development/
-├── infrastructure/
+├── core/resources/
 │   ├── tenants/
 │   │   ├── 1-network/
 │   │   ├── 2-clusters/
 │   │   └── 3-workloads/
-│   └── control-plane/
+│   └── core/operators/
 ├── apps/
 │   ├── base/
-│   └── overlays/
+│   └── core/deployment/overlays/
 └── docs/
 ```
 

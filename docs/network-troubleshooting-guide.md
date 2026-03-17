@@ -7,7 +7,7 @@ This document covers the comprehensive network connectivity diagnostic and enhan
 ## Files Created/Modified
 
 ### 1. Network Connectivity Diagnostic Script
-**File**: `scripts/network-connectivity-diagnostic.sh`
+**File**: `core/core/automation/ci-cd/scripts/network-connectivity-diagnostic.sh`
 
 **Purpose**: Comprehensive network connectivity testing for Kubernetes clusters
 
@@ -22,7 +22,7 @@ This document covers the comprehensive network connectivity diagnostic and enhan
 
 **Usage**:
 ```bash
-./scripts/network-connectivity-diagnostic.sh
+./core/core/automation/ci-cd/scripts/network-connectivity-diagnostic.sh
 ```
 
 **Key Functions**:
@@ -33,7 +33,7 @@ This document covers the comprehensive network connectivity diagnostic and enhan
 - Automated recommendations based on findings
 
 ### 2. Enhanced Crossplane Installation Script
-**File**: `scripts/install-crossplane.sh` (Modified)
+**File**: `core/core/automation/ci-cd/scripts/install-crossplane.sh` (Modified)
 
 **Purpose**: Crossplane installation with intelligent failure diagnosis
 
@@ -54,7 +54,7 @@ This document covers the comprehensive network connectivity diagnostic and enhan
 - Global error trap with `set -Eeo pipefail` and `trap`
 
 ### 3. kubectl Version Fix Script
-**File**: `scripts/fix-kubectl-version.sh`
+**File**: `core/core/automation/ci-cd/scripts/fix-kubectl-version.sh`
 
 **Purpose**: Resolve kubectl version skew issues between client and server
 
@@ -66,7 +66,7 @@ This document covers the comprehensive network connectivity diagnostic and enhan
 
 **Usage**:
 ```bash
-./scripts/fix-kubectl-version.sh
+./core/core/automation/ci-cd/scripts/fix-kubectl-version.sh
 ```
 
 ## Root Cause Analysis

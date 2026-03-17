@@ -26,7 +26,7 @@ kubectl create secret generic slack-bot-token \
 
 #### **2. Configure Slack Provider**
 
-The Slack provider is already configured in `control-plane/monitoring/alerts/slack-provider.yaml`:
+The Slack provider is already configured in `core/operators/monitoring/alerts/slack-provider.yaml`:
 
 - **Channel**: `gitops-alerts` (change as needed)
 - **Namespace**: `flux-system`
@@ -48,7 +48,7 @@ kubectl create secret generic github-token \
 
 #### **2. Configure GitHub Provider**
 
-The GitHub provider is already configured in `control-plane/monitoring/alerts/github-provider.yaml`:
+The GitHub provider is already configured in `core/operators/monitoring/alerts/github-provider.yaml`:
 
 - **Repository**: `lloydchang/gitops-infra-control-plane`
 - **Namespace**: `flux-system`
@@ -172,7 +172,7 @@ kubectl create secret generic github-token \
 ```bash
 # Monitoring is already included in main Flux deployment
 # Apply the monitoring kustomization
-kubectl apply -f control-plane/monitoring/kustomization.yaml
+kubectl apply -f core/operators/monitoring/kustomization.yaml
 
 # Verify alerts are configured
 flux get alerts

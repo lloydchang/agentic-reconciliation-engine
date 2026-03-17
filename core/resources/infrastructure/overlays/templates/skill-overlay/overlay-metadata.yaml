@@ -1,0 +1,127 @@
+# Overlay Metadata Template
+# Update this file with your overlay specific information
+
+---
+name: {{overlay-name}}
+version: "{{overlay-version}}"
+description: "Template for creating skill overlays that extend base AI agent capabilities while maintaining agentskills.io compliance"
+category: skills
+base_path: "core/ai/skills/{{base-skill}}"
+base_version: "{{base-version}}"
+license: "AGPLv3"
+risk_level: low
+autonomy: fully_auto
+
+maintainer:
+  name: "Your Name"
+  email: "your.email@example.com"
+  organization: "Your Organization"
+  url: "https://github.com/your-org"
+
+tags:
+  - skills
+  - ai-agents
+  - automation
+  - "{{base-skill}}"
+  - overlay
+
+compatibility:
+  min_base: "{{base-version}}"
+  max_base: "2.0.0"
+  agentskills.io: ">=1.0"
+  python: ">=3.8"
+  kubernetes: ">=1.20"
+
+dependencies:
+  - name: "{{base-skill}}"
+    version: ">{{base-version}}"
+    optional: false
+  # Add additional dependencies as needed
+  # - name: additional-package
+  #   version: ">=1.0.0"
+  #   optional: true
+
+environment_variables:
+  - name: OVERLAY_ENABLED
+    required: true
+    description: "Enable overlay functionality"
+    default: "true"
+  - name: DEBUG_MODE
+    required: false
+    description: "Enable debug logging"
+    default: "false"
+  - name: LOG_LEVEL
+    required: false
+    description: "Logging level"
+    default: "INFO"
+
+inputs:
+  type: object
+  properties:
+    operation:
+      type: string
+      description: "Operation type to execute"
+    targetResource:
+      type: string
+      description: "Target resource identifier"
+    enhanced_features:
+      type: boolean
+      default: true
+      description: "Enable enhanced overlay features"
+    custom_config:
+      type: object
+      description: "Custom configuration parameters"
+  required:
+    - operation
+    - targetResource
+
+outputs:
+  type: object
+  properties:
+    operationId:
+      type: string
+      description: "Unique operation identifier"
+    status:
+      type: string
+      enum: ["started", "running", "completed", "failed"]
+      description: "Operation status"
+    result:
+      type: object
+      description: "Operation results including overlay enhancements"
+    metadata:
+      type: object
+      properties:
+        execution_time:
+          type: number
+          description: "Execution time in seconds"
+        overlay_version:
+          type: string
+          description: "Overlay version used"
+        enhanced_features:
+          type: array
+          items:
+            type: string
+          description: "Enhanced features applied"
+  required:
+    - operationId
+    - status
+    - result
+
+examples:
+  - name: "Basic overlay execution"
+    description: "Execute overlay with basic parameters"
+    command: "python main.py execute --operation analyze --targetResource example --enhanced-features"
+    expected_output: "Enhanced analysis with overlay features applied"
+  - name: "Custom configuration"
+    description: "Execute overlay with custom configuration"
+    command: "python main.py execute --operation custom --targetResource example --custom-config '{\"param\": \"value\"}'"
+    expected_output: "Custom execution with overlay configuration"
+
+resources:
+  cpu: "100m"
+  memory: "256Mi"
+  storage: "1Gi"
+
+human_gate:
+  required: false
+  description: "No human approval required for skill overlay operations"

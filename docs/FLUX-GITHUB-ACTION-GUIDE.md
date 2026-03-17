@@ -406,7 +406,7 @@ Extend E2E testing with custom scenarios:
 - name: Custom Integration Test
   run: |
     # Add custom test scenarios
-    kubectl apply -f ./tests/custom-scenario.yaml
+    kubectl apply -f ./core/automation/testing/custom-scenario.yaml
     kubectl wait --for=condition=complete job/custom-test --timeout=300s
 ```
 

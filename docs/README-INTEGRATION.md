@@ -14,18 +14,18 @@ This guide provides the fastest path to integrating with the Continuous Reconcil
 
 ```bash
 # Use provided setup scripts
-./scripts/hub-clusters/setup-aws-hub-eks.sh
+./core/core/automation/ci-cd/scripts/hub-clusters/setup-aws-hub-eks.sh
 # OR
-./scripts/hub-clusters/setup-azure-hub-aks.sh
+./core/core/automation/ci-cd/scripts/hub-clusters/setup-azure-hub-aks.sh
 # OR
-./scripts/hub-clusters/setup-gcp-hub-gke.sh
+./core/core/automation/ci-cd/scripts/hub-clusters/setup-gcp-hub-gke.sh
 ```
 
 ### Apply Core Infrastructure
 
 ```bash
-kubectl apply -k control-plane/
-kubectl apply -k infrastructure/
+kubectl apply -k core/operators/
+kubectl apply -k core/resources/
 ```
 
 ## Step 2: Expose APIs (10 minutes)
@@ -67,7 +67,7 @@ def deploy_infrastructure(manifest):
 
 ```javascript
 // Example: Node.js webhook handler
-app.post('/infrastructure/status', (req, res) => {
+app.post('/core/resources/status', (req, res) => {
   const { status, resource } = req.body;
   // Update your proprietary database/UI
   updateInfrastructureStatus(resource, status);
@@ -145,5 +145,5 @@ your-platform/
 ## Support
 
 - Documentation: `/docs/` directory
-- Scripts: `/scripts/` directory
+- Scripts: `/core/core/automation/ci-cd/scripts/` directory
 - Examples: See implementation guides

@@ -77,9 +77,9 @@ scenario_identification:
 ```yaml
 brownfield_components:
   primary:
-    - "examples/complete-hub-spoke-temporal/workflows/infrastructure-analysis.go"
-    - "examples/complete-hub-spoke-temporal/skills/infrastructure-discovery-fixed.ts"
-    - "examples/complete-hub-spoke-temporal/activities/infrastructure-activities.go"
+    - "overlay/examples/complete-hub-spoke-temporal/workflows/infrastructure-analysis.go"
+    - "overlay/examples/complete-hub-spoke-temporal/skills/infrastructure-discovery-fixed.ts"
+    - "overlay/examples/complete-hub-spoke-temporal/activities/infrastructure-activities.go"
   value:
     - "Analyze existing infrastructure"
     - "Plan gradual migration"
@@ -98,9 +98,9 @@ brownfield_components:
 ```yaml
 greenfield_components:
   primary:
-    - "examples/complete-hub-spoke/"  # Clean GitOps patterns
-    - "examples/complete-hub-spoke-kagent/"  # Modern agent patterns
-    - "infrastructure/tenants/"  # Clean infrastructure setup
+    - "overlay/examples/complete-hub-spoke/"  # Clean GitOps patterns
+    - "overlay/examples/complete-hub-spoke-kagent/"  # Modern agent patterns
+    - "core/resources/tenants/"  # Clean infrastructure setup
   value:
     - "Best practices from day one"
     - "Scalable architecture"
@@ -119,9 +119,9 @@ greenfield_components:
 ```yaml
 hybrid_components:
   primary:
-    - "examples/complete-hub-spoke/ai-gateway/"  # Secure AI access
-    - "examples/complete-hub-spoke/agent-workflows/"  # Local dev automation
-    - "examples/complete-hub-spoke-temporal/flux/temporal-integration.yaml"
+    - "overlay/examples/complete-hub-spoke/ai-gateway/"  # Secure AI access
+    - "overlay/examples/complete-hub-spoke/agent-workflows/"  # Local dev automation
+    - "overlay/examples/complete-hub-spoke-temporal/flux/temporal-integration.yaml"
   value:
     - "Local development productivity"
     - "Secure cloud deployment"
@@ -158,9 +158,9 @@ hybrid_components:
 ```yaml
 phase1_universal:
   components:
-    - "Flux GitOps (examples/flux-flux-end-to-end.md)"
-    - "Basic monitoring (infrastructure/monitoring/)"
-    - "Security foundations (infrastructure/flux-security-network-policies.yaml)"
+    - "Flux GitOps (overlay/examples/flux-flux-end-to-end.md)"
+    - "Basic monitoring (core/resources/monitoring/)"
+    - "Security foundations (core/resources/flux-security-network-policies.yaml)"
   timeline: "Weeks 1-2"
   success_criteria:
     - "Git-based deployments working"
@@ -174,8 +174,8 @@ phase1_universal:
 ```yaml
 phase2_automation:
   components:
-    - "Agent workflows (examples/complete-hub-spoke/agent-workflows/)"
-    - "Validation and testing (examples/complete-hub-spoke/validation/)"
+    - "Agent workflows (overlay/examples/complete-hub-spoke/agent-workflows/)"
+    - "Validation and testing (overlay/examples/complete-hub-spoke/validation/)"
     - "CI/CD enhancement"
   timeline: "Weeks 3-6"
   success_criteria:
@@ -193,9 +193,9 @@ phase2_automation:
 ```yaml
 phase3_intelligence:
   components:
-    - "Temporal workflows (examples/complete-hub-spoke-temporal/workflows/)"
-    - "AI skills (examples/complete-hub-spoke-temporal/skills/)"
-    - "Advanced monitoring (examples/complete-hub-spoke-temporal/monitoring/)"
+    - "Temporal workflows (overlay/examples/complete-hub-spoke-temporal/workflows/)"
+    - "AI skills (overlay/examples/complete-hub-spoke-temporal/skills/)"
+    - "Advanced monitoring (overlay/examples/complete-hub-spoke-temporal/monitoring/)"
   timeline: "Weeks 7-12"
   success_criteria:
     - "AI-assisted decision making"
@@ -213,9 +213,9 @@ phase3_intelligence:
 ```yaml
 phase4_advanced:
   components:
-    - "Consensus protocols (examples/complete-hub-spoke-consensus/)"
-    - "Multi-cloud coordination (examples/complete-hub-spoke-temporal/workflows/multi-cloud-scatter-gather.go)"
-    - "Enterprise security (examples/complete-hub-spoke-temporal/security/)"
+    - "Consensus protocols (overlay/examples/complete-hub-spoke-consensus/)"
+    - "Multi-cloud coordination (overlay/examples/complete-hub-spoke-temporal/workflows/multi-cloud-scatter-gather.go)"
+    - "Enterprise security (overlay/examples/complete-hub-spoke-temporal/security/)"
   timeline: "Months 3-6"
   success_criteria:
     - "Autonomous operations"
@@ -409,23 +409,23 @@ quarterly_adjustment:
 ### Scenario-Specific Documentation
 
 - [Brownfield Analysis](./BROWNFIELD-GREENFIELD-SCENARIO-ANALYSIS.md)
-- [Decision Matrix](../examples/complete-hub-spoke-temporal/DECISION-MATRIX.md)
-- [When Not Right Solution](../examples/complete-hub-spoke-temporal/WHEN-NOT-RIGHT-SOLUTION.md)
+- [Decision Matrix](../overlay/examples/complete-hub-spoke-temporal/DECISION-MATRIX.md)
+- [When Not Right Solution](../overlay/examples/complete-hub-spoke-temporal/WHEN-NOT-RIGHT-SOLUTION.md)
 - [Legacy Migration Strategy](./LEGACY-IAC-MIGRATION-STRATEGY.md)
 
 ### Component Documentation
 
-- [Flux Integration](../examples/complete-hub-spoke/flux/)
-- [Temporal Workflows](../examples/complete-hub-spoke-temporal/workflows/)
-- [AI Skills](../examples/complete-hub-spoke-temporal/skills/)
-- [Security Patterns](../examples/complete-hub-spoke-temporal/security/)
+- [Flux Integration](../overlay/examples/complete-hub-spoke/flux/)
+- [Temporal Workflows](../overlay/examples/complete-hub-spoke-temporal/workflows/)
+- [AI Skills](../overlay/examples/complete-hub-spoke-temporal/skills/)
+- [Security Patterns](../overlay/examples/complete-hub-spoke-temporal/security/)
 
 ### Implementation Examples
 
-- [Complete Examples](../examples/)
-- [Infrastructure Templates](../infrastructure/)
-- [Monitoring Setup](../infrastructure/monitoring/)
-- [Security Configuration](../infrastructure/flux-security-network-policies.yaml)
+- [Complete Examples](../overlay/examples/)
+- [Infrastructure Templates](../core/resources/)
+- [Monitoring Setup](../core/resources/monitoring/)
+- [Security Configuration](../core/resources/flux-security-network-policies.yaml)
 
 ## 🎯 Conclusion
 

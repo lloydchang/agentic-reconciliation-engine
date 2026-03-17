@@ -1,0 +1,82 @@
+---
+name: overlay-name-template
+version: "1.0.0"
+description: "Template for creating skill overlays that extend base AI agent capabilities while maintaining agentskills.io compliance"
+category: skills
+base_path: "core/ai/skills/base-skill-template"
+base_version: "1.0.0"
+license: "AGPLv3"
+risk_level: low
+autonomy: fully_auto
+
+maintainer:
+  name: "Your Name"
+  email: "your.email@example.com"
+  organization: "Your Organization"
+  url: "https://github.com/your-org"
+
+tags:
+  - skills
+  - ai-agents
+  - automation
+  - base-skill-template
+  - overlay
+
+compatibility:
+  min_base: "1.0.0"
+  max_base: "2.0.0"
+  agentskills.io: ">=1.0"
+  python: ">=3.8"
+  kubernetes: ">=1.20"
+
+dependencies:
+  - name: "base-skill-template"
+    version: ">=1.0.0"
+    optional: false
+
+environment_variables:
+  - name: OVERLAY_ENABLED
+    required: true
+    description: "Enable overlay functionality"
+    default: "true"
+
+inputs:
+  type: object
+  properties:
+    operation:
+      type: string
+      description: "Operation type to execute"
+    targetResource:
+      type: string
+      description: "Target resource identifier"
+  required:
+    - operation
+    - targetResource
+
+outputs:
+  type: object
+  properties:
+    operationId:
+      type: string
+      description: "Unique operation identifier"
+    status:
+      type: string
+      enum: ["started", "running", "completed", "failed"]
+      description: "Operation status"
+  required:
+    - operationId
+    - status
+
+examples:
+  - name: "Basic overlay execution"
+    description: "Execute overlay with basic parameters"
+    command: "python main.py execute --operation analyze --targetResource example"
+    expected_output: "Enhanced analysis with overlay features applied"
+
+resources:
+  cpu: "100m"
+  memory: "256Mi"
+
+human_gate:
+  required: false
+  description: "No human approval required for skill overlay operations"

@@ -62,14 +62,14 @@ run_test "Kubeconfig Access" "export KUBECONFIG=/path/to/hub-kubeconfig && kubec
 ```bash
 run_test "API Health Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/health" "true"
 run_test "API Config Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/config" "true"
-run_test "API Agents Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/agents/detailed" "true"
+run_test "API Agents Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/core/ai/runtime/detailed" "true"
 run_test "API Metrics Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/metrics/real-time" "true"
 ```
 
 ##### Phase 3: Go Metrics Server Testing
 ```bash
 run_test "Go Server Health" "curl -s --connect-timeout 3 http://localhost:8080/health" "true"
-run_test "Go Server Agents" "curl -s --connect-timeout 3 http://localhost:8080/api/agents/detailed" "false"
+run_test "Go Server Agents" "curl -s --connect-timeout 3 http://localhost:8080/api/core/ai/runtime/detailed" "false"
 run_test "Go Server Metrics" "curl -s --connect-timeout 3 http://localhost:8080/api/metrics/real-time" "false"
 ```
 
@@ -82,7 +82,7 @@ run_test "Port-Forward Running" "ps aux | grep -v grep | grep 'port-forward.*ai-
 
 ##### Phase 5: Data Flow Integration Testing
 ```bash
-run_test "Complete Data Flow" "curl -s --connect-timeout 5 http://localhost:5002/api/agents/detailed | grep -q 'error'" "false"
+run_test "Complete Data Flow" "curl -s --connect-timeout 5 http://localhost:5002/api/core/ai/runtime/detailed | grep -q 'error'" "false"
 run_test "Error Handling" "curl -s --connect-timeout 3 http://localhost:5002/api/config | grep -q 'real_data_only'" "true"
 ```
 
@@ -265,7 +265,7 @@ if curl -s http://localhost:8080/health >/dev/null 2>&1; then
     echo "✅ Real connection established!"
     echo "   Go Metrics Server: http://localhost:8080"
     echo "   Available endpoints:"
-    echo "     - /api/agents/detailed"
+    echo "     - /api/core/ai/runtime/detailed"
     echo "     - /api/workflows/status" 
     echo "     - /api/metrics/real-time"
     echo "     - /api/system/health"
@@ -316,7 +316,7 @@ if curl -s --connect-timeout 2 http://localhost:8080/health >/dev/null 2>&1; the
     
     # Test full data flow
     echo "🔗 Testing complete data flow..."
-    if curl -s --connect-timeout 2 http://localhost:5002/api/agents/detailed >/dev/null 2>&1; then
+    if curl -s --connect-timeout 2 http://localhost:5002/api/core/ai/runtime/detailed >/dev/null 2>&1; then
         echo "✅ Real data flowing successfully!"
         echo ""
         echo "🎉 REAL DATA CONNECTION ESTABLISHED!"
@@ -373,7 +373,7 @@ test_step "Temporal Health" "curl -s --connect-timeout 3 http://localhost:7233" 
 #### Data Endpoints
 ```bash
 test_step "API Config Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/config" "true"
-test_step "API Agents Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/agents/detailed" "true"
+test_step "API Agents Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/core/ai/runtime/detailed" "true"
 test_step "API Metrics Endpoint" "curl -s --connect-timeout 3 http://localhost:5002/api/metrics/real-time" "true"
 ```
 
@@ -403,14 +403,14 @@ test_step "Namespace Exists" "kubectl get ns ai-infrastructure" "true"
 
 #### Data Flow Validation
 ```bash
-test_step "Complete Data Flow" "curl -s --connect-timeout 5 http://localhost:5002/api/agents/detailed | grep -q 'agents'" "false"
+test_step "Complete Data Flow" "curl -s --connect-timeout 5 http://localhost:5002/api/core/ai/runtime/detailed | grep -q 'agents'" "false"
 test_step "Real Data Integration" "curl -s http://localhost:5002/api/config | grep -q 'real_data_only'" "true"
 test_step "Error Propagation" "curl -s http://localhost:8080/nonexistent >/dev/null 2>&1; [ $? -eq 56 ]" "true"
 ```
 
 #### Service Dependencies
 ```bash
-test_step "API Depends on Go Server" "curl -s http://localhost:5002/api/agents/detailed >/dev/null 2>&1 && curl -s http://localhost:8080/health >/dev/null 2>&1" "false"
+test_step "API Depends on Go Server" "curl -s http://localhost:5002/api/core/ai/runtime/detailed >/dev/null 2>&1 && curl -s http://localhost:8080/health >/dev/null 2>&1" "false"
 test_step "Frontend Depends on API" "curl -s http://localhost:3001 >/dev/null 2>&1 && curl -s http://localhost:5002/health >/dev/null 2>&1" "false"
 ```
 
@@ -676,7 +676,7 @@ check_test_coverage() {
     echo "🔍 Analyzing test coverage..."
     
     # Identify untested components
-    local endpoints=("/api/agents/status" "/api/workflows/status" "/api/system/health")
+    local endpoints=("/api/core/ai/runtime/status" "/api/workflows/status" "/api/system/health")
     for endpoint in "${endpoints[@]}"; do
         if ! grep -q "$endpoint" "$0"; then
             echo "⚠️ Untested endpoint: $endpoint"
@@ -694,7 +694,7 @@ add_feature_tests() {
     echo "🧪 Adding tests for new feature: $new_feature"
     
     # Create feature-specific test
-    cat >> "tests/${new_feature}_tests.sh" << EOF
+    cat >> "core/automation/testing/${new_feature}_tests.sh" << EOF
 #!/bin/bash
 # Tests for $new_feature feature
 
@@ -704,7 +704,7 @@ test_feature_${new_feature}() {
 }
 EOF
     
-    chmod +x "tests/${new_feature}_tests.sh"
+    chmod +x "core/automation/testing/${new_feature}_tests.sh"
 }
 ```
 

@@ -1,0 +1,2 @@
+resources:
+  - ../../core/resources/tenants/azure/localstack

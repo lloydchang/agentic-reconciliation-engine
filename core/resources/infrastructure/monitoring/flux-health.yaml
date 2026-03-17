@@ -1,0 +1,230 @@
+# Flux Health Monitoring & Incident Response
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-health-checks
+  namespace: monitoring
+data:
+  health-script.sh: |
+    #!/bin/bash
+    # Flux Health Check Script
+    
+    echo "🔍 Checking Hybrid Flux Architecture..."
+    
+    # Check Core Flux (Critical Path)
+    echo "📦 Core Flux CD (Critical Path):"
+    if kubectl wait --for=condition=available --timeout=30s deployment/source-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Source Controller: Healthy"
+    else
+        echo "  ❌ Source Controller: FAILED"
+        exit 1
+    fi
+    
+    if kubectl wait --for=condition=available --timeout=30s deployment/kustomize-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Kustomize Controller: Healthy"
+    else
+        echo "  ❌ Kustomize Controller: FAILED"
+        exit 1
+    fi
+    
+    if kubectl wait --for=condition=available --timeout=30s deployment/helm-controller -n flux-system 2>/dev/null; then
+        echo "  ✅ Helm Controller: Healthy"
+    else
+        echo "  ❌ Helm Controller: FAILED"
+        exit 1
+    fi
+    
+    # Check Flux Operator (Optional Add-on)
+    echo ""
+    echo "🛠️  Flux Operator (Optional Add-on):"
+    if kubectl get pods -n flux-operator-system 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ Flux Operator: Running"
+        if kubectl get pods -n flux-operator-system 2>/dev/null | grep -q "flux-operator"; then
+            echo "  ✅ Web UI: Available"
+        else
+            echo "  ⚠️  Web UI: Not available"
+        fi
+    else
+        echo "  ⚠️  Flux Operator: Not running (optional - system still functional)"
+    fi
+    
+    echo ""
+    echo "✅ Flux Health Check Complete"
+    
+    echo ""
+    echo "🍯 Checking Honeycomb Observability..."
+    
+    # Check Honeycomb collectors
+    echo "📊 Honeycomb Collectors:"
+    if kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector 2>/dev/null | grep -q "Running"; then
+      echo "  ✅ Honeycomb Collectors: Running"
+      running_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector --field-selector=status.phase=Running 2>/dev/null | wc -l)
+      total_count=$(kubectl get pods -n honeycomb -l app.kubernetes.io/name=opentelemetry-collector 2>/dev/null | grep -c "otel-collector" || echo "0")
+      echo "  📈 Status: $running_count/$total_count collectors running"
+    else
+      echo "  ⚠️  Honeycomb Collectors: Not running (observability optional)"
+    fi
+    
+    # Check Honeycomb API key
+    echo ""
+    echo "🔑 Honeycomb Configuration:"
+    if kubectl get secret honeycomb -n honeycomb 2>/dev/null >/dev/null; then
+      if kubectl get secret honeycomb -n honeycomb --template="{{.data.api-key}}" 2>/dev/null | base64 -d | grep -v "your-honeycomb-api-key-here" > /dev/null 2>&1; then
+        echo "  ✅ API Key: Configured"
+      else
+        echo "  ❌ API Key: Using placeholder - needs real API key"
+      fi
+    else
+      echo "  ⚠️  Honeycomb Secret: Not found"
+    fi
+    
+    echo ""
+    echo "🍯 Honeycomb Observability Check Complete"
+    
+    echo ""
+    echo "🔮 Checking Pixie eBPF Observability..."
+    
+    # Check Pixie namespace
+    echo "📦 Pixie Namespace:"
+    if kubectl get namespace pl 2>/dev/null >/dev/null; then
+      echo "  ✅ Namespace: pl exists"
+      
+      # Check Vizier (Pixie control plane)
+      echo ""
+      echo "🎯 Vizier (Control Plane):"
+      if kubectl get pods -n pl -l app=vizier 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ Vizier: Running"
+        vizier_status=$(kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
+        echo "  📊 Status: $vizier_status"
+      else
+        echo "  ⚠️  Vizier: Not running (observability optional)"
+      fi
+      
+      # Check PEMs (Pixie eBPF agents)
+      echo ""
+      echo "🔧 PEMs (eBPF Agents):"
+      if kubectl get pods -n pl -l app=pem 2>/dev/null | grep -q "Running"; then
+        echo "  ✅ PEMs: Running"
+        running_count=$(kubectl get pods -n pl -l app=pem --field-selector=status.phase=Running 2>/dev/null | wc -l)
+        total_count=$(kubectl get pods -n pl -l app=pem 2>/dev/null | grep -c "pem" || echo "0")
+        echo "  📈 Status: $running_count/$total_count agents running"
+      else
+        echo "  ⚠️  PEMs: Not running (observability optional)"
+      fi
+      
+      # Check data collection
+      echo ""
+      echo "📊 Data Collection:"
+      if kubectl get pods -n pl -l app=vizier -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null | grep -q "True" 2>/dev/null; then
+        echo "  ✅ Data Collection: Active"
+        echo "  🔍 Available: HTTP traces, application metrics, system calls, network traffic"
+      else
+        echo "  ⚠️  Data Collection: Inactive"
+      fi
+      
+    else
+      echo "  ⚠️  Pixie Namespace: Not found (observability optional)"
+    fi
+    
+    echo ""
+    echo "🔮 Pixie eBPF Observability Check Complete"
+  
+  incident-response.md: |
+    # Flux Incident Response Procedures
+    
+    ## Priority 1: Core Flux Issues (Critical)
+    
+    ### Symptoms
+    - GitOps deployments failing
+    - `kubectl get pods -n flux-system` shows failed pods
+    - `flux get kustomizations` shows failing reconciliations
+    
+    ### Immediate Actions
+    1. **Check Core Controllers**
+       ```bash
+       kubectl get pods -n flux-system
+       kubectl logs -n flux-system deployment/source-controller
+       kubectl logs -n flux-system deployment/kustomize-controller
+       ```
+    
+    2. **Check Reconciliation Status**
+       ```bash
+       flux get kustomizations -n flux-system
+       flux get sources -n flux-system
+       ```
+    
+    3. **Force Re-bootstrap (if needed)**
+       ```bash
+       flux bootstrap git --force \
+         --url=https://github.com/lloydchang/gitops-infra-control-plane \
+         --path=core/resources/flux/core
+       ```
+    
+    4. **Manual Recovery**
+       ```bash
+       # Restart core controllers
+       kubectl rollout restart deployment/source-controller -n flux-system
+       kubectl rollout restart deployment/kustomize-controller -n flux-system
+       kubectl rollout restart deployment/helm-controller -n flux-system
+       ```
+    
+    ## Priority 2: Flux Operator Issues (Optional)
+    
+    ### Symptoms
+    - Web UI not accessible
+    - MCP Server not responding
+    - `kubectl get pods -n flux-operator-system` shows failures
+    
+    ### Actions (Non-Critical)
+    1. **Check Operator Status**
+       ```bash
+       kubectl get pods -n flux-operator-system
+       kubectl logs -n flux-operator-system deployment/flux-operator
+       ```
+    
+    2. **Restart Operator**
+       ```bash
+       kubectl rollout restart deployment/flux-operator -n flux-operator-system
+       ```
+    
+    3. **Disable Problematic Features**
+       ```bash
+       # Disable Web UI if causing issues
+       kubectl patch fluxinstance flux-operator -n flux-operator-system \
+         --type='merge' -p='{"spec":{"webUI":{"enabled":false}}}'
+       
+       # Disable MCP Server if causing issues
+       kubectl patch fluxinstance flux-operator -n flux-operator-system \
+         --type='merge' -p='{"spec":{"mcpServer":{"enabled":false}}}'
+       ```
+    
+    4. **Complete Operator Restart**
+       ```bash
+       kubectl delete -f core/resources/flux/operator/
+       kubectl apply -f core/resources/flux/operator/
+       ```
+    
+    ## Monitoring Commands
+    
+    ### Continuous Monitoring
+    ```bash
+    # Watch core Flux
+    watch "kubectl get pods -n flux-system && flux get kustomizations -n flux-system"
+    
+    # Watch operator (optional)
+    watch "kubectl get pods -n flux-operator-system"
+    ```
+    
+    ### Health Status
+    ```bash
+    # Core health
+    kubectl wait --for=condition=available --timeout=60s \
+      deployment/source-controller -n flux-system && \
+    kubectl wait --for=condition=available --timeout=60s \
+      deployment/kustomize-controller -n flux-system && \
+    echo "✅ Core Flux: Healthy"
+    
+    # Operator health (optional)
+    kubectl get pods -n flux-operator-system || echo "⚠️  Flux Operator: Not running (optional)"
+    ```

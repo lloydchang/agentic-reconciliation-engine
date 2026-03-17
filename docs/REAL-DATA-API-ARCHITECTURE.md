@@ -63,10 +63,10 @@ def config():
 
 ##### Data Endpoints
 ```python
-@app.route('/api/agents/detailed')
+@app.route('/api/core/ai/runtime/detailed')
 def agents_detailed():
     """Real agent data only"""
-    data = fetch_real_metrics('/api/agents/detailed')
+    data = fetch_real_metrics('/api/core/ai/runtime/detailed')
     if data:
         return jsonify(data)
     else:
@@ -273,7 +273,7 @@ test_step() {
 // React frontend error handling
 const fetchData = async () => {
   try {
-    const response = await axios.get('/api/agents/detailed');
+    const response = await axios.get('/api/core/ai/runtime/detailed');
     if (response.data.error) {
       // Handle structured error from real data API
       console.error('Real data unavailable:', response.data.message);

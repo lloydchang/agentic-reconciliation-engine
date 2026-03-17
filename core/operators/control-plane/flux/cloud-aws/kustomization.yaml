@@ -1,0 +1,7 @@
+resources:
+  - ../../core/resources/tenants/aws/network
+  - ../../core/resources/tenants/aws/clusters
+  - ../../core/resources/tenants/aws/workloads
+patchesStrategicMerge:
+  - patches/vpc-overrides.yaml
+  - patches/eks-overrides.yaml

@@ -67,7 +67,7 @@ The overlays community is dedicated to:
 #### Quick Setup
 ```bash
 # Clone repository
-git clone https://github.com/gitops-infra-control-plane/gitops-infra-control-plane.git
+git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # Set up development environment
@@ -76,7 +76,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Verify setup
-python scripts/overlay-cli.py list
+python core/core/automation/ci-cd/scripts/overlay-cli.py list
 ```
 
 ### 3. Explore Existing Overlays
@@ -84,13 +84,13 @@ python scripts/overlay-cli.py list
 #### Browse the Registry
 ```bash
 # List all overlays
-python scripts/overlay-cli.py list
+python core/core/automation/ci-cd/scripts/overlay-cli.py list
 
 # Search by category
-python scripts/overlay-cli.py list --category skills
+python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
 
 # Search by keyword
-python scripts/overlay-cli.py search "monitoring"
+python core/core/automation/ci-cd/scripts/overlay-cli.py search "monitoring"
 ```
 
 #### Study Examples
@@ -108,15 +108,15 @@ Create new overlays that extend system capabilities:
 
 ```bash
 # Create new skill overlay
-python scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Develop your overlay
-cd overlays/.agents/my-skill
+cd core/deployment/overlays/core/ai/skills/my-skill
 # ... make changes ...
 
 # Test and validate
-python scripts/validate-overlays.py .
-python scripts/test-overlays.py .
+python core/core/automation/ci-cd/scripts/validate-overlays.py .
+python core/core/automation/ci-cd/scripts/test-overlays.py .
 
 # Submit contribution
 git add .
@@ -137,7 +137,7 @@ Create reusable templates:
 
 ```bash
 # Create new template
-mkdir -p overlays/templates/my-type-overlay
+mkdir -p core/deployment/overlays/templates/my-type-overlay
 
 # Add template files
 # kustomization.yaml
@@ -511,7 +511,7 @@ We're excited to have you join the GitOps Infrastructure Control Plane Overlays 
 
 **Your journey starts now! 🚀**
 
-For questions or help getting started, reach out through our [community channels](https://github.com/gitops-infra-control-plane/discussions).
+For questions or help getting started, reach out through our [community channels](https://github.com/gitops-infra-core/operators/discussions).
 
 ---
 

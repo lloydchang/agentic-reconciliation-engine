@@ -24,7 +24,7 @@ The implementation provides:
 
 ### 2. Flux ImageUpdateAutomation
 
-**File**: `control-plane/flux/image-update-automation.yaml`
+**File**: `core/operators/flux/image-update-automation.yaml`
 
 ```yaml
 apiVersion: image.toolkit.fluxcd.io/v1beta2
@@ -41,13 +41,13 @@ spec:
     push:
       branch: staging  # Push to staging for PR review
   update:
-    path: ./infrastructure/tenants/3-workloads
+    path: ./core/resources/tenants/3-workloads
     strategy: Setters
 ```
 
 ### 3. Image Repository & Policy
 
-**File**: `control-plane/flux/image-policy.yaml`
+**File**: `core/operators/flux/image-policy.yaml`
 
 - Monitors container registry for new images
 - Defines update policies and filtering

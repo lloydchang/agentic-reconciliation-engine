@@ -403,7 +403,7 @@ GET /api/cluster-status
 
 #### Agent Status
 ```http
-GET /api/agents/status
+GET /api/core/ai/runtime/status
 ```
 
 **Response:**
@@ -931,7 +931,7 @@ cd gitops-infra-control-plane
 kind create cluster --name ai-agents-dev --config config/kind-dev.yaml
 
 # Build memory agent
-cd infrastructure/ai-inference/rust-agent
+cd core/resources/ai-inference/rust-agent
 cargo build --release
 
 # Build Docker image
@@ -972,7 +972,7 @@ EOF
 
 #### Testing Framework
 ```go
-// tests/integration_test.go
+// core/automation/testing/integration_test.go
 package tests
 
 import (

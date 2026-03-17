@@ -43,7 +43,7 @@ kubectl get pods -n ai-infrastructure -l component=agent-memory -o wide
 kubectl logs -f deployment/agent-memory-rust -n ai-infrastructure
 
 # Agent performance metrics
-curl -s http://localhost:5000/api/agents/status | jq .
+curl -s http://localhost:5000/api/core/ai/runtime/status | jq .
 ```
 
 #### Agent Operations
@@ -208,7 +208,7 @@ kubectl patch deployment agent-memory-rust -n ai-infrastructure -p '{"spec":{"te
 
 # Recreate PVC if corrupted
 kubectl delete pvc agent-memory-pvc -n ai-infrastructure
-kubectl apply -f infrastructure/ai-inference/shared/agent-memory-deployment.yaml
+kubectl apply -f core/resources/ai-inference/shared/agent-memory-deployment.yaml
 ```
 
 #### Issue 2: Dashboard Not Accessible
@@ -573,7 +573,7 @@ echo "Security incident response completed"
 #!/bin/bash
 # daily-backup.sh
 
-BACKUP_DIR="/backup/ai-agents/$(date +%Y%m%d)"
+BACKUP_DIR="/backup/ai-core/ai/runtime/$(date +%Y%m%d)"
 mkdir -p $BACKUP_DIR
 
 echo "Starting daily backup..."
@@ -626,7 +626,7 @@ if [ -z "$BACKUP_DATE" ]; then
     exit 1
 fi
 
-BACKUP_DIR="/backup/ai-agents/$BACKUP_DATE"
+BACKUP_DIR="/backup/ai-core/ai/runtime/$BACKUP_DATE"
 
 if [ ! -d "$BACKUP_DIR" ]; then
     echo "Backup directory not found: $BACKUP_DIR"

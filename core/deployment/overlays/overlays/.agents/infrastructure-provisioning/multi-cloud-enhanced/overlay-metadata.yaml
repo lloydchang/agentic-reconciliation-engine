@@ -1,0 +1,260 @@
+---
+name: infrastructure-provisioning-multi-cloud-enhanced
+version: "1.5.0"
+description: "Enhanced multi-cloud provisioning with cost optimization, compliance validation, and cross-cloud orchestration for AWS, Azure, GCP, and on-premise environments"
+category: skills
+base_path: "core/ai/skills/infrastructure-provisioning"
+base_version: "1.0.0"
+license: "AGPLv3"
+risk_level: medium
+autonomy: conditional
+
+maintainer:
+  name: "Community"
+  email: "community@gitops-infra-control-plane.org"
+  organization: "GitOps Infrastructure Control Plane"
+  url: "https://github.com/gitops-infra-control-plane"
+
+tags:
+  - skills
+  - infrastructure
+  - provisioning
+  - multi-cloud
+  - cost-optimization
+  - compliance
+  - aws
+  - azure
+  - gcp
+  - onprem
+
+compatibility:
+  min_base: "1.0.0"
+  max_base: "1.9.9"
+  agentskills.io: ">=1.0"
+  python: ">=3.8"
+  kubernetes: ">=1.20"
+
+dependencies:
+  - name: "infrastructure-provisioning"
+    version: ">=1.0.0"
+    optional: false
+  - name: "terraform-python"
+    version: ">=1.0.0"
+    optional: false
+  - name: "boto3"
+    version: ">=1.26.0"
+    optional: false
+  - name: "azure-mgmt-compute"
+    version: ">=29.0.0"
+    optional: false
+  - name: "google-cloud-compute"
+    version: ">=1.8.0"
+    optional: false
+
+environment_variables:
+  - name: OVERLAY_ENABLED
+    required: true
+    description: "Enable multi-cloud provisioning features"
+    default: "true"
+  - name: MULTI_CLOUD_ENABLED
+    required: false
+    description: "Enable multi-cloud orchestration"
+    default: "true"
+  - name: COST_OPTIMIZATION_ENABLED
+    required: false
+    description: "Enable cost optimization algorithms"
+    default: "true"
+  - name: COMPLIANCE_CHECKS_ENABLED
+    required: false
+    description: "Enable compliance validation"
+    default: "true"
+  - name: CROSS_CLOUD_ORCHESTRATION
+    required: false
+    description: "Enable cross-cloud orchestration"
+    default: "true"
+
+inputs:
+  type: object
+  properties:
+    operation:
+      type: string
+      enum: ["provision", "deprovision", "update", "optimize", "validate"]
+      description: "Operation type to execute"
+    targetResource:
+      type: string
+      description: "Target resource identifier"
+    cloudProvider:
+      type: string
+      enum: ["aws", "azure", "gcp", "onprem", "all"]
+      default: "all"
+      description: "Target cloud provider(s)"
+    resourceType:
+      type: string
+      enum: ["vm", "container", "storage", "network", "database", "all"]
+      default: "all"
+      description: "Type of resource to provision"
+    costOptimization:
+      type: boolean
+      default: true
+      description: "Enable cost optimization"
+    complianceValidation:
+      type: boolean
+      default: true
+      description: "Enable compliance validation"
+    crossCloudOrchestration:
+      type: boolean
+      default: false
+      description: "Enable cross-cloud orchestration"
+    dryRun:
+      type: boolean
+      default: true
+      description: "Dry run mode"
+    environment:
+      type: string
+      default: "production"
+      description: "Target environment"
+  required:
+    - operation
+    - targetResource
+
+outputs:
+  type: object
+  properties:
+    operationId:
+      type: string
+      description: "Unique identifier for this provisioning operation"
+    provisioning_status:
+      type: string
+      enum: ["started", "in_progress", "completed", "failed", "partial"]
+      description: "Provisioning operation status"
+    cloud_results:
+      type: object
+      properties:
+        aws:
+          type: object
+          properties:
+            status:
+              type: string
+            resources_provisioned:
+              type: array
+              items:
+                type: string
+            cost_estimate:
+              type: string
+        azure:
+          type: object
+          properties:
+            status:
+              type: string
+            resources_provisioned:
+              type: array
+              items:
+                type: string
+            cost_estimate:
+              type: string
+        gcp:
+          type: object
+          properties:
+            status:
+              type: string
+            resources_provisioned:
+              type: array
+              items:
+                type: string
+            cost_estimate:
+              type: string
+        onprem:
+          type: object
+          properties:
+            status:
+              type: string
+            resources_provisioned:
+              type: array
+              items:
+                type: string
+            cost_estimate:
+              type: string
+      description: "Results per cloud provider"
+    cost_analysis:
+      type: object
+      properties:
+        total_cost:
+          type: string
+        cost_savings:
+          type: string
+        optimization_recommendations:
+          type: array
+          items:
+            type: string
+        cost_breakdown:
+          type: object
+      description: "Cost analysis and optimization results"
+    compliance_results:
+      type: object
+      properties:
+        overall_status:
+          type: string
+          enum: ["compliant", "non_compliant", "partial"]
+        framework_results:
+          type: object
+          properties:
+            SOC2:
+              type: object
+            HIPAA:
+              type: object
+            GDPR:
+              type: object
+        violations:
+          type: array
+          items:
+            type: object
+      description: "Compliance validation results"
+    orchestration_summary:
+      type: object
+      properties:
+        cross_cloud_coordination:
+          type: boolean
+        orchestration_status:
+          type: string
+        dependencies_resolved:
+          type: array
+          items:
+            type: string
+      description: "Cross-cloud orchestration summary"
+    execution_time:
+      type: number
+      description: "Provisioning operation duration in seconds"
+    next_steps:
+      type: array
+      items:
+        type: string
+  required:
+    - operationId
+    - provisioning_status
+    - cloud_results
+    - cost_analysis
+
+examples:
+  - name: "Multi-cloud provisioning with cost optimization"
+    description: "Provision resources across all clouds with cost optimization"
+    command: "python main.py provision --targetResource my-cluster --cloudProvider all --resourceType vm --cost-optimization --compliance-validation"
+    expected_output: "Multi-cloud resources provisioned with cost optimization and compliance validation"
+  - name: "Cost optimization only"
+    description: "Optimize existing resources for cost savings"
+    command: "python main.py optimize --targetResource existing-infrastructure --cloudProvider all --dry-run=false"
+    expected_output: "Cost optimization recommendations applied with projected savings"
+  - name: "Compliance validation"
+    description: "Validate compliance across all cloud resources"
+    command: "python main.py validate --targetResource all-resources --cloudProvider all --compliance-framework SOC2-HIPAA-GDPR"
+    expected_output: "Compliance validation completed with detailed report"
+
+resources:
+  cpu: "1000m"
+  memory: "2Gi"
+  storage: "10Gi"
+
+human_gate:
+  required: true
+  description: "Production provisioning requires approval across all providers"
+  approvers: ["infrastructure-team@company.com", "cloud-architect@company.com"]
+  timeout_minutes: 60

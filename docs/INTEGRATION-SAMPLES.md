@@ -5,8 +5,8 @@ This directory contains integration examples demonstrating how to integrate with
 ## Directory Structure
 
 ```
-scripts/
-├── integration-examples/
+core/core/automation/ci-cd/scripts/
+├── integration-overlay/examples/
 │   ├── python-api-client/
 │   ├── go-webhook-handler/
 │   ├── shell-integration/
@@ -17,7 +17,7 @@ scripts/
 │   ├── multi-tenant-api/
 │   ├── billing-integration/
 │   └── compliance-monitor/
-└── deployment-examples/
+└── deployment-overlay/examples/
     ├── saas-infrastructure-platform/       # Commercial SaaS offering with billing/subscriptions
     ├── enterprise-infrastructure-console/  # Internal enterprise management tool
     └── customer-infrastructure-portal/     # Customer-facing infrastructure UI
@@ -217,7 +217,7 @@ class ProprietaryInfrastructureAPI:
         return deployment_id
 
 # REST API for proprietary SaaS offering
-@app.route('/api/v1/infrastructure/deploy', methods=['POST'])
+@app.route('/api/v1/core/resources/deploy', methods=['POST'])
 def deploy_infrastructure():
     data = request.get_json()
     
@@ -1015,7 +1015,7 @@ pipeline {
             steps {
                 script {
                     // Validate Kubernetes manifests
-                    sh 'kubectl kustomize control-plane/ | kubeval --strict'
+                    sh 'kubectl kustomize core/operators/ | kubeval --strict'
                 }
             }
         }
@@ -1109,7 +1109,7 @@ pipeline {
 2. **Run Python example**
 
    ```bash
-   cd scripts/integration-examples/python-api-client
+   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/python-api-client
    pip install -r requirements.txt
    python infrastructure_client.py
    ```
@@ -1117,7 +1117,7 @@ pipeline {
 3. **Run Go webhook handler**
 
    ```bash
-   cd scripts/integration-examples/go-webhook-handler
+   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/go-webhook-handler
    go mod tidy
    go run webhook_handler.go
    ```
@@ -1125,7 +1125,7 @@ pipeline {
 4. **Test Terraform wrapper**
 
    ```bash
-   cd scripts/integration-examples/terraform-wrapper
+   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/terraform-wrapper
    terraform init
    terraform plan -var="cre_git_repo=https://github.com/your-org/repo"
    ```

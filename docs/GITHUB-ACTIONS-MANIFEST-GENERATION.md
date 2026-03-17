@@ -316,7 +316,7 @@ local flux_config = [
       url: 'https://github.com/kingdonb/any_old_app',
     },
   },
-] + kubecfg.parseYaml(importstr 'examples/configMap.yaml');
+] + kubecfg.parseYaml(importstr 'overlay/examples/configMap.yaml');
 
 local kustomization = kustomize.applyList([
   kustomize.namespace(config_ns),

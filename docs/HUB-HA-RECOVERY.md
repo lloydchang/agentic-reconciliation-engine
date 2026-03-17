@@ -169,7 +169,7 @@ Full procedure is in [BOOTSTRAP-CLUSTER.md](./BOOTSTRAP-CLUSTER.md). Summary:
        --owner=org \
        --repository=gitops-infra-control-plane \
        --branch=main \
-       --path=control-plane/flux
+       --path=core/operators/flux
 
 4. Flux reconciles Crossplane, CAPI, and ESO onto the hub
    Wait for: kubectl get providers -A  (all Healthy)

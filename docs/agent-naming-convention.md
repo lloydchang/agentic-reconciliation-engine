@@ -2,7 +2,7 @@
 
 ## Overview
 
-All skills in `.agents/` follow a consistent `[verb]-[qualifier]` naming pattern where:
+All skills in `core/ai/skills/` follow a consistent `[verb]-[qualifier]` naming pattern where:
 
 - **Verb**: The primary action the skill performs
 - **Qualifier**: Specific domain, target, or context for the action
@@ -14,7 +14,7 @@ All skills in `.agents/` follow a consistent `[verb]-[qualifier]` naming pattern
 Skills are **agents that do things**. They perform actions (verbs) on specific targets or in particular contexts. The naming convention reflects this:
 
 ```
-.agents/[verb]-[qualifier]
+core/ai/skills/[verb]-[qualifier]
 ```
 
 This reads naturally as: "agents that [verb] [qualifier]" or "agents that [verb] for [qualifier]".

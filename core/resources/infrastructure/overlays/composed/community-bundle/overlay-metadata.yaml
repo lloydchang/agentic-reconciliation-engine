@@ -1,0 +1,166 @@
+---
+name: community-bundle
+version: "1.0.0"
+description: "Community-curated bundle of popular overlays including enhanced debugging, dark theme, cost calculator, and multi-cloud provisioning"
+category: composed
+base_path: "composed"
+base_version: "main"
+license: "AGPLv3"
+risk_level: low
+autonomy: fully_auto
+
+maintainer:
+  name: "GitOps Infrastructure Control Plane Community"
+  email: "community@gitops-infra-control-plane.org"
+  organization: "GitOps Infrastructure Control Plane"
+  url: "https://github.com/gitops-infra-control-plane"
+
+tags:
+  - community
+  - composed
+  - bundle
+  - popular
+  - curated
+  - debugging
+  - dashboard
+  - infrastructure
+
+compatibility:
+  min_base: "main"
+  kubernetes: ">=1.20"
+  python: ">=3.8"
+
+dependencies:
+  - name: "enhanced-debugger"
+    version: ">=2.0.0"
+    optional: false
+  - name: "dark-theme"
+    version: ">=1.0.0"
+    optional: false
+  - name: "cost-calculator-widget"
+    version: ">=1.0.0"
+    optional: false
+  - name: "multi-cloud-enhanced"
+    version: ">=1.5.0"
+    optional: false
+
+environment_variables:
+  - name: COMMUNITY_BUNDLE_ENABLED
+    required: true
+    description: "Enable community bundle features"
+    default: "true"
+  - name: ENHANCED_DEBUGGING
+    required: true
+    description: "Enable enhanced debugging features"
+    default: "true"
+  - name: DARK_THEME
+    required: true
+    description: "Enable dark theme"
+    default: "true"
+  - name: COST_CALCULATOR
+    required: true
+    description: "Enable cost calculator widget"
+    default: "true"
+  - name: MULTI_CLOUD
+    required: true
+    description: "Enable multi-cloud provisioning"
+    default: "true"
+
+inputs:
+  type: object
+  properties:
+    enable_debugging:
+      type: boolean
+      default: true
+      description: "Enable enhanced debugging overlay"
+    enable_theme:
+      type: boolean
+      default: true
+      description: "Enable dark theme overlay"
+    enable_cost_calculator:
+      type: boolean
+      default: true
+      description: "Enable cost calculator widget"
+    enable_multi_cloud:
+      type: boolean
+      default: true
+      description: "Enable multi-cloud provisioning"
+    community_features:
+      type: boolean
+      default: true
+      description: "Enable community-specific features"
+  required:
+    - community_features
+
+outputs:
+  type: object
+  properties:
+    bundle_status:
+      type: string
+      enum: ["deployed", "failed", "partial"]
+      description: "Community bundle deployment status"
+    overlays_deployed:
+      type: array
+      items:
+        type: string
+      description: "List of deployed community overlays"
+    community_features:
+      type: object
+      properties:
+        enhanced_debugging:
+          type: string
+          enum: ["active", "inactive", "error"]
+        dark_theme:
+          type: string
+          enum: ["active", "inactive", "error"]
+        cost_calculator:
+          type: string
+          enum: ["active", "inactive", "error"]
+        multi_cloud:
+          type: string
+          enum: ["active", "inactive", "error"]
+      description: "Community feature status"
+    resource_usage:
+      type: object
+      properties:
+        cpu_usage:
+          type: string
+        memory_usage:
+          type: string
+        storage_usage:
+          type: string
+      description: "Resource usage for community bundle"
+    community_stats:
+      type: object
+      properties:
+        total_overlays:
+          type: integer
+        active_features:
+          type: integer
+        community_contributors:
+          type: integer
+        last_updated:
+          type: string
+      description: "Community bundle statistics"
+  required:
+    - bundle_status
+    - overlays_deployed
+
+examples:
+  - name: "Deploy community bundle"
+    description: "Deploy complete community bundle with all popular overlays"
+    command: "kustomize build core/deployment/overlays/composed/community-bundle"
+    expected_output: "Community bundle with enhanced debugging, dark theme, cost calculator, and multi-cloud deployed"
+  - name: "Deploy selective features"
+    description: "Deploy community bundle with selective features"
+    command: "kustomize build core/deployment/overlays/composed/community-bundle --enable-debugging --enable-theme"
+    expected_output: "Community bundle deployed with debugging and theme features"
+
+resources:
+  cpu: "1500m"
+  memory: "3Gi"
+  storage: "20Gi"
+
+human_gate:
+  required: false
+  description: "No human approval required for community bundle deployment"

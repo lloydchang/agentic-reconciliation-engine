@@ -53,7 +53,7 @@ Pixie provides real-time, full-fidelity observability using eBPF technology, ena
 
 ```bash
 # Deploy monitoring stack with Pixie
-kubectl apply -k infrastructure/monitoring/
+kubectl apply -k core/resources/monitoring/
 
 # Verify deployment
 kubectl get pods -n pl

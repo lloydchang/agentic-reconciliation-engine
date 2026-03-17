@@ -15,14 +15,14 @@ Two major improvements were implemented:
 
 The previous naming had several issues:
 - **`dashboard-frontend`** - Redundant (dashboard = frontend by definition)
-- **`ai-agents`** - Verbose when `.agents/` and [AGENTS.md](AGENTS.md) already exist
+- **`ai-agents`** - Verbose when `core/ai/skills/` and [AGENTS.md](AGENTS.md) already exist
 - **Poor organization** - Dashboard was separate from its backend
 
 ### Changes Made
 
 #### Before
 ```
-├── ai-agents/                    # Temporal AI orchestration code
+├── ai-core/ai/runtime/                    # Temporal AI orchestration code
 │   ├── backend/                  # Go Temporal workflows and activities
 │   ├── cli/                      # Command-line interface
 │   └── tools/                    # Tool permissions and configurations
@@ -31,7 +31,7 @@ The previous naming had several issues:
 
 #### After
 ```
-├── agents/                       # Agent runtime implementation
+├── core/ai/runtime/                       # Agent runtime implementation
 │   ├── backend/                  # Go Temporal workflows and activities
 │   ├── dashboard/                # React dashboard and WebMCP client
 │   ├── cli/                      # Command-line interface
@@ -40,9 +40,9 @@ The previous naming had several issues:
 
 ### Benefits
 
-1. **Cleaner naming** - `agents/` vs `ai-agents/`
+1. **Cleaner naming** - `core/ai/runtime/` vs `ai-core/ai/runtime/`
 2. **Logical grouping** - All agent components together
-3. **Clear hierarchy** - `agents/dashboard/` shows relationship
+3. **Clear hierarchy** - `core/ai/runtime/dashboard/` shows relationship
 4. **Eliminates redundancy** - No `-frontend` suffix needed
 5. **Scalable** - Room for future agent components
 
@@ -52,8 +52,8 @@ All documentation and configuration files were updated:
 
 - [AGENTS.md](AGENTS.md) - Repository structure
 - [docs/SYSTEM-CAPABILITIES.md](docs/SYSTEM-CAPABILITIES.md) - MCP server and interface paths
-- [workspace/repo/docs/SYSTEM-CAPABILITIES.md](workspace/repo/docs/SYSTEM-CAPABILITIES.md) - Duplicate documentation
-- `.agents/debug/MEMORY.md` - Memory reference paths
+- [core/workspace/repo/docs/SYSTEM-CAPABILITIES.md](core/workspace/repo/docs/SYSTEM-CAPABILITIES.md) - Duplicate documentation
+- [core/ai/skills/debug/MEMORY.md](core/ai/skills/debug/MEMORY.md) - Memory reference paths
 
 ## Vite Migration
 
@@ -199,8 +199,8 @@ All import paths and references were updated:
 
 | Old Path | New Path |
 |----------|----------|
-| `dashboard-frontend/src/...` | `agents/dashboard/src/...` |
-| `ai-agents/backend/...` | `agents/backend/...` |
+| `dashboard-frontend/src/...` | `core/ai/runtime/dashboard/src/...` |
+| `ai-core/ai/runtime/backend/...` | `core/ai/runtime/backend/...` |
 
 ## Testing
 

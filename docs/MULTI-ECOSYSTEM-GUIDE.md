@@ -21,7 +21,7 @@ The GitOps Infra Control Plane provides comprehensive support for multiple progr
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/rust/
+core/resources/tenants/3-workloads/rust/
 ├── cargo-workloads/
 │   ├── kustomization.yaml
 │   ├── cargo-deployment.yaml
@@ -73,7 +73,7 @@ labels:
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/go/
+core/resources/tenants/3-workloads/go/
 ├── gin-services/
 │   ├── kustomization.yaml
 │   ├── gin-api.yaml
@@ -104,7 +104,7 @@ infrastructure/tenants/3-workloads/go/
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/python/
+core/resources/tenants/3-workloads/python/
 ├── fastapi-apps/
 │   ├── kustomization.yaml
 │   ├── api-server.yaml
@@ -138,7 +138,7 @@ infrastructure/tenants/3-workloads/python/
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/typescript/
+core/resources/tenants/3-workloads/typescript/
 ├── nextjs-apps/
 │   ├── kustomization.yaml
 │   ├── nextjs-deployment.yaml
@@ -173,7 +173,7 @@ infrastructure/tenants/3-workloads/typescript/
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/dotnet/
+core/resources/tenants/3-workloads/dotnet/
 ├── aspnet-core-apps/
 │   ├── kustomization.yaml
 │   ├── webapp-deployment.yaml
@@ -203,7 +203,7 @@ infrastructure/tenants/3-workloads/dotnet/
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/java/
+core/resources/tenants/3-workloads/java/
 ├── spring-boot-apps/
 │   ├── kustomization.yaml
 │   ├── spring-deployment.yaml
@@ -233,19 +233,19 @@ infrastructure/tenants/3-workloads/java/
 **Directory Structure:**
 
 ```
-infrastructure/tenants/3-workloads/shell/
+core/resources/tenants/3-workloads/shell/
 ├── cron-jobs/
 │   ├── kustomization.yaml
 │   ├── cronjob.yaml
 │   └── backup-script.sh
-├── bash-scripts/
+├── bash-core/core/automation/ci-cd/scripts/
 │   ├── kustomization.yaml
 │   ├── script-runner.yaml
-│   └── automation-scripts/
-└── system-automation/
+│   └── automation-core/core/automation/ci-cd/scripts/
+└── system-core/automation/ci-cd/
     ├── kustomization.yaml
     ├── maintenance-job.yaml
-    └── system-scripts/
+    └── system-core/core/automation/ci-cd/scripts/
 ```
 
 ## Ecosystem Swapping
@@ -314,7 +314,7 @@ resources:
   
   # System automation (Shell)
   - shell/cron-jobs/
-  - shell/system-automation/
+  - shell/system-core/automation/ci-cd/
 ```
 
 ### Cross-Ecosystem Communication
@@ -420,5 +420,5 @@ kubectl exec -it $(kubectl get pod -l ecosystem=typescript -o name | head -1) --
 Generate ecosystem-specific DAG:
 
 ```bash
-./scripts/generate-dag-visualization.sh | grep -A 50 "Ecosystem"
+./core/core/automation/ci-cd/scripts/generate-dag-visualization.sh | grep -A 50 "Ecosystem"
 ```

@@ -52,7 +52,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.agents/infrastructure-provisioning/**'
+      - 'core/ai/skills/infrastructure-provisioning/**'
 
 env:
   PYTHON_VERSION: '3.11'
@@ -78,7 +78,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer
-          cd .agents/infrastructure-provisioning/scripts
+          cd core/ai/skills/infrastructure-provisioning/scripts
           pip install -e .
 
       - name: Risk Assessment
@@ -108,13 +108,13 @@ jobs:
 
       - name: Validate Configuration
         run: |
-          cd .agents/infrastructure-provisioning/scripts
-          python main.py validate-config --config ../../examples/config.template.json
+          cd core/ai/skills/infrastructure-provisioning/scripts
+          python main.py validate-config --config ../../overlay/examples/config.template.json
 
       - name: Test Connectivity
         run: |
-          cd .agents/infrastructure-provisioning/scripts
-          python main.py test-connectivity --config ../../examples/config.template.json
+          cd core/ai/skills/infrastructure-provisioning/scripts
+          python main.py test-connectivity --config ../../overlay/examples/config.template.json
 
   human-approval:
     name: Human Approval Required
@@ -183,12 +183,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer boto3 azure-mgmt-compute google-cloud-compute
-          cd .agents/infrastructure-provisioning/scripts
+          cd core/ai/skills/infrastructure-provisioning/scripts
           pip install -e .
 
       - name: Execute Infrastructure Action
         run: |
-          cd .agents/infrastructure-provisioning/scripts
+          cd core/ai/skills/infrastructure-provisioning/scripts
           
           # Build command based on inputs
           CMD="python main.py ${{ github.event.inputs.action }}"
@@ -208,7 +208,7 @@ jobs:
             CMD="$CMD --dry-run"
           fi
           
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Executing: $CMD"

@@ -37,7 +37,7 @@ kubectl create secret generic honeycomb --from-literal=api-key=$HONEYCOMB_API_KE
 
 ```bash
 # Apply the Honeycomb manifests
-kubectl apply -f infrastructure/monitoring/honeycomb.yaml
+kubectl apply -f core/resources/monitoring/honeycomb.yaml
 
 # Deploy using the included script
 kubectl exec -n honeycomb configmap/honeycomb-deploy-script -- /bin/bash /etc/config/deploy-honeycomb.sh
@@ -172,7 +172,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1h
-  path: ./infrastructure/monitoring
+  path: ./core/resources/monitoring
   prune: true
   sourceRef:
     kind: GitRepository

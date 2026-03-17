@@ -1,0 +1,90 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: infrastructure-provisioning-multi-cloud-enhanced
+  namespace: flux-system
+  annotations:
+    overlay.name: "infrastructure-provisioning-multi-cloud-enhanced"
+    overlay.version: "1.5.0"
+    overlay.category: "skills"
+    overlay.base-skill: "infrastructure-provisioning"
+    overlay.compatibility: "1.0.0+"
+resources:
+  # Reference to base skill
+  - ../../../../core/ai/skills/infrastructure-provisioning
+# Patches to add multi-cloud enhancements
+patchesStrategicMerge:
+  - multi-cloud-features.yaml
+# Multi-cloud configurations
+configMapGenerator:
+  - name: infra-provisioning-multi-cloud-config
+    literals:
+      - OVERLAY_ENABLED=true
+      - OVERLAY_VERSION="1.5.0"
+      - OVERLAY_TYPE="skill-extension"
+      - BASE_SKILL="infrastructure-provisioning"
+      - MULTI_CLOUD_ENABLED=true
+      - COST_OPTIMIZATION=true
+      - COMPLIANCE_CHECKS=true
+      - CROSS_CLOUD_ORCHESTRATION=true
+# Multi-cloud secrets
+secretGenerator:
+  - name: infra-provisioning-multi-cloud-secrets
+    envs:
+      - .env.multi-cloud
+# Common labels for overlay resources
+commonLabels:
+  overlay: "infrastructure-provisioning-multi-cloud-enhanced"
+  overlay-type: "skill"
+  base-skill: "infrastructure-provisioning"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Enhanced resource requirements for multi-cloud processing
+images:
+  - name: python
+    newTag: "3.11-slim"
+  - name: terraform
+    newTag: "1.5.0"
+# Custom resource configurations
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: infrastructure-provisioning
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MULTI_CLOUD_ENABLED
+          value: "true"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: infrastructure-provisioning
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: COST_OPTIMIZATION_ENABLED
+          value: "true"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: infrastructure-provisioning
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "1Gi"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: infrastructure-provisioning
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "2Gi"

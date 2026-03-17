@@ -23,7 +23,7 @@ This GitOps Infra Control Plane now implements a **Hybrid Flux Architecture** th
 ## Directory Structure
 
 ```
-infrastructure/
+core/resources/
 ├── flux/
 │   ├── core/                    # Critical Flux CD components
 │   │   ├── kustomization.yaml
@@ -48,7 +48,7 @@ infrastructure/
 
 ```bash
 # Deploy hybrid architecture
-./scripts/deploy-hybrid-flux.sh
+./core/core/automation/ci-cd/scripts/deploy-hybrid-flux.sh
 
 # Check status
 kubectl get pods -n flux-system      # Core Flux (critical)
@@ -61,14 +61,14 @@ kubectl get pods -n flux-operator-system  # Operator (optional)
 # 1. Bootstrap Core Flux CD
 flux bootstrap git \
   --url=https://github.com/lloydchang/gitops-infra-control-plane \
-  --path=infrastructure/flux/core \
+  --path=core/resources/flux/core \
   --components=source-controller,kustomize-controller,helm-controller
 
 # 2. Deploy Flux Operator (optional)
-kubectl apply -f infrastructure/flux/operator/
+kubectl apply -f core/resources/flux/operator/
 
 # 3. Deploy hub kustomizations
-kubectl apply -f infrastructure/flux/hub-flux-system.yaml
+kubectl apply -f core/resources/flux/hub-flux-system.yaml
 ```
 
 ## Configuration
@@ -76,14 +76,14 @@ kubectl apply -f infrastructure/flux/hub-flux-system.yaml
 ### Core Flux Configuration
 
 - **Interval**: 5 minutes for fast reconciliation
-- **Path**: `./infrastructure/flux/core`
+- **Path**: `./core/resources/flux/core`
 - **Wait**: Yes - critical for validation
 - **Timeout**: 5 minutes
 
 ### Operator Configuration
 
 - **Interval**: 30 minutes (slower, non-critical)
-- **Path**: `./infrastructure/flux/operator`
+- **Path**: `./core/resources/flux/operator`
 - **Wait**: No - optional, don't block
 - **Timeout**: 10 minutes
 - **Depends On**: flux-core (requires core to be healthy first)

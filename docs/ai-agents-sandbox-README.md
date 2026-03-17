@@ -30,7 +30,7 @@ git clone https://github.com/lloydchang/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # Start everything
-./scripts/dev.sh
+./core/core/automation/ci-cd/scripts/dev.sh
 
 # Access interfaces
 # Frontend: http://localhost:3000
@@ -44,20 +44,20 @@ For comprehensive development and testing, run these validation steps:
 
 ```bash
 # 1. Validate environment and skill suite integrity
-./scripts/prerequisites.sh
+./core/core/automation/ci-cd/scripts/prerequisites.sh
 
 # 2. Run skill evaluations and tests
-python3 scripts/run_evals.py
+python3 core/core/automation/ci-cd/scripts/run_evals.py
 
 # 3. Start development environment
-./scripts/dev.sh
+./core/core/automation/ci-cd/scripts/dev.sh
 ```
 
 **What these do:**
 
 - **`prerequisites.sh`** - Validates prerequisites, checks skills exist, ensures environment readiness
 - **`run_evals.py`** - Tests skill definitions, validates SKILL.md formats, checks trigger phrases
-- **`./scripts/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
+- **`./core/core/automation/ci-cd/scripts/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
 
 ### Try It Out
 
@@ -106,7 +106,7 @@ Comprehensive documentation is organized in the [`docs/`](./docs/) directory:
 ### AI Agent Orchestration
 
 - **Durable Execution** - Temporal ensures workflows survive crashes and timeouts
-- **Skill System** - Auto-discovery of tools from `.agents/skills/` directory
+- **Skill System** - Auto-discovery of tools from `core/ai/skills/skills/` directory
 - **Multi-Interface Support** - REST APIs, MCP server, CLI, WebMCP client, Backstage GUI
 
 ### Enterprise Ready
@@ -136,7 +136,7 @@ Comprehensive documentation is organized in the [`docs/`](./docs/) directory:
 
 This sandbox is built for safe, bleeding-edge experimentation. Contributions welcome:
 
-- **New AI Skills** - Add to `.agents/skills/` with SKILL.md specifications
+- **New AI Skills** - Add to `core/ai/skills/skills/` with SKILL.md specifications
 - **Interface Development** - Extend WebMCP, add new integrations
 - **Advanced Orchestration** - New multi-agent collaboration patterns
 - **Compliance Frameworks** - Additional regulatory standards
@@ -240,7 +240,7 @@ This is not a production-ready framework — it is a testbed. Use this repositor
 **AI Agent Orchestration**
 
 - *Durable Execution* — Powered by Temporal, ensuring long-running multi-agent workflows survive server crashes and timeouts
-- *Skill System (Claude/Codex Compatible)* — Priority-based auto-discovery of tools defined via [SKILL.md](SKILL.md) (YAML frontmatter + markdown) in `.agents/skills/`
+- *Skill System (Claude/Codex Compatible)* — Priority-based auto-discovery of tools defined via [SKILL.md](SKILL.md) (YAML frontmatter + markdown) in `core/ai/skills/skills/`
 
 **Multi-Interface Platform**
 
@@ -288,7 +288,7 @@ Backstage with AI agent dashboard at `http://localhost:3000`.
 Alternatively, start everything at once:
 
 ```bash
-./scripts/dev.sh
+./core/core/automation/ci-cd/scripts/dev.sh
 ```
 
 ### 4. Try It
@@ -324,7 +324,7 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 3. **Retry Policy** — automatic retries with exponential backoff
 4. **Logging** — detailed activity logging throughout
 
-From there, the sandbox scales up to multi-agent orchestration, compliance automation, and human-in-the-loop patterns. See `examples/workflow-templates.yaml` for pre-configured templates including Continuous Compliance Monitoring, Multi-Cloud Compliance, and Vendor Risk Assessment.
+From there, the sandbox scales up to multi-agent orchestration, compliance automation, and human-in-the-loop patterns. See `overlay/examples/workflow-templates.yaml` for pre-configured templates including Continuous Compliance Monitoring, Multi-Cloud Compliance, and Vendor Risk Assessment.
 
 ---
 
@@ -429,10 +429,10 @@ The MCP server exposes standardized tools so local AI assistants (e.g., Claude D
 ## Repository Structure
 
 ```
-gitops-infra-control-plane/
+gitops-infra-core/operators/
 ├── AGENTS.md                   # Agent behavior rules
 ├── SKILL.md                    # AI skill definitions
-├── .agents/skills/             # Skill definitions (Claude/Codex compatible)
+├── core/ai/skills/skills/             # Skill definitions (Claude/Codex compatible)
 │   ├── compliance-check/
 │   ├── security-scan/
 │   ├── cost-analysis/
@@ -454,12 +454,12 @@ gitops-infra-control-plane/
 ├── cli/
 ├── tools/                      # bash.yaml, git.yaml, kubectl.yaml,
 │                               # terraform.yaml, docker.yaml
-├── examples/workflow-templates.yaml
+├── overlay/examples/workflow-templates.yaml
 ├── docs/
 │   ├── skills-system-guide.md
 │   ├── comprehensive-interfaces-guide.md
 │   └── claude-and-codex-skills.txt
-└── scripts/                    # dev.sh, build.sh, validate.sh
+└── core/core/automation/ci-cd/scripts/                    # dev.sh, build.sh, validate.sh
 ```
 
 ---
@@ -489,9 +489,9 @@ gitops-infra-control-plane/
 ## Development Scripts
 
 ```bash
-./scripts/dev.sh       # Start infrastructure + frontend
-./scripts/build.sh     # Build Docker images for all components
-./scripts/validate.sh  # Comprehensive environment validation
+./core/core/automation/ci-cd/scripts/dev.sh       # Start infrastructure + frontend
+./core/core/automation/ci-cd/scripts/build.sh     # Build Docker images for all components
+./core/core/automation/ci-cd/scripts/validate.sh  # Comprehensive environment validation
 ```
 
 ---
@@ -503,7 +503,7 @@ cd backend  && go test ./...
 cd backend  && go test -tags=integration ./...
 cd cli      && go test ./...
 cd frontend && yarn test
-./scripts/validate.sh   # Full-stack integration tests
+./core/core/automation/ci-cd/scripts/validate.sh   # Full-stack integration tests
 ```
 
 ---
@@ -564,7 +564,7 @@ cat frontend/app-config.yaml
 
 This sandbox is built for safe, bleeding-edge experimentation. Contributions are welcome in:
 
-**New AI Skills** — Create a directory under `.agents/skills/your-skill-name/`, add a [SKILL.md](SKILL.md) with YAML frontmatter defining inputs, outputs, and tool requirements, and optionally add supporting scripts and templates. Skills are auto-discovered on next backend startup.
+**New AI Skills** — Create a directory under `core/ai/skills/skills/your-skill-name/`, add a [SKILL.md](SKILL.md) with YAML frontmatter defining inputs, outputs, and tool requirements, and optionally add supporting scripts and templates. Skills are auto-discovered on next backend startup.
 
 **Interface Development** — Expand WebMCP, add Jira/Slack/Discord hooks, or integrate GitHub Actions CI/CD.
 
@@ -617,7 +617,7 @@ The name was chosen deliberately, and every word carries meaning.
 
 ## License
 
-[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/gitops-infra-control-plane/blob/main/LICENSE)
+[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/gitops-infra-core/operators/blob/main/LICENSE)
 
 ---
 

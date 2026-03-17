@@ -40,20 +40,20 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
      --owner=<org> \
      --repository=gitops-infra-control-plane \
      --branch=main \
-     --path=control-plane/flux \
+     --path=core/operators/flux \
      --personal
    ```
 
-3. Confirm `control-plane/flux` Kustomization is `Ready`.
+3. Confirm `core/operators/flux` Kustomization is `Ready`.
 4. Keep the current Argo CD apps running during this process to avoid downtime.
 
 ## 3. Enable the GCP overlay
 
-1. Update `control-plane/flux/cloud-gcp/kustomization.yaml` or add patches that configure project IDs, regions, node pools, and vertex/AI workloads.
+1. Update `core/operators/flux/cloud-gcp/kustomization.yaml` or add patches that configure project IDs, regions, node pools, and vertex/AI workloads.
 2. Run the overlay helper:
 
    ```bash
-   scripts/enable-cloud.sh gcp
+   core/core/automation/ci-cd/scripts/enable-cloud.sh gcp
    flux reconcile kustomization control-plane --with-source
    ```
 
@@ -71,13 +71,13 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
    ```
 
 2. Adjust ApplicationSets/destinations to target the new contexts.
-3. Use `scripts/migrate-app.sh` (or manual edits) to update workloads, then `argocd app sync` + `argocd app wait`.
+3. Use `core/core/automation/ci-cd/scripts/migrate-app.sh` (or manual edits) to update workloads, then `argocd app sync` + `argocd app wait`.
 4. After verifying health, decommission the old sync targets or leave them for rollback until confident.
 
 ## 5. Add other clouds / Crossplane resources
 
-1. Flip on `scripts/enable-cloud.sh aws|azure` when ready to bring additional providers online.
-2. Enable Crossplane compositions selectively from `control-plane/crossplane/compositions/`.
+1. Flip on `core/core/automation/ci-cd/scripts/enable-cloud.sh aws|azure` when ready to bring additional providers online.
+2. Enable Crossplane compositions selectively from `core/operators/crossplane/compositions/`.
 3. Always run `flux reconcile kustomization control-plane --with-source` after overlay changes and confirm `flux get kustomization control-plane` is healthy.
 
 ## Rollback guidance
@@ -87,19 +87,19 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
 
 ## Automation via migration wizard
 
-Use `scripts/migration_wizard.py` to automate overlay ordering and CI validation while applying this runbook. Example:
+Use `core/core/automation/ci-cd/scripts/migration_wizard.py` to automate overlay ordering and CI validation while applying this runbook. Example:
 
 ```bash
-./scripts/migration_wizard.py \
+./core/core/automation/ci-cd/scripts/migration_wizard.py \
   --repo-url https://github.com/your-org/gitops-infra-control-plane.git \
   --branch migration-gcp \
   --connector github-enterprise-cloud \
   --overlay-order ./bootstrap ./hub ./cloud-gcp \
-  --helper-script ./scripts/enable-cloud.sh \
-  --ci-gate ./scripts/prerequisites.sh
+  --helper-script ./core/core/automation/ci-cd/scripts/enable-cloud.sh \
+  --ci-gate ./core/core/automation/ci-cd/scripts/prerequisites.sh
 ```
 
-Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `scripts/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.
+Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `core/core/automation/ci-cd/scripts/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.
 
 ## Validation checklist
 
@@ -107,4 +107,4 @@ Swap `--connector` for the Git host running your repo, add `--emulator=enable|di
 - [ ] New clusters appear under `gcloud container clusters list`.
 - [ ] Argo CD apps successfully sync to the new contexts.
 - [ ] Crossplane resources (if any) are `Ready`.
-- [ ] Provider-specific patches are tracked under `control-plane/flux/cloud-gcp/`.
+- [ ] Provider-specific patches are tracked under `core/operators/flux/cloud-gcp/`.

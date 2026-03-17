@@ -328,21 +328,21 @@ cd backend && go test -tags=integration ./...
 cd frontend && yarn test
 
 # End-to-end validation
-./scripts/validate.sh
+./core/core/automation/ci-cd/scripts/validate.sh
 ```
 
 ## Skills System Architecture
 
 ### Skill Auto-Discovery
 
-Skills are automatically discovered from the `.agents/skills/` directory:
+Skills are automatically discovered from the `core/ai/skills/skills/` directory:
 
 ```go
 // Skill loader implementation
 func loadSkills() ([]Skill, error) {
     skills := []Skill{}
 
-    skillDirs, err := filepath.Glob(".agents/skills/*")
+    skillDirs, err := filepath.Glob("core/ai/skills/skills/*")
     if err != nil {
         return nil, err
     }
@@ -472,14 +472,14 @@ func (l *Logger) LogActivityExecution(activityName string, input interface{}, ou
 
 ```bash
 # Local development setup
-./scripts/dev.sh  # Starts all services locally
+./core/core/automation/ci-cd/scripts/dev.sh  # Starts all services locally
 ```
 
 ### Production Deployment
 
 ```bash
 # Build production images
-./scripts/build.sh
+./core/core/automation/ci-cd/scripts/build.sh
 
 # Deploy to Kubernetes
 kubectl apply -f k8s/

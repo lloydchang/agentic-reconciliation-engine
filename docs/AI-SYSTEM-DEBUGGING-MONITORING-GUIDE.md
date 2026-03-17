@@ -18,10 +18,10 @@ This guide provides comprehensive debugging strategies for distributed AI agent 
 
 ```bash
 # Fast agent debugging
-./scripts/quick_debug.sh agents errors true
+./core/core/automation/ci-cd/scripts/quick_debug.sh agents errors true
 
 # Full system analysis
-python .agents/ai-system-debugger/scripts/main.py debug --target-component all --issue-type performance --time-range 2h --auto-fix
+python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py debug --target-component all --issue-type performance --time-range 2h --auto-fix
 
 # Infrastructure health check
 kubectl get pods -n temporal -l app=temporal-worker
@@ -79,7 +79,7 @@ kubectl port-forward -n crossplane-system svc/crossplane-webhook-service 8081:80
 curl http://localhost:5000/api/cluster-status
 
 # Agent status
-curl http://localhost:5000/api/agents/status
+curl http://localhost:5000/api/core/ai/runtime/status
 
 # System metrics
 curl http://localhost:5000/api/metrics
@@ -202,16 +202,16 @@ The system includes automatic recovery mechanisms:
 
 ```bash
 # Restart failing pods
-python .agents/ai-system-debugger/scripts/main.py auto-fix --target=pods --condition=failing
+python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=pods --condition=failing
 
 # Clear stuck workflows
-python .agents/ai-system-debugger/scripts/main.py auto-fix --target=workflows --condition=stuck
+python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=workflows --condition=stuck
 
 # Adjust resource limits
-python .agents/ai-system-debugger/scripts/main.py auto-fix --target=resources --condition=exhausted
+python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=resources --condition=exhausted
 
 # Restart unhealthy agents
-python .agents/ai-system-debugger/scripts/main.py auto-fix --target=agents --condition=unhealthy
+python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=agents --condition=unhealthy
 ```
 
 ### Kubernetes Self-Healing
@@ -289,22 +289,22 @@ kubectl logs -n ai-infrastructure deployment/agent-memory-rust -f | jq '.correla
 
 ### AI System Debugger
 
-- `.agents/ai-system-debugger/SKILL.md` - Debugging skill definition
-- `.agents/ai-system-debugger/scripts/main.py` - Main debugging CLI
-- `.agents/ai-system-debugger/scripts/debug_utils.py` - Debug utilities
-- `.agents/ai-system-debugger/scripts/quick_debug.sh` - Quick bash debugging
+- [core/ai/skills/ai-system-debugger/SKILL.md](core/ai/skills/ai-system-debugger/SKILL.md) - Debugging skill definition
+- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py` - Main debugging CLI
+- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/debug_utils.py` - Debug utilities
+- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/quick_debug.sh` - Quick bash debugging
 
 ### Monitoring System
 
-- `ai-agents/backend/monitoring/metrics.go` - Built-in monitoring system
+- `ai-core/ai/runtime/backend/monitoring/metrics.go` - Built-in monitoring system
 - `monitoring/prometheus-config.yaml` - Prometheus configuration
 - `monitoring/grafana-dashboard.json` - Grafana dashboard
 
 ### Deployment Scripts
 
-- `scripts/deploy-ai-agents-ecosystem.sh` - Main deployment script
-- `scripts/quick_debug.sh` - Quick debugging utility
-- `scripts/health-check.sh` - System health validation
+- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh` - Main deployment script
+- `core/core/automation/ci-cd/scripts/quick_debug.sh` - Quick debugging utility
+- `core/core/automation/ci-cd/scripts/health-check.sh` - System health validation
 
 ## Integration Points
 
@@ -467,7 +467,7 @@ go tool pprof heap.prof
 kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- tcpdump -i any -w /tmp/capture.pcap
 
 # Analyze with Wireshark
-kubectl cp ai-infrastructure/agent-memory-rust-xxx:/tmp/capture.pcap ./capture.pcap
+kubectl cp ai-core/resources/agent-memory-rust-xxx:/tmp/capture.pcap ./capture.pcap
 ```
 
 ## Troubleshooting Checklist
@@ -519,7 +519,7 @@ kubectl exec -n ai-infrastructure deployment/temporal -- temporal workflow termi
 
 # Reset persistent storage
 kubectl delete pvc -n ai-infrastructure --all
-kubectl apply -f infrastructure/storage/
+kubectl apply -f core/resources/storage/
 ```
 
 ### Disaster Recovery
@@ -530,10 +530,10 @@ kubectl apply -f backups/ai-agents-backup.yaml
 
 # Recreate cluster
 kind delete cluster gitops-hub
-./scripts/create-hub-cluster.sh --provider kind
+./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind
 
 # Redeploy everything
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 ```
 
 ## Conclusion

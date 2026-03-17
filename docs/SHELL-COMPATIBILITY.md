@@ -1,6 +1,6 @@
 # Shell Compatibility Guide
 
-The automation in this repository requires a POSIX-style shell that understands `bash` syntax. Scripts such as `scripts/prerequisites.sh`, `scripts/migration_wizard.py`, `scripts/run-local-automation.sh`, and the helper utilities depend on:
+The automation in this repository requires a POSIX-style shell that understands `bash` syntax. Scripts such as `core/core/automation/ci-cd/scripts/prerequisites.sh`, `core/core/automation/ci-cd/scripts/migration_wizard.py`, `core/core/automation/ci-cd/scripts/run-local-automation.sh`, and the helper utilities depend on:
 
 | Feature | Requirement |
 |---|---|
@@ -13,14 +13,14 @@ The automation in this repository requires a POSIX-style shell that understands 
 ## Recommended shells by platform
 
 - **Linux**: Default bash (>=4) or zsh (by invoking the scripts with `bash script.sh`) works out of the box.  
-- **macOS**: The default zsh shell understands these scripts, but you can install GNU bash via Homebrew (`brew install bash`) and run the scripts explicitly with `bash scripts/...`. Set `SHELL=/bin/bash` if needed.  
+- **macOS**: The default zsh shell understands these scripts, but you can install GNU bash via Homebrew (`brew install bash`) and run the scripts explicitly with `bash core/core/automation/ci-cd/scripts/...`. Set `SHELL=/bin/bash` if needed.  
 - **Windows**: Use WSL, Git Bash, msys2, or another bash-compatible environment (PowerShell cannot run the scripts directly). WSL/WSL2 is fully compliant; Git Bash works once `core.symlinks true` is enabled for symlink usage.
 
 ## Version guidance
 
 - **Bash version**: `bash` 5.x or even 4.x works fine; the scripts do not rely on newer arrays or associative features.  
 - **zsh**: Because zsh is largely POSIX-compatible, just execute scripts inside `zsh` by calling `bash script.sh` or via the default `./script`.  
-- **Python**: `python3` must be installed; `scripts/migration_wizard.py` invokes the system Python interpreter. Ensure the shell’s PATH resolves `python` to the Python 3 binary.
+- **Python**: `python3` must be installed; `core/core/automation/ci-cd/scripts/migration_wizard.py` invokes the system Python interpreter. Ensure the shell’s PATH resolves `python` to the Python 3 binary.
 
 ## Additional compatibility notes
 

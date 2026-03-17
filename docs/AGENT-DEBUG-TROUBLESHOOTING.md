@@ -132,7 +132,7 @@ pwd
 ls -la
 
 # Navigate to correct directory
-cd .agents/debug/scripts
+cd core/ai/skills/debug/scripts
 ```
 
 #### Issue: Invalid Arguments

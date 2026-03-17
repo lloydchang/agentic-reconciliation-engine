@@ -36,7 +36,7 @@ readable by a developer without cloud expertise.
 ## File Layout
 
 ```
-control-plane/crossplane/
+core/operators/crossplane/
   xrds/
     xdatabase.yaml             # XRD for databases
     xnetwork.yaml              # XRD for VPCs/VNets
@@ -65,7 +65,7 @@ control-plane/crossplane/
     providerconfig-gcp.yaml
     providerconfig-kubernetes.yaml
 
-infrastructure/tenants/
+core/resources/tenants/
   1-network/
     network-prod.yaml          # XNetwork claim — developer-facing
   2-clusters/
@@ -84,7 +84,7 @@ The XRD defines the schema for the claim. Keep it minimal. Do not expose cloud-s
 The developer writing a claim should not need to know which cloud they are on.
 
 ```yaml
-# control-plane/crossplane/xrds/xdatabase.yaml
+# core/operators/crossplane/xrds/xdatabase.yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
@@ -143,7 +143,7 @@ One Composition per cloud provider per XRD. Use labels to select which Compositi
 a given claim.
 
 ```yaml
-# control-plane/crossplane/compositions/database-aws.yaml
+# core/operators/crossplane/compositions/database-aws.yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
@@ -226,7 +226,7 @@ spec:
 ### Step 3: Write a claim (spoke team)
 
 ```yaml
-# infrastructure/tenants/3-workloads/database-orders.yaml
+# core/resources/tenants/3-workloads/database-orders.yaml
 apiVersion: platform.example.com/v1alpha1
 kind: Database
 metadata:
@@ -294,14 +294,14 @@ Before merging a new Composition, validate it against a non-production environme
 # 1. Validate XRD schema
 kubeconform -schema-location default \
   -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
-  control-plane/crossplane/xrds/xdatabase.yaml
+  core/operators/crossplane/xrds/xdatabase.yaml
 
 # 2. Apply XRD and Composition to a dev hub
-kubectl apply -f control-plane/crossplane/xrds/xdatabase.yaml
-kubectl apply -f control-plane/crossplane/compositions/database-aws.yaml
+kubectl apply -f core/operators/crossplane/xrds/xdatabase.yaml
+kubectl apply -f core/operators/crossplane/compositions/database-aws.yaml
 
 # 3. Apply a test claim
-kubectl apply -f examples/crossplane-compositions/xdatabase-claim-dev.yaml
+kubectl apply -f overlay/examples/crossplane-compositions/xdatabase-claim-dev.yaml
 
 # 4. Monitor claim reconciliation
 kubectl describe database test-db -n dev-team
@@ -341,7 +341,7 @@ Before submitting a new Composition PR:
 
 ## Example Compositions
 
-See `examples/crossplane-compositions/` for complete working examples:
+See `overlay/examples/crossplane-compositions/` for complete working examples:
 
 - `xdatabase/` — XDatabase XRD + Compositions for AWS RDS, Azure Database, Cloud SQL
 - `xnetwork/` — XNetwork XRD + Compositions for VPC (AWS), VNet (Azure), VPC (GCP)

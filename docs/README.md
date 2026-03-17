@@ -122,8 +122,8 @@ git clone https://github.com/lloydchang/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # 2. Deploy complete ecosystem
-chmod +x scripts/deploy-ai-agents-ecosystem.sh
-./scripts/deploy-ai-agents-ecosystem.sh
+chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 
 # 3. Access dashboard
 kubectl port-forward svc/agent-dashboard-service 8080:80 -n ai-infrastructure
@@ -212,7 +212,7 @@ npm start
 
 ### 🚀 One-Command Deployment
 ```bash
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ### 🔧 Development Environment

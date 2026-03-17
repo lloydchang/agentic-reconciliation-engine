@@ -6,7 +6,7 @@ The repository contained multiple `kind-config.yaml` files in different location
 
 ### Files Found
 - **Root `kind-config.yaml`**: Repository root with port mappings for Temporal (7233) and dashboards (3000/13000)
-- **`infrastructure/kind-config.yaml`**: Infrastructure directory with basic ingress ports (8080/8443) named "agent-orchestration-demo"
+- **`core/resources/kind-config.yaml`**: Infrastructure directory with basic ingress ports (8080/8443) named "agent-orchestration-demo"
 
 ### Usage Analysis
 
@@ -18,9 +18,9 @@ The repository contained multiple `kind-config.yaml` files in different location
 - `create-hub-cluster.sh` → References but doesn't use the root file
 
 **Documentation & Scripts (DO use root config):**
-- `docs/NETWORK-CONNECTIVITY-TROUBLESHOOTING.md` - References root file for troubleshooting
-- `docs/AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md` - References root file for development setup
-- `scripts/recreate-clusters-with-fix.sh` - Uses root file for cluster recreation
+- [docs/NETWORK-CONNECTIVITY-TROUBLESHOOTING.md](docs/NETWORK-CONNECTIVITY-TROUBLESHOOTING.md) - References root file for troubleshooting
+- [docs/AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md](docs/AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md) - References root file for development setup
+- `core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh` - Uses root file for cluster recreation
 - Multiple `test-e2e-local-agent-orchestration-demo.sh` files - Use root file for local demos
 
 ### Root Cause
@@ -79,7 +79,7 @@ nodes:
 ### Files Changed
 
 - **Modified**: `kind-config.yaml` (consolidated ports and configuration)
-- **Removed**: `infrastructure/kind-config.yaml` (unused duplicate)
+- **Removed**: `core/resources/kind-config.yaml` (unused duplicate)
 
 ### Verification
 
@@ -98,8 +98,8 @@ This follows typical GitOps/Kubernetes repository patterns where:
 
 ```bash
 commit: Consolidate kind-config.yaml files into single repository root config
-- Merge infrastructure/kind-config.yaml ports into root kind-config.yaml
-- Remove unused infrastructure/kind-config.yaml
+- Merge core/resources/kind-config.yaml ports into root kind-config.yaml
+- Remove unused core/resources/kind-config.yaml
 - Add all necessary ports for local development and agent orchestration
 ```
 

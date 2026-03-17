@@ -20,14 +20,14 @@ Extensive collection of overlay examples covering all use cases and scenarios.
 Advanced monitoring with AI-powered insights:
 
 ```yaml
-# overlays/.agents/monitoring-enhanced/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/monitoring-enhanced/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: monitoring-enhanced
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/monitoring-patches.yaml
   - patches/metrics-patches.yaml
@@ -62,7 +62,7 @@ commonLabels:
 ```
 
 ```yaml
-# overlays/.agents/monitoring-enhanced/patches/monitoring-patches.yaml
+# core/deployment/overlays/core/ai/skills/monitoring-enhanced/patches/monitoring-patches.yaml
 ---
 # Enhanced Deployment with monitoring
 apiVersion: apps/v1
@@ -104,14 +104,14 @@ spec:
 Security-focused debugging and analysis:
 
 ```yaml
-# overlays/.agents/analyze-security/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/analyze-security/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: analyze-security
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/security-patches.yaml
   - patches/compliance-patches.yaml
@@ -155,14 +155,14 @@ resources:
 AI-powered performance optimization:
 
 ```yaml
-# overlays/.agents/performance-optimizer/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/performance-optimizer/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: performance-optimizer
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/performance-patches.yaml
   - patches/optimization-patches.yaml
@@ -195,14 +195,14 @@ resources:
 Professional enterprise dashboard theme:
 
 ```yaml
-# overlays/agents/dashboard/themes/enterprise/kustomization.yaml
+# core/deployment/overlays/core/ai/runtime/dashboard/themes/enterprise/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: enterprise-theme
   namespace: flux-system
 resources:
-  - ../../../../../agents/dashboard
+  - ../../../../../core/ai/runtime/dashboard
 patchesStrategicMerge:
   - patches/enterprise-theme.yaml
   - patches/branding-patches.yaml
@@ -225,7 +225,7 @@ resources:
 ```
 
 ```css
-# overlays/agents/dashboard/themes/enterprise/theme/enterprise.css
+# core/deployment/overlays/core/ai/runtime/dashboard/themes/enterprise/theme/enterprise.css
 :root {
   /* Enterprise Color Palette */
   --primary-color: #1e40af;
@@ -450,14 +450,14 @@ resources:
 Advanced analytics and data visualization:
 
 ```yaml
-# overlays/agents/dashboard/widgets/analytics/kustomization.yaml
+# core/deployment/overlays/core/ai/runtime/dashboard/widgets/analytics/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: analytics-widgets
   namespace: flux-system
 resources:
-  - ../../../../../agents/dashboard
+  - ../../../../../core/ai/runtime/dashboard
 patchesStrategicMerge:
   - patches/analytics-widgets.yaml
   - patches/data-visualization.yaml
@@ -481,7 +481,7 @@ resources:
 ```
 
 ```javascript
-// overlays/agents/dashboard/widgets/analytics/widgets/analytics-widget.js
+// core/deployment/overlays/core/ai/runtime/dashboard/widgets/analytics/widgets/analytics-widget.js
 class AnalyticsWidget {
   constructor(container, config) {
     this.container = container;
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
 Deploy across multiple regions with failover:
 
 ```yaml
-# overlays/control-plane/multi-region/kustomization.yaml
+# core/deployment/overlays/core/operators/multi-region/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -716,7 +716,7 @@ resources:
 Complete disaster recovery and backup:
 
 ```yaml
-# overlays/control-plane/disaster-recovery/kustomization.yaml
+# core/deployment/overlays/core/operators/disaster-recovery/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -754,7 +754,7 @@ resources:
 ```
 
 ```yaml
-# overlays/control-plane/disaster-recovery/config/backup-strategy.yaml
+# core/deployment/overlays/core/operators/disaster-recovery/config/backup-strategy.yaml
 backup_strategy:
   frequency:
     daily:
@@ -818,7 +818,7 @@ backup_strategy:
 HIPAA-compliant healthcare solution:
 
 ```yaml
-# overlays/composed/healthcare-suite/kustomization.yaml
+# core/deployment/overlays/composed/healthcare-suite/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -830,21 +830,21 @@ resources:
   - ../../../../agents
   
   # Healthcare-specific skills
-  - ../.agents/debug/enhanced
-  - ../.agents/patient-data/secure
-  - ../.agents/medical-imaging/ai-enhanced
-  - ../.agents/clinical-analytics/hipaa-compliant
+  - ../core/ai/skills/debug/enhanced
+  - ../core/ai/skills/patient-data/secure
+  - ../core/ai/skills/medical-imaging/ai-enhanced
+  - ../core/ai/skills/clinical-analytics/hipaa-compliant
   
   # Healthcare dashboard
-  - ../agents/dashboard/themes/healthcare
-  - ../agents/dashboard/widgets/patient-status
-  - ../agents/dashboard/widgets/clinical-alerts
+  - ../core/ai/runtime/dashboard/themes/healthcare
+  - ../core/ai/runtime/dashboard/widgets/patient-status
+  - ../core/ai/runtime/dashboard/widgets/clinical-alerts
   
   # Healthcare infrastructure
-  - ../control-plane/monitoring/healthcare-focused
-  - ../control-plane/security/hipaa-compliant
-  - ../control-plane/backup/encrypted
-  - ../control-plane/audit/comprehensive
+  - ../core/operators/monitoring/healthcare-focused
+  - ../core/operators/security/hipaa-compliant
+  - ../core/operators/backup/encrypted
+  - ../core/operators/audit/comprehensive
 
 # Healthcare compliance configuration
 configMapGenerator:
@@ -907,7 +907,7 @@ commonLabels:
 SOC2-compliant financial services:
 
 ```yaml
-# overlays/composed/financial-suite/kustomization.yaml
+# core/deployment/overlays/composed/financial-suite/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -919,21 +919,21 @@ resources:
   - ../../../../agents
   
   # Financial services skills
-  - ../.agents/trading-analytics/real-time
-  - ../.agents/risk-assessment/ai-powered
-  - ../.agents/fraud-detection/ml-enhanced
-  - ../.agents/compliance-monitoring/automated
+  - ../core/ai/skills/trading-analytics/real-time
+  - ../core/ai/skills/risk-assessment/ai-powered
+  - ../core/ai/skills/fraud-detection/ml-enhanced
+  - ../core/ai/skills/compliance-monitoring/automated
   
   # Financial dashboard
-  - ../agents/dashboard/themes/financial
-  - ../agents/dashboard/widgets/trading-dashboard
-  - ../agents/dashboard/widgets/risk-metrics
+  - ../core/ai/runtime/dashboard/themes/financial
+  - ../core/ai/runtime/dashboard/widgets/trading-dashboard
+  - ../core/ai/runtime/dashboard/widgets/risk-metrics
   
   # Financial infrastructure
-  - ../control-plane/monitoring/financial-focused
-  - ../control-plane/security/soc2-compliant
-  - ../control-plane/backup/tamper-proof
-  - ../control-plane/audit/transaction-logging
+  - ../core/operators/monitoring/financial-focused
+  - ../core/operators/security/soc2-compliant
+  - ../core/operators/backup/tamper-proof
+  - ../core/operators/audit/transaction-logging
 
 # Financial compliance configuration
 configMapGenerator:
@@ -989,7 +989,7 @@ commonLabels:
 Environment-specific overlay selection:
 
 ```yaml
-# overlays/composed/conditional/kustomization.yaml
+# core/deployment/overlays/composed/conditional/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -1019,7 +1019,7 @@ configMapGenerator:
 ```
 
 ```yaml
-# overlays/composed/conditional/environments/production/kustomization.yaml
+# core/deployment/overlays/composed/conditional/environments/production/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -1027,10 +1027,10 @@ metadata:
   namespace: production
 resources:
   # Production-specific components
-  - ../.agents/debug/enhanced
-  - ../agents/dashboard/themes/enterprise
-  - ../control-plane/monitoring/enhanced
-  - ../control-plane/security/policies
+  - ../core/ai/skills/debug/enhanced
+  - ../core/ai/runtime/dashboard/themes/enterprise
+  - ../core/operators/monitoring/enhanced
+  - ../core/operators/security/policies
 
 # Production configuration
 configMapGenerator:
@@ -1050,14 +1050,14 @@ configMapGenerator:
 Runtime configuration updates:
 
 ```yaml
-# overlays/.agents/dynamic-config/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/dynamic-config/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: dynamic-config
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/dynamic-config-patches.yaml
 
@@ -1105,7 +1105,7 @@ resources:
 Complete e-commerce infrastructure:
 
 ```yaml
-# overlays/composed/ecommerce-platform/kustomization.yaml
+# core/deployment/overlays/composed/ecommerce-platform/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -1117,21 +1117,21 @@ resources:
   - ../../../../agents
   
   # E-commerce skills
-  - ../.agents/inventory-management/enhanced
-  - ../.agents/order-processing/multi-region
-  - ../.agents/payment-processing/secure
-  - ../.agents/customer-analytics/ml-enhanced
+  - ../core/ai/skills/inventory-management/enhanced
+  - ../core/ai/skills/order-processing/multi-region
+  - ../core/ai/skills/payment-processing/secure
+  - ../core/ai/skills/customer-analytics/ml-enhanced
   
   # E-commerce dashboard
-  - ../agents/dashboard/themes/ecommerce
-  - ../agents/dashboard/widgets/sales-analytics
-  - ../agents/dashboard/widgets/inventory-status
-  - ../agents/dashboard/widgets/order-tracking
+  - ../core/ai/runtime/dashboard/themes/ecommerce
+  - ../core/ai/runtime/dashboard/widgets/sales-analytics
+  - ../core/ai/runtime/dashboard/widgets/inventory-status
+  - ../core/ai/runtime/dashboard/widgets/order-tracking
   
   # E-commerce infrastructure
-  - ../control-plane/monitoring/ecommerce-focused
-  - ../control-plane/security/pci-compliant
-  - ../control-plane/backup/geo-redundant
+  - ../core/operators/monitoring/ecommerce-focused
+  - ../core/operators/security/pci-compliant
+  - ../core/operators/backup/geo-redundant
 
 # E-commerce configuration
 configMapGenerator:
@@ -1154,7 +1154,7 @@ configMapGenerator:
 Edge computing for IoT devices:
 
 ```yaml
-# overlays/composed/iot-edge/kustomization.yaml
+# core/deployment/overlays/composed/iot-edge/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -1166,21 +1166,21 @@ resources:
   - ../../../../agents
   
   # IoT edge skills
-  - ../.agents/device-management/edge-optimized
-  - ../.agents/data-processing/streaming
-  - ../.agents/anomaly-detection/real-time
-  - ../.agents/edge-ai/inference
+  - ../core/ai/skills/device-management/edge-optimized
+  - ../core/ai/skills/data-processing/streaming
+  - ../core/ai/skills/anomaly-detection/real-time
+  - ../core/ai/skills/edge-ai/inference
   
   # IoT edge dashboard
-  - ../agents/dashboard/themes/iot
-  - ../agents/dashboard/widgets/device-status
-  - ../agents/dashboard/widgets/data-streams
-  - ../agents/dashboard/widgets/anomaly-alerts
+  - ../core/ai/runtime/dashboard/themes/iot
+  - ../core/ai/runtime/dashboard/widgets/device-status
+  - ../core/ai/runtime/dashboard/widgets/data-streams
+  - ../core/ai/runtime/dashboard/widgets/anomaly-alerts
   
   # IoT edge infrastructure
-  - ../control-plane/monitoring/edge-focused
-  - ../control-plane/networking/edge-optimized
-  - ../control-plane/storage/edge-caching
+  - ../core/operators/monitoring/edge-focused
+  - ../core/operators/networking/edge-optimized
+  - ../core/operators/storage/edge-caching
 
 # IoT edge configuration
 configMapGenerator:
@@ -1205,14 +1205,14 @@ configMapGenerator:
 Optimize resource usage and costs:
 
 ```yaml
-# overlays/.agents/resource-optimizer/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/resource-optimizer/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: resource-optimizer
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/resource-optimization.yaml
   - patches/cost-optimization.yaml
@@ -1261,14 +1261,14 @@ resources:
 Implement caching strategies:
 
 ```yaml
-# overlays/.agents/performance-cache/kustomization.yaml
+# core/deployment/overlays/core/ai/skills/performance-cache/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: performance-cache
   namespace: flux-system
 resources:
-  - ../../../../.agents/debug
+  - ../../../../core/ai/skills/debug
 patchesStrategicMerge:
   - patches/caching-patches.yaml
   - patches/performance-tuning.yaml
@@ -1297,7 +1297,7 @@ resources:
 Implement zero trust security model:
 
 ```yaml
-# overlays/control-plane/zero-trust/kustomization.yaml
+# core/deployment/overlays/core/operators/zero-trust/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -1333,7 +1333,7 @@ resources:
 Automated compliance checking and reporting:
 
 ```yaml
-# overlays/control-plane/compliance-automation/kustomization.yaml
+# core/deployment/overlays/core/operators/compliance-core/automation/ci-cd/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:

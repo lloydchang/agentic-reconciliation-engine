@@ -4,15 +4,15 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'overlays/**'
-      - 'scripts/validate-overlays.py'
-      - 'scripts/test-overlays.py'
+      - 'core/deployment/overlays/**'
+      - 'core/core/automation/ci-cd/scripts/validate-overlays.py'
+      - 'core/core/automation/ci-cd/scripts/test-overlays.py'
   pull_request:
     branches: [ main ]
     paths:
-      - 'overlays/**'
-      - 'scripts/validate-overlays.py'
-           - 'scripts/test-overlays.py'
+      - 'core/deployment/overlays/**'
+      - 'core/core/automation/ci-cd/scripts/validate-overlays.py'
+           - 'core/core/automation/ci-cd/scripts/test-overlays.py'
   workflow_dispatch:
     inputs:
       overlay_path:
@@ -56,13 +56,13 @@ jobs:
       if: github.event.inputs.overlay_path == ''
       run: |
         echo "Validating all overlays..."
-        python scripts/validate-overlays.py overlays/ --verbose
+        python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --verbose
         
     - name: Validate specific overlay
       if: github.event.inputs.overlay_path != ''
       run: |
         echo "Validating overlay: ${{ github.event.inputs.overlay_path }}"
-        python scripts/validate-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
+        python core/core/automation/ci-cd/scripts/validate-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
         
     - name: Upload validation results
       if: always()
@@ -104,13 +104,13 @@ jobs:
       if: github.event.inputs.overlay_path == ''
       run: |
         echo "Testing all overlays..."
-        python scripts/test-overlays.py overlays/ --verbose
+        python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/ --verbose
         
     - name: Test specific overlay
       if: github.event.inputs.overlay_path != ''
       run: |
         echo "Testing overlay: ${{ github.event.inputs.overlay_path }}"
-        python scripts/test-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
+        python core/core/automation/ci-cd/scripts/test-overlays.py "${{ github.event.inputs.overlay_path }}" --verbose
         
     - name: Upload test results
       if: always()
@@ -140,7 +140,7 @@ jobs:
     - name: Find overlays in category
       id: find-overlays
       run: |
-        overlays=$(find overlays/ -name "kustomization.yaml" -path "*/${{ matrix.category }}/*" | head -10)
+        overlays=$(find core/deployment/overlays/ -name "kustomization.yaml" -path "*/${{ matrix.category }}/*" | head -10)
         echo "overlays=$overlays" >> $GITHUB_OUTPUT
         echo "Found overlays:"
         echo "$overlays"
@@ -181,7 +181,7 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         scan-type: 'fs'
-        scan-ref: 'overlays/'
+        scan-ref: 'core/deployment/overlays/'
         format: 'sarif'
         output: 'trivy-results.sarif'
         
@@ -215,7 +215,7 @@ jobs:
         
     - name: Update overlay catalog
       run: |
-        python scripts/overlay-registry.py update-catalog
+        python core/core/automation/ci-cd/scripts/overlay-registry.py update-catalog
         
     - name: Check for changes
       id: verify-changed-files
@@ -231,8 +231,8 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add overlays/registry/catalog.yaml
-        git add overlays/registry/index.json
+        git add core/deployment/overlays/registry/catalog.yaml
+        git add core/deployment/overlays/registry/index.json
         git commit -m "Auto-update overlay catalog [skip ci]"
         git push
 
@@ -266,7 +266,7 @@ jobs:
       run: |
         # Test a sample overlay deployment
         kubectl create namespace test-overlays
-        kustomize build overlays/.agents/debug/enhanced | kubectl apply --dry-run=client -n test-overlays -f -
+        kustomize build core/deployment/overlays/core/ai/skills/debug/enhanced | kubectl apply --dry-run=client -n test-overlays -f -
         kubectl delete namespace test-overlays
 
   notify-results:

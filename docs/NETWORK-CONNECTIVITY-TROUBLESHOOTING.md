@@ -70,7 +70,7 @@ nodes:
     protocol: TCP
 ```
 
-**Execution Script:** `scripts/recreate-clusters-with-fix.sh`
+**Execution Script:** `core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh`
 ```bash
 #!/bin/bash
 # Recreate Kind clusters with network fixes
@@ -109,7 +109,7 @@ echo "✅ Clusters recreated successfully!"
 
 ### Option C: Helm Timeout Fixes
 
-**Execution Script:** `scripts/fix-helm-timeouts.sh`
+**Execution Script:** `core/core/automation/ci-cd/scripts/fix-helm-timeouts.sh`
 ```bash
 #!/bin/bash
 # Fix Helm timeout issues
@@ -148,7 +148,7 @@ helm install temporal temporal/temporal --namespace ai-infrastructure --create-n
 
 ### Option D: kubectl Version Check and Fix
 
-**Execution Script:** `scripts/fix-kubectl-version.sh`
+**Execution Script:** `core/core/automation/ci-cd/scripts/fix-kubectl-version.sh`
 ```bash
 #!/bin/bash
 # Fix kubectl version skew issues
@@ -191,7 +191,7 @@ echo "✅ kubectl version check completed"
 
 ### Crossplane Installation Diagnostics
 
-The `scripts/install-crossplane.sh` has been enhanced with comprehensive error handling:
+The `core/core/automation/ci-cd/scripts/install-crossplane.sh` has been enhanced with comprehensive error handling:
 
 **Diagnostic Function:** `diagnose_installation_failure()`
 - Analyzes exit codes and provides specific guidance
@@ -308,20 +308,20 @@ kubectl auth can-i create deployment --namespace=$NAMESPACE
 
 2. **Option B: Recreate Clusters**
    ```bash
-   chmod +x scripts/recreate-clusters-with-fix.sh
-   ./scripts/recreate-clusters-with-fix.sh
+   chmod +x core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh
+   ./core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh
    ```
 
 3. **Option C: Fix Helm Timeouts**
    ```bash
-   chmod +x scripts/fix-helm-timeouts.sh
-   ./scripts/fix-helm-timeouts.sh
+   chmod +x core/core/automation/ci-cd/scripts/fix-helm-timeouts.sh
+   ./core/core/automation/ci-cd/scripts/fix-helm-timeouts.sh
    ```
 
 4. **Option D: Fix kubectl Version**
    ```bash
-   chmod +x scripts/fix-kubectl-version.sh
-   ./scripts/fix-kubectl-version.sh
+   chmod +x core/core/automation/ci-cd/scripts/fix-kubectl-version.sh
+   ./core/core/automation/ci-cd/scripts/fix-kubectl-version.sh
    ```
 
 5. **Option E: Final Test**
@@ -331,7 +331,7 @@ kubectl auth can-i create deployment --namespace=$NAMESPACE
    kubectl get pods -A --context=hub
 
    # Run quickstart
-   bash ./scripts/overlay-quickstart-current.sh
+   bash ./core/core/automation/ci-cd/scripts/overlay-quickstart-current.sh
    ```
 
 ## Alternative Solutions
@@ -350,7 +350,7 @@ docker system prune -f
 
 ### Option C: Use Pre-built Images
 ```bash
-kubectl apply -f infrastructure/ai-inference/shared/
+kubectl apply -f core/resources/ai-inference/shared/
 ```
 
 ## Success Criteria
@@ -367,10 +367,10 @@ kubectl apply -f infrastructure/ai-inference/shared/
 ## Files Created/Modified
 
 1. **`kind-config.yaml`** - Custom Kind cluster network configuration
-2. **`scripts/recreate-clusters-with-fix.sh`** - Cluster recreation script
-3. **`scripts/fix-helm-timeouts.sh`** - Helm timeout fixes
-4. **`scripts/fix-kubectl-version.sh`** - kubectl version fixes
-5. **`scripts/install-crossplane.sh`** - Enhanced with diagnostic functions
+2. **`core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh`** - Cluster recreation script
+3. **`core/core/automation/ci-cd/scripts/fix-helm-timeouts.sh`** - Helm timeout fixes
+4. **`core/core/automation/ci-cd/scripts/fix-kubectl-version.sh`** - kubectl version fixes
+5. **`core/core/automation/ci-cd/scripts/install-crossplane.sh`** - Enhanced with diagnostic functions
 
 ## References
 
