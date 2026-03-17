@@ -20,12 +20,9 @@ type QwenClient struct {
 
 // QwenRequest represents a request to Qwen API
 type QwenRequest struct {
-	Prompt     string                 `json:"prompt"`
-	NPredict   int                    `json:"n_predict"`
-	Temperature float64               `json:"temperature"`
-	TopP       float64               `json:"top_p"`
-	Stop       []string               `json:"stop"`
-	Stream     bool                   `json:"stream"`
+	Message string `json:"message"`
+	MaxTokens *int `json:"max_tokens,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
 }
 
 // QwenResponse represents a response from Qwen API
@@ -57,12 +54,9 @@ func (q *QwenClient) Generate(ctx context.Context, prompt string, context []Docu
 	
 	// Prepare request payload
 	payload := QwenRequest{
-		Prompt:     ragPrompt,
-		NPredict:   2048,
-		Temperature: 0.1,
-		TopP:       0.9,
-		Stop:       []string{"</s>", "User:", "Question:", "Human:"},
-		Stream:     false,
+		Message: ragPrompt,
+		MaxTokens: &[]int{2048},
+		Temperature: &[]float64{0.1},
 	}
 	
 	// Convert to JSON
@@ -98,13 +92,33 @@ func (q *QwenClient) Generate(ctx context.Context, prompt string, context []Docu
 	}
 	
 	// Parse response
-	var qwenResp QwenResponse
-	if err := json.Unmarshal(body, &qwenResp); err != nil {
+	var apiResponse struct {
+		Success bool   `json:"success"`
+		Data    *struct {
+			Message string `json:"message"`
+			Usage  *struct {
+				PromptTokens int `json:"prompt_tokens"`
+				CompletionTokens int `json:"completion_tokens"`
+				TotalTokens int `json:"total_tokens"`
+			} `json:"usage"`
+		} `json:"data"`
+		Error    string `json:"error"`
+	}
+	
+	if err := json.Unmarshal(body, &apiResponse); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 	
+	if !apiResponse.Success {
+		return nil, fmt.Errorf("API error: %s", apiResponse.Error)
+	}
+	
+	if apiResponse.Data == nil {
+		return nil, fmt.Errorf("no data in response")
+	}
+	
 	return &LLMResponse{
-		Content: qwenResp.Content,
+		Content: apiResponse.Data.Message,
 		Model:   q.model,
 	}, nil
 }
