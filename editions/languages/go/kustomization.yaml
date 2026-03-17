@@ -21,14 +21,14 @@ resources:
     dependsOn:
       - go-controllers
   # Go service mesh
-  - name: go-service-mesh/
+  - name: go-manage-service-mesh/
     dependsOn:
       - go-controllers
   # Go monitoring
   - name: go-monitoring/
     dependsOn:
       - go-controllers
-      - go-service-mesh
+      - go-manage-service-mesh
 # Go ecosystem configuration
 configurations:
 - name: go-config
@@ -52,7 +52,7 @@ commonLabels:
   runtime: go1.21
   build-tool: go-mod
   framework: kubernetes-operator
-  service-mesh: istio
+  manage-service-mesh: istio
 # Go resource patches
 patchesStrategicMerge:
 - go-resources/go-runtime.yaml

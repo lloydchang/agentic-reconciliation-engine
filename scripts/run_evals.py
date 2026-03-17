@@ -222,17 +222,17 @@ EVAL_CASES: list[EvalCase] = [
              "Tenant offboard"),
 
     # Compliance
-    EvalCase("compliance-security-scanner",
+    EvalCase("generate-security-report",
              "run a CVE scan on all images in prod",
              True, ["critical_findings", "status"],
              "Vulnerability scan"),
-    EvalCase("compliance-security-scanner",
+    EvalCase("generate-security-report",
              "generate a SOC2 compliance report",
              True, ["status"],
              "Compliance report trigger"),
 
     # SLA
-    EvalCase("sla-monitoring-alerting",
+    EvalCase("monitor-sla-alerting",
              "what is our current error budget for the enterprise tier?",
              True, ["tier", "budget_remaining_pct", "status"],
              "Error budget query"),
@@ -290,11 +290,11 @@ EVAL_CASES: list[EvalCase] = [
              "Image promotion"),
 
     # Service mesh
-    EvalCase("service-mesh",
+    EvalCase("manage-service-mesh",
              "enable strict mTLS for the tenant-42 namespace",
              True, ["mtls_mode", "status"],
              "mTLS enforcement"),
-    EvalCase("service-mesh",
+    EvalCase("manage-service-mesh",
              "set up a 10% canary split for payments-api v2",
              True, ["canary_weight", "status"],
              "Canary configuration"),
@@ -310,11 +310,11 @@ EVAL_CASES: list[EvalCase] = [
              "Image promotion"),
 
     # Developer self-service
-    EvalCase("developer-self-service",
+    EvalCase("enable-self-service",
              "onboard the checkout engineering team to the platform",
              True, ["team", "status"],
              "Team onboarding"),
-    EvalCase("developer-self-service",
+    EvalCase("enable-self-service",
              "create a Backstage template for a new Python microservice",
              True, ["template", "status"],
              "Template creation"),

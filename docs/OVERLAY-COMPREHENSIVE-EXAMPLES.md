@@ -104,11 +104,11 @@ spec:
 Security-focused debugging and analysis:
 
 ```yaml
-# overlays/.agents/security-analysis/kustomization.yaml
+# overlays/.agents/analyze-security/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: security-analysis
+  name: analyze-security
   namespace: flux-system
 resources:
   - ../../../../.agents/debug
@@ -117,7 +117,7 @@ patchesStrategicMerge:
   - patches/compliance-patches.yaml
 
 configMapGenerator:
-  - name: security-analysis-config
+  - name: analyze-security-config
     files:
       - config/security-policies.yaml
       - config/compliance-frameworks.yaml

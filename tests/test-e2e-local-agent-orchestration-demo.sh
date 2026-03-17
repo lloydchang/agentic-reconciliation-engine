@@ -677,12 +677,12 @@ data:
         - capacity-planning
         - policy-as-code
         - infrastructure-provisioning
-        - kubernetes-cluster-manager
-        - secrets-certificate-manager
+        - manage-kubernetes-cluster
+        - manage-certificates
         - observability-stack
         - tenant-lifecycle-manager
         - deployment-validation
-        - sla-monitoring-alerting
+        - monitor-sla-alerting
         - stakeholder-comms-drafter
       human-gates:
         - step: 1  # capacity approval
@@ -697,7 +697,7 @@ data:
         - stakeholder-comms-drafter
         - deployment-validation
         - incident-triage-runbook
-        - sla-monitoring-alerting
+        - monitor-sla-alerting
         - stakeholder-comms-drafter
         - runbook-documentation-gen
       escalation: pagerduty-p1
@@ -910,9 +910,9 @@ demo_demonstration() {
         sleep 2
         print_demo "Step 3/10: infrastructure-provisioning - Provisioning infrastructure..."
         sleep 2
-        print_demo "Step 4/10: kubernetes-cluster-manager - Configuring cluster..."
+        print_demo "Step 4/10: manage-kubernetes-cluster - Configuring cluster..."
         sleep 2
-        print_demo "Step 5/10: secrets-certificate-manager - Setting up secrets..."
+        print_demo "Step 5/10: manage-certificates - Setting up secrets..."
         sleep 2
         print_demo "✅ WORKFLOW-01 simulation completed successfully"
         echo ""
@@ -1201,7 +1201,7 @@ generate_demo_report() {
             echo "   • /orchestrator - Complex workflow coordination"
             echo "   • /ai-agent-orchestration - Multi-agent management"
             echo "   • /compliance-check - Automated compliance validation"
-            echo "   • /security-analysis - Vulnerability scanning"
+            echo "   • /analyze-security - Vulnerability scanning"
             echo "   • /cost-optimization - Resource optimization"
             echo ""
         fi

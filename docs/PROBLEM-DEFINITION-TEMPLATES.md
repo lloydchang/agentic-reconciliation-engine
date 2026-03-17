@@ -206,7 +206,7 @@ phase2_parallel: # Weeks 5-12
   - rollback-planning
 
 phase3_migration: # Weeks 13-20
-  - gradual-workload-migration
+  - gradual-migrate-workload
   - validation-testing
   - performance-monitoring
   - team-training

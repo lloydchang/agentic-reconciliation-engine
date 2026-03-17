@@ -128,6 +128,40 @@ This naming convention was adopted to standardize the 72+ existing skills. All s
 
 The rationale is that agents are action-oriented entities - they perform operations. Naming them by their primary verb makes their capabilities immediately apparent and improves discoverability.
 
+## Naming Exceptions and Rationale
+
+While the `[verb]-[qualifier]` pattern is the standard, all agents now follow this pattern consistently. Previously, some agents had noun-first naming but have been renamed to comply with the standard:
+
+### Recent Renaming Updates
+
+The following agents were renamed to follow the `[verb]-[qualifier]` pattern:
+
+1. **`backstage-catalog`** → **`analyze-backstage-catalog`**
+   - **Rationale**: Changed from product-name-first to verb-first for consistency
+   - **Note**: "Backstage" remains as a proper noun referring to the Spotify platform
+
+2. **`compliance-reporter`** → **`generate-compliance-report`**
+   - **Rationale**: Changed from domain-function to verb-function for clarity
+   - **Benefit**: More clearly indicates the action of generating reports
+
+3. **`compliance-security-scanner`** → **`generate-security-report`**
+   - **Rationale**: Simplified to focus on the primary action of generating security reports
+   - **Benefit**: Removes ambiguity about scanning vs reporting focus
+
+4. **`k8s-troubleshoot`** → **`troubleshoot-kubernetes`**
+   - **Rationale**: Changed from abbreviation-first to verb-first for consistency
+   - **Benefit**: More descriptive and follows the standard pattern
+
+### Current Exception Criteria
+
+Exceptions to the `[verb]-[qualifier]` pattern are now minimal and only allowed when:
+- The name refers to a specific product, platform, or well-known technology (proper nouns)
+- The agent name matches industry-standard terminology
+- Alternative verb-first naming would create significant ambiguity or redundancy
+- The name provides better discoverability for users familiar with the domain
+
+All agents in the repository now consistently follow the `[verb]-[qualifier]` naming pattern.
+
 ## Related Documentation
 
 - [AGENTS.md](AGENTS.md) - Agent architecture and operation rules

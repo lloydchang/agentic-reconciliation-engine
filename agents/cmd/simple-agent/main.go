@@ -65,10 +65,10 @@ func (agent *SimpleAIAgent) LoadSkills(skillsDir string) error {
 	// Load skills from directory (simplified for demo)
 	skills := []string{
 		"infrastructure-provisioning",
-		"compliance-security-scanner", 
+		"generate-security-report", 
 		"cicd-pipeline-monitor",
 		"incident-triage-runbook",
-		"kubernetes-cluster-manager",
+		"manage-kubernetes-cluster",
 		"cost-optimisation",
 		"orchestrator",
 	}
@@ -146,11 +146,11 @@ func (agent *SimpleAIAgent) addTriggerKeywords() {
 		"outage":              {"incident-triage-runbook"},
 		"tenant":              {"tenant-lifecycle-manager"},
 		"onboard":             {"tenant-lifecycle-manager"},
-		"scan":                {"compliance-security-scanner"},
-		"compliance":          {"compliance-security-scanner"},
-		"security":            {"compliance-security-scanner"},
-		"kubernetes":          {"kubernetes-cluster-manager"},
-		"cluster":             {"kubernetes-cluster-manager"},
+		"scan":                {"generate-security-report"},
+		"compliance":          {"generate-security-report"},
+		"security":            {"generate-security-report"},
+		"kubernetes":          {"manage-kubernetes-cluster"},
+		"cluster":             {"manage-kubernetes-cluster"},
 		"cost":                {"cost-optimisation"},
 		"optimization":        {"cost-optimisation"},
 		"orchestrator":         {"orchestrator"},
@@ -290,7 +290,7 @@ func (agent *SimpleAIAgent) executeSkill(skill *SimpleSkill, request string) map
 			},
 			"next_action": "apply",
 		}
-	case "compliance-security-scanner":
+	case "generate-security-report":
 		return map[string]interface{}{
 			"scan_id":         fmt.Sprintf("SCAN-%d", time.Now().Unix()),
 			"critical_findings": 1,
@@ -322,7 +322,7 @@ func (agent *SimpleAIAgent) executeSkill(skill *SimpleSkill, request string) map
 			"workflow_id":     fmt.Sprintf("WF-%d", time.Now().Unix()),
 			"workflow_type":  "composite",
 			"status":         "success",
-			"skills_executed": []string{"compliance-security-scanner", "cost-optimisation"},
+			"skills_executed": []string{"generate-security-report", "cost-optimisation"},
 			"overall_status": "completed",
 		}
 	default:

@@ -307,7 +307,7 @@ fi
 # Test Azure CLI skills
 if az account show &>/dev/null; then
   RESOURCE_GROUPS=$(az group list --query "length(@)" -o tsv 2>/dev/null || echo "?")
-  pass "infrastructure-provisioning/kubernetes-cluster-manager: Azure CLI functional (${RESOURCE_GROUPS} RGs visible)"
+  pass "infrastructure-provisioning/manage-kubernetes-cluster: Azure CLI functional (${RESOURCE_GROUPS} RGs visible)"
 fi
 
 echo ""

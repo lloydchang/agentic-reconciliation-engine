@@ -28,7 +28,7 @@ spec:
       config:
         targetResource: "${targetResource}"
         emulateMode: true
-    - name: security-analysis
+    - name: analyze-security
       type: agent
       config:
         agentType: "security"
@@ -87,7 +87,7 @@ spec:
       description: Geographic region to focus on
       default: "global"
   steps:
-    - name: primary-security-analysis
+    - name: primary-analyze-security
       type: agent
       config:
         agentType: "security"

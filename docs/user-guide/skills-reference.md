@@ -43,7 +43,7 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
 | **infrastructure-provisioning** | "run terraform plan/apply", "provision infra", "check for drift" | `apply` in prod | 90% |
-| **kubernetes-cluster-manager** | "provision/upgrade/scale the cluster", "AKS node pool", "AKS automatic", "AKS managed system node pool", "EKS managed node group", "EKS AWS fargate", "EKS karpenter", "EKS auto mode", "EKS self-managed nodes", "EKS AWS outposts", "GKE node pool", "GKE Autopilot", "K8s version upgrade" | Any prod cluster change | 80% |
+| **manage-kubernetes-cluster** | "provision/upgrade/scale the cluster", "AKS node pool", "AKS automatic", "AKS managed system node pool", "EKS managed node group", "EKS AWS fargate", "EKS karpenter", "EKS auto mode", "EKS self-managed nodes", "EKS AWS outposts", "GKE node pool", "GKE Autopilot", "K8s version upgrade" | Any prod cluster change | 80% |
 | **multi-cloud-networking** | "create VNet/VPC", "private endpoint", "NSG", "Network Security Group", "Azure NSG", "Azure Network Security Group", "ASG", "Azure ASG", "Azure Application Security Group", "SG", "Security Group", "AWS SG", "AWS Security Group", "AWS NACLs", "AWS NACL", "AWS Network Access Control Lists", "GCP VPC Firewall Rules", "GCP Network Tags", "diagnose connectivity", "DNS zone" | Hub firewall changes | 80% |
 | **container-registry** | "scan this image", "promote to prod registry", "purge old images", "ACR setup", "ECR setup", "GCR setup" | Prod registry push | 85% |
 
@@ -57,7 +57,7 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | **deployment-strategy** | "model strategy", "validate release", "escalate rollback" | Human gate for prod strategies | 75% |
 | **release-manager** | "plan release", "gate approval", "wrap up" | Human gate for major launches | 75% |
 | **gitops-workflow** | "ArgoCD out of sync", "Flux out of sync", "Flux bootstrap", "promote to prod", "ApplicationSet", "drift" | Prod promotion | 85% |
-| **service-mesh** | "enable mTLS", "canary split", "A/B testing", "traffic mirroring", "traffic shadowing", "circuit breaker", "retry policy", "service dependency map" | Strict mTLS in prod | 80% |
+| **manage-service-mesh** | "enable mTLS", "canary split", "A/B testing", "traffic mirroring", "traffic shadowing", "circuit breaker", "retry policy", "service dependency map" | Strict mTLS in prod | 80% |
 | **deployment-reliability-analysis** | "deployment failure analysis", "pipeline reliability issues", "CI/CD troubleshooting", "deployment success rate analysis", "failure pattern detection" | No | 80% |
 
 ### Operations & Reliability
@@ -70,12 +70,12 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | **incident-history** | "record incident", "trend analysis", "lessons learned" | Human gate for exec reviews | 75% |
 | **incident-predictor** | "forecast incidents", "trend analysis", "risk escalations" | Human gate for automation triggers | 75% |
 | **incident-summary** | "draft update", "status change", "follow-up action" | Human gate for exec/customer updates | 75% |
-| **sla-monitoring-alerting** | "error budget", "SRE metrics", "Four Golden Signals", "latency", "traffic", "errors", "saturation", "Service Level Agreement", "SLA", "Service Level Objective", "SLO", "Service Level Indicator", "SLI", "SLO compliance", "SLA breach", "reliability metrics" | No (monitoring only) | 85% |
+| **monitor-sla-alerting** | "error budget", "SRE metrics", "Four Golden Signals", "latency", "traffic", "errors", "saturation", "Service Level Agreement", "SLA", "Service Level Objective", "SLO", "Service Level Indicator", "SLI", "SLO compliance", "SLA breach", "reliability metrics" | No (monitoring only) | 85% |
 | **observability-stack** | "set up monitoring", "Grafana dashboard", "Prometheus scrape", "log aggregation", "eBPF", "Pixie" | Prod alerting changes | 80% |
 | **cluster-health-check** | "control plane health", "node pressure", "maintenance planning" | Human gate for prod clusters | 75% |
-| **network-diagnostics** | "trace path", "DNS check", "firewall rule" | Human gate for prod networks | 75% |
+| **diagnose-network** | "trace path", "DNS check", "firewall rule" | Human gate for prod networks | 75% |
 | **chaos-load-testing** | "chaos experiment", "load test", "fault injection", "zone failure", "breaking point" | Any prod chaos | 75% |
-| **k8s-troubleshoot** | "pod diagnostics", "service issues", "control plane health" | Human gate for prod clusters | 75% |
+| **troubleshoot-kubernetes** | "pod diagnostics", "service issues", "control plane health" | Human gate for prod clusters | 75% |
 | **disaster-recovery** | "failover", "DR drill", "RPO/RTO", "restore failed region", "failback", "business continuity" | Any prod failover | 70% |
 
 ### Data & Security
@@ -84,8 +84,8 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 |-------|-----------------|------------|-------------|
 | **database-operations** | "restore database", "scale DB", "slow queries", "failover DB", "HA status" | PITR restore, failover | 75% |
 | **backup-validator** | "validate backups", "DR drill", "compliance evidence" | Human gate for production restores | 70% |
-| **secrets-certificate-manager** | "rotate secret", "cert expiry", "Key Vault", "Azure Key Vault", "AWS Key Management Service", "AWS KMS", "AWS Secrets Manager", "AWS Certificate Manager", "ACM", "Google Cloud Certificate Manager", "Certificate Manager", "Cloud Key Management Service", "Cloud KMS", "cert-manager", "leaked credential" | Root CA rotation | 85% |
-| **compliance-security-scanner** | "CVE scan", "checkov", "SOC2 report", "ISO standard", "CIS benchmark", "compliance posture", "az policy state list", "kubectl get events", "kube-bench" | No (scan only) | 80% |
+| **manage-certificates** | "rotate secret", "cert expiry", "Key Vault", "Azure Key Vault", "AWS Key Management Service", "AWS KMS", "AWS Secrets Manager", "AWS Certificate Manager", "ACM", "Google Cloud Certificate Manager", "Certificate Manager", "Cloud Key Management Service", "Cloud KMS", "cert-manager", "leaked credential" | Root CA rotation | 85% |
+| **generate-security-report** | "CVE scan", "checkov", "SOC2 report", "ISO standard", "CIS benchmark", "compliance posture", "az policy state list", "kubectl get events", "kube-bench" | No (scan only) | 80% |
 | **policy-as-code** | "enforce policy", "OPA/Gatekeeper", "tagging standard", "governance", "RBAC audit" | Deny-all policy changes | 85% |
 | **audit-siem** | "who accessed X?", "audit trail", "Sentinel alert", "security event", "SOC evidence" | No (read-only queries) | 75% |
 | **dependency-checker** | "scan SBOM", "CVE audit", "dependency graph" | Human gate for critical CVEs | 75% |
@@ -105,8 +105,8 @@ curl -X POST http://localhost:8081/api/skills/compliance-check/execute \
 | Skill | Trigger Phrases | Human Gate | Automatable |
 |-------|-----------------|------------|-------------|
 | **tenant-lifecycle-manager** | "onboard tenant", "offboard tenant", "scale tenant tier", "provision customer env" | Offboard/delete | 85% |
-| **developer-self-service** | "Backstage", "idp", "internal developer platform", "internal developer portal", "golden path", "onboard team", "service catalog", "self-service template" | Enterprise resource requests | 70% |
-| **workload-migration** | "migrate workload", "move to new cluster", "region migration", "cutover plan" | Prod cutover | 70% |
+| **enable-self-service** | "Backstage", "idp", "internal developer platform", "internal developer portal", "golden path", "onboard team", "service catalog", "self-service template" | Enterprise resource requests | 70% |
+| **migrate-workload** | "migrate workload", "move to new cluster", "region migration", "cutover plan" | Prod cutover | 70% |
 
 ### Governance & Change
 
