@@ -41,11 +41,11 @@ type LLMResponse struct {
 	Model   string `json:"model"`
 }
 
-// NewQwenClient creates a new Qwen client
+// NewQwenClient creates a new Qwen client using centralized service
 func NewQwenClient(baseURL, model string) *QwenClient {
 	return &QwenClient{
-		baseURL: baseURL,
-		model:   model,
+		baseURL: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080",
+		model:   "qwen2.5-7b-instruct",
 		client:  &http.Client{Timeout: 60 * time.Second},
 	}
 }
@@ -72,12 +72,13 @@ func (q *QwenClient) Generate(ctx context.Context, prompt string, context []Docu
 	}
 	
 	// Create HTTP request
-	req, err := http.NewRequestWithContext(ctx, "POST", q.baseURL+"/completion", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", q.baseURL+"/api/v1/chat", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", "k8sgpt-api-key")
 	
 	// Send request
 	resp, err := q.client.Do(req)
