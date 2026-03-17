@@ -49,6 +49,53 @@ run_hooks() {
     fi
 }
 
+# Deploy AI agents dashboard function
+deploy_ai_agents_dashboard() {
+    print_header "Deploying AI Agents Dashboard"
+    
+    # Check if the ecosystem deployment script exists
+    local ecosystem_script="$SCRIPT_DIR/deploy-ai-agents-ecosystem.sh"
+    
+    if [[ ! -f "$ecosystem_script" ]]; then
+        print_warning "AI agents ecosystem script not found at $ecosystem_script"
+        print_info "You can manually run: ./core/automation/scripts/deploy-ai-agents-ecosystem.sh"
+        return 0
+    fi
+    
+    # Check if cluster is accessible
+    if ! kubectl cluster-info &> /dev/null; then
+        print_warning "Kubernetes cluster not accessible - skipping dashboard deployment"
+        print_info "To deploy dashboard later: QUICKSTART_DEPLOY_DASHBOARD=true ./core/automation/scripts/quickstart.sh"
+        return 0
+    fi
+    
+    print_info "Deploying AI agents ecosystem with dashboard..."
+    
+    # Run the ecosystem deployment script
+    if bash "$ecosystem_script"; then
+        print_success "AI agents dashboard deployed successfully!"
+        echo ""
+        echo -e "${GREEN}🎉 Your AI Agents Dashboard is now running!${NC}"
+        echo -e "${YELLOW}📊 Access it at: http://localhost:8080${NC}"
+        echo -e "${BLUE}🔄 Or via ingress: http://dashboard.local${NC}"
+        echo ""
+        echo "To access the dashboard:"
+        echo "1. Port forward: kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80"
+        echo "2. Open browser: http://localhost:8080"
+        echo ""
+        echo "Dashboard features:"
+        echo "  ✅ Real-time AI agents monitoring"
+        echo "  ✅ 64 operational skills visualization"
+        echo "  ✅ Performance metrics and charts"
+        echo "  ✅ Activity feed and system controls"
+        echo "  ✅ Temporal workflow orchestration UI"
+    else
+        print_error "Failed to deploy AI agents dashboard"
+        print_info "Check the logs above for errors and try running the script manually"
+        return 1
+    fi
+}
+
 # Main quick start function
 main() {
     print_header "GitOps Infrastructure Quick Start"
@@ -145,6 +192,9 @@ EOF
     # Run post-quickstart hook (overlay extension point)
     run_hooks "post-quickstart" || return 1
     
+    # Deploy AI agents dashboard
+    deploy_ai_agents_dashboard || return 1
+    
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
     
@@ -153,14 +203,16 @@ EOF
         echo "2. Create custom overlays with overlay-cli.py"
         echo "3. Deploy overlays to your cluster"
         echo "4. Monitor overlay status and logs"
+        echo "5. Access your AI agents dashboard at http://localhost:8080"
         echo ""
-        echo -e "${GREEN}🚀 Overlay system is ready!${NC}"
+        echo -e "${GREEN}🚀 Overlay system and AI agents are ready!${NC}"
     else
         echo "1. Use overlay-quickstart.sh to create and manage overlays"
         echo "2. Read docs/OVERLAY-QUICK-START.md for detailed guidance"
         echo "3. Check overlay/examples/ directory for sample configurations"
+        echo "4. Access your AI agents dashboard at http://localhost:8080"
         echo ""
-        echo -e "${GREEN}🚀 Ready to start working with overlays!${NC}"
+        echo -e "${GREEN}🚀 Ready to start working with overlays and AI agents!${NC}"
     fi
 }
 
@@ -175,7 +227,8 @@ show_help() {
     echo ""
     echo "DESCRIPTION:"
     echo "  Sets up development environment for GitOps Infrastructure Control Plane."
-    echo "  This includes tool verification, directory setup, and basic configuration."
+    echo "  This includes tool verification, directory setup, basic configuration,"
+    echo "  and deployment of AI agents dashboard with running agents."
     echo ""
     echo "  This script supports overlay extensions through hooks:"
     echo "  - hooks/pre-quickstart.sh: Runs before main quickstart logic"
@@ -188,8 +241,8 @@ show_help() {
     echo "  For overlay lifecycle management, use: overlay-manager.sh"
     echo ""
     echo "EXAMPLES:"
-    echo "  $0                    # Standard repository setup"
-    echo "  OVERLAY_MODE=true $0   # Setup with overlay extensions"
+    echo "  $0                    # Standard repository setup with AI agents dashboard"
+    echo "  OVERLAY_MODE=true $0   # Setup with overlay extensions and AI agents dashboard"
     echo ""
     echo "  # With overlay-quickstart.sh (recommended for overlay workflows)"
     echo "  overlay-quickstart.sh --all"
