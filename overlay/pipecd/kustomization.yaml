@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: pipecd-complete
+  namespace: pipecd
+
+resources:
+  - base
+  - qwen
+  - k8sgpt
+
+commonLabels:
+  app.kubernetes.io/name: pipecd
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  gitops-infra-control-plane/managed: "true"
+  pipecd.dev/version: "v0.47.0"
+
+patchesStrategicMerge:
+  - patches/integration-config.yaml
+
+configurations:
+  - kustomizeconfig.yaml
+
+vars:
+  - name: PIPECD_NAMESPACE
+    objref:
+      kind: Namespace
+      name: pipecd
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.name
+  - name: QWEN_NAMESPACE
+    objref:
+      kind: Namespace
+      name: qwen-ai
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.name

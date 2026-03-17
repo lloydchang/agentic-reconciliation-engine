@@ -1,0 +1,75 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-rollouts
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-rollouts
+      app.kubernetes.io/component: controller
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow Prometheus to scrape metrics
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: prometheus
+    ports:
+    - protocol: TCP
+      port: 8090
+  # Allow health checks from same namespace
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-rollouts
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow access to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow access to services in same namespace
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-rollouts
+    to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-rollouts
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8090
+  # Allow access to K8sGPT for analysis integration
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: gitops-infra
+    ports:
+    - protocol: TCP
+      port: 8080

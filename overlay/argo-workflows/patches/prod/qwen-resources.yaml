@@ -1,0 +1,79 @@
+# Production Environment Qwen Resources Patch
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: qwen-k8sgpt
+        resources:
+          requests:
+            cpu: "2000m"
+            memory: "4Gi"
+          limits:
+            cpu: "6000m"
+            memory: "12Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: QWEN_DEBUG_MODE
+          value: "false"
+        - name: QWEN_CACHE_ENABLED
+          value: "true"
+        - name: QWEN_ANALYSIS_TIMEOUT
+          value: "60"
+        - name: QWEN_MODEL_NAME
+          value: "qwen-7b-chat"
+        - name: QWEN_MAX_TOKENS
+          value: "4096"
+        - name: QWEN_TEMPERATURE
+          value: "0.7"
+        - name: QWEN_TOP_P
+          value: "0.9"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: TRACING_ENABLED
+          value: "true"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        volumeMounts:
+        - name: qwen-cache
+          mountPath: /tmp/k8sgpt-cache
+        - name: qwen-config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: qwen-cache
+        emptyDir:
+          sizeLimit: 8Gi
+      - name: qwen-config
+        configMap:
+          name: qwen-k8sgpt-config
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - qwen-k8sgpt
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        kubernetes.io/os: linux
+        kubernetes.io/arch: amd64
+      tolerations:
+      - key: "workflows.argoproj.io"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        effect: "NoSchedule"

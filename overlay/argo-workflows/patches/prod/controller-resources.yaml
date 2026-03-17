@@ -1,0 +1,114 @@
+# Production Environment Patches for Argo Workflows
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: workflow-controller
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: QWEN_ANALYSIS_ENABLED
+          value: "true"
+        - name: QWEN_DEBUG_MODE
+          value: "false"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: TELEMETRY_ENABLED
+          value: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-server
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: argo-server
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: BASE_HREF
+          value: "/"
+        - name: AUTH_MODE
+          value: "server"
+        - name: SECURE_COOKIES
+          value: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: qwen-k8sgpt
+        resources:
+          requests:
+            cpu: "2000m"
+            memory: "4Gi"
+          limits:
+            cpu: "6000m"
+            memory: "12Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: QWEN_DEBUG_MODE
+          value: "false"
+        - name: QWEN_CACHE_ENABLED
+          value: "true"
+        - name: QWEN_ANALYSIS_TIMEOUT
+          value: "60"
+        - name: QWEN_MODEL_NAME
+          value: "qwen-7b-chat"
+        - name: QWEN_MAX_TOKENS
+          value: "4096"
+        - name: QWEN_TEMPERATURE
+          value: "0.7"
+        - name: QWEN_TOP_P
+          value: "0.9"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: TRACING_ENABLED
+          value: "true"
+        volumeMounts:
+        - name: qwen-cache
+          mountPath: /tmp/k8sgpt-cache
+        - name: qwen-config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: qwen-cache
+        emptyDir:
+          sizeLimit: 8Gi
+      - name: qwen-config
+        configMap:
+          name: qwen-k8sgpt-config

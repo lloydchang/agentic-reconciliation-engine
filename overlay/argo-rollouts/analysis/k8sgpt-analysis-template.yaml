@@ -1,0 +1,129 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: k8sgpt-health-check
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+spec:
+  args:
+  - name: namespace
+    value: ""
+  - name: rollout-name
+    value: ""
+  - name: service-name
+    value: ""
+  metrics:
+  - name: k8sgpt-health-score
+    interval: 60s
+    count: 5
+    successCondition: result[0] >= 0.8
+    failureLimit: 1
+    provider:
+      job:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: k8sgpt-analyzer
+                image: k8sgpt/k8sgpt:latest
+                command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Running K8sGPT analysis for namespace: {{args.namespace}}"
+                  k8sgpt analyze --namespace {{args.namespace}} --output json > /tmp/analysis.json
+                  echo "Calculating health score..."
+                  python3 /scripts/calculate-health-score.py /tmp/analysis.json
+                env:
+                - name: QWEN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: qwen-secret
+                      key: api-key
+                  optional: true
+                - name: QWEN_BASE_URL
+                  value: "http://qwen-server.gitops-infra.svc.cluster.local:8000"
+                - name: QWEN_MODEL
+                  value: "qwen2.5-7b-instruct"
+                volumeMounts:
+                - name: analysis-scripts
+                  mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+              volumes:
+              - name: analysis-scripts
+                configMap:
+                  name: k8sgpt-analysis-scripts
+                  defaultMode: 0755
+              - name: tmp
+                emptyDir: {}
+              restartPolicy: Never
+              serviceAccountName: argo-rollouts
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 999
+                fsGroup: 999
+  - name: k8sgpt-problem-count
+    interval: 60s
+    count: 5
+    successCondition: result[0] <= 5
+    failureLimit: 1
+    provider:
+      job:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: k8sgpt-problem-counter
+                image: k8sgpt/k8sgpt:latest
+                command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Counting problems in namespace: {{args.namespace}}"
+                  k8sgpt analyze --namespace {{args.namespace}} --output json > /tmp/analysis.json
+                  python3 -c "
+import json
+import sys
+try:
+    with open('/tmp/analysis.json', 'r') as f:
+        analysis = json.load(f)
+    problems = analysis.get('problems', [])
+    print(len(problems))
+    sys.exit(0)
+except Exception as e:
+    print(f'Error: {e}')
+    sys.exit(1)
+"
+                env:
+                - name: QWEN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: qwen-secret
+                      key: api-key
+                  optional: true
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 128Mi
+                  limits:
+                    cpu: 200m
+                    memory: 256Mi
+              restartPolicy: Never
+              serviceAccountName: argo-rollouts

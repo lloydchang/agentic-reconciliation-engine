@@ -1,0 +1,90 @@
+# Development Environment Patches for Argo Workflows
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: workflow-controller
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: LOG_FORMAT
+          value: "text"
+        - name: QWEN_ANALYSIS_ENABLED
+          value: "true"
+        - name: QWEN_DEBUG_MODE
+          value: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-server
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: argo-server
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: BASE_HREF
+          value: "/"
+        - name: AUTH_MODE
+          value: "server"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: qwen-k8sgpt
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "4000m"
+            memory: "8Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: QWEN_DEBUG_MODE
+          value: "true"
+        - name: QWEN_CACHE_ENABLED
+          value: "false"
+        - name: QWEN_ANALYSIS_TIMEOUT
+          value: "120"
+        volumeMounts:
+        - name: qwen-cache
+          mountPath: /tmp/k8sgpt-cache
+      volumes:
+      - name: qwen-cache
+        emptyDir:
+          sizeLimit: 4Gi

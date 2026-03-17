@@ -1,0 +1,152 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: argo-rollouts-alerts
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/monitoring: "true"
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+spec:
+  groups:
+  - name: argo-rollouts.rules
+    rules:
+    # Controller health alerts
+    - alert: ArgoRolloutsControllerDown
+      expr: up{job="argo-rollouts"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller is down"
+        description: "Argo Rollouts controller has been down for more than 5 minutes."
+
+    - alert: ArgoRolloutsControllerHighErrorRate
+      expr: rate(argo_rollouts_controller_errors_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller has high error rate"
+        description: "Argo Rollouts controller error rate is {{ $value }} errors per second."
+
+    - alert: ArgoRolloutsControllerHighLatency
+      expr: histogram_quantile(0.99, rate(argo_rollouts_controller_request_duration_seconds_bucket[5m])) > 1
+      for: 5m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller has high latency"
+        description: "99th percentile latency is {{ $value }} seconds."
+
+    # Rollout status alerts
+    - alert: RolloutProgressDeadlineExceeded
+      expr: argo_rollouts_rollout_phase{phase="Progressing"} > 0
+      for: 10m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} is progressing too long"
+        description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} has been progressing for more than 10 minutes."
+
+    - alert: RolloutDegraded
+      expr: argo_rollouts_rollout_phase{phase="Degraded"} > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: argo-rollouts
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} is degraded"
+        description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} is in degraded state."
+
+    - alert: RolloutPausedTooLong
+      expr: argo_rollouts_rollout_phase{phase="Paused"} > 0
+      for: 30m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} is paused too long"
+        description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} has been paused for more than 30 minutes."
+
+    # Analysis alerts
+    - alert: RolloutAnalysisFailed
+      expr: argo_rollouts_analysis_result{result="failed"} > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: argo-rollouts
+      annotations:
+        summary: "Rollout analysis failed for {{ $labels.rollout }}"
+        description: "Analysis template {{ $labels.template }} failed for rollout {{ $labels.rollout }}."
+
+    - alert: RolloutAnalysisRunningTooLong
+      expr: argo_rollouts_analysis_phase{phase="Running"} > 0
+      for: 30m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Rollout analysis running too long for {{ $labels.rollout }}"
+        description: "Analysis for rollout {{ $labels.rollout }} has been running for more than 30 minutes."
+
+    # Experiment alerts
+    - alert: ExperimentFailed
+      expr: argo_rollouts_experiment_phase{phase="Failed"} > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: argo-rollouts
+      annotations:
+        summary: "Experiment {{ $labels.experiment }} failed"
+        description: "Experiment {{ $labels.experiment }} in namespace {{ $labels.namespace }} has failed."
+
+    # Resource usage alerts
+    - alert: ArgoRolloutsHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{pod=~"argo-rollouts-.*"}[5m]) > 0.4
+      for: 5m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller high CPU usage"
+        description: "Argo Rollouts controller CPU usage is {{ $value }} cores."
+
+    - alert: ArgoRolloutsHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"argo-rollouts-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller high memory usage"
+        description: "Argo Rollouts controller memory usage is {{ $value }}% of limit."
+
+    # Queue and reconciliation alerts
+    - alert: ArgoRolloutsHighQueueDepth
+      expr: argo_rollouts_workqueue_depth > 100
+      for: 5m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller high queue depth"
+        description: "Argo Rollouts controller queue depth is {{ $value }}."
+
+    - alert: ArgoRolloutsHighReconciliationLatency
+      expr: histogram_quantile(0.99, rate(argo_rollouts_reconcile_duration_seconds_bucket[5m])) > 30
+      for: 5m
+      labels:
+        severity: warning
+        component: argo-rollouts
+      annotations:
+        summary: "Argo Rollouts controller high reconciliation latency"
+        description: "99th percentile reconciliation latency is {{ $value }} seconds."
