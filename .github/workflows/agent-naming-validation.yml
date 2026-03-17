@@ -1,0 +1,49 @@
+name: Agent Naming Validation
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.agents/**'
+
+jobs:
+  validate-agent-naming:
+    runs-on: ubuntu-latest
+    name: Validate Agent Naming Conventions
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        
+    - name: Validate agent naming
+      run: |
+        chmod +x ./scripts/ensure-agent-naming-standards.sh
+        ./scripts/ensure-agent-naming-standards.sh validate .agents
+        ./scripts/ensure-agent-naming-standards.sh validate workspace/repo/.agents
+      
+    - name: Check SKILL.md compliance
+      run: |
+        chmod +x ./scripts/ensure-agent-naming-standards.sh
+        ./scripts/ensure-agent-naming-standards.sh compliance .agents
+        ./scripts/ensure-agent-naming-standards.sh compliance workspace/repo/.agents
+      
+    - name: Report violations
+      if: failure()
+      run: |
+        echo "## 🚨 Agent Naming Violations Found"
+        echo ""
+        echo "The following agents do not follow the [verb]-[qualifier] naming convention:"
+        echo ""
+        echo "Please fix these issues before merging:"
+        echo "1. Run: \`./scripts/ensure-agent-naming-standards.sh fix\`"
+        echo "2. Commit the changes"
+        echo "3. Push the corrected branch"
+        exit 1
