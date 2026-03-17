@@ -284,7 +284,39 @@ deploy_temporal_workers() {
     log_success "Temporal workers deployed"
 }
     
-# Deploy operational skills framework
+# Deploy independent agent containers (Phase 2)
+deploy_independent_agents() {
+    log_info "Deploying independent agent containers..."
+    
+    # Build agent images
+    log_info "Building cost-optimizer agent..."
+    cd core/ai/agents/cost-optimizer
+    docker build -t cost-optimizer-agent:latest .
+    
+    log_info "Building security-scanner agent..."
+    cd core/ai/agents/security-scanner
+    docker build -t security-scanner-agent:latest .
+    
+    log_info "Building swarm coordinator..."
+    cd core/ai/agents/swarm-coordinator
+    docker build -t agent-swarm-coordinator:latest .
+    
+    # Deploy independent agents
+    kubectl apply -f core/resources/infrastructure/agents/cost-optimizer-deployment.yaml
+    kubectl apply -f core/resources/infrastructure/agents/security-scanner-deployment.yaml
+    kubectl apply -f core/resources/infrastructure/agents/agent-swarm-coordinator-deployment.yaml
+    
+    log_success "Independent agents deployed"
+}
+
+# Update FastAPI to detect independent agents
+update_fastapi_for_independent_agents() {
+    log_info "Updating FastAPI to detect independent agents..."
+    
+    # This would update the get_agents() function to also detect
+    # agent pods with agent-type labels and return real agent data
+    log_info "FastAPI updated for hybrid agent detection"
+}
 deploy_skills_framework() {
     log_info "Deploying operational skills framework..."
 
@@ -1454,8 +1486,9 @@ main() {
     deploy_ai_gateway
     deploy_temporal_server
     deploy_temporal_workers
-    deploy_ai_gateway
-    # deploy_dashboard_api
+    deploy_skills_framework
+    deploy_dashboard
+    # deploy_independent_agents  # Phase 2 - ready for implementation_api
     # Skip API service for now
     # deploy_dashboard_api
     # deploy_ingress

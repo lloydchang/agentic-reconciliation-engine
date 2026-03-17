@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-swarm-coordinator
+  namespace: ai-infrastructure
+  labels:
+    component: agent-swarm-coordinator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: agent-swarm-coordinator
+  template:
+    metadata:
+      labels:
+        component: agent-swarm-coordinator
+    spec:
+      serviceAccountName: agent-swarm-sa
+      containers:
+      - name: swarm-coordinator
+        image: agent-swarm-coordinator:latest
+        env:
+        - name: CONSENSUS_PROTOCOL
+          value: "raft"
+        - name: AGENT_REGISTRY_URL
+          value: "http://agent-registry:8080"
+        - name: COORDINATION_PORT
+          value: "8080"
+        - name: MEMORY_AGENT_URL
+          value: "http://agent-memory-rust:8080"
+        - name: LANGUAGE_PRIORITY
+          value: "rust,go,python"
+        - name: BACKEND_PRIORITY
+          value: "llama.cpp,ollama"
+        - name: OLLAMA_URL
+          value: "http://ollama-service:11434"
+        - name: MODEL
+          value: "qwen2.5:0.5b"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-swarm-coordinator-service
+  namespace: ai-infrastructure
+  labels:
+    component: agent-swarm-coordinator
+spec:
+  selector:
+    component: agent-swarm-coordinator
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-swarm-sa
+  namespace: ai-infrastructure
