@@ -1,0 +1,72 @@
+# Multi-stage build for agent-memory-rust
+FROM rust:1.75 as builder
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Cargo files
+COPY Cargo.toml Cargo.lock ./
+
+# Create dummy main.rs to cache dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release && rm -rf src
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN cargo build --release
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 agent
+
+# Set up directories
+RUN mkdir -p /data && chown agent:agent /data
+
+# Copy the binary
+COPY --from=builder /app/target/release/agent-memory /usr/local/bin/agent-memory
+
+# Copy configuration templates
+COPY config/ /etc/agent-memory/
+
+# Set permissions
+RUN chmod +x /usr/local/bin/agent-memory
+RUN chown -R agent:agent /etc/agent-memory
+
+# Switch to non-root user
+USER agent
+
+# Expose port
+EXPOSE 8080 9090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Set environment variables
+ENV DATABASE_PATH=/data/memory.db
+ENV INBOX_PATH=/data/inbox
+ENV BIND_ADDRESS=0.0.0.0
+ENV PORT=8080
+ENV METRICS_ENABLED=true
+ENV METRICS_PORT=9090
+
+# Volume for persistent data
+VOLUME ["/data"]
+
+# Run the application
+CMD ["agent-memory"]

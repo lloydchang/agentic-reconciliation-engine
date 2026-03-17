@@ -15,6 +15,58 @@ spec:
       storage: 10Gi
   volumeMode: Filesystem
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agent-memory-secrets
+  namespace: ai-infrastructure
+type: Opaque
+data:
+  # Base64 encoded JWT secret - replace with actual secret in production
+  jwt-secret: cXdlbi1qd3Qtc2VjcmV0LWZvci1hZ2VudC1tZW1vcnk=  # qwen-jwt-secret-for-agent-memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-memory-service
+  namespace: ai-infrastructure
+  labels:
+    component: agent-memory
+    language: rust
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    component: agent-memory
+    language: rust
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: agent-memory-metrics
+  namespace: ai-infrastructure
+  labels:
+    component: agent-memory
+spec:
+  selector:
+    matchLabels:
+      component: agent-memory
+  endpoints:
+  - name: metrics
+    port: metrics
+    path: /metrics
+    interval: 30s
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,6 +116,9 @@ spec:
         image: agent-memory-rust:latest  # Build from rust-agent/
         ports:
         - containerPort: 8080
+          name: http
+        - containerPort: 9090
+          name: metrics
         env:
         - name: DATABASE_PATH
           value: "/data/memory.db"
@@ -77,6 +132,25 @@ spec:
           value: "http://ollama-service:11434"
         - name: MODEL
           value: "qwen2.5:0.5b"
+        - name: BIND_ADDRESS
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8080"
+        - name: AUTH_ENABLED
+          value: "true"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent-memory-secrets
+              key: jwt-secret
+        - name: API_KEYS
+          value: "flagger-api-key,k8sgpt-api-key,flux-api-key"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: METRICS_PORT
+          value: "9090"
+        - name: MAX_CONNECTIONS
+          value: "1000"
         volumeMounts:
         - name: memory-storage
           mountPath: /data
