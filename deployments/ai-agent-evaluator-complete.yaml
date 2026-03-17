@@ -1,0 +1,268 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-agents
+  labels:
+    name: ai-agents
+    purpose: "AI agent evaluation and monitoring"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: langfuse-traces-pvc
+  namespace: ai-agents
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evaluator-config
+  namespace: ai-agents
+data:
+  evaluators.json: |
+    {
+      "skill_invocation": {
+        "enabled": true,
+        "weight": 0.2,
+        "threshold": 0.7,
+        "description": "Evaluates skill invocation patterns and timing"
+      },
+      "performance": {
+        "enabled": true,
+        "weight": 0.2,
+        "threshold": 0.8,
+        "description": "Analyzes performance metrics and latency"
+      },
+      "cost": {
+        "enabled": true,
+        "weight": 0.15,
+        "threshold": 0.85,
+        "description": "Evaluates cost efficiency and token usage"
+      },
+      "monitoring": {
+        "enabled": true,
+        "weight": 0.15,
+        "threshold": 0.75,
+        "description": "Monitors system health and infrastructure"
+      },
+      "health_check": {
+        "enabled": true,
+        "weight": 0.1,
+        "threshold": 0.8,
+        "description": "Checks agent health and readiness"
+      },
+      "security": {
+        "enabled": true,
+        "weight": 0.1,
+        "threshold": 0.9,
+        "description": "Evaluates security compliance and vulnerabilities"
+      },
+      "compliance": {
+        "enabled": true,
+        "weight": 0.1,
+        "threshold": 0.85,
+        "description": "Checks regulatory compliance (GDPR, HIPAA, etc.)"
+      }
+    }
+  quality_gates.json: |
+    {
+      "score_threshold": 0.8,
+      "pass_rate_threshold": 0.85,
+      "critical_issue_threshold": 0,
+      "high_issue_threshold": 2,
+      "enable_auto_fix": true,
+      "notification_on_failure": true
+    }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ServiceAccount
+metadata:
+  name: ai-agent-evaluator
+  namespace: ai-agents
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-agent-evaluator
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-agent-evaluator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-agent-evaluator
+subjects:
+- kind: ServiceAccount
+  name: ai-agent-evaluator
+  namespace: ai-agents
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: evaluator-secrets
+  namespace: ai-agents
+type: Opaque
+data:
+  # Base64 encoded values
+  temporal-host: bG9jYWxob3N0 # localhost
+  temporal-port: NzIzMw== # 7233
+  notification-email: ZGV2LXRlYW1AY29tcGFueS5jb20= # dev-team@company.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-evaluation-worker
+  namespace: ai-agents
+  labels:
+    app: ai-agent-evaluation
+    component: temporal-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-agent-evaluation
+      component: temporal-worker
+  template:
+    metadata:
+      labels:
+        app: ai-agent-evaluation
+        component: temporal-worker
+    spec:
+      serviceAccountName: ai-agent-evaluator
+      containers:
+      - name: temporal-worker
+        image: ai-agent-evaluator:temporal-worker
+        imagePullPolicy: IfNotPresent
+        command: ["python", "temporal_worker.py"]
+        env:
+        - name: TEMPORAL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: evaluator-secrets
+              key: temporal-host
+        - name: TEMPORAL_PORT
+          valueFrom:
+            secretKeyRef:
+              name: evaluator-secrets
+              key: temporal-port
+        - name: TASK_QUEUE
+          value: "ai-agent-evaluation"
+        - name: PYTHONPATH
+          value: "/app/agent-tracing-evaluation"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import temporalio; print('OK')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import temporalio; print('OK')"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: traces-data
+          mountPath: /data
+        - name: results-volume
+          mountPath: /results
+        - name: visualizations-volume
+          mountPath: /visualizations
+        - name: config-volume
+          mountPath: /config
+      volumes:
+      - name: traces-data
+        persistentVolumeClaim:
+          claimName: langfuse-traces-pvc
+      - name: results-volume
+        emptyDir: {}
+      - name: visualizations-volume
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: evaluator-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agent-evaluator-service
+  namespace: ai-agents
+  labels:
+    app: ai-agent-evaluation
+    component: evaluator-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: ai-agent-evaluation
+    component: evaluator-api
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-agent-evaluator-ingress
+  namespace: ai-agents
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: ai-agent-evaluator.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-agent-evaluator-service
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: ai-agent-evaluator-metrics
+  namespace: ai-agents
+  labels:
+    app: ai-agent-evaluation
+spec:
+  selector:
+    matchLabels:
+      app: ai-agent-evaluation
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

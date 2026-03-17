@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Dashboard from './components/Dashboard/Dashboard';
+import RAGChat from './components/RAGChat/RAGChat';
 import { WebSocketService } from './services/websocket';
 import ApiService from './services/api';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
+  const [activeView, setActiveView] = useState<'dashboard' | 'chat'>('dashboard');
   // const [systemStatus, setSystemStatus] = useState<any>(null);
 
   useEffect(() => {
@@ -45,6 +47,20 @@ function App() {
       <header className="App-header">
         <div className="header-content">
           <h1>🤖 Agents Control Center</h1>
+          <div className="header-nav">
+            <button 
+              className={`nav-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveView('dashboard')}
+            >
+              📊 Dashboard
+            </button>
+            <button 
+              className={`nav-btn ${activeView === 'chat' ? 'active' : ''}`}
+              onClick={() => setActiveView('chat')}
+            >
+              🎤 Voice Assistant
+            </button>
+          </div>
           <div className="status-indicator">
             <div className={`status-dot ${isConnected ? 'online' : 'offline'}`}></div>
             <span>System {isConnected ? 'Online' : 'Offline'}</span>
@@ -52,7 +68,7 @@ function App() {
         </div>
       </header>
       <main className="App-main">
-        <Dashboard />
+        {activeView === 'dashboard' ? <Dashboard /> : <RAGChat />}
       </main>
     </div>
   );
