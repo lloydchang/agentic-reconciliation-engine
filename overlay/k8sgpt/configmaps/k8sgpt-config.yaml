@@ -1,0 +1,215 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8sgpt-config
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: config
+    app.kubernetes.io/version: v1.0.0
+data:
+  config.yaml: |
+    backend: localai
+    model: qwen2.5-7b-instruct
+    baseurl: http://qwen-server:8000/v1
+    api_key: ""
+    max_tokens: 4096
+    temperature: 0.7
+    namespace: default
+    output_format: json
+    timeout: 300
+    retry_attempts: 3
+    cache_enabled: true
+    cache_ttl: 300
+    log_level: info
+    metrics_enabled: true
+    metrics_port: 8080
+    analysis_interval: 3600
+    max_analysis_files: 10
+  analysis-prompts.yaml: |
+    prompts:
+      cluster_health: |
+        Analyze the Kubernetes cluster for health issues, performance problems, and security vulnerabilities.
+        Focus on:
+        1. Pod restart patterns and crash loops
+        2. Resource utilization and constraints
+        3. Network connectivity issues
+        4. Security misconfigurations
+        5. Storage and volume problems
+        Provide specific, actionable recommendations for each issue found.
+      
+      resource_optimization: |
+        Analyze resource usage across the cluster and identify optimization opportunities.
+        Focus on:
+        1. Over-provisioned resources (CPU, memory)
+        2. Under-utilized nodes and pods
+        3. Resource requests vs actual usage
+        4. Cost optimization opportunities
+        5. Performance bottlenecks
+        Provide specific recommendations for right-sizing resources.
+      
+      security_analysis: |
+        Perform a security analysis of the Kubernetes cluster.
+        Focus on:
+        1. RBAC permissions and role bindings
+        2. Network policies and pod security standards
+        3. Secret management and exposure
+        4. Container image security
+        5. Service account configurations
+        Identify security risks and provide remediation steps.
+      
+      troubleshooting: |
+        Diagnose the following Kubernetes issues:
+        {issues_description}
+        Provide:
+        1. Root cause analysis
+        2. Step-by-step troubleshooting guide
+        3. Preventive measures
+        4. Expected resolution time
+        5. Impact assessment
+  filters.yaml: |
+    filters:
+      default:
+        - "pod/*"
+        - "deployment/*"
+        - "service/*"
+        - "configmap/*"
+        - "secret/*"
+      
+      problems:
+        - "pod/*"
+        - "deployment/*"
+        - "statefulset/*"
+        - "daemonset/*"
+      
+      resources:
+        - "deployment/*"
+        - "statefulset/*"
+        - "daemonset/*"
+        - "horizontalpodautoscaler/*"
+      
+      security:
+        - "pod/*"
+        - "serviceaccount/*"
+        - "role/*"
+        - "rolebinding/*"
+        - "networkpolicy/*"
+        - "podsecuritypolicy/*"
+      
+      networking:
+        - "service/*"
+        - "ingress/*"
+        - "networkpolicy/*"
+        - "endpoint/*"
+      
+      storage:
+        - "persistentvolume/*"
+        - "persistentvolumeclaim/*"
+        - "storageclass/*"
+  monitoring.yaml: |
+    monitoring:
+      metrics:
+        enabled: true
+        port: 8080
+        path: "/metrics"
+        interval: 30s
+      
+      alerts:
+        enabled: true
+        rules:
+          - name: k8sgpt_high_error_rate
+            condition: "error_rate > 0.1"
+            duration: "5m"
+            severity: "warning"
+          
+          - name: k8sgpt_analysis_failure
+            condition: "analysis_success_rate < 0.9"
+            duration: "10m"
+            severity: "critical"
+          
+          - name: k8sgpt_qwen_server_down
+            condition: "qwen_server_up == 0"
+            duration: "2m"
+            severity: "critical"
+      
+      dashboards:
+        - name: k8sgpt-overview
+          panels:
+            - title: "Analysis Success Rate"
+              type: "stat"
+              query: "k8sgpt_analysis_success_rate"
+            
+            - title: "Issues Found"
+              type: "graph"
+              query: "k8sgpt_issues_found_total"
+            
+            - title: "Qwen Server Status"
+              type: "stat"
+              query: "k8sgpt_qwen_server_up"
+            
+            - title: "Analysis Duration"
+              type: "graph"
+              query: "k8sgpt_analysis_duration_seconds"
+  rbac.yaml: |
+    rbac:
+      clusterRole:
+        name: k8sgpt-analyzer
+        rules:
+          - apiGroups: [""]
+            resources: ["pods", "services", "configmaps", "secrets", "events"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["apps"]
+            resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["batch"]
+            resources: ["jobs", "cronjobs"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["extensions", "networking.k8s.io"]
+            resources: ["ingresses", "networkpolicies"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["storage.k8s.io"]
+            resources: ["storageclasses", "persistentvolumes", "persistentvolumeclaims"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["rbac.authorization.k8s.io"]
+            resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["policy"]
+            resources: ["podsecuritypolicies"]
+            verbs: ["get", "list", "watch"]
+          
+          - apiGroups: ["autoscaling"]
+            resources: ["horizontalpodautoscalers"]
+            verbs: ["get", "list", "watch"]
+  logging.yaml: |
+    logging:
+      level: info
+      format: json
+      fields:
+        time: "@timestamp"
+        level: "level"
+        message: "message"
+        component: "component"
+        operation: "operation"
+        namespace: "namespace"
+        resource: "resource"
+        error: "error"
+      
+      outputs:
+        - type: console
+          enabled: true
+        
+        - type: file
+          enabled: true
+          path: "/var/log/k8sgpt/k8sgpt.log"
+          max_size: "100MB"
+          max_files: 10
+        
+        - type: elasticsearch
+          enabled: false
+          hosts: ["elasticsearch:9200"]
+          index: "k8sgpt-%{+YYYY.MM.dd}"

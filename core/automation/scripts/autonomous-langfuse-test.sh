@@ -246,7 +246,7 @@ autonomous_test() {
     local signup_response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -d '{
-            "email": "admin@autonomous.dev",
+            "email": "admin@example.com",
             "password": "autonomous-password-123",
             "name": "Autonomous Admin"
         }' \
@@ -262,7 +262,7 @@ autonomous_test() {
     local login_response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -d '{
-            "email": "admin@autonomous.dev",
+            "email": "admin@example.com",
             "password": "autonomous-password-123"
         }' \
         http://localhost:3000/api/auth/signin)

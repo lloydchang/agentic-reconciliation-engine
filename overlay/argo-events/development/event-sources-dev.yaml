@@ -1,0 +1,77 @@
+# Development Environment Event Sources
+# These are configured for development and testing purposes
+
+---
+# Development Webhook Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dev-webhook-source
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  webhook:
+    dev-api:
+      port: "12001"
+      endpoint: /dev-api
+      method: POST
+      authSecret:
+        name: argo-events-secrets
+        key: WEBHOOK_SECRET
+    dev-ci:
+      port: "12002"
+      endpoint: /dev-ci
+      method: POST
+---
+# Development Calendar Event Source
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dev-calendar-source
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  calendar:
+    dev-cleanup:
+      schedule: "*/10 * * * *"  # Every 10 minutes for dev
+    dev-health-check:
+      schedule: "*/5 * * * *"   # Every 5 minutes for dev
+---
+# Development Redis Event Source (for local testing)
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dev-redis-source
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  redis:
+    dev-redis:
+      host: redis-dev
+      port: 6379
+      channels:
+        - dev-events
+        - dev-notifications
+      password:
+        name: redis-dev-password
+        key: password
+---
+# Development File Event Source (for local file watching)
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dev-file-source
+  namespace: argo-events-dev
+  labels:
+    environment: development
+spec:
+  file:
+    dev-config-changes:
+      path: /tmp/config
+      watchPathConfig:
+        directory: /tmp/config
+        ignorePattern: "*.tmp"
+        recursive: true

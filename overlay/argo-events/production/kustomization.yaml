@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: argo-events-prod
+  namespace: argo-events-prod
+
+bases:
+  - ../../../core/resources/infrastructure/tenants/3-workloads/argo-events
+
+namespace: argo-events-prod
+
+namePrefix: prod-
+
+commonLabels:
+  environment: production
+  tier: production
+  managed-by: kustomize
+  app.kubernetes.io/part-of: argo-events
+
+patchesStrategicMerge:
+  - controller-patch.yaml
+  - resources-patch.yaml
+  - monitoring-patch.yaml
+  - security-patch.yaml
+
+configMapGenerator:
+  - name: argo-events-config
+    literals:
+      - LOG_LEVEL=info
+      - NAMESPACE=argo-events-prod
+      - ENVIRONMENT=production
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8080
+      - ENABLE_SECURITY=true
+      - RATE_LIMIT=1000
+
+secretGenerator:
+  - name: argo-events-secrets
+    literals:
+      - WEBHOOK_SECRET=prod-webhook-secret-secure-67890
+
+resources:
+  - event-sources-prod.yaml
+  - sensors-prod.yaml
+  - rbac-prod.yaml
+  - networkpolicy-prod.yaml
+  - poddisruptionbudget-prod.yaml
+  - hpa-prod.yaml

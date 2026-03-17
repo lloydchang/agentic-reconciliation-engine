@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argo-events
+  labels:
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: events
+    app.kubernetes.io/part-of: argo
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-events-sa
+  namespace: argo-events
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-events-role
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-events-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-events-role
+subjects:
+- kind: ServiceAccount
+  name: argo-events-sa
+  namespace: argo-events
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-events-controller
+  namespace: argo-events
+  labels:
+    app: argo-events-controller
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argo-events-controller
+  template:
+    metadata:
+      labels:
+        app: argo-events-controller
+        app.kubernetes.io/name: argo-events
+        app.kubernetes.io/component: controller
+    spec:
+      serviceAccountName: argo-events-sa
+      containers:
+      - name: argo-events-controller
+        image: quay.io/argoproj/argo-events:v1.9.0
+        args:
+        - controller
+        - --namespaced
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-events-controller
+  namespace: argo-events
+  labels:
+    app: argo-events-controller
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: controller
+spec:
+  selector:
+    app: argo-events-controller
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+  - name: health
+    port: 8081
+    targetPort: 8081
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: argo-events-controller
+  namespace: argo-events
+  labels:
+    app: argo-events-controller
+    app.kubernetes.io/name: argo-events
+    app.kubernetes.io/component: controller
+spec:
+  selector:
+    matchLabels:
+      app: argo-events-controller
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

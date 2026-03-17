@@ -1,0 +1,284 @@
+# K8sGPT Configuration with Qwen LLM Integration
+# This configuration sets up K8sGPT to use Qwen as the LLM for intelligent Kubernetes analysis
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8sgpt-qwen-config
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+    app.kubernetes.io/llm: qwen
+data:
+  config.yaml: |
+    # K8sGPT Configuration with Qwen LLM
+    model: qwen2.5:7b
+    backend: local
+    temperature: 0.7
+    max_tokens: 1000
+    top_p: 0.9
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    
+    # Analysis filters
+    filters:
+      - Pod
+      - Deployment
+      - Service
+      - Ingress
+      - StatefulSet
+      - DaemonSet
+      - Job
+      - CronJob
+      - ReplicaSet
+      - PersistentVolumeClaim
+      - PersistentVolume
+      - ConfigMap
+      - Secret
+      - ServiceAccount
+      - Role
+      - RoleBinding
+      - ClusterRole
+      - ClusterRoleBinding
+      - EventSource
+      - Sensor
+      - Workflow
+    
+    # Exclude namespaces
+    exclude:
+      - kube-system
+      - kube-public
+      - kube-node-lease
+      - cattle-system
+      - ingress-nginx
+    
+    # Custom prompts for Argo Events analysis
+    custom_prompts:
+      argo_events_analysis: |
+        Analyze the following Argo Events components and provide specific recommendations:
+        - Event Sources: Check connectivity, authentication, and configuration
+        - Sensors: Verify dependencies, triggers, and event processing
+        - Workflows: Validate workflow templates and execution
+        - RBAC: Ensure proper permissions for event-driven automation
+        - Network Policies: Verify event source connectivity
+        
+        Focus on:
+        1. Event processing bottlenecks
+        2. Security misconfigurations
+        3. Resource utilization
+        4. Integration issues with external systems
+        5. Performance optimization opportunities
+      
+      troubleshooting_guide: |
+        Based on the Argo Events issues detected, provide:
+        1. Root cause analysis
+        2. Step-by-step troubleshooting guide
+        3. Prevention strategies
+        4. Monitoring recommendations
+        5. Best practices for event-driven architecture
+    
+    # Output format
+    output:
+      format: json
+      include_suggestions: true
+      include_code_examples: true
+      severity_levels: [critical, high, medium, low, info]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8sgpt-qwen-secrets
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+type: Opaque
+data:
+  # Base64 encoded configuration (empty for local deployment)
+  api-key: ""
+  model-config: |
+    {
+      "model": "qwen2.5:7b",
+      "backend": "local",
+      "temperature": 0.7,
+      "max_tokens": 1000,
+      "ollama_url": "http://ollama.ollama.svc.cluster.local:11434"
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt-qwen
+  namespace: argo-events
+  labels:
+    app: k8sgpt
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+    app.kubernetes.io/llm: qwen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8sgpt
+  template:
+    metadata:
+      labels:
+        app: k8sgpt
+        app.kubernetes.io/name: k8sgpt
+        app.kubernetes.io/component: ai
+        app.kubernetes.io/llm: qwen
+    spec:
+      serviceAccountName: k8sgpt-sa
+      containers:
+      - name: k8sgpt
+        image: ghcr.io/k8sgpt-ai/k8sgpt:v0.3.5
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo "Starting K8sGPT with Qwen model..."
+          
+          # Wait for Ollama to be ready
+          while ! nc -z ollama.ollama.svc.cluster.local 11434; do
+            echo "Waiting for Ollama..."
+            sleep 5
+          done
+          
+          # Pull Qwen model if not available
+          ollama pull qwen2.5:7b || echo "Model already available"
+          
+          # Start continuous analysis
+          while true; do
+            echo "Running K8sGPT analysis with Qwen..."
+            k8sgpt analyze \
+              --backend=local \
+              --model=qwen2.5:7b \
+              --namespace=argo-events \
+              --output=json \
+              --explain \
+              --max-results=10 || true
+            
+            echo "Analysis completed. Waiting 5 minutes..."
+            sleep 300
+          done
+        env:
+        - name: K8SGPT_MODEL
+          value: "qwen2.5:7b"
+        - name: K8SGPT_BACKEND
+          value: "local"
+        - name: K8SGPT_TEMPERATURE
+          value: "0.7"
+        - name: K8SGPT_MAX_TOKENS
+          value: "1000"
+        - name: OLLAMA_HOST
+          value: "http://ollama.ollama.svc.cluster.local:11434"
+        - name: K8SGPT_DEFAULT_NAMESPACE
+          value: "argo-events"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/k8sgpt
+        - name: secrets
+          mountPath: /etc/k8sgpt-secrets
+          readOnly: true
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "ps aux | grep k8sgpt | grep -v grep || exit 1"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "kubectl get eventsources -n argo-events || exit 1"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: config
+        configMap:
+          name: k8sgpt-qwen-config
+      - name: secrets
+        secret:
+          secretName: k8sgpt-qwen-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8sgpt-qwen
+  namespace: argo-events
+  labels:
+    app: k8sgpt
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+spec:
+  selector:
+    app: k8sgpt
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8sgpt-sa
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8sgpt-role
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "events", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["argoproj.io"]
+  resources: ["eventsources", "sensors", "workflows", "workflowtemplates"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8sgpt-binding
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: k8sgpt-role
+subjects:
+- kind: ServiceAccount
+  name: k8sgpt-sa
+  namespace: argo-events

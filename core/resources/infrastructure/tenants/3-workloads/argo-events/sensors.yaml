@@ -1,0 +1,191 @@
+# Argo Events Sensors Examples
+# Sensors connect event sources to triggers (workflows, functions, etc.)
+
+---
+# Webhook to Workflow Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook-to-workflow-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-dep
+      eventSourceName: webhook-event-source
+      eventName: example
+  triggers:
+    - template:
+        name: argo-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: webhook-workflow-
+                namespace: argo-workflows
+              spec:
+                entrypoint: main
+                arguments:
+                  parameters:
+                  - name: message
+                    value: "{{test-dep.body.message}}"
+                templates:
+                - name: main
+                  container:
+                    image: alpine:latest
+                    command: [echo]
+                    args: ["Received message: {{workflow.parameters.message}}"]
+---
+# Calendar to Notification Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: calendar-notification-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: schedule-dep
+      eventSourceName: calendar-event-source
+      eventName: example-schedule
+  triggers:
+    - template:
+        name: http-trigger
+        http:
+          url: http://notification-service:8080/notify
+          method: POST
+          headers:
+            - name: Content-Type
+              value: application/json
+          payload:
+            - name: message
+              value: "Scheduled task triggered at {{schedule-dep.time}}"
+            - name: timestamp
+              value: "{{schedule-dep.time}}"
+---
+# Kafka to Multiple Triggers Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: kafka-multi-trigger-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: kafka-dep
+      eventSourceName: kafka-event-source
+      eventName: example-kafka
+      filters:
+        - data:
+            - path: body.type
+              type: string
+              value: "alert"
+  triggers:
+    - template:
+        name: workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: kafka-alert-workflow-
+                namespace: argo-workflows
+              spec:
+                entrypoint: process-alert
+                arguments:
+                  parameters:
+                  - name: alert-data
+                    value: "{{kafka-dep.body}}"
+                templates:
+                - name: process-alert
+                  container:
+                    image: python:3.9-alpine
+                    command: [python]
+                    args: ["-c", "import json; data = json.loads('{{workflow.parameters.alert-data}}'); print(f'Processing alert: {data.get(\"message\", \"unknown\")}')"]
+    - template:
+        name: slack-trigger
+        slack:
+          parameters:
+            - src:
+                dependencyName: kafka-dep
+                dataTemplate: "{{kafka-dep.body.message}}"
+              dest: slack.text
+          slackToken:
+            name: slack-token
+            key: token
+          channel: "#alerts"
+---
+# GitHub to Workflow Sensor
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-workflow-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: github-dep
+      eventSourceName: github-event-source
+      eventName: github-webhook
+      filters:
+        - data:
+            - path: body.action
+              type: string
+              value: ["opened", "synchronize", "reopened"]
+  triggers:
+    - template:
+        name: ci-workflow-trigger
+        argoWorkflow:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: github-ci-workflow-
+                namespace: argo-workflows
+              spec:
+                entrypoint: ci-pipeline
+                arguments:
+                  parameters:
+                  - name: repo
+                    value: "{{github-dep.body.repository.full_name}}"
+                  - name: branch
+                    value: "{{github-dep.body.ref}}"
+                  - name: commit
+                    value: "{{github-dep.body.after}}"
+                templates:
+                - name: ci-pipeline
+                  steps:
+                  - - name: checkout
+                      template: checkout-repo
+                  - - name: test
+                      template: run-tests
+                - name: checkout-repo
+                  container:
+                    image: alpine/git:latest
+                    command: [git]
+                    args: ["clone", "https://github.com/{{workflow.parameters.repo}}.git", "."]
+                - name: run-tests
+                  container:
+                    image: golang:1.21-alpine
+                    command: [go]
+                    args: ["test", "./..."]

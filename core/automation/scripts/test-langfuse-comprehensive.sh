@@ -154,7 +154,7 @@ test_authentication_flow() {
     local signup_response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -d '{
-            "email": "test@langfuse.dev",
+            "email": "test@example.com",
             "password": "test-password-123",
             "name": "Test User"
         }' \
@@ -170,7 +170,7 @@ test_authentication_flow() {
     local login_response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -d '{
-            "email": "test@langfuse.dev",
+            "email": "test@example.com",
             "password": "test-password-123"
         }' \
         http://localhost:3000/api/auth/signin)
