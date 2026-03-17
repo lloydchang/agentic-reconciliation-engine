@@ -120,8 +120,8 @@ generate_dag() {
     mkdir -p "$output_dir"
     
     # Use the DAG visualizer
-    if [[ -f "$REPO_ROOT/core/core/automation/ci-cd/scripts/dag-visualizer.py" ]]; then
-        python3 "$REPO_ROOT/core/core/automation/ci-cd/scripts/dag-visualizer.py" \
+    if [[ -f "$REPO_ROOT/core/automation/scripts/dag-visualizer.py" ]]; then
+        python3 "$REPO_ROOT/core/automation/scripts/dag-visualizer.py" \
             "$REPO_ROOT" \
             --format mermaid \
             --output "$output_dir/current-variant-dag.md"

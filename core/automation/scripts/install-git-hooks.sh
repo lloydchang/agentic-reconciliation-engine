@@ -128,7 +128,7 @@ HOOKS_DIR="${REPO_ROOT}/.git/hooks"
 case "${1:-}" in
     "install")
         echo "Installing SOPS git hooks..."
-        bash "${REPO_ROOT}/core/core/automation/ci-cd/scripts/install-git-hooks.sh"
+        bash "${REPO_ROOT}/core/automation/scripts/install-git-hooks.sh"
         ;;
     "uninstall")
         echo "Uninstalling SOPS git hooks..."
@@ -213,14 +213,14 @@ echo "  • pre-push   - Additional validation before pushing to remote"
 echo "  • post-commit - Notifications after successful commits"
 echo
 echo -e "${YELLOW}🔧 Management commands:${NC}"
-echo "  ./core/core/automation/ci-cd/scripts/manage-git-hooks.sh status  - Check hook status"
-echo "  ./core/core/automation/ci-cd/scripts/manage-git-hooks.sh test    - Test hook functionality"
-echo "  ./core/core/automation/ci-cd/scripts/manage-git-hooks.sh uninstall - Remove hooks"
+echo "  ./core/automation/scripts/manage-git-hooks.sh status  - Check hook status"
+echo "  ./core/automation/scripts/manage-git-hooks.sh test    - Test hook functionality"
+echo "  ./core/automation/scripts/manage-git-hooks.sh uninstall - Remove hooks"
 echo
 echo -e "${YELLOW}⚠️  Important notes:${NC}"
 echo "  • Hooks will run automatically on git operations"
 echo "  • You can bypass hooks with --no-verify (not recommended)"
-echo "  • Hooks are version controlled in core/core/automation/ci-cd/scripts/git-hooks/"
+echo "  • Hooks are version controlled in core/automation/scripts/git-hooks/"
 echo "  • Team members should run this script after cloning"
 echo
 echo -e "${GREEN}✅ Your SOPS workflow is now protected by git hooks!${NC}"

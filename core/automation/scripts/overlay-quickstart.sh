@@ -84,13 +84,13 @@ EOF
 echo "🚀 Overlay post-quickstart hook executing..."
 
 # Create overlay-specific directories
-mkdir -p core/deployment/overlays/examples
-mkdir -p core/deployment/overlays/templates
-mkdir -p core/deployment/overlays/registry
+mkdir -p overlay/examples
+mkdir -p overlay/templates
+mkdir -p overlay/registry
 
 # Initialize overlay registry if it doesn't exist
-if [[ ! -f core/deployment/overlays/registry/catalog.yaml ]]; then
-    cat > core/deployment/overlays/registry/catalog.yaml << 'REGISTRY_EOF'
+if [[ ! -f overlay/registry/catalog.yaml ]]; then
+    cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
 apiVersion: v1
 kind: OverlayRegistry
 metadata:
@@ -102,8 +102,8 @@ REGISTRY_EOF
 fi
 
 # Create overlay templates if they don't exist
-if [[ ! -d core/deployment/overlays/templates ]]; then
-    mkdir -p core/deployment/overlays/templates/{skill-overlay,dashboard-overlay,infra-overlay}
+if [[ ! -d overlay/templates ]]; then
+    mkdir -p overlay/templates/{skill-overlay,dashboard-overlay,infra-overlay}
 fi
 
 echo "✅ Overlay structure initialized"
@@ -183,23 +183,21 @@ test_overlay_system() {
     local passed_tests=0
     
     # Test overlay registry
-    if [[ -f "core/deployment/overlays/registry/catalog.yaml" ]]; then
+    if [[ -f "overlay/registry/catalog.yaml" ]]; then
         print_success "Overlay registry exists"
         ((passed_tests++))
     else
         print_error "Overlay registry missing"
-        ((test_results++))
     fi
     ((total_tests++))
     
     # Test overlay templates
-    if [[ -d "core/deployment/overlays/templates" ]]; then
-        local template_count=$(find core/deployment/overlays/templates -name "kustomization.yaml" | wc -l)
+    if [[ -d "overlay/templates" ]]; then
+        local template_count=$(find overlay/templates -name "kustomization.yaml" | wc -l)
         print_success "Found $template_count overlay templates"
         ((passed_tests++))
     else
         print_error "Overlay templates missing"
-        ((test_results++))
     fi
     ((total_tests++))
     
@@ -239,10 +237,10 @@ deploy_example_overlay() {
     fi
     
     # Deploy enhanced debug overlay if it exists
-    if [[ -d "core/deployment/overlays/core/ai/skills/debug/enhanced" ]]; then
+    if [[ -d "overlay/ai/skills/debug/enhanced" ]]; then
         print_info "Deploying enhanced debug overlay..."
         
-        if kustomize build core/deployment/overlays/core/ai/skills/debug/enhanced | kubectl apply -f -; then
+        if kustomize build overlay/ai/skills/debug/enhanced | kubectl apply -f -; then
             print_success "Enhanced debug overlay deployed successfully"
             
             # Wait for pod to be ready
@@ -336,7 +334,7 @@ show_help() {
     echo "  -a, --all          Run complete overlay quick start"
     echo ""
     echo "ENVIRONMENT VARIABLES:"
-    echo "  OVERLAY_DIR            Overlay directory (default: overlays)"
+    echo "  OVERLAY_DIR            Overlay directory (default: overlay)"
     echo "  QUICKSTART_SKIP_EXAMPLES  Skip example creation (default: false)"
     echo "  QUICKSTART_ENABLE_OVERLAYS Enable overlay features (default: true)"
     echo ""

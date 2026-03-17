@@ -41,7 +41,7 @@ fi
 # Check Flux Status Page is installed
 if ! kubectl get svc flux-operator -n $FLUX_NAMESPACE &> /dev/null; then
     echo -e "${RED}❌ Flux Status Page is not installed. Please run setup script first.${NC}"
-    echo "Run: ./core/core/automation/ci-cd/scripts/setup-flux-status-page.sh"
+    echo "Run: ./core/automation/scripts/setup-flux-status-page.sh"
     exit 1
 fi
 

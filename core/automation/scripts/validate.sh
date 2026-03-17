@@ -75,8 +75,8 @@ required_files=(
     "frontend/package.json"
     "frontend/src/App.tsx"
     "frontend/src/plugins/temporal-integration/index.tsx"
-    "core/core/automation/ci-cd/scripts/dev.sh"
-    "core/core/automation/ci-cd/scripts/build.sh"
+    "core/automation/scripts/dev.sh"
+    "core/automation/scripts/build.sh"
     "README.md"
     "LICENSE"
 )

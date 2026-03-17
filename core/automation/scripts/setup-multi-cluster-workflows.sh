@@ -628,7 +628,7 @@ EOF
 # Create workflow automation scripts
 echo -e "${YELLOW}🔧 Creating workflow automation scripts...${NC}"
 
-cat > $WORKFLOW_DIR/core/core/automation/ci-cd/scripts/deploy-spoke-cluster.sh << EOF
+cat > $WORKFLOW_DIR/core/automation/scripts/deploy-spoke-cluster.sh << EOF
 #!/bin/bash
 
 # Deploy Spoke Cluster Script
@@ -668,7 +668,7 @@ echo "✅ Spoke cluster \$CLUSTER_NAME deployment initiated"
 echo "📊 Monitor status with: kubectl get fluxinstance \$CLUSTER_NAME -n flux-system"
 EOF
 
-cat > $WORKFLOW_DIR/core/core/automation/ci-cd/scripts/promote-environment.sh << EOF
+cat > $WORKFLOW_DIR/core/automation/scripts/promote-environment.sh << EOF
 #!/bin/bash
 
 # Environment Promotion Script
@@ -708,7 +708,7 @@ echo "✅ Promotion branch created: promote-\$APPLICATION-\$FROM_ENV-to-\$TO_ENV
 echo "🔄 Create pull request to continue promotion"
 EOF
 
-cat > $WORKFLOW_DIR/core/core/automation/ci-cd/scripts/rollback-application.sh << EOF
+cat > $WORKFLOW_DIR/core/automation/scripts/rollback-application.sh << EOF
 #!/bin/bash
 
 # Application Rollback Script
@@ -829,7 +829,7 @@ kubectl apply -f $WORKFLOW_DIR/core/governance/policy-enforcement.yaml
 kubectl apply -f $WORKFLOW_DIR/monitoring/workflow-metrics.yaml
 
 # Make scripts executable
-chmod +x $WORKFLOW_DIR/core/core/automation/ci-cd/scripts/*.sh
+chmod +x $WORKFLOW_DIR/core/automation/scripts/*.sh
 
 echo -e "${GREEN}✅ Multi-cluster GitOps workflows created!${NC}"
 echo ""
@@ -842,9 +842,9 @@ echo "  🌍 Multi-Environment: Dev, staging, production environments"
 echo "  📋 Policy Enforcement: Security, compliance, and governance"
 echo ""
 echo -e "${BLUE}🔧 Available Scripts:${NC}"
-echo "  ./core/operators/multi-cluster/core/core/automation/ci-cd/scripts/deploy-spoke-cluster.sh <name>"
-echo "  ./core/operators/multi-cluster/core/core/automation/ci-cd/scripts/promote-environment.sh <from> <to> <app>"
-echo "  ./core/operators/multi-cluster/core/core/automation/ci-cd/scripts/rollback-application.sh <app> <env> <commit>"
+echo "  ./core/operators/multi-cluster/core/automation/scripts/deploy-spoke-cluster.sh <name>"
+echo "  ./core/operators/multi-cluster/core/automation/scripts/promote-environment.sh <from> <to> <app>"
+echo "  ./core/operators/multi-cluster/core/automation/scripts/rollback-application.sh <app> <env> <commit>"
 echo ""
 echo -e "${BLUE}📊 Monitoring:${NC}"
 echo "  Workflow metrics and alerts configured"

@@ -711,7 +711,7 @@ EOF
 # Create test runner script
 echo -e "${YELLOW"🏃 Creating test runner script...${NC}"
 
-cat > core/core/automation/ci-cd/scripts/run-all-tests.sh << 'EOF'
+cat > core/automation/scripts/run-all-tests.sh << 'EOF'
 #!/bin/bash
 
 # Comprehensive Test Runner
@@ -831,7 +831,7 @@ chmod +x core/automation/testing/integration/*.sh
 chmod +x core/automation/testing/e2e/*.sh
 chmod +x core/automation/testing/performance/*.sh
 chmod +x core/automation/testing/security/*.sh
-chmod +x core/core/automation/ci-cd/scripts/run-all-tests.sh
+chmod +x core/automation/scripts/run-all-tests.sh
 
 # Apply test configurations
 echo -e "${YELLOW}🚀 Applying test configurations...${NC}"
@@ -875,7 +875,7 @@ spec:
           # Copy test scripts
           cp -r /core/automation/testing/* /tmp/
           # Run tests
-          /tmp/core/core/automation/ci-cd/scripts/run-all-tests.sh
+          /tmp/core/automation/scripts/run-all-tests.sh
         volumeMounts:
         - name: tests
           mountPath: /tests
@@ -904,7 +904,7 @@ echo "  ⚡ Performance Tests: Reconciliation speed and resource usage"
 echo "  🔒 Security Tests: RBAC, network policies, and compliance"
 echo ""
 echo -e "${BLUE}🏃 How to Run Tests:${NC}"
-echo "  Run all tests: ./core/core/automation/ci-cd/scripts/run-all-tests.sh"
+echo "  Run all tests: ./core/automation/scripts/run-all-tests.sh"
 echo "  Run specific suite: core/automation/testing/unit/flux-components.test.sh"
 echo "  View reports: ls -la test-reports/"
 echo ""
@@ -918,4 +918,4 @@ echo "  ✅ Security and compliance"
 echo "  ✅ Performance and scalability"
 echo ""
 echo -e "${GREEN}🎉 Testing framework setup complete!${NC}"
-echo -e "${BLUE}📊 Run 'core/core/automation/ci-cd/scripts/run-all-tests.sh' to validate your GitOps Infra Control Plane${NC}"
+echo -e "${BLUE}📊 Run 'core/automation/scripts/run-all-tests.sh' to validate your GitOps Infra Control Plane${NC}"

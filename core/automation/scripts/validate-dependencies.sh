@@ -367,28 +367,28 @@ test_automated_debugging_scripts() {
     log_test "Testing Automated Debugging Scripts"
     
     # Check if debug script exists and is executable
-    if [[ -f "./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh" && -x "./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh" ]]; then
+    if [[ -f "./core/automation/scripts/debug-dependency-chain.sh" && -x "./core/automation/scripts/debug-dependency-chain.sh" ]]; then
         log_result "PASS" "Debug dependency chain script exists and is executable"
     else
         log_result "FAIL" "Debug dependency chain script not found or not executable"
     fi
     
     # Check if validation script exists and is executable
-    if [[ -f "./core/core/automation/ci-cd/scripts/validate-dependencies.sh" && -x "./core/core/automation/ci-cd/scripts/validate-dependencies.sh" ]]; then
+    if [[ -f "./core/automation/scripts/validate-dependencies.sh" && -x "./core/automation/scripts/validate-dependencies.sh" ]]; then
         log_result "PASS" "Validation script exists and is executable"
     else
         log_result "FAIL" "Validation script not found or not executable"
     fi
     
     # Check if controller config generator exists and is executable
-    if [[ -f "./core/core/automation/ci-cd/scripts/generate-controller-config.sh" && -x "./core/core/automation/ci-cd/scripts/generate-controller-config.sh" ]]; then
+    if [[ -f "./core/automation/scripts/generate-controller-config.sh" && -x "./core/automation/scripts/generate-controller-config.sh" ]]; then
         log_result "PASS" "Controller config generator script exists and is executable"
     else
         log_result "FAIL" "Controller config generator script not found or not executable"
     fi
     
     # Check if multi-hub setup script exists and is executable
-    if [[ -f "./core/core/automation/ci-cd/scripts/setup-multi-hub.sh" && -x "./core/core/automation/ci-cd/scripts/setup-multi-hub.sh" ]]; then
+    if [[ -f "./core/automation/scripts/setup-multi-hub.sh" && -x "./core/automation/scripts/setup-multi-hub.sh" ]]; then
         log_result "PASS" "Multi-hub setup script exists and is executable"
     else
         log_result "FAIL" "Multi-hub setup script not found or not executable"
@@ -396,7 +396,7 @@ test_automated_debugging_scripts() {
     
     # Test debug script functionality (dry run)
     if [[ "$DRY_RUN" != "true" ]]; then
-        if ./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh --help > /dev/null 2>&1; then
+        if ./core/automation/scripts/debug-dependency-chain.sh --help > /dev/null 2>&1; then
             log_result "PASS" "Debug script help functionality works"
         else
             log_result "FAIL" "Debug script help functionality failed"

@@ -95,7 +95,7 @@ Purpose: Placeholder for __SKILL__ skill in AI
 Inputs: Input payload or event
 Process: Analyze input and perform placeholder logic
 Outputs: Example output or action
-Optional scripts: core/core/automation/ci-cd/scripts/run.sh
+Optional scripts: core/automation/scripts/run.sh
 Optional manifests: manifests/example.yaml
 '
 
@@ -138,8 +138,8 @@ for skill in "${SKILLS[@]}"; do
     echo "${SKILL_MD_TEMPLATE//__SKILL__/$skill}" > "$SKILL_DIR/SKILL.md"
 
     # Create shell script
-    echo "${SHELL_SCRIPT_TEMPLATE//__SKILL__/$skill}" > "$SKILL_DIR/core/core/automation/ci-cd/scripts/run.sh"
-    chmod +x "$SKILL_DIR/core/core/automation/ci-cd/scripts/run.sh"
+    echo "${SHELL_SCRIPT_TEMPLATE//__SKILL__/$skill}" > "$SKILL_DIR/core/automation/scripts/run.sh"
+    chmod +x "$SKILL_DIR/core/automation/scripts/run.sh"
 
     # Create YAML manifest
     echo "${YAML_TEMPLATE//__SKILL__/$skill}" > "$SKILL_DIR/manifests/example.yaml"

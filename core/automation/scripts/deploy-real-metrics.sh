@@ -12,7 +12,7 @@ echo "🔧 Building Real AI Metrics Server..."
 echo ""
 
 # Set KUBECONFIG to hub cluster
-export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+export KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
 
 # Switch to hub context
 kubectl config use-context hub &> /dev/null || echo "Could not switch to hub context"
@@ -120,4 +120,4 @@ echo "🔍 To check logs:"
 echo "   kubectl logs -f deployment/ai-metrics-server -n ai-infrastructure"
 echo ""
 echo "🎯 The dashboard should now show real metrics instead of mock data!"
-echo "   Access the dashboard: ./core/core/automation/ci-cd/scripts/smart-dashboard.sh"
+echo "   Access the dashboard: ./core/automation/scripts/smart-dashboard.sh"

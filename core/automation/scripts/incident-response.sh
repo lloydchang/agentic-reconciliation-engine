@@ -167,7 +167,7 @@ respond_secret_exposure() {
     
     # Step 4: Rotate the secret
     info "Rotating exposed secret..."
-    if ./core/core/automation/ci-cd/scripts/rotate-secrets.sh; then
+    if ./core/automation/scripts/rotate-secrets.sh; then
         add_action "$incident_id" "Rotate secret" "SUCCESS"
         success "Secret rotated successfully"
     else

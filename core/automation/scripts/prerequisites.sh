@@ -16,7 +16,7 @@ info() { echo -e "  ${CYAN}→${RESET} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
-ensure_wsl_sanity "core/core/automation/ci-cd/scripts/prerequisites.sh" warn info
+ensure_wsl_sanity "core/automation/scripts/prerequisites.sh" warn info
 
 # ── Cross-Platform Support ─────────────────────────────────────────────────────
 detect_platform() {
@@ -101,7 +101,7 @@ info "Detected package manager: ${PKG_MANAGER}"
 
 ERRORS=0
 WARNINGS=0
-SKILL_DIR="${SKILL_DIR:-$(dirname "$(dirname "$(dirname "$(pwd)")")")/core/ai/skills}"
+SKILL_DIR="${SKILL_DIR:-$(git rev-parse --show-toplevel)/core/ai/skills}"
 # Discover all skills dynamically
 REQUIRED_SKILLS=()
 while IFS= read -r skill_path; do
