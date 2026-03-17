@@ -191,18 +191,18 @@ resources:
     dependsOn:
       - flux-system
   # AI Integration components
-  # - ai-gateway/  # Optional: comment out for local LLM setups
-  - name: ai-cronjobs/
+  # - ../../ai/runtime/ai-gateway/  # Optional: comment out for local LLM setups
+  - name: ../../operators/control-plane/ai-cronjobs/
     dependsOn:
       - ../../core/operators/
-  - name: ai-validation/
+  - name: ../../ai/skills/ai-validation/
     dependsOn:
       - ../../core/operators/
   # Consensus-based agent swarms
-  - name: agent-workflows/
+  - name: ../../ai/skills/agent-workflows/
     dependsOn:
-      - ai-cronjobs
-      - ai-validation
+      - ../../operators/control-plane/ai-cronjobs
+      - ../../ai/skills/ai-validation
 dependsOn:
   - gitops-infra-control-plane
 labels:
