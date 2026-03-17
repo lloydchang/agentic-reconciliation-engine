@@ -18,7 +18,7 @@ This document details the real data API architecture that was developed to provi
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Go Metrics    │    │   Real Data API  │    │   Dashboard     │
-│   Server        │◄──►│   (Python Flask) │◄──►│   Frontend      │
+│   Server        │◄──►│   (Python FastAPI)│◄──►│   Frontend      │
 │   (K8s Cluster) │    │   (Port 5002)    │    │   (Port 3001)   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          ▲                                            ▲
@@ -443,8 +443,7 @@ cd dashboard-frontend && npm start
 #### Environment Variables
 ```bash
 export METRICS_SERVER_URL=http://localhost:8080
-export FLASK_ENV=development
-export FLASK_DEBUG=false
+export FASTAPI_ENV=development
 ```
 
 ## Migration and Evolution

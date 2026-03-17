@@ -130,7 +130,7 @@ Frontend:
   - Real-time: WebSocket connections
 
 Backend:
-  - API: Flask/Python REST endpoints
+  - API: FastAPI/Python REST endpoints
   - Data: Real-time metrics aggregation
   - Authentication: Kubernetes service accounts
 ```
