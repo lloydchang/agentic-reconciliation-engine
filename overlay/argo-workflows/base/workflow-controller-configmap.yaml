@@ -37,7 +37,7 @@ data:
   
   # Qwen LLM Integration Configuration
   qwenIntegration: "true"
-  qwenServiceURL: "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080"
+  qwenServiceURL: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
   qwenAnalysisEnabled: "true"
   
   # Workflow Defaults
@@ -125,5 +125,5 @@ data:
       "ARGO_NAMESPACE": "argo-workflows",
       "ARGO_INSTANCE_ID": "argo-workflows",
       "QWEN_LLM_ENABLED": "true",
-      "QWEN_SERVICE_URL": "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080"
+      "QWEN_SERVICE_URL": "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
     }
