@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-agent-evaluation-cronjob
+  namespace: ai-agents
+  labels:
+    app: ai-agent-evaluation
+    component: scheduled-evaluator
+spec:
+  schedule: "0 */4 * * *"  # Every 4 hours
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app: ai-agent-evaluation
+        component: evaluation-job
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ai-agent-evaluation
+            component: evaluation-pod
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: evaluator
+            image: ai-agent-evaluator:latest
+            imagePullPolicy: IfNotPresent
+            command: ["python", "cli.py"]
+            args:
+            - "--file"
+            - "/data/traces.json"
+            - "--evaluators"
+            - "skill_invocation,performance,cost,monitoring,health_check,security,compliance"
+            - "--format"
+            - "json"
+            - "--output"
+            - "/results/evaluation_results.json"
+            env:
+            - name: EVALUATORS
+              value: "skill_invocation,performance,cost,monitoring,health_check,security,compliance"
+            - name: TRACE_COUNT
+              value: "100"
+            - name: QUALITY_GATE_SCORE
+              value: "0.8"
+            - name: QUALITY_GATE_PASS_RATE
+              value: "0.85"
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            volumeMounts:
+            - name: traces-data
+              mountPath: /data
+              readOnly: true
+            - name: results-volume
+              mountPath: /results
+          volumes:
+          - name: traces-data
+            persistentVolumeClaim:
+              claimName: langfuse-traces-pvc
+          - name: results-volume
+            emptyDir: {}
+          restartPolicy: OnFailure
+          backoffLimit: 3
+          activeDeadlineSeconds: 3600  # 1 hour timeout
