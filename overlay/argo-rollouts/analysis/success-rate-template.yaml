@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+spec:
+  args:
+  - name: service-name
+    value: ""
+  - name: namespace
+    value: ""
+  metrics:
+  - name: success-rate
+    interval: 30s
+    count: 10
+    successCondition: result[0] >= 0.95
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(rate(http_server_requests_total{service="{{args.service-name}}",status!~"5.."}[2m])) /
+          sum(rate(http_server_requests_total{service="{{args.service-name}}"}[2m]))
+  - name: error-rate
+    interval: 30s
+    count: 10
+    successCondition: result[0] <= 0.05
+    failureLimit: 2
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(rate(http_server_requests_total{service="{{args.service-name}}",status=~"5.."}[2m])) /
+          sum(rate(http_server_requests_total{service="{{args.service-name}}"}[2m]))
+  - name: response-time
+    interval: 30s
+    count: 10
+    successCondition: result[0] <= 500
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service="{{args.service-name}}"}[2m])) * 1000

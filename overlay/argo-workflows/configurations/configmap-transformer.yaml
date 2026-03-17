@@ -1,0 +1,46 @@
+# ConfigMap Transformer Configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-transformer
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  # ConfigMap transformation rules
+  transformer.yaml: |
+    # Environment-specific configuration transformations
+    environments:
+      dev:
+        logLevel: "debug"
+        cacheEnabled: false
+        analysisTimeout: "120"
+        debugMode: true
+      prod:
+        logLevel: "info"
+        cacheEnabled: true
+        analysisTimeout: "60"
+        debugMode: false
+    
+    # Resource scaling rules
+    resourceScaling:
+      dev:
+        cpuMultiplier: 0.5
+        memoryMultiplier: 0.5
+      prod:
+        cpuMultiplier: 2.0
+        memoryMultiplier: 2.0
+    
+    # Feature flags
+    featureFlags:
+      dev:
+        qwenDebug: true
+        verboseLogging: true
+        mockMode: false
+      prod:
+        qwenDebug: false
+        verboseLogging: false
+        mockMode: false

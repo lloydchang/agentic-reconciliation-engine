@@ -1,0 +1,214 @@
+# K8sGPT Deployment with Qwen Integration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+    app.kubernetes.io/version: v0.3.4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/part-of: k8sgpt
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8sgpt
+        app.kubernetes.io/part-of: k8sgpt
+        app.kubernetes.io/version: v0.3.4
+    spec:
+      serviceAccountName: k8sgpt
+      containers:
+      - name: k8sgpt
+        image: k8sgpt/k8sgpt:v0.3.4
+        command:
+        - k8sgpt
+        - serve
+        - --config
+        - /config/config.yaml
+        - --port
+        - "8080"
+        - --log-level
+        - info
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: K8SGPT_CONFIG
+          value: "/config/config.yaml"
+        - name: K8SGPT_LOG_LEVEL
+          value: "info"
+        - name: K8SGPT_CACHE_DIR
+          value: "/cache"
+        - name: K8SGPT_BACKEND
+          value: "localai"
+        - name: K8SGPT_LOCALAI_URL
+          value: "http://qwen-localai.k8sgpt-system.svc.cluster.local:8080"
+        - name: K8SGPT_LOCALAI_MODEL
+          value: "qwen2.5-coder:7b"
+        # Alternative: Use external Qwen API
+        # - name: K8SGPT_BACKEND
+        #   value: "openai"
+        # - name: K8SGPT_OPENAI_MODEL
+        #   value: "qwen2.5-coder-7b-instruct"
+        # - name: K8SGPT_OPENAI_BASEURL
+        #   value: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        # - name: K8SGPT_OPENAI_APIKEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: k8sgpt-secrets
+        #       key: qwen-api-key
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: cache
+          mountPath: /cache
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: config
+        configMap:
+          name: k8sgpt-config
+      - name: cache
+        persistentVolumeClaim:
+          claimName: k8sgpt-cache-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8sgpt
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets", "persistentvolumes", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources: ["deployments", "replicasets", "daemonsets", "ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets", "podsecuritypolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers", "verticalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses", "volumeattachments"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["scheduling.k8s.io"]
+  resources: ["priorityclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["node.k8s.io"]
+  resources: ["runtimeclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["certificatesigningrequests", "certificates"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8sgpt
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: k8sgpt
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: k8sgpt
+subjects:
+- kind: ServiceAccount
+  name: k8sgpt
+  namespace: k8sgpt-system
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k8sgpt-cache-pvc
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt-cache-pvc
+    app.kubernetes.io/part-of: k8sgpt
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # Uncomment and adjust for your storage class
+  # storageClassName: fast-ssd

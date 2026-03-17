@@ -1,0 +1,216 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flagger-system
+  labels:
+    app.kubernetes.io/name: flagger
+    app.kubernetes.io/component: progressive-delivery
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    istio-injection: enabled
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flagger-config
+  namespace: flagger-system
+data:
+  config.yaml: |
+    # Flagger configuration
+    meshProvider: istio
+    metricsServer: http://prometheus.monitoring.svc.cluster.local:9090
+    logLevel: info
+    
+    # Analysis configuration
+    analysis:
+      interval: 10s
+      threshold: 99
+      iterations: 10
+    
+    # Metrics configuration
+    metrics:
+      - name: request-success-rate
+        threshold: 99
+        interval: 1m
+        query: |
+          sum(rate(http_server_requests_total{namespace!="{{ namespace }}",status!~"5.."}[2m])) / 
+          sum(rate(http_server_requests_total{namespace="{{ namespace }}"}[2m]))
+      
+      - name: request-duration
+        threshold: 500
+        interval: 1m
+        query: |
+          histogram_quantile(0.99, 
+            sum(rate(http_request_duration_seconds_bucket{namespace="{{ namespace }}"}[2m])) by (le))
+    
+    # Webhook configuration
+    webhooks:
+      - name: load-test
+        url: http://flagger-loadtester.flagger-system/
+        timeout: 30s
+        metadata:
+          cmd: "hey -z 1m -q 10 -c 2 http://{{ target }}.{{ namespace }}/"
+          expected_status: "200"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flagger-loadtester
+  namespace: flagger-system
+  labels:
+    app: flagger-loadtester
+    app.kubernetes.io/name: flagger-loadtester
+    app.kubernetes.io/component: load-testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flagger-loadtester
+  template:
+    metadata:
+      labels:
+        app: flagger-loadtester
+    spec:
+      containers:
+      - name: loadtester
+        image: ghcr.io/fluxcd/flagger-loadtester:0.26.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flagger-loadtester
+  namespace: flagger-system
+  labels:
+    app: flagger-loadtester
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: flagger-loadtester
+
+---
+# NetworkPolicy for Flagger
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: flagger-netpol
+  namespace: flagger-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: flagger
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: flagger-system
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: flagger-system
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+
+---
+# RBAC for Flagger
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flagger
+  namespace: flagger-system
+  labels:
+    app.kubernetes.io/name: flagger
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: flagger
+  labels:
+    app.kubernetes.io/name: flagger
+rules:
+- apiGroups: [""]
+  resources: ["events", "services", "configmaps", "secrets"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "deployments/scale", "deployments/status", "replicasets"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["flagger.app"]
+  resources: ["canaries", "canaries/status", "canaries/finalizers", "metrictemplates"]
+  verbs: ["*"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["virtualservices", "destinationrules", "gateways"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "ingresses/status"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["create", "get", "list", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: flagger
+  labels:
+    app.kubernetes.io/name: flagger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flagger
+subjects:
+- kind: ServiceAccount
+  name: flagger
+  namespace: flagger-system

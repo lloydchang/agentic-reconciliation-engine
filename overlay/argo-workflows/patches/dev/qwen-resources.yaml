@@ -1,0 +1,52 @@
+# Development Environment Qwen Resources Patch
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+spec:
+  template:
+    spec:
+      containers:
+      - name: qwen-k8sgpt
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "4000m"
+            memory: "8Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: QWEN_DEBUG_MODE
+          value: "true"
+        - name: QWEN_CACHE_ENABLED
+          value: "false"
+        - name: QWEN_ANALYSIS_TIMEOUT
+          value: "120"
+        - name: QWEN_MODEL_NAME
+          value: "qwen-7b-chat"
+        - name: QWEN_MAX_TOKENS
+          value: "4096"
+        - name: QWEN_TEMPERATURE
+          value: "0.7"
+        - name: QWEN_TOP_P
+          value: "0.9"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        volumeMounts:
+        - name: qwen-cache
+          mountPath: /tmp/k8sgpt-cache
+        - name: qwen-config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: qwen-cache
+        emptyDir:
+          sizeLimit: 4Gi
+      - name: qwen-config
+        configMap:
+          name: qwen-k8sgpt-config

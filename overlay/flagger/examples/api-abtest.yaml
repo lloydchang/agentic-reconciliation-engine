@@ -1,0 +1,187 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-service
+  namespace: default
+  labels:
+    app: api-service
+    app.kubernetes.io/name: api-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: example-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-service
+  template:
+    metadata:
+      labels:
+        app: api-service
+        version: v1
+    spec:
+      containers:
+      - name: api
+        image: ghcr.io/fluxcd/flagger-loadtester:0.26.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 20m
+            memory: 96Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: default
+  labels:
+    app: api-service
+    app.kubernetes.io/name: api-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: api-service
+
+---
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: api-service
+  namespace: default
+  labels:
+    app: api-service
+    app.kubernetes.io/name: api-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: example-app
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-service
+  service:
+    port: 80
+    targetPort: http
+    portName: http
+    meshName: istio
+  analysis:
+    interval: 30s
+    threshold: 95
+    iterations: 1
+    metrics:
+    - name: request-success-rate
+      threshold: 95
+      interval: 30s
+      query: |
+        sum(rate(http_server_requests_total{namespace!="{{ namespace }}",status!~"5.."}[2m])) / 
+        sum(rate(http_server_requests_total{namespace="{{ namespace }}"}[2m]))
+    - name: request-duration
+      threshold: 1000
+      interval: 30s
+      query: |
+        histogram_quantile(0.95, 
+          sum(rate(http_request_duration_seconds_bucket{namespace="{{ namespace }}"}[2m])) by (le))
+    webhooks:
+    - name: load-test
+      url: http://flagger-loadtester.flagger-system/
+      timeout: 60s
+      metadata:
+        cmd: "hey -z 10m -q 5 -c 3 http://api-service.default/health"
+        expected_status: "200"
+    - name: business-validation
+      url: http://validation-service.default/
+      timeout: 30s
+      metadata:
+        endpoint: "/validate/api"
+        expected_result: "success"
+  canarySteps:
+  - setWeight: 50
+  - pause:
+      duration: 10m
+
+---
+# Istio VirtualService for A/B testing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: api-service
+  namespace: default
+  labels:
+    app: api-service
+    app.kubernetes.io/name: api-service
+spec:
+  hosts:
+  - api-service
+  gateways:
+  - istio-system/public-gateway
+  http:
+  - match:
+    - headers:
+        ab-test:
+          exact: "enabled"
+    route:
+    - destination:
+        host: api-service
+        subset: canary
+      weight: 100
+  - route:
+    - destination:
+        host: api-service
+        subset: primary
+      weight: 100
+
+---
+# Istio DestinationRule for A/B testing subsets
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: api-service
+  namespace: default
+  labels:
+    app: api-service
+    app.kubernetes.io/name: api-service
+spec:
+  host: api-service
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 200
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 20
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: primary
+    labels:
+      app: api-service
+      version: v1
+  - name: canary
+    labels:
+      app: api-service
+      version: v2
