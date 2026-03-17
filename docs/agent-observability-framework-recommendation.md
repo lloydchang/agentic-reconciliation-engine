@@ -33,8 +33,8 @@ After evaluating the LLM observability landscape, existing frameworks vastly out
 These frameworks provide production-ready evaluation capabilities:
 
 ```python
-# Ready-to-use evaluation (Arize Phoenix example)
-from arize.evals import evaluate
+# Ready-to-use evaluation (Langfuse example)
+from langfuse.evals import evaluate
 
 results = evaluate(
     model="our-temporal-agent",
@@ -53,13 +53,13 @@ results = evaluate(
 
 #### 3. Massive Time Savings
 - **Custom build**: 12+ months development + ongoing maintenance
-- **Arize Phoenix integration**: 2-3 months + focus on our domain logic
+- **Langfuse integration**: 2-3 months + focus on our domain logic
 
-## Arize Phoenix: Deep Dive
+## Langfuse: Deep Dive
 
 ### Why It Fits Our Architecture
 
-Arize Phoenix is specifically designed for agent observability and provides:
+Langfuse is specifically designed for agent observability and provides:
 
 **Agent Execution Tracing**
 - Native support for tool-using agents
