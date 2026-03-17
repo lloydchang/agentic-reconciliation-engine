@@ -15,7 +15,7 @@ import random
 sys.path.append(str(Path(__file__).parent))
 
 from main import TracingEvaluationFramework
-# from visualization import EvaluationVisualizer  # Commented out due to dependency issues
+from visualization import EvaluationVisualizer
 
 
 def generate_sample_traces(num_traces: int = 50) -> list:
@@ -163,10 +163,55 @@ def demonstrate_visualization():
     """Demonstrate visualization functionality"""
     print("\n🎨 Visualization Demonstration")
     print("=" * 50)
-    print("⚠️  Visualization skipped due to missing dependencies")
-    print("   Install with: pip install matplotlib seaborn plotly")
-    print("   Then uncomment visualization imports and calls")
-    return
+    
+    # Generate sample data
+    traces = generate_sample_traces(25)
+    
+    # Save to file
+    sample_file = "visualization_traces.json"
+    with open(sample_file, 'w') as f:
+        json.dump({"traces": traces}, f, indent=2)
+    
+    print(f"Generated {len(traces)} sample traces for visualization")
+    
+    # Initialize framework and visualizer
+    framework = TracingEvaluationFramework()
+    visualizer = EvaluationVisualizer()
+    
+    # Run evaluation
+    result = framework.evaluate_traces(traces)
+    
+    # Generate visualizations
+    output_dir = "visualizations"
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    print(f"\n📈 Generating visualizations in {output_dir}/")
+    
+    # Performance dashboard
+    visualizer.create_performance_dashboard(
+        result, 
+        f"{output_dir}/performance_dashboard.png"
+    )
+    
+    # Trend analysis
+    visualizer.create_trend_analysis(
+        result,
+        f"{output_dir}/trend_analysis.png"
+    )
+    
+    # Model comparison
+    visualizer.create_model_comparison(
+        result,
+        f"{output_dir}/model_comparison.png"
+    )
+    
+    # HTML report
+    visualizer.generate_html_report(
+        result,
+        f"{output_dir}/evaluation_report.html"
+    )
+    
+    print("✅ Visualizations generated successfully!")
 
 
 def demonstrate_batch_analysis():
@@ -216,9 +261,57 @@ def demonstrate_trend_analysis():
     """Demonstrate trend analysis over time"""
     print("\n📈 Trend Analysis Demonstration")
     print("=" * 50)
-    print("⚠️  Trend analysis skipped due to missing dependencies")
-    print("   Install with: pip install matplotlib seaborn plotly")
-    return
+    
+    # Generate traces with time progression
+    traces = []
+    base_time = datetime.now().timestamp() * 1000
+    
+    for day in range(7):  # 7 days of data
+        daily_traces = generate_sample_traces(20)  # 20 traces per day
+        
+        # Adjust timestamps for this day
+        day_offset = day * 24 * 60 * 60 * 1000  # milliseconds in a day
+        for trace in daily_traces:
+            trace["timestamp"] = int(trace["timestamp"] - (6 * 24 * 60 * 60 * 1000) + day_offset)
+            
+            # Adjust event timestamps
+            for event in trace.get("events", []):
+                if "timestamp" in event:
+                    event["timestamp"] = int(event["timestamp"] - (6 * 24 * 60 * 60 * 1000) + day_offset)
+        
+        traces.extend(daily_traces)
+    
+    # Save to file
+    sample_file = "trend_traces.json"
+    with open(sample_file, 'w') as f:
+        json.dump({"traces": traces}, f, indent=2)
+    
+    print(f"Generated {len(traces)} traces over 7 days for trend analysis")
+    
+    # Initialize framework
+    framework = TracingEvaluationFramework()
+    visualizer = EvaluationVisualizer()
+    
+    # Run evaluation
+    result = framework.evaluate_traces(traces)
+    
+    # Generate trend visualizations
+    output_dir = "trend_analysis"
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    print(f"\n📊 Generating trend analysis in {output_dir}/")
+    
+    visualizer.create_trend_analysis(
+        result,
+        f"{output_dir}/performance_trends.png"
+    )
+    
+    visualizer.create_model_comparison(
+        result,
+        f"{output_dir}/model_trends.png"
+    )
+    
+    print("✅ Trend analysis completed!")
 
 
 def demonstrate_cost_optimization():

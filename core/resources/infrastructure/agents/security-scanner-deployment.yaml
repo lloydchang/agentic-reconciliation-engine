@@ -20,7 +20,7 @@ spec:
       serviceAccountName: agent-swarm-sa
       containers:
       - name: security-scanner
-        image: localhost:5000/security-scanner-agent:latest
+        image: security-scanner-agent:latest
         env:
         - name: MEMORY_AGENT_URL
           value: "http://agent-memory-rust:8080"

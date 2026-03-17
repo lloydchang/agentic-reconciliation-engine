@@ -621,3 +621,113 @@ class HealthCheckEvaluator:
             {"error_type": error_type, "count": count}
             for error_type, count in sorted_errors[:5]
         ]
+
+    def evaluate(self, trace: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Main evaluation method for framework compatibility
+        
+        Args:
+            trace: Single trace data to evaluate
+            
+        Returns:
+            Dict containing evaluation results with score and status
+        """
+        try:
+            # Evaluate all health aspects
+            worker_health = self.evaluate_worker_health([trace])
+            conversation_health = self.evaluate_conversation_health([trace])
+            system_readiness = self.evaluate_system_readiness([trace])
+            
+            # Calculate overall health score
+            worker_score = worker_health.get("overall_health_score", 1.0)
+            conv_score = conversation_health.get("health_summary", {}).get("health_score", 1.0)
+            readiness_score = system_readiness.get("readiness_score", 1.0)
+            
+            # Weighted average for overall score
+            overall_score = (worker_score * 0.4 + conv_score * 0.3 + readiness_score * 0.3)
+            
+            # Determine pass/fail status
+            passed = overall_score >= 0.7 and system_readiness.get("system_status") == "ready"
+            
+            return {
+                "score": overall_score,
+                "passed": passed,
+                "details": {
+                    "worker_health": worker_health,
+                    "conversation_health": conversation_health,
+                    "system_readiness": system_readiness,
+                    "overall_status": self._determine_overall_status(worker_health, conversation_health, system_readiness),
+                    "health_recommendations": self._generate_health_recommendations(worker_health, conversation_health, system_readiness)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in health check evaluation: {e}")
+            return {
+                "score": 0.0,
+                "passed": False,
+                "details": {
+                    "error": str(e),
+                    "evaluation_failed": True
+                }
+            }
+
+    def evaluate_batch(self, traces: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Batch evaluation method for multiple traces
+        
+        Args:
+            traces: List of trace data to evaluate
+            
+        Returns:
+            Dict containing batch evaluation results
+        """
+        try:
+            results = []
+            total_score = 0.0
+            passed_count = 0
+            
+            for trace in traces:
+                result = self.evaluate(trace)
+                results.append(result)
+                total_score += result["score"]
+                if result["passed"]:
+                    passed_count += 1
+            
+            # Aggregate health metrics
+            all_worker_health = [r["details"]["worker_health"] for r in results]
+            all_conversation_health = [r["details"]["conversation_health"] for r in results]
+            all_system_readiness = [r["details"]["system_readiness"] for r in results]
+            
+            return {
+                "total_traces": len(traces),
+                "average_score": total_score / len(traces) if traces else 0.0,
+                "pass_rate": passed_count / len(traces) if traces else 0.0,
+                "passed_count": passed_count,
+                "failed_count": len(traces) - passed_count,
+                "individual_results": results,
+                "aggregate_metrics": {
+                    "overall_health_status": self._determine_overall_status(
+                        all_worker_health[-1] if all_worker_health else {},
+                        all_conversation_health[-1] if all_conversation_health else {},
+                        all_system_readiness[-1] if all_system_readiness else {}
+                    ),
+                    "common_errors": self._extract_common_errors(
+                        {i: conv.get("error_patterns", {}) for i, conv in enumerate(all_conversation_health)}
+                    ),
+                    "health_recommendations": self._generate_health_recommendations(
+                        all_worker_health[-1] if all_worker_health else {},
+                        all_conversation_health[-1] if all_conversation_health else {},
+                        all_system_readiness[-1] if all_system_readiness else {}
+                    )
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in batch health check evaluation: {e}")
+            return {
+                "total_traces": len(traces),
+                "average_score": 0.0,
+                "pass_rate": 0.0,
+                "error": str(e)
+            }

@@ -92,56 +92,76 @@ echo "🔍 Deploying Langfuse + Temporal Integration for Overlay..."
 
 # Check if kubectl is available
 if command -v kubectl &> /dev/null; then
-    echo "☸️  kubectl detected, deploying Langfuse integration..."
+    # Deploy Langfuse observability integration
+    echo "🔍 Deploying Langfuse observability integration..."
 
-# Check if cluster is accessible
-if kubectl cluster-info &> /dev/null; then
-    # Deploy Langfuse secrets
-    echo "📋 Deploying Langfuse secrets..."
-    
-    if [[ -f "core/config/langfuse-secret.yaml" ]]; then
-        if kubectl apply -f core/config/langfuse-secret.yaml; then
-            echo "✅ Langfuse secrets deployed to control-plane namespace"
-        else
-            echo "⚠️  Failed to deploy Langfuse secrets to control-plane namespace"
+    # Check if cluster is accessible
+    if kubectl cluster-info &> /dev/null; then
+        # Deploy Langfuse secrets
+        echo "📋 Deploying Langfuse secrets..."
+        
+        if [[ -f "core/config/langfuse-secret.yaml" ]]; then
+            if kubectl apply -f core/config/langfuse-secret.yaml; then
+                echo "✅ Langfuse secrets deployed to control-plane namespace"
+            else
+                echo "⚠️  Failed to deploy Langfuse secrets to control-plane namespace"
+            fi
         fi
-    fi
-    
-    if [[ -f "core/config/langfuse-secret-gitops-infra.yaml" ]]; then
-        if kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml; then
-            echo "✅ Langfuse secrets deployed to ai-infrastructure namespace"
-        else
-            echo "⚠️  Failed to deploy Langfuse secrets to ai-infrastructure namespace"
+        
+        if [[ -f "core/config/langfuse-secret-gitops-infra.yaml" ]]; then
+            if kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml; then
+                echo "✅ Langfuse secrets deployed to ai-infrastructure namespace"
+            else
+                echo "⚠️  Failed to deploy Langfuse secrets to ai-infrastructure namespace"
+            fi
         fi
-    fi
-    
-    # Deploy monitoring with Langfuse dashboard
-    echo "📊 Deploying monitoring stack with Langfuse dashboard..."
-    
-    if [[ -d "core/resources/infrastructure/monitoring" ]]; then
-        if kubectl apply -k core/resources/infrastructure/monitoring; then
-            echo "✅ Monitoring stack with Langfuse dashboard deployed"
-        else
-            echo "⚠️  Failed to deploy monitoring stack"
+        
+        # Deploy monitoring with Langfuse dashboard
+        echo "📊 Deploying monitoring stack with Langfuse dashboard..."
+        
+        if [[ -d "core/resources/infrastructure/monitoring" ]]; then
+            if kubectl apply -k core/resources/infrastructure/monitoring; then
+                echo "✅ Monitoring stack with Langfuse dashboard deployed"
+            else
+                echo "⚠️  Failed to deploy monitoring stack"
+            fi
         fi
+        
+        # Deploy self-hosted Langfuse by default
+        echo "🚀 Deploying self-hosted Langfuse (default option)..."
+        
+        if [[ -f "core/automation/scripts/deploy-langfuse-selfhosted.sh" ]]; then
+            echo "� Running self-hosted Langfuse deployment..."
+            if bash "core/automation/scripts/deploy-langfuse-selfhosted.sh"; then
+                echo "✅ Self-hosted Langfuse deployed successfully"
+            else
+                echo "⚠️  Self-hosted Langfuse deployment failed, but secrets deployed"
+                echo "   You can deploy manually later: ./core/automation/scripts/deploy-langfuse-selfhosted.sh"
+            fi
+        else
+            echo "⚠️  Self-hosted Langfuse script not found"
+            echo "   Secrets deployed - you can deploy Langfuse manually"
+        fi
+        
+        echo "🎯 Langfuse integration deployment completed!"
+        echo "📊 Self-hosted Langfuse deployed by default"
+        echo ""
+        echo "🔧 Access your Langfuse instance:"
+        echo "  kubectl port-forward svc/langfuse-server 3000:3000 -n langfuse"
+        echo "  Then open: http://localhost:3000"
+        echo ""
+        echo "📋 Next Steps:"
+        echo "  1. Access Langfuse UI and create your account"
+        echo "  2. Generate API keys in Settings > API Keys"  
+        echo "  3. Update secrets with your API keys"
+        echo "  4. Restart deployments to enable tracing"
+    else
+        echo "⚠️  Kubernetes cluster not accessible - skipping Langfuse deployment"
     fi
-    
-    echo "🎯 Langfuse integration deployment completed!"
-    echo "📊 Choose your Langfuse deployment option:"
-    echo "  1. Self-hosted (Free): Deploy Langfuse in-cluster"
-    echo "     • docker-compose up -d (local development)"
-    echo "     • kubectl apply langfuse-deployment.yaml (cluster)"
-    echo "  2. Langfuse Cloud (Managed): https://cloud.langfuse.com"
-    echo ""
-    echo "🔧 Configure secrets with your chosen deployment:"
-    echo "  • Self-hosted: Set LANGFUSE_HOST to your deployment URL"
-    echo "  • Cloud: Use API keys from cloud.langfuse.com dashboard"
-    echo "  • Create API keys after initial Langfuse deployment"
-else
-    echo "⚠️  Kubernetes cluster not accessible - skipping Langfuse deployment"
-fi
 
-# Initialize overlay registry if it doesn't exist
+    # Initialize overlay registry if it doesn't exist
+    if [[ ! -f overlay/registry/catalog.yaml ]]; then
+        cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
 if [[ ! -f overlay/registry/catalog.yaml ]]; then
     cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
 apiVersion: v1
