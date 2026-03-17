@@ -177,37 +177,18 @@ if command -v kubectl &> /dev/null; then
         echo "⚠️  Monitoring directory not found: core/resources/infrastructure/monitoring"
     fi
     
-    # Deploy self-hosted Langfuse by default
-    echo "🚀 Deploying self-hosted Langfuse (default - free & open source)..."
-    
-    if [[ -f "core/automation/scripts/deploy-langfuse-selfhosted.sh" ]]; then
-        echo "📦 Running self-hosted Langfuse deployment..."
-        if bash "core/automation/scripts/deploy-langfuse-selfhosted.sh"; then
-            echo "✅ Self-hosted Langfuse deployed successfully"
+    # Deploy self-hosted Langfuse with full automation
+    if [[ -f "core/automation/scripts/auto-configure-langfuse.sh" ]]; then
+        echo "� Running fully automated Langfuse setup..."
+        if bash "core/automation/scripts/auto-configure-langfuse.sh"; then
+            echo "✅ Fully automated Langfuse setup completed"
         else
-            echo "⚠️  Self-hosted Langfuse deployment failed, but secrets deployed"
-            echo "   You can deploy manually later: ./core/automation/scripts/deploy-langfuse-selfhosted.sh"
+            echo "⚠️  Automated setup failed, but secrets deployed"
+            echo "   You can run manually: ./core/automation/scripts/auto-configure-langfuse.sh"
         fi
     else
-        echo "⚠️  Self-hosted Langfuse script not found"
-        echo "   Secrets deployed - you can deploy Langfuse manually"
+        echo "⚠️  Automated setup script not found"
     fi
-    
-    echo "✅ Langfuse + Temporal integration deployed successfully"
-    echo ""
-    echo "🎯 Self-hosted Langfuse deployed by default (Free & Open Source)"
-    echo ""
-    echo "🔧 Access your Langfuse instance:"
-    echo "  kubectl port-forward svc/langfuse-server 3000:3000 -n langfuse"
-    echo "  Then open: http://localhost:3000"
-    echo ""
-    echo "📋 Next Steps:"
-    echo "  1. Access Langfuse UI and create your account"
-    echo "  2. Generate API keys in Settings > API Keys"  
-    echo "  3. Update secrets with your API keys"
-    echo "  4. Restart deployments to enable tracing"
-    echo ""
-    echo "💡 Alternative: Langfuse Cloud (managed) at https://cloud.langfuse.com"
     
 else
     echo "⚠️  kubectl not found, skipping Langfuse integration deployment"

@@ -274,6 +274,7 @@ spec:
   ports:
   - port: 9000
     targetPort: 9000
+    name: s3
   - port: 9001
     targetPort: 9001
     name: console
