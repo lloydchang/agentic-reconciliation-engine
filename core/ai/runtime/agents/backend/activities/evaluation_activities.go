@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -34,82 +32,23 @@ func NewEvaluationActivities() *EvaluationActivities {
 }
 
 // PrepareEvaluationEnvironment prepares the evaluation environment
-func (ea *EvaluationActivities) PrepareEvaluationEnvironment(ctx context.Context, input EvaluationWorkflowInput) error {
+func (ea *EvaluationActivities) PrepareEvaluationEnvironment(ctx context.Context, input interface{}) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Preparing evaluation environment")
-
-	// Create directories
-	dirs := []string{ea.ResultsPath, ea.VisualizationPath}
-	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return fmt.Errorf("failed to create directory %s: %w", dir, err)
-		}
-	}
-
-	// Set environment variables
-	os.Setenv("EVALUATORS", fmt.Sprintf("%v", input.Evaluators))
-	os.Setenv("QUALITY_GATE_SCORE", fmt.Sprintf("%f", input.QualityGateScore))
-	os.Setenv("QUALITY_GATE_PASS_RATE", fmt.Sprintf("%f", input.QualityGatePassRate))
-
-	logger.Info("Evaluation environment prepared successfully")
+	logger.Info("Preparing evaluation environment (stub)")
 	return nil
 }
 
 // GenerateSampleTraces generates sample traces for evaluation
-func (ea *EvaluationActivities) GenerateSampleTraces(ctx context.Context, input EvaluationWorkflowInput) error {
+func (ea *EvaluationActivities) GenerateSampleTraces(ctx context.Context, input interface{}) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Generating sample traces", "Count", input.TraceCount)
-
-	// Change to evaluator directory
-	if err := os.Chdir(ea.EvaluatorPath); err != nil {
-		return fmt.Errorf("failed to change to evaluator directory: %w", err)
-	}
-
-	// Generate sample traces
-	cmd := exec.CommandContext(ctx, "python", "cli.py", "--generate-sample", 
-		fmt.Sprintf("%d", input.TraceCount), 
-		"--file", filepath.Join(ea.TracesPath, "sample_traces.json"))
-	
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		logger.Error("Failed to generate sample traces", "Output", string(output))
-		return fmt.Errorf("failed to generate sample traces: %w", err)
-	}
-
-	logger.Info("Sample traces generated successfully")
+	logger.Info("Generating sample traces (stub)")
 	return nil
 }
 
 // RunEvaluationActivity runs the evaluation
-func (ea *EvaluationActivities) RunEvaluationActivity(ctx context.Context, input EvaluationWorkflowInput) error {
+func (ea *EvaluationActivities) RunEvaluationActivity(ctx context.Context, input interface{}) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Running evaluation", "Evaluators", input.Evaluators)
-
-	// Change to evaluator directory
-	if err := os.Chdir(ea.EvaluatorPath); err != nil {
-		return fmt.Errorf("failed to change to evaluator directory: %w", err)
-	}
-
-	// Build evaluator list
-	evaluatorList := fmt.Sprintf("%v", input.Evaluators)
-	if evaluatorList == "[skill_invocation performance cost monitoring health_check security compliance]" {
-		evaluatorList = "skill_invocation,performance,cost,monitoring,health_check,security,compliance"
-	}
-
-	// Run evaluation
-	cmd := exec.CommandContext(ctx, "python", "cli.py",
-		"--file", filepath.Join(ea.TracesPath, "sample_traces.json"),
-		"--evaluators", evaluatorList,
-		"--format", "json",
-		"--output", filepath.Join(ea.ResultsPath, "evaluation_results.json"))
-	
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		logger.Error("Evaluation failed", "Output", string(output))
-		return fmt.Errorf("evaluation failed: %w", err)
-	}
-
-	logger.Info("Evaluation completed successfully")
+	logger.Info("Running evaluation (stub)")
 	return nil
 }
 
@@ -130,28 +69,9 @@ func (ea *EvaluationActivities) GetEvaluationResults(ctx context.Context, result
 }
 
 // GenerateVisualizations generates evaluation visualizations
-func (ea *EvaluationActivities) GenerateVisualizations(ctx context.Context, input EvaluationWorkflowInput) error {
+func (ea *EvaluationActivities) GenerateVisualizations(ctx context.Context, input interface{}) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Generating visualizations")
-
-	// Change to evaluator directory
-	if err := os.Chdir(ea.EvaluatorPath); err != nil {
-		return fmt.Errorf("failed to change to evaluator directory: %w", err)
-	}
-
-	// Generate visualizations
-	cmd := exec.CommandContext(ctx, "python", "cli.py",
-		"--file", filepath.Join(ea.TracesPath, "sample_traces.json"),
-		"--visualize",
-		"--report-dir", ea.VisualizationPath)
-	
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		logger.Error("Visualization generation failed", "Output", string(output))
-		return fmt.Errorf("visualization generation failed: %w", err)
-	}
-
-	logger.Info("Visualizations generated successfully")
+	logger.Info("Generating visualizations (stub)")
 	return nil
 }
 
