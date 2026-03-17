@@ -991,9 +991,9 @@ data:
             // Load agents
             async function loadAgents() {
                 try {
-                    const response = await fetch('/api/agents');
+                    const response = await fetch('http://localhost:5006/api/agents');
                     const data = await response.json();
-                    agents = data.agents || generateMockAgents();
+                    agents = data || generateMockAgents();
                     renderAgents();
                 } catch (error) {
                     agents = generateMockAgents();
@@ -1066,9 +1066,9 @@ data:
             // Load skills
             async function loadSkills() {
                 try {
-                    const response = await fetch('/api/skills');
+                    const response = await fetch('http://localhost:5006/api/skills');
                     const data = await response.json();
-                    skills = data.skills || generateMockSkills();
+                    skills = data || generateMockSkills();
                     renderSkills();
                 } catch (error) {
                     skills = generateMockSkills();
@@ -1099,9 +1099,9 @@ data:
             // Load activity
             async function loadActivity() {
                 try {
-                    const response = await fetch('/api/activity');
+                    const response = await fetch('http://localhost:5006/api/activity');
                     const data = await response.json();
-                    activities = data.activities || generateMockActivity();
+                    activities = data || generateMockActivity();
                     renderActivity();
                 } catch (error) {
                     activities = generateMockActivity();
