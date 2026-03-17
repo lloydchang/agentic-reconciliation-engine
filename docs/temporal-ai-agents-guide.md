@@ -272,15 +272,72 @@ def update_context(context, tool_result):
 
 ### Official Temporal Resources
 
-- [Temporal AI Agent Bundle](https://temporal.io/pages/durable-ai-agent-bundle) - Comprehensive guide
-- [AI Cookbook](https://docs.temporal.io/ai-cookbook) - Practical examples and patterns
-- [Mental Model Blog Post](https://temporal.io/blog/a-mental-model-for-agentic-ai-applications) - Detailed architecture guide
-- [Dynamic Agents Blog Post](https://temporal.io/blog/of-course-you-can-build-dynamic-ai-agents-with-temporal) - Myth-busting and implementation
-- [Temporal Community](https://temporal.io/community) - Slack, GitHub, forum support
+- [Temporal AI Agent Bundle](https://temporal.io/pages/durable-ai-agent-bundle) - Comprehensive technical guide with proven path to resilience
+  - Technical guide: Why agents fail, and how to fix them
+  - Live demo + code: Resilient, stateful AI in action
+  - Expert sessions: Real-world patterns + MCP deep dive
+  - OpenAI Agents SDK Integration: Add Durable Execution to your stack (Public Preview)
+
+- [AI Cookbook](https://docs.temporal.io/ai-cookbook) - Step-by-step solutions for building reliable, production-ready AI systems
+  - **Hello World**: Simple LLM calling with OpenAI Python API
+  - **Structured Outputs**: Temporal + OpenAI Responses API for specific data structures
+  - **Hello World with LiteLLM**: Provider-neutral LLM integration
+  - **Retry Policy from HTTP Responses**: Extract retry info from HTTP headers
+  - **Basic Agentic Loop**: Claude and tool calling implementations
+  - **Durable MCP Weather Server**: MCP server with Temporal workflows
+  - **Tool Calling Agent**: Simple agent with LLM tool selection
+  - **Human-in-the-Loop AI Agent**: HITL support in agentic flows
+  - **Durable Agent with OpenAI Agents SDK**: OpenAI SDK + Temporal integration
+  - **Claim Check Pattern**: Handle large payloads with S3/NoSQL
+  - **Deep Research**: Multi-step research system architecture
+
+- [Mental Model for Agentic AI Applications](https://temporal.io/blog/a-mental-model-for-agentic-ai-applications) - Detailed architecture guide by Cornelia Davis
+  - Understanding goals, tools, loops, and LLMs integration
+  - Language interfaces for LLMs and tools
+  - Tool invocation preparation and validation
+  - Context management and conversation history
+  - Comprehensive mental model for agent development
+
+- [Of Course You Can Build Dynamic AI Agents with Temporal](https://temporal.io/blog/of-course-you-can-build-dynamic-ai-agents-with-temporal) - Myth-busting and implementation guide by Mason Egger & Steve Androulakis
+  - Debunks misconception about Temporal and non-deterministic agents
+  - Architecture patterns for deterministic workflows + non-deterministic activities
+  - Real-world examples: OpenAI Codex, Replit Agent 3
+  - Code examples for dynamic plan generation and execution
+
+- [Temporal Community](https://temporal.io/community) - Connect with other users and get expert advice
+  - Slack community for real-time discussions
+  - GitHub for issues and contributions
+  - Forum for detailed questions and answers
 
 ### Sample Implementation
 
-- [Temporal AI Agent GitHub](https://github.com/temporal-community/temporal-ai-agent) - Complete demo with multi-turn conversations
+- [Temporal AI Agent GitHub Repository](https://github.com/temporal-community/temporal-ai-agent) - Complete demo implementation
+  - Multi-turn conversation support
+  - Native and MCP tool integration
+  - Single-agent and multi-agent modes
+  - Support for multiple LLM providers (OpenAI, Anthropic, Google Gemini, Deepseek, Ollama)
+  - Comprehensive testing with Temporal's testing framework
+  - Production considerations and scalability patterns
+
+### Video Content
+
+- [Multi-Agent Demo Video](https://github.com/temporal-community/temporal-ai-agent) - See multi-agent execution in action
+- [5-Minute YouTube Demo](https://github.com/temporal-community/temporal-ai-agent) - Understanding interaction patterns
+
+### Additional Learning Resources
+
+- [Enablement Guide](https://github.com/temporal-community/temporal-ai-agent) - Internal resource for Temporal employees with slides and detailed guides
+- [Architecture Decisions](https://github.com/temporal-community/temporal-ai-agent) - Why Temporal provides reliability, state management, and observability
+- [Setup Guide](https://github.com/temporal-community/temporal-ai-agent) - Configuration instructions for LLM models and API keys
+- [Testing Guide](https://github.com/temporal-community/temporal-ai-agent) - Comprehensive testing patterns and best practices
+- [Contributing Guide](https://github.com/temporal-community/temporal-ai-agent) - How to contribute to the project
+
+### Key Technologies & Standards
+
+- **Model Context Protocol (MCP)**: De facto standard for tool specifications and external service integration
+- **LiteLLM**: Provider-agnostic LLM integration supporting multiple models and providers
+- **Temporal Workflows**: Durable execution engine for reliable agent orchestration
+- **Temporal Activities**: Non-deterministic task execution for LLM calls and tool invocations
 
 ### Key Takeaways
 
