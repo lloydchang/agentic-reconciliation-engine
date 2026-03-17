@@ -155,22 +155,37 @@ create_overlay_examples() {
         print_info "Creating example overlays using overlay-cli..."
         
         # Create hello-world skill overlay
-        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create hello-world skills debug --template skill-overlay || {
-            print_error "Failed to create hello-world overlay"
-            return 1
-        }
+        if [[ ! -d "overlay/ai/skills/hello-world" ]]; then
+            OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create hello-world skills debug --template skill-overlay || {
+                print_error "Failed to create hello-world overlay"
+                return 1
+            }
+            print_success "Created hello-world overlay"
+        else
+            print_info "Hello-world overlay already exists - skipping creation"
+        fi
         
         # Create dark-theme dashboard overlay
-        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create dark-theme dashboard themes --template dashboard-overlay || {
-            print_error "Failed to create dark-theme overlay"
-            return 1
-        }
+        if [[ ! -d "overlay/ai/runtime/dashboard/dark-theme" ]]; then
+            OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create dark-theme dashboard themes --template dashboard-overlay || {
+                print_error "Failed to create dark-theme overlay"
+                return 1
+            }
+            print_success "Created dark-theme overlay"
+        else
+            print_info "Dark-theme overlay already exists - skipping creation"
+        fi
         
         # Create production-env composed overlay
-        OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create production-env composed "" || {
-            print_error "Failed to create production-env overlay"
-            return 1
-        }
+        if [[ ! -d "overlay/examples/production-env" ]]; then
+            OVERLAY_DIR=overlay python3 "$SCRIPT_DIR/overlay-cli.py" create production-env composed "" || {
+                print_error "Failed to create production-env overlay"
+                return 1
+            }
+            print_success "Created production-env overlay"
+        else
+            print_info "Production-env overlay already exists - skipping creation"
+        fi
         
         print_success "Example overlays created"
     else
@@ -185,6 +200,7 @@ test_overlay_system() {
     local test_results=()
     local total_tests=0
     local passed_tests=0
+    local failed_tests=0
     
     # Test overlay registry
     if [[ -f "overlay/registry/catalog.yaml" ]]; then
@@ -212,7 +228,7 @@ test_overlay_system() {
             ((passed_tests++))
         else
             print_error "Overlay CLI not working"
-            ((test_results++))
+            ((failed_tests++))
         fi
     else
         print_warning "Overlay CLI not available"
@@ -223,8 +239,8 @@ test_overlay_system() {
     print_header "Test Results"
     echo -e "${BLUE}Total Tests: $total_tests${NC}"
     echo -e "${GREEN}Passed: $passed_tests${NC}"
-    if [[ $((test_results - passed_tests)) -gt 0 ]]; then
-        echo -e "${RED}Failed: $((test_results - passed_tests))${NC}"
+    if [[ $failed_tests -gt 0 ]]; then
+        echo -e "${RED}Failed: $failed_tests${NC}"
     else
         echo -e "${GREEN}🎉 All tests passed!${NC}"
     fi

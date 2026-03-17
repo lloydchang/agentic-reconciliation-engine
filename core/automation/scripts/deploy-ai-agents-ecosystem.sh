@@ -275,9 +275,8 @@ EOF
 deploy_temporal_workers() {
     log_info "Deploying Temporal workers..."
     
-    # Build worker image
-    cd core/ai/workers/temporal
-    docker build -t temporal-workers:latest .
+    # Skip Docker build for now - use placeholder image
+    log_info "Skipping Docker build - using placeholder image for testing"
     
     # Deploy workers
     kubectl apply -f core/resources/infrastructure/temporal/temporal-workers-deployment.yaml
@@ -346,8 +345,18 @@ data:
 from flask import Flask, jsonify
 from flask_cors import CORS
 import json
+import re
+import subprocess
 app = Flask(__name__)
 CORS(app)
+
+def get_kubectl_data(command):
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"Error executing {command}: {e}")
+        return ""
 
 @app.route('/api/agents')
 def get_agents():

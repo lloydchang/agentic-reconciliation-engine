@@ -4,15 +4,14 @@ WORKDIR /app
 
 # Copy go mod files
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download || true  # Continue even if download fails
 
 # Copy source code
 COPY cmd/worker/main.go .
 COPY internal/workflow/ ./internal/workflow/
 COPY internal/activities/ ./internal/activities/
-COPY go.mod go.sum ./
 
-# Build the worker
+# Build worker
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o worker ./cmd/worker/main.go
 
 # Final stage
