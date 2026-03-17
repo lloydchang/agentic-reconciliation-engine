@@ -1,0 +1,64 @@
+# Agent Consensus Configuration
+apiVersion: consensus.gitops.io/v1alpha1
+kind: AgentConsensusConfig
+metadata:
+  name: infrastructure-consensus
+  namespace: control-plane
+  labels:
+    app: consensus-controller
+    component: consensus-layer
+spec:
+  protocol: "raft"
+  agents:
+  - name: "cost-optimizer"
+    voteWeight: 1
+    expertise: ["cost", "efficiency"]
+    feedbackLoop: "30s"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: "security-validator"
+    voteWeight: 2  # Higher weight for security decisions
+    expertise: ["security", "compliance"]
+    feedbackLoop: "5m"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: "performance-monitor"
+    voteWeight: 1
+    expertise: ["performance", "reliability"]
+    feedbackLoop: "1h"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  decisionThresholds:
+    operational: 0.5    # 50% for operational changes
+    security: 0.8        # 80% for security changes
+    critical: 1.0        # 100% for critical changes
+  communication:
+    protocol: "raft"
+    heartbeat: "10s"
+    consensusTimeout: "30s"
+    maxRetries: 3
+    electionTimeout: "10s"
+    logLevel: "info"
+  persistence:
+    enabled: true
+    storageClass: "fast-ssd"
+    size: "10Gi"
+  security:
+    enableTLS: true
+    certManager: "cert-manager"
+    authMethod: "mTLS"

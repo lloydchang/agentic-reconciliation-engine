@@ -1,0 +1,505 @@
+# GitOps-Driven Agent Workflows
+# Event-driven automation triggered by Git operations
+
+---
+# GitOps Validation Pipeline
+apiVersion: kagent.io/v1alpha1
+kind: AgentWorkflow
+metadata:
+  name: gitops-validation-pipeline
+  namespace: control-plane
+  labels:
+    app: kagent
+    workflow: gitops-validation
+    component: agent-workflows
+spec:
+  triggers:
+  - type: git-commit
+    repository: infrastructure-repo
+    paths: ["core/resources/**", "core/operators/**"]
+    branches: ["main", "develop"]
+  - type: schedule
+    cron: "0 */6 * * *"  # Every 6 hours as backup
+  - type: pull-request
+    repository: infrastructure-repo
+    action: ["opened", "synchronize", "reopened"]
+  agents:
+  - name: change-detector
+    task: analyze-git-changes
+    config:
+      focus: "kubernetes-manifests"
+      ignore: ["*.md", "docs/**", "core/core/automation/ci-cd/scripts/**"]
+      categorize: "true"
+      impact-analysis: "true"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: manifest-validator
+    task: validate-kubernetes-manifests
+    dependsOn: ["change-detector"]
+    config:
+      manifests: "${change-detector.changed-manifests}"
+      validators: ["kubeconform", "kube-score", "kube-linter"]
+      strict: "true"
+      fail-fast: "false"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: security-validator
+    task: validate-security-policies
+    dependsOn: ["manifest-validator"]
+    config:
+      manifests: "${manifest-validator.valid-manifests}"
+      policies: ["rbac", "network-policies", "secrets", "pod-security"]
+      severity: "medium"
+      auto-fix: "false"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: compliance-checker
+    task: check-compliance
+    dependsOn: ["security-validator"]
+    config:
+      manifests: "${security-validator.approved-manifests}"
+      standards: ["cis-benchmark", "company-policies", "industry-regulations"]
+      report-level: "detailed"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: dependency-analyzer
+    task: analyze-dependencies
+    dependsOn: ["compliance-checker"]
+    config:
+      manifests: "${compliance-checker.compliant-manifests}"
+      check: ["flux-dependsOn", "resource-order", "service-dependencies"]
+      validation: "strict"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: pr-commenter
+    task: create-pr-comment
+    dependsOn: ["dependency-analyzer"]
+    condition: "pull-request-triggered"
+    config:
+      results: "${manifest-validator.results},${security-validator.results},${compliance-checker.results},${dependency-analyzer.results}"
+      format: "markdown"
+      include: ["summary", "errors", "warnings", "recommendations"]
+      approve: "validation-passed"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: auto-remediation
+    task: apply-fixes
+    dependsOn: ["dependency-analyzer"]
+    condition: "compliance-checker.has-fixable-issues"
+    config:
+      manifests: "${compliance-checker.fixable-manifests}"
+      approval: "automatic-for-low-risk"
+      commit-message: "Auto-fix compliance issues"
+      create-pr: "true"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Multi-Cluster Deployment Pipeline
+apiVersion: kagent.io/v1alpha1
+kind: AgentWorkflow
+metadata:
+  name: multi-cluster-deployment-pipeline
+  namespace: control-plane
+  labels:
+    app: kagent
+    workflow: multi-cluster-deployment
+    component: agent-workflows
+spec:
+  triggers:
+  - type: git-commit
+    repository: infrastructure-repo
+    paths: ["core/resources/tenants/**"]
+    branches: ["main"]
+  - type: manual
+    command: "deploy-all-clusters"
+  agents:
+  - name: deployment-planner
+    task: plan-deployment
+    config:
+      scope: "multi-cluster"
+      strategy: "blue-green"
+      clusters: ["hub-cluster", "spoke-cluster-1", "spoke-cluster-2", "spoke-cluster-3"]
+      order: "sequential"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: pre-deployment-check
+    task: pre-deployment-validation
+    dependsOn: ["deployment-planner"]
+    config:
+      clusters: "${deployment-planner.target-clusters}"
+      checks: ["cluster-health", "resource-availability", "network-connectivity", "security-policies"]
+      fail-on-error: "true"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: hub-deployer
+    task: deploy-to-cluster
+    dependsOn: ["pre-deployment-check"]
+    config:
+      cluster: "hub-cluster"
+      manifests: "${deployment-planner.hub-manifests}"
+      strategy: "apply"
+      timeout: "10m"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: spoke-deployer-1
+    task: deploy-to-cluster
+    dependsOn: ["hub-deployer"]
+    config:
+      cluster: "spoke-cluster-1"
+      manifests: "${deployment-planner.spoke-1-manifests}"
+      strategy: "apply"
+      timeout: "10m"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: spoke-deployer-2
+    task: deploy-to-cluster
+    dependsOn: ["spoke-deployer-1"]
+    config:
+      cluster: "spoke-cluster-2"
+      manifests: "${deployment-planner.spoke-2-manifests}"
+      strategy: "apply"
+      timeout: "10m"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: spoke-deployer-3
+    task: deploy-to-cluster
+    dependsOn: ["spoke-deployer-2"]
+    config:
+      cluster: "spoke-cluster-3"
+      manifests: "${deployment-planner.spoke-3-manifests}"
+      strategy: "apply"
+      timeout: "10m"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: post-deployment-validation
+    task: post-deployment-check
+    dependsOn: ["spoke-deployer-3"]
+    config:
+      clusters: ["hub-cluster", "spoke-cluster-1", "spoke-cluster-2", "spoke-cluster-3"]
+      checks: ["pod-health", "service-availability", "resource-usage", "connectivity"]
+      duration: "5m"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: deployment-reporter
+    task: generate-deployment-report
+    dependsOn: ["post-deployment-validation"]
+    config:
+      results: "${hub-deployer.results},${spoke-deployer-1.results},${spoke-deployer-2.results},${spoke-deployer-3.results},${post-deployment-validation.results}"
+      format: "json"
+      storage: "/reports/deployment-$(date +%Y-%m-%d-%H%M).json"
+      notification: ["slack", "email"]
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Incident Response Workflow
+apiVersion: kagent.io/v1alpha1
+kind: AgentWorkflow
+metadata:
+  name: incident-response-workflow
+  namespace: control-plane
+  labels:
+    app: kagent
+    workflow: incident-response
+    component: agent-workflows
+spec:
+  triggers:
+  - type: alert
+    severity: ["critical", "high"]
+    sources: ["prometheus", "alertmanager", "cloudwatch"]
+  - type: manual
+    command: "incident-response"
+  agents:
+  - name: incident-classifier
+    task: classify-incident
+    config:
+      alert: "${trigger.alert}"
+      classification: ["security", "performance", "availability", "capacity"]
+      priority: "high"
+      escalation: "true"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  - name: impact-analyzer
+    task: analyze-incident-impact
+    dependsOn: ["incident-classifier"]
+    config:
+      incident-type: "${incident-classifier.type}"
+      affected-systems: "auto-detect"
+      business-impact: "true"
+      user-impact: "true"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: diagnostic-collector
+    task: collect-diagnostics
+    dependsOn: ["impact-analyzer"]
+    config:
+      scope: "${impact-analyzer.affected-systems}"
+      diagnostics: ["logs", "metrics", "events", "configurations", "network-state"]
+      duration: "10m"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: root-cause-analyzer
+    task: analyze-root-cause
+    dependsOn: ["diagnostic-collector"]
+    config:
+      diagnostics: "${diagnostic-collector.results}"
+      analysis-method: "correlation"
+      time-window: "1h"
+      confidence-threshold: "0.8"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: remediation-planner
+    task: plan-remediation
+    dependsOn: ["root-cause-analyzer"]
+    config:
+      root-cause: "${root-cause-analyzer.findings}"
+      strategies: ["immediate", "temporary", "permanent"]
+      risk-assessment: "true"
+      approval: "automatic-for-low-risk"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: remediation-executor
+    task: execute-remediation
+    dependsOn: ["remediation-planner"]
+    condition: "remediation-planner.has-approved-actions"
+    config:
+      actions: "${remediation-planner.approved-actions}"
+      execution: "sequential"
+      rollback: "enabled"
+      timeout: "15m"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: incident-reporter
+    task: generate-incident-report
+    dependsOn: ["remediation-executor"]
+    config:
+      incident-data: "${incident-classifier.results},${impact-analyzer.results},${root-cause-analyzer.results},${remediation-executor.results}"
+      format: "markdown"
+      distribution: ["oncall-team", "management", "postmortem-review"]
+      storage: "/reports/incident-$(date +%Y-%m-%d-%H%M).md"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+---
+# Performance Optimization Workflow
+apiVersion: kagent.io/v1alpha1
+kind: AgentWorkflow
+metadata:
+  name: performance-optimization-workflow
+  namespace: control-plane
+  labels:
+    app: kagent
+    workflow: performance-optimization
+    component: agent-workflows
+spec:
+  triggers:
+  - type: schedule
+    cron: "0 1 * * *"  # Daily at 1 AM
+  - type: metric-threshold
+    metric: "cpu-utilization"
+    threshold: "80"
+    duration: "15m"
+  - type: manual
+    command: "optimize-performance"
+  agents:
+  - name: performance-collector
+    task: collect-performance-metrics
+    config:
+      metrics: ["cpu", "memory", "disk", "network", "response-time"]
+      sources: ["prometheus", "cloudwatch", "azure-monitor", "gcp-monitoring"]
+      time-range: "24h"
+      granularity: "5m"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: bottleneck-analyzer
+    task: analyze-bottlenecks
+    dependsOn: ["performance-collector"]
+    config:
+      metrics: "${performance-collector.data}"
+      analysis: ["correlation", "trend", "anomaly-detection"]
+      threshold: "75"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: optimization-recommender
+    task: generate-optimization-recommendations
+    dependsOn: ["bottleneck-analyzer"]
+    config:
+      bottlenecks: "${bottleneck-analyzer.findings}"
+      categories: ["resource-scaling", "configuration-tuning", "architecture-changes"]
+      priority: "cost-benefit-analysis"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: change-simulator
+    task: simulate-changes
+    dependsOn: ["optimization-recommender"]
+    config:
+      recommendations: "${optimization-recommender.high-priority}"
+      simulation: "what-if"
+      duration: "1h"
+      metrics: ["performance", "cost", "reliability"]
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  - name: optimization-executor
+    task: apply-optimizations
+    dependsOn: ["change-simulator"]
+    condition: "change-simulator.has-positive-impact"
+    config:
+      changes: "${change-simulator.approved-changes}"
+      strategy: "gradual-rollout"
+      monitoring: "enhanced"
+      rollback: "automatic"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+  - name: performance-reporter
+    task: generate-performance-report
+    dependsOn: ["optimization-executor"]
+    config:
+      before: "${performance-collector.data}"
+      after: "${optimization-executor.results}"
+      improvements: "${change-simulator.results}"
+      format: "pdf"
+      distribution: ["performance-team", "management"]
+      storage: "/reports/performance-optimization-$(date +%Y-%m-%d).pdf"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"

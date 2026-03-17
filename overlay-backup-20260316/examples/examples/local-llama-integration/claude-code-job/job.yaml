@@ -1,0 +1,224 @@
+# Claude Code CronJobs with Local Llama Model
+# Automated infrastructure tasks using local AI model
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: claude-code-drift-analysis
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    task: drift-analysis
+    component: ai-integration
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours (adjusted for local model performance)
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 21600  # 6 hours
+      template:
+        metadata:
+          labels:
+            app: ai-cronjob
+            task: drift-analysis
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: claude-analyzer
+            image: gendosu/claude-code-docker:latest
+            command: ["/bin/sh"]
+            args:
+            - -c
+            - |
+              claude -p --dangerously-skip-permissions \
+                --verbose --output-format json \
+                "Analyze infrastructure drift across all clusters. Check for:
+                - Resource configuration changes
+                - Security policy violations
+                - Cost optimization opportunities
+                - Health and performance issues
+                Generate detailed report in JSON format"
+            env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: token
+            - name: ANTHROPIC_BASE_URL
+              value: "http://llama-model-service.control-plane.svc.cluster.local:8080"
+            - name: ANTHROPIC_MODEL
+              value: "meta-llama/Llama-3.2-3B-Instruct-q4f16_1-MLC"
+            - name: ANTHROPIC_API_KEY
+              value: ""
+            volumeMounts:
+            - name: reports-volume
+              mountPath: /reports
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "200m"
+              limits:
+                memory: "2Gi"
+                cpu: "1000m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                - ALL
+          volumes:
+          - name: reports-volume
+            persistentVolumeClaim:
+              claimName: ai-reports-pvc
+          serviceAccountName: ai-cronjob-sa
+          securityContext:
+            fsGroup: 1000
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: claude-code-validation
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    task: validation
+    component: ai-integration
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM (adjusted timing)
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 10800  # 3 hours
+      template:
+        metadata:
+          labels:
+            app: ai-cronjob
+            task: validation
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: claude-validator
+            image: gendosu/claude-code-docker:latest
+            command: ["/bin/sh"]
+            args:
+            - -c
+            - |
+              claude -p --dangerously-skip-permissions \
+                --verbose --output-format json \
+                "Validate all Kubernetes manifests against:
+                - Schema compliance (use kubeconform)
+                - Security best practices
+                - Resource limits and requests
+                - Dependency correctness
+                Generate validation report and fix suggestions"
+            env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: token
+            - name: ANTHROPIC_BASE_URL
+              value: "http://llama-model-service.control-plane.svc.cluster.local:8080"
+            - name: ANTHROPIC_MODEL
+              value: "meta-llama/Llama-3.2-3B-Instruct-q4f16_1-MLC"
+            - name: ANTHROPIC_API_KEY
+              value: ""
+            volumeMounts:
+            - name: validation-volume
+              mountPath: /validation
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "200m"
+              limits:
+                memory: "2Gi"
+                cpu: "1000m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                - ALL
+          volumes:
+          - name: validation-volume
+            persistentVolumeClaim:
+              claimName: ai-validation-pvc
+          serviceAccountName: ai-cronjob-sa
+          securityContext:
+            fsGroup: 1000
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-reports-pvc
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-validation-pvc
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-cronjob-sa
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-cronjob-role
+  labels:
+    app: ai-cronjob
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+  resourceNames: ["github-secrets"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+  resourceNames: ["ai-reports-pvc", "ai-validation-pvc"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-cronjob-binding
+  labels:
+    app: ai-cronjob
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-cronjob-role
+subjects:
+- kind: ServiceAccount
+  name: ai-cronjob-sa
+  namespace: control-plane

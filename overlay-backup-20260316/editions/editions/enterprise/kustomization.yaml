@@ -1,0 +1,80 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: gitops-infra-control-plane-enterprise
+  namespace: flux-system
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    variant.enterprise: "true"
+resources:
+  # Enhanced Flux components (Enterprise)
+  - name: ../../core/operators/flux/enhanced-flux-controllers.yaml
+    dependsOn:
+      - flux-system
+  - name: ../../core/operators/flux/enhanced-kustomization.yaml
+    dependsOn:
+      - flux-system
+  # Enterprise controllers
+  - name: ../../core/operators/controllers/
+    dependsOn:
+      - ../../core/operators/flux/enhanced-flux-controllers.yaml
+  # Enterprise Monitoring Stack
+  - name: ../../core/operators/monitoring/
+    dependsOn:
+      - ../../core/operators/controllers/
+  # Enhanced Security Components
+  - name: ../../core/operators/security/
+    dependsOn:
+      - ../../core/operators/controllers/
+  # Enterprise Backup & DR
+  - name: ../../core/operators/backup/
+    dependsOn:
+      - ../../core/operators/controllers/
+  # Infrastructure Tenants
+  - name: ../../core/resources/tenants/
+    dependsOn:
+      - ../../core/operators/controllers/
+      - ../../core/operators/security/
+# Enterprise specific configurations
+configurations:
+- name: enterprise-config
+  literals:
+  - FLUX_VERSION= "v2.2.3-enterprise"
+  - MONITORING_STACK= "grafana-enterprise-honeycomb"
+  - CONTROLLER_TYPE= "enterprise"
+  - SECURITY_LEVEL= "enhanced"
+  - BACKUP_STRATEGY= "multi-region-dr"
+  - AUDIT_LOGGING= "true"
+  - ENTERPRISE_FEATURES= "true"
+  - COMPLIANCE_FRAMEWORK= "SOC2-HIPAA-GDPR"
+  - MULTI_TENANCY= "true"
+  - RBAC_ENHANCED= "true"
+  - SECRET_MANAGEMENT= "sealed-secrets-vault"
+# Common labels for enterprise variant
+commonLabels:
+  variant: enterprise
+  tier: premium
+  support: enterprise-24x7
+  license: commercial
+  compliance: soc2-hipaa-gdpr
+# Resource constraints for enterprise
+patchesStrategicMerge:
+- resource-limits/enterprise-limits.yaml
+- security/enterprise-security.yaml
+- backup/enterprise-backup.yaml
+# Namespace configuration
+namespace: flux-system
+# Images for enterprise variants
+images:
+- name: fluxcd/kustomize-controller
+  newTag: "v0.38.1-enterprise"
+- name: fluxcd/helm-controller
+  newTag: "v0.37.3-enterprise"
+- name: fluxcd/source-controller
+  newTag: "v1.2.4-enterprise"
+- name: grafana/grafana
+  newTag: "10.2.0-enterprise"
+- name: honeycombio/honeycomb-agent
+  newTag: "v1.8.0"
+- name: vault/vault
+  newTag: "1.15.0"
