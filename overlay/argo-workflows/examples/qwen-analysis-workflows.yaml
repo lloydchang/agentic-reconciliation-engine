@@ -1,0 +1,401 @@
+# Qwen LLM Integration Workflows
+# These workflows demonstrate AI-powered analysis and automation
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: qwen-workflow-analysis
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-analysis
+    app.kubernetes.io/llm: qwen
+spec:
+  entrypoint: analyze-workflow
+  arguments:
+    parameters:
+    - name: target-workflow
+      value: ""
+    - name: analysis-type
+      value: "comprehensive"
+  templates:
+  - name: analyze-workflow
+    steps:
+    - - name: collect-workflow-data
+        template: collect-data
+        arguments:
+          parameters:
+          - name: target
+            value: "{{workflow.parameters.target-workflow}}"
+    - - name: analyze-with-qwen
+        template: qwen-analysis
+        arguments:
+          parameters:
+          - name: analysis-type
+            value: "{{workflow.parameters.analysis-type}}"
+          - name: workflow-data
+            value: "{{steps.collect-workflow-data.outputs.result}}"
+    - - name: generate-report
+        template: create-report
+        arguments:
+          parameters:
+          - name: analysis-result
+            value: "{{steps.analyze-with-qwen.outputs.result}}"
+  - name: collect-data
+    inputs:
+      parameters:
+      - name: target
+    container:
+      image: bitnami/kubectl:latest
+      command: [sh, -c]
+      args: |
+        if [ -n "{{inputs.parameters.target}}" ]; then
+          kubectl get workflow {{inputs.parameters.target}} -n argo-workflows -o json > /tmp/workflow-data.json
+          echo "Collected data for workflow: {{inputs.parameters.target}}"
+        else
+          kubectl get workflows -n argo-workflows -o json > /tmp/workflows-data.json
+          echo "Collected data for all workflows"
+        fi
+        cat /tmp/workflow-data.json 2>/dev/null || cat /tmp/workflows-data.json
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+  - name: qwen-analysis
+    inputs:
+      parameters:
+      - name: analysis-type
+      - name: workflow-data
+    container:
+      image: python:3.9-alpine
+      command: [python, -c]
+      args: |
+        import json
+        import requests
+        import os
+        
+        # Analysis configuration
+        analysis_type = "{{inputs.parameters.analysis-type}}"
+        workflow_data = json.loads("""{{inputs.parameters.workflow-data}}""")
+        
+        # Qwen K8sGPT API call
+        qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+        
+        analysis_request = {
+            "event_type": "workflow_analysis",
+            "namespace": "argo-workflows",
+            "component": "argo-workflows",
+            "severity": "info",
+            "description": f"{analysis_type} analysis of workflow execution",
+            "timestamp": "$(date -Iseconds)",
+            "analysis_context": "workflow-performance-analysis",
+            "workflow_data": workflow_data
+        }
+        
+        try:
+            response = requests.post(qwen_url, json=analysis_request, timeout=60)
+            if response.status_code == 200:
+                analysis_result = response.json()
+                print(f"Qwen Analysis Result: {json.dumps(analysis_result, indent=2)}")
+            else:
+                print(f"Analysis failed with status {response.status_code}")
+                print(f"Response: {response.text}")
+        except Exception as e:
+            print(f"Error during analysis: {str(e)}")
+    env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: create-report
+    inputs:
+      parameters:
+      - name: analysis-result
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: |
+        echo "=== Qwen Workflow Analysis Report ==="
+        echo "Generated at: $(date)"
+        echo "Analysis Type: {{workflow.parameters.analysis-type}}"
+        echo "Target Workflow: {{workflow.parameters.target-workflow}}"
+        echo ""
+        echo "Analysis Results:"
+        echo "{{inputs.parameters.analysis-result}}"
+        echo ""
+        echo "=== End Report ==="
+        
+        # Save report to artifact
+        mkdir -p /tmp/reports
+        echo "{{inputs.parameters.analysis-result}}" > /tmp/reports/workflow-analysis-report.json
+    outputs:
+      artifacts:
+      - name: analysis-report
+        path: /tmp/reports
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "128Mi"
+      limits:
+        cpu: "100m"
+        memory: "256Mi"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: qwen-pod-troubleshooting
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-troubleshooting
+    app.kubernetes.io/llm: qwen
+spec:
+  entrypoint: troubleshoot-pod
+  arguments:
+    parameters:
+    - name: target-pod
+      value: ""
+    - name: namespace
+      value: "default"
+  templates:
+  - name: troubleshoot-pod
+    steps:
+    - - name: collect-pod-info
+        template: collect-pod-data
+        arguments:
+          parameters:
+          - name: pod
+            value: "{{workflow.parameters.target-pod}}"
+          - name: ns
+            value: "{{workflow.parameters.namespace}}"
+    - - name: analyze-with-qwen
+        template: qwen-pod-analysis
+        arguments:
+          parameters:
+          - name: pod-info
+            value: "{{steps.collect-pod-info.outputs.result}}"
+    - - name: generate-fix-suggestions
+        template: create-fix-plan
+        arguments:
+          parameters:
+          - name: analysis-result
+            value: "{{steps.analyze-with-qwen.outputs.result}}"
+  - name: collect-pod-data
+    inputs:
+      parameters:
+      - name: pod
+      - name: ns
+    container:
+      image: bitnami/kubectl:latest
+      command: [sh, -c]
+      args: |
+        echo "=== Collecting Pod Data ==="
+        echo "Pod: {{inputs.parameters.pod}}"
+        echo "Namespace: {{inputs.parameters.ns}}"
+        echo ""
+        
+        # Get pod details
+        kubectl get pod {{inputs.parameters.pod}} -n {{inputs.parameters.ns}} -o json > /tmp/pod.json
+        
+        # Get pod events
+        kubectl get events -n {{inputs.parameters.ns}} --field-selector involvedObject.name={{inputs.parameters.pod}} -o json > /tmp/events.json
+        
+        # Get pod logs
+        kubectl logs {{inputs.parameters.pod}} -n {{inputs.parameters.ns}} --tail=100 > /tmp/logs.txt 2>/dev/null || echo "No logs available" > /tmp/logs.txt
+        
+        # Get pod description
+        kubectl describe pod {{inputs.parameters.pod}} -n {{inputs.parameters.ns}} > /tmp/describe.txt
+        
+        echo "=== Pod JSON ==="
+        cat /tmp/pod.json
+        echo ""
+        echo "=== Events ==="
+        cat /tmp/events.json
+        echo ""
+        echo "=== Logs ==="
+        cat /tmp/logs.txt
+        echo ""
+        echo "=== Description ==="
+        cat /tmp/describe.txt
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+  - name: qwen-pod-analysis
+    inputs:
+      parameters:
+      - name: pod-info
+    container:
+      image: python:3.9-alpine
+      command: [python, -c]
+      args: |
+        import json
+        import requests
+        import os
+        
+        # Pod information
+        pod_info = "{{inputs.parameters.pod-info}}"
+        
+        # Qwen K8sGPT API call
+        qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+        
+        analysis_request = {
+            "event_type": "pod_troubleshooting",
+            "namespace": "{{workflow.parameters.namespace}}",
+            "component": "{{workflow.parameters.target-pod}}",
+            "severity": "warning",
+            "description": "Pod troubleshooting analysis using Qwen LLM",
+            "timestamp": "$(date -Iseconds)",
+            "analysis_context": "pod-issue-diagnosis",
+            "pod_data": pod_info
+        }
+        
+        try:
+            response = requests.post(qwen_url, json=analysis_request, timeout=60)
+            if response.status_code == 200:
+                analysis_result = response.json()
+                print(f"Qwen Pod Analysis Result: {json.dumps(analysis_result, indent=2)}")
+            else:
+                print(f"Analysis failed with status {response.status_code}")
+                print(f"Response: {response.text}")
+        except Exception as e:
+            print(f"Error during analysis: {str(e)}")
+    env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: create-fix-plan
+    inputs:
+      parameters:
+      - name: analysis-result
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: |
+        echo "=== Qwen Pod Troubleshooting Report ==="
+        echo "Generated at: $(date)"
+        echo "Target Pod: {{workflow.parameters.target-pod}}"
+        echo "Namespace: {{workflow.parameters.namespace}}"
+        echo ""
+        echo "Analysis Results:"
+        echo "{{inputs.parameters.analysis-result}}"
+        echo ""
+        echo "=== Fix Suggestions ==="
+        echo "1. Review the analysis above for root cause identification"
+        echo "2. Follow the step-by-step resolution guidance"
+        echo "3. Apply the recommended fixes"
+        echo "4. Monitor the pod after applying fixes"
+        echo ""
+        echo "=== End Report ==="
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "128Mi"
+      limits:
+        cpu: "100m"
+        memory: "256Mi"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: qwen-analysis-template
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-analysis
+    app.kubernetes.io/llm: qwen
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: analysis-type
+      value: "comprehensive"
+    - name: target-resource
+      value: ""
+    - name: namespace
+      value: "default"
+    - name: severity
+      value: "info"
+  templates:
+  - name: main
+    steps:
+    - - name: collect-data
+        template: data-collection
+    - - name: qwen-analysis
+        template: analysis
+    - - name: generate-report
+        template: report-generation
+  - name: data-collection
+    container:
+      image: bitnami/kubectl:latest
+      command: [sh, -c]
+      args: |
+        echo "Collecting data for {{workflow.parameters.analysis-type}} analysis..."
+        kubectl get all -n {{workflow.parameters.namespace}} -o json > /tmp/resource-data.json
+        echo "Data collection completed"
+    outputs:
+      artifacts:
+      - name: resource-data
+        path: /tmp/resource-data.json
+  - name: analysis
+    container:
+      image: python:3.9-alpine
+      command: [python, -c]
+      args: |
+        import json
+        import requests
+        
+        qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+        
+        analysis_request = {
+            "event_type": "{{workflow.parameters.analysis-type}}",
+            "namespace": "{{workflow.parameters.namespace}}",
+            "component": "{{workflow.parameters.target-resource}}",
+            "severity": "{{workflow.parameters.severity}}",
+            "description": "Qwen LLM analysis request",
+            "timestamp": "$(date -Iseconds)",
+            "analysis_context": "automated-analysis"
+        }
+        
+        response = requests.post(qwen_url, json=analysis_request, timeout=60)
+        if response.status_code == 200:
+            print(json.dumps(response.json(), indent=2))
+        else:
+            print(f"Analysis failed: {response.status_code}")
+    outputs:
+      artifacts:
+      - name: analysis-result
+        path: /tmp/analysis-result.json
+  - name: report-generation
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: |
+        echo "Generating analysis report..."
+        echo "Analysis completed at $(date)" > /tmp/final-report.txt
+        echo "Analysis Type: {{workflow.parameters.analysis-type}}" >> /tmp/final-report.txt
+        echo "Target: {{workflow.parameters.target-resource}}" >> /tmp/final-report.txt
+    outputs:
+      artifacts:
+      - name: final-report
+        path: /tmp/final-report.txt

@@ -1,0 +1,240 @@
+# Basic Argo Workflows Examples
+# These demonstrate fundamental workflow patterns
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: basic-hello-world
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: basic
+spec:
+  entrypoint: hello-world
+  templates:
+  - name: hello-world
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Hello from Argo Workflows!"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: basic-parameters
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: parameters
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: message
+      value: "Hello with parameters!"
+    - name: count
+      value: "3"
+  templates:
+  - name: main
+    steps:
+    - - name: print-message
+        template: print
+        arguments:
+          parameters:
+          - name: text
+            value: "{{workflow.parameters.message}}"
+    - - name: repeat-message
+        template: repeat
+        arguments:
+          parameters:
+          - name: text
+            value: "{{workflow.parameters.message}}"
+          - name: times
+            value: "{{workflow.parameters.count}}"
+  - name: print
+    inputs:
+      parameters:
+      - name: text
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["{{inputs.parameters.text}}"]
+  - name: repeat
+    inputs:
+      parameters:
+      - name: text
+      - name: times
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["for i in $(seq 1 {{inputs.parameters.times}}); do echo '{{inputs.parameters.text}} $i'; sleep 1; done"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: basic-artifacts
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: artifacts
+spec:
+  entrypoint: generate-artifact
+  templates:
+  - name: generate-artifact
+    outputs:
+      artifacts:
+      - name: hello-artifact
+        path: /tmp/hello.txt
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["echo 'Hello from artifact!' > /tmp/hello.txt && cat /tmp/hello.txt"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: basic-conditional
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: conditional
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: success
+      value: "true"
+  templates:
+  - name: main
+    steps:
+    - - name: check-condition
+        template: condition-check
+        arguments:
+          parameters:
+          - name: should-succeed
+            value: "{{workflow.parameters.success}}"
+    - - name: success-path
+        template: success
+        when: "{{steps.check-condition.outputs.result}} == true"
+    - - name: failure-path
+        template: failure
+        when: "{{steps.check-condition.outputs.result}} == false"
+  - name: condition-check
+    inputs:
+      parameters:
+      - name: should-succeed
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["echo '{{inputs.parameters.should-succeed}}'"]
+  - name: success
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Success path executed!"]
+  - name: failure
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Failure path executed!"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: basic-dag
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: dag
+spec:
+  entrypoint: main
+  templates:
+  - name: main
+    dag:
+      tasks:
+      - name: task-a
+        template: task-a
+      - name: task-b
+        template: task-b
+        dependencies: [task-a]
+      - name: task-c
+        template: task-c
+        dependencies: [task-a]
+      - name: task-d
+        template: task-d
+        dependencies: [task-b, task-c]
+  - name: task-a
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Task A completed"]
+  - name: task-b
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Task B completed (depends on A)"]
+  - name: task-c
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Task C completed (depends on A)"]
+  - name: task-d
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["Task D completed (depends on B and C)"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: basic-template
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: template
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: message
+      value: "Hello from template!"
+  templates:
+  - name: main
+    container:
+      image: alpine:latest
+      command: [echo]
+      args: ["{{workflow.parameters.message}}"]
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: basic-cron
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: examples
+    app.kubernetes.io/example: cron
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  timezone: "UTC"
+  workflowSpec:
+    entrypoint: periodic-task
+    templates:
+    - name: periodic-task
+      container:
+        image: alpine:latest
+        command: [date]
+        args: ["+%Y-%m-%d %H:%M:%S - Cron workflow executed"]
