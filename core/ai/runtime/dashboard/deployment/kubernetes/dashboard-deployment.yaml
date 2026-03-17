@@ -38,6 +38,45 @@ spec:
           value: "production"
         - name: PORT
           value: "8081"
+        
+        # RAG Configuration
+        - name: RAG_ENABLED
+          value: "true"
+        - name: QWEN_LLAMACPP_URL
+          value: "http://llamacpp-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: QWEN_MODEL
+          value: "qwen2.5:0.5b"
+        
+        # Data Source Configurations
+        - name: K8SGPT_URL
+          value: "http://k8sgpt-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: K8SGPT_ENABLED
+          value: "true"
+        - name: FLUX_NAMESPACE
+          value: "flux-system"
+        - name: FLUX_ENABLED
+          value: "true"
+        - name: ARGOCD_URL
+          value: "https://argocd-server.argocd.svc.cluster.local"
+        - name: ARGOCD_USERNAME
+          value: "admin"
+        - name: ARGOCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: argocd-secret
+              key: password
+        - name: ARGOCD_ENABLED
+          value: "true"
+        
+        # Voice Chat Configuration
+        - name: VOICE_ENABLED
+          value: "true"
+        - name: VOICE_UPLOAD_DIR
+          value: "/tmp/voice-uploads"
+        - name: SPEECH_TO_TEXT_PROVIDER
+          value: "browser" # Options: browser, google, azure, aws, openai
+        - name: TEXT_TO_SPEECH_PROVIDER
+          value: "browser" # Options: browser, google, azure, aws, openai
         resources:
           requests:
             memory: "256Mi"

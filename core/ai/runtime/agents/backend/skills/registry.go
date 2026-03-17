@@ -35,6 +35,12 @@ type Skill struct {
 	Content     string            `yaml:"-"` // Full skill content
 	FilePath    string            `yaml:"-"` // Path to SKILL.md
 	LastModified time.Time         `yaml:"-"`
+	
+	// Additional fields from the actual skill format
+	Version     string            `yaml:"version,omitempty"`
+	RiskLevel   string            `yaml:"risk_level,omitempty"`
+	Autonomy    string            `yaml:"autonomy,omitempty"`
+	ActionName  string            `yaml:"action_name,omitempty"`
 }
 
 // AgentsConfig represents the AGENTS.md configuration

@@ -1,15 +1,11 @@
 package main
 
 import (
-    "context"
     "encoding/json"
     "fmt"
     "log"
     "net/http"
     "os"
-    "time"
-
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
 )
 
 type SecurityScanRequest struct {

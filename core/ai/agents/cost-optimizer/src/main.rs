@@ -5,7 +5,7 @@ use serde_json::Value;
 use tokio;
 use warp::{Filter, Reply};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct CostOptimizationRequest {
     cloud_provider: String,
     region: String,
@@ -13,14 +13,14 @@ struct CostOptimizationRequest {
     time_range: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 struct CostOptimizationResponse {
     recommendations: String,
     potential_savings: f64,
     implementation_steps: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 struct HealthResponse {
     status: String,
     version: String,
@@ -31,20 +31,32 @@ struct HealthResponse {
 async fn main() {
     println!("🚀 Cost Optimizer Agent Starting...");
     
-    // Set up HTTP server
-    let app = warp::path("cost-optimizer")
-        .and(warp::path("health"))
-        .and(warp::path("ready"))
-        .and(warp::path("optimize"));
-
+    // Set up HTTP routes
+    let health = warp::path("health")
+        .and(warp::get())
+        .map(|| {
+            let response = HealthResponse {
+                status: "healthy".to_string(),
+                version: "1.0.0".to_string(),
+            };
+            warp::reply::json(&response)
+        });
+    
+    let optimize = warp::path("optimize")
+        .and(warp::post())
+        .and(warp::body::json())
+        .and_then(optimize_costs);
+    
+    let routes = health.or(optimize);
+    
     // Start server
     println!("✅ Cost Optimizer Agent ready on http://0.0.0.0:8080");
-    app.run().await;
+    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
 }
 
 // Cost optimization endpoint
 async fn optimize_costs(req: CostOptimizationRequest) -> Result<impl warp::Reply, warp::Rejection> {
-    println!("🔍 Analyzing costs for {} in {}", req.cloud_provider);
+    println!("🔍 Analyzing costs for {} in {}", req.cloud_provider, req.region);
     
     // Simulate cost analysis
     let recommendations = format!(
@@ -95,7 +107,7 @@ async fn ready_check() -> Result<impl warp::Reply, warp::Rejection> {
 
 // Integration with memory agent
 async fn call_memory_agent(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let memory_agent_url = std::env::var("MEMORY_AGENT_URL").unwrap_or("http://agent-memory-rust:8080");
+    let memory_agent_url = std::env::var("MEMORY_AGENT_URL").unwrap_or_else(|_| "http://agent-memory-rust:8080".to_string());
     
     let client = Client::new();
     let request_body = serde_json::json!({
@@ -107,15 +119,14 @@ async fn call_memory_agent(prompt: &str) -> Result<String, Box<dyn std::error::E
     match client.post(&format!("{}/api/query", memory_agent_url))
         .header("Content-Type", "application/json")
         .json(&request_body)
+        .send()
         .await {
             Ok(response) => {
-                if response.status().is_success() {
-                    let text = response.text().await.unwrap_or_default("No response");
-                    Ok(text)
-                } else {
-                    Err(format!("Memory agent error: {}", response.status()).into())
+                match response.text().await {
+                    Ok(text) => Ok(text),
+                    Err(e) => Err(format!("Failed to read response: {}", e).into()),
                 }
             }
-            Err(e) => Err(format!("Failed to call memory agent: {}", e))
+            Err(e) => Err(format!("Failed to call memory agent: {}", e).into()),
         }
 }

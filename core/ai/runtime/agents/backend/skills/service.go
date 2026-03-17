@@ -3,6 +3,7 @@ package skills
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -30,6 +31,8 @@ func NewSkillService(workingDir, sessionID string) *SkillService {
 
 // initializeSkillDiscovery sets up skill directory scanning
 func (sm *SkillManager) initializeSkillDiscovery(workingDir string) {
+	log.Printf("Initializing skill discovery from working directory: %s", workingDir)
+	
 	// Priority order: enterprise (highest) > personal > project > system (lowest)
 
 	// 1. Enterprise skills (if applicable)
@@ -57,6 +60,20 @@ func (sm *SkillManager) discoverProjectSkills(startDir string) {
 	repoRootFound := false
 
 	for {
+		// Check for core/ai/skills in current directory (this repository's skills)
+		coreSkillDir := filepath.Join(currentDir, "core", "ai", "skills")
+		log.Printf("Checking for core skills directory: %s", coreSkillDir)
+		if stat, err := os.Stat(coreSkillDir); err == nil {
+			priority := 20 // High priority for core skills
+			if repoRootFound {
+				priority = 25 // Highest priority for repo root
+			}
+			log.Printf("Found core skills directory (isDir: %v), adding with priority %d", stat.IsDir(), priority)
+			sm.AddSkillDir(coreSkillDir, "core", priority)
+		} else {
+			log.Printf("Core skills directory not found: %v", err)
+		}
+
 		// Check for .agents/skills in current directory
 		skillDir := filepath.Join(currentDir, ".agents", "skills")
 		if _, err := os.Stat(skillDir); err == nil {

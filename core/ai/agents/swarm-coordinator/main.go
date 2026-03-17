@@ -1,16 +1,10 @@
 package main
 
 import (
-    "context"
     "encoding/json"
-    "fmt"
     "log"
     "net/http"
     "os"
-    "sync"
-    "time"
-
-    "github.com/hashicorp/consensus"
 )
 
 type AgentRegistration struct {
@@ -28,24 +22,11 @@ type HealthResponse struct {
 
 var (
     registeredAgents = make(map[string]AgentRegistration)
-    consensus       *consensus.Consensus
     agentCounter    int64 = 0
 )
 
 func main() {
     log.Printf("🐝 Agent Swarm Coordinator Starting...")
-    
-    // Initialize Raft consensus
-    consensus, err := consensus.NewConsensus(
-        consensus.WithID("swarm-coordinator"),
-        consensus.WithStorage(consensus.NewInmemStorage()),
-        consensus.WithPeers(),
-    )
-    if err != nil {
-        log.Fatalf("Failed to initialize consensus: %v", err)
-    }
-    
-    go runConsensus(consensus)
     
     // Set up HTTP server
     http.HandleFunc("/register", registerAgentHandler)
@@ -59,19 +40,6 @@ func main() {
     
     log.Printf("✅ Swarm Coordinator ready on port %s", port)
     log.Fatal(http.ListenAndServe(":"+port, nil))
-}
-
-func runConsensus(c *consensus.Consensus) {
-    for {
-        select {
-        case <-c.LeaderCh():
-            log.Printf("👑 Became leader, coordinating agents")
-        case <-c.ObserveCh():
-            log.Printf("👀 Observing consensus changes")
-        case <-c.ErrorCh():
-            log.Printf("❌ Consensus error: %v", <-c.ErrorCh())
-        }
-    }
 }
 
 func registerAgentHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,11 +67,7 @@ func registerAgentHandler(w http.ResponseWriter, r *http.Request) {
     registeredAgents[req.ID] = agent
     agentCounter++
     
-    // Propagate to consensus
-    if consensus != nil {
-        // In real implementation, this would update consensus state
-        log.Printf("✅ Registered agent %s (%s)", req.ID, req.Type)
-    }
+    log.Printf("✅ Registered agent %s (%s)", req.ID, req.Type)
     
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(agent)

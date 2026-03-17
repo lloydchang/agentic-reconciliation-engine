@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: production-env-config
+  namespace: ai-infrastructure
+  labels:
+    app.kubernetes.io/name: production-env
+    app.kubernetes.io/component: overlay
+data:
+  environment: "production"
+  log_level: "info"
+  monitoring_enabled: "true"
+  backup_enabled: "true"
+  security_policy: "strict"
+  resource_limits: "enforced"
+  audit_logging: "enabled"
+  auto_scaling: "enabled"
+  disaster_recovery: "enabled"
+  compliance_mode: "full"

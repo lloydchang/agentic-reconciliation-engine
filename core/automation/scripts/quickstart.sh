@@ -53,6 +53,25 @@ run_hooks() {
     fi
 }
 
+# Deploy AI Agent Skills and MCP servers
+deploy_ai_agent_skills() {
+    # Call the dedicated deployment script
+    local deploy_script="$SCRIPT_DIR/deploy_ai_agent_skills.sh"
+    
+    if [[ -f "$deploy_script" ]]; then
+        print_info "Running AI Agent Skills deployment..."
+        if bash "$deploy_script"; then
+            print_success "AI Agent Skills deployed successfully"
+        else
+            print_error "AI Agent Skills deployment failed"
+            return 1
+        fi
+    else
+        print_error "AI Agent Skills deployment script not found at $deploy_script"
+        return 1
+    fi
+}
+
 # Deploy AI agents dashboard function
 deploy_ai_agents_dashboard() {
     print_header "Deploying AI Agents Dashboard"
@@ -199,6 +218,9 @@ EOF
     # Deploy AI agents dashboard
     deploy_ai_agents_dashboard || return 1
     
+    # Deploy AI Agent Skills and MCP servers
+    deploy_ai_agent_skills || return 1
+    
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
     
@@ -208,6 +230,7 @@ EOF
         echo "3. Deploy overlays to your cluster"
         echo "4. Monitor overlay status and logs"
         echo "5. Access your AI agents dashboard at http://localhost:8080"
+        echo "6. Configure Claude Desktop with AI Agent Skills"
         echo ""
         echo -e "${GREEN}🚀 Overlay system and AI agents are ready!${NC}"
     else
@@ -215,6 +238,7 @@ EOF
         echo "2. Read docs/OVERLAY-QUICK-START.md for detailed guidance"
         echo "3. Check overlay/examples/ directory for sample configurations"
         echo "4. Access your AI agents dashboard at http://localhost:8080"
+        echo "5. Configure Claude Desktop with AI Agent Skills"
         echo ""
         echo -e "${GREEN}🚀 Ready to start working with overlays and AI agents!${NC}"
     fi
