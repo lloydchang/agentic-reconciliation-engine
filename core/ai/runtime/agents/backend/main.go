@@ -18,6 +18,10 @@ import (
 	"net/http/httputil"
 	"net/url"
 	
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
+	
 	// Import our custom packages
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/bedrock"
@@ -34,6 +38,7 @@ import (
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/websocket"
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/workflows"
+	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
 )
 
 // CORS middleware
@@ -50,6 +55,23 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func executeWorkflowWithTracing(c client.Client, ctx context.Context, options client.StartWorkflowOptions, workflow interface{}, arg interface{}) (client.WorkflowRun, error) {
+	tracer := observability.GetTracer("api-workflow-endpoints")
+	ctx, span := tracer.Start(ctx, "ExecuteWorkflow", trace.WithAttributes(
+		attribute.String("workflow.id", options.ID),
+		attribute.String("task.queue", options.TaskQueue),
+	))
+	defer span.End()
+	we, err := c.ExecuteWorkflow(ctx, options, workflow, arg)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "Workflow execution failed")
+	} else {
+		span.SetStatus(codes.Ok, "Workflow execution started")
+	}
+	return we, err
 }
 
 func HelloBackstageWorkflow(ctx workflow.Context, name string) (string, error) {
@@ -194,6 +216,13 @@ func main() {
 	} else {
 		cfg = configManager.GetConfig()
 	}
+
+	// Initialize OpenTelemetry tracer
+	tp, err := observability.InitTracer(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tp.Shutdown(context.Background())
 
 	// Initialize infrastructure emulator
 	emulator := emulators.GetGlobalEmulator()
@@ -444,7 +473,7 @@ func main() {
 
 	// --- HelloBackstage Workflow: the primary entry point from the frontend ---
 	r.HandleFunc("/workflow/start", func(w http.ResponseWriter, r *http.Request) {
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "hello-backstage-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, HelloBackstageWorkflow, "Backstage")
@@ -468,7 +497,7 @@ func main() {
 			Priority:       "normal",
 		}
 
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "ai-orchestration-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, workflows.AIAgentOrchestrationWorkflowV2, request)
@@ -489,7 +518,7 @@ func main() {
 			Priority:       "normal",
 		}
 
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "ai-orchestration-v2-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, workflows.AIAgentOrchestrationWorkflowV2, request)
@@ -510,7 +539,7 @@ func main() {
 			Status:      types.HumanTaskStatus{State: "pending", UpdatedAt: time.Now()},
 		}
 
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "human-loop-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, humanloop.EnhancedHumanInTheLoopWorkflow, task)
@@ -534,7 +563,7 @@ func main() {
 			Data:        make(map[string]interface{}),
 		}
 
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "enhanced-human-loop-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, humanloop.EnhancedHumanInTheLoopWorkflow, task)
@@ -547,7 +576,7 @@ func main() {
 	}).Methods("POST", "OPTIONS")
 
 	r.HandleFunc("/workflow/start-compliance", func(w http.ResponseWriter, r *http.Request) {
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "compliance-workflow-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, security.SecureWorkflow, map[string]interface{}{"scan": true})
@@ -560,7 +589,7 @@ func main() {
 	}).Methods("POST", "OPTIONS")
 
 	r.HandleFunc("/workflow/start-multi-agent", func(w http.ResponseWriter, r *http.Request) {
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "multi-agent-workflow-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, workflows.AIAgentOrchestrationWorkflowV2, types.ComplianceRequest{TargetResource: "multi-agent-target"})
@@ -573,7 +602,7 @@ func main() {
 	}).Methods("POST", "OPTIONS")
 
 	r.HandleFunc("/workflow/start-optimized", func(w http.ResponseWriter, r *http.Request) {
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "optimized-workflow-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, performance.OptimizedWorkflow, map[string]interface{}{"optimized": true})
@@ -586,7 +615,7 @@ func main() {
 	}).Methods("POST", "OPTIONS")
 
 	r.HandleFunc("/workflow/start-secure", func(w http.ResponseWriter, r *http.Request) {
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        "secure-workflow-" + time.Now().Format("20060102150405"),
 			TaskQueue: "ai-agent-task-queue",
 		}, security.SecureWorkflow, map[string]interface{}{"secure": true})
@@ -791,7 +820,7 @@ func main() {
 		}
 
 		// Start conversation workflow
-		we, err := c.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+		we, err := executeWorkflowWithTracing(c, context.Background(), client.StartWorkflowOptions{
 			ID:        fmt.Sprintf("conv-%s-%d", request.UserID, time.Now().Unix()),
 			TaskQueue: "ai-agent-task-queue",
 		}, workflows.ConversationalAgentWorkflow, request)
