@@ -31,6 +31,10 @@ print_info() {
     echo -e "${YELLOW}ℹ️  $1${NC}"
 }
 
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
 # Set overlay environment variables
 setup_overlay_environment() {
     print_header "Setting Up Overlay Environment"
