@@ -176,6 +176,46 @@ Examples:
         action="store_true",
         help="Disable alert processing during evaluation"
     )
+    
+    # Performance optimization options
+    parser.add_argument(
+        "--use-cache",
+        action="store_true",
+        default=True,
+        help="Enable result caching for faster repeated evaluations"
+    )
+    
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable result caching"
+    )
+    
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        default=True,
+        help="Enable parallel evaluator processing"
+    )
+    
+    parser.add_argument(
+        "--sequential",
+        action="store_true",
+        help="Use sequential processing instead of parallel"
+    )
+    
+    parser.add_argument(
+        "--performance-stats",
+        action="store_true",
+        help="Show performance statistics after evaluation"
+    )
+    
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=4,
+        help="Maximum number of parallel workers (default: 4)"
+    )
 
     args = parser.parse_args()
 
@@ -230,12 +270,25 @@ def run_evaluation(args):
 
     # Initialize framework
     enable_alerts = not args.disable_alerts
+    use_cache = args.use_cache and not args.no_cache
+    use_parallel = args.parallel and not args.sequential
+    
     framework = TracingEvaluationFramework(enable_alerts=enable_alerts)
     
     if enable_alerts:
         print("🔔 Alerts enabled")
     else:
         print("🔕 Alerts disabled")
+    
+    if use_cache:
+        print("💾 Caching enabled")
+    else:
+        print("🔕 Caching disabled")
+    
+    if use_parallel:
+        print(f"⚡ Parallel processing enabled (max workers: {args.max_workers})")
+    else:
+        print("🔄 Sequential processing enabled")
 
     # Load traces
     print(f"📂 Loading traces from {args.file}")
@@ -247,13 +300,27 @@ def run_evaluation(args):
     print(f"✅ Loaded {len(traces)} traces")
 
     # Determine evaluators
-    evaluators = args.evaluators
-    if "all" in evaluators:
-        evaluators = None  # Run all
+    if args.evaluators == ['all']:
+        evaluator_types = list(framework.evaluators.keys())
+    else:
+        evaluator_types = args.evaluators
 
-    # Run evaluation
-    print(f"🔍 Running evaluation with evaluators: {', '.join(evaluators or list(framework.evaluators.keys()))}")
-    result = framework.evaluate_traces(traces, evaluators)
+    print(f"🔍 Running evaluators: {', '.join(evaluator_types)}")
+    
+    # Run evaluation with performance optimizations
+    start_time = time.time()
+    
+    if use_parallel or use_cache:
+        # Use optimized evaluation
+        result = framework.evaluate_traces_optimized(
+            traces, evaluator_types, use_cache=use_cache, use_parallel=use_parallel
+        )
+    else:
+        # Use standard evaluation
+        result = framework.evaluate_traces(traces, evaluator_types)
+    
+    evaluation_time = time.time() - start_time
+    print(f"⏱️  Evaluation completed in {evaluation_time:.3f}s")
 
     # Generate report
     print("📊 Generating report...")
@@ -267,6 +334,29 @@ def run_evaluation(args):
     else:
         print("\n" + "=" * 50)
         print(report)
+    
+    # Show performance statistics if requested
+    if args.performance_stats:
+        print("\n📊 Performance Statistics:")
+        perf_stats = framework.get_performance_stats()
+        
+        # Cache stats
+        if 'cache_stats' in perf_stats:
+            cache_stats = perf_stats['cache_stats']
+            print(f"   Cache:")
+            print(f"     Entries: {cache_stats.get('total_entries', 0)}")
+            print(f"     Usage: {cache_stats.get('usage_percent', 0):.1f}%")
+            print(f"     Hit rate: {cache_stats.get('hit_rate', 0):.1f}%")
+        
+        # Evaluator performance
+        if 'evaluator_performance' in perf_stats:
+            print(f"   Evaluator Performance:")
+            for evaluator, stats in perf_stats['evaluator_performance'].items():
+                print(f"     {evaluator}: {stats.get('avg_time', 0):.3f}s avg")
+        
+        # Slow evaluators
+        if 'slow_evaluators' in perf_stats and perf_stats['slow_evaluators']:
+            print(f"   Slow evaluators: {', '.join(perf_stats['slow_evaluators'])}")
 
     # Visualization
     if args.visualize:

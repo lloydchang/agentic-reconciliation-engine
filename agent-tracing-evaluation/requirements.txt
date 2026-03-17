@@ -15,6 +15,9 @@ aiohttp>=3.8.0
 jinja2>=3.1.0
 smtplib
 
+# Performance optimization
+psutil>=5.8.0
+
 # Visualization
 matplotlib>=3.5.0
 seaborn>=0.11.0

@@ -26,6 +26,7 @@ from compliance_evaluator import ComplianceEvaluator
 from auto_fix_evaluator import AutoFixManager
 from integrations.langfuse_client import create_langfuse_client, LangfuseTraceGenerator
 from alerts.alert_manager import create_alert_manager
+from performance.optimization import create_optimized_framework
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -376,3 +377,22 @@ class TracingEvaluationFramework:
             return {'status': 'Alert manager not initialized'}
         
         return self.alert_manager.get_metrics()
+
+    def evaluate_traces_optimized(self, traces: List[Dict[str, Any]], 
+                                evaluator_types: List[str] = None,
+                                use_cache: bool = True, 
+                                use_parallel: bool = True) -> Dict[str, Any]:
+        """Optimized evaluation with caching and parallel processing"""
+        # Create optimized framework wrapper
+        optimized_framework = create_optimized_framework(self, cache_size=1000, max_workers=4)
+        
+        # Use optimized evaluation
+        import asyncio
+        return asyncio.run(optimized_framework.evaluate_traces_optimized(
+            traces, evaluator_types, use_cache, use_parallel
+        ))
+    
+    def get_performance_stats(self) -> Dict[str, Any]:
+        """Get performance statistics"""
+        optimized_framework = create_optimized_framework(self)
+        return optimized_framework.get_performance_stats()
