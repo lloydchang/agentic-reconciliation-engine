@@ -50,7 +50,12 @@ gitops-infra-control-plane/
 │       ├── backend/                       # Go Temporal workflows and activities
 │       ├── dashboard/                     # React dashboard and backend API
 │       ├── cli/                           # Command-line interface
-│       └── tools/                         # Tool permissions and configurations
+│       ├── tools/                         # Tool permissions and configurations
+│       └── pi-mono-agent/                 # Pi-Mono containerized agent
+│           ├── Dockerfile                 # Container definition
+│           ├── config/                    # Pi-mono configuration
+│           ├── skills/                    # GitOps-specific skills
+│           └── k8s/                       # Kubernetes deployment manifests
 ├── core/automation/ci-cd/scripts/         # Utility scripts for validation and fixes
 ├── docs/                                  # Architecture documentation
 └── gitops/                                # GitOps/Control-Plane manifests (Flux/ArgoCD)
@@ -86,14 +91,14 @@ metadata:
 
 ## 1. Agent Overview
 
-Four layers work together to automate infrastructure operations safely:
+Four execution methods work together to automate infrastructure operations safely:
 
-| Layer | Purpose | Decides |
-|---|---|---|
-| **Memory Agents** | Persistent AI state, conversation history, local inference | What context exists |
-| **Temporal Orchestration** | Multi-skill workflow coordination | What actions are needed |
-| **GitOps Control** | Deterministic execution of structured plans | How changes are applied |
-| **Monitoring & Observability** | Metrics, logging, alerting | Whether the system is healthy |
+| Execution Method | Purpose | Decides | Characteristics |
+|---|---|---|---|
+| **Memory Agents** | Persistent AI state, conversation history, local inference | What context exists | Rust/Go/Python, SQLite, local inference |
+| **Temporal Orchestration** | Multi-skill workflow coordination | What actions are needed | Complex workflows, durable execution |
+| **GitOps Control** | Deterministic execution of structured plans | How changes are applied | PR-tracked, Kubernetes reconciliation |
+| **Pi-Mono RPC** | Interactive AI assistance with rich tooling | How to accomplish tasks | Containerized, RPC mode, agentskills.io |
 
 No LLM output is ever executed directly on a cluster. All changes flow through structured
 plans → GitOps pipelines → Kubernetes reconciliation.
@@ -109,12 +114,14 @@ plans → GitOps pipelines → Kubernetes reconciliation.
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────────┐
-│              Temporal Orchestration Layer                    │
-│  Decides what actions are needed. Composes multi-skill       │
-│  workflows. Assesses risk. Routes to GitOps or Memory Agent. │
-└───────────┬──────────────────────────┬───────────────────────┘
-            │                          │
-            ▼                          ▼
+│              Agent Execution Methods                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
+│  │   Temporal  │ │   Container │ │     Pi-Mono RPC         │ │
+│  │   Workflows │ │   Agents    │ │     Container           │ │
+│  └─────────────┘ └─────────────┘ └─────────────────────────┘ │
+└───────────┬───────────────────┬───────────────────────────────┘
+            │                   │
+            ▼                   ▼
 ┌───────────────────────┐  ┌───────────────────────────────────┐
 │  Memory Agent Layer   │  │       GitOps Control Layer        │
 │                       │  │                                   │

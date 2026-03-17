@@ -1,0 +1,193 @@
+# Pi-Mono Agent Deployment - Third Agent Execution Method
+# Runs alongside Temporal and other containerized agents
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-mono-agent
+  namespace: ai-infrastructure
+  labels:
+    app: pi-mono-agent
+    component: ai-agent
+    execution-method: containerized
+    type: pi-mono-rpc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pi-mono-agent
+  template:
+    metadata:
+      labels:
+        app: pi-mono-agent
+        component: ai-agent
+        execution-method: containerized
+        type: pi-mono-rpc
+    spec:
+      containers:
+      - name: pi-mono-agent
+        image: gitops-infra-control-plane/pi-mono-agent:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: rpc
+          protocol: TCP
+        env:
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-api-keys
+              key: anthropic-api-key
+              optional: true
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-api-keys
+              key: openai-api-key
+              optional: true
+        - name: GOOGLE_AI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-api-keys
+              key: google-ai-api-key
+              optional: true
+        - name: PI_WORKSPACE_DIR
+          value: "/workspace"
+        - name: MEMORY_AGENT_URL
+          value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: logs
+          mountPath: /logs
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo '{"type":"ping"}' | timeout 10 pi --mode rpc --no-session >/dev/null 2>&1 || exit 1
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo '{"type":"ping"}' | timeout 5 pi --mode rpc --no-session >/dev/null 2>&1 || exit 1
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: workspace
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      securityContext:
+        fsGroup: 1001
+      restartPolicy: Always
+
+---
+# RPC Service for Container Communication
+apiVersion: v1
+kind: Service
+metadata:
+  name: pi-mono-agent-service
+  namespace: ai-infrastructure
+  labels:
+    app: pi-mono-agent
+    component: ai-agent
+    execution-method: containerized
+spec:
+  selector:
+    app: pi-mono-agent
+  ports:
+  - name: rpc
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+
+---
+# ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pi-mono-agent-config
+  namespace: ai-infrastructure
+data:
+  settings.json: |
+    {
+      "defaultModel": "anthropic:claude-3-5-sonnet-20241022",
+      "enableSkills": true,
+      "enableExtensions": true,
+      "enablePrompts": true,
+      "workingDirectory": "/workspace",
+      "theme": "dark",
+      "gitOps": {
+        "enabled": true,
+        "autoCommit": false,
+        "prRequired": true,
+        "reviewRequired": true
+      },
+      "monitoring": {
+        "enabled": true,
+        "tokenUsage": true,
+        "costTracking": true,
+        "performanceMetrics": true
+      },
+      "rpc": {
+        "enabled": true,
+        "timeout": 30000
+      }
+    }
+
+---
+# HPA for Scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pi-mono-agent-hpa
+  namespace: ai-infrastructure
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pi-mono-agent
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

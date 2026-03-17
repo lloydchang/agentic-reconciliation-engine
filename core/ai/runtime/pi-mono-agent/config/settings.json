@@ -1,0 +1,29 @@
+{
+  "defaultModel": "anthropic:claude-3-5-sonnet-20241022",
+  "enableSkills": true,
+  "enableExtensions": true,
+  "enablePrompts": true,
+  "workingDirectory": "/workspace",
+  "theme": "dark",
+  "gitOps": {
+    "enabled": true,
+    "autoCommit": false,
+    "prRequired": true,
+    "reviewRequired": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "tokenUsage": true,
+    "costTracking": true,
+    "performanceMetrics": true
+  },
+  "rpc": {
+    "enabled": true,
+    "timeout": 30000
+  },
+  "container": {
+    "mode": "rpc",
+    "noSession": true,
+    "sessionDir": "/home/pi/.pi/agent/sessions"
+  }
+}
