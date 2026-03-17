@@ -18,9 +18,9 @@ import (
 	"net/http/httputil"
 	"net/url"
 	
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
+	// "go.opentelemetry.io/otel/attribute"
+	// "go.opentelemetry.io/otel/codes"
+	// "go.opentelemetry.io/otel/trace"
 	
 	// Import our custom packages
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
@@ -38,7 +38,7 @@ import (
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/websocket"
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/workflows"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
+	// "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
 )
 
 // CORS middleware
@@ -218,11 +218,11 @@ func main() {
 	}
 
 	// Initialize OpenTelemetry tracer
-	tp, err := observability.InitTracer(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer tp.Shutdown(context.Background())
+	// tp, err := observability.InitTracer(context.Background())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer tp.Shutdown(context.Background())
 
 	// Initialize infrastructure emulator
 	emulator := emulators.GetGlobalEmulator()

@@ -1,8 +1,76 @@
-version: "1.0.0"
-description: "GitOps Infrastructure Control Plane Overlay Registry"
-overlays: []
+description: GitOps Infrastructure Control Plane Overlay Registry
+overlays:
+- autonomy: fully_auto
+  base_path: themes
+  category: dashboard
+  compatibility:
+    kubernetes: '>=1.20'
+    min_base: main
+  description: 'Generated dashboard overlay: dark-theme'
+  license: AGPLv3
+  maintainer:
+    email: generated@example.com
+    name: Generated
+  name: dark-theme
+  risk_level: low
+  tags:
+  - dashboard
+  - dark-theme
+  version: 1.0.0
+- autonomy: fully_auto
+  base_path: debug
+  category: skills
+  compatibility:
+    kubernetes: '>=1.20'
+    min_base: main
+  description: 'Generated skills overlay: hello-world'
+  license: AGPLv3
+  maintainer:
+    email: generated@example.com
+    name: Generated
+  name: hello-world
+  risk_level: low
+  tags:
+  - skills
+  - hello-world
+  version: 1.0.0
+- autonomy: fully_auto
+  base_path: ''
+  category: composed
+  compatibility:
+    kubernetes: '>=1.20'
+    min_base: main
+  description: 'Generated composed overlay: production-env'
+  license: AGPLv3
+  maintainer:
+    email: generated@example.com
+    name: Generated
+  name: production-env
+  risk_level: low
+  tags:
+  - composed
+  - production-env
+  version: 1.0.0
+- autonomy: fully_auto
+  category: skills
+  description: Generated skill overlay
+  name: '{{ overlay_name }}'
+  risk_level: low
+  version: 1.0.0
+- autonomy: fully_auto
+  category: dashboard
+  description: Generated dashboard overlay
+  name: '{{ overlay_name }}'
+  risk_level: low
+  version: 1.0.0
 statistics:
-  total_overlays: 0
-  overlays_by_category: {}
-  overlays_by_risk_level: {}
-  overlays_by_autonomy: {}
+  overlays_by_autonomy:
+    fully_auto: 5
+  overlays_by_category:
+    composed: 1
+    dashboard: 2
+    skills: 2
+  overlays_by_risk_level:
+    low: 5
+  total_overlays: 5
+version: 1.0.0
