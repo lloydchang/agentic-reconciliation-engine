@@ -1,0 +1,441 @@
+name: Argo Workflows CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'overlay/argo-workflows/**'
+      - 'scripts/quickstart-argo-workflows.sh'
+      - 'tests/argo-workflows/**'
+      - 'docs/argo-workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'overlay/argo-workflows/**'
+      - 'scripts/quickstart-argo-workflows.sh'
+      - 'tests/argo-workflows/**'
+      - 'docs/argo-workflows/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: argo-workflows-qwen
+  NAMESPACE: argo-workflows-ci
+
+jobs:
+  # Lint and validation
+  lint:
+    name: Lint and Validate
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Validate YAML syntax
+      run: |
+        find overlay/argo-workflows -name '*.yaml' -o -name '*.yml' | xargs -I {} yq eval {}
+
+    - name: Validate Kustomize overlays
+      run: |
+        kustomize build overlay/argo-workflows | kubectl apply --dry-run=client -f -
+
+    - name: Validate workflow templates
+      run: |
+        kustomize build overlay/argo-workflows/examples | kubectl apply --dry-run=client -f -
+
+    - name: Check shell scripts
+      run: |
+        shellcheck scripts/quickstart-argo-workflows.sh
+        shellcheck tests/argo-workflows/test-suite.sh
+
+  # Security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run kube-score
+      run: |
+        docker run --rm -v $(pwd):/workdir zegl/kube-score score \
+          --output-format ci \
+          overlay/argo-workflows/base/*.yaml \
+          overlay/argo-workflows/qwen/*.yaml
+
+  # Build and test
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: [lint, security]
+    strategy:
+      matrix:
+        cluster-type: [kind, k3s]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Setup ${{ matrix.cluster-type }}
+      uses: helm/kind-action@v1.8.0
+      if: matrix.cluster-type == 'kind'
+      with:
+        cluster_name: argo-workflows-ci
+        wait: 30s
+
+    - name: Setup k3s
+      if: matrix.cluster-type == 'k3s'
+      run: |
+        curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+        sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+        mkdir -p $HOME/.kube
+        cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/config
+
+    - name: Verify cluster
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Deploy Argo Workflows
+      run: |
+        ./scripts/quickstart-argo-workflows.sh \
+          --namespace ${{ env.NAMESPACE }} \
+          --cluster ${{ matrix.cluster-type }} \
+          --auto-approve
+
+    - name: Wait for deployment
+      run: |
+        kubectl wait --for=condition=available --timeout=600s \
+          deployment/argo-workflows-controller -n ${{ env.NAMESPACE }}
+        kubectl wait --for=condition=available --timeout=600s \
+          deployment/argo-workflows-server -n ${{ env.NAMESPACE }}
+        kubectl wait --for=condition=available --timeout=600s \
+          deployment/qwen-k8sgpt -n ${{ env.NAMESPACE }}
+
+    - name: Run automated tests
+      run: |
+        chmod +x tests/argo-workflows/test-suite.sh
+        ./tests/argo-workflows/test-suite.sh \
+          --namespace ${{ env.NAMESPACE }} \
+          --test-suite all \
+          --verbose
+
+    - name: Collect logs
+      if: always()
+      run: |
+        mkdir -p logs
+        kubectl logs -n ${{ env.NAMESPACE }} deployment/argo-workflows-controller > logs/controller.log
+        kubectl logs -n ${{ env.NAMESPACE }} deployment/argo-workflows-server > logs/server.log
+        kubectl logs -n ${{ env.NAMESPACE }} deployment/qwen-k8sgpt > logs/qwen.log
+
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: logs-${{ matrix.cluster-type }}
+        path: logs/
+
+    - name: Cleanup
+      if: always()
+      run: |
+        kubectl delete namespace ${{ env.NAMESPACE }} --ignore-not-found=true
+
+  # Performance tests
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kind cluster
+      uses: helm/kind-action@v1.8.0
+      with:
+        cluster_name: argo-perf
+        wait: 30s
+
+    - name: Install tools
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Deploy Argo Workflows
+      run: |
+        ./scripts/quickstart-argo-workflows.sh \
+          --namespace argo-workflows-perf \
+          --cluster kind \
+          --auto-approve
+
+    - name: Run performance tests
+      run: |
+        chmod +x tests/argo-workflows/test-suite.sh
+        ./tests/argo-workflows/test-suite.sh \
+          --namespace argo-workflows-perf \
+          --test-suite performance \
+          --verbose
+
+    - name: Generate performance report
+      run: |
+        echo "## Performance Test Results" > performance-report.md
+        echo "Generated on: $(date)" >> performance-report.md
+        echo "" >> performance-report.md
+        
+        # Collect metrics
+        kubectl top pods -n argo-workflows-perf >> performance-report.md
+        echo "" >> performance-report.md
+        
+        # Get workflow execution times
+        kubectl get workflows -n argo-workflows-perf -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,DURATION:.status.duration >> performance-report.md
+
+    - name: Upload performance report
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-report
+        path: performance-report.md
+
+    - name: Cleanup
+      if: always()
+      run: |
+        kubectl delete namespace argo-workflows-perf --ignore-not-found=true
+
+  # Integration tests
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kind cluster
+      uses: helm/kind-action@v1.8.0
+      with:
+        cluster_name: argo-integration
+        wait: 30s
+
+    - name: Install tools
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Deploy monitoring stack
+      run: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo update
+        helm install prometheus prometheus-community/kube-prometheus-stack \
+          --namespace monitoring \
+          --create-namespace \
+          --set prometheus.prometheusSpec.retention=7d \
+          --set grafana.adminPassword=admin123
+
+    - name: Deploy Argo Workflows with monitoring
+      run: |
+        ./scripts/quickstart-argo-workflows.sh \
+          --namespace argo-workflows-integration \
+          --cluster kind \
+          --auto-approve
+
+    - name: Run integration tests
+      run: |
+        chmod +x tests/argo-workflows/test-suite.sh
+        ./tests/argo-workflows/test-suite.sh \
+          --namespace argo-workflows-integration \
+          --test-suite integration \
+          --verbose
+
+    - name: Test monitoring integration
+      run: |
+        # Check if metrics are available
+        kubectl port-forward -n monitoring svc/prometheus-server 9090:9090 &
+        sleep 10
+        
+        # Query Argo Workflows metrics
+        curl -s "http://localhost:9090/api/v1/query?query=argo_workflows_workflow_status_total" | jq
+        
+        # Query Qwen metrics
+        curl -s "http://localhost:9090/api/v1/query?query=qwen_analysis_requests_total" | jq
+
+    - name: Test Grafana dashboards
+      run: |
+        kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+        sleep 10
+        
+        # Check if dashboards are imported
+        curl -s "http://admin:admin123@localhost:3000/api/search?query=argo" | jq
+
+    - name: Generate integration report
+      run: |
+        echo "## Integration Test Results" > integration-report.md
+        echo "Generated on: $(date)" >> integration-report.md
+        echo "" >> integration-report.md
+        
+        echo "### Component Status" >> integration-report.md
+        kubectl get all -n argo-workflows-integration >> integration-report.md
+        echo "" >> integration-report.md
+        
+        echo "### Test Results" >> integration-report.md
+        echo "All integration tests completed successfully" >> integration-report.md
+
+    - name: Upload integration report
+      uses: actions/upload-artifact@v3
+      with:
+        name: integration-report
+        path: integration-report.md
+
+    - name: Cleanup
+      if: always()
+      run: |
+        kubectl delete namespace argo-workflows-integration --ignore-not-found=true
+        kubectl delete namespace monitoring --ignore-not-found=true
+
+  # Documentation build
+  docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip3 install mkdocs mkdocs-material
+
+    - name: Build documentation
+      run: |
+        mkdocs build --strict
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: site/
+
+  # Release and deploy
+  release:
+    name: Release and Deploy
+    runs-on: ubuntu-latest
+    needs: [build-test, performance, integration, docs]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Argo Workflows Qwen v${{ github.run_number }}
+        body: |
+          ## Argo Workflows with Qwen LLM Integration
+          
+          ### Changes
+          - Automated CI/CD pipeline
+          - Comprehensive testing suite
+          - Performance optimization
+          - Enhanced monitoring
+          
+          ### Installation
+          ```bash
+          ./scripts/quickstart-argo-workflows.sh
+          ```
+          
+          ### Documentation
+          - [Quickstart Guide](docs/argo-workflows/QUICKSTART.md)
+          - [User Guide](docs/argo-workflows/USER-GUIDE.md)
+          - [API Documentation](docs/argo-workflows/README.md)
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }} .
+        docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest .
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+        docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add staging deployment commands here
+
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests..."
+        # Add smoke test commands here
+
+    - name: Deploy to production
+      if: success()
+      run: |
+        echo "Deploying to production environment..."
+        # Add production deployment commands here
+
+  # Notify
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: always()
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#ci-cd'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        text: |
+          Argo Workflows CI/CD Pipeline ${{ job.status }}
+          
+          Build: ${{ github.run_number }}
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref }}
+          
+          Results:
+          - Lint: ${{ needs.lint.result }}
+          - Security: ${{ needs.security.result }}
+          - Build & Test: ${{ needs.build-test.result }}
+          - Performance: ${{ needs.performance.result }}
+          - Integration: ${{ needs.integration.result }}
+          - Documentation: ${{ needs.docs.result }}
+          - Release: ${{ needs.release.result }}

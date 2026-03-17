@@ -111,6 +111,15 @@ Examples:
         generate_sample_data(args.generate_sample)
         return
 
+    # Langfuse commands
+    if args.langfuse:
+        run_langfuse_evaluation(args)
+        return
+
+    if args.langfuse_stream:
+        run_langfuse_stream(args)
+        return
+
     # Main evaluation workflow
     if not args.file:
         print("Error: --file required for evaluation")
@@ -275,6 +284,151 @@ def generate_sample_data(num_traces):
 
     except ImportError:
         print("❌ Example usage module not found")
+        sys.exit(1)
+
+
+def run_langfuse_evaluation(args):
+    """Run evaluation with real Langfuse data"""
+    print("🔗 AI Agent Evaluation with Langfuse Integration")
+    print("=" * 50)
+    
+    # Initialize framework with Langfuse
+    print("🚀 Initializing evaluation framework with Langfuse...")
+    framework = TracingEvaluationFramework(use_langfuse=True)
+    
+    # Check Langfuse health
+    health = framework.get_langfuse_health()
+    if health.get('status') != 'healthy':
+        print(f"⚠️  Langfuse health check: {health.get('status')}")
+        if 'error' in health:
+            print(f"   Error: {health['error']}")
+        print("   Proceeding with evaluation anyway...")
+    else:
+        print("✅ Langfuse connection healthy")
+    
+    # Build filters
+    filters = {}
+    if args.user_id:
+        filters['user_id'] = args.user_id
+    if args.session_id:
+        filters['session_id'] = args.session_id
+    if args.tags:
+        filters['tags'] = args.tags
+    
+    # Fetch real traces
+    print(f"📂 Fetching {args.count} traces from Langfuse...")
+    if filters:
+        print(f"   Filters: {filters}")
+    
+    traces = framework.fetch_real_traces(args.count, filters)
+    if not traces:
+        print("❌ No traces found to evaluate")
+        sys.exit(1)
+    
+    print(f"✅ Loaded {len(traces)} real traces")
+    
+    # Determine evaluators
+    evaluators = args.evaluators
+    if "all" in evaluators:
+        evaluators = None  # Run all
+    
+    # Run evaluation
+    print(f"🔍 Running evaluation with evaluators: {', '.join(evaluators or list(framework.evaluators.keys()))}")
+    result = framework.evaluate_traces(traces, evaluators)
+    
+    # Generate report
+    print("📊 Generating report...")
+    report = framework.generate_report(result, args.format)
+    
+    # Output handling
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(report)
+        print(f"✅ Report saved to {args.output}")
+    else:
+        print("\n" + "=" * 50)
+        print(report)
+    
+    # Visualization
+    if args.visualize:
+        generate_visualizations(framework, result, args.report_dir)
+
+
+def run_langfuse_stream(args):
+    """Run real-time evaluation with Langfuse streaming"""
+    print("🌊 AI Agent Real-Time Evaluation with Langfuse")
+    print("=" * 50)
+    print(f"⏰ Streaming for {args.duration} minutes...")
+    
+    # Initialize framework with Langfuse
+    framework = TracingEvaluationFramework(use_langfuse=True)
+    
+    # Check Langfuse health
+    health = framework.get_langfuse_health()
+    if health.get('status') != 'healthy':
+        print(f"⚠️  Langfuse health check: {health.get('status')}")
+        if 'error' in health:
+            print(f"   Error: {health['error']}")
+        print("   Proceeding with streaming anyway...")
+    else:
+        print("✅ Langfuse connection healthy")
+    
+    # Build filters
+    filters = {}
+    if args.user_id:
+        filters['user_id'] = args.user_id
+    if args.session_id:
+        filters['session_id'] = args.session_id
+    if args.tags:
+        filters['tags'] = args.tags
+    
+    if filters:
+        print(f"   Filters: {filters}")
+    
+    # Determine evaluators
+    evaluators = args.evaluators
+    if "all" in evaluators:
+        evaluators = None  # Run all
+    
+    print(f"🔍 Evaluators: {', '.join(evaluators or list(framework.evaluators.keys()))}")
+    print("🌊 Starting real-time trace streaming...")
+    print("   Press Ctrl+C to stop streaming")
+    
+    try:
+        trace_count = 0
+        evaluation_count = 0
+        
+        for trace in framework.stream_real_traces(args.duration, filters):
+            trace_count += 1
+            
+            # Evaluate every 10th trace to avoid overwhelming
+            if trace_count % 10 == 0:
+                print(f"📊 Evaluating trace #{trace_count}...")
+                result = framework.evaluate_traces([trace], evaluators)
+                
+                # Show brief results
+                summary = result.get('summary', {})
+                score = summary.get('overall_score', 0)
+                
+                print(f"   Score: {score:.3f} | Events: {len(trace.get('events', []))}")
+                
+                evaluation_count += 1
+                
+                # Optional: Save detailed results
+                if args.output:
+                    with open(args.output, 'a') as f:
+                        f.write(f"Trace {trace_count}: Score {score:.3f}\n")
+        
+        print(f"\n✅ Streaming completed")
+        print(f"   Total traces processed: {trace_count}")
+        print(f"   Evaluations run: {evaluation_count}")
+        
+    except KeyboardInterrupt:
+        print(f"\n⏹️  Streaming stopped by user")
+        print(f"   Traces processed: {trace_count}")
+        print(f"   Evaluations run: {evaluation_count}")
+    except Exception as e:
+        print(f"\n❌ Streaming error: {e}")
         sys.exit(1)
 
 
