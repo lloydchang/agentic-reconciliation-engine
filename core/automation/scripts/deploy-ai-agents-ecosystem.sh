@@ -993,54 +993,13 @@ data:
                 try {
                     const response = await fetch('http://localhost:5006/api/agents');
                     const data = await response.json();
-                    agents = data || generateMockAgents();
+                    agents = data;
                     renderAgents();
                 } catch (error) {
-                    agents = generateMockAgents();
+                    console.error('Failed to load agents:', error);
+                    agents = [];
                     renderAgents();
                 }
-            }
-            
-            // Generate mock agents for demo
-            function generateMockAgents() {
-                return [
-                    {
-                        id: 'agent-1',
-                        name: 'Cost Optimizer',
-                        type: 'Rust',
-                        status: 'running',
-                        skills: 12,
-                        lastActivity: '2 min ago',
-                        successRate: 98.5
-                    },
-                    {
-                        id: 'agent-2',
-                        name: 'Security Scanner',
-                        type: 'Go',
-                        status: 'running',
-                        skills: 8,
-                        lastActivity: '5 min ago',
-                        successRate: 99.1
-                    },
-                    {
-                        id: 'agent-3',
-                        name: 'Cluster Monitor',
-                        type: 'Python',
-                        status: 'idle',
-                        skills: 15,
-                        lastActivity: '12 min ago',
-                        successRate: 97.2
-                    },
-                    {
-                        id: 'agent-4',
-                        name: 'Deployment Manager',
-                        type: 'Rust',
-                        status: 'running',
-                        skills: 10,
-                        lastActivity: '1 min ago',
-                        successRate: 96.8
-                    }
-                ];
             }
             
             // Render agents
@@ -1068,22 +1027,13 @@ data:
                 try {
                     const response = await fetch('http://localhost:5006/api/skills');
                     const data = await response.json();
-                    skills = data || generateMockSkills();
+                    skills = data;
                     renderSkills();
                 } catch (error) {
-                    skills = generateMockSkills();
+                    console.error('Failed to load skills:', error);
+                    skills = [];
                     renderSkills();
                 }
-            }
-            
-            // Generate mock skills
-            function generateMockSkills() {
-                return [
-                    'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
-                    'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
-                    'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
-                    'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
-                ];
             }
             
             // Render skills
@@ -1101,48 +1051,13 @@ data:
                 try {
                     const response = await fetch('http://localhost:5006/api/activity');
                     const data = await response.json();
-                    activities = data || generateMockActivity();
+                    activities = data;
                     renderActivity();
                 } catch (error) {
-                    activities = generateMockActivity();
+                    console.error('Failed to load activity:', error);
+                    activities = [];
                     renderActivity();
                 }
-            }
-            
-            // Generate mock activity
-            function generateMockActivity() {
-                return [
-                    {
-                        time: '2 min ago',
-                        type: 'success',
-                        icon: '🚀',
-                        message: 'Cost Optimizer completed analysis for production cluster'
-                    },
-                    {
-                        time: '5 min ago',
-                        type: 'warning',
-                        icon: '⚠️',
-                        message: 'Security Scanner detected unusual network traffic'
-                    },
-                    {
-                        time: '12 min ago',
-                        type: 'info',
-                        icon: '📊',
-                        message: 'Cluster Monitor generated performance report'
-                    },
-                    {
-                        time: '18 min ago',
-                        type: 'success',
-                        icon: '✅',
-                        message: 'Deployment Manager successfully rolled out update'
-                    },
-                    {
-                        time: '25 min ago',
-                        type: 'error',
-                        icon: '❌',
-                        message: 'Backup Manager failed to connect to storage'
-                    }
-                ];
             }
             
             // Render activity
