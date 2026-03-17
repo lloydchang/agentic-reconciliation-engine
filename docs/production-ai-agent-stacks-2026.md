@@ -2,7 +2,7 @@
 
 ## Overview
 
-Analysis of real-world production AI agent deployments shared by practitioners on Reddit's r/AI_Agents (March 2026). This document captures what's actually working vs. what's hype in production environments.
+Analysis of real-world production AI agent deployments shared by practitioners on [Reddit's r/AI_Agents](https://www.reddit.com/r/AI_Agents/comments/1rtiplc/running_ai_agents_in_production_what_does_your/) (March 2026). This document captures what's actually working vs. what's hype in production environments.
 
 ## Key Themes
 
@@ -28,9 +28,9 @@ Analysis of real-world production AI agent deployments shared by practitioners o
 
 **Components:**
 - **Orchestration:** Python subprocess with isolated environments
-- **Communication:** Redis streams (message bus)
-- **Reasoning:** Claude API
-- **Persistence:** Postgres
+- **Communication:** [Redis](https://redis.io/) streams (message bus)
+- **Reasoning:** [Claude API](https://docs.anthropic.com/)
+- **Persistence:** [Postgres](https://www.postgresql.org/)
 - **Tools:** Simple Python scripts
 
 **Key Insights:**
@@ -42,11 +42,11 @@ Analysis of real-world production AI agent deployments shared by practitioners o
 **Used by:** B2B SaaS teams (6 people)
 
 **Components:**
-- **Orchestration:** Temporal for long-running workflows
-- **LLMs:** GPT-4.1/4o + vLLM for classification
-- **Memory:** Postgres + pgvector
+- **Orchestration:** [Temporal](https://temporal.io/) for long-running workflows
+- **LLMs:** [GPT-4.1/4o](https://openai.com/) + [vLLM](https://vllm.ai/) for classification
+- **Memory:** [Postgres](https://www.postgresql.org/) + [pgvector](https://github.com/pgvector/pgvector)
 - **Tools:** Internal API layer with whitelisted tools
-- **Observability:** Langfuse + custom logging
+- **Observability:** [Langfuse](https://langfuse.com/) + custom logging
 
 **Key Insights:**
 - Agents as tasks in workflows, not autonomous loops
@@ -60,7 +60,7 @@ Analysis of real-world production AI agent deployments shared by practitioners o
 - **Runtime:** Single Mac/Docker instance
 - **Memory:** Markdown files in git repo
 - **Reasoning:** Claude/Gemini mix
-- **Automation:** Playwright for browser tasks
+- **Automation:** [Playwright](https://playwright.dev/) for browser tasks
 
 **Key Insights:**
 - No cloud infrastructure needed
@@ -71,9 +71,9 @@ Analysis of real-world production AI agent deployments shared by practitioners o
 **Used by:** Teams wanting dead-simple setup
 
 **Components:**
-- **Framework:** FastAPI + Pydantic-AI
-- **Protocol:** FastMCP for tool management
-- **Utilities:** tinyfn.io for deterministic operations
+- **Framework:** [FastAPI](https://fastapi.tiangolo.com/) + [Pydantic-AI](https://ai.pydantic.dev/)
+- **Protocol:** [FastMCP](https://github.com/modelcontextprotocol/servers) for tool management
+- **Utilities:** [tinyfn.io](https://tinyfn.io/) for deterministic operations
 - **Monitoring:** Custom solution (not Braintrust)
 
 **Key Insights:**
@@ -146,24 +146,24 @@ Analysis of real-world production AI agent deployments shared by practitioners o
 ## Technology Choices
 
 ### LLM Models
-- **Claude Sonnet:** Sweet spot for cost vs capability
-- **Claude Opus:** For complex multi-step reasoning
-- **GPT-4.1/4o:** Primary reasoning layer
-- **Gemini Flash:** High-volume routine tasks
+- **Claude Sonnet:** Sweet spot for cost vs capability ([Anthropic](https://docs.anthropic.com/))
+- **Claude Opus:** For complex multi-step reasoning ([Anthropic](https://docs.anthropic.com/))
+- **GPT-4.1/4o:** Primary reasoning layer ([OpenAI](https://openai.com/))
+- **Gemini Flash:** High-volume routine tasks ([Google](https://ai.google.dev/))
 - **Open-weight models:** For classification/extraction
 
 ### Memory Solutions
-- **Postgres:** Structured state persistence
-- **Redis:** Message passing and short-term state
+- **Postgres:** Structured state persistence ([PostgreSQL](https://www.postgresql.org/))
+- **Redis:** Message passing and short-term state ([Redis](https://redis.io/))
 - **Vector stores:** Limited, aggressive filtering
 - **File-based:** Git repos with markdown files
 - **JSONL logs:** Session continuity and debugging
 
 ### Orchestration Tools
-- **Temporal:** Long-running workflows with retries
+- **Temporal:** Long-running workflows with retries ([Temporal.io](https://temporal.io/))
 - **Custom cron:** Skip-if-running, exponential backoff
 - **Python subprocess:** Isolated agent environments
-- **Message buses:** Redis streams for communication
+- **Message buses:** Redis streams for communication ([Redis](https://redis.io/))
 - **Direct API calls:** Preferred over framework abstractions
 
 ## Cost Optimization Strategies
