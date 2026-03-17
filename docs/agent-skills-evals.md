@@ -2,6 +2,8 @@
 
 This document adapts the OpenAI Codex evaluation methodology to the gitops-infra-control-plane skills system, providing systematic testing and improvement tracking for AI agent skills.
 
+**Source**: [Testing Agent Skills Systematically with Evals](https://developers.openai.com/blog/eval-skills) (OpenAI, Jan 22, 2026)
+
 ## Overview
 
 Building on the [OpenAI Evals for Agent Skills](https://developers.openai.com/blog/eval-skills) approach, we implement structured evaluation for our skills following the [agentskills.io specification](https://agentskills.io/specification). Instead of relying on subjective "feels better" assessments, we use concrete, measurable criteria to track skill performance over time.
