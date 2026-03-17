@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  # Core Workflow Controller Configuration
+  containerRuntimeExecutor: "pns"
+  namespace: "argo-workflows"
+  instanceID: "argo-workflows"
+  
+  # Monitoring and Telemetry
+  telemetry: "true"
+  telemetryPath: "/metrics"
+  metricsPort: "9090"
+  
+  # Persistence and Archiving
+  persistence: "true"
+  persistenceConnectionPool: "10"
+  archive: "true"
+  archiveLabelSelector: "workflows.argoproj.io/archive=true"
+  archiveTTL: "30d"
+  
+  # Node Events and Logging
+  nodeEvents: "true"
+  logs: "true"
+  logsHistoryLimit: "100"
+  
+  # Security Configuration
+  security:
+    enabled: "true"
+    enforceNonRoot: "true"
+  
+  # Qwen LLM Integration Configuration
+  qwenIntegration: "true"
+  qwenServiceURL: "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080"
+  qwenAnalysisEnabled: "true"
+  
+  # Workflow Defaults
+  workflowDefaults: |
+    {
+      "spec": {
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 8737,
+          "fsGroup": 8737
+        },
+        "podSpecPatch": "[{\"op\": \"replace\", \"path\": \"/securityContext/runAsUser\", \"value\": 8737}]",
+        "entrypoint": "main",
+        "serviceAccountName": "argo-workflows",
+        "containerRuntimeExecutor": "pns",
+        "activeDeadlineSeconds": 3600,
+        "podGC": {
+          "strategy": "OnWorkflowCompletion"
+        },
+        "hooks": {
+          "running": [
+            {
+              "template": "qwen-analysis-hook"
+            }
+          ]
+        },
+        "onExit": "qwen-summary-hook"
+      }
+    }
+  
+  # Artifact Repository Configuration
+  artifactRepository: |
+    {
+      "s3": {
+        "endpoint": "minio.argo-workflows.svc.cluster.local:9000",
+        "bucket": "argo-workflows",
+        "insecure": true,
+        "accessKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "accesskey"
+        },
+        "secretKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "secretkey"
+        }
+      }
+    }
+  
+  # Resource Limits and Defaults
+  resources: |
+    {
+      "requests": {
+        "cpu": "100m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "500m",
+        "memory": "1Gi"
+      }
+    }
+  
+  # Parallelism and Concurrency
+  parallelism: "10"
+  workflowDefaultsRetries: "3"
+  
+  # Node and Pod Configuration
+  nodeSelector: |
+    {
+      "kubernetes.io/os": "linux"
+    }
+  
+  tolerations: |
+    [
+      {
+        "key": "workflows.argoproj.io",
+        "operator": "Equal",
+        "value": "true",
+        "effect": "NoSchedule"
+      }
+    ]
+  
+  # Environment Variables
+  environment: |
+    {
+      "ARGO_NAMESPACE": "argo-workflows",
+      "ARGO_INSTANCE_ID": "argo-workflows",
+      "QWEN_LLM_ENABLED": "true",
+      "QWEN_SERVICE_URL": "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080"
+    }

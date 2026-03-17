@@ -1,0 +1,224 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qwen-k8sgpt-config
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+data:
+  # Qwen LLM Configuration
+  config.yaml: |
+    # K8sGPT Configuration with Qwen LLM
+    model: qwen
+    backend: localai
+    language: english
+    output: json
+    
+    # Qwen LocalAI Configuration
+    localai:
+      base_url: http://qwen-localai.argo-workflows.svc.cluster.local:8080
+      model: qwen
+      max_tokens: 4096
+      temperature: 0.7
+      top_p: 0.9
+      frequency_penalty: 0.0
+      presence_penalty: 0.0
+    
+    # Analysis Configuration
+    analysis:
+      max_retries: 3
+      timeout: 60s
+      cache_enabled: true
+      cache_ttl: 3600s
+    
+    # Argo Workflows Integration
+    argo_workflows:
+      enabled: true
+      namespace: argo-workflows
+      workflow_analysis: true
+      pod_analysis: true
+      service_analysis: true
+      deployment_analysis: true
+      event_analysis: true
+    
+    # Prometheus Integration
+    prometheus:
+      enabled: true
+      url: http://prometheus.argo-workflows.svc.cluster.local:9090
+      metrics_enabled: true
+      alert_analysis: true
+    
+    # Logging Configuration
+    logging:
+      level: info
+      format: json
+      structured: true
+    
+    # Metrics Configuration
+    metrics:
+      enabled: true
+      port: 9090
+      path: /metrics
+    
+    # Tracing Configuration
+    tracing:
+      enabled: true
+      jaeger_endpoint: http://jaeger.argo-workflows.svc.cluster.local:14268/api/traces
+      sample_rate: 0.1
+
+  # Analysis Prompts for Qwen
+  analysis-prompts.yaml: |
+    # Workflow Analysis Prompts
+    workflow_analysis: |
+      Analyze this Argo Workflow execution and provide insights:
+      
+      Workflow Name: {{.workflow_name}}
+      Status: {{.status}}
+      Duration: {{.duration}}
+      Steps: {{.steps}}
+      
+      Focus on:
+      1. Performance bottlenecks
+      2. Error patterns and root causes
+      3. Resource utilization
+      4. Optimization recommendations
+      5. Security considerations
+      
+      Provide actionable recommendations for improvement.
+    
+    pod_analysis: |
+      Analyze this Kubernetes pod and provide troubleshooting insights:
+      
+      Pod Name: {{.pod_name}}
+      Namespace: {{.namespace}}
+      Status: {{.status}}
+      Events: {{.events}}
+      Container Statuses: {{.container_statuses}}
+      
+      Focus on:
+      1. Root cause of issues
+      2. Resource constraints
+      3. Network connectivity
+      4. Configuration problems
+      5. Security concerns
+      
+      Provide step-by-step resolution guidance.
+    
+    deployment_analysis: |
+      Analyze this deployment and provide optimization insights:
+      
+      Deployment Name: {{.deployment_name}}
+      Namespace: {{.namespace}}
+      Replicas: {{.replicas}}
+      Strategy: {{.strategy}}
+      Status: {{.status}}
+      
+      Focus on:
+      1. Deployment strategy effectiveness
+      2. Resource allocation
+      3. Health check configuration
+      4. Rolling update issues
+      5. Scaling recommendations
+      
+      Provide optimization recommendations.
+    
+    security_analysis: |
+      Analyze this Kubernetes resource for security issues:
+      
+      Resource Type: {{.resource_type}}
+      Resource Name: {{.resource_name}}
+      Namespace: {{.namespace}}
+      
+      Focus on:
+      1. RBAC permissions
+      2. Security contexts
+      3. Network policies
+      4. Secret management
+      5. Vulnerability assessments
+      
+      Provide security hardening recommendations.
+
+  # Qwen Model Configuration
+  qwen-model.yaml: |
+    # Qwen LLM Model Configuration
+    model:
+      name: qwen
+      version: latest
+      provider: localai
+      capabilities:
+        - text_generation
+        - analysis
+        - summarization
+        - troubleshooting
+        - recommendation
+    
+    parameters:
+      max_tokens: 4096
+      temperature: 0.7
+      top_p: 0.9
+      frequency_penalty: 0.0
+      presence_penalty: 0.0
+      stop_sequences:
+        - "###"
+        - "---"
+    
+    prompts:
+      system: |
+        You are Qwen, an AI assistant specialized in Kubernetes and Argo Workflows analysis.
+        You provide expert insights on:
+        - Workflow optimization and troubleshooting
+        - Kubernetes resource analysis
+        - Performance tuning
+        - Security assessment
+        - Cost optimization
+        
+        Always provide:
+        1. Clear problem identification
+        2. Root cause analysis
+        3. Actionable recommendations
+        4. Step-by-step guidance
+        5. Prevention strategies
+        
+        Be concise, accurate, and helpful.
+      
+      analysis_prefix: |
+        ## Analysis Request
+        **Component**: {{component}}
+        **Namespace**: {{namespace}}
+        **Severity**: {{severity}}
+        **Timestamp**: {{timestamp}}
+        
+        ## Analysis
+        
+      analysis_suffix: |
+        
+        ## Recommendations
+        1. 
+        2. 
+        3. 
+        
+        ## Next Steps
+        - 
+        - 
+        - 
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: qwen-k8sgpt-secrets
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+type: Opaque
+data:
+  # Base64 encoded secrets (replace with actual values)
+  localai-api-key: ""  # Empty for local deployment
+  qwen-model-key: ""   # Empty for local model
+  cache-encryption-key: ""  # Optional: cache encryption key

@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    app: qwen-k8sgpt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen-localai
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-localai
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: qwen-localai
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen-k8sgpt-headless
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: qwen-k8sgpt
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qwen-k8sgpt-ingress
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: qwen-k8sgpt.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: qwen-k8sgpt
+            port:
+              number: 8080
+  - host: qwen-k8sgpt.argo-workflows.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: qwen-k8sgpt
+            port:
+              number: 8080

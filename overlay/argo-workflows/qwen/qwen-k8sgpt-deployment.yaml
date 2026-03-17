@@ -1,0 +1,215 @@
+# Qwen LLM Integration for K8sGPT in Argo Workflows
+# This provides AI-powered analysis and automation capabilities
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qwen-k8sgpt
+  template:
+    metadata:
+      labels:
+        app: qwen-k8sgpt
+        app.kubernetes.io/name: argo-workflows
+        app.kubernetes.io/component: qwen-k8sgpt
+        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/llm: qwen
+    spec:
+      serviceAccountName: qwen-k8sgpt-sa
+      containers:
+      - name: qwen-k8sgpt
+        image: qwen/k8sgpt:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: K8SGPT_MODEL
+          value: "qwen"
+        - name: K8SGPT_BACKEND
+          value: "localai"
+        - name: K8SGPT_LOCALAI_BASE_URL
+          value: "http://qwen-localai.argo-workflows.svc.cluster.local:8080"
+        - name: K8SGPT_NAMESPACE
+          value: "argo-workflows"
+        - name: K8SGPT_OUTPUT
+          value: "json"
+        - name: K8SGPT_LANGUAGE
+          value: "english"
+        - name: K8SGPT_MAX_TOKENS
+          value: "4096"
+        - name: K8SGPT_TEMPERATURE
+          value: "0.7"
+        - name: K8SGPT_TOP_P
+          value: "0.9"
+        - name: K8SGPT_FREQUENCY_PENALTY
+          value: "0.0"
+        - name: K8SGPT_PRESENCE_PENALTY
+          value: "0.0"
+        - name: K8SGPT_CACHE_DIR
+          value: "/tmp/k8sgpt-cache"
+        - name: K8SGPT_LOG_LEVEL
+          value: "info"
+        - name: K8SGPT_ENABLE_METRICS
+          value: "true"
+        - name: K8SGPT_METRICS_PORT
+          value: "9090"
+        - name: K8SGPT_ENABLE_TRACING
+          value: "true"
+        - name: K8SGPT_JAEGER_ENDPOINT
+          value: "http://jaeger.argo-workflows.svc.cluster.local:14268/api/traces"
+        - name: K8SGPT_ARGO_WORKFLOWS_INTEGRATION
+          value: "true"
+        - name: K8SGPT_WORKFLOW_ANALYSIS_ENABLED
+          value: "true"
+        - name: K8SGPT_POD_ANALYSIS_ENABLED
+          value: "true"
+        - name: K8SGPT_SERVICE_ANALYSIS_ENABLED
+          value: "true"
+        - name: K8SGPT_DEPLOYMENT_ANALYSIS_ENABLED
+          value: "true"
+        - name: K8SGPT_EVENT_ANALYSIS_ENABLED
+          value: "true"
+        - name: K8SGPT_PROMETHEUS_INTEGRATION
+          value: "true"
+        - name: K8SGPT_PROMETHEUS_URL
+          value: "http://prometheus.argo-workflows.svc.cluster.local:9090"
+        volumeMounts:
+        - name: qwen-cache
+          mountPath: /tmp/k8sgpt-cache
+        - name: qwen-config
+          mountPath: /app/config
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: qwen-cache
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: qwen-config
+        configMap:
+          name: qwen-k8sgpt-config
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: qwen-k8sgpt-sa
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: qwen-k8sgpt-role
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+rules:
+# Core Kubernetes resources for analysis
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "list"]
+# Workload resources
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+# Argo Workflows resources
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates", "cronworkflows", "workflowtasksets"]
+  verbs: ["get", "list", "watch"]
+# Monitoring resources
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["prometheuses", "prometheusrules", "servicemonitors"]
+  verbs: ["get", "list", "watch"]
+# Network resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: qwen-k8sgpt-binding
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/llm: qwen
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: qwen-k8sgpt-role
+subjects:
+- kind: ServiceAccount
+  name: qwen-k8sgpt-sa
+  namespace: argo-workflows
