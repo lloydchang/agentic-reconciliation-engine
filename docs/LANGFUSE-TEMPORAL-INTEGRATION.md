@@ -4,7 +4,7 @@
 
 This guide demonstrates how to integrate Langfuse observability into the GitOps Infra Control Plane's Temporal workflows. Langfuse provides comprehensive monitoring, debugging, and evaluation capabilities for AI agents and LLM-powered applications running on Temporal.
 
-**Reference Documentation**: [Langfuse Temporal Integration](https://langfuse.com/integrations/frameworks/temporal)
+**Reference Documentation**: [Trace Temporal Workflows with Langfuse](https://langfuse.com/integrations/frameworks/temporal)
 
 ## What This Integration Provides
 
