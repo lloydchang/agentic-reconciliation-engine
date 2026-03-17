@@ -1,6 +1,6 @@
-Consider this repository as a [reference implementation](https://en.wikipedia.org/wiki/Reference_implementation).
+This is an aspirational project inspired by [reference implementations](https://en.wikipedia.org/wiki/Reference_implementation).
 
-Similarly, it draws inspiration from other reference implementations. Below are related information:
+Hence it draws inspirations from various references.
 
 ### References:
 
