@@ -49,7 +49,7 @@ Examples:
     parser.add_argument(
         "--evaluators", "-e",
         nargs="+",
-        choices=["skill_invocation", "performance", "cost", "all"],
+        choices=["skill_invocation", "performance", "cost", "monitoring", "health_check", "security", "compliance", "all"],
         default=["all"],
         help="Evaluators to run (default: all)"
     )
@@ -93,7 +93,54 @@ Examples:
     parser.add_argument(
         "--generate-sample", "-s",
         type=int,
+        metavar="COUNT",
         help="Generate sample traces (specify number)"
+    )
+
+    # Langfuse integration options
+    parser.add_argument(
+        "--langfuse",
+        action="store_true",
+        help="Use real traces from Langfuse"
+    )
+    
+    parser.add_argument(
+        "--langfuse-stream",
+        action="store_true", 
+        help="Stream real-time traces from Langfuse"
+    )
+    
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=100,
+        help="Number of traces to fetch from Langfuse (default: 100)"
+    )
+    
+    parser.add_argument(
+        "--duration",
+        type=int,
+        default=60,
+        help="Duration in minutes for streaming (default: 60)"
+    )
+    
+    parser.add_argument(
+        "--user-id",
+        type=str,
+        help="Filter by user ID (Langfuse only)"
+    )
+    
+    parser.add_argument(
+        "--session-id", 
+        type=str,
+        help="Filter by session ID (Langfuse only)"
+    )
+    
+    parser.add_argument(
+        "--tags",
+        type=str,
+        nargs='+',
+        help="Filter by tags (Langfuse only)"
     )
 
     args = parser.parse_args()
@@ -292,9 +339,9 @@ def run_langfuse_evaluation(args):
     print("🔗 AI Agent Evaluation with Langfuse Integration")
     print("=" * 50)
     
-    # Initialize framework with Langfuse
-    print("🚀 Initializing evaluation framework with Langfuse...")
-    framework = TracingEvaluationFramework(use_langfuse=True)
+    # Initialize framework
+    print("🚀 Initializing evaluation framework...")
+    framework = TracingEvaluationFramework()
     
     # Check Langfuse health
     health = framework.get_langfuse_health()
@@ -360,8 +407,8 @@ def run_langfuse_stream(args):
     print("=" * 50)
     print(f"⏰ Streaming for {args.duration} minutes...")
     
-    # Initialize framework with Langfuse
-    framework = TracingEvaluationFramework(use_langfuse=True)
+    # Initialize framework
+    framework = TracingEvaluationFramework()
     
     # Check Langfuse health
     health = framework.get_langfuse_health()
