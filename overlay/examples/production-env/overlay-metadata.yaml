@@ -1,0 +1,17 @@
+autonomy: fully_auto
+base_path: ''
+category: composed
+compatibility:
+  kubernetes: '>=1.20'
+  min_base: main
+description: 'Generated composed overlay: production-env'
+license: AGPLv3
+maintainer:
+  email: generated@example.com
+  name: Generated
+name: production-env
+risk_level: low
+tags:
+- composed
+- production-env
+version: 1.0.0
