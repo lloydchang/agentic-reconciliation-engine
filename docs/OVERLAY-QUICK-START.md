@@ -59,10 +59,10 @@ export PATH="$PWD/scripts:$PATH"
 
 ```bash
 # Verify installation
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/automation/scripts/overlay-cli.py list
 
 # Test with example overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/debug/enhanced
+python core/automation/scripts/validate-overlays.py overlay/ai/skills/debug/enhanced
 ```
 
 ## Quick Start Examples
@@ -73,10 +73,10 @@ Create your first overlay in 5 minutes:
 
 ```bash
 # Create overlay from template
-python core/core/automation/ci-cd/scripts/overlay-cli.py create hello-world skills debug --template skill-overlay
+python core/automation/scripts/overlay-cli.py create hello-world skills debug --template skill-overlay
 
 # Navigate to overlay directory
-cd core/deployment/overlays/core/ai/skills/hello-world
+cd overlay/ai/skills/hello-world
 
 # Edit overlay metadata
 cat > overlay-metadata.yaml << EOF
@@ -1204,8 +1204,8 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py update-catalog
 ### Directory Structure
 
 ```
-core/deployment/overlays/
-├── core/ai/skills/                # Skill overlays
+overlay/
+├── ai/skills/                # Skill overlays
 │   ├── debug/              # Enhanced debugging skill
 │   ├── infrastructure-provisioning/
 │   └── ...
