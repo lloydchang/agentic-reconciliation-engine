@@ -268,17 +268,51 @@ def load_sample_traces():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluation API Server")
-    parser.add_argument("--port", type=int, default=8081, help="Port to run the server on")
+    parser.add_argument("--port", type=int, default=8081, help="Port to run server on")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--background", action="store_true", help="Run server in background and exit")
+    parser.add_argument("--no-reload", action="store_true", help="Disable auto-reload for production")
     
     args = parser.parse_args()
     
     logger.info(f"Starting Evaluation API Server on {args.host}:{args.port}")
     
-    uvicorn.run(
-        "api_server:app",
-        host=args.host,
-        port=args.port,
-        reload=True,
-        log_level="info"
-    )
+    if args.background:
+        # Run in background mode
+        import subprocess
+        import sys
+        import os
+        
+        # Start server in background
+        cmd = [
+            sys.executable, "api_server.py",
+            "--port", str(args.port),
+            "--host", args.host,
+            "--no-reload"
+        ]
+        
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True
+        )
+        
+        logger.info(f"Server started in background with PID: {process.pid}")
+        logger.info(f"API available at http://{args.host}:{args.port}")
+        
+        # Write PID file for management
+        with open("api_server.pid", "w") as f:
+            f.write(str(process.pid))
+        
+        # Exit immediately after starting background process
+        sys.exit(0)
+    else:
+        # Run in foreground (development mode)
+        uvicorn.run(
+            "api_server:app",
+            host=args.host,
+            port=args.port,
+            reload=not args.no_reload,
+            log_level="info"
+        )

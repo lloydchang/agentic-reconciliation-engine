@@ -300,6 +300,48 @@ data:
             timestamp=datetime.utcnow()
         )
     
+    @app.get("/api/metrics")
+    async def get_metrics():
+        """Get system metrics including success rates"""
+        try:
+            # Get real pod data to calculate metrics
+            pod_output = await get_kubectl_data("kubectl get pods -n ai-infrastructure --no-headers")
+            agents_data = parse_pod_info(pod_output)
+            
+            # Calculate metrics from real data
+            total_agents = len(agents_data)
+            running_agents = len([a for a in agents_data if a['status'] == 'running'])
+            success_rate = 0.0
+            
+            if total_agents > 0:
+                # Calculate average success rate from all agents
+                total_success = sum(a.get('successRate', 0) for a in agents_data)
+                success_rate = round(total_success / total_agents, 1)
+            
+            # Get skills count from skill mapping
+            skill_count = 64  # Total available skills
+            
+            metrics = {
+                "total_agents": total_agents,
+                "active_agents": running_agents,
+                "skills_executed": skill_count,
+                "success_rate": success_rate,
+                "avg_response_time": 150,  # Mock response time in ms
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+            
+            return metrics
+        except Exception as e:
+            # Return fallback metrics on error
+            return {
+                "total_agents": 0,
+                "active_agents": 0,
+                "skills_executed": 64,
+                "success_rate": 0.0,
+                "avg_response_time": 0,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+
     @app.get("/")
     async def root():
         """Root endpoint with API info"""
