@@ -25,6 +25,7 @@ from security_evaluator import SecurityEvaluator
 from compliance_evaluator import ComplianceEvaluator
 from auto_fix_evaluator import AutoFixManager
 from integrations.langfuse_client import create_langfuse_client, LangfuseTraceGenerator
+from alerts.alert_manager import create_alert_manager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
 class TracingEvaluationFramework:
     """Main framework for evaluating agent traces"""
 
-    def __init__(self):
+    def __init__(self, enable_alerts: bool = True):
         self.skill_evaluator = GitOpsSkillEvaluator()
         self.performance_evaluator = PerformanceEvaluator()
         self.monitoring_evaluator = AgentMonitoringEvaluator()
@@ -63,6 +64,16 @@ class TracingEvaluationFramework:
         except Exception as e:
             logger.info(f"Langfuse integration not available: {e}")
             self.use_langfuse = False
+        
+        # Initialize alert manager
+        self.alert_manager = None
+        if enable_alerts:
+            try:
+                self.alert_manager = create_alert_manager()
+                logger.info("Alert manager initialized")
+            except Exception as e:
+                logger.warning(f"Alert manager initialization failed: {e}")
+                self.alert_manager = None
 
     def fetch_real_traces(self, count: int = 100, filters: dict = None) -> List[Dict[str, Any]]:
         """
@@ -192,7 +203,8 @@ class TracingEvaluationFramework:
         # Generate summary
         summary = self._generate_summary(results)
         
-        return {
+        # Create evaluation results
+        evaluation_results = {
             'summary': summary,
             'evaluator_results': results,
             'aggregate_metrics': {
@@ -201,6 +213,20 @@ class TracingEvaluationFramework:
                 'timestamp': datetime.now().isoformat()
             }
         }
+        
+        # Process alerts if enabled
+        if self.alert_manager:
+            try:
+                import asyncio
+                evaluation_id = f"eval_{int(datetime.now().timestamp())}"
+                asyncio.create_task(
+                    self.alert_manager.process_evaluation_results(evaluation_results, evaluation_id)
+                )
+                logger.info("Alert processing initiated")
+            except Exception as e:
+                logger.error(f"Alert processing failed: {e}")
+        
+        return evaluation_results
 
     def _generate_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Generate overall summary from evaluator results"""
@@ -315,3 +341,38 @@ class TracingEvaluationFramework:
                         lines.append(f"{key}: {value}")
         
         return "\n".join(lines)
+
+    def get_alerts(self, alert_type: str = 'active', limit: int = 100) -> List[Dict[str, Any]]:
+        """Get alerts from alert manager"""
+        if not self.alert_manager:
+            return []
+        
+        if alert_type == 'active':
+            alerts = self.alert_manager.get_active_alerts()
+        elif alert_type == 'history':
+            alerts = self.alert_manager.get_alert_history(limit)
+        else:
+            return []
+        
+        return [alert.to_dict() for alert in alerts]
+    
+    def acknowledge_alert(self, alert_id: str, acknowledged_by: str) -> bool:
+        """Acknowledge an alert"""
+        if not self.alert_manager:
+            return False
+        
+        return self.alert_manager.acknowledge_alert(alert_id, acknowledged_by)
+    
+    def resolve_alert(self, alert_id: str) -> bool:
+        """Resolve an alert"""
+        if not self.alert_manager:
+            return False
+        
+        return self.alert_manager.resolve_alert(alert_id)
+    
+    def get_alert_metrics(self) -> Dict[str, Any]:
+        """Get alert system metrics"""
+        if not self.alert_manager:
+            return {'status': 'Alert manager not initialized'}
+        
+        return self.alert_manager.get_metrics()
