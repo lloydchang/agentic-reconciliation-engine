@@ -6,10 +6,10 @@ Main entry point for evaluating Pi-Mono agent traces from Langfuse.
 Coordinates multiple evaluators to provide comprehensive analysis.
 """
 
-import argparse
-import json
 import sys
-from typing import Dict, Any, List
+import json
+import logging
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -24,6 +24,11 @@ from health_check_evaluator import HealthCheckEvaluator
 from security_evaluator import SecurityEvaluator
 from compliance_evaluator import ComplianceEvaluator
 from auto_fix_evaluator import AutoFixManager
+from integrations.langfuse_client import create_langfuse_client, LangfuseTraceGenerator
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class TracingEvaluationFramework:
     """Main framework for evaluating agent traces"""
@@ -43,6 +48,22 @@ class TracingEvaluationFramework:
             "security": SecurityEvaluator(),
             "compliance": ComplianceEvaluator()
         }
+        
+        # Initialize Langfuse integration
+        self.use_langfuse = False
+        self.langfuse_client = None
+        self.langfuse_generator = None
+        
+        # Try to initialize Langfuse if environment variables are set
+        try:
+            from integrations.langfuse_client import create_langfuse_client, LangfuseTraceGenerator
+            self.langfuse_client = create_langfuse_client()
+            self.langfuse_generator = LangfuseTraceGenerator(self.langfuse_client)
+            self.use_langfuse = True
+            logger.info("Langfuse integration initialized")
+        except Exception as e:
+            logger.info(f"Langfuse integration not available: {e}")
+            self.use_langfuse = False
 
     def fetch_real_traces(self, count: int = 100, filters: dict = None) -> List[Dict[str, Any]]:
         """
@@ -134,6 +155,53 @@ class TracingEvaluationFramework:
                 'status': 'error',
                 'error': str(e)
             }
+
+    def evaluate_traces(self, traces: List[Dict[str, Any]], 
+                      evaluator_types: List[str] = None) -> Dict[str, Any]:
+        """
+        Evaluate traces using specified evaluators
+
+        Args:
+            traces: List of Langfuse trace data
+            evaluator_types: List of evaluator types to run (None for all)
+
+        Returns:
+            Comprehensive evaluation results
+        """
+        if evaluator_types is None:
+            evaluator_types = list(self.evaluators.keys())
+        
+        results = {}
+        
+        for evaluator_type in evaluator_types:
+            if evaluator_type in self.evaluators:
+                evaluator = self.evaluators[evaluator_type]
+                try:
+                    # Use evaluate_batch method for consistency
+                    result = evaluator.evaluate_batch(traces)
+                    results[evaluator_type] = result
+                except Exception as e:
+                    logger.error(f"Evaluation failed for {evaluator_type}: {e}")
+                    results[evaluator_type] = {
+                        'error': str(e),
+                        'average_score': 0.0,
+                        'pass_rate': 0.0
+                    }
+            else:
+                logger.warning(f"Unknown evaluator: {evaluator_type}")
+        
+        # Generate summary
+        summary = self._generate_summary(results)
+        
+        return {
+            'summary': summary,
+            'evaluator_results': results,
+            'aggregate_metrics': {
+                'total_evaluations': len(traces),
+                'evaluators_run': evaluator_types,
+                'timestamp': datetime.now().isoformat()
+            }
+        }
         """
         Evaluate traces using specified evaluators
 
