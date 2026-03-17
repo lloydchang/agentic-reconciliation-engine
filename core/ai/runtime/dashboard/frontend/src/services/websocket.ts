@@ -4,7 +4,7 @@ const WS_URL = process.env.REACT_APP_WS_URL || 'http://localhost:8081';
 
 class WebSocketService {
   private socket: Socket | null = null;
-  private eventHandlers: Map<string, Function[]> = new Map();
+  private eventHandlers: Map<string, ((data?: any) => void)[]> = new Map();
 
   connect() {
     this.socket = io(WS_URL, {
@@ -47,14 +47,14 @@ class WebSocketService {
     }
   }
 
-  on(event: string, handler: Function) {
+  on(event: string, handler: (data?: any) => void) {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, []);
     }
     this.eventHandlers.get(event)!.push(handler);
   }
 
-  off(event: string, handler: Function) {
+  off(event: string, handler: (data?: any) => void) {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
       const index = handlers.indexOf(handler);
