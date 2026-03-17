@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-scanner-agent
+  namespace: ai-infrastructure
+  labels:
+    agent-type: security-scanner
+    language: go
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      agent-type: security-scanner
+  template:
+    metadata:
+      labels:
+        agent-type: security-scanner
+        language: go
+    spec:
+      serviceAccountName: agent-swarm-sa
+      containers:
+      - name: security-scanner
+        image: security-scanner-agent:latest
+        env:
+        - name: MEMORY_AGENT_URL
+          value: "http://agent-memory-rust:8080"
+        - name: AGENT_TYPE
+          value: "security-scanner"
+        - name: LANGUAGE_PRIORITY
+          value: "rust,go,python"
+        - name: BACKEND_PRIORITY
+          value: "llama.cpp,ollama"
+        - name: OLLAMA_URL
+          value: "http://ollama-service:11434"
+        - name: MODEL
+          value: "qwen2.5:0.5b"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: security-scanner-service
+  namespace: ai-infrastructure
+  labels:
+    agent-type: security-scanner
+spec:
+  selector:
+    agent-type: security-scanner
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080

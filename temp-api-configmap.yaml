@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-api-script
+  namespace: ai-infrastructure
+data:
+  api.py: |
+    from flask import Flask, jsonify
+    from flask_cors import CORS
+    import json
+    import re
+    import subprocess
+    app = Flask(__name__)
+    CORS(app)
+
+    def get_kubectl_data(command):
+        try:
+            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+            return result.stdout.strip()
+        except Exception as e:
+            print(f"Error executing {command}: {e}")
+            return ""
+
+    @app.route('/api/agents')
+    def get_agents():
+        agents = []
+        
+        # Detect memory agent
+        memory_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=agent-memory --no-headers")
+        for line in memory_output.split('\n'):
+            if line.strip():
+                parts = re.split(r'\s+', line.strip())
+                if len(parts) >= 6:
+                    name = parts[0]
+                    if 'memory' in name:
+                        agents.append({
+                            'id': name,
+                            'name': 'Memory Agent',
+                            'type': 'Rust',
+                            'status': parts[1],
+                            'skills': 1,
+                            'lastActivity': '1 min ago',
+                            'successRate': 99.9
+                        })
+        
+        # Detect temporal workers (contains all agent activities)
+        worker_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=temporal-workers --no-headers")
+        for line in worker_output.split('\n'):
+            if line.strip():
+                parts = re.split(r'\s+', line.strip())
+                if len(parts) >= 6:
+                    name = parts[0]
+                    if 'worker' in name:
+                        agents.append({
+                            'id': name,
+                            'name': 'AI Agent Worker',
+                            'type': 'Go',
+                            'status': parts[1],
+                            'skills': 64,  # All activities available
+                            'lastActivity': '1 min ago',
+                            'successRate': 98.5
+                        })
+        
+        return jsonify({'agents': agents})
+
+    @app.route('/api/skills')
+    def get_skills():
+        return jsonify({
+            'skills': [
+                'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
+                'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
+                'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
+                'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
+            ]
+        })
+
+    @app.route('/api/activity')
+    def get_activity():
+        return jsonify({
+            'activities': [
+                {'time': '2 min ago', 'type': 'success', 'icon': '🚀', 'message': 'Cost Optimizer completed analysis for production cluster'},
+                {'time': '5 min ago', 'type': 'warning', 'icon': '⚠️', 'message': 'Security Scanner detected unusual network traffic'},
+                {'time': '12 min ago', 'type': 'info', 'icon': '📊', 'message': 'Cluster Monitor generated performance report'},
+                {'time': '18 min ago', 'type': 'success', 'icon': '✅', 'message': 'Deployment Manager successfully rolled out update'},
+                {'time': '25 min ago', 'type': 'error', 'icon': '❌', 'message': 'Backup Manager failed to connect to storage'}
+            ]
+        })
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=5000, debug=True)
