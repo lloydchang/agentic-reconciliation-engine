@@ -1,0 +1,101 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: argo-rollouts-overlay
+  namespace: argo-rollouts
+
+resources:
+# Argo Rollouts Controller
+- github.com/argoproj/argo-rollouts/manifests/rollouts?ref=v1.7.0
+
+# Namespace
+- namespace.yaml
+
+# RBAC
+- rbac/
+  serviceaccount.yaml
+  clusterrole.yaml
+  clusterrolebinding.yaml
+
+# ConfigMaps
+- configmaps/
+  argo-rollouts-config.yaml
+
+# Services
+- services/
+  argo-rollouts-metrics.yaml
+
+# Deployments
+- deployments/
+  argo-rollouts-controller.yaml
+
+# ServiceMonitor (for Prometheus)
+- monitoring/
+  service-monitor.yaml
+
+# PrometheusRule (for alerting)
+- monitoring/
+  prometheus-rule.yaml
+
+# NetworkPolicy
+- security/
+  network-policy.yaml
+
+# Analysis Templates
+- analysis/
+  success-rate-template.yaml
+  k8sgpt-analysis-template.yaml
+  qwen-decision-template.yaml
+
+# Example Rollouts
+- examples/
+  basic-rollout.yaml
+  canary-rollout.yaml
+  bluegreen-rollout.yaml
+  ab-test-rollout.yaml
+
+patchesStrategicMerge:
+# Custom patches for our environment
+- patches/
+  controller-config.yaml
+  metrics-config.yaml
+
+commonLabels:
+  app.kubernetes.io/name: argo-rollouts
+  app.kubernetes.io/component: controller
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/created-by: gitops-infra-control-plane
+
+vars:
+# Variables for configuration
+- name: ARGOROLLOUTS_NAMESPACE
+  objref:
+    kind: ConfigMap
+    name: argo-rollouts-config
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.namespace
+
+- name: ARGOROLLOUTS_IMAGE
+  objref:
+    kind: ConfigMap
+    name: argo-rollouts-config
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.image
+
+- name: ARGOROLLOUTS_VERSION
+  objref:
+    kind: ConfigMap
+    name: argo-rollouts-config
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.version
+
+configurations:
+# Kustomize configurations
+- kustomizeconfig.yaml

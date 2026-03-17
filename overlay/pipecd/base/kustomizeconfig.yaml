@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: KustomizationConfig
+
+nameReference:
+  - kind: Namespace
+    fieldSpecs:
+      - path: metadata/name
+        kind: Deployment
+      - path: metadata/name
+        kind: Service
+      - path: metadata/name
+        kind: Secret
+      - path: metadata/name
+        kind: PersistentVolumeClaim
+
+namespace:
+  - kind: Deployment
+    fieldSpecs:
+      - path: metadata/namespace
+      - path: spec/template/metadata/namespace
+  - kind: Service
+    fieldSpecs:
+      - path: metadata/namespace
+  - kind: Secret
+    fieldSpecs:
+      - path: metadata/namespace
+  - kind: PersistentVolumeClaim
+    fieldSpecs:
+      - path: metadata/namespace
+
+commonAnnotations:
+  - path: metadata/annotations
+    create: true
+
+commonLabels:
+  - path: metadata/labels
+    create: true
