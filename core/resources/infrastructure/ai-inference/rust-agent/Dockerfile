@@ -1,16 +1,16 @@
 # Build stage
-FROM rust:1.75-slim AS builder
+FROM rust:1.80-slim AS builder
 
 WORKDIR /usr/src/app
 
 # Copy Cargo files
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 
 # Copy source
 COPY src ./src
 
-# Build release
-RUN cargo build --release
+# Generate lock file and build release
+RUN cargo update && cargo build --release
 
 # Runtime stage
 FROM debian:bookworm-slim
