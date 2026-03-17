@@ -6,24 +6,22 @@ metadata:
   namespace: argo-workflows
 
 resources:
-# Core Argo Workflows Installation
-- base/namespace.yaml
+# Core Argo Workflows resources
 - base/argo-workflows-install.yaml
 - base/workflow-controller-configmap.yaml
 
-# Qwen LLM Integration
-- qwen/qwen-k8sgpt-deployment.yaml
-- qwen/qwen-configmap.yaml
-- qwen/qwen-service.yaml
+# Qwen LLM Integration - Using Centralized Service
+# Removed separate Qwen deployment - now using agent-memory-rust
+# Service: agent-memory-service.ai-infrastructure.svc.cluster.local:8080
+# Metrics: agent-memory-service.ai-infrastructure.svc.cluster.local:9090
 
 # Workflow Examples and Templates
 - examples/basic-workflows.yaml
-- examples/qwen-analysis-workflows.yaml
 - examples/ci-cd-workflows.yaml
 
 # Monitoring and Observability
-- monitoring/prometheus-service-monitor.yaml
-- monitoring/grafana-dashboard.yaml
+- base/monitoring/prometheus-config.yaml
+- base/monitoring/grafana-dashboard.yaml
 
 # Security and RBAC
 - security/rbac.yaml
@@ -31,16 +29,13 @@ resources:
 
 # Configurations
 - configurations/workflow-controller-config.yaml
-- configurations/artifact-repository.yaml
 
 patchesStrategicMerge:
 # Development environment patches
 - patches/dev/controller-resources.yaml
-- patches/dev/qwen-resources.yaml
 
 # Production environment patches  
 - patches/prod/controller-resources.yaml
-- patches/prod/qwen-resources.yaml
 
 configurations:
 - configurations/configmap-transformer.yaml
@@ -54,6 +49,7 @@ commonAnnotations:
   argo-workflows/version: "v3.5.0"
   gitops-infra-control-plane/managed: "true"
   qwen-llm/integrated: "true"
+  qwen-centralized: "true"
 
 vars:
 - name: ARGOWF_NAMESPACE
@@ -65,22 +61,19 @@ vars:
 - name: QWEN_SERVICE_URL
   objref:
     kind: Service
-    name: qwen-k8sgpt
+    name: agent-memory-service
+    namespace: ai-infrastructure
     fieldref:
       fieldpath: metadata.name
 
 replicas:
 - name: argo-workflows-controller
   count: 1
-- name: qwen-k8sgpt
-  count: 1
 
 images:
-- name: argoproj/argo-workflows
+- name: argo-workflows-controller
   newTag: v3.5.0
 - name: python
   newTag: 3.9-alpine
-- name: qwen/k8sgpt
-  newTag: latest
 
 namespace: argo-workflows
