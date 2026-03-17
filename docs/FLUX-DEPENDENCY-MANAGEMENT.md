@@ -66,13 +66,13 @@ Scanned the repository and identified the following Flux `Kustomization` resourc
 
 | Resource Path | Purpose | Current dependsOn |
 |---------------|---------|-------------------|
-| `infrastructure/flux/core/kustomization.yaml` | Core Flux infrastructure | N/A (base) |
-| `control-plane/kustomization.yaml` | Control plane components | ❌ None |
-| `control-plane/bootstrap/kustomization.yaml` | Bootstrap configuration | ❌ None |
-| `infrastructure/monitoring/kustomization.yaml` | Monitoring stack | ❌ None |
-| `examples/complete-hub-spoke/kustomization.yaml` | Example hub-spoke setup | ❌ None |
-| `examples/complete-hub-spoke/agent-workflows/kustomization.yaml` | Agent workflows | ❌ None |
-| `examples/complete-hub-spoke/ai-gateway/kustomization.yaml` | AI gateway components | ❌ None |
+| `core/resources/flux/core/kustomization.yaml` | Core Flux infrastructure | N/A (base) |
+| `core/operators/kustomization.yaml` | Control plane components | ❌ None |
+| `core/operators/bootstrap/kustomization.yaml` | Bootstrap configuration | ❌ None |
+| `core/resources/monitoring/kustomization.yaml` | Monitoring stack | ❌ None |
+| `overlay/examples/complete-hub-spoke/kustomization.yaml` | Example hub-spoke setup | ❌ None |
+| `overlay/examples/complete-hub-spoke/agent-workflows/kustomization.yaml` | Agent workflows | ❌ None |
+| `overlay/examples/complete-hub-spoke/ai-gateway/kustomization.yaml` | AI gateway components | ❌ None |
 | `flux-operator/kustomization.yaml` | Flux operator itself | ❌ None |
 
 ### No HelmRelease Resources Found
@@ -88,12 +88,12 @@ Established a clear dependency chain with `flux-core` as the foundation:
 ```
 flux-core (base infrastructure)
 ├── control-plane
-├── control-plane/bootstrap
-├── infrastructure/monitoring
+├── core/operators/bootstrap
+├── core/resources/monitoring
 ├── flux-operator
-├── examples/complete-hub-spoke
-├── examples/complete-hub-spoke/agent-workflows
-└── examples/complete-hub-spoke/ai-gateway
+├── overlay/examples/complete-hub-spoke
+├── overlay/examples/complete-hub-spoke/agent-workflows
+└── overlay/examples/complete-hub-spoke/ai-gateway
 ```
 
 ### Implementation Pattern
@@ -114,19 +114,19 @@ spec:
 ## Files Modified
 
 ### Core Infrastructure
-- `infrastructure/flux/core/kustomization.yaml` - Base resource (no dependsOn needed)
+- `core/resources/flux/core/kustomization.yaml` - Base resource (no dependsOn needed)
 
 ### Control Plane Components
-- `control-plane/kustomization.yaml` - Added `dependsOn: flux-core`
-- `control-plane/bootstrap/kustomization.yaml` - Added `dependsOn: flux-core`
+- `core/operators/kustomization.yaml` - Added `dependsOn: flux-core`
+- `core/operators/bootstrap/kustomization.yaml` - Added `dependsOn: flux-core`
 
 ### Infrastructure Components
-- `infrastructure/monitoring/kustomization.yaml` - Added `dependsOn: flux-core`
+- `core/resources/monitoring/kustomization.yaml` - Added `dependsOn: flux-core`
 
 ### Example Configurations
-- `examples/complete-hub-spoke/kustomization.yaml` - Added `dependsOn: flux-core`
-- `examples/complete-hub-spoke/agent-workflows/kustomization.yaml` - Added `dependsOn: flux-core`
-- `examples/complete-hub-spoke/ai-gateway/kustomization.yaml` - Added `dependsOn: flux-core`
+- `overlay/examples/complete-hub-spoke/kustomization.yaml` - Added `dependsOn: flux-core`
+- `overlay/examples/complete-hub-spoke/agent-workflows/kustomization.yaml` - Added `dependsOn: flux-core`
+- `overlay/examples/complete-hub-spoke/ai-gateway/kustomization.yaml` - Added `dependsOn: flux-core`
 
 ### Operators
 - `flux-operator/kustomization.yaml` - Added `dependsOn: flux-core`

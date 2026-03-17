@@ -30,21 +30,21 @@ This file implements advanced agent skills for self-organizing swarms within the
 **Problem Types**: Basic deployment automation, simple monitoring, routine tasks
 **Appropriate Skills**: Basic Flux CronJobs, shell scripts, simple kubectl operations
 **When to Use**: Small teams, predictable workloads, single-cloud environments
-**Repository Path**: `infrastructure/tenants/3-workloads/` basic patterns
+**Repository Path**: `core/resources/tenants/3-workloads/` basic patterns
 
 ### 🟡 Coordination Problems  
 
 **Problem Types**: Multi-cloud resource coordination, complex deployment sequencing, cross-environment management
 **Appropriate Skills**: Agent orchestration, consensus coordination, workflow management
 **When to Use**: Medium complexity, multi-cloud, multi-team environments
-**Repository Path**: `examples/complete-hub-spoke/agent-workflows/` selective adoption
+**Repository Path**: `overlay/examples/complete-hub-spoke/agent-workflows/` selective adoption
 
 ### 🔴 Complex Optimization Problems
 
 **Problem Types**: Large-scale cost optimization, predictive scaling, autonomous failure recovery, complex compliance management
 **Appropriate Skills**: Advanced AI agents, machine learning integration, self-organizing swarms
 **When to Use**: Large-scale infrastructure, complex multi-cloud, high-compliance requirements
-**Repository Path**: `examples/complete-hub-spoke/` full AI integration
+**Repository Path**: `overlay/examples/complete-hub-spoke/` full AI integration
 
 ## 📋 Scenario-Specific Skill Implementation Guide
 
@@ -321,8 +321,8 @@ flux reconcile kustomization microservice-prod --with-source
 ```bash
 # User request: "Check for infrastructure drift and fix it"
 kubectl get all -A -o yaml > current-state.yaml
-git checkout main -- infrastructure/
-kustomize build infrastructure/ > desired-state.yaml
+git checkout main -- core/resources/
+kustomize build core/resources/ > desired-state.yaml
 diff current-state.yaml desired-state.yaml
 ```
 
@@ -330,8 +330,8 @@ diff current-state.yaml desired-state.yaml
 
 ```bash
 # User request: "Run security compliance check"
-kube-score score infrastructure/*.yaml
-polaris audit --audit-path infrastructure/
+kube-score score core/resources/*.yaml
+polaris audit --audit-path core/resources/
 ```
 
 ## Implementation Details
@@ -339,7 +339,7 @@ polaris audit --audit-path infrastructure/
 ```
 infrastructure-manager/
 ├── SKILL.md                    # Main skill definition
-├── scripts/
+├── core/core/automation/ci-cd/scripts/
 │   ├── deploy.sh              # Deployment automation
 │   ├── drift-detect.sh        # Drift detection
 │   ├── compliance-check.sh    # Security validation
@@ -350,7 +350,7 @@ infrastructure-manager/
 │   └── cost-model.md          # Cost calculation models
 └── assets/
     ├── helm-charts/           # Helm chart templates
-    ├── kustomize-overlays/    # Kustomize configurations
+    ├── kustomize-core/deployment/overlays/    # Kustomize configurations
     └── policy-templates/      # Security policy templates
 ```
 
@@ -756,18 +756,18 @@ flux get kustomizations -A -o wide | grep dependsOn
 
 ```bash
 # Validate YAML syntax
-kubeval infrastructure/*.yaml
+kubeval core/resources/*.yaml
 
 # Validate Kubernetes manifests
-kubeconform infrastructure/*.yaml
+kubeconform core/resources/*.yaml
 ```
 
 ### Security Validation
 
 ```bash
 # Check security policies
-kube-score score infrastructure/*.yaml
-polaris audit --audit-path infrastructure/
+kube-score score core/resources/*.yaml
+polaris audit --audit-path core/resources/
 ```
 
 ```
@@ -807,7 +807,7 @@ metadata:
 spec:
   triggers:
   - type: git-commit
-    paths: ["infrastructure/**"]
+    paths: ["core/resources/**"]
   skills:
   - name: change-analysis
     skill: "gitops-automation"
@@ -1072,8 +1072,8 @@ This skill provides comprehensive infrastructure management capabilities. Use it
 #### Deploy New Infrastructure
 ```bash
 # Step 1: Validate manifests
-kubeconform infrastructure/**/*.yaml
-kube-score score infrastructure/**/*.yaml
+kubeconform core/resources/**/*.yaml
+kube-score score core/resources/**/*.yaml
 
 # Step 2: Check dependencies
 flux get kustomizations -A -o wide | grep dependsOn
@@ -1110,24 +1110,24 @@ kubectl logs -l app=app-name --tail=50
 kubectl get all -A -o yaml > current-state.yaml
 
 # Step 2: Get desired state from Git
-git checkout main -- infrastructure/
-kustomize build infrastructure/ > desired-state.yaml
+git checkout main -- core/resources/
+kustomize build core/resources/ > desired-state.yaml
 
 # Step 3: Compare states
 diff current-state.yaml desired-state.yaml > drift-report.txt
 
 # Step 4: Analyze drift impact
-python scripts/analyze-drift.py drift-report.txt
+python core/core/automation/ci-cd/scripts/analyze-drift.py drift-report.txt
 ```
 
 #### Remediate Drift
 
 ```bash
 # Step 1: Classify drift severity
-python scripts/classify-drift.py drift-report.txt
+python core/core/automation/ci-cd/scripts/classify-drift.py drift-report.txt
 
 # Step 2: Generate remediation plan
-python scripts/generate-remediation.py drift-report.txt
+python core/core/automation/ci-cd/scripts/generate-remediation.py drift-report.txt
 
 # Step 3: Apply remediation (if safe)
 if [ "$DRIFT_SEVERITY" = "low" ]; then
@@ -1150,15 +1150,15 @@ kubectl get roles,rolebindings -A -o wide
 
 # Step 2: Network Policy Check
 kubectl get networkpolicies -A
-python scripts/validate-network-policies.py
+python core/core/automation/ci-cd/scripts/validate-network-policies.py
 
 # Step 3: Pod Security Validation
 kubectl get pods -A -o json | jq '.items[].spec.securityContext'
-polaris audit --audit-path infrastructure/
+polaris audit --audit-path core/resources/
 
 # Step 4: Secret Management Check
 kubectl get secrets -A --field-selector type=kubernetes.io/tls
-python scripts/validate-secrets.py
+python core/core/automation/ci-cd/scripts/validate-secrets.py
 ```
 
 #### Compliance Reporting
@@ -1168,10 +1168,10 @@ python scripts/validate-secrets.py
 kube-bench --json > cis-report.json
 
 # Step 2: Custom Policy Validation
-python scripts/validate-custom-policies.py infrastructure/
+python core/core/automation/ci-cd/scripts/validate-custom-policies.py core/resources/
 
 # Step 3: Generate Compliance Report
-python scripts/generate-compliance-report.py \
+python core/core/automation/ci-cd/scripts/generate-compliance-report.py \
   --cis-report cis-report.json \
   --custom-policy-report policy-report.json \
   --output compliance-report.html
@@ -1187,10 +1187,10 @@ kubectl top pods -A --no-headers | awk '{print $2, $3}' > cpu-mem-usage.txt
 kubectl top nodes --no-headers | awk '{print $2, $3}' > node-usage.txt
 
 # Step 2: Analyze utilization
-python scripts/analyze-utilization.py cpu-mem-usage.txt node-usage.txt
+python core/core/automation/ci-cd/scripts/analyze-utilization.py cpu-mem-usage.txt node-usage.txt
 
 # Step 3: Generate optimization recommendations
-python scripts/generate-optimization.py utilization-report.json
+python core/core/automation/ci-cd/scripts/generate-optimization.py utilization-report.json
 ```
 
 #### Right-Sizing Recommendations
@@ -1201,11 +1201,11 @@ prometheus_query 'rate(container_cpu_usage_seconds_total[7d])' > cpu-history.jso
 prometheus_query 'container_memory_working_set_bytes' > mem-history.json
 
 # Step 2: Generate recommendations
-python scripts/right-size.py cpu-history.json mem-history.json
+python core/core/automation/ci-cd/scripts/right-size.py cpu-history.json mem-history.json
 
 # Step 3: Apply recommendations (with approval)
 if [ "$APPLY_RECOMMENDATIONS" = "true" ]; then
-  python scripts/apply-right-sizing.py recommendations.json
+  python core/core/automation/ci-cd/scripts/apply-right-sizing.py recommendations.json
 fi
 ```
 
@@ -1283,18 +1283,18 @@ kubectl top pods -A
 
 ```bash
 # Validate manifests
-kubeconform infrastructure/**/*.yaml
-kube-score score infrastructure/**/*.yaml
+kubeconform core/resources/**/*.yaml
+kube-score score core/resources/**/*.yaml
 
 # Dry run deployment
-kubectl apply -f infrastructure/ --dry-run=client
+kubectl apply -f core/resources/ --dry-run=client
 ```
 
 ### 2. Use GitOps Principles
 
 ```bash
 # Always commit changes to Git first
-git add infrastructure/
+git add core/resources/
 git commit -m "Add new microservice deployment"
 git push origin main
 

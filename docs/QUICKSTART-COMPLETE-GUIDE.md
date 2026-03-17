@@ -6,13 +6,13 @@ The quickstart script provides a one-command deployment of the complete GitOps i
 
 ## Quickstart Script
 
-### `scripts/quickstart.sh`
+### `core/core/automation/ci-cd/scripts/quickstart.sh`
 
 The main entry point for deploying the complete GitOps infrastructure with AI agents.
 
 #### Usage
 ```bash
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 ```
 
 #### Features
@@ -85,7 +85,7 @@ kubectl get nodes
 
 ## Crossplane Integration
 
-### Enhanced `scripts/install-crossplane.sh`
+### Enhanced `core/core/automation/ci-cd/scripts/install-crossplane.sh`
 
 Updated to support local development with Kubernetes provider.
 
@@ -121,18 +121,18 @@ spec:
 #### Usage Examples
 ```bash
 # Install all cloud providers
-./scripts/install-crossplane.sh
+./core/core/automation/ci-cd/scripts/install-crossplane.sh
 
 # Install specific providers
-./scripts/install-crossplane.sh --providers azure,aws
+./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers azure,aws
 
 # Install Kubernetes provider for local development
-./scripts/install-crossplane.sh --providers local
+./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers local
 ```
 
 ## AI Agents Ecosystem Deployment
 
-### `scripts/deploy-ai-agents-ecosystem.sh`
+### `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
 
 Deploys the complete AI agents monitoring and orchestration system.
 

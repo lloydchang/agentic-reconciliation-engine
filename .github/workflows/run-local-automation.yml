@@ -35,16 +35,16 @@ jobs:
           sudo mv /tmp/kubeconform /usr/local/bin/
 
       - name: Run zero-touch automation
-        run: bash scripts/run-local-automation.sh --connector "$CONNECTOR" --overlay-order "$OVERLAY_ORDER" --emulator-action "$EMULATOR_ACTION"
+        run: bash core/core/automation/ci-cd/scripts/run-local-automation.sh --connector "$CONNECTOR" --overlay-order "$OVERLAY_ORDER" --emulator-action "$EMULATOR_ACTION"
 
       - name: Upload automation logs
         uses: actions/upload-artifact@v7
         with:
           name: zero-touch-automation-logs
-          path: logs/local-automation/*
+          path: logs/local-core/automation/ci-cd/*
 
       - name: Publish summary / notify downstream systems
-        run: scripts/publish-summary.sh logs/local-automation/latest-summary.json
+        run: core/core/automation/ci-cd/scripts/publish-summary.sh logs/local-core/automation/ci-cd/latest-summary.json
         env:
           SUMMARY_ENDPOINT: ${{ secrets.SUMMARY_ENDPOINT }}
           SUMMARY_TOKEN: ${{ secrets.SUMMARY_TOKEN }}

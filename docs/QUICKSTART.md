@@ -11,7 +11,7 @@ Get a working GitOps control plane running locally in minutes.
 
 ```bash
 # One-command MVP setup with AI agents and dashboard
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 ```
 
 **What it deploys:**
@@ -25,35 +25,35 @@ Or run steps manually:
 
 ```bash
 # 1. Validate your environment
-./scripts/prerequisites.sh
+./core/core/automation/ci-cd/scripts/prerequisites.sh
 
 # 2. Setup GitOps configuration
-./scripts/setup-gitops-config.sh
+./core/core/automation/ci-cd/scripts/setup-gitops-config.sh
 
 # 3. Create bootstrap cluster (recovery anchor)
-./scripts/create-bootstrap-cluster.sh
+./core/core/automation/ci-cd/scripts/create-bootstrap-cluster.sh
 
 # 4. Create hub cluster (GitOps control plane)
-./scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
+./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
 
 # 5. Install Crossplane with Kubernetes provider for local development
-./scripts/install-crossplane.sh --providers local
+./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers local
 
 # 6. Create spoke cluster (MVP - local emulation)
-./scripts/create-spoke-clusters.sh
+./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh
 
 # 7. Deploy AI agents ecosystem with dashboard
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ## MVP Options
 
 ```bash
 # Full MVP setup (recommended)
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 
 # Show help
-./scripts/quickstart.sh --help
+./core/core/automation/ci-cd/scripts/quickstart.sh --help
 ```
 
 ## What You Get
@@ -90,8 +90,8 @@ open http://localhost:8080
 ## Next Steps
 
 - **Learn Crossplane Local Development**: See [docs/CROSSPLANE-LOCAL-DEVELOPMENT.md](docs/CROSSPLANE-LOCAL-DEVELOPMENT.md)
-- **Add Real Cloud**: `./scripts/create-spoke-clusters.sh --providers azure`
-- **Multi-Cloud**: `./scripts/create-spoke-clusters.sh --providers azure,aws,gcp`
+- **Add Real Cloud**: `./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh --providers azure`
+- **Multi-Cloud**: `./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh --providers azure,aws,gcp`
 - **Production**: Use real cloud providers for hub cluster
 - **AI Agents Guide**: See [docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md](docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md)
 

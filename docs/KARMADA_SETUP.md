@@ -42,7 +42,7 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 
 ```bash
 # Run the setup script
-./control-plane/karmada/setup-karmada.sh
+./core/operators/karmada/setup-karmada.sh
 
 # Or manual setup:
 git clone https://github.com/karmada-io/karmada
@@ -258,7 +258,7 @@ done
 
 ```bash
 # Apply multi-cluster GitOps configuration
-kubectl apply -f control-plane/karmada/multi-cluster-gitops.yaml --kubeconfig ~/.kube/karmada.config
+kubectl apply -f core/operators/karmada/multi-cluster-gitops.yaml --kubeconfig ~/.kube/karmada.config
 
 # Verify propagation
 kubectl get propagationpolicies -A --kubeconfig ~/.kube/karmada.config
@@ -399,14 +399,14 @@ The Karmada configuration is now fully integrated into the GitOps infrastructure
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - control-plane/
+  - core/operators/
 labels:
   - pairs:
       managed-by: flux
       component: gitops-infra-control-plane
       platform: multi-cluster-gitops
 
-# control-plane/kustomization.yaml
+# core/operators/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -426,7 +426,7 @@ resources:
 kubectl apply -k .
 
 # Deploy only Karmada components
-kubectl apply -k control-plane/karmada/
+kubectl apply -k core/operators/karmada/
 
 # Verify Karmada integration
 kubectl get propagationpolicies -A

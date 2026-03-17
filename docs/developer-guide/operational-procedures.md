@@ -448,7 +448,7 @@ python3 eval/run_evals.py --skill gitops-workflow --verbose
 python3 eval/run_evals.py --skill incident-triage-runbook -v
 
 # Count all skills
-find .agents/skills -name "SKILL.md" | wc -l
+find core/ai/skills/skills -name "SKILL.md" | wc -l
 ```
 
 This operational procedures guide ensures consistent, safe, and auditable execution of AI agent workflows while maintaining compliance with the Agent Skills specification.

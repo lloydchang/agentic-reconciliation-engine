@@ -95,13 +95,13 @@ lifecycle via Cluster API, and each spoke runs its own Flux agent and ESO instan
 Adhere to this directory structure:
 
 ```
-control-plane/          # Flux configuration and controller setup
+core/operators/          # Flux configuration and controller setup
   flux/                 # Flux GitOps bootstrap manifests
   crossplane/           # Compositions, XRDs, provider configs
   capi/                 # Cluster API provider and cluster templates
   ci/                   # Conftest policies, kubeconform schemas
 
-infrastructure/
+core/resources/
   tenants/
     1-network/          # XNetwork resources
     2-clusters/         # XCluster resources (CAPI spoke definitions)

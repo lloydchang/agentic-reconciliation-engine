@@ -720,8 +720,8 @@ wscat -c ws://localhost:8081/ws
 
 ### Support
 
-- GitHub Issues: [Create Issue](https://github.com/lloydchang/gitops-infra-control-plane/issues)
-- Community Forum: [Discussions](https://github.com/lloydchang/gitops-infra-control-plane/discussions)
+- GitHub Issues: [Create Issue](https://github.com/lloydchang/gitops-infra-core/operators/issues)
+- Community Forum: [Discussions](https://github.com/lloydchang/gitops-infra-core/operators/discussions)
 - Email Support: <support@gitops-infra-control-plane.com>
 
 ### Training

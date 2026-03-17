@@ -199,9 +199,9 @@ the problem you are solving.
 - [Agent Clients & Azure Support](./docs/AGENT-CLIENTS.md) - Azure's Claude Code-first experience, Windows quick-start, and secondary Codex option backed by Azure OpenAI/Foundry
 
 ### Implementation Examples
-- [Complete Hub-Spoke](./examples/complete-hub-spoke/) - Full deployment with all features
-- [Crossplane Compositions](./examples/crossplane-compositions/) - XDatabase, XNetwork, XCluster
-- [ESO Per Spoke](./examples/eso-workload-identity/) - IRSA, Managed Identity, Workload Identity
+- [Complete Hub-Spoke](./overlay/examples/complete-hub-spoke/) - Full deployment with all features
+- [Crossplane Compositions](./overlay/examples/crossplane-compositions/) - XDatabase, XNetwork, XCluster
+- [ESO Per Spoke](./overlay/examples/eso-workload-identity/) - IRSA, Managed Identity, Workload Identity
 - [Variants](./variants/) - Deployment variations for different scenarios
 
 ### Advanced Topics
@@ -217,21 +217,21 @@ the problem you are solving.
   - [Bitbucket Cloud Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `BITBUCKET_USER` + `BITBUCKET_TOKEN`; uses the Bitbucket Cloud PR API
   - [AWS CodeCommit Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the standard HTTPS git helper; PRs must be opened via the AWS console
   - [GCP Secure Source Manager Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the gcloud git credential helper; PRs opened through the Cloud Console
-- [Open Console PR Helper](./scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL for manual PR creation
-- [Apply Overlay Order Helper](./scripts/apply-overlay-order.sh) - Reorders `control-plane/flux/kustomization.yaml` per `control-plane/flux/overlay-order.txt`
-- [Overlay Logician](./scripts/overlay-logician.py) - Validates that every ordered overlay exists before running the migration wizard
-- [Emulator Follow-On Runner](./scripts/run-emulator-then-cloud.sh) - Runs `scripts/migration_wizard.py` twice: first with `--emulator=enable`, then `--emulator=disable`
-- [Zero-Touch Azure Emulator Run](./scripts/run-local-automation.sh) - Executes `scripts/bootstrap.sh` then `scripts/migration_wizard.py` with `--connector=github`, `--overlay-order=bootstrap hub emulator-azure spoke-local`, and `--emulator=azure`
+- [Open Console PR Helper](./core/core/automation/ci-cd/scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL for manual PR creation
+- [Apply Overlay Order Helper](./core/core/automation/ci-cd/scripts/apply-overlay-order.sh) - Reorders `core/operators/flux/kustomization.yaml` per `core/operators/flux/overlay-order.txt`
+- [Overlay Logician](./core/core/automation/ci-cd/scripts/overlay-logician.py) - Validates that every ordered overlay exists before running the migration wizard
+- [Emulator Follow-On Runner](./core/core/automation/ci-cd/scripts/run-emulator-then-cloud.sh) - Runs `core/core/automation/ci-cd/scripts/migration_wizard.py` twice: first with `--emulator=enable`, then `--emulator=disable`
+- [Zero-Touch Azure Emulator Run](./core/core/automation/ci-cd/scripts/run-local-automation.sh) - Executes `core/core/automation/ci-cd/scripts/bootstrap.sh` then `core/core/automation/ci-cd/scripts/migration_wizard.py` with `--connector=github`, `--overlay-order=bootstrap hub emulator-azure spoke-local`, and `--emulator=azure`
 
 ## Zero-Touch Automation
 
-- `scripts/run-local-automation.sh [--connector CONNECTOR] [--emulator-action enable|disable] [--overlay-order overlay-1,overlay-2,...]` executes bootstrap checks, migration wizard, and CI gate without interactive steps. Defaults target GitHub with the Azure emulator overlay order (`./bootstrap`, `./hub`, `./emulator-azure`, `./spoke-local`) and uses `scripts/local-ci-gate.sh` to run `conftest` + `kubeconform`.
-- The script writes logs under `logs/local-automation/` and produces a JSON report (`summary-*.json`) capturing start/end times, connector, emulator action, overlay order, helper scripts, CI gate command, and log paths.
+- `core/core/automation/ci-cd/scripts/run-local-automation.sh [--connector CONNECTOR] [--emulator-action enable|disable] [--overlay-order overlay-1,overlay-2,...]` executes bootstrap checks, migration wizard, and CI gate without interactive steps. Defaults target GitHub with the Azure emulator overlay order (`./bootstrap`, `./hub`, `./emulator-azure`, `./spoke-local`) and uses `core/core/automation/ci-cd/scripts/local-ci-gate.sh` to run `conftest` + `kubeconform`.
+- The script writes logs under `logs/local-core/automation/ci-cd/` and produces a JSON report (`summary-*.json`) capturing start/end times, connector, emulator action, overlay order, helper scripts, CI gate command, and log paths.
 - Override defaults to exercise other connectors/emulators (e.g., `--connector=azure-devops --overlay-order ./bootstrap,./hub,./cloud-aks,./spoke-local`).
 - Use `.github/workflows/run-local-automation.yml` to trigger the wrapper via GitHub Actions (runs on `ubuntu-latest`, installs `conftest`/`kubeconform`, uploads logs/summary as artifacts). Supply `connector`, `overlay_order`, and `emulator_action` inputs to target GitHub Enterprise Cloud/Server, Azure DevOps, or other hosts on demand. – [GitHub Action file](./.github/workflows/run-local-automation.yml)
-- Use `azure-pipelines-zero-touch.yml` for Azure Pipelines; it installs the same policy tooling, runs the wrapper with pipeline parameters, and publishes `logs/local-automation/` as an artifact. – [Azure Pipelines template](./azure-pipelines-zero-touch.yml)
-- Both pipelines call `scripts/publish-summary.sh` after automation completes. Set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post `latest-summary.json` to a dashboard/archive service; set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`.
-- `scripts/publish-summary.sh` also generates [logs/local-automation/latest-summary.md](logs/local-automation/latest-summary.md) — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
+- Use `azure-pipelines-zero-touch.yml` for Azure Pipelines; it installs the same policy tooling, runs the wrapper with pipeline parameters, and publishes `logs/local-core/automation/ci-cd/` as an artifact. – [Azure Pipelines template](./azure-pipelines-zero-touch.yml)
+- Both pipelines call `core/core/automation/ci-cd/scripts/publish-summary.sh` after automation completes. Set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post `latest-summary.json` to a dashboard/archive service; set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`.
+- `core/core/automation/ci-cd/scripts/publish-summary.sh` also generates [logs/local-core/automation/ci-cd/latest-summary.md](logs/local-core/automation/ci-cd/latest-summary.md) — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
 
 ## Comparison with Managed Alternatives
 
@@ -282,7 +282,7 @@ Before building this architecture, evaluate whether a managed product meets your
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onboarding, and documentation expectations.
 
-[Pull Requests](https://github.com/lloydchang/gitops-infra-control-plane/pulls)
+[Pull Requests](https://github.com/lloydchang/gitops-infra-core/operators/pulls)
 
 ## License
 

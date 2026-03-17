@@ -290,7 +290,7 @@ def cluster_status():
         "timestamp": datetime.utcnow().isoformat()
     })
 
-@app.route('/api/agents/status')
+@app.route('/api/core/ai/runtime/status')
 def agents_status():
     return jsonify({
         "agent_count": 3,
@@ -537,7 +537,7 @@ Response:
 
 #### Agent Status
 ```http
-GET /api/agents/status
+GET /api/core/ai/runtime/status
 
 Response:
 {

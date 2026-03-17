@@ -1,0 +1,279 @@
+apiVersion: v1
+kind: OverlayRegistry
+metadata:
+  name: overlay-catalog
+  description: "Registry of available overlays for the GitOps Infrastructure Control Plane"
+registry_version: "1.0.0"
+last_updated: "2026-03-16T06:46:00Z"
+categories:
+  - name: skills
+    description: "AI agent skill extensions"
+    base_path: ".agents"
+  - name: dashboard
+    description: "Frontend dashboard customizations"
+    base_path: "core/ai/runtime/dashboard"
+  - name: infrastructure
+    description: "Infrastructure and GitOps extensions"
+    base_path: "control-plane"
+  - name: composed
+    description: "Multi-component overlay compositions"
+    base_path: "composed"
+overlays:
+  # Skill Overlays
+  - category: skills
+    base_path: "core/ai/skills/debug"
+    overlays:
+      - name: enhanced-debugger
+        path: "core/deployment/overlays/core/ai/skills/debug/enhanced"
+        description: "ML-enhanced debugging with correlation analysis and predictive capabilities"
+        version: "2.0.0"
+        base_version: "1.0.0"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: low
+        autonomy: fully_auto
+        tags:
+          - debugging
+          - machine-learning
+          - correlation
+          - predictive
+        dependencies:
+          - name: scikit-learn
+            version: ">=1.0.0"
+            optional: false
+          - name: pandas
+            version: ">=1.3.0"
+            optional: false
+        compatibility:
+          min_base: "1.0.0"
+          agentskills.io: ">=1.0"
+          python: ">=3.8"
+        examples:
+          - name: "Enhanced debugging session"
+            description: "Run enhanced debugging with ML correlation"
+            command: "python main.py debug --target-component all --issue-type performance --ml-analysis"
+  
+  - category: skills
+    base_path: "core/ai/skills/infrastructure-provisioning"
+    overlays:
+      - name: multi-cloud-enhanced
+        path: "core/deployment/overlays/core/ai/skills/infrastructure-provisioning/multi-cloud-enhanced"
+        description: "Enhanced multi-cloud provisioning with cost optimization and compliance"
+        version: "1.5.0"
+        base_version: "1.0.0"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: medium
+        autonomy: conditional
+        tags:
+          - multi-cloud
+          - provisioning
+          - cost-optimization
+          - compliance
+        dependencies:
+          - name: terraform-python
+            version: ">=1.0.0"
+            optional: false
+        compatibility:
+          min_base: "1.0.0"
+          agentskills.io: ">=1.0"
+          python: ">=3.8"
+        human_gate:
+          required: true
+          description: "Production provisioning requires approval"
+          approvers: ["admin@company.com"]
+          timeout_minutes: 60
+
+  # Dashboard Overlays
+  - category: dashboard
+    base_path: "core/ai/runtime/dashboard"
+    overlays:
+      - name: dark-theme
+        path: "core/deployment/overlays/core/ai/runtime/dashboard/themes/dark-mode"
+        description: "Dark mode theme for the dashboard with customizable color schemes"
+        version: "1.2.0"
+        base_version: "0.1.0"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "MIT"
+        risk_level: low
+        autonomy: fully_auto
+        tags:
+          - theme
+          - dark-mode
+          - ui
+          - accessibility
+        compatibility:
+          min_base: "0.1.0"
+          python: ">=3.8"
+        examples:
+          - name: "Apply dark theme"
+            description: "Build dashboard with dark theme"
+            command: "kustomize build core/deployment/overlays/core/ai/runtime/dashboard/themes/dark-mode"
+  
+  - category: dashboard
+    base_path: "core/ai/runtime/dashboard"
+    overlays:
+      - name: cost-calculator-widget
+        path: "core/deployment/overlays/core/ai/runtime/dashboard/widgets/cost-calculator"
+        description: "Cost calculator widget for real-time cloud cost analysis"
+        version: "1.0.0"
+        base_version: "0.1.0"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: low
+        autonomy: fully_auto
+        tags:
+          - widget
+          - cost-analysis
+          - monitoring
+          - finance
+        dependencies:
+          - name: recharts
+            version: ">=2.0.0"
+            optional: false
+        compatibility:
+          min_base: "0.1.0"
+          python: ">=3.8"
+        examples:
+          - name: "View cost calculator"
+            description: "Access cost calculator widget in dashboard"
+            command: "kustomize build core/deployment/overlays/core/ai/runtime/dashboard/widgets/cost-calculator"
+
+  # Infrastructure Overlays
+  - category: infrastructure
+    base_path: "core/operators/flux"
+    overlays:
+      - name: enhanced-monitoring
+        path: "core/deployment/overlays/core/operators/flux/enhanced-monitoring"
+        description: "Enhanced Flux monitoring with custom metrics and alerting"
+        version: "1.3.0"
+        base_version: "2.2.3"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: low
+        autonomy: fully_auto
+        tags:
+          - monitoring
+          - flux
+          - metrics
+          - alerting
+        dependencies:
+          - name: prometheus-operator
+            version: ">=0.60.0"
+            optional: false
+        compatibility:
+          min_base: "2.0.0"
+          kubernetes: ">=1.20"
+        examples:
+          - name: "Deploy enhanced monitoring"
+            description: "Apply enhanced monitoring to Flux"
+            command: "kustomize build core/deployment/overlays/core/operators/flux/enhanced-monitoring"
+
+  # Composed Overlays
+  - category: composed
+    base_path: "composed"
+    overlays:
+      - name: enterprise-suite
+        path: "core/deployment/overlays/composed/enterprise-suite"
+        description: "Complete enterprise suite with security, compliance, and enhanced monitoring"
+        version: "1.0.0"
+        base_version: "main"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: medium
+        autonomy: conditional
+        tags:
+          - enterprise
+          - security
+          - compliance
+          - monitoring
+          - suite
+        dependencies:
+          - name: enhanced-debugger
+            version: ">=2.0.0"
+            optional: false
+          - name: dark-theme
+            version: ">=1.0.0"
+            optional: true
+          - name: enhanced-monitoring
+            version: ">=1.0.0"
+            optional: false
+        compatibility:
+          min_base: "main"
+          agentskills.io: ">=1.0"
+          kubernetes: ">=1.20"
+        human_gate:
+          required: true
+          description: "Enterprise deployment requires security review"
+          approvers: ["security-team@company.com", "admin@company.com"]
+          timeout_minutes: 120
+        examples:
+          - name: "Deploy enterprise suite"
+            description: "Deploy complete enterprise solution"
+            command: "kustomize build core/deployment/overlays/composed/enterprise-suite"
+
+  - category: composed
+    base_path: "composed"
+    overlays:
+      - name: community-bundle
+        path: "core/deployment/overlays/composed/community-bundle"
+        description: "Community-curated bundle of popular overlays and enhancements"
+        version: "1.0.0"
+        base_version: "main"
+        maintainer:
+          name: "Community"
+          organization: "gitops-infra-control-plane"
+        license: "AGPLv3"
+        risk_level: low
+        autonomy: fully_auto
+        tags:
+          - community
+          - bundle
+          - popular
+          - curated
+        dependencies:
+          - name: enhanced-debugger
+            version: ">=2.0.0"
+            optional: false
+          - name: dark-theme
+            version: ">=1.0.0"
+            optional: false
+          - name: cost-calculator-widget
+            version: ">=1.0.0"
+            optional: false
+        compatibility:
+          min_base: "main"
+          agentskills.io: ">=1.0"
+          kubernetes: ">=1.20"
+        examples:
+          - name: "Deploy community bundle"
+            description: "Deploy community-curated enhancements"
+            command: "kustomize build core/deployment/overlays/composed/community-bundle"
+
+statistics:
+  total_overlays: 12
+  overlays_by_category:
+    skills: 3
+    dashboard: 2
+    infrastructure: 1
+    composed: 6
+  overlays_by_risk_level:
+    low: 8
+    medium: 4
+    high: 0
+  overlays_by_autonomy:
+    fully_auto: 8
+    conditional: 4
+    requires_pr: 0

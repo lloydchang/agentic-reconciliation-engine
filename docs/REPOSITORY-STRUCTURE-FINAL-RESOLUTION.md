@@ -10,7 +10,7 @@ This document records the complete resolution of all repository structure issues
 **Issue**: Top-level `azure/` directory contained generic ArgoCD placeholders but was named as if Azure-specific.
 
 **Resolution**:
-- **Moved**: `azure/` → `control-plane/flux/templates/`
+- **Moved**: `azure/` → `core/operators/flux/templates/`
 - **Files Moved**:
   - `applications.yaml` (66 bytes)
   - `applicationsets.yaml` (67 bytes)
@@ -21,19 +21,19 @@ This document records the complete resolution of all repository structure issues
 **Issue**: `flux-operator/` scattered at root level instead of with infrastructure.
 
 **Resolution**:
-- **Moved**: `flux-operator/` → `infrastructure/flux/operator/`
+- **Moved**: `flux-operator/` → `core/resources/flux/operator/`
 - **Files Moved**:
   - `flux-instance.yaml`
   - `flux-ui-auth-sealed.yaml.template`
   - `flux-ui-auth-sops.yaml`
   - `flux-ui-ingress.yaml`
-- **Rationale**: Infrastructure manifests belong consolidated under `infrastructure/`
+- **Rationale**: Infrastructure manifests belong consolidated under `core/resources/`
 
 ### ✅ 3. Kustomize Overlays Consolidation
-**Issue**: `overlays/` separated from main infrastructure manifests.
+**Issue**: `core/deployment/overlays/` separated from main infrastructure manifests.
 
 **Resolution**:
-- **Moved**: `overlays/` → `infrastructure/overlays/`
+- **Moved**: `core/deployment/overlays/` → `core/resources/core/deployment/overlays/`
 - **Files Moved**: All Kustomize overlay configurations
 - **Rationale**: Kustomize overlays are infrastructure concerns that should be grouped together
 
@@ -41,49 +41,49 @@ This document records the complete resolution of all repository structure issues
 **Issue**: `variants/` was unclear terminology.
 
 **Resolution**:
-- **Renamed**: `variants/` → `editions/`
+- **Renamed**: `variants/` → `overlay/editions/`
 - **Rationale**: "Editions" is more descriptive for product variants (enterprise, opensource)
 
 ### ✅ 5. Agent Skills Specification Compliance
-**Issue**: Initially considered moving `.agents/` to `agents/skills/`.
+**Issue**: Initially considered moving `core/ai/skills/` to `core/ai/runtime/skills/`.
 
 **Resolution**:
-- **Kept**: `.agents/` as required by [agentskills.io specification](https://agentskills.io/specification)
+- **Kept**: `core/ai/skills/` as required by [agentskills.io specification](https://agentskills.io/specification)
 - **Rationale**: The dot prefix is intentional and required by the specification
 
 ## Final Repository Structure
 
 ### Root Directory Structure (13 directories)
 ```
-├── .agents/         # Agent skills (specification compliant)
+├── core/ai/skills/         # Agent skills (specification compliant)
 ├── .git/           # Git repository data
 ├── .github/        # GitHub configuration
-├── agents/         # Agent runtime and dashboard
-├── automation/     # Build and deployment automation
-├── control-plane/  # Infrastructure control plane
+├── core/ai/runtime/         # Agent runtime and dashboard
+├── core/automation/ci-cd/     # Build and deployment automation
+├── core/operators/  # Infrastructure control plane
 ├── docs/           # Documentation
-├── editions/       # Product editions (formerly variants/)
-├── examples/       # Example configurations
-├── infrastructure/ # Infrastructure manifests
+├── overlay/editions/       # Product editions (formerly variants/)
+├── overlay/examples/       # Example configurations
+├── core/resources/ # Infrastructure manifests
 │   ├── flux/
 │   │   └── operator/    # Flux operator manifests
-│   └── overlays/        # Kustomize overlays
-├── policies/       # Governance policies
-├── scripts/        # Utility scripts
-└── tests/          # Test suites
+│   └── core/deployment/overlays/        # Kustomize overlays
+├── core/governance/       # Governance policies
+├── core/core/automation/ci-cd/scripts/        # Utility scripts
+└── core/automation/testing/          # Test suites
 ```
 
 ### Infrastructure Consolidation Achieved
 ```
-infrastructure/
+core/resources/
 ├── flux/
 │   └── operator/        # Flux operator manifests (moved from flux-operator/)
-└── overlays/            # Kustomize overlays (moved from overlays/)
+└── core/deployment/overlays/            # Kustomize overlays (moved from core/deployment/overlays/)
 ```
 
 ### Control Plane Consolidation Achieved
 ```
-control-plane/
+core/operators/
 └── flux/
     └── templates/       # ArgoCD templates (moved from azure/)
 ```
@@ -123,11 +123,11 @@ control-plane/
 
 **All identified repository structure issues have been completely resolved:**
 
-1. ✅ **CI Directory Confusion**: Resolved via `automation/` and `policies/` reorganization
-2. ✅ **Azure Directory Misnomer**: Resolved by moving to `control-plane/flux/templates/`
-3. ✅ **Flux Operator Scattering**: Resolved by moving to `infrastructure/flux/operator/`
-4. ✅ **Kustomize Overlays Separation**: Resolved by moving to `infrastructure/overlays/`
-5. ✅ **Poor Directory Naming**: Resolved by renaming `variants/` to `editions/`
-6. ✅ **Agent Skills Compliance**: Confirmed `.agents/` is correctly placed per specification
+1. ✅ **CI Directory Confusion**: Resolved via `core/automation/ci-cd/` and `core/governance/` reorganization
+2. ✅ **Azure Directory Misnomer**: Resolved by moving to `core/operators/flux/templates/`
+3. ✅ **Flux Operator Scattering**: Resolved by moving to `core/resources/flux/operator/`
+4. ✅ **Kustomize Overlays Separation**: Resolved by moving to `core/resources/core/deployment/overlays/`
+5. ✅ **Poor Directory Naming**: Resolved by renaming `variants/` to `overlay/editions/`
+6. ✅ **Agent Skills Compliance**: Confirmed `core/ai/skills/` is correctly placed per specification
 
 The repository now has an exemplary, professional structure that eliminates all confusion, follows specifications, and provides an excellent foundation for unified infrastructure management.

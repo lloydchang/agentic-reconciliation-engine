@@ -5,7 +5,7 @@ This guide covers setting up and working with the agents dashboard after the Vit
 ## Quick Start
 
 ```bash
-cd agents/dashboard
+cd core/ai/runtime/dashboard
 npm install
 npm run dev
 ```
@@ -38,7 +38,7 @@ The Vite dev server provides:
 ### Directory Structure
 
 ```
-agents/dashboard/
+core/ai/runtime/dashboard/
 ├── src/
 │   ├── components/      # React components
 │   ├── App.tsx          # Main dashboard component
@@ -67,7 +67,7 @@ The dashboard connects to the Go backend:
 
 ```typescript
 // Agent data
-axios.get('http://localhost:5002/api/agents/detailed')
+axios.get('http://localhost:5002/api/core/ai/runtime/detailed')
 
 // Metrics data  
 axios.get('http://localhost:5002/api/metrics/real-time')
@@ -214,7 +214,7 @@ Key differences from CRA:
 
 Update any references:
 - Old: `dashboard-frontend/src/`
-- New: `agents/dashboard/src/`
+- New: `core/ai/runtime/dashboard/src/`
 
 ## Future Enhancements
 

@@ -12,8 +12,8 @@ This document outlines the implementation plan for the Overlays Architecture in 
 #### Tasks
 1. **Directory Structure Creation**
    ```bash
-   mkdir -p overlays/{.agents,agents,control-plane,composed,registry,templates}
-   mkdir -p overlays/templates/{skill-overlay,dashboard-overlay,infra-overlay}
+   mkdir -p core/deployment/overlays/{.agents,agents,control-plane,composed,registry,templates}
+   mkdir -p core/deployment/overlays/templates/{skill-overlay,dashboard-overlay,infra-overlay}
    ```
 
 2. **Core Documentation**
@@ -35,9 +35,9 @@ This document outlines the implementation plan for the Overlays Architecture in 
 #### Deliverables
 - [x] [docs/OVERLAY-ARCHITECTURE.md](docs/OVERLAY-ARCHITECTURE.md)
 - [x] [docs/OVERLAY-PLANNING.md](docs/OVERLAY-PLANNING.md)
-- [ ] [overlays/README.md](overlays/README.md)
-- [ ] Overlay templates in `overlays/templates/`
-- [ ] Basic registry schema in `overlays/registry/`
+- [ ] [core/deployment/overlays/README.md](core/deployment/overlays/README.md)
+- [ ] Overlay templates in `core/deployment/overlays/templates/`
+- [ ] Basic registry schema in `core/deployment/overlays/registry/`
 
 #### Success Criteria
 - Directory structure created
@@ -54,9 +54,9 @@ This document outlines the implementation plan for the Overlays Architecture in 
 1. **Variant Migration**
    ```bash
    # Migrate existing variants to overlays
-   mv variants/enterprise overlays/composed/enterprise-variant
-   mv variants/opensource overlays/composed/opensource-variant
-   mv variants/languages overlays/composed/language-variants
+   mv variants/enterprise core/deployment/overlays/composed/enterprise-variant
+   mv variants/opensource core/deployment/overlays/composed/opensource-variant
+   mv variants/languages core/deployment/overlays/composed/language-variants
    ```
 
 2. **Example Overlays Creation**
@@ -183,13 +183,13 @@ This document outlines the implementation plan for the Overlays Architecture in 
 
 ```bash
 # Phase 1: Core structure
-overlays/
+core/deployment/overlays/
 ├── README.md                   # Main overlay documentation
-├── .agents/                    # Skill overlays
+├── core/ai/skills/                    # Skill overlays
 │   └── README.md              # Skill overlay guide
-├── agents/                     # Dashboard overlays
+├── core/ai/runtime/                     # Dashboard overlays
 │   └── README.md              # Dashboard overlay guide
-├── control-plane/              # Infrastructure overlays
+├── core/operators/              # Infrastructure overlays
 │   └── README.md              # Infrastructure overlay guide
 ├── composed/                   # Composed solutions
 │   └── README.md              # Composition guide
@@ -208,13 +208,13 @@ overlays/
 
 #### Skill Overlay Template
 ```yaml
-# overlays/templates/skill-overlay/kustomization.yaml
+# core/deployment/overlays/templates/skill-overlay/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: {{overlay-name}}
 resources:
-  - ../../../../.agents/{{base-skill}}
+  - ../../../../core/ai/skills/{{base-skill}}
 patchesStrategicMerge:
   - enhanced-features.yaml
 configMapGenerator:
@@ -226,13 +226,13 @@ configMapGenerator:
 
 #### Dashboard Overlay Template
 ```yaml
-# overlays/templates/dashboard-overlay/kustomization.yaml
+# core/deployment/overlays/templates/dashboard-overlay/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: {{overlay-name}}
 resources:
-  - ../../../../agents/dashboard
+  - ../../../../core/ai/runtime/dashboard
 patchesStrategicMerge:
   - theme-patches.yaml
 configMapGenerator:
@@ -245,7 +245,7 @@ configMapGenerator:
 ### Registry Schema Implementation
 
 ```yaml
-# overlays/registry/schema.yaml
+# core/deployment/overlays/registry/schema.yaml
 apiVersion: v1
 kind: Schema
 metadata:
@@ -310,7 +310,7 @@ schema:
 ### CLI Tool Implementation
 
 ```python
-# overlays-cli/overlays/__init__.py
+# overlays-cli/core/deployment/overlays/__init__.py
 import click
 import yaml
 import json
@@ -326,7 +326,7 @@ def cli():
 @click.option('--tag', help='Filter by tag')
 def list(category, tag):
     """List available overlays"""
-    catalog_path = Path('overlays/registry/catalog.yaml')
+    catalog_path = Path('core/deployment/overlays/registry/catalog.yaml')
     with open(catalog_path) as f:
         catalog = yaml.safe_load(f)
     
@@ -346,8 +346,8 @@ def list(category, tag):
 @click.option('--base-skill', help='Base skill for skill overlays')
 def create(overlay_type, overlay_name, base_skill):
     """Create a new overlay"""
-    template_path = Path(f'overlays/templates/{overlay_type}-overlay')
-    target_path = Path(f'overlays/{overlay_type}/{overlay_name}')
+    template_path = Path(f'core/deployment/overlays/templates/{overlay_type}-overlay')
+    target_path = Path(f'core/deployment/overlays/{overlay_type}/{overlay_name}')
     
     if not template_path.exists():
         click.echo(f"Template for {overlay_type} not found")
@@ -383,7 +383,7 @@ def validate(overlay_path):
             metadata = yaml.safe_load(f)
         
         # Validate against schema
-        schema_path = Path('overlays/registry/schema.yaml')
+        schema_path = Path('core/deployment/overlays/registry/schema.yaml')
         with open(schema_path) as f:
             schema = yaml.safe_load(f)
         
@@ -413,7 +413,7 @@ def compose(overlays, output):
     }
     
     for overlay in overlays:
-        overlay_path = Path(f'overlays/{overlay}')
+        overlay_path = Path(f'core/deployment/overlays/{overlay}')
         if overlay_path.exists():
             composition['resources'].append(str(overlay_path))
         else:
@@ -440,10 +440,10 @@ name: Overlay Validation
 on:
   pull_request:
     paths:
-      - 'overlays/**'
+      - 'core/deployment/overlays/**'
   push:
     paths:
-      - 'overlays/**'
+      - 'core/deployment/overlays/**'
 
 jobs:
   validate-overlays:
@@ -462,17 +462,17 @@ jobs:
       
       - name: Validate overlay structure
         run: |
-          python scripts/validate-overlays.py overlays/
+          python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/
       
       - name: Test overlay composition
         run: |
-          for overlay in overlays/**/kustomization.yaml; do
+          for overlay in core/deployment/overlays/**/kustomization.yaml; do
             kustomize build $(dirname $overlay) >/dev/null
           done
       
       - name: Validate metadata
         run: |
-          python scripts/validate-metadata.py overlays/registry/schema.yaml overlays/
+          python core/core/automation/ci-cd/scripts/validate-metadata.py core/deployment/overlays/registry/schema.yaml core/deployment/overlays/
 ```
 
 ## Resource Requirements

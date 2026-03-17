@@ -61,7 +61,7 @@ The AI Agents Dashboard is a comprehensive web-based control center that provide
 ### Deploy Dashboard
 ```bash
 # Deploy using the ecosystem script
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 
 # Or deploy dashboard only
 kubectl apply -f - <<EOF
@@ -136,7 +136,7 @@ Response: {"status": "healthy", "message": "Cluster is operational"}
 
 #### Agent Status
 ```http
-GET /api/agents/status
+GET /api/core/ai/runtime/status
 Response: {"agent_count": 3, "skills_executed": 42}
 ```
 

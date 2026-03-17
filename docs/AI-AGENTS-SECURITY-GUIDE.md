@@ -497,7 +497,7 @@ spec:
   rules:
   - from:
     - source:
-        principals: ["cluster.local/ns/ai-infrastructure/sa/ai-agents-sa"]
+        principals: ["cluster.local/ns/ai-core/resources/sa/ai-agents-sa"]
   - to:
     - operation:
         methods: ["GET", "POST", "PUT", "DELETE"]
@@ -776,10 +776,10 @@ spec:
   data:
   - secretKey: jwt-secret
     remoteRef:
-      key: ai-agents/jwt-secret
+      key: ai-core/ai/runtime/jwt-secret
   - secretKey: database-password
     remoteRef:
-      key: ai-agents/database-password
+      key: ai-core/ai/runtime/database-password
 ```
 
 ## Container Security
@@ -1426,7 +1426,7 @@ case $INCIDENT_TYPE in
         
         # 3. Rebuild and redeploy
         kubectl delete pods -n ai-infrastructure --all
-        kubectl apply -f infrastructure/
+        kubectl apply -f core/resources/
         ;;
         
     *)

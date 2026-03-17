@@ -148,14 +148,14 @@ This document analyzes 103+ resources covering AI integration patterns, agent fr
 **When to Apply**: Starting from scratch with no legacy constraints
 **Common Problems**: Multi-cloud coordination from day one, complex new applications
 **AI Applicability**: ✅ HIGH - Full AI integration provides maximum flexibility
-**Repository Path**: `examples/complete-hub-spoke/` → Complete deployment
+**Repository Path**: `overlay/examples/complete-hub-spoke/` → Complete deployment
 
 ### 🟡 Brownfield Scenarios (Existing Infrastructure)  
 
 **When to Apply**: Migrating from existing IaC or legacy systems
 **Common Problems**: Migration complexity, legacy system integration, gradual modernization
 **AI Applicability**: ⚠️ MEDIUM - Start with core Flux, add AI incrementally
-**Repository Path**: `control-plane/` → `infrastructure/tenants/` → selective AI components
+**Repository Path**: `core/operators/` → `core/resources/tenants/` → selective AI components
 
 ### 🟡 Hybrid Scenarios (Local + Cloud)
 
@@ -574,7 +574,7 @@ spec:
 - No direct access to sensitive data
 
 **Application to Repository**:
-Karpenter is deployed via Flux in `control-plane/controllers/karpenter/` and configured per cloud provider in `infrastructure/tenants/3-workloads/karpenter/`. NodePools are created for each spoke cluster with appropriate dependsOn relationships ensuring clusters exist before node scaling is configured.
+Karpenter is deployed via Flux in `core/operators/controllers/karpenter/` and configured per cloud provider in `core/resources/tenants/3-workloads/karpenter/`. NodePools are created for each spoke cluster with appropriate dependsOn relationships ensuring clusters exist before node scaling is configured.
 
 **Benefits**:
 
@@ -737,7 +737,7 @@ spec:
 
    ```bash
    # Deploy infrastructure validation
-   kubectl apply -f infrastructure/ai-validation/
+   kubectl apply -f core/resources/ai-validation/
    ```
 
 ### Medium-term Goals (Month 1-3)
@@ -880,21 +880,21 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Security Architecture**: Agentgateway uses traditional security techniques (pattern matching, content scanning) that avoid the catch-22 of needing AI to filter AI requests. It provides deterministic rule-based filtering similar to web application firewalls, not AI-powered content analysis. This approach ensures predictable behavior, low latency, and compliance-friendly auditing.
 
-**Applicability**: Directly enhances the control plane's security posture for AI-assisted operations. The GitOps repo could integrate agentgateway as part of the infrastructure/tenants/3-workloads/ to proxy Claude Code CLI usage by operators, ensuring compliance with rule-based prompt guards that block sensitive data (e.g., credentials, PII) before API calls. This fits the hub-spoke model by centralizing AI traffic governance in the Hub Cluster, aligning with the security mandates (no hardcoded secrets, RBAC).
+**Applicability**: Directly enhances the control plane's security posture for AI-assisted operations. The GitOps repo could integrate agentgateway as part of the core/resources/tenants/3-workloads/ to proxy Claude Code CLI usage by operators, ensuring compliance with rule-based prompt guards that block sensitive data (e.g., credentials, PII) before API calls. This fits the hub-spoke model by centralizing AI traffic governance in the Hub Cluster, aligning with the security mandates (no hardcoded secrets, RBAC).
 
 **Safety Assessment**: Safe to use. The proxy adds deterministic security layers without compromising core functionality. Rule-based prompt guards prevent obvious data exfiltration, and the tutorial emphasizes proper RBAC and network policies. No destructive operations; it's observational and filtering using traditional security patterns.
 
-**Integration Approach**: Add agentgateway to control-plane/controllers/kustomization.yaml as a HelmRelease. Configure HTTPRoute in infrastructure/tenants/3-workloads/ with dependsOn from cluster-infra. Use for operator-facing AI tools, integrating with existing monitoring (Prometheus/Grafana) for traffic observability. Avoid in core reconciliation loops to prevent complexity.
+**Integration Approach**: Add agentgateway to core/operators/controllers/kustomization.yaml as a HelmRelease. Configure HTTPRoute in core/resources/tenants/3-workloads/ with dependsOn from cluster-infra. Use for operator-facing AI tools, integrating with existing monitoring (Prometheus/Grafana) for traffic observability. Avoid in core reconciliation loops to prevent complexity.
 
 ## 2. <https://danielhnyk.cz/claude-code-kubernetes-cronjob/>
 
 **Content Summary**: Blog post on running Claude Code as Kubernetes CronJobs for long-running tasks like marketing pipelines. Covers Dockerfile with Node.js/Python, entrypoint with timeout safeguards, jq for log filtering, GitHub as storage, and CronJob manifests.
 
-**Applicability**: Enables AI-powered CronJobs in the control plane for automated tasks like manifest generation, drift analysis, or troubleshooting. Fits infrastructure/tenants/3-workloads/ as additional automation, using Flux to manage these jobs. Replaces manual operations with AI, enhancing continuous reconciliation by auto-generating fixes.
+**Applicability**: Enables AI-powered CronJobs in the control plane for automated tasks like manifest generation, drift analysis, or troubleshooting. Fits core/resources/tenants/3-workloads/ as additional automation, using Flux to manage these jobs. Replaces manual operations with AI, enhancing continuous reconciliation by auto-generating fixes.
 
 **Safety Assessment**: Safe with caveats. --dangerously-skip-permissions allows full tool access, so run in restricted containers with RBAC limiting file system and network access. Timeout mechanisms prevent runaway jobs. GitHub storage is secure if using deploy keys.
 
-**Integration Approach**: Add CronJob manifests to infrastructure/tenants/3-workloads/ with dependsOn from workload-infra. Use for scheduled AI tasks like "analyze recent Flux logs and suggest optimizations". Integrate with existing secrets management (SealedSecrets). Test in spoke clusters for production readiness.
+**Integration Approach**: Add CronJob manifests to core/resources/tenants/3-workloads/ with dependsOn from workload-infra. Use for scheduled AI tasks like "analyze recent Flux logs and suggest optimizations". Integrate with existing secrets management (SealedSecrets). Test in spoke clusters for production readiness.
 
 ## 3. <https://dev.to/mikesol/using-claude-code-to-pilot-kubernetes-on-autodock-3k04>
 
@@ -904,7 +904,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe for operator use. Claude handles conflicts intelligently, but requires human oversight for production. No destructive risks if run in isolated environments.
 
-**Integration Approach**: Add Autodock-like environment in infrastructure/tenants/3-workloads/ for development/testing. Use Claude Code for manifest generation, with env.save to create documentation in docs/. Integrate with Flux for applying changes. Avoid replacing core Flux operations; use for ad-hoc infrastructure tasks.
+**Integration Approach**: Add Autodock-like environment in core/resources/tenants/3-workloads/ for development/testing. Use Claude Code for manifest generation, with env.save to create documentation in docs/. Integrate with Flux for applying changes. Avoid replacing core Flux operations; use for ad-hoc infrastructure tasks.
 
 ## 4. <https://futuresearch.ai/blog/claude-code-kubernetes-cronjob/>
 
@@ -924,7 +924,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Medium risk due to informal orchestration and --dangerously-skip-permissions. Safe with sandboxing and human review. Filesystem polling avoids context explosion but requires careful error handling.
 
-**Integration Approach**: Extend infrastructure/tenants/3-workloads/ with skill-based CronJobs. Use subagents for tasks like "Kubernetes specialist" for manifest validation. Integrate with monitoring for workflow visibility. Start with non-critical workflows (e.g., documentation generation).
+**Integration Approach**: Extend core/resources/tenants/3-workloads/ with skill-based CronJobs. Use subagents for tasks like "Kubernetes specialist" for manifest validation. Integrate with monitoring for workflow visibility. Start with non-critical workflows (e.g., documentation generation).
 
 ## 6. <https://github.com/anthropics/claude-code/issues/5045>
 
@@ -934,7 +934,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe as design proposal. Implementation would need careful RBAC, network policies, and resource limits to prevent abuse.
 
-**Integration Approach**: Use as inspiration for future enhancements. Implement basic operator in control-plane/controllers/ for AI job management. Focus on phases 1-2 first (basic deployment, CRDs).
+**Integration Approach**: Use as inspiration for future enhancements. Implement basic operator in core/operators/controllers/ for AI job management. Focus on phases 1-2 first (basic deployment, CRDs).
 
 ## 7. <https://github.com/kelos-dev/kelos>
 
@@ -944,7 +944,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe with proper isolation. Uses Kubernetes security primitives; avoid in core reconciliation to prevent loops.
 
-**Integration Approach**: Add Kelos to control-plane/controllers/ via HelmRelease. Use for agent-driven infrastructure automation, integrated with Flux dependsOn.
+**Integration Approach**: Add Kelos to core/operators/controllers/ via HelmRelease. Use for agent-driven infrastructure automation, integrated with Flux dependsOn.
 
 ## 8. <https://github.com/RchGrav/claudebox>
 
@@ -974,9 +974,9 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe as local sandbox; production integration needs isolation.
 
-**Integration Approach**: Adapt sandbox concepts to infrastructure/tenants/3-workloads/ for AI-assisted ops.
+**Integration Approach**: Adapt sandbox concepts to core/resources/tenants/3-workloads/ for AI-assisted ops.
 
-## 11. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills>
+## 11. <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills>
 
 **Content Summary**: Skills directory with markdown files for temporal-workflow, analyze-backstage-catalog, ai-agent-orchestration, etc.
 
@@ -990,11 +990,11 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Content Summary**: Multi-cluster observability with AIOps for logging, monitoring, tracing.
 
-**Applicability**: Enhances existing monitoring in control-plane/monitoring/. Adds AI-driven anomaly detection for infrastructure health.
+**Applicability**: Enhances existing monitoring in core/operators/monitoring/. Adds AI-driven anomaly detection for infrastructure health.
 
 **Safety Assessment**: Safe; observability tool.
 
-**Integration Approach**: Integrate with existing Prometheus/Grafana via Helm in control-plane/monitoring/kustomization.yaml.
+**Integration Approach**: Integrate with existing Prometheus/Grafana via Helm in core/operators/monitoring/kustomization.yaml.
 
 ## 13. <https://github.com/sylvinus/agent-vm>
 
@@ -1006,7 +1006,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Use for local testing of AI integrations.
 
-## 14. <https://github.com/VoltAgent/awesome-claude-code-subagents/blob/main/categories/03-infrastructure/kubernetes-specialist.md>
+## 14. <https://github.com/VoltAgent/awesome-claude-code-subcore/ai/runtime/blob/main/categories/03-core/resources/kubernetes-specialist.md>
 
 **Content Summary**: Subagent definition for Kubernetes specialist with communication protocol, development workflow, assessment phases.
 
@@ -1016,7 +1016,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Integrate as skill in AI workflows.
 
-## 15. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main>
+## 15. <https://github.com/VoltAgent/awesome-claude-code-subcore/ai/runtime/tree/main>
 
 **Content Summary**: Collection of 100+ Claude Code subagents, categorized by use cases.
 
@@ -1026,7 +1026,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Reference for latest Agentgateway features and integration guides.
 
-## 16. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories>
+## 16. <https://github.com/VoltAgent/awesome-claude-code-subcore/ai/runtime/tree/main/categories>
 
 **Content Summary**: Categories directory with subdirs for different domains.
 
@@ -1036,7 +1036,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: See URL 15.
 
-## 17. <https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories/03-infrastructure>
+## 17. <https://github.com/VoltAgent/awesome-claude-code-subcore/ai/runtime/tree/main/categories/03-infrastructure>
 
 **Content Summary**: Infrastructure subagents including Kubernetes specialist, Docker expert, cloud architects.
 
@@ -1122,7 +1122,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Safety Assessment**: Safe - promotes container isolation.
 
-**Integration Approach**: Standardize containerized AI workloads in infrastructure/tenants/3-workloads/.
+**Integration Approach**: Standardize containerized AI workloads in core/resources/tenants/3-workloads/.
 
 ## 24. <https://medium.com/@jinvishal2011/ai-driven-kubernetes-management-using-claude-desktop-model-context-protocol-mcp-a353d68956b2>
 
@@ -1776,7 +1776,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe for development/testing. The tutorial shows controlled, isolated usage with local Docker/K8s setup. No production risks if used in sandboxed environments.
 
-**Integration Approach**: Integrate Claude Code as a development tool for operators to generate Flux-compatible manifests. Add to infrastructure/tenants/3-workloads/ as an optional CronJob for manifest generation tasks, with human review required before commit.
+**Integration Approach**: Integrate Claude Code as a development tool for operators to generate Flux-compatible manifests. Add to core/resources/tenants/3-workloads/ as an optional CronJob for manifest generation tasks, with human review required before commit.
 
 ## 46. <https://news.ycombinator.com/item?id=47066093>
 
@@ -1806,7 +1806,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe.
 
-**Integration Approach**: Optional addition to infrastructure/tenants/3-workloads/ for operator tools.
+**Integration Approach**: Optional addition to core/resources/tenants/3-workloads/ for operator tools.
 
 ## 49. <https://blog.christianposta.com/enterprise-mcp-sso-with-microsoft-entra-and-agentgateway/>
 
@@ -1816,7 +1816,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe - focuses on authentication and security best practices.
 
-**Integration Approach**: Implement Entra ID integration with Agentgateway for MCP server authentication in the control plane. Add to infrastructure/tenants/3-workloads/ as part of security hardening for AI operations.
+**Integration Approach**: Implement Entra ID integration with Agentgateway for MCP server authentication in the control plane. Add to core/resources/tenants/3-workloads/ as part of security hardening for AI operations.
 
 ## 50. <https://www.youtube.com/watch?v=_DxOmM6biQ4>
 
@@ -1826,7 +1826,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe - emphasizes secure authentication, policy enforcement, and controlled access to external resources.
 
-**Integration Approach**: Implement Agentgateway for routing external MCP server connections through enterprise SSO. Configure in infrastructure/tenants/3-workloads/ with HTTP routes and token exchange policies. Enables secure access to external AI tools while applying internal enterprise policies.
+**Integration Approach**: Implement Agentgateway for routing external MCP server connections through enterprise SSO. Configure in core/resources/tenants/3-workloads/ with HTTP routes and token exchange policies. Enables secure access to external AI tools while applying internal enterprise policies.
 
 ## 51. <https://aihackathon.dev/>
 
@@ -1916,7 +1916,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe - Kubernetes-native with isolation.
 
-**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent orchestration. Use for automating DevOps workflows in the multi-cloud setup.
+**Integration Approach**: Deploy kagent in core/resources/tenants/3-workloads/ for agent orchestration. Use for automating DevOps workflows in the multi-cloud setup.
 
 ## 60. <https://github.com/kagent-dev/kagent/pull/1210>
 
@@ -1946,7 +1946,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe - focuses on security.
 
-**Integration Approach**: Use in control-plane/controllers/ for secure AI traffic routing.
+**Integration Approach**: Use in core/operators/controllers/ for secure AI traffic routing.
 
 ## 63. <https://github.com/agentregistry>
 
@@ -2024,7 +2024,7 @@ The gitops-infra-control-plane repository demonstrates **production-ready multi-
 
 **Safety Assessment**: Safe - Kubernetes-native with isolation and proper resource management.
 
-**Integration Approach**: Deploy kagent in infrastructure/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn. Consider as evolution path from current basic agent orchestration to enterprise-grade agentic infrastructure.
+**Integration Approach**: Deploy kagent in core/resources/tenants/3-workloads/ for agent-driven infrastructure automation, integrated with Flux dependsOn. Consider as evolution path from current basic agent orchestration to enterprise-grade agentic infrastructure.
 
 **Migration Path**:
 
@@ -2095,7 +2095,7 @@ spec:
 
 **Safety Assessment**: Safe - Enterprise-grade security and governance.
 
-**Integration Approach**: Integrate TrueFoundry's Agent Gateway into infrastructure/tenants/3-workloads/ for centralized control of AI agents and workflows.
+**Integration Approach**: Integrate TrueFoundry's Agent Gateway into core/resources/tenants/3-workloads/ for centralized control of AI agents and workflows.
 
 ## 78. <https://thenewstack.io/solo-io-open-sources-agentregistry-with-support-for-agent-skills/>
 
@@ -2125,7 +2125,7 @@ spec:
 
 **Safety Assessment**: Safe - Product announcement.
 
-**Integration Approach**: Use agentregistry to provide registry capabilities for AI artifacts in the GitOps repo's infrastructure/tenants/.
+**Integration Approach**: Use agentregistry to provide registry capabilities for AI artifacts in the GitOps repo's core/resources/tenants/.
 
 ## 81. <https://docs.litellm.ai/docs/a2a>
 
@@ -2185,7 +2185,7 @@ spec:
 
 **Safety Assessment**: Safe - Kubernetes-native docs.
 
-**Integration Approach**: Deploy agentgateway via Helm in infrastructure/tenants/3-workloads/ with Flux management.
+**Integration Approach**: Deploy agentgateway via Helm in core/resources/tenants/3-workloads/ with Flux management.
 
 ## 87. <https://www.cloudnativedeepdive.com/tag/agentregistry/>
 
@@ -2279,7 +2279,7 @@ spec:
 
 ## Local File References
 
-## 96. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/agent-orchestration-demo.md>
+## 96. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/agent-orchestration-demo.md>
 
 **Content Summary**: Local markdown file demonstrating agent orchestration in the complete hub-spoke example.
 
@@ -2289,7 +2289,7 @@ spec:
 
 **Integration Approach**: Reference in docs as implementation example for agent orchestration.
 
-## 97. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-cronjobs>
+## 97. <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-cronjobs>
 
 **Content Summary**: Directory containing AI-powered cronjob examples.
 
@@ -2297,9 +2297,9 @@ spec:
 
 **Safety Assessment**: Safe - Example code.
 
-**Integration Approach**: Use as template for deploying AI cronjobs in infrastructure/tenants/3-workloads/.
+**Integration Approach**: Use as template for deploying AI cronjobs in core/resources/tenants/3-workloads/.
 
-## 98. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml>
+## 98. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml>
 
 **Content Summary**: YAML manifest for AI cronjobs.
 
@@ -2309,7 +2309,7 @@ spec:
 
 **Integration Approach**: Apply via Flux in the control plane.
 
-## 99. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-gateway>
+## 99. <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-gateway>
 
 **Content Summary**: Directory with AI gateway examples.
 
@@ -2317,9 +2317,9 @@ spec:
 
 **Safety Assessment**: Safe - Example code.
 
-**Integration Approach**: Use for deploying AI gateways in infrastructure/tenants/.
+**Integration Approach**: Use for deploying AI gateways in core/resources/tenants/.
 
-## 100. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-gateway/gateway.yaml>
+## 100. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-gateway/gateway.yaml>
 
 **Content Summary**: YAML manifest for AI gateway.
 
@@ -2329,7 +2329,7 @@ spec:
 
 **Integration Approach**: Deploy via Flux with dependsOn from network/cluster resources.
 
-## 101. <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/examples/complete-hub-spoke/ai-validation>
+## 101. <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-validation>
 
 **Content Summary**: Directory with AI validation examples.
 
@@ -2339,7 +2339,7 @@ spec:
 
 **Integration Approach**: Integrate into CI/CD for AI-generated manifest validation.
 
-## 102. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/examples/complete-hub-spoke/ai-validation/validation.yaml>
+## 102. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-validation/validation.yaml>
 
 **Content Summary**: YAML manifest for AI validation.
 
@@ -2347,7 +2347,7 @@ spec:
 
 **Safety Assessment**: Safe - Manifest example.
 
-**Integration Approach**: Use in infrastructure/tenants/3-workloads/ for automated validation.
+**Integration Approach**: Use in core/resources/tenants/3-workloads/ for automated validation.
 
 ## 103. <https://squad.is/>
 
@@ -2369,7 +2369,7 @@ spec:
 
 **Integration Approach**: Consider as an advanced architecture for AI agent orchestration. Migrate from MCP tool registries to Agent Skills libraries for infrastructure management, security compliance, cost optimization, and disaster recovery. Skills can be developed, versioned, and deployed through the same GitOps pipeline used for infrastructure.
 
-## 105. <https://github.com/lloydchang/gitops-infra-control-plane/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md>
+## 105. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md>
 
 **Content Summary**: Comprehensive documentation analyzing the evolution from MCP (Model Context Protocol) to Agent Skills as the next level of AI agent orchestration for GitOps infrastructure control planes. Includes architectural implications, migration strategy, skill library design, and complete implementation examples.
 
@@ -2431,7 +2431,7 @@ The following URLs were provided for inclusion in this analysis. Many of these r
 - <https://github.com/Clause-Logic/exoclaw>
 - <https://github.com/Clause-Logic/exoclaw-temporal>
 - <https://github.com/Clause-Logic/exoclaw-github>
-- <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills>
+- <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills>
 
 ## Detailed Analysis of Additional Resources
 
@@ -2801,7 +2801,7 @@ data:
 
 #### AI Agents Sandbox Skills
 
-**Source**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills>
+**Source**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills>
 
 **Content Summary**: Specialized skills for infrastructure and DevOps automation.
 
@@ -3173,7 +3173,7 @@ spec:
 - Human-in-the-loop approval workflows
 - Comprehensive audit trails
 
-**Skills Repository**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills>
+**Skills Repository**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills>
 
 **Key Infrastructure Skills**:
 
@@ -4789,7 +4789,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Consensus mechanisms prevent conflicting decisions, providing deterministic behavior. Leader-follower pattern adds fault tolerance without compromising security.
 
-**Integration Approach**: Implement as Flux-managed controllers in `control-plane/controllers/`. Use consensus protocols for cross-cluster resource orchestration, ensuring dependsOn relationships reflect consensus quorum requirements.
+**Integration Approach**: Implement as Flux-managed controllers in `core/operators/controllers/`. Use consensus protocols for cross-cluster resource orchestration, ensuring dependsOn relationships reflect consensus quorum requirements.
 
 ## 2. <https://borisburkov.net/2021-10-03-1/>
 
@@ -4799,7 +4799,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Focuses on fault-tolerant design patterns that enhance reliability.
 
-**Integration Approach**: Incorporate into architecture design for agent swarms in `infrastructure/tenants/3-workloads/`, using consensus to coordinate agent actions across clusters.
+**Integration Approach**: Incorporate into architecture design for agent swarms in `core/resources/tenants/3-workloads/`, using consensus to coordinate agent actions across clusters.
 
 ## 3. <https://systemdr.substack.com/p/distributed-consensus-paxos-simplified>
 
@@ -4819,7 +4819,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Biological analogies offer novel but theoretically sound approaches.
 
-**Integration Approach**: Explore for advanced agent behavior patterns in [examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md).
+**Integration Approach**: Explore for advanced agent behavior patterns in [overlay/examples/complete-hub-spoke/agent-orchestration-demo.md](overlay/examples/complete-hub-spoke/agent-orchestration-demo.md).
 
 ## 5. <https://www.mdpi.com/2078-2489/16/4/268>
 
@@ -4849,7 +4849,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Focuses on efficient and fair resource distribution.
 
-**Integration Approach**: Implement in `control-plane/flux/` for automated resource optimization workflows.
+**Integration Approach**: Implement in `core/operators/flux/` for automated resource optimization workflows.
 
 ## 8. <https://www.researchgate.net/publication/385490570_Distributed_Resource_Orchestration_at_the_Edge_Based_on_Consensus>
 
@@ -4869,7 +4869,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Theoretical foundation for decentralized systems.
 
-**Integration Approach**: Apply to agent swarm design in `examples/complete-hub-spoke/consensus-layer/`.
+**Integration Approach**: Apply to agent swarm design in `overlay/examples/complete-hub-spoke/consensus-layer/`.
 
 ## 10. <https://www.hashicorp.com/en/resources/raft-consul-consensus-protocol-explained>
 
@@ -4879,7 +4879,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Raft is battle-tested in production systems.
 
-**Integration Approach**: Use Raft for agent consensus in `control-plane/controllers/kustomization.yaml`.
+**Integration Approach**: Use Raft for agent consensus in `core/operators/controllers/kustomization.yaml`.
 
 ## 11. <https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/delarocha2022.pdf>
 
@@ -4969,7 +4969,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Established patterns for agent coordination.
 
-**Integration Approach**: Implement patterns in [examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md).
+**Integration Approach**: Implement patterns in [overlay/examples/complete-hub-spoke/agent-orchestration-demo.md](overlay/examples/complete-hub-spoke/agent-orchestration-demo.md).
 
 ## 20. <https://github.com/ruvnet/ruflo>
 
@@ -4979,7 +4979,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Open-source project with community oversight.
 
-**Integration Approach**: Evaluate for inclusion in `control-plane/controllers/`.
+**Integration Approach**: Evaluate for inclusion in `core/operators/controllers/`.
 
 ## 21. <https://www.usenix.org/system/files/cset20-paper-hussain.pdf>
 
@@ -4999,7 +4999,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Combines SDN security with blockchain consensus.
 
-**Integration Approach**: Use for network orchestration in `control-plane/flux/network.yaml`.
+**Integration Approach**: Use for network orchestration in `core/operators/flux/network.yaml`.
 
 ## 23. <https://cse.buffalo.edu/tech-reports/2016-02.orig.pdf>
 
@@ -5069,7 +5069,7 @@ This section analyzes the provided references on distributed consensus, orchestr
 
 **Safety Assessment**: ✅ **SAFE** - Type-safe generics prevent runtime errors, built-in compensation patterns ensure reliability, and containerized execution model aligns with Kubernetes security practices.
 
-**Integration Approach**: Reference in examples/complete-hub-spoke-kagent/ for Go-based agent workflow development. Could serve as alternative to Kelos for Kubernetes-native orchestration with stronger typing and built-in enterprise patterns.
+**Integration Approach**: Reference in overlay/examples/complete-hub-spoke-kagent/ for Go-based agent workflow development. Could serve as alternative to Kelos for Kubernetes-native orchestration with stronger typing and built-in enterprise patterns.
 
 These references collectively support the evolution from traditional top-down Flux orchestration to bottom-up consensus-based agent swarms, enabling tighter feedback loops (sub-second to minute intervals), distributed decision-making, and self-organizing infrastructure optimization while maintaining the security and reliability standards of the GitOps control plane.
 
@@ -5108,7 +5108,7 @@ Before implementing any component of this control plane, teams must clearly defi
 - **Success Criteria Matrix** - Measurable outcomes by scenario type
 - **Implementation Decision Matrix** - When to use which components
 
-## 26. <https://james-carr.org/posts/2026-02-05-temporal-durable-ai-agents/>
+## 26. <https://james-carr.org/posts/2026-02-05-temporal-durable-ai-core/ai/runtime/>
 
 **Content Summary**: Comprehensive guide to building durable AI agents with Temporal's AI SDK integration, featuring multi-model scatter/gather patterns across Claude Haiku, Sonnet, and Opus. Demonstrates how to make LLM calls survive infrastructure failures, API rate limits, and network timeouts through automatic durability and retry logic.
 
@@ -5427,7 +5427,7 @@ spec:
 
 ### Direct Relevance to Existing Examples
 
-#### 1. **Agent Orchestration Demo** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md))
+#### 1. **Agent Orchestration Demo** ([overlay/examples/complete-hub-spoke/agent-orchestration-demo.md](overlay/examples/complete-hub-spoke/agent-orchestration-demo.md))
 
 **Current State**: Consensus-based self-organizing swarms with 30-second feedback loops
 **Temporal Enhancement**:
@@ -5491,7 +5491,7 @@ export async function durableInfrastructureSkill(request: SkillRequest) {
 }
 ```
 
-#### 3. **Consensus-Based Examples** (`examples/complete-hub-spoke-consensus/`)
+#### 3. **Consensus-Based Examples** (`overlay/examples/complete-hub-spoke-consensus/`)
 
 **Current State**: Multi-scale feedback loops (30s, 5m, 1h) with distributed consensus
 **Temporal Enhancement**:
@@ -5633,7 +5633,7 @@ The Temporal patterns directly enhance the repository's existing **consensus-bas
 
 #### Enhanced Consensus Layer with Temporal Durability
 
-**Current Repository Consensus** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md)):
+**Current Repository Consensus** ([overlay/examples/complete-hub-spoke/agent-orchestration-demo.md](overlay/examples/complete-hub-spoke/agent-orchestration-demo.md)):
 
 - Raft-based consensus for agent coordination
 - 30-second feedback loops for local optimization
@@ -5664,7 +5664,7 @@ spec:
 
 #### Scatter/Gather Integration with Multi-Cloud Consensus
 
-**Repository Multi-Cloud Consensus** ([examples/complete-hub-spoke/agent-orchestration-demo.md](examples/complete-hub-spoke/agent-orchestration-demo.md)):
+**Repository Multi-Cloud Consensus** ([overlay/examples/complete-hub-spoke/agent-orchestration-demo.md](overlay/examples/complete-hub-spoke/agent-orchestration-demo.md)):
 
 - Cross-agent communication
 - Distributed consensus across cloud boundaries
@@ -6070,15 +6070,15 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 ## 37. AI Agents Sandbox Skills Tree Analysis
 
-This section analyzes the complete skills tree from [gitops-infra-control-plane/.agents/skills](https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
+This section analyzes the complete skills tree from [gitops-infra-core/operators/core/ai/skills/skills](https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
 
 ### temporal-workflow
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/temporal-workflow>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/temporal-workflow>
 
 **SKILL.md Content**: Create, manage, and monitor Temporal workflows with AI agent orchestration. Use when developing workflow definitions, monitoring execution, or troubleshooting workflow issues.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Workflow orchestration for complex AI operations in GitOps control plane.
 
@@ -6088,11 +6088,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### analyze-backstage-catalog
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/analyze-backstage-catalog>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/analyze-backstage-catalog>
 
 **SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Software catalog management for infrastructure services.
 
@@ -6102,11 +6102,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### ai-agent-orchestration
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/ai-agent-orchestration>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/ai-agent-orchestration>
 
 **SKILL.md Content**: Orchestrate and coordinate multiple AI agents for complex workflows. Use when managing agent interactions, coordinating multi-agent tasks, or implementing agent communication patterns.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Multi-agent coordination in control plane.
 
@@ -6116,11 +6116,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### compliance-check
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/compliance-check>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/compliance-check>
 
 **SKILL.md Content**: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Automated compliance monitoring.
 
@@ -6130,11 +6130,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### cost-optimization
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/cost-optimization>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/cost-optimization>
 
 **SKILL.md Content**: Analyze and optimize cloud infrastructure costs using specialized subagent. Use when reviewing spending, identifying savings opportunities, or planning cost reduction strategies.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Cost management for cloud resources.
 
@@ -6144,11 +6144,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### analyze-security
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/analyze-security>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/analyze-security>
 
 **SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Security assessment and monitoring.
 
@@ -6158,11 +6158,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### workflow-management
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/workflow-management>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/workflow-management>
 
 **SKILL.md Content**: Orchestrate and monitor Temporal AI Agent workflows. Use when managing multiple concurrent workflows, checking status, or coordinating complex multi-agent operations.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Advanced workflow management.
 
@@ -6172,11 +6172,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### infrastructure-discovery
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/infrastructure-discovery>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/infrastructure-discovery>
 
 **SKILL.md Content**: Discover and visualize infrastructure resources with interactive HTML output. Use when exploring new environments, understanding resource relationships, or creating infrastructure documentation.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Infrastructure inventory and documentation.
 
@@ -6186,11 +6186,11 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 ### enable-self-service
 
-**Location**: <https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/enable-self-service>
+**Location**: <https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/enable-self-service>
 
 **SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
 
-**Files**: SKILL.md, agents/openai.yaml
+**Files**: SKILL.md, core/ai/runtime/openai.yaml
 
 **Applicability**: Developer portal management.
 
@@ -6524,7 +6524,7 @@ This section analyzes the comprehensive Temporal AI Agents system imported from 
 - **Frontend**: React/Material-UI dashboard for agent management
 - **APIs**: REST endpoints for programmatic access
 - **MCP**: Model Context Protocol server for AI tool interoperability
-- **Skills**: 64 specialized skills in `.agents/skills/` directory
+- **Skills**: 64 specialized skills in `core/ai/skills/skills/` directory
 
 **Key Components**:
 
@@ -6672,10 +6672,10 @@ Human Gates: [when human approval is required]
 
 **Configuration Files**:
 
-- `agents/openai.yaml`: OpenAI integration configuration
-- `scripts/`: Implementation scripts (Python/shell)
+- `core/ai/runtime/openai.yaml`: OpenAI integration configuration
+- `core/core/automation/ci-cd/scripts/`: Implementation scripts (Python/shell)
 - `templates/`: Report and configuration templates
-- `examples/`: Code samples and usage patterns
+- `overlay/examples/`: Code samples and usage patterns
 
 #### Environment Integration
 

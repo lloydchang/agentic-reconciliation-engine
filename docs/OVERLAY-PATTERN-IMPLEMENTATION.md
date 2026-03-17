@@ -157,7 +157,7 @@ overlay-quickstart.sh       # True overlay implementation
 
 ### Quickstart Script
 ```
-scripts/
+core/core/automation/ci-cd/scripts/
 ├── quickstart.sh              # Base script with hook support
 ├── overlay-quickstart.sh      # Overlay implementation
 └── hooks/                    # Created dynamically by overlay
@@ -167,7 +167,7 @@ scripts/
 
 ### Overlay Resources
 ```
-overlays/
+core/deployment/overlays/
 ├── debug-dashboard.yaml       # Enhanced debug dashboard
 ├── config/                   # Overlay configurations
 └── patches/                  # Resource patches
@@ -193,8 +193,8 @@ QUICKSTART_OVERLAY_MODE="true"          # Enable overlay mode
 OVERLAY_FEATURES="debug,dashboard,enhanced"  # Feature set
 OVERLAY_NAMESPACE="overlay-system"        # Target namespace
 OVERLAY_LOG_DIR="../logs/overlay-quickstart"  # Log location
-HOOKS_DIR="overlays/hooks"               # Hook directory
-PATCHES_DIR="overlays/patches"           # Patch directory
+HOOKS_DIR="core/deployment/overlays/hooks"               # Hook directory
+PATCHES_DIR="core/deployment/overlays/patches"           # Patch directory
 ```
 
 ### Base Script Variables (with defaults)
@@ -245,14 +245,14 @@ FEATURES="${OVERLAY_FEATURES:-basic}"
 ### Custom Overlays
 ```bash
 # Create custom overlay
-mkdir -p overlays/custom
-cat > overlays/custom/hooks/pre-quickstart.sh << 'EOF'
+mkdir -p core/deployment/overlays/custom
+cat > core/deployment/overlays/custom/hooks/pre-quickstart.sh << 'EOF'
 echo "Custom overlay setup"
 export CUSTOM_FEATURE="enabled"
 EOF
 
 # Use custom overlay
-OVERLAY_DIR=overlays/custom ./overlay-quickstart.sh
+OVERLAY_DIR=core/deployment/overlays/custom ./overlay-quickstart.sh
 ```
 
 ## Technical Implementation Notes
@@ -286,15 +286,15 @@ The implementation provides a solid foundation for future extensibility while ma
 ## Files Modified
 
 ### Core Changes
-- `scripts/quickstart.sh`: Added 2 hook calls (lines 77-78, 149-150)
-- `scripts/overlay-quickstart.sh`: Complete rewrite implementing true overlay pattern
+- `core/core/automation/ci-cd/scripts/quickstart.sh`: Added 2 hook calls (lines 77-78, 149-150)
+- `core/core/automation/ci-cd/scripts/overlay-quickstart.sh`: Complete rewrite implementing true overlay pattern
 
 ### Files Removed
-- `scripts/overlays-quickstart.sh` (duplicate)
-- `scripts/overlay-quickstart-current.sh` (outdated)
-- `scripts/overlays-quickstart-old.sh` (outdated)
+- `core/core/automation/ci-cd/scripts/overlays-quickstart.sh` (duplicate)
+- `core/core/automation/ci-cd/scripts/overlay-quickstart-current.sh` (outdated)
+- `core/core/automation/ci-cd/scripts/overlays-quickstart-old.sh` (outdated)
 
 ### Files Created
-- `scripts/overlay-quickstart.sh.backup` (backup of original)
+- `core/core/automation/ci-cd/scripts/overlay-quickstart.sh.backup` (backup of original)
 
 This implementation establishes a maintainable, extensible architecture that follows established design patterns while solving the practical problems of code duplication and inconsistency.

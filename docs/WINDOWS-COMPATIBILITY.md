@@ -2,8 +2,8 @@
 
 This repo ships the same automation for macOS, Linux, and Windows—provided the Windows host uses
 a POSIX-compatible environment such as **WSL** (Windows Subsystem for Linux), **Git Bash**, or another
-bash-aware shell. The underlying scripts (`scripts/prerequisites.sh`, `scripts/migration_wizard.py`,
-`scripts/run-local-automation.sh`, etc.) rely on familiar UNIX utilities (`bash`, `mkdir -p`, `tee`,
+bash-aware shell. The underlying scripts (`core/core/automation/ci-cd/scripts/prerequisites.sh`, `core/core/automation/ci-cd/scripts/migration_wizard.py`,
+`core/core/automation/ci-cd/scripts/run-local-automation.sh`, etc.) rely on familiar UNIX utilities (`bash`, `mkdir -p`, `tee`,
 `python`, etc.), so they run on Windows only if the shell beneath them understands those commands.
 This guide explains how to achieve that compatibility in a zero-touch way.
 
@@ -25,7 +25,7 @@ This guide explains how to achieve that compatibility in a zero-touch way.
 ## 2. Environment bootstrap
 
 - Export the necessary environment variables inside WSL or Git Bash the same way as on macOS/Linux.
-  You can source `scripts/prerequisites.sh` while remaining in the same shell, ensuring the script can see the values.
+  You can source `core/core/automation/ci-cd/scripts/prerequisites.sh` while remaining in the same shell, ensuring the script can see the values.
 - Ensure the `python` command you invoke maps to Python 3. If it does not, install Python 3 and add a
   symlink (`ln -s $(which python3) ~/bin/python`).
 - Confirm `git` on your Windows environment respects symlinks when cloning (WSL does this by default;
@@ -38,7 +38,7 @@ Once the prerequisites above are satisfied, you can run the zero-touch automatio
 ```bash
 # from your bash-compatible shell (WSL/Git Bash)
 cd /path/to/gitops-infra-control-plane
-scripts/run-local-automation.sh
+core/core/automation/ci-cd/scripts/run-local-automation.sh
 ```
 
 ### WSL quick-start
@@ -58,8 +58,8 @@ sudo apt install -y bash curl git jq yq kubectl helm python3 python3-pip pika`),
 distro, then run the scripts from that shell. This ensures the helper logs report WSL and avoids the
 native Windows warning.
 
-The helper script runs `scripts/prerequisites.sh`, which validates CLI tooling, and then calls
-`scripts/migration_wizard.py` with the Azure emulator + GitHub connector sequence. Because both scripts
+The helper script runs `core/core/automation/ci-cd/scripts/prerequisites.sh`, which validates CLI tooling, and then calls
+`core/core/automation/ci-cd/scripts/migration_wizard.py` with the Azure emulator + GitHub connector sequence. Because both scripts
 are bash-compatible, Windows sees them as just another shell automation.
 
 ## 4. Git host connectors and PR flow
@@ -71,11 +71,11 @@ are bash-compatible, Windows sees them as just another shell automation.
 
 ## 5. Validation and testing
 
-1. Run `scripts/prerequisites.sh` from your Windows shell; everything should pass or fail with clear
+1. Run `core/core/automation/ci-cd/scripts/prerequisites.sh` from your Windows shell; everything should pass or fail with clear
    diagnostics (paths, env vars, CLI tools).  
-2. Run `scripts/run-local-automation.sh`; the logs under `logs/local-automation/` provide the same
+2. Run `core/core/automation/ci-cd/scripts/run-local-automation.sh`; the logs under `logs/local-core/automation/ci-cd/` provide the same
    output as on macOS/Linux.  
-3. Because Windows uses the same bash environment, this also validates the `scripts/migration_wizard.py`
+3. Because Windows uses the same bash environment, this also validates the `core/core/automation/ci-cd/scripts/migration_wizard.py`
    path, ensuring the zero-touch scenario works identically.
 
 If you encounter issues due to Windows line endings or path translation, re-run `git status` to confirm
@@ -83,8 +83,8 @@ there are no unwanted changes (Git Bash/WSL preserves LF by default).
 
 ## 6. Automatic WSL detection
 
-The main automation entry points (`scripts/prerequisites.sh`, `scripts/run-local-automation.sh`, and
-`scripts/run-emulator-then-cloud.sh`) now source `scripts/helpers/wsl-detect.sh`. That helper logs a warning
+The main automation entry points (`core/core/automation/ci-cd/scripts/prerequisites.sh`, `core/core/automation/ci-cd/scripts/run-local-automation.sh`, and
+`core/core/automation/ci-cd/scripts/run-emulator-then-cloud.sh`) now source `core/core/automation/ci-cd/scripts/helpers/wsl-detect.sh`. That helper logs a warning
 when the shell appears to be Windows-native (without WSL/Git Bash) and emits an informational message when
 it detects WSL. It also exports `WINDOWS_SHELL_ENVIRONMENT` and `WSL_ENVIRONMENT`, so other scripts can
 adjust behavior if they need to gate Windows-specific checks.

@@ -58,17 +58,17 @@ Frequently asked questions about the GitOps Infrastructure Control Plane Overlay
 **A**: 
 ```bash
 # Clone the repository
-git clone https://github.com/gitops-infra-control-plane/gitops-infra-control-plane.git
+git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # Make CLI tools executable
-chmod +x scripts/*.py
+chmod +x core/core/automation/ci-cd/scripts/*.py
 
 # Add to PATH (optional)
 export PATH="$PWD/scripts:$PATH"
 
 # Verify installation
-python scripts/overlay-cli.py list
+python core/core/automation/ci-cd/scripts/overlay-cli.py list
 ```
 
 ### Q: How do I see what overlays are available?
@@ -76,16 +76,16 @@ python scripts/overlay-cli.py list
 **A**: 
 ```bash
 # List all overlays
-python scripts/overlay-cli.py list
+python core/core/automation/ci-cd/scripts/overlay-cli.py list
 
 # List by category
-python scripts/overlay-cli.py list --category skills
+python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
 
 # Search overlays
-python scripts/overlay-cli.py search "debugging"
+python core/core/automation/ci-cd/scripts/overlay-cli.py search "debugging"
 
 # Get detailed information
-python scripts/overlay-registry.py get overlay-name
+python core/core/automation/ci-cd/scripts/overlay-registry.py get overlay-name
 ```
 
 ### Q: How do I use an existing overlay?
@@ -93,16 +93,16 @@ python scripts/overlay-registry.py get overlay-name
 **A**: 
 ```bash
 # Validate overlay
-python scripts/overlay-cli.py validate overlays/.agents/debug/enhanced
+python core/core/automation/ci-cd/scripts/overlay-cli.py validate core/deployment/overlays/core/ai/skills/debug/enhanced
 
 # Build overlay
-python scripts/overlay-cli.py build overlays/.agents/debug/enhanced --output enhanced.yaml
+python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/debug/enhanced --output enhanced.yaml
 
 # Apply overlay (dry run)
-python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced --dry-run
+python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced --dry-run
 
 # Apply to cluster
-python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced
+python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced
 ```
 
 ### Q: How do I create my first overlay?
@@ -110,15 +110,15 @@ python scripts/overlay-cli.py apply overlays/.agents/debug/enhanced
 **A**: 
 ```bash
 # Create from template
-python scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Customize the overlay
-cd overlays/.agents/my-skill
+cd core/deployment/overlays/core/ai/skills/my-skill
 # Edit files as needed
 
 # Test your overlay
-python scripts/validate-overlays.py .
-python scripts/test-overlays.py .
+python core/core/automation/ci-cd/scripts/validate-overlays.py .
+python core/core/automation/ci-cd/scripts/test-overlays.py .
 ```
 
 ## Overlay Development
@@ -163,7 +163,7 @@ name: my-overlay
 version: "1.0.0"
 description: "My custom overlay"
 category: skills
-base_path: ".agents/base-skill"
+base_path: "core/ai/skills/base-skill"
 license: "AGPLv3"
 risk_level: low
 autonomy: fully_auto
@@ -233,16 +233,16 @@ Update version when:
 **A**: 
 ```bash
 # Validate structure and metadata
-python scripts/validate-overlays.py overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Test functionality
-python scripts/test-overlays.py overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Build to verify
-python scripts/overlay-cli.py build overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay
 
 # Test composition
-python scripts/test-overlays.py overlays/composed/my-bundle
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-bundle
 ```
 
 ### Q: How do I register my overlay in the catalog?
@@ -250,13 +250,13 @@ python scripts/test-overlays.py overlays/composed/my-bundle
 **A**: 
 ```bash
 # Register overlay
-python scripts/overlay-registry.py register overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
 
 # Update catalog
-python scripts/overlay-registry.py update-catalog
+python core/core/automation/ci-cd/scripts/overlay-registry.py update-catalog
 
 # Verify registration
-python scripts/overlay-registry.py get my-overlay
+python core/core/automation/ci-cd/scripts/overlay-registry.py get my-overlay
 ```
 
 ## Troubleshooting
@@ -266,14 +266,14 @@ python scripts/overlay-registry.py get my-overlay
 **A**: Ensure you have the required files:
 ```bash
 # Check required files
-ls -la overlays/.agents/my-overlay/
+ls -la core/deployment/overlays/core/ai/skills/my-overlay/
 
 # Missing files? Create them:
-touch overlays/.agents/my-overlay/kustomization.yaml
-touch overlays/.agents/my-overlay/overlay-metadata.yaml
+touch core/deployment/overlays/core/ai/skills/my-overlay/kustomization.yaml
+touch core/deployment/overlays/core/ai/skills/my-overlay/overlay-metadata.yaml
 
 # Use template for correct structure
-python scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 ```
 
 ### Q: Build failed with "Resource not found"
@@ -284,13 +284,13 @@ python scripts/overlay-cli.py create my-overlay skills base-skill --template ski
 pwd
 
 # Verify relative paths
-find overlays/.agents/my-overlay -name "*.yaml"
+find core/deployment/overlays/core/ai/skills/my-overlay -name "*.yaml"
 
 # Test paths
-kustomize build overlays/.agents/my-overlay --enable-alpha-plugins
+kustomize build core/deployment/overlays/core/ai/skills/my-overlay --enable-alpha-plugins
 
 # Fix paths in kustomization.yaml
-# Use ../../../../.agents/base-skill for skill overlays
+# Use ../../../../core/ai/skills/base-skill for skill overlays
 ```
 
 ### Q: YAML syntax errors
@@ -298,7 +298,7 @@ kustomize build overlays/.agents/my-overlay --enable-alpha-plugins
 **A**: Validate YAML syntax:
 ```bash
 # Check YAML syntax
-yamllint overlays/.agents/my-overlay/*.yaml
+yamllint core/deployment/overlays/core/ai/skills/my-overlay/*.yaml
 
 # Fix common issues:
 # - Use 2 spaces for indentation
@@ -311,10 +311,10 @@ yamllint overlays/.agents/my-overlay/*.yaml
 **A**: Check for conflicts:
 ```bash
 # Test composition
-python scripts/test-overlays.py overlays/composed/my-bundle
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-bundle
 
 # Look for resource name conflicts
-grep -r "name:" overlays/.agents/my-overlay/
+grep -r "name:" core/deployment/overlays/core/ai/skills/my-overlay/
 
 # Use unique names or different namespaces
 ```
@@ -341,7 +341,7 @@ flux get kustomizations -n flux-system
 flux reconcile kustomization overlay-name -n flux-system
 
 # Force rebuild
-kustomize build overlays/.agents/my-overlay | kubectl apply -f -
+kustomize build core/deployment/overlays/core/ai/skills/my-overlay | kubectl apply -f -
 
 # Check for stuck resources
 kubectl get all -n flux-system
@@ -366,7 +366,7 @@ kubectl describe deployment overlay-name -n flux-system
 **A**: 
 ```bash
 # Create composed overlay
-python scripts/overlay-cli.py create my-bundle composed ""
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-bundle composed ""
 
 # Edit kustomization.yaml to include other overlays
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -375,9 +375,9 @@ metadata:
   name: my-bundle
 resources:
   - ../../../../control-plane
-  - ../.agents/skill-enhanced
-  - ../agents/dashboard/theme-dark
-  - ../control-plane/monitoring-enhanced
+  - ../core/ai/skills/skill-enhanced
+  - ../core/ai/runtime/dashboard/theme-dark
+  - ../core/operators/monitoring-enhanced
 ```
 
 ### Q: How do I handle environment-specific configurations?
@@ -439,10 +439,10 @@ patchesStrategicMerge:
 ```yaml
 # Security overlay example
 resources:
-  - security-policies/
-  - network-policies/
+  - security-core/governance/
+  - network-core/governance/
   - rbac/
-  - pod-security-policies/
+  - pod-security-core/governance/
 
 # Security context patches
 patchesJson6902:
@@ -559,7 +559,7 @@ If you don't find your answer here, check out:
 - **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
 - **[Examples](OVERLAY-EXAMPLES.md)**: Real-world examples
 
-Or reach out through our [community channels](https://github.com/gitops-infra-control-plane/discussions).
+Or reach out through our [community channels](https://github.com/gitops-infra-core/operators/discussions).
 
 ---
 

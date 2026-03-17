@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - '.agents/**'
+      - 'core/ai/skills/**'
 
 jobs:
   validate-agent-naming:
@@ -25,15 +25,15 @@ jobs:
         
     - name: Validate agent naming
       run: |
-        chmod +x ./scripts/ensure-agent-naming-standards.sh
-        ./scripts/ensure-agent-naming-standards.sh validate .agents
-        ./scripts/ensure-agent-naming-standards.sh validate workspace/repo/.agents
+        chmod +x ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh
+        ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate .agents
+        ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate core/workspace/repo/.agents
       
     - name: Check SKILL.md compliance
       run: |
-        chmod +x ./scripts/ensure-agent-naming-standards.sh
-        ./scripts/ensure-agent-naming-standards.sh compliance .agents
-        ./scripts/ensure-agent-naming-standards.sh compliance workspace/repo/.agents
+        chmod +x ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh
+        ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh compliance .agents
+        ./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh compliance core/workspace/repo/.agents
       
     - name: Report violations
       if: failure()
@@ -43,7 +43,7 @@ jobs:
         echo "The following agents do not follow the [verb]-[qualifier] naming convention:"
         echo ""
         echo "Please fix these issues before merging:"
-        echo "1. Run: \`./scripts/ensure-agent-naming-standards.sh fix\`"
+        echo "1. Run: \`./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh fix\`"
         echo "2. Commit the changes"
         echo "3. Push the corrected branch"
         exit 1

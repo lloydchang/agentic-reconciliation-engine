@@ -87,7 +87,7 @@ dependsOn:
 - **Our solution:** Orchestrates **infrastructure provisioning** of spoke clusters
 - **Example:** Hub cluster provisions EKS/AKS/GKE via controllers
 
-**Evidence:** Crossplane and CAPI manifests in `control-plane/` provision and manage spoke clusters.
+**Evidence:** Crossplane and CAPI manifests in `core/operators/` provision and manage spoke clusters.
 
 ### **3. Cross-Cloud Orchestration**
 

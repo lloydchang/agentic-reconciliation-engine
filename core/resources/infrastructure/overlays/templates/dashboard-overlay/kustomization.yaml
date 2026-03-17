@@ -1,0 +1,95 @@
+# Dashboard Overlay Template
+# Copy this template to create new dashboard overlays
+# Instructions:
+# 1. Copy this directory: cp -r core/deployment/overlays/templates/dashboard-overlay core/deployment/overlays/core/ai/runtime/dashboard/my-overlay
+# 2. Replace placeholder values ({{overlay-name}}, {{overlay-type}}, etc.)
+# 3. Customize the overlay functionality
+# 4. Update overlay-metadata.yaml with your overlay details
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: {{overlay-name}}
+  namespace: flux-system
+  annotations:
+    overlay.name: "{{overlay-name}}"
+    overlay.version: "{{overlay-version}}"
+    overlay.category: "dashboard"
+    overlay.type: "{{overlay-type}}"
+    overlay.compatibility: ">=0.1.0"
+resources:
+  # Reference to base dashboard
+  - ../../../../core/ai/runtime/dashboard
+# Patches to modify or extend base functionality
+patchesStrategicMerge:
+  - dashboard-patches.yaml
+# Additional configurations
+configMapGenerator:
+  - name: {{overlay-name}}-config
+    files:
+      - config.json
+      - theme.css
+    literals:
+      - OVERLAY_NAME="{{overlay-name}}"
+      - OVERLAY_VERSION="{{overlay-version}}"
+      - OVERLAY_TYPE="{{overlay-type}}"
+      - OVERLAY_ENABLED=true
+# Secret generation for sensitive data
+secretGenerator:
+  - name: {{overlay-name}}-secrets
+    envs:
+      - .env.secret
+# Common labels for overlay resources
+commonLabels:
+  overlay: "{{overlay-name}}"
+  overlay-type: "{{overlay-type}}"
+  component: "dashboard"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Images for overlay (if custom containers needed)
+images:
+  - name: nginx
+    newTag: "1.21-alpine"
+  - name: node
+    newTag: "18-alpine"
+# Custom resource configurations (if needed)
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: OVERLAY_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: {{overlay-name}}-config
+              key: OVERLAY_ENABLED
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/volumes/-
+        value:
+          name: overlay-assets
+          configMap:
+            name: {{overlay-name}}-config
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts/-
+        value:
+          name: overlay-assets
+          mountPath: /app/overlay-assets
+          readOnly: true

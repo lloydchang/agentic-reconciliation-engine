@@ -94,7 +94,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.agents/resource-optimizer/**'
+      - 'core/ai/skills/resource-optimizer/**'
 
 env:
   PYTHON_VERSION: '3.11'
@@ -121,7 +121,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           pip install -e .
 
       - name: Risk Assessment
@@ -188,8 +188,8 @@ jobs:
 
       - name: Validate Configuration
         run: |
-          cd .agents/resource-optimizer/scripts
-          python main.py validate-config --config ../../examples/config.template.json
+          cd core/ai/skills/resource-optimizer/scripts
+          python main.py validate-config --config ../../overlay/examples/config.template.json
 
       - name: Check Cost Thresholds
         run: |
@@ -265,12 +265,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           pip install -e .
 
       - name: Execute Resource Analysis
         run: |
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           
           # Build command based on inputs
           CMD="python main.py analyze"
@@ -283,7 +283,7 @@ jobs:
             CMD="$CMD --savings-target ${{ github.event.inputs.savings_target }}"
           fi
           
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Executing: $CMD"
@@ -346,12 +346,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer pandas numpy boto3 azure-mgmt-compute google-cloud-compute
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           pip install -e .
 
       - name: Execute Resource Optimization
         run: |
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           
           # Build command based on inputs
           CMD="python main.py optimize"
@@ -366,7 +366,7 @@ jobs:
             CMD="$CMD --dry-run"
           fi
           
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Executing: $CMD"
@@ -407,19 +407,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer pandas numpy
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           pip install -e .
 
       - name: Generate Optimization Report
         run: |
-          cd .agents/resource-optimizer/scripts
+          cd core/ai/skills/resource-optimizer/scripts
           
           CMD="python main.py report"
           CMD="$CMD --provider ${{ github.event.inputs.provider }}"
           CMD="$CMD --env ${{ github.event.inputs.environment }}"
           CMD="$CMD --range ${{ github.event.inputs.time_range }}"
           CMD="$CMD --format ${{ github.event.inputs.output_format }}"
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Generating optimization report: $CMD"

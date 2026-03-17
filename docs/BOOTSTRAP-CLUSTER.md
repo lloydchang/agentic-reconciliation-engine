@@ -47,7 +47,7 @@ The complete set of manifests needed to bootstrap Flux onto a fresh hub cluster 
 full hub control plane to a healthy state:
 
 ```
-control-plane/
+core/operators/
   flux/
     gotk-components.yaml        # Flux CRDs and controllers
     gotk-sync.yaml              # GitRepository + Kustomization pointing at Git
@@ -155,11 +155,11 @@ flux bootstrap github \
   --owner=org \
   --repository=gitops-infra-control-plane \
   --branch=main \
-  --path=control-plane/bootstrap \
+  --path=core/operators/bootstrap \
   --personal
 ```
 
-Flux on the bootstrap cluster watches `control-plane/bootstrap/` only — not the full hub
+Flux on the bootstrap cluster watches `core/operators/bootstrap/` only — not the full hub
 configuration. This keeps the bootstrap cluster scope minimal.
 
 ### 3. Create the hub kubeconfig Secret
@@ -203,20 +203,20 @@ When the hub cluster suffers a total loss:
 
 ### Step 1: Provision a replacement hub cluster
 
-Use the hub cluster config stored in `control-plane/bootstrap/hub-cluster-config.yaml`:
+Use the hub cluster config stored in `core/operators/bootstrap/hub-cluster-config.yaml`:
 
 ```bash
 # EKS
-eksctl create cluster -f control-plane/bootstrap/hub-cluster-config.yaml
+eksctl create cluster -f core/operators/bootstrap/hub-cluster-config.yaml
 
 # AKS
 az deployment group create \
   --resource-group hub-rg \
-  --template-file control-plane/bootstrap/hub-arm-template.json
+  --template-file core/operators/bootstrap/hub-arm-template.json
 
 # GKE
 gcloud container clusters create hub-cluster \
-  --config-file control-plane/bootstrap/hub-gke-config.yaml
+  --config-file core/operators/bootstrap/hub-gke-config.yaml
 ```
 
 ### Step 2: Bootstrap Flux on the replacement hub
@@ -228,7 +228,7 @@ flux bootstrap github \
   --owner=org \
   --repository=gitops-infra-control-plane \
   --branch=main \
-  --path=control-plane/flux
+  --path=core/operators/flux
 ```
 
 Flux will reconcile Crossplane, CAPI, and all hub controllers from Git.

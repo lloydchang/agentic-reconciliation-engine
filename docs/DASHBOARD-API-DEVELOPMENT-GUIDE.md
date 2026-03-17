@@ -16,8 +16,8 @@ This document covers the development lifecycle of the dashboard API system, incl
   - Workflow orchestration data
   - System health checks
 - **Key Endpoints**:
-  - `/api/agents/status` - Basic agent status
-  - `/api/agents/detailed` - Detailed agent information
+  - `/api/core/ai/runtime/status` - Basic agent status
+  - `/api/core/ai/runtime/detailed` - Detailed agent information
   - `/api/workflows/status` - Workflow status
   - `/api/metrics/real-time` - Real-time metrics
   - `/api/system/health` - System health
@@ -165,7 +165,7 @@ This document covers the development lifecycle of the dashboard API system, incl
 #### API Client Configuration
 - **Base URL**: `http://localhost:5002`
 - **Endpoints**:
-  - `/api/agents/detailed` - Agent data
+  - `/api/core/ai/runtime/detailed` - Agent data
   - `/api/metrics/real-time` - Real-time metrics
   - `/api/workflows/status` - Workflow status
 
@@ -277,7 +277,7 @@ User Interface
 ps aux | grep -E "(real-data-api|port-forward|react)"
 
 # Test complete data flow
-curl -s http://localhost:5002/api/agents/detailed
+curl -s http://localhost:5002/api/core/ai/runtime/detailed
 
 # Run full regression test
 ./debug-real-data.sh

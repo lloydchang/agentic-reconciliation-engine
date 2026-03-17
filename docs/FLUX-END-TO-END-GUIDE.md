@@ -123,8 +123,8 @@ spec:
     *.tar.gz
     build/
     # Include only infrastructure manifests
-    !infrastructure/
-    !control-plane/
+    !core/resources/
+    !core/operators/
   gitImplementation: go-git
   timeout: 60s
 ```
@@ -174,7 +174,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/1-network
+  path: ./core/resources/tenants/1-network
   prune: true
   wait: true
   timeout: 5m
@@ -380,7 +380,7 @@ spec:
     push:
       branch: staging
   update:
-    path: ./infrastructure/tenants/3-workloads
+    path: ./core/resources/tenants/3-workloads
     strategy: Setters
 ```
 
@@ -538,7 +538,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads/production
+  path: ./core/resources/tenants/3-workloads/production
   kubeConfig:
     secretRef:
       name: production-cluster-kubeconfig
@@ -554,7 +554,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads/staging
+  path: ./core/resources/tenants/3-workloads/staging
   kubeConfig:
     secretRef:
       name: staging-cluster-kubeconfig
@@ -676,7 +676,7 @@ spec:
 2. **Kustomization Build Errors**
 
    ```bash
-   flux build kustomization infrastructure-networks --path=./infrastructure/tenants/1-network
+   flux build kustomization infrastructure-networks --path=./core/resources/tenants/1-network
    ```
 
 3. **Helm Release Failures**
@@ -768,7 +768,7 @@ spec:
 ### Repository Structure
 
 ```
-gitops-infra-control-plane/
+gitops-infra-core/operators/
 ├── clusters/
 │   ├── production/
 │   │   ├── kustomization.yaml
@@ -778,17 +778,17 @@ gitops-infra-control-plane/
 │       ├── kustomization.yaml
 │       └── flux-system/
 │           └── gotk-sync.yaml
-├── infrastructure/
+├── core/resources/
 │   ├── tenants/
 │   │   ├── 1-network/
 │   │   ├── 2-clusters/
 │   │   └── 3-workloads/
-│   └── control-plane/
+│   └── core/operators/
 │       ├── flux/
 │       └── karmada/
 └── apps/
     ├── base/
-    └── overlays/
+    └── core/deployment/overlays/
         ├── production/
         └── staging/
 ```

@@ -1,0 +1,96 @@
+---
+# Enhanced Kustomization with Multi-Source Support and Failover
+# Supports automatic switching between Git repositories based on availability
+
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure
+  namespace: flux-system
+  annotations:
+    fluxcd.io/offline-mode: "false"
+    fluxcd.io/primary-source: "gitops-infra-primary"
+    fluxcd.io/backup-sources: "gitops-infra-secondary,gitops-infra-tertiary"
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-primary  # Will be automatically updated by failover controller
+  path: "./core/resources/tenants"
+  prune: true
+  wait: true
+  timeout: 10m
+  # Enhanced dependency management with failover support
+  dependsOn:
+  - name: control-plane-setup
+  # Health checks with failover awareness
+  healthChecks:
+  - kind: GitRepository
+    name: gitops-infra-primary
+  - kind: GitRepository
+    name: gitops-infra-secondary
+  - kind: GitRepository
+    name: gitops-infra-tertiary
+  # Post-build hooks for failover notification
+  postBuild:
+    substitute:
+      GIT_SOURCE: "primary"
+      FAILOVER_STATUS: "active"
+    substituteFrom:
+    - kind: ConfigMap
+      name: failover-config
+  # Enhanced patches for multi-source support
+  patches:
+  - target:
+      kind: GitRepository
+      name: gitops-infra-primary
+    patch: |
+      - op: add
+        path: /metadata/labels/fluxcd.io~1failover-priority
+        value: "1"
+  - target:
+      kind: GitRepository
+      name: gitops-infra-secondary
+    patch: |
+      - op: add
+        path: /metadata/labels/fluxcd.io~1failover-priority
+        value: "2"
+  - target:
+      kind: GitRepository
+      name: gitops-infra-tertiary
+    patch: |
+      - op: add
+        path: /metadata/labels/fluxcd.io~1failover-priority
+        value: "3"
+---
+# Control Plane Kustomization with Failover Support
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: control-plane-setup
+  namespace: flux-system
+  annotations:
+    fluxcd.io/offline-mode: "false"
+    fluxcd.io/critical-path: "true"
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-primary
+  path: "./control-plane"
+  prune: false  # Critical components, don't prune during failover
+  wait: true
+  healthChecks:
+  - kind: GitRepository
+    name: gitops-infra-primary
+  # Enhanced validation for failover scenarios
+  validation: client
+  # Post-build hooks for failover state management
+  postBuild:
+    substitute:
+      CONTROL_PLANE_MODE: "active"
+      FAILOVER_READY: "true"

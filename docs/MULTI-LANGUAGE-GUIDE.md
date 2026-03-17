@@ -121,22 +121,22 @@ async def consensus_loop():
 
 ```bash
 # Deploy Rust performance stack
-./scripts/variant-swapper.sh languages rust
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages rust
 
 # Deploy Go cloud-native stack
-./scripts/variant-swapper.sh languages go
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages go
 
 # Deploy Python ML stack
-./scripts/variant-swapper.sh languages python
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages python
 
 # Deploy TypeScript real-time stack
-./scripts/variant-swapper.sh languages typescript
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages typescript
 
 # Deploy C# enterprise stack
-./scripts/variant-swapper.sh languages csharp
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages csharp
 
 # Deploy Java enterprise stack
-./scripts/variant-swapper.sh languages java
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages java
 ```
 
 ## Performance Considerations

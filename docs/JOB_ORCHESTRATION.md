@@ -43,7 +43,7 @@ spec:
       containers:
       - name: migration
         image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
-        command: ["/scripts/migrate.sh"]
+        command: ["/core/core/automation/ci-cd/scripts/migrate.sh"]
         env:
         - name: DATABASE_URL
           valueFrom:
@@ -81,7 +81,7 @@ metadata:
 spec:
   dependsOn:
     - name: pre-deploy-jobs
-  path: "./infrastructure/tenants/3-workloads/sample-apps"
+  path: "./core/resources/tenants/3-workloads/sample-apps"
   wait: true
 ```
 
@@ -100,7 +100,7 @@ spec:
       containers:
       - name: cache-refresh
         image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
-        command: ["/scripts/refresh_cache.sh"]
+        command: ["/core/core/automation/ci-cd/scripts/refresh_cache.sh"]
 ```
 
 #### **Health Check Job**
@@ -116,7 +116,7 @@ spec:
       containers:
       - name: health-check
         image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
-        command: ["/scripts/health_check.sh"]
+        command: ["/core/core/automation/ci-cd/scripts/health_check.sh"]
 ```
 
 ---
@@ -134,7 +134,7 @@ metadata:
 spec:
   dependsOn:
     - name: infrastructure-controllers
-  path: "./infrastructure/tenants/3-workloads/job-orchestration/pre-deploy"
+  path: "./core/resources/tenants/3-workloads/job-orchestration/pre-deploy"
   force: true
   wait: true
 
@@ -146,7 +146,7 @@ metadata:
 spec:
   dependsOn:
     - name: pre-deploy-jobs
-  path: "./infrastructure/tenants/3-workloads/sample-apps"
+  path: "./core/resources/tenants/3-workloads/sample-apps"
   wait: true
 
 # Post-Deploy Jobs
@@ -157,7 +157,7 @@ metadata:
 spec:
   dependsOn:
     - name: application-deployment
-  path: "./infrastructure/tenants/3-workloads/job-orchestration/post-deploy"
+  path: "./core/resources/tenants/3-workloads/job-orchestration/post-deploy"
   force: true
   wait: true
 ```
@@ -174,7 +174,7 @@ spec:
 ## 📁 Repository Structure
 
 ```
-infrastructure/tenants/3-workloads/job-orchestration/
+core/resources/tenants/3-workloads/job-orchestration/
 ├── pre-deploy/
 │   ├── database-migration.job.yaml
 │   ├── backup.job.yaml
@@ -320,7 +320,7 @@ data:
   migrate.sh: |
     #!/bin/bash
     echo "🔄 Starting database migration..."
-    psql "$DATABASE_URL" -f /scripts/migrations/001_initial_schema.sql
+    psql "$DATABASE_URL" -f /core/core/automation/ci-cd/scripts/migrations/001_initial_schema.sql
     echo "✅ Migration completed!"
 ```
 
@@ -433,7 +433,7 @@ spec:
       containers:
       - name: rollback
         image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
-        command: ["/scripts/rollback.sh"]
+        command: ["/core/core/automation/ci-cd/scripts/rollback.sh"]
 ```
 
 ### **Canary Deployments**

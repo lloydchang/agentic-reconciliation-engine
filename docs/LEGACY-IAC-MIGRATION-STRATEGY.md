@@ -59,7 +59,7 @@ spec:
     - name: existing-vpc-terraform
       namespace: legacy-infrastructure
   interval: 5m
-  path: ./infrastructure/tenants/2-clusters/eks
+  path: ./core/resources/tenants/2-clusters/eks
   sourceRef:
     kind: GitRepository
     name: infrastructure-repo

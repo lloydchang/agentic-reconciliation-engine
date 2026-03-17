@@ -3,8 +3,8 @@ name: CI Policy Gate
 on:
   pull_request:
     paths:
-      - 'infrastructure/**'
-      - 'control-plane/**'
+      - 'core/resources/**'
+      - 'core/operators/**'
 
 jobs:
   deletion-guard:
@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Deletion guard
-        run: ./control-plane/ci/scripts/check-deletions.sh
+        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
 
   schema-validation:
     runs-on: ubuntu-latest
@@ -25,7 +25,7 @@ jobs:
           curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
             | tar xz && sudo mv kubeconform /usr/local/bin/
       - name: Validate schemas
-        run: ./control-plane/ci/scripts/validate-schemas.sh
+        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
 
   opa-policies:
     runs-on: ubuntu-latest
@@ -36,7 +36,7 @@ jobs:
           curl -sL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz \
             | tar xz && sudo mv conftest /usr/local/bin/
       - name: OPA policy checks
-        run: conftest test infrastructure/ --policy control-plane/ci/policies/
+        run: conftest test core/resources/ --policy core/operators/ci/core/governance/
 
   flux-dry-run:
     runs-on: ubuntu-latest
@@ -49,5 +49,5 @@ jobs:
           KUBECONFIG: ${{ secrets.HUB_KUBECONFIG }}
         run: |
           flux diff kustomization flux-system \
-            --path ./control-plane/flux \
-            --kustomization-file ./control-plane/flux/kustomization.yaml
+            --path ./core/operators/flux \
+            --kustomization-file ./core/operators/flux/kustomization.yaml

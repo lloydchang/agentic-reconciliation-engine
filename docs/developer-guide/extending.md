@@ -23,14 +23,14 @@ The AI Agents Sandbox is designed for easy extension and contribution. This guid
 
 ### Skill Directory Structure
 
-Create a new directory under `.agents/skills/your-skill-name/`:
+Create a new directory under `core/ai/skills/skills/your-skill-name/`:
 
 ```
-.agents/skills/your-skill-name/
+core/ai/skills/skills/your-skill-name/
 ├── SKILL.md           # Skill definition and documentation
 ├── activities.go      # Go activity implementations (optional)
 ├── workflow.go        # Workflow definitions (optional)
-├── scripts/           # Helper scripts (optional)
+├── core/core/automation/ci-cd/scripts/           # Helper scripts (optional)
 │   └── validate.sh
 └── templates/         # Output templates (optional)
     └── report.md
@@ -491,14 +491,14 @@ func DynamicWorkflow(ctx workflow.Context, input DynamicInput) (DynamicOutput, e
 Extend the infrastructure emulator:
 
 ```go
-// backend/infrastructure/providers/yourcloud.go
+// backend/core/resources/providers/yourcloud.go
 package providers
 
 import (
     "context"
     "fmt"
 
-    "github.com/yourorg/gitops-infra-control-plane/backend/infrastructure"
+    "github.com/yourorg/gitops-infra-core/operators/backend/infrastructure"
 )
 
 type YourCloudProvider struct{}
@@ -716,7 +716,7 @@ go test ./backend/workflows/... -run TestYourWorkflow
 go test ./backend/api/... -run TestYourSkillAPI
 
 # Full integration test
-./scripts/validate.sh
+./core/core/automation/ci-cd/scripts/validate.sh
 ```
 
 ## Documentation Updates

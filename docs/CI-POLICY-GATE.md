@@ -46,7 +46,7 @@ If absent, CI fails and the PR cannot be merged.
 ### Conftest policy
 
 ```rego
-# control-plane/ci/policies/deletion-guard.rego
+# core/operators/ci/core/governance/deletion-guard.rego
 package main
 
 import future.keywords.if
@@ -73,13 +73,13 @@ deny[msg] if {
 
 ```bash
 #!/bin/bash
-# control-plane/ci/scripts/check-deletions.sh
+# core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
 set -euo pipefail
 
 STATEFUL_KINDS="Database|XDatabase|Volume|XVolume|Queue|XQueue|XCluster"
 
 DELETED_FILES=$(git diff --name-only --diff-filter=D origin/main...HEAD \
-  -- 'infrastructure/tenants/**/*.yaml')
+  -- 'core/resources/tenants/**/*.yaml')
 
 for file in $DELETED_FILES; do
   KIND=$(git show origin/main:$file | grep '^kind:' | awk '{print $2}')
@@ -91,11 +91,11 @@ for file in $DELETED_FILES; do
 done
 
 CHANGED_FILES=$(git diff --name-only --diff-filter=M origin/main...HEAD \
-  -- 'infrastructure/tenants/**/*.yaml')
+  -- 'core/resources/tenants/**/*.yaml')
 
 for file in $CHANGED_FILES; do
   if git diff origin/main...HEAD -- $file | grep -q '+  deletionPolicy: Delete'; then
-    conftest test $file --policy control-plane/ci/policies/deletion-guard.rego
+    conftest test $file --policy core/operators/ci/core/governance/deletion-guard.rego
   fi
 done
 
@@ -110,7 +110,7 @@ Validates all manifests against current CRD schemas. Catches typos, wrong types,
 fields before they reach the reconciliation loop.
 
 ```bash
-# control-plane/ci/scripts/validate-schemas.sh
+# core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
 set -euo pipefail
 
 SCHEMA_LOCATION='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
@@ -121,7 +121,7 @@ kubeconform \
   -schema-location default \
   -schema-location "$SCHEMA_LOCATION" \
   -summary \
-  infrastructure/ control-plane/
+  core/resources/ core/operators/
 
 echo "Schema validation passed"
 ```
@@ -131,8 +131,8 @@ echo "Schema validation passed"
 ```bash
 # Read-only diff against hub API server; no changes applied
 flux diff kustomization flux-system \
-  --path ./control-plane/flux \
-  --kustomization-file ./control-plane/flux/kustomization.yaml
+  --path ./core/operators/flux \
+  --kustomization-file ./core/operators/flux/kustomization.yaml
 ```
 
 ---
@@ -142,7 +142,7 @@ flux diff kustomization flux-system \
 ### Naming conventions
 
 ```rego
-# control-plane/ci/policies/naming.rego
+# core/operators/ci/core/governance/naming.rego
 package main
 
 import future.keywords.if
@@ -159,7 +159,7 @@ deny[msg] if {
 All infrastructure XRD claims must carry labels for cost allocation and ownership:
 
 ```rego
-# control-plane/ci/policies/required-labels.rego
+# core/operators/ci/core/governance/required-labels.rego
 package main
 
 import future.keywords.if
@@ -180,7 +180,7 @@ deny[msg] if {
 ### Cost guardrail
 
 ```rego
-# control-plane/ci/policies/cost-guardrail.rego
+# core/operators/ci/core/governance/cost-guardrail.rego
 package main
 
 import future.keywords.if
@@ -213,9 +213,9 @@ Before opening a PR, run the full gate locally:
 brew install kubeconform conftest
 
 # Run all checks
-./control-plane/ci/scripts/check-deletions.sh
-./control-plane/ci/scripts/validate-schemas.sh
-conftest test infrastructure/ --policy control-plane/ci/policies/
+./core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
+./core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
+conftest test core/resources/ --policy core/operators/ci/core/governance/
 
 echo "All local checks passed"
 ```
@@ -231,8 +231,8 @@ name: CI Policy Gate
 on:
   pull_request:
     paths:
-      - 'infrastructure/**'
-      - 'control-plane/**'
+      - 'core/resources/**'
+      - 'core/operators/**'
 
 jobs:
   deletion-guard:
@@ -242,7 +242,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Deletion guard
-        run: ./control-plane/ci/scripts/check-deletions.sh
+        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
 
   schema-validation:
     runs-on: ubuntu-latest
@@ -253,7 +253,7 @@ jobs:
           curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
             | tar xz && sudo mv kubeconform /usr/local/bin/
       - name: Validate schemas
-        run: ./control-plane/ci/scripts/validate-schemas.sh
+        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
 
   opa-policies:
     runs-on: ubuntu-latest
@@ -264,7 +264,7 @@ jobs:
           curl -sL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz \
             | tar xz && sudo mv conftest /usr/local/bin/
       - name: OPA policy checks
-        run: conftest test infrastructure/ --policy control-plane/ci/policies/
+        run: conftest test core/resources/ --policy core/operators/ci/core/governance/
 
   flux-dry-run:
     runs-on: ubuntu-latest
@@ -277,18 +277,18 @@ jobs:
           KUBECONFIG: ${{ secrets.HUB_KUBECONFIG }}
         run: |
           flux diff kustomization flux-system \
-            --path ./control-plane/flux \
-            --kustomization-file ./control-plane/flux/kustomization.yaml
+            --path ./core/operators/flux \
+            --kustomization-file ./core/operators/flux/kustomization.yaml
 ```
 
 ---
 
 ## Adding a New Policy
 
-1. Write the Rego policy in `control-plane/ci/policies/`
-2. Add a `test_` file alongside it: `control-plane/ci/policies/my-policy_test.rego`
-3. Test locally: `conftest verify --policy control-plane/ci/policies/my-policy.rego`
+1. Write the Rego policy in `core/operators/ci/core/governance/`
+2. Add a `test_` file alongside it: `core/operators/ci/core/governance/my-policy_test.rego`
+3. Test locally: `conftest verify --policy core/operators/ci/core/governance/my-policy.rego`
 4. Add to the GitHub Actions `opa-policies` job (no change needed if it is in the policies directory)
 5. Document the policy in this file under the appropriate section
 
-All policies are automatically picked up by `conftest test ... --policy control-plane/ci/policies/`.
+All policies are automatically picked up by `conftest test ... --policy core/operators/ci/core/governance/`.

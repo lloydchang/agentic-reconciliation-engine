@@ -1,0 +1,117 @@
+# Flux Kustomizations for Job Orchestration
+# Defines the deployment pipeline with proper dependency management
+
+---
+# Pre-Deployment Jobs Kustomization
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: pre-deploy-jobs
+  namespace: flux-system
+  labels:
+    phase: pre-deploy
+    component: job-orchestration
+spec:
+  dependsOn:
+    - name: infrastructure-controllers
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-control-plane
+  path: "./core/resources/tenants/3-workloads/job-orchestration/pre-deploy"
+  interval: 60m
+  timeout: 15m
+  prune: true
+  wait: true
+  force: true
+  targetNamespace: default
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: job-config
+    substitute:
+      APP_VERSION: "latest"
+      ENVIRONMENT: "production"
+
+---
+# Application Deployment Kustomization
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: application-deployment
+  namespace: flux-system
+  labels:
+    phase: deploy
+    component: job-orchestration
+spec:
+  dependsOn:
+    - name: pre-deploy-jobs
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-control-plane
+  path: "./core/resources/tenants/3-workloads/sample-apps"
+  interval: 60m
+  timeout: 10m
+  prune: true
+  wait: true
+  targetNamespace: default
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: job-config
+    substitute:
+      APP_VERSION: "latest"
+      ENVIRONMENT: "production"
+
+---
+# Post-Deployment Jobs Kustomization
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: post-deploy-jobs
+  namespace: flux-system
+  labels:
+    phase: post-deploy
+    component: job-orchestration
+spec:
+  dependsOn:
+    - name: application-deployment
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-control-plane
+  path: "./core/resources/tenants/3-workloads/job-orchestration/post-deploy"
+  interval: 60m
+  timeout: 15m
+  prune: true
+  wait: true
+  force: true
+  targetNamespace: default
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: job-config
+    substitute:
+      APP_VERSION: "latest"
+      ENVIRONMENT: "production"
+
+---
+# Job Orchestration Monitoring
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: job-monitoring
+  namespace: flux-system
+  labels:
+    phase: monitoring
+    component: job-orchestration
+spec:
+  dependsOn:
+    - name: post-deploy-jobs
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-control-plane
+  path: "./core/resources/tenants/3-workloads/monitoring"
+  interval: 60m
+  timeout: 5m
+  prune: true
+  wait: true
+  targetNamespace: default

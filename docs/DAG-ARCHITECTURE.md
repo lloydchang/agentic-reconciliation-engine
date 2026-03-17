@@ -73,7 +73,7 @@ gcp-clusters → gcp-vertex-ai-gemini
 
 ### Core Modules
 
-#### 1. Control Plane Module (`control-plane/`)
+#### 1. Control Plane Module (`core/operators/`)
 
 - **Purpose**: Base GitOps controllers and monitoring
 - **Dependencies**: None (foundation layer)
@@ -82,7 +82,7 @@ gcp-clusters → gcp-vertex-ai-gemini
   - Open-source: Basic Flux + Prometheus
   - Enterprise: Enhanced Flux + Grafana Enterprise + Honeycomb
 
-#### 2. Infrastructure Module (`infrastructure/tenants/`)
+#### 2. Infrastructure Module (`core/resources/tenants/`)
 
 - **Purpose**: Multi-cloud infrastructure deployment
 - **Dependencies**: control-plane
@@ -92,7 +92,7 @@ gcp-clusters → gcp-vertex-ai-gemini
   - Compute: AWS EKS, Azure AKS, GCP GKE
   - Workloads: Standard, AI-enhanced, Edge computing
 
-#### 3. AI/ML Integration Module (`examples/*/`)
+#### 3. AI/ML Integration Module (`overlay/examples/*/`)
 
 - **Purpose**: AI/ML workload orchestration
 - **Dependencies**: infrastructure
@@ -135,19 +135,19 @@ dependsOn:
 
 ```yaml
 resources:
-- control-plane/flux/gotk-components.yaml
-- control-plane/monitoring/prometheus.yaml
-- infrastructure/tenants/
+- core/operators/flux/gotk-components.yaml
+- core/operators/monitoring/prometheus.yaml
+- core/resources/tenants/
 ```
 
 #### Enterprise Stack
 
 ```yaml
 resources:
-- control-plane/flux/enhanced-flux-controllers.yaml
-- control-plane/monitoring/grafana-enterprise.yaml
-- control-plane/monitoring/honeycomb.yaml
-- infrastructure/tenants/
+- core/operators/flux/enhanced-flux-controllers.yaml
+- core/operators/monitoring/grafana-enterprise.yaml
+- core/operators/monitoring/honeycomb.yaml
+- core/resources/tenants/
 ```
 
 ### Language Ecosystem Variants
@@ -189,7 +189,7 @@ configMapGenerator:
 
 ### 1. Dependency Graph Generator
 
-Location: `control-plane/monitoring/dependency-graph.yaml`
+Location: `core/operators/monitoring/dependency-graph.yaml`
 
 Features:
 
@@ -199,7 +199,7 @@ Features:
 
 ### 2. Status Dashboard
 
-Location: `control-plane/monitoring/dependency-status-dashboard.yaml`
+Location: `core/operators/monitoring/dependency-status-dashboard.yaml`
 
 Features:
 

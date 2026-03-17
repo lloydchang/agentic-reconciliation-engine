@@ -64,7 +64,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.agents/cluster-health-check/**'
+      - 'core/ai/skills/cluster-health-check/**'
 
 env:
   PYTHON_VERSION: '3.11'
@@ -90,7 +90,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer kubernetes prometheus-client
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           pip install -e .
 
       - name: Risk Assessment
@@ -114,13 +114,13 @@ jobs:
 
       - name: Validate Configuration
         run: |
-          cd .agents/cluster-health-check/scripts
-          python main.py validate-config --config ../../examples/config.template.json
+          cd core/ai/skills/cluster-health-check/scripts
+          python main.py validate-config --config ../../overlay/examples/config.template.json
 
       - name: Test Cluster Connectivity
         run: |
-          cd .agents/cluster-health-check/scripts
-          python main.py test-connectivity --config ../../examples/config.template.json
+          cd core/ai/skills/cluster-health-check/scripts
+          python main.py test-connectivity --config ../../overlay/examples/config.template.json
 
   execute-health-check:
     name: Execute Health Check
@@ -167,12 +167,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer kubernetes prometheus-client boto3 azure-mgmt-compute google-cloud-compute
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           pip install -e .
 
       - name: Execute Health Check
         run: |
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           
           # Build command based on inputs
           CMD="python main.py check"
@@ -187,7 +187,7 @@ jobs:
           CMD="$CMD --checks ${{ github.event.inputs.check_types }}"
           CMD="$CMD --severity ${{ github.event.inputs.severity }}"
           CMD="$CMD --env ${{ github.event.inputs.environment }}"
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Executing: $CMD"
@@ -245,13 +245,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer kubernetes prometheus-client
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           pip install -e .
 
       - name: Start Continuous Monitoring
         timeout-minutes: 60
         run: |
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           
           # Build monitoring command
           CMD="python main.py monitor"
@@ -264,7 +264,7 @@ jobs:
           
           CMD="$CMD --provider ${{ github.event.inputs.provider }}"
           CMD="$CMD --interval ${{ github.event.inputs.interval }}"
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Starting continuous monitoring: $CMD"
@@ -299,17 +299,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pydantic typer kubernetes prometheus-client
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           pip install -e .
 
       - name: Generate Health Report
         run: |
-          cd .agents/cluster-health-check/scripts
+          cd core/ai/skills/cluster-health-check/scripts
           
           CMD="python main.py report"
           CMD="$CMD --provider ${{ github.event.inputs.provider }}"
           CMD="$CMD --env ${{ github.event.inputs.environment }}"
-          CMD="$CMD --config ../../examples/config.template.json"
+          CMD="$CMD --config ../../overlay/examples/config.template.json"
           CMD="$CMD --verbose"
           
           echo "Generating health report: $CMD"

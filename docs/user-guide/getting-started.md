@@ -41,7 +41,7 @@ cd gitops-infra-control-plane
 ./prerequisites.sh
 
 # Start everything at once
-./scripts/dev.sh
+./core/core/automation/ci-cd/scripts/dev.sh
 ```
 
 ### Option 2: Manual Setup

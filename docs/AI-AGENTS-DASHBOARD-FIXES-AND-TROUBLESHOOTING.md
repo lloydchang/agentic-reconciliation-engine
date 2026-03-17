@@ -234,8 +234,8 @@ serve -s build  # Or any static server
 ```bash
 # Test all API endpoints
 curl http://localhost:5000/api/cluster-status
-curl http://localhost:5000/api/agents/status
-curl http://localhost:5000/api/agents/detailed
+curl http://localhost:5000/api/core/ai/runtime/status
+curl http://localhost:5000/api/core/ai/runtime/detailed
 curl http://localhost:5000/api/metrics/real-time
 curl http://localhost:5000/api/system/health
 
@@ -376,7 +376,7 @@ useEffect(() => {
 // Correct async handling
 const fetchData = async () => {
   try {
-    const response = await axios.get('/api/agents/detailed');
+    const response = await axios.get('/api/core/ai/runtime/detailed');
     setAgents(response.data);
   } catch (error) {
     console.error('Dashboard fetch error:', error);

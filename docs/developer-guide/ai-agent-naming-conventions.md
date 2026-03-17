@@ -47,7 +47,7 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 
 ### Current Repository Usage
 ```
-/ai-infrastructure/
+/ai-core/resources/
 ├── agent-memory-rust        ✅ (core function + language)
 ├── inference-gateway-go     ✅ (service type + language)
 └── skills-orchestrator-python ✅ (capability + language)
@@ -101,7 +101,7 @@ Based on comprehensive research across major AI platforms, frameworks, and cloud
 - [IEEE Xplore: Software Package Naming](https://ieeexplore.ieee.org/document/8709247)
 
 ### Framework Examples
-- [LangChain Agent Types](https://python.langchain.com/docs/modules/agents/)
+- [LangChain Agent Types](https://python.langchain.com/docs/modules/core/ai/runtime/)
 - [AutoGen Agent Patterns](https://microsoft.github.io/autogen/docs/Use-Cases/agent_chat)
 - [CrewAI Agent Roles](https://www.crewai.com/)
 

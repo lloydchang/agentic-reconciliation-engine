@@ -8,19 +8,19 @@ The AI Agent Debugger skill provides comprehensive debugging capabilities for AI
 
 The debugging system consists of multiple layers:
 
-### 1. Skill-Based Debugging (`./agents/debug/`)
+### 1. Skill-Based Debugging (`./core/ai/runtime/debug/`)
 - **Purpose**: Centralized debugging skill following `agentskills.io` specification
 - **Risk Level**: Low (read-only operations)
 - **Autonomy**: Fully automated for safe debugging operations
 - **Components**:
   - [SKILL.md](SKILL.md): Skill definition and metadata
-  - `scripts/debug.py`: Main Python debugging engine
-  - `scripts/kubernetes-debugger.py`: Kubernetes-specific debugging
-  - `scripts/distributed-debug-runner.sh`: End-to-end debugging runner
+  - `core/core/automation/ci-cd/scripts/debug.py`: Main Python debugging engine
+  - `core/core/automation/ci-cd/scripts/kubernetes-debugger.py`: Kubernetes-specific debugging
+  - `core/core/automation/ci-cd/scripts/distributed-debug-runner.sh`: End-to-end debugging runner
   - `documentation/`: Detailed usage guides
   - `references/`: Best practices and patterns
 
-### 2. Built-in Monitoring (`ai-agents/backend/monitoring/metrics.go`)
+### 2. Built-in Monitoring (`ai-core/ai/runtime/backend/monitoring/metrics.go`)
 - **Purpose**: Real-time metrics collection and alerting
 - **Features**:
   - Workflow execution metrics
@@ -29,7 +29,7 @@ The debugging system consists of multiple layers:
   - Alert generation and management
 - **Integration**: Temporal activity and workflow integration
 
-### 3. Deployment Automation (`scripts/deploy-ai-agents-ecosystem.sh`)
+### 3. Deployment Automation (`core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`)
 - **Purpose**: Complete AI agent ecosystem deployment
 - **Features**:
   - Multi-language agent deployment (Rust, Go, Python)
@@ -46,14 +46,14 @@ The debugging system consists of multiple layers:
 kubectl get pods -n ai-infrastructure -l component=memory-agent
 
 # Use the debugging skill
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "kubernetes",
   "agentType": "memory-agent",
   "debugLevel": "detailed"
 }'
 
 # Quick bash debugging
-./.agents/debug/scripts/distributed-debug-runner.sh \
+./core/ai/skills/debug/core/core/automation/ci-cd/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
   --agent-type memory-agent \
   --debug-level detailed
@@ -72,7 +72,7 @@ curl http://localhost:8080/monitoring/alerts
 ### Deployment
 ```bash
 # Deploy complete ecosystem
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 
 # Access dashboard
 kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80
@@ -109,7 +109,7 @@ kubectl get pods -n ai-infrastructure -l component=memory-agent
 kubectl logs -n ai-infrastructure -l component=memory-agent --tail=100
 
 # Debug with skill
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "kubernetes",
   "issueType": "pod_failure",
   "agentType": "memory-agent",
@@ -126,7 +126,7 @@ tctl wf list --ns ai-infrastructure
 tctl wf show -w <workflow-id> --ns ai-infrastructure
 
 # Use debugging skill
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "temporal",
   "issueType": "workflow_timeout",
   "workflowId": "<workflow-id>"
@@ -142,7 +142,7 @@ kubectl top pods -n ai-infrastructure
 curl http://temporal-worker.ai-infrastructure.svc.cluster.local:8080/monitoring/metrics
 
 # Performance debugging
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "performance",
   "debugLevel": "deep",
   "timeRange": "1h"
@@ -268,7 +268,7 @@ kubectl top pods -n ai-infrastructure
 kubectl get pod <pod-name> -n ai-infrastructure -o yaml | grep -A5 resources
 
 # Debug with skill
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "performance",
   "issueType": "memory_usage"
 }'
@@ -291,7 +291,7 @@ kubectl exec -n ai-infrastructure <pod-name> -- nslookup <service-name>
 #### LLM-Assisted Analysis
 ```bash
 # Generate debugging prompts
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "targetComponent": "llm_analysis",
   "analysisType": "root_cause",
   "data": "<collected-data>"
@@ -304,7 +304,7 @@ python3 .agents/debug/scripts/debug.py '{
 export CORRELATION_ID=debug-$(date +%s)
 
 # Run with tracking
-./.agents/debug/scripts/distributed-debug-runner.sh \
+./core/ai/skills/debug/core/core/automation/ci-cd/scripts/distributed-debug-runner.sh \
   --correlation-id $CORRELATION_ID \
   --debug-level deep
 ```
@@ -312,7 +312,7 @@ export CORRELATION_ID=debug-$(date +%s)
 #### Automated Fixes
 ```bash
 # Enable auto-fix (use with caution)
-python3 .agents/debug/scripts/debug.py '{
+python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
   "autoFix": true,
   "maxRiskLevel": "medium"
 }'
@@ -350,10 +350,10 @@ alerts := collector.GetAlerts()
 ### Deployment API
 ```bash
 # Deploy ecosystem
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 
 # Custom deployment
-NAMESPACE=custom NAMESPACE ./scripts/deploy-ai-agents-ecosystem.sh
+NAMESPACE=custom NAMESPACE ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ## Future Enhancements
@@ -374,18 +374,18 @@ NAMESPACE=custom NAMESPACE ./scripts/deploy-ai-agents-ecosystem.sh
 ## Support and Resources
 
 ### Documentation
-- `.agents/debug/documentation/debugging-workflows.md`
-- `.agents/debug/documentation/regression-prevention.md`
+- [core/ai/skills/debug/documentation/debugging-workflows.md](core/ai/skills/debug/documentation/debugging-workflows.md)
+- [core/ai/skills/debug/documentation/regression-prevention.md](core/ai/skills/debug/documentation/regression-prevention.md)
 - [docs/AI-AGENTS-ARCHITECTURE.md](docs/AI-AGENTS-ARCHITECTURE.md)
 - [docs/MONITORING_SETUP.md](docs/MONITORING_SETUP.md)
 
 ### Scripts and Tools
-- `.agents/debug/scripts/`: Debugging utilities
-- `scripts/deploy-ai-agents-ecosystem.sh`: Deployment automation
-- `scripts/debug-ai-agents-k8s.sh`: Kubernetes debugging
+- `core/ai/skills/debug/core/core/automation/ci-cd/scripts/`: Debugging utilities
+- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`: Deployment automation
+- `core/core/automation/ci-cd/scripts/debug-ai-agents-k8s.sh`: Kubernetes debugging
 
 ### References
-- `.agents/debug/references/`: Best practices
+- `core/ai/skills/debug/references/`: Best practices
 - [AGENTS.md](AGENTS.md): Agent architecture overview
 - [AGENT-SKILLS-NEXT-LEVEL.md](AGENT-SKILLS-NEXT-LEVEL.md): Advanced skills guide
 

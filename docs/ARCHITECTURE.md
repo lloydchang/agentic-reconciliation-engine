@@ -198,7 +198,7 @@ available. The primary path is ESO.
 ## Repository Structure
 
 ```
-control-plane/
+core/operators/
   flux/                   # Flux bootstrap and GitRepository manifests
   crossplane/
     compositions/         # XDatabase, XNetwork, XQueue, XCluster Compositions
@@ -207,7 +207,7 @@ control-plane/
   capi/                   # ClusterClass, MachineDeployment templates
   ci/                     # Conftest policies, kubeconform schemas
 
-infrastructure/
+core/resources/
   tenants/
     1-network/            # XNetwork resources
     2-clusters/           # XCluster resources
@@ -248,7 +248,7 @@ spec:
     - name: clusters
     - name: network
   interval: 5m
-  path: ./infrastructure/tenants/3-workloads
+  path: ./core/resources/tenants/3-workloads
   sourceRef:
     kind: GitRepository
     name: infrastructure-repo

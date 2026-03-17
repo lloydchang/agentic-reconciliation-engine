@@ -1,0 +1,301 @@
+---
+# Health Monitoring Controller
+# Runs comprehensive health checks for Git repositories and infrastructure
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: git-health-monitor
+  namespace: flux-system
+spec:
+  schedule: "*/1 * * * *"  # Every minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-monitor
+            image: alpine/git:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Install required tools
+              apk add --no-cache bc curl
+              
+              # Run health monitoring
+              /core/core/automation/ci-cd/scripts/health-monitor.sh
+            env:
+            - name: NAMESPACE
+              value: "flux-system"
+            - name: ALERT_THRESHOLD
+              value: "3"
+            volumeMounts:
+            - name: monitoring-scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: log-storage
+              mountPath: /var/log
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+          volumes:
+          - name: monitoring-scripts
+            configMap:
+              name: git-health-monitoring
+              defaultMode: 0755
+          - name: log-storage
+            emptyDir: {}
+          restartPolicy: OnFailure
+          serviceAccountName: flux-reconciler
+---
+# Git Health Dashboard Service
+# Provides web interface for monitoring Git repository health
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: git-health-dashboard
+  namespace: flux-system
+  labels:
+    app: git-health-dashboard
+spec:
+  selector:
+    app: git-health-dashboard
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: git-health-dashboard
+  namespace: flux-system
+  labels:
+    app: git-health-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: git-health-dashboard
+  template:
+    metadata:
+      labels:
+        app: git-health-dashboard
+    spec:
+      containers:
+      - name: dashboard
+        image: nginx:alpine
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: dashboard-html
+          mountPath: /usr/share/nginx/html
+          readOnly: true
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+      volumes:
+      - name: dashboard-html
+        configMap:
+          name: git-health-dashboard-html
+      - name: nginx-config
+        configMap:
+          name: git-health-dashboard-nginx
+---
+# Git Health Dashboard HTML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: git-health-dashboard-html
+  namespace: flux-system
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Git Repository Health Dashboard</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+            .status-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .status-healthy { border-left: 4px solid #28a745; }
+            .status-unhealthy { border-left: 4px solid #dc3545; }
+            .status-warning { border-left: 4px solid #ffc107; }
+            .chart-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+            .refresh-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
+            .refresh-btn:hover { background: #0056b3; }
+            .metric { font-size: 2em; font-weight: bold; margin: 10px 0; }
+            .metric-label { color: #666; font-size: 0.9em; }
+            .timestamp { color: #999; font-size: 0.8em; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🔍 Git Repository Health Dashboard</h1>
+                <p>Real-time monitoring of Git repository availability and performance</p>
+                <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
+                <div class="timestamp">Last updated: <span id="last-updated">Loading...</span></div>
+            </div>
+            
+            <div class="status-grid" id="status-grid">
+                <!-- Repository status cards will be inserted here -->
+            </div>
+            
+            <div class="chart-container">
+                <h3>📊 Response Time Trends</h3>
+                <canvas id="responseTimeChart" width="400" height="200"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>📈 Health Percentage Over Time</h3>
+                <canvas id="healthChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        
+        <script>
+            // Mock data for demonstration - in production, this would fetch from API
+            const repositories = [
+                { name: 'gitops-infra-primary', url: 'GitHub', status: 'healthy', responseTime: 0.45, lastCheck: '2024-03-12T14:30:00Z' },
+                { name: 'gitops-infra-secondary', url: 'GitLab', status: 'healthy', responseTime: 0.62, lastCheck: '2024-03-12T14:30:00Z' },
+                { name: 'gitops-infra-tertiary', url: 'Gitea', status: 'warning', responseTime: 2.1, lastCheck: '2024-03-12T14:30:00Z' }
+            ];
+            
+            function createStatusCard(repo) {
+                const statusClass = repo.status === 'healthy' ? 'status-healthy' : 
+                                  repo.status === 'unhealthy' ? 'status-unhealthy' : 'status-warning';
+                const statusIcon = repo.status === 'healthy' ? '✅' : 
+                                 repo.status === 'unhealthy' ? '❌' : '⚠️';
+                
+                return `
+                    <div class="status-card ${statusClass}">
+                        <h3>${statusIcon} ${repo.name}</h3>
+                        <p><strong>Provider:</strong> ${repo.url}</p>
+                        <p><strong>Status:</strong> ${repo.status}</p>
+                        <div class="metric">${repo.responseTime}s</div>
+                        <div class="metric-label">Response Time</div>
+                        <p class="timestamp">Last check: ${new Date(repo.lastCheck).toLocaleString()}</p>
+                    </div>
+                `;
+            }
+            
+            function initializeDashboard() {
+                const statusGrid = document.getElementById('status-grid');
+                statusGrid.innerHTML = repositories.map(createStatusCard).join('');
+                
+                document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                
+                // Initialize charts
+                initializeCharts();
+            }
+            
+            function initializeCharts() {
+                // Response Time Chart
+                const responseTimeCtx = document.getElementById('responseTimeChart').getContext('2d');
+                new Chart(responseTimeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['14:00', '14:10', '14:20', '14:30'],
+                        datasets: repositories.map(repo => ({
+                            label: repo.name,
+                            data: [0.5, 0.45, 0.48, repo.responseTime],
+                            borderColor: repo.status === 'healthy' ? '#28a745' : '#dc3545',
+                            backgroundColor: 'transparent'
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Response Time (seconds)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Health Chart
+                const healthCtx = document.getElementById('healthChart').getContext('2d');
+                new Chart(healthCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Healthy', 'Warning', 'Unhealthy'],
+                        datasets: [{
+                            data: [
+                                repositories.filter(r => r.status === 'healthy').length,
+                                repositories.filter(r => r.status === 'warning').length,
+                                repositories.filter(r => r.status === 'unhealthy').length
+                            ],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize dashboard on load
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+            
+            // Auto-refresh every 30 seconds
+            setInterval(initializeDashboard, 30000);
+        </script>
+    </body>
+    </html>
+---
+# Nginx Configuration for Dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: git-health-dashboard-nginx
+  namespace: flux-system
+data:
+  default.conf: |
+    server {
+        listen 8080;
+        server_name localhost;
+        
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+        
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        # Enable gzip compression
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    }

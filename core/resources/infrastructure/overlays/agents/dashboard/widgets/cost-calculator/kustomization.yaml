@@ -1,0 +1,82 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: dashboard-cost-calculator-widget
+  namespace: flux-system
+  annotations:
+    overlay.name: "dashboard-cost-calculator-widget"
+    overlay.version: "1.0.0"
+    overlay.category: "dashboard"
+    overlay.type: "widget"
+    overlay.compatibility: ">=0.1.0"
+resources:
+  # Reference to base dashboard
+  - ../../../../../core/ai/runtime/dashboard
+# Patches to add cost calculator widget
+patchesStrategicMerge:
+  - widget-patches.yaml
+# Cost calculator widget configuration
+configMapGenerator:
+  - name: dashboard-cost-calculator-config
+    files:
+      - cost-calculator.json
+      - cost-calculator.css
+      - cost-calculator.js
+    literals:
+      - OVERLAY_NAME="dashboard-cost-calculator-widget"
+      - OVERLAY_VERSION="1.0.0"
+      - OVERLAY_TYPE="widget"
+      - WIDGET_ENABLED=true
+      - REFRESH_INTERVAL=30
+      - CURRENCY="USD"
+# Common labels for overlay resources
+commonLabels:
+  overlay: "dashboard-cost-calculator-widget"
+  overlay-type: "widget"
+  component: "dashboard"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Images for dashboard
+images:
+  - name: nginx
+    newTag: "1.21-alpine"
+  - name: node
+    newTag: "18-alpine"
+# Custom resource configurations
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: COST_CALCULATOR_ENABLED
+          value: "true"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts/-
+        value:
+          name: cost-calculator-assets
+          mountPath: /app/widgets/cost-calculator
+          readOnly: true
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: dashboard
+    patch: |-
+      - op: add
+        path: /spec/template/spec/volumes/-
+        value:
+          name: cost-calculator-assets
+          configMap:
+            name: dashboard-cost-calculator-config

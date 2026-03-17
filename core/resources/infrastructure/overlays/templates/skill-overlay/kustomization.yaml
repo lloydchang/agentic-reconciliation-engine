@@ -1,0 +1,67 @@
+# Skill Overlay Template
+# Copy this template to create new skill overlays
+# Instructions:
+# 1. Copy this entire directory: cp -r core/deployment/overlays/templates/skill-overlay core/deployment/overlays/core/ai/skills/my-skill
+# 2. Replace placeholder values ({{overlay-name}}, {{base-skill}}, etc.)
+# 3. Customize the overlay functionality
+# 4. Update overlay-metadata.yaml with your overlay details
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: {{overlay-name}}
+  namespace: flux-system
+  annotations:
+    overlay.name: "{{overlay-name}}"
+    overlay.version: "{{overlay-version}}"
+    overlay.category: "skills"
+    overlay.base-skill: "{{base-skill}}"
+    overlay.compatibility: "{{base-version}}+"
+resources:
+  # Reference to base skill (adjust path as needed)
+  - ../../../../core/ai/skills/{{base-skill}}
+# Patches to modify or extend base functionality
+patchesStrategicMerge:
+  - enhanced-features.yaml
+# Additional configurations
+configMapGenerator:
+  - name: {{overlay-name}}-config
+    literals:
+      - OVERLAY_ENABLED=true
+      - OVERLAY_VERSION="{{overlay-version}}"
+      - OVERLAY_TYPE="skill-extension"
+      - BASE_SKILL="{{base-skill}}"
+      - ENHANCED_FEATURES=true
+# Secret generation for sensitive data
+secretGenerator:
+  - name: {{overlay-name}}-secrets
+    envs:
+      - .env.secret
+# Common labels for overlay resources
+commonLabels:
+  overlay: "{{overlay-name}}"
+  overlay-type: "skill"
+  base-skill: "{{base-skill}}"
+  managed-by: "kustomize"
+# Namespace configuration
+namespace: flux-system
+# Images for overlay (if custom containers needed)
+images:
+  - name: python
+    newTag: "3.11-slim"
+# Custom resource configurations (if needed)
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: {{base-skill}}
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: OVERLAY_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: {{overlay-name}}-config
+              key: OVERLAY_ENABLED

@@ -26,10 +26,10 @@ The `deploy-ai-agents-ecosystem.sh` script provides a comprehensive, one-command
 ### Quick Start
 ```bash
 # Make script executable
-chmod +x scripts/deploy-ai-agents-ecosystem.sh
+chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 
 # Run complete deployment
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ### Prerequisites
@@ -278,7 +278,7 @@ curl -H "Host: dashboard.local" http://localhost/
 kubectl delete namespace ai-infrastructure
 
 # Redeploy
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ## Customization
@@ -291,7 +291,7 @@ TEMPORAL_VERSION="1.21.0"
 OLLAMA_MODEL="llama2:7b"
 
 # Run with custom config
-./scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ### Custom Images
@@ -342,8 +342,8 @@ jobs:
     - name: Deploy Ecosystem
       run: |
         kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
-        chmod +x scripts/deploy-ai-agents-ecosystem.sh
-        ./scripts/deploy-ai-agents-ecosystem.sh
+        chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+        ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ### ArgoCD Integration
@@ -525,4 +525,4 @@ kubectl rollout restart deployment/memory-agent-rust -n ai-infrastructure
 **Last Updated**: 2026-03-16  
 **Version**: 1.0.0  
 **Maintainer**: AI Agents Ecosystem Team  
-**Script Location**: `scripts/deploy-ai-agents-ecosystem.sh`
+**Script Location**: `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`

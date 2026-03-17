@@ -10,13 +10,13 @@ Sealed Secrets is a Kubernetes controller and operator for managing encrypted se
 
 - **SealedSecrets Controller**: Runs in hub cluster to provision spoke clusters
 - **Purpose**: Encrypt secrets that will be used across spoke clusters
-- **Location**: `control-plane/controllers/sealed-secrets/`
+- **Location**: `core/operators/controllers/sealed-secrets/`
 
 ### Spoke Clusters
 
 - **SealedSecrets Controller**: Must run in each spoke cluster that needs to decrypt secrets
 - **Purpose**: Decrypt SealedSecret resources into regular Kubernetes secrets at runtime
-- **Location**: `infrastructure/tenants/3-workloads/sealed-secrets/` (per spoke cluster)
+- **Location**: `core/resources/tenants/3-workloads/sealed-secrets/` (per spoke cluster)
 
 ## Sealing Process
 
@@ -184,7 +184,7 @@ kubectl describe sealedsecret <name>
 
 - For secrets stored in external systems (AWS Secrets Manager, HashiCorp Vault)
 - Complements SealedSecrets for hybrid scenarios
-- Location: `infrastructure/tenants/3-workloads/external-secrets/`
+- Location: `core/resources/tenants/3-workloads/external-secrets/`
 
 ### HashiCorp Vault
 

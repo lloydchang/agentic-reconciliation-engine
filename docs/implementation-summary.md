@@ -13,14 +13,14 @@ implementation plan:
 ## Repository Structure (Active)
 
 ```
-control-plane/
+core/operators/
   flux/
   crossplane/          # XRDs, compositions, provider configs
   capi/                # CAPI providers + ClusterClasses
   bootstrap/           # bootstrap cluster + hub backup CronJob
   ci/                  # policy gate scripts + rego
 
-infrastructure/tenants/
+core/resources/tenants/
   1-network/           # XNetwork claims
   2-clusters/          # XCluster claims
   3-workloads/         # XDatabase/XQueue + ESO
@@ -31,7 +31,7 @@ infrastructure/tenants/
 Deprecated raw provider manifests and SOPS kustomizations moved under:
 
 ```
-infrastructure/fallback/
+core/resources/fallback/
   raw-controllers/
   capi-direct/
   sops/
@@ -41,8 +41,8 @@ infrastructure/fallback/
 
 See:
 
-- [control-plane/crossplane/README.md](control-plane/crossplane/README.md)
-- [control-plane/capi/README.md](control-plane/capi/README.md)
+- [core/operators/crossplane/README.md](core/operators/crossplane/README.md)
+- [core/operators/capi/README.md](core/operators/capi/README.md)
 - [docs/SETUP.md](docs/SETUP.md)
 
 ## CI Policy Gate

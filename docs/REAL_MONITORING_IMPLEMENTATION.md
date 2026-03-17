@@ -16,7 +16,7 @@ This document outlines the implementation plan to replace the current mock/demo 
 ### Phase 1: Agent-Side Monitoring Infrastructure
 
 #### 1.1 Go Agent Metrics Collection
-**File**: `ai-agents/backend/monitoring/metrics.go`
+**File**: `ai-core/ai/runtime/backend/monitoring/metrics.go`
 
 **Tasks**:
 - [ ] Implement Prometheus metrics collection in each Go agent
@@ -50,7 +50,7 @@ var (
 ### Phase 2: Temporal Workflow Integration
 
 #### 2.1 Workflow Metrics Collection
-**File**: `ai-agents/backend/temporal/monitoring.go`
+**File**: `ai-core/ai/runtime/backend/temporal/monitoring.go`
 
 **Tasks**:
 - [ ] Connect to Temporal monitoring APIs
@@ -85,7 +85,7 @@ func (tm *TemporalMonitor) GetWorkflowMetrics() (*WorkflowMetrics, error) {
 ### Phase 3: Kubernetes Infrastructure Monitoring
 
 #### 3.1 Pod and Resource Monitoring
-**File**: `ai-agents/backend/k8s/monitoring.go`
+**File**: `ai-core/ai/runtime/backend/k8s/monitoring.go`
 
 **Tasks**:
 - [ ] Implement Kubernetes client for pod monitoring
@@ -115,7 +115,7 @@ func (km *K8sMonitor) GetPodMetrics(namespace string) ([]PodMetrics, error) {
 ### Phase 4: Central Monitoring Service
 
 #### 4.1 Metrics Aggregation Service
-**File**: `ai-agents/backend/monitoring/aggregator.go`
+**File**: `ai-core/ai/runtime/backend/monitoring/aggregator.go`
 
 **Tasks**:
 - [ ] Create central metrics aggregation service
@@ -152,14 +152,14 @@ func (ma *MetricsAggregator) GetDashboardData() (*DashboardData, error) {
 
 **Tasks**:
 - [ ] Replace hardcoded responses with real data calls
-- [ ] Update `/api/agents/status` with real agent data
-- [ ] Update `/api/agents/detailed` with live metrics
+- [ ] Update `/api/core/ai/runtime/status` with real agent data
+- [ ] Update `/api/core/ai/runtime/detailed` with live metrics
 - [ ] Update `/api/metrics/real-time` with aggregated data
 - [ ] Add `/api/workflows/status` for Temporal data
 
 **Implementation**:
 ```python
-@app.route("/api/agents/detailed")
+@app.route("/api/core/ai/runtime/detailed")
 def agents_detailed():
     # Call metrics aggregation service
     data = aggregator.get_agents_data()
@@ -266,16 +266,16 @@ def agents_detailed():
 ## Files to Modify/Create
 
 ### New Files
-- `ai-agents/backend/monitoring/aggregator.go`
-- `ai-agents/backend/temporal/monitoring.go`
-- `ai-agents/backend/k8s/monitoring.go`
-- `scripts/monitoring-setup.sh` (for Prometheus setup)
+- `ai-core/ai/runtime/backend/monitoring/aggregator.go`
+- `ai-core/ai/runtime/backend/temporal/monitoring.go`
+- `ai-core/ai/runtime/backend/k8s/monitoring.go`
+- `core/core/automation/ci-cd/scripts/monitoring-setup.sh` (for Prometheus setup)
 
 ### Modified Files
-- `ai-agents/backend/monitoring/metrics.go` (enhance existing)
+- `ai-core/ai/runtime/backend/monitoring/metrics.go` (enhance existing)
 - `dashboard-api-deployment.yaml` (update Flask code)
 - `dashboard-frontend/src/App.tsx` (add real-time updates)
-- `scripts/deploy-ai-agents-ecosystem.sh` (add monitoring components)
+- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh` (add monitoring components)
 
 ## Monitoring Checklist
 

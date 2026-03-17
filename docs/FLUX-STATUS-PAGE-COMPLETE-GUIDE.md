@@ -32,10 +32,10 @@ The Flux Status Page is a lightweight, mobile-friendly web interface that provid
 
 ```bash
 # Install Flux Status Page with all features
-./scripts/setup-flux-status-page.sh
+./core/core/automation/ci-cd/scripts/setup-flux-status-page.sh
 
 # Set up SSO and authentication
-./scripts/setup-flux-sso.sh
+./core/core/automation/ci-cd/scripts/setup-flux-sso.sh
 
 # Access the UI locally
 kubectl -n flux-system port-forward svc/flux-operator 9080:9080
@@ -48,7 +48,7 @@ kubectl -n flux-system port-forward svc/flux-operator 9080:9080
 
 ```bash
 # Run the setup script
-./scripts/setup-flux-status-page.sh
+./core/core/automation/ci-cd/scripts/setup-flux-status-page.sh
 ```
 
 This script will:
@@ -309,7 +309,7 @@ spec:
 
 ```bash
 # Set up complete SSO with Dex and OAuth2 Proxy
-./scripts/setup-flux-sso.sh
+./core/core/automation/ci-cd/scripts/setup-flux-sso.sh
 ```
 
 This script will:
@@ -1327,7 +1327,7 @@ kubectl get configmap flux-ui-config -n flux-system -o yaml > flux-ui-config-bac
 kubectl get secret flux-ui-secrets -n flux-system -o yaml > flux-ui-secrets-backup.yaml
 
 # Step 2: Install SSO components
-./scripts/setup-flux-sso.sh
+./core/core/automation/ci-cd/scripts/setup-flux-sso.sh
 
 # Step 3: Update configuration
 kubectl apply -f flux-operator/flux-ui-sso-config.yaml

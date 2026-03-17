@@ -118,10 +118,10 @@ Level 5: Enhanced services (AI, auth, certificates)
 
 ```bash
 # Generate dependency graph
-python3 scripts/dag-visualizer.py . --format mermaid --output docs/diagrams/current-dag.md
+python3 core/core/automation/ci-cd/scripts/dag-visualizer.py . --format mermaid --output docs/diagrams/current-dag.md
 
 # Check for circular dependencies
-python3 scripts/dag-visualizer.py . --format report
+python3 core/core/automation/ci-cd/scripts/dag-visualizer.py . --format report
 ```
 
 ## Strategic Architecture: Flux + Temporal + Consensus Hybrid
@@ -138,25 +138,25 @@ Optimized for infrastructure lifecycle management:
 
 ```bash
 # Complete deployment with full AI capabilities
-kubectl apply -f examples/complete-hub-spoke/
+kubectl apply -f overlay/examples/complete-hub-spoke/
 ```
 
 ### BROWNFIELD (Existing Infrastructure)
 
 ```bash
 # Start with core Flux, add AI incrementally
-kubectl apply -f control-plane/
-kubectl apply -f infrastructure/tenants/1-network/
-kubectl apply -f infrastructure/tenants/2-clusters/
+kubectl apply -f core/operators/
+kubectl apply -f core/resources/tenants/1-network/
+kubectl apply -f core/resources/tenants/2-clusters/
 # Add AI only when problems warrant complexity
-kubectl apply -f examples/complete-hub-spoke/ai-cronjobs/
+kubectl apply -f overlay/examples/complete-hub-spoke/ai-cronjobs/
 ```
 
 ### HYBRID (Local + Cloud)
 
 ```bash
 # Local development with cloud integration
-./scripts/variant-swapper.sh local-cloud
+./core/core/automation/ci-cd/scripts/variant-swapper.sh local-cloud
 kubectl apply -f variants/local-cloud/
 ```
 
@@ -165,33 +165,33 @@ kubectl apply -f variants/local-cloud/
 ### Open Source Deployment
 
 ```bash
-./scripts/variant-swapper.sh opensource
+./core/core/automation/ci-cd/scripts/variant-swapper.sh opensource
 ```
 
 ### Enterprise Deployment
 
 ```bash
-./scripts/variant-swapper.sh enterprise
+./core/core/automation/ci-cd/scripts/variant-swapper.sh enterprise
 ```
 
 ### Language Ecosystem Variants
 
 ```bash
 # Python/ML Stack
-./scripts/variant-swapper.sh languages python
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages python
 
 # Go/Cloud Native Stack
-./scripts/variant-swapper.sh languages go
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages go
 
 # Rust/WasmCloud Stack
-./scripts/variant-swapper.sh languages rust
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages rust
 
 # TypeScript/Node.js Stack
-./scripts/variant-swapper.sh languages typescript
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages typescript
 
 # C#/.NET Stack
-./scripts/variant-swapper.sh languages csharp
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages csharp
 
 # Java/JVM Stack
-./scripts/variant-swapper.sh languages java
+./core/core/automation/ci-cd/scripts/variant-swapper.sh languages java
 ```

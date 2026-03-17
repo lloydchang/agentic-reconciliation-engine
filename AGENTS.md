@@ -29,25 +29,25 @@ Two complementary layers coexist:
 ## Repository Structure
 ```
 repo/
-├── .agents/                    # Agent skill definitions (agentskills.io compliant)
+├── core/ai/skills/                    # Agent skill definitions (agentskills.io compliant)
 │   └── [skill_name]/
 │       ├── SKILL.md          # Skill definition with YAML frontmatter
-│       ├── scripts/          # Optional executable code
+│       ├── core/core/automation/ci-cd/scripts/          # Optional executable code
 │       ├── references/       # Optional documentation
 │       └── assets/           # Optional templates/resources
 ├── AGENTS.md                  # This file - agent operating rules
-├── agents/                    # Agent runtime implementation
+├── core/ai/runtime/                    # Agent runtime implementation
 │   ├── backend/              # Go Temporal workflows and activities
 │   ├── dashboard/            # React dashboard and WebMCP client
 │   ├── cli/                  # Command-line interface
 │   └── tools/                # Tool permissions and configurations
 ├── docs/                     # Documentation and interface specs
-├── scripts/                  # Utility scripts for validation and fixes
+├── core/core/automation/ci-cd/scripts/                  # Utility scripts for validation and fixes
 └── gitops/                   # GitOps/Control-Plane workflows
 ```
 
 ### Skills Directory
-The `.agents/` directory contains individual skill definitions that follow the [agentskills.io specification](https://agentskills.io/specification):
+The `core/ai/skills/` directory contains individual skill definitions that follow the [agentskills.io specification](https://agentskills.io/specification):
 
 - Each skill has a [SKILL.md](SKILL.md) file with YAML frontmatter containing `name`, `description`, and optional fields
 - Skills define specific capabilities like `cost-optimizer`, `alert-prioritizer`, `cluster-health-check`
@@ -92,7 +92,7 @@ Agents automate infrastructure workflows while preserving safety:
 
 ### Skill System & Interfaces
 
-* `.agents/[skill]/SKILL.md` defines the skill:
+* `core/ai/skills/[skill]/SKILL.md` defines the skill:
 
   * **action_name**: unique identifier
   * **risk_level**: low / medium / high
@@ -181,7 +181,7 @@ autonomy: requires_PR
 
 * LLM outputs **structured JSON plans**, never shell commands.
 * GitOps pipelines validate and apply changes deterministically.
-* Skills define risk and gating clearly in `.agents/[skill]/SKILL.md`.
+* Skills define risk and gating clearly in `core/ai/skills/[skill]/SKILL.md`.
 * Human gates enforced at both Temporal orchestration and GitOps layers where specified.
 
 ---

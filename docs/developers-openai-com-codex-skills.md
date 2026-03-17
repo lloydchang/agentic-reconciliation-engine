@@ -4,7 +4,7 @@ Use agent skills to extend Codex with task-specific capabilities. A skill packag
 
 Skills are available in the Codex CLI, IDE extension, and Codex app.
 
-Skills use **progressive disclosure** to manage context efficiently: Codex starts with each skill's metadata (`name`, `description`, file path, and optional metadata from `agents/openai.yaml`). Codex loads the full [SKILL.md](SKILL.md) instructions only when it decides to use a skill.
+Skills use **progressive disclosure** to manage context efficiently: Codex starts with each skill's metadata (`name`, `description`, file path, and optional metadata from `core/ai/runtime/openai.yaml`). Codex loads the full [SKILL.md](SKILL.md) instructions only when it decides to use a skill.
 
 A skill is a directory with a [SKILL.md](SKILL.md) file plus optional scripts and references. The [SKILL.md](SKILL.md) file must include `name` and `description`.
 
@@ -20,7 +20,7 @@ A skill is a directory with a [SKILL.md](SKILL.md) file plus optional scripts an
           comment: "Required: instructions + metadata",
         },
         {
-          name: "scripts/",
+          name: "core/core/automation/ci-cd/scripts/",
           comment: "Optional: executable code",
         },
         {
@@ -32,7 +32,7 @@ A skill is a directory with a [SKILL.md](SKILL.md) file plus optional scripts an
           comment: "Optional: templates, resources",
         },
         {
-          name: "agents/",
+          name: "core/ai/runtime/",
           open: true,
           children: [
             {
@@ -81,14 +81,14 @@ Codex detects skill changes automatically. If an update doesn't appear, restart 
 
 ## Where to save skills
 
-Codex reads skills from repository, user, admin, and system locations. For repositories, Codex scans `.agents/skills` in every directory from your current working directory up to the repository root. If two skills share the same `name`, Codex doesn't merge them; both can appear in skill selectors.
+Codex reads skills from repository, user, admin, and system locations. For repositories, Codex scans `core/ai/skills/skills` in every directory from your current working directory up to the repository root. If two skills share the same `name`, Codex doesn't merge them; both can appear in skill selectors.
 
 | Skill Scope | Location                                                                                                  | Suggested use                                                                                                                                                                                        |
 | :---------- | :-------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REPO`      | `$CWD/.agents/skills` <br /> Current working directory: where you launch Codex.                           | If you're in a repository or code environment, teams can check in skills relevant to a working folder. For example, skills only relevant to a microservice or a module.                              |
-| `REPO`      | `$CWD/../.agents/skills` <br /> A folder above CWD when you launch Codex inside a Git repository.         | If you're in a repository with nested folders, organizations can check in skills relevant to a shared area in a parent folder.                                                                       |
-| `REPO`      | `$REPO_ROOT/.agents/skills` <br /> The topmost root folder when you launch Codex inside a Git repository. | If you're in a repository with nested folders, organizations can check in skills relevant to everyone using the repository. These serve as root skills available to any subfolder in the repository. |
-| `USER`      | `$HOME/.agents/skills` <br /> Any skills checked into the user's personal folder.                         | Use to curate skills relevant to a user that apply to any repository the user may work in.                                                                                                           |
+| `REPO`      | `$CWD/core/ai/skills/skills` <br /> Current working directory: where you launch Codex.                           | If you're in a repository or code environment, teams can check in skills relevant to a working folder. For example, skills only relevant to a microservice or a module.                              |
+| `REPO`      | `$CWD/../core/ai/skills/skills` <br /> A folder above CWD when you launch Codex inside a Git repository.         | If you're in a repository with nested folders, organizations can check in skills relevant to a shared area in a parent folder.                                                                       |
+| `REPO`      | `$REPO_ROOT/core/ai/skills/skills` <br /> The topmost root folder when you launch Codex inside a Git repository. | If you're in a repository with nested folders, organizations can check in skills relevant to everyone using the repository. These serve as root skills available to any subfolder in the repository. |
+| `USER`      | `$HOME/core/ai/skills/skills` <br /> Any skills checked into the user's personal folder.                         | Use to curate skills relevant to a user that apply to any repository the user may work in.                                                                                                           |
 | `ADMIN`     | `/etc/codex/skills` <br /> Any skills checked into the machine or container in a shared, system location. | Use for SDK scripts, automation, and for checking in default admin skills available to each user on the machine.                                                                                     |
 | `SYSTEM`    | Bundled with Codex by OpenAI.                                                                             | Useful skills relevant to a broad audience such as the skill-creator and plan skills. Available to everyone when they start Codex.                                                                   |
 
@@ -118,7 +118,7 @@ Restart Codex after changing `~/.codex/config.toml`.
 
 ## Optional metadata
 
-Add `agents/openai.yaml` to configure UI metadata in the [Codex app](https://developers.openai.com/codex/app), to set invocation policy, and to declare tool dependencies for a more seamless experience with using the skill.
+Add `core/ai/runtime/openai.yaml` to configure UI metadata in the [Codex app](https://developers.openai.com/codex/app), to set invocation policy, and to declare tool dependencies for a more seamless experience with using the skill.
 
 ```yaml
 interface:

@@ -28,7 +28,7 @@ This guide is for developers who want to contribute to the overlay system, creat
 
 1. **Clone Repository**:
    ```bash
-   git clone https://github.com/gitops-infra-control-plane/gitops-infra-control-plane.git
+   git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
    cd gitops-infra-control-plane
    ```
 
@@ -49,7 +49,7 @@ This guide is for developers who want to contribute to the overlay system, creat
    pre-commit install
    
    # Make CLI tools executable
-   chmod +x scripts/*.py
+   chmod +x core/core/automation/ci-cd/scripts/*.py
    
    # Add to PATH
    export PATH="$PWD/scripts:$PATH"
@@ -58,11 +58,11 @@ This guide is for developers who want to contribute to the overlay system, creat
 4. **Verify Setup**:
    ```bash
    # Test CLI tools
-   python scripts/overlay-cli.py list
-   python scripts/validate-overlays.py overlays/ --verbose
+   python core/core/automation/ci-cd/scripts/overlay-cli.py list
+   python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --verbose
    
    # Test registry
-   python scripts/overlay-registry.py validate
+   python core/core/automation/ci-cd/scripts/overlay-registry.py validate
    ```
 
 ### Development Workflow
@@ -72,23 +72,23 @@ This guide is for developers who want to contribute to the overlay system, creat
 git checkout -b feature/my-new-overlay
 
 # 2. Create overlay
-python scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 
 # 3. Develop and test
-cd overlays/.agents/my-overlay
+cd core/deployment/overlays/core/ai/skills/my-overlay
 # ... make changes ...
-python scripts/validate-overlays.py .
-python scripts/test-overlays.py .
+python core/core/automation/ci-cd/scripts/validate-overlays.py .
+python core/core/automation/ci-cd/scripts/test-overlays.py .
 
 # 4. Register overlay
-python scripts/overlay-registry.py register overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
 
 # 5. Commit changes
 git add .
 git commit -m "Add my-new-overlay with enhanced functionality"
 
 # 6. Test integration
-python scripts/test-overlays.py overlays/
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/
 
 # 7. Push and create PR
 git push origin feature/my-new-overlay
@@ -116,13 +116,13 @@ git push origin feature/my-new-overlay
 Overlays mirror the base directory structure for intuitive mapping:
 
 ```
-base/                    overlays/
-├── .agents/            ├── .agents/
+base/                    core/deployment/overlays/
+├── core/ai/skills/            ├── core/ai/skills/
 │   ├── skill-a/        │   ├── skill-a-enhanced/
 │   └── skill-b/        │   └── skill-b-multi-cloud/
-├── agents/             ├── agents/
+├── core/ai/runtime/             ├── core/ai/runtime/
 │   └── dashboard/      │       └── dashboard/
-└── control-plane/      ├── control-plane/
+└── core/operators/      ├── core/operators/
     ├── flux/                   ├── flux/
     └── monitoring/             └── monitoring-enhanced/
 ```
@@ -133,19 +133,19 @@ base/                    overlays/
 
 **Skill Overlays**: Extend AI agent capabilities
 - Add new skills or enhance existing ones
-- Location: `overlays/.agents/`
+- Location: `core/deployment/overlays/core/ai/skills/`
 
 **Dashboard Overlays**: Customize UI/UX
 - Themes, widgets, visual enhancements
-- Location: `overlays/agents/dashboard/`
+- Location: `core/deployment/overlays/core/ai/runtime/dashboard/`
 
 **Infrastructure Overlays**: Enhance infrastructure
 - Monitoring, security, networking
-- Location: `overlays/control-plane/`
+- Location: `core/deployment/overlays/core/operators/`
 
 **Composed Overlays**: Combine multiple overlays
 - Complete solutions and bundles
-- Location: `overlays/composed/`
+- Location: `core/deployment/overlays/composed/`
 
 #### 2. Use Templates
 
@@ -153,13 +153,13 @@ Templates provide a solid foundation:
 
 ```bash
 # Create skill overlay
-python scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Create dashboard overlay
-python scripts/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
 
 # Create infrastructure overlay
-python scripts/overlay-cli.py create my-infra infrastructure flux --template infra-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-infra infrastructure flux --template infra-overlay
 ```
 
 #### 3. Customize Overlay
@@ -172,7 +172,7 @@ name: my-skill-enhanced
 version: "1.0.0"
 description: "Enhanced skill with ML capabilities and advanced analytics"
 category: skills
-base_path: ".agents/base-skill"
+base_path: "core/ai/skills/base-skill"
 license: "AGPLv3"
 risk_level: medium
 autonomy: conditional
@@ -264,7 +264,7 @@ metadata:
 
 resources:
   # Reference to base skill
-  - ../../../../.agents/base-skill
+  - ../../../../core/ai/skills/base-skill
 
 # Patches to enhance functionality
 patchesStrategicMerge:
@@ -460,21 +460,21 @@ data:
 Test individual components:
 
 ```python
-# tests/test_overlay_validation.py
+# core/automation/testing/test_overlay_validation.py
 import pytest
 from scripts.validate_overlays import OverlayValidator
 
 class TestOverlayValidation:
     def test_valid_overlay_structure(self):
-        validator = OverlayValidator("overlays/.agents/my-skill")
+        validator = OverlayValidator("core/deployment/overlays/core/ai/skills/my-skill")
         assert validator.validate_structure()
     
     def test_metadata_validation(self):
-        validator = OverlayValidator("overlays/.agents/my-skill")
+        validator = OverlayValidator("core/deployment/overlays/core/ai/skills/my-skill")
         assert validator.validate_metadata()
     
     def test_kustomization_build(self):
-        validator = OverlayValidator("overlays/.agents/my-skill")
+        validator = OverlayValidator("core/deployment/overlays/core/ai/skills/my-skill")
         assert validator.validate_kustomization()
 ```
 
@@ -483,21 +483,21 @@ class TestOverlayValidation:
 Test overlay composition:
 
 ```python
-# tests/test_overlay_composition.py
+# core/automation/testing/test_overlay_composition.py
 import pytest
 from scripts.test_overlays import OverlayTester
 
 class TestOverlayComposition:
     def test_multiple_overlay_composition(self):
-        tester = OverlayTester("overlays/")
+        tester = OverlayTester("core/deployment/overlays/")
         assert tester.test_multiple_composition()
     
     def test_dependency_resolution(self):
-        tester = OverlayTester("overlays/")
+        tester = OverlayTester("core/deployment/overlays/")
         assert tester.test_dependency_resolution()
     
     def test_conflict_detection(self):
-        tester = OverlayTester("overlays/")
+        tester = OverlayTester("core/deployment/overlays/")
         assert tester.test_overlay_conflicts()
 ```
 
@@ -506,7 +506,7 @@ class TestOverlayComposition:
 Test complete deployment:
 
 ```python
-# tests/test_e2e_deployment.py
+# core/automation/testing/test_e2e_deployment.py
 import pytest
 import subprocess
 from pathlib import Path
@@ -515,7 +515,7 @@ class TestE2EDeployment:
     def test_overlay_deployment(self, k8s_cluster):
         # Build overlay
         result = subprocess.run([
-            "kustomize", "build", "overlays/.agents/my-skill"
+            "kustomize", "build", "core/deployment/overlays/core/ai/skills/my-skill"
         ], capture_output=True, text=True)
         
         assert result.returncode == 0
@@ -558,16 +558,16 @@ addopts =
 pytest
 
 # Run specific test file
-pytest tests/test_overlay_validation.py
+pytest core/automation/testing/test_overlay_validation.py
 
 # Run with coverage
 pytest --cov=scripts --cov-report=html
 
 # Run integration tests
-pytest tests/test_integration/ -m integration
+pytest core/automation/testing/test_integration/ -m integration
 
 # Run E2E tests
-pytest tests/test_e2e/ -m e2e
+pytest core/automation/testing/test_e2e/ -m e2e
 ```
 
 ## Code Standards
@@ -580,10 +580,10 @@ Use `black` for code formatting:
 
 ```bash
 # Format code
-black scripts/*.py
+black core/core/automation/ci-cd/scripts/*.py
 
 # Check formatting
-black --check scripts/*.py
+black --check core/core/automation/ci-cd/scripts/*.py
 ```
 
 #### 2. Linting
@@ -592,10 +592,10 @@ Use `flake8` for linting:
 
 ```bash
 # Lint code
-flake8 scripts/*.py
+flake8 core/core/automation/ci-cd/scripts/*.py
 
 # Lint with configuration
-flake8 --config=.flake8 scripts/*.py
+flake8 --config=.flake8 core/core/automation/ci-cd/scripts/*.py
 ```
 
 #### 3. Type Hints
@@ -781,12 +781,12 @@ data:
 git checkout -b feature/my-new-overlay
 
 # 3. Develop overlay
-python scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 # ... make changes ...
 
 # 4. Test thoroughly
-python scripts/validate-overlays.py overlays/.agents/my-overlay
-python scripts/test-overlays.py overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # 5. Update documentation
 # Update README.md, add examples
@@ -867,10 +867,10 @@ Brief description of changes.
 sed -i 's/version: "1.0.0"/version: "1.1.0"/' overlay-metadata.yaml
 
 # Test changes
-python scripts/test-overlays.py overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Update registry
-python scripts/overlay-registry.py register overlays/.agents/my-overlay
+python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
 
 # Tag release
 git tag -a v1.1.0 -m "Release version 1.1.0"
@@ -907,7 +907,7 @@ git push origin v1.1.0
 Create custom overlay types for specific use cases:
 
 ```python
-# scripts/custom_overlay_types.py
+# core/core/automation/ci-cd/scripts/custom_overlay_types.py
 from enum import Enum
 from typing import Dict, Any
 
@@ -931,7 +931,7 @@ class CustomOverlayValidator:
 Create plugin system for extensibility:
 
 ```python
-# scripts/overlay_plugins.py
+# core/core/automation/ci-cd/scripts/overlay_plugins.py
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
@@ -961,7 +961,7 @@ class SecurityPlugin(OverlayPlugin):
 #### Property-Based Testing
 
 ```python
-# tests/test_property_based.py
+# core/automation/testing/test_property_based.py
 import hypothesis
 from hypothesis import given, strategies as st
 
@@ -982,14 +982,14 @@ class TestOverlayProperties:
 #### Performance Testing
 
 ```python
-# tests/test_performance.py
+# core/automation/testing/test_performance.py
 import time
 import pytest
 
 class TestOverlayPerformance:
     def test_build_performance(self, benchmark):
         """Test overlay build performance."""
-        overlay_path = "overlays/.agents/my-overlay"
+        overlay_path = "core/deployment/overlays/core/ai/skills/my-overlay"
         
         def build_overlay():
             result = subprocess.run([
@@ -1007,7 +1007,7 @@ class TestOverlayPerformance:
 #### CLI Extensions
 
 ```python
-# scripts/overlay_cli_extensions.py
+# core/core/automation/ci-cd/scripts/overlay_cli_extensions.py
 import click
 from scripts.overlay_cli import OverlayCLI
 
@@ -1038,7 +1038,7 @@ def analyze(overlay_path, format):
 #### Registry Extensions
 
 ```python
-# scripts/registry_extensions.py
+# core/core/automation/ci-cd/scripts/registry_extensions.py
 from typing import Dict, List, Any
 from scripts.overlay_registry import OverlayRegistry
 
@@ -1066,7 +1066,7 @@ class ExtendedRegistry(OverlayRegistry):
 #### Adding New Commands
 
 ```python
-# scripts/overlay_cli.py
+# core/core/automation/ci-cd/scripts/overlay_cli.py
 @click.group()
 def cli():
     """Overlay CLI Tool."""
@@ -1085,7 +1085,7 @@ def analyze(overlay_path, deep):
 #### Command Validation
 
 ```python
-# scripts/overlay_cli_validation.py
+# core/core/automation/ci-cd/scripts/overlay_cli_validation.py
 import click
 from typing import Callable, Any
 
@@ -1108,7 +1108,7 @@ def validate_category(ctx, param, value):
 #### Advanced Search
 
 ```python
-# scripts/registry_search.py
+# core/core/automation/ci-cd/scripts/registry_search.py
 from typing import List, Dict, Any
 from scripts.overlay_registry import OverlayRegistry
 
@@ -1152,7 +1152,7 @@ class AdvancedSearch(OverlayRegistry):
 #### Custom Validators
 
 ```python
-# scripts/custom_validators.py
+# core/core/automation/ci-cd/scripts/custom_validators.py
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
@@ -1258,4 +1258,4 @@ class PerformanceValidator(CustomValidator):
 
 Happy contributing! 🚀
 
-For questions or help, reach out through our [community channels](https://github.com/gitops-infra-control-plane/discussions).
+For questions or help, reach out through our [community channels](https://github.com/gitops-infra-core/operators/discussions).

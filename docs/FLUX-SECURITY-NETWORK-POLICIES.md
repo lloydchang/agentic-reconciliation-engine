@@ -551,7 +551,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: gitops-infra-control-plane
-  path: ./infrastructure/tenants/3-workloads/production
+  path: ./core/resources/tenants/3-workloads/production
   prune: true
   wait: true
   timeout: 15m

@@ -4,7 +4,7 @@
 
 ### Before
 ```
-├── ai-agents/                    # Temporal AI orchestration code
+├── ai-core/ai/runtime/                    # Temporal AI orchestration code
 │   ├── backend/                  # Go Temporal workflows and activities
 │   ├── cli/                      # Command-line interface
 │   └── tools/                    # Tool permissions and configurations
@@ -13,7 +13,7 @@
 
 ### After
 ```
-├── agents/                       # Agent runtime implementation
+├── core/ai/runtime/                       # Agent runtime implementation
 │   ├── backend/                  # Go Temporal workflows and activities
 │   ├── dashboard/                # React dashboard and WebMCP client
 │   ├── cli/                      # Command-line interface
@@ -22,9 +22,9 @@
 
 ## Rationale
 
-1. **Cleaner naming**: `agents/` is more concise than `ai-agents/`
+1. **Cleaner naming**: `core/ai/runtime/` is more concise than `ai-core/ai/runtime/`
 2. **Logical grouping**: All agent-related code in one directory
-3. **Clear hierarchy**: `agents/dashboard/` shows it's the UI for agents
+3. **Clear hierarchy**: `core/ai/runtime/dashboard/` shows it's the UI for agents
 4. **Avoids redundancy**: Dashboard is inherently a frontend, no need for `-frontend` suffix
 5. **Scalable structure**: Room for future agent components
 
@@ -41,4 +41,4 @@
 - ✅ Cleaner naming conventions
 - ✅ Better organization for future growth
 - ✅ Eliminates naming redundancy
-- ✅ Maintains clear separation from `.agents/` (skill definitions)
+- ✅ Maintains clear separation from `core/ai/skills/` (skill definitions)

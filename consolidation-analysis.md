@@ -5,44 +5,44 @@
 This is **not just infrastructure** - it's a **complete AI-powered GitOps platform ecosystem**:
 
 ### **Core Platform Components**
-- **control-plane/**: Flux, Crossplane, CAPI operators (the "engines")
-- **infrastructure/**: Declarative infrastructure manifests (the "blueprints") 
-- **policies/**: Governance and compliance (the "rules")
+- **core/operators/**: Flux, Crossplane, CAPI operators (the "engines")
+- **core/resources/**: Declarative infrastructure manifests (the "blueprints") 
+- **core/governance/**: Governance and compliance (the "rules")
 
 ### **AI Agent Ecosystem** 
-- **.agents/**: 72+ AI skills following agentskills.io spec (the "brains")
-- **agents/**: Go/Temporal runtime + React dashboard (the "nervous system")
+- **core/ai/skills/**: 72+ AI skills following agentskills.io spec (the "brains")
+- **core/ai/runtime/**: Go/Temporal runtime + React dashboard (the "nervous system")
 
 ### **Development & Operations**
-- **scripts/**: 135+ automation scripts (the "muscles")
-- **automation/**: CI/CD pipelines (the "heartbeat")
-- **examples/**: Reference implementations (the "patterns")
+- **core/core/automation/ci-cd/scripts/**: 135+ automation scripts (the "muscles")
+- **core/automation/ci-cd/**: CI/CD pipelines (the "heartbeat")
+- **overlay/examples/**: Reference implementations (the "patterns")
 - **docs/**: Comprehensive documentation (the "knowledge")
 
 ### **Multi-Cloud Infrastructure**
-- **workspace/**: Complete working copy for testing
-- **editions/**: Enterprise/opensource variants
-- **overlays/**: Environment-specific configurations
+- **core/workspace/**: Complete working copy for testing
+- **overlay/editions/**: Enterprise/opensource variants
+- **core/deployment/overlays/**: Environment-specific configurations
 
 ## Cross-Cutting Concerns Identified
 
 ### **1. Multi-Cloud Abstractions**
-- Crossplane XRDs span control-plane/, infrastructure/, examples/
+- Crossplane XRDs span core/operators/, core/resources/, overlay/examples/
 - Cloud-agnostic patterns repeated across directories
 - Provider-specific implementations scattered
 
 ### **2. AI Integration Points**
-- .agents/ skills integrate with control-plane/ operators
-- agents/ runtime orchestrates infrastructure/ resources
+- core/ai/skills/ skills integrate with core/operators/ operators
+- core/ai/runtime/ runtime orchestrates core/resources/ resources
 - AI workflows span all three domains
 
 ### **3. GitOps Workflows**
-- Flux configurations in control-plane/flux/ and infrastructure/flux/
+- Flux configurations in core/operators/flux/ and core/resources/flux/
 - CI policies validate across all domains
 - Deployment scripts coordinate multi-directory changes
 
 ### **4. Monitoring & Observability**
-- Split between control-plane/monitoring/ and infrastructure/monitoring/
+- Split between core/operators/monitoring/ and core/resources/monitoring/
 - AI agents provide debugging across all components
 - Metrics collection spans entire platform
 
@@ -52,23 +52,23 @@ Given the full context, **single umbrella won't work** - this is too complex and
 
 ```
 gitops-platform/              # Core GitOps infrastructure
-├── operators/               # Current control-plane/
+├── operators/               # Current core/operators/
 │   ├── flux/
 │   ├── crossplane/
 │   ├── capi/
 │   └── controllers/
-├── infrastructure/          # Current infrastructure/
+├── core/resources/          # Current core/resources/
 │   ├── core/
 │   ├── tenants/
-│   └── overlays/
-└── governance/            # Current policies/ (renamed)
-    ├── policies/
+│   └── core/deployment/overlays/
+└── governance/            # Current core/governance/ (renamed)
+    ├── core/governance/
     ├── compliance/
     └── guardrails/
 
 ai-ecosystem/               # AI agents and skills
-├── skills/                # Current .agents/ (renamed, visible)
-├── runtime/               # Current agents/
+├── skills/                # Current core/ai/skills/ (renamed, visible)
+├── runtime/               # Current core/ai/runtime/
 │   ├── backend/
 │   ├── dashboard/
 │   └── cli/
@@ -76,17 +76,17 @@ ai-ecosystem/               # AI agents and skills
     └── workflows/
 
 development/                 # Development and operations
-├── scripts/               # Current scripts/
-├── automation/            # Current automation/
-├── examples/              # Current examples/
-└── testing/               # Current tests/
+├── core/core/automation/ci-cd/scripts/               # Current core/core/automation/ci-cd/scripts/
+├── core/automation/ci-cd/            # Current core/automation/ci-cd/
+├── overlay/examples/              # Current overlay/examples/
+└── testing/               # Current core/automation/testing/
 
-platform-editions/           # Platform variants
+platform-overlay/editions/           # Platform variants
 ├── enterprise/
 ├── opensource/
 └── languages/
 
-workspace/                   # Keep as-is (working environment)
+core/workspace/                   # Keep as-is (working environment)
 docs/                       # Keep as-is (documentation)
 .github/                     # Keep as-is (GitHub config)
 ```
@@ -97,7 +97,7 @@ docs/                       # Keep as-is (documentation)
 - **gitops-platform/**: Pure infrastructure orchestration
 - **ai-ecosystem/**: AI agents and skills
 - **development/**: Tools, automation, examples
-- **platform-editions/**: Variants and configurations
+- **platform-overlay/editions/**: Variants and configurations
 
 ### **2. Preserves Existing Patterns**
 - Each domain has clear internal organization
@@ -118,28 +118,28 @@ docs/                       # Keep as-is (documentation)
 
 ### **Phase 1: Create Domain Umbrellas**
 ```bash
-mkdir gitops-platform/ ai-ecosystem/ development/ platform-editions/
+mkdir gitops-platform/ ai-ecosystem/ development/ platform-overlay/editions/
 ```
 
 ### **Phase 2: Move Core Components**
 ```bash
 # GitOps platform
-control-plane/          → gitops-platform/operators/
-infrastructure/         → gitops-platform/infrastructure/
-policies/              → gitops-platform/governance/
+core/operators/          → gitops-platform/operators/
+core/resources/         → gitops-platform/core/resources/
+core/governance/              → gitops-platform/governance/
 
 # AI ecosystem  
-.agents/               → ai-ecosystem/skills/
-agents/                → ai-ecosystem/runtime/
+core/ai/skills/               → ai-ecosystem/skills/
+core/ai/runtime/                → ai-ecosystem/runtime/
 
 # Development
-scripts/               → development/scripts/
-automation/            → development/automation/
-examples/              → development/examples/
-tests/                 → development/testing/
+core/core/automation/ci-cd/scripts/               → development/core/core/automation/ci-cd/scripts/
+core/automation/ci-cd/            → development/core/automation/ci-cd/
+overlay/examples/              → development/overlay/examples/
+core/automation/testing/                 → development/testing/
 
 # Editions
-editions/              → platform-editions/
+overlay/editions/              → platform-overlay/editions/
 ```
 
 ### **Phase 3: Integration Points**

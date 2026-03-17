@@ -152,12 +152,12 @@ curl http://localhost:8081/health
 ./cli skill list
 
 # Check skill directory exists
-ls -la .agents/skills/
+ls -la core/ai/skills/skills/
 ```
 
 **Solutions:**
 
-- Verify skill directory exists in `.agents/skills/`
+- Verify skill directory exists in `core/ai/skills/skills/`
 - Check SKILL.md file is present and valid YAML frontmatter
 - Restart backend to reload skills
 
@@ -170,7 +170,7 @@ ls -la .agents/skills/
 python3 eval/run_evals.py --skill [skill-name] --verbose
 
 # Check skill YAML schema
-cat .agents/skills/[skill-name]/SKILL.md | head -20
+cat core/ai/skills/skills/[skill-name]/SKILL.md | head -20
 ```
 
 **Solutions:**
@@ -347,7 +347,7 @@ cd frontend && yarn start
 
 ```bash
 # Run comprehensive validation
-./scripts/validate.sh
+./core/core/automation/ci-cd/scripts/validate.sh
 
 # Check all prerequisites
 ./prerequisites.sh

@@ -10,7 +10,7 @@ For the fastest deployment experience, use the enhanced quickstart that includes
 
 ```bash
 # One-command deployment including AI agents and dashboard
-./scripts/quickstart.sh
+./core/core/automation/ci-cd/scripts/quickstart.sh
 ```
 
 This automatically deploys:
@@ -38,7 +38,7 @@ chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 
 # Install helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl https://raw.githubusercontent.com/helm/helm/main/core/core/automation/ci-cd/scripts/get-helm-3 | bash
 
 # Install kind (for local development)
 brew install kind
@@ -74,8 +74,8 @@ git clone https://github.com/lloydchang/gitops-infra-control-plane.git
 cd gitops-infra-control-plane
 
 # Deploy complete ecosystem
-chmod +x scripts/deploy-ai-agents-ecosystem.sh
-./scripts/deploy-ai-agents-ecosystem.sh
+chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ### Expected Output
@@ -221,7 +221,7 @@ kubectl wait --for=condition=available --timeout=120s deployment/agent-memory-ru
 #### 4. AI Inference Gateway
 ```bash
 # Deploy inference gateway
-kubectl apply -f infrastructure/ai-inference/shared/ai-inference-gateway.yaml -n ai-infrastructure
+kubectl apply -f core/resources/ai-inference/shared/ai-inference-gateway.yaml -n ai-infrastructure
 
 # Wait for deployment
 kubectl wait --for=condition=available --timeout=60s deployment/ai-inference-gateway -n ai-infrastructure
@@ -377,7 +377,7 @@ spec:
           def cluster_status():
               return jsonify({"status": "healthy", "message": "Cluster is operational"})
           
-          @app.route('/api/agents/status')
+          @app.route('/api/core/ai/runtime/status')
           def agents_status():
               return jsonify({"agent_count": 3, "skills_executed": 42})
           
@@ -886,7 +886,7 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
-        ./scripts/deploy-ai-agents-ecosystem.sh
+        ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 #### ArgoCD Integration

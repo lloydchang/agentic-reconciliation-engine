@@ -9,23 +9,23 @@ This guide provides comprehensive debugging strategies and tools for distributed
 ### Core Components
 
 #### AI Agent Debugger Skill
-- **Location**: `.agents/debug/SKILL.md`
+- **Location**: [core/ai/skills/debug/SKILL.md](core/ai/skills/debug/SKILL.md)
 - **Purpose**: Agent Skills specification-compliant debugging interface
 - **Risk Level**: Low (read-only operations)
 - **Autonomy**: Fully automated for read-only, conditional for fixes
 
 #### Python Debugging CLI
-- **Location**: `.agents/debug/scripts/main.py`
+- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/main.py`
 - **Purpose**: Comprehensive debugging with rich output and auto-fix
 - **Features**: Real-time monitoring, structured reports, automated fixes
 
 #### Bash Debugging Scripts
-- **Location**: `.agents/debug/scripts/quick_debug.sh`
+- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/quick_debug.sh`
 - **Purpose**: Fast troubleshooting for common issues
 - **Features**: Immediate feedback, auto-fix capabilities
 
 #### Debug Utilities
-- **Location**: `.agents/debug/scripts/debug_utils.py`
+- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug_utils.py`
 - **Purpose**: Async system metrics collection and analysis
 - **Features**: Kubernetes API integration, log pattern analysis
 
@@ -48,7 +48,7 @@ temporal --version
 
 ```bash
 # Navigate to debugging scripts
-cd .agents/debug/scripts
+cd core/ai/skills/debug/scripts
 
 # Install dependencies (auto-handled by PEP 723)
 python main.py --help
@@ -395,7 +395,7 @@ spec:
           containers:
           - name: debug-monitor
             image: python:3.9
-            command: ["python", "/scripts/main.py"]
+            command: ["python", "/core/core/automation/ci-cd/scripts/main.py"]
             args: ["debug", "--target-component", "all", "--auto-fix"]
             volumeMounts:
             - name: debug-scripts
@@ -696,7 +696,7 @@ data:
 ## 🔗 Related Documentation
 
 - [AI Agents Monitoring System](AI-AGENTS-MONITORING-SYSTEM.md)
-- [Agent Skills Specification](../.agents/README.md)
+- [Agent Skills Specification](../core/ai/skills/README.md)
 - [Temporal Integration Guide](comprehensive-temporal-ai-agents-guide.md)
 - [Kubernetes Troubleshooting](user-guide/troubleshooting.md)
 - [Deployment Guide](deployment-guide.md)

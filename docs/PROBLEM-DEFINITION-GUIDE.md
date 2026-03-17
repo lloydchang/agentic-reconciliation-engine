@@ -21,7 +21,7 @@
 
 **Repository Components to Use**:
 
-- ✅ `examples/complete-hub-spoke/` - Full multi-cloud with AI
+- ✅ `overlay/examples/complete-hub-spoke/` - Full multi-cloud with AI
 - ✅ [docs/AI-INTEGRATION-ANALYSIS.md](docs/AI-INTEGRATION-ANALYSIS.md) - Comprehensive integration options
 - ✅ [docs/AGENT-SKILLS-NEXT-LEVEL.md](docs/AGENT-SKILLS-NEXT-LEVEL.md) - Advanced orchestration patterns
 - ❌ Legacy migration tools (not needed for greenfield)
@@ -47,9 +47,9 @@
 
 **Repository Components to Use**:
 
-- ✅ `control-plane/` - Core Flux controllers first
+- ✅ `core/operators/` - Core Flux controllers first
 - ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) - Migration guidance
-- ✅ `infrastructure/tenants/` - Phased deployment approach
+- ✅ `core/resources/tenants/` - Phased deployment approach
 - ❌ Full AI consensus (start simple, add incrementally)
 
 **Success Indicators**:
@@ -74,7 +74,7 @@
 **Repository Components to Use**:
 
 - ✅ `variants/` - Environment-specific configurations
-- ✅ `examples/complete-hub-spoke/ai-cronjobs/` - Gradual AI integration
+- ✅ `overlay/examples/complete-hub-spoke/ai-cronjobs/` - Gradual AI integration
 - ✅ [docs/DAG-ARCHITECTURE.md](docs/DAG-ARCHITECTURE.md) - Dependency management
 - ❌ Full consensus deployment (use hybrid approach)
 
@@ -89,10 +89,10 @@
 
 | Problem Type | Repository Fit | Adaptation Strategy | Success Metrics |
 |-------------|-------------------|-------------------|-------------|
-| **Simple Automation** | ✅ `infrastructure/tenants/3-workloads/` | Build team skills, add AI gradually | 90% automation in 6 months |
-| **Multi-Cloud Coordination** | ✅ `examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
-| **Cost Optimization** | ⚠️ `examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
-| **Compliance Management** | ✅ `examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
+| **Simple Automation** | ✅ `core/resources/tenants/3-workloads/` | Build team skills, add AI gradually | 90% automation in 6 months |
+| **Multi-Cloud Coordination** | ✅ `overlay/examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
+| **Cost Optimization** | ⚠️ `overlay/examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
+| **Compliance Management** | ✅ `overlay/examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
 | **Legacy Migration** | ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) | Phased migration approach | Zero downtime migration |
 | **Local Development** | ⚠️ `variants/` + selective AI | Hybrid integration strategy | Developer productivity + 50% cloud adoption |
 
@@ -103,7 +103,7 @@ flowchart TD
     A[Define Problem] --> B{Scenario Type}
     
     B -->|Greenfield| C[Use complete-hub-spoke/]
-    B -->|Brownfield| D[Use control-plane/ + migration]
+    B -->|Brownfield| D[Use core/operators/ + migration]
     B -->|Hybrid| E[Use variants/ + selective AI]
     
     C --> F{Complexity Required}
@@ -163,7 +163,7 @@ Before implementing ANY component, validate:
 **Anti-Pattern**: Deploying full multi-cloud stack when only using one cloud provider
 **Problem**: Creates unnecessary complexity and cost
 **Solution**: Start with single-cloud deployment, add multi-cloud only when cross-cloud problems emerge
-**Repository Path**: Use `infrastructure/tenants/` with single provider first
+**Repository Path**: Use `core/resources/tenants/` with single provider first
 
 ### ❌ AI Agents for Simple Automation
 
@@ -205,7 +205,7 @@ data:
   
 # Solution: Use complete-hub-spoke/ with cost optimization
 implementation_path:
-  - examples/complete-hub-spoke/
+  - overlay/examples/complete-hub-spoke/
   - focus: ai-cronjobs/cost-optimizer.yaml
   - defer: agent-workflows/ (add when team grows)
 ```
@@ -227,10 +227,10 @@ data:
   
 # Solution: Phased migration with gradual AI integration
 implementation_path:
-  - control-plane/ (core Flux deployment)
-  - infrastructure/tenants/ (phased resource migration)
+  - core/operators/ (core Flux deployment)
+  - core/resources/tenants/ (phased resource migration)
   - docs/LEGACY-IAC-MIGRATION-STRATEGY.md (migration tools)
-  - examples/complete-hub-spoke/ai-cronjobs/ (post-migration optimization)
+  - overlay/examples/complete-hub-spoke/ai-cronjobs/ (post-migration optimization)
   - defer: agent-workflows/ (after migration success)
 ```
 
@@ -252,8 +252,8 @@ data:
 # Solution: Hybrid variants with selective AI
 implementation_path:
   - variants/local-cloud/ (hybrid configuration)
-  - examples/complete-hub-spoke/ai-gateway/ (cloud integration)
-  - examples/complete-hub-spoke/ai-validation/ (local validation)
+  - overlay/examples/complete-hub-spoke/ai-gateway/ (cloud integration)
+  - overlay/examples/complete-hub-spoke/ai-validation/ (local validation)
   - defer: agent-workflows/ (when complexity increases)
 ```
 
@@ -470,10 +470,10 @@ data:
 
 ```bash
 # Use only the components that fit
-kubectl apply -f control-plane/  # Core components only
-kubectl apply -f infrastructure/tenants/1-network/  # Specific problem areas
+kubectl apply -f core/operators/  # Core components only
+kubectl apply -f core/resources/tenants/1-network/  # Specific problem areas
 # Skip components that don't fit
-# kubectl apply -f examples/complete-hub-spoke/agent-workflows/  # Too complex for current need
+# kubectl apply -f overlay/examples/complete-hub-spoke/agent-workflows/  # Too complex for current need
 ```
 
 **3. Adaptation Path**
@@ -516,8 +516,8 @@ initial_solution:
 
 # Evolved problem: Multi-environment coordination
 evolved_solution:
-  - examples/complete-hub-spoke/ai-cronjobs/
-  - examples/complete-hub-spoke/agent-workflows/
+  - overlay/examples/complete-hub-spoke/ai-cronjobs/
+  - overlay/examples/complete-hub-spoke/agent-workflows/
   - team_skills: "coordination, consensus"
   - new_capabilities: "cross-cloud coordination"
 ```
@@ -527,17 +527,17 @@ evolved_solution:
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
-  - infrastructure/tenants/1-network/
-  - infrastructure/tenants/2-clusters/
-  - infrastructure/tenants/3-workloads/
+  - core/resources/tenants/1-network/
+  - core/resources/tenants/2-clusters/
+  - core/resources/tenants/3-workloads/
   - focus: "aws-cost-optimization"
 
 # Evolved problem: Multi-cloud cost comparison
 evolved_solution:
-  - infrastructure/tenants/1-network/
-  - infrastructure/tenants/2-clusters/
-  - infrastructure/tenants/3-workloads/
-  - examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
+  - core/resources/tenants/1-network/
+  - core/resources/tenants/2-clusters/
+  - core/resources/tenants/3-workloads/
+  - overlay/examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
   - new_capabilities: "cross-cloud cost analysis"
 ```
 
@@ -546,13 +546,13 @@ evolved_solution:
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
-  - manual-compliance-scripts/
+  - manual-compliance-core/core/automation/ci-cd/scripts/
   - team_time: "20 hours/week"
 
 # Evolved problem: Automated compliance with AI
 evolved_solution:
-  - examples/complete-hub-spoke/ai-validation/
-  - examples/complete-hub-spoke/agent-workflows/security-validator.yaml
+  - overlay/examples/complete-hub-spoke/ai-validation/
+  - overlay/examples/complete-hub-spoke/agent-workflows/security-validator.yaml
   - team_time: "2 hours/week"
   - new_capabilities: "autonomous compliance validation"
 ```
@@ -561,10 +561,10 @@ evolved_solution:
 
 | Problem Type | Repository Fit | Adaptation Strategy | Success Metrics |
 |-------------|-------------------|-------------------|-------------|
-| **Simple Automation** | ✅ `infrastructure/tenants/3-workloads/` | Build team skills, add AI gradually | 90% automation in 6 months |
-| **Multi-Cloud Coordination** | ✅ `examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
-| **Cost Optimization** | ⚠️ `examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
-| **Compliance Management** | ✅ `examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
+| **Simple Automation** | ✅ `core/resources/tenants/3-workloads/` | Build team skills, add AI gradually | 90% automation in 6 months |
+| **Multi-Cloud Coordination** | ✅ `overlay/examples/complete-hub-spoke/agent-workflows/` | Add consensus protocols | Cross-cloud consistency in 3 months |
+| **Cost Optimization** | ⚠️ `overlay/examples/complete-hub-spoke/ai-cronjobs/` | Add ML capabilities | 30% cost reduction in 6 months |
+| **Compliance Management** | ✅ `overlay/examples/complete-hub-spoke/ai-validation/` | Add policy engines | 100% compliance coverage |
 | **Legacy Migration** | ✅ [docs/LEGACY-IAC-MIGRATION-STRATEGY.md](docs/LEGACY-IAC-MIGRATION-STRATEGY.md) | Phased migration approach | Zero downtime migration |
 | **Local Development** | ⚠️ `variants/` + selective AI | Hybrid integration strategy | Developer productivity + 50% cloud adoption |
 
@@ -603,10 +603,10 @@ data:
 
 ```bash
 # Use only the components that fit
-kubectl apply -f control-plane/  # Core components only
-kubectl apply -f infrastructure/tenants/1-network/  # Specific problem areas
+kubectl apply -f core/operators/  # Core components only
+kubectl apply -f core/resources/tenants/1-network/  # Specific problem areas
 # Skip components that don't fit
-# kubectl apply -f examples/complete-hub-spoke/agent-workflows/  # Too complex for current need
+# kubectl apply -f overlay/examples/complete-hub-spoke/agent-workflows/  # Too complex for current need
 ```
 
 **3. Adaptation Path**
@@ -649,8 +649,8 @@ initial_solution:
 
 # Evolved problem: Multi-environment coordination
 evolved_solution:
-  - examples/complete-hub-spoke/ai-cronjobs/
-  - examples/complete-hub-spoke/agent-workflows/
+  - overlay/examples/complete-hub-spoke/ai-cronjobs/
+  - overlay/examples/complete-hub-spoke/agent-workflows/
   - team_skills: "coordination, consensus"
   - new_capabilities: "cross-cloud coordination"
 ```
@@ -660,17 +660,17 @@ evolved_solution:
 ```yaml
 # Original problem: Single-cloud cost optimization
 initial_solution:
-  - infrastructure/tenants/1-network/
-  - infrastructure/tenants/2-clusters/
-  - infrastructure/tenants/3-workloads/
+  - core/resources/tenants/1-network/
+  - core/resources/tenants/2-clusters/
+  - core/resources/tenants/3-workloads/
   - focus: "aws-cost-optimization"
 
 # Evolved problem: Multi-cloud cost comparison
 evolved_solution:
-  - infrastructure/tenants/1-network/
-  - infrastructure/tenants/2-clusters/
-  - infrastructure/tenants/3-workloads/
-  - examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
+  - core/resources/tenants/1-network/
+  - core/resources/tenants/2-clusters/
+  - core/resources/tenants/3-workloads/
+  - overlay/examples/complete-hub-spoke/ai-cronjobs/cost-optimizer.yaml
   - new_capabilities: "cross-cloud cost analysis"
 ```
 
@@ -679,13 +679,13 @@ evolved_solution:
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
-  - manual-compliance-scripts/
+  - manual-compliance-core/core/automation/ci-cd/scripts/
   - team_time: "20 hours/week"
 
 # Evolved problem: Automated compliance with AI
 evolved_solution:
-  - examples/complete-hub-spoke/ai-validation/
-  - examples/complete-hub-spoke/agent-workflows/security-validator.yaml
+  - overlay/examples/complete-hub-spoke/ai-validation/
+  - overlay/examples/complete-hub-spoke/agent-workflows/security-validator.yaml
   - team_time: "2 hours/week"
   - new_capabilities: "autonomous compliance validation"
 ```

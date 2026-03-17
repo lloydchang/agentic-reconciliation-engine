@@ -147,7 +147,7 @@ Comment/uncomment resources based on variant needs:
 ```yaml
 resources:
   # Core resources (all variants)
-  - ../../control-plane/
+  - ../../core/operators/
   
   # Small Business+ resources
   # - backup-solutions/
@@ -155,7 +155,7 @@ resources:
   
   # Enterprise only resources
   # - ai-gateway/
-  # - consensus-agents/
+  # - consensus-core/ai/runtime/
 ```
 
 ### Method 3: ConfigMap Configuration
@@ -245,7 +245,7 @@ variant-specific-components
 Use the DAG validation script to ensure proper dependencies:
 
 ```bash
-./scripts/generate-dag-visualization.sh | grep -A 20 "Validation"
+./core/core/automation/ci-cd/scripts/generate-dag-visualization.sh | grep -A 20 "Validation"
 ```
 
 Check variant-specific labels:
