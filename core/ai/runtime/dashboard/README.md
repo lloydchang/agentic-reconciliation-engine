@@ -4,12 +4,31 @@ A comprehensive dashboard for monitoring and managing AI agents in the GitOps in
 
 ## Architecture
 
-The dashboard follows the architecture outlined in the implementation plan:
+The dashboard follows a **dual-database architecture** to separate concerns:
 
 - **Backend**: Go-based API server with WebSocket support
 - **Frontend**: React TypeScript with real-time updates
 - **Database**: PostgreSQL for dashboard state (separate from agent memory SQLite)
 - **Deployment**: Kubernetes with GitOps compliance
+
+### 🗄️ Database Architecture
+
+| Database | Purpose | Owner | Use Case |
+|---|---|---|---|
+| **PostgreSQL** | Dashboard operational state | Dashboard backend | Multi-user access, analytics, audit trails |
+| **SQLite (10Gi PVC)** | Agent memory & inference | Individual agents | Local AI reasoning, conversation history |
+
+#### Why PostgreSQL for Dashboard?
+
+PostgreSQL is chosen specifically for **dashboard operations** because:
+
+1. **Multi-user Concurrency** - Multiple operators viewing dashboard simultaneously
+2. **Complex Analytics** - Historical queries across agents and skills
+3. **Enterprise Features** - Backup, replication, monitoring integration
+4. **ACID Compliance** - Critical for operational state integrity
+5. **Performance** - Better for concurrent reads/writes than SQLite
+
+**Important**: PostgreSQL **does not replace** agent SQLite databases - they serve different layers in the architecture.
 
 ## Features
 
@@ -47,10 +66,11 @@ The dashboard follows the architecture outlined in the implementation plan:
 
 3. **Database Setup**:
    ```bash
-   # Create PostgreSQL database
+   # Create PostgreSQL database (dashboard state only)
    createdb ai_agents_dashboard
    
    # The backend will auto-run migrations on startup
+   # Note: This is separate from agent SQLite databases
    ```
 
 ### Kubernetes Deployment
