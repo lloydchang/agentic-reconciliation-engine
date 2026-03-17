@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="900" viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .header-bg { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1; }
+      .card-bg { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1; rx: 12; }
+      .gradient-bg { fill: url(#gradient); }
+      .title-text { fill: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 24px; font-weight: bold; }
+      .subtitle-text { fill: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; }
+      .metric-value { fill: #6366f1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: bold; }
+      .metric-label { fill: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; }
+      .section-title { fill: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; }
+      .agent-name { fill: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 500; }
+      .agent-details { fill: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; }
+      .skill-item { fill: #f3f4f6; stroke: #e5e7eb; stroke-width: 1; rx: 8; }
+      .skill-text { fill: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; }
+      .activity-text { fill: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; }
+      .status-online { fill: #10b981; }
+      .button-primary { fill: #6366f1; rx: 8; }
+      .button-text { fill: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 500; }
+    </style>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="900" class="gradient-bg"/>
+  
+  <!-- Header -->
+  <rect x="20" y="20" width="1360" height="80" class="header-bg" rx="12"/>
+  <text x="50" y="65" class="title-text">Agents Control Center</text>
+  <circle cx="1250" cy="60" r="8" class="status-online"/>
+  <text x="1270" y="65" class="subtitle-text">System Online</text>
+  
+  <!-- System Overview Card -->
+  <rect x="20" y="120" width="430" height="200" class="card-bg"/>
+  <text x="40" y="150" class="section-title">📊 System Overview</text>
+  
+  <!-- Total Agents -->
+  <text x="40" y="190" class="metric-value">4</text>
+  <text x="40" y="210" class="metric-label">Total Agents</text>
+  <text x="40" y="230" class="subtitle-text">+2 this hour</text>
+  
+  <!-- Active Skills -->
+  <text x="200" y="190" class="metric-value">16</text>
+  <text x="200" y="210" class="metric-label">Active Skills</text>
+  <text x="200" y="230" class="subtitle-text">+15% today</text>
+  
+  <!-- Success Rate -->
+  <text x="360" y="190" class="metric-value">97.4%</text>
+  <text x="360" y="210" class="metric-label">Success Rate</text>
+  <text x="360" y="230" class="subtitle-text">+5% today</text>
+  
+  <!-- Performance Metrics Card -->
+  <rect x="470" y="120" width="430" height="200" class="card-bg"/>
+  <text x="490" y="150" class="section-title">⚡ Performance Metrics</text>
+  <!-- Chart placeholder -->
+  <rect x="490" y="170" width="390" height="130" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <text x="685" y="240" class="subtitle-text">Performance Chart</text>
+  
+  <!-- Skills Distribution Card -->
+  <rect x="920" y="120" width="460" height="200" class="card-bg"/>
+  <text x="940" y="150" class="section-title">🎯 Skills Distribution</text>
+  <!-- Chart placeholder -->
+  <rect x="940" y="170" width="420" height="130" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <text x="1150" y="240" class="subtitle-text">Skills Chart</text>
+  
+  <!-- Active Agents Card -->
+  <rect x="20" y="340" width="430" height="280" class="card-bg"/>
+  <text x="40" y="370" class="section-title">🤖 Active Agents</text>
+  
+  <!-- Agent 1 -->
+  <rect x="40" y="390" width="370" height="50" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <circle cx="60" cy="415" r="15" fill="#6366f1"/>
+  <text x="60" y="420" class="button-text">R</text>
+  <text x="90" y="405" class="agent-name">Cost Optimizer</text>
+  <text x="90" y="425" class="agent-details">Rust • 12 skills • Last: 2 min ago</text>
+  <text x="380" y="420" class="subtitle-text">98.5%</text>
+  
+  <!-- Agent 2 -->
+  <rect x="40" y="450" width="370" height="50" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <circle cx="60" cy="475" r="15" fill="#10b981"/>
+  <text x="60" y="480" class="button-text">G</text>
+  <text x="90" y="465" class="agent-name">Security Scanner</text>
+  <text x="90" y="485" class="agent-details">Go • 8 skills • Last: 5 min ago</text>
+  <text x="380" y="480" class="subtitle-text">99.1%</text>
+  
+  <!-- Agent 3 -->
+  <rect x="40" y="510" width="370" height="50" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <circle cx="60" cy="535" r="15" fill="#f59e0b"/>
+  <text x="60" y="540" class="button-text">P</text>
+  <text x="90" y="525" class="agent-name">Cluster Monitor</text>
+  <text x="90" y="545" class="agent-details">Python • 15 skills • Last: 12 min ago</text>
+  <text x="380" y="540" class="subtitle-text">97.2%</text>
+  
+  <!-- Agent 4 -->
+  <rect x="40" y="570" width="370" height="50" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+  <circle cx="60" cy="595" r="15" fill="#6366f1"/>
+  <text x="60" y="600" class="button-text">R</text>
+  <text x="90" y="585" class="agent-name">Deployment Manager</text>
+  <text x="90" y="605" class="agent-details">Rust • 10 skills • Last: 1 min ago</text>
+  <text x="380" y="600" class="subtitle-text">96.8%</text>
+  
+  <!-- Available Skills Card -->
+  <rect x="470" y="340" width="430" height="280" class="card-bg"/>
+  <text x="490" y="370" class="section-title">🛠️ Available Skills</text>
+  
+  <!-- Skills Grid -->
+  <rect x="490" y="390" width="120" height="40" class="skill-item"/>
+  <text x="550" y="415" class="skill-text" text-anchor="middle">Cost Analysis</text>
+  
+  <rect x="620" y="390" width="120" height="40" class="skill-item"/>
+  <text x="680" y="415" class="skill-text" text-anchor="middle">Security Audit</text>
+  
+  <rect x="750" y="390" width="120" height="40" class="skill-item"/>
+  <text x="810" y="415" class="skill-text" text-anchor="middle">Cluster Health</text>
+  
+  <rect x="490" y="440" width="120" height="40" class="skill-item"/>
+  <text x="550" y="465" class="skill-text" text-anchor="middle">Auto Scaling</text>
+  
+  <rect x="620" y="440" width="120" height="40" class="skill-item"/>
+  <text x="680" y="465" class="skill-text" text-anchor="middle">Log Analysis</text>
+  
+  <rect x="750" y="440" width="120" height="40" class="skill-item"/>
+  <text x="810" y="465" class="skill-text" text-anchor="middle">Performance</text>
+  
+  <rect x="490" y="490" width="120" height="40" class="skill-item"/>
+  <text x="550" y="515" class="skill-text" text-anchor="middle">Backup Mgmt</text>
+  
+  <rect x="620" y="490" width="120" height="40" class="skill-item"/>
+  <text x="680" y="515" class="skill-text" text-anchor="middle">Network</text>
+  
+  <rect x="750" y="490" width="120" height="40" class="skill-item"/>
+  <text x="810" y="515" class="skill-text" text-anchor="middle">Resource Plan</text>
+  
+  <rect x="490" y="540" width="120" height="40" class="skill-item"/>
+  <text x="550" y="565" class="skill-text" text-anchor="middle">Compliance</text>
+  
+  <rect x="620" y="540" width="120" height="40" class="skill-item"/>
+  <text x="680" y="565" class="skill-text" text-anchor="middle">Error Detect</text>
+  
+  <rect x="750" y="540" width="120" height="40" class="skill-item"/>
+  <text x="810" y="565" class="skill-text" text-anchor="middle">Metrics</text>
+  
+  <!-- Recent Activity Card -->
+  <rect x="920" y="340" width="460" height="280" class="card-bg"/>
+  <text x="940" y="370" class="section-title">📋 Recent Activity</text>
+  
+  <!-- Activity Items -->
+  <text x="940" y="400" class="activity-text">🚀 2 min ago - Cost Optimizer completed analysis</text>
+  <text x="940" y="430" class="activity-text">⚠️ 5 min ago - Security Scanner detected traffic</text>
+  <text x="940" y="460" class="activity-text">📊 12 min ago - Cluster Monitor generated report</text>
+  <text x="940" y="490" class="activity-text">✅ 18 min ago - Deployment Manager rolled out update</text>
+  <text x="940" y="520" class="activity-text">❌ 25 min ago - Backup Manager failed to connect</text>
+  
+  <!-- System Controls Card -->
+  <rect x="20" y="640" width="1360" height="240" class="card-bg"/>
+  <text x="40" y="670" class="section-title">🎛️ System Controls</text>
+  
+  <!-- Control Buttons -->
+  <rect x="40" y="700" width="200" height="40" class="button-primary"/>
+  <text x="140" y="725" class="button-text" text-anchor="middle">Deploy All Agents</text>
+  
+  <rect x="260" y="700" width="200" height="40" class="button-primary"/>
+  <text x="360" y="725" class="button-text" text-anchor="middle">Stop All Agents</text>
+  
+  <rect x="480" y="700" width="200" height="40" class="button-primary"/>
+  <text x="580" y="725" class="button-text" text-anchor="middle">Restart System</text>
+  
+  <rect x="700" y="700" width="200" height="40" class="button-primary"/>
+  <text x="800" y="725" class="button-text" text-anchor="middle">Export Logs</text>
+  
+  <rect x="920" y="700" width="200" height="40" class="button-primary"/>
+  <text x="1020" y="725" class="button-text" text-anchor="middle">Settings</text>
+</svg>

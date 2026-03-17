@@ -320,7 +320,7 @@ data:
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>🚀 AI Agents Control Center</title>
+        <title>Agents Control Center</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://unpkg.com/feather-icons"></script>
         <style>
@@ -665,7 +665,7 @@ data:
         <div class="dashboard">
             <header class="header">
                 <div class="logo">
-                    🚀 AI Agents Control Center
+                    Agents Control Center
                 </div>
                 <div class="status-indicator status-online" id="system-status">
                     <span class="status-dot status-running"></span>
