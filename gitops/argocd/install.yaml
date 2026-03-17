@@ -1,0 +1,526 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-server
+  namespace: argocd
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-application-controller
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argocd-server-role
+rules:
+- apiGroups:
+  - "*"
+  resources:
+  - "*"
+  verbs:
+  - "*"
+- nonResourceURLs:
+  - "*"
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-server-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-server-role
+subjects:
+- kind: ServiceAccount
+  name: argocd-server
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argocd-application-controller-role
+rules:
+- apiGroups:
+  - "*"
+  resources:
+  - "*"
+  verbs:
+  - "*"
+- nonResourceURLs:
+  - "*"
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-application-controller-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-application-controller-role
+subjects:
+- kind: ServiceAccount
+  name: argocd-application-controller
+  namespace: argocd
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  application.resourceTrackingMethod: tree
+  timeout.reconciliation: 180s
+  repositories: |
+    - type: git
+      url: https://github.com/lloydchang/gitops-infra-control-plane.git
+      name: gitops-infra-control-plane
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-secret
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/part-of: argocd
+type: Opaque
+data:
+  # Initial admin password (change this in production)
+  # Use: openssl passwd -bcrypt -noverbose -in /dev/stdin
+  # Default password: argocd123 (bcrypt hash)
+  admin.password: JDJhJDEwJEVyY3ZjWWpZM1hLZm9ZM3lwOHJjWEZyZkR3Z3V3Z0dSbXVqZ2Z0c2VtZ0UuTnZwT2dQLzYxCg==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: argocd-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-repo-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+spec:
+  ports:
+  - name: server
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app.kubernetes.io/name: argocd-repo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-application-controller
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+spec:
+  ports:
+  - name: controller
+    port: 8082
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    app.kubernetes.io/name: argocd-application-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.10.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+      app.kubernetes.io/part-of: argocd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.10.0
+    spec:
+      serviceAccountName: argocd-server
+      containers:
+      - name: argocd-server
+        image: quay.io/argoproj/argocd:v2.10.0
+        command:
+        - argocd-server
+        - --insecure
+        - --redis
+        - argocd-redis.argocd.svc.cluster.local:6379
+        - --repo-server
+        - argocd-repo-server.argocd.svc.cluster.local:8081
+        - --dex-server
+        - http://argocd-dex-server.argocd.svc.cluster.local:5556
+        - --loglevel
+        - info
+        ports:
+        - containerPort: 8080
+        - containerPort: 8083
+        - containerPort: 8084
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        env:
+        - name: ARGOCD_SERVER_INSECURE
+          value: "true"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-repo-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.10.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-repo-server
+      app.kubernetes.io/part-of: argocd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-repo-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.10.0
+    spec:
+      serviceAccountName: argocd-repo-server
+      containers:
+      - name: argocd-repo-server
+        image: quay.io/argoproj/argocd:v2.10.0
+        command:
+        - argocd-repo-server
+        - --redis
+        - argocd-redis.argocd.svc.cluster.local:6379
+        - --loglevel
+        - info
+        ports:
+        - containerPort: 8081
+        readinessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        env:
+        - name: ARGOCD_REPO_SERVER_LOGFORMAT
+          value: text
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-application-controller
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.10.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-application-controller
+      app.kubernetes.io/part-of: argocd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-application-controller
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.10.0
+    spec:
+      serviceAccountName: argocd-application-controller
+      containers:
+      - name: argocd-application-controller
+        image: quay.io/argoproj/argocd:v2.10.0
+        command:
+        - argocd-application-controller
+        - --repo-server
+        - argocd-repo-server.argocd.svc.cluster.local:8081
+        - --redis
+        - argocd-redis.argocd.svc.cluster.local:6379
+        - --loglevel
+        - info
+        ports:
+        - containerPort: 8082
+        readinessProbe:
+          tcpSocket:
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        env:
+        - name: ARGOCD_CONTROLLER_LOGFORMAT
+          value: text
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-dex-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.10.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-dex-server
+      app.kubernetes.io/part-of: argocd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-dex-server
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.10.0
+    spec:
+      serviceAccountName: argocd-dex-server
+      containers:
+      - name: dex
+        image: ghcr.io/dexidp/dex:v2.37.0
+        command:
+        - /dex
+        - serve
+        - /etc/dex/config.yaml
+        ports:
+        - containerPort: 5556
+        - containerPort: 5580
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5580
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5580
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        env:
+        - name: GODEBUG
+          value: x509sha1=1
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex
+      volumes:
+      - name: config
+        configMap:
+          name: argocd-dex-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-dex-config
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-dex-config
+    app.kubernetes.io/part-of: argocd
+data:
+  config.yaml: |
+    connectors:
+    - type: oidc
+      id: oidc
+      name: OpenID Connect
+      config:
+        issuer: https://accounts.google.com
+        clientID: $argo-oidc-client-id
+        clientSecret: $argo-oidc-client-secret
+        requestedScopes: ["openid", "profile", "email"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-dex-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+spec:
+  ports:
+  - name: http
+    port: 5556
+    protocol: TCP
+    targetPort: 5556
+  - name: metrics
+    port: 5580
+    protocol: TCP
+    targetPort: 5580
+  selector:
+    app.kubernetes.io/name: argocd-dex-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-redis
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+spec:
+  ports:
+  - name: tcp
+    port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app.kubernetes.io/name: argocd-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-redis
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.10.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+      app.kubernetes.io/part-of: argocd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-redis
+        app.kubernetes.io/part-of: argocd
+        app.kubernetes.io/version: v2.10.0
+    spec:
+      serviceAccountName: argocd-redis
+      containers:
+      - name: redis
+        image: redis:7.0.14-alpine
+        command:
+        - redis-server
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: argocd-redis-secret
+              key: password
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-redis-secret
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-redis-secret
+    app.kubernetes.io/part-of: argocd
+type: Opaque
+data:
+  # Default redis password (change this in production)
+  password: cGFzc3dvcmQ=

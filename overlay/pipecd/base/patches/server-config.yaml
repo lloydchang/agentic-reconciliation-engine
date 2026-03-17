@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipecd-server
+  namespace: pipecd
+spec:
+  template:
+    spec:
+      containers:
+      - name: server
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: DATASTORE_DATABASE_TYPE
+          value: "mysql"
+        - name: DATASTORE_DATABASE_URL
+          value: "mysql:tcp(mysql:3306)/pipecd?parseTime=true"
+        - name: DATASTORE_DATABASE_USERNAME
+          value: "pipecd"
+        - name: DATASTORE_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pipecd-db-secret
+              key: password
+        - name: CACHE_ADDRESS
+          value: "cache:6379"
+        - name: MINIO_ENDPOINT
+          value: "minio:9000"
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pipecd-minio-secret
+              key: access-key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pipecd-minio-secret
+              key: secret-key
+        - name: MINIO_BUCKET
+          value: "pipecd"
+        - name: PROJECT_QUICKSTART_NAME
+          value: "quickstart"
+        - name: PROJECT_QUICKSTART_DESC
+          value: "Default PipeCD project for quickstart"
+        - name: PROJECT_QUICKSTART_STATIC_ADMIN_USERNAME
+          value: "hello-pipecd"
+        - name: PROJECT_QUICKSTART_STATIC_ADMIN_PASSWORD
+          value: "hello-pipecd"
+        - name: ENABLE_ANALYTICS
+          value: "true"
+        - name: ENABLE_INSIGHTS
+          value: "true"
+        - name: INSIGHTS_RETENTION_DAYS
+          value: "30"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"

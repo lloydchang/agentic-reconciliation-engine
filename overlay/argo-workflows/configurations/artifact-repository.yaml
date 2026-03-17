@@ -1,0 +1,203 @@
+# Artifact Repository Configuration for Argo Workflows
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: artifact-repository-config
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: artifact-repository
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  # MinIO S3 Artifact Repository Configuration
+  artifactRepository: |
+    {
+      "s3": {
+        "endpoint": "minio.argo-workflows.svc.cluster.local:9000",
+        "bucket": "argo-workflows",
+        "region": "us-east-1",
+        "insecure": true,
+        "useSDKCreds": false,
+        "accessKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "accesskey"
+        },
+        "secretKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "secretkey"
+        },
+        "keyFormat": "artifacts/{{workflow.name}}/{{pod.name}}",
+        "encryptionOptions": {
+          "enabled": false
+        },
+        "createBucketIfNotPresent": {
+          "enabled": true,
+          "objectLocking": false
+        }
+      }
+    }
+  
+  # Additional Artifact Repository Options
+  artifactRepositoryOptions: |
+    {
+      "archive": {
+        "archivePattern": "artifacts/{{workflow.name}}/**",
+        "deleteStrategy": "Never"
+      },
+      "gc": {
+        "enabled": true,
+        "strategy": "Never",
+        "delay": "24h"
+      },
+      "retention": {
+        "workflows": "30d",
+        "artifacts": "7d"
+      }
+    }
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-workflows-minio
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: artifact-repository
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+type: Opaque
+data:
+  # Base64 encoded MinIO credentials
+  accesskey: YWRtaW4=  # admin
+  secretkey: YWRtaW4xMjM=  # admin123
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-bucket-creation
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: artifact-repository
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    job-type: "bucket-creation"
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argo-workflows
+        app.kubernetes.io/component: artifact-repository
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: minio-client
+        image: minio/mc:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for MinIO to be ready
+          until mc alias set minio http://minio:9000 admin admin123; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+          
+          # Create the argo-workflows bucket
+          mc mb minio/argo-workflows --ignore-existing
+          
+          # Set bucket policy for public read (optional)
+          mc policy set public minio/argo-workflows
+          
+          echo "MinIO bucket setup completed"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: artifact-repository-policies
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: artifact-repository
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  # Lifecycle Policies
+  lifecycle-policies.json: |
+    {
+      "retention": {
+        "workflows": {
+          "default": "30d",
+          "completed": "7d",
+          "failed": "30d",
+          "archived": "90d"
+        },
+        "artifacts": {
+          "default": "7d",
+          "logs": "30d",
+          "reports": "90d"
+        }
+      },
+      "cleanup": {
+        "enabled": true,
+        "schedule": "0 2 * * *",
+        "dryRun": false,
+        "gracePeriod": "24h"
+      }
+    }
+  
+  # Access Control Policies
+  access-policies.json: |
+    {
+      "rbac": {
+        "read": [
+          "argo-workflows-sa",
+          "qwen-k8sgpt-sa"
+        ],
+        "write": [
+          "argo-workflows-sa"
+        ],
+        "delete": [
+          "argo-workflows-sa"
+        ],
+        "admin": [
+          "argo-workflows-sa"
+        ]
+      },
+      "network": {
+        "allowedSources": [
+          "argo-workflows",
+          "qwen-k8sgpt"
+        ],
+        "encryption": {
+          "inTransit": true,
+          "atRest": false
+        }
+      }
+    }
+  
+  # Backup and Recovery Policies
+  backup-policies.json: |
+    {
+      "backup": {
+        "enabled": true,
+        "schedule": "0 3 * * *",
+        "retention": "30d",
+        "compression": true,
+        "encryption": false
+      },
+      "recovery": {
+        "pointInTimeRecovery": true,
+        "maxRecoveryTime": "7d",
+        "verification": true
+      }
+    }

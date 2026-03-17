@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8sgpt
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/part-of: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lloydchang/gitops-infra-control-plane.git
+    targetRevision: HEAD
+    path: gitops/argocd/k8sgpt
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: k8sgpt-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

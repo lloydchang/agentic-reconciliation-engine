@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: qwen-llm-integration
+  namespace: qwen-ai
+
+resources:
+  - qwen-llm-service.yaml
+
+commonLabels:
+  app.kubernetes.io/name: qwen-llm-service
+  app.kubernetes.io/component: llm-service
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  qwen.ai/version: "qwen2.5-72b-instruct"
+  gitops-infra-control-plane/managed: "true"
+
+patchesStrategicMerge:
+  - patches/resource-limits.yaml
+
+vars:
+  - name: QWEN_NAMESPACE
+    objref:
+      kind: Namespace
+      name: qwen-ai
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.name

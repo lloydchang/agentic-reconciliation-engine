@@ -1,0 +1,116 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+rules:
+# Rollout resources
+- apiGroups: ["argoproj.io"]
+  resources: ["rollouts", "rollouts/status", "rollouts/finalizers"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["argoproj.io"]
+  resources: ["rollouts/scale"]
+  verbs: ["get", "update", "patch"]
+- apiGroups: ["argoproj.io"]
+  resources: ["analysistemplates", "analysistemplates/status"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["argoproj.io"]
+  resources: ["analysisruns", "analysisruns/status", "analysisruns/finalizers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["argoproj.io"]
+  resources: ["experiments", "experiments/status", "experiments/finalizers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["argoproj.io"]
+  resources: ["analyses", "analyses/status", "analyses/finalizers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Core Kubernetes resources
+- apiGroups: [""]
+  resources: ["pods", "pods/status", "services", "services/status", "nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods", "services", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+
+# Apps resources
+- apiGroups: ["apps"]
+  resources: ["deployments", "deployments/status", "deployments/scale", "replicasets", "replicasets/scale", "replicasets/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["daemonsets", "daemonsets/status", "daemonsets/scale", "statefulsets", "statefulsets/status", "statefulsets/scale"]
+  verbs: ["get", "list", "watch"]
+
+# Networking resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "ingresses/status", "ingressclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses", "ingresses/status"]
+  verbs: ["get", "list", "watch"]
+
+# Batch resources
+- apiGroups: ["batch"]
+  resources: ["jobs", "jobs/status", "cronjobs", "cronjobs/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Autoscaling resources
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers", "horizontalpodautoscalers/status"]
+  verbs: ["get", "list", "watch"]
+
+# Coordination resources
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Node resources
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+
+# Custom resources for traffic routing
+- apiGroups: ["getambassador.io", "getambassador.io"]
+  resources: ["mappings"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["x.getambassador.io"]
+  resources: ["ambassadorconfigs"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["elbv2.k8s.aws"]
+  resources: ["targetgroups", "targetgroupbindings"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways", "gateways/status", "httproutes", "httproutes/status", "grpcroutes", "grpcroutes/status", "tcproutes", "tcproutes/status", "udproutes", "udproutes/status", "tlsroutes", "tlsroutes/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["split.smi-spec.io"]
+  resources: ["trafficsplits"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["specs.smi-spec.io"]
+  resources: ["traffictargets", "traffictargets/status", "httproutegroups", "httproutegroups/status"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["istio.networking.k8s.io", "networking.istio.io"]
+  resources: ["virtualservices", "virtualservices/status", "destinationrules", "destinationrules/status", "gateways", "gateways/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps.istio.io"]
+  resources: ["destinationrules", "destinationrules/status"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["destinationrules", "destinationrules/status", "virtualservices", "virtualservices/status", "gateways", "gateways/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["traefik.containo.us"]
+  resources: ["traefikservices"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["traefik.io"]
+  resources: ["traefikservices"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

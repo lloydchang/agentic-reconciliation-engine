@@ -1,0 +1,203 @@
+# Monitoring and Observability for Argo Workflows
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: argo-workflows-controller
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: qwen-k8sgpt
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: qwen-k8sgpt
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-workflows-grafana-dashboard
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    grafana_dashboard: "1"
+data:
+  argo-workflows-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Argo Workflows with Qwen LLM",
+        "tags": ["argo-workflows", "qwen", "kubernetes"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "Workflow Status Overview",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(argo_workflows_workflow_status_total{status=\"Succeeded\"})",
+                "legendFormat": "Succeeded"
+              },
+              {
+                "expr": "sum(argo_workflows_workflow_status_total{status=\"Failed\"})",
+                "legendFormat": "Failed"
+              },
+              {
+                "expr": "sum(argo_workflows_workflow_status_total{status=\"Running\"})",
+                "legendFormat": "Running"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "steps": [
+                    {"color": "green", "value": null},
+                    {"color": "red", "value": 80}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "title": "Qwen LLM Analysis Requests",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(qwen_analysis_requests_total[5m])",
+                "legendFormat": "Analysis Rate"
+              },
+              {
+                "expr": "rate(qwen_analysis_duration_seconds_sum[5m]) / rate(qwen_analysis_duration_seconds_count[5m])",
+                "legendFormat": "Avg Duration"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "title": "Workflow Execution Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(argo_workflows_workflow_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(argo_workflows_workflow_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "50th percentile"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "title": "Resource Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_cpu_usage_seconds_total{pod=~\"argo-workflows.*|qwen.*\"}[5m])",
+                "legendFormat": "CPU Usage"
+              },
+              {
+                "expr": "container_memory_usage_bytes{pod=~\"argo-workflows.*|qwen.*\"}",
+                "legendFormat": "Memory Usage"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          }
+        ],
+        "time": {"from": "now-1h", "to": "now"},
+        "refresh": "30s"
+      }
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-workflows-prometheus-rules
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    prometheus_rule: "1"
+data:
+  argo-workflows.yml: |
+    groups:
+    - name: argo-workflows
+      rules:
+      - alert: ArgoWorkflowsDown
+        expr: up{job="argo-workflows-controller"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Argo Workflows controller is down"
+          description: "Argo Workflows controller has been down for more than 5 minutes"
+      
+      - alert: WorkflowFailureRate
+        expr: rate(argo_workflows_workflow_status_total{status="Failed"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High workflow failure rate"
+          description: "Workflow failure rate is {{ $value }} failures per second"
+      
+      - alert: QwenLLMDown
+        expr: up{job="qwen-k8sgpt"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Qwen K8sGPT service is down"
+          description: "Qwen K8sGPT service has been down for more than 5 minutes"
+      
+      - alert: QwenAnalysisLatency
+        expr: histogram_quantile(0.95, rate(qwen_analysis_duration_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Qwen analysis latency is high"
+          description: "95th percentile latency is {{ $value }} seconds"
+      
+      - alert: WorkflowQueueBacklog
+        expr: argo_workflows_queue_depth > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Workflow queue backlog is high"
+          description: "Workflow queue depth is {{ $value }}"
