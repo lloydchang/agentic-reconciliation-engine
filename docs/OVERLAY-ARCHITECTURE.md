@@ -120,7 +120,7 @@ Extend AI agent capabilities while maintaining agentskills.io compliance.
 overlay/ai/skills/debug/enhanced/
 ├── kustomization.yaml          # Overlay composition
 ├── SKILL.md                   # Extended skill definition
-├── core/core/automation/ci-cd/scripts/
+├── core/automation/ci-cd/scripts/
 │   ├── main.py               # Enhanced main script
 │   ├── ml_correlation.py     # New ML capabilities
 │   └── enhanced_handler.py   # Extended handlers
