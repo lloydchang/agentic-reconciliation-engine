@@ -1,0 +1,55 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: argocd-staging
+
+resources:
+- ../../../gitops/argocd/namespace.yaml
+- ../../../gitops/argocd/install.yaml
+- ../../../gitops/argocd/applications/root-app.yaml
+- ../../../gitops/argocd/applications/k8sgpt-app.yaml
+- ../../../gitops/argocd/applications/ai-infrastructure-app.yaml
+
+patchesStrategicMerge:
+- argocd-server-patch.yaml
+- k8sgpt-patch.yaml
+
+configMapGenerator:
+- name: argocd-cm
+  behavior: merge
+  literals:
+  - timeout.reconciliation=180s
+  - application.resourceTrackingMethod=tree
+  - repositories=- |
+      type: git
+      url: https://github.com/lloydchang/gitops-infra-control-plane.git
+      name: gitops-infra-control-plane
+
+secretGenerator:
+- name: argocd-secret
+  behavior: merge
+  literals:
+  - admin.password=JDJhJDEwJEVyY3ZjWWpZM1hLZm9ZM3lwOHJjWEZyZkR3Z3V3Z0dSbXVqZ2Z0c2VtZ0UuTnZwT2dQLzYxCg==
+
+replicas:
+- name: argocd-server
+  count: 1
+- name: argocd-application-controller
+  count: 1
+- name: argocd-repo-server
+  count: 1
+- name: k8sgpt
+  count: 1
+- name: qwen-localai
+  count: 1
+
+images:
+- name: quay.io/argoproj/argocd
+  newTag: v2.10.0
+- name: k8sgpt/k8sgpt
+  newTag: v0.3.4
+- name: localai/localai
+  newTag: v2.18.0
+
+namespace: argocd-staging

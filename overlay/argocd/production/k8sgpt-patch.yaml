@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: k8sgpt
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+          requests:
+            cpu: 1000m
+            memory: 1Gi
+        env:
+        - name: K8SGPT_LOG_LEVEL
+          value: "info"
+        - name: K8SGPT_BACKEND
+          value: "localai"
+        - name: K8SGPT_CACHE_TTL
+          value: "24h"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-localai
+  namespace: k8sgpt-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: localai
+        resources:
+          limits:
+            cpu: 4000m
+            memory: 16Gi
+            # Enable GPU if available
+            # nvidia.com/gpu: 1
+          requests:
+            cpu: 2000m
+            memory: 8Gi
+        env:
+        - name: LOCALAI_DEBUG
+          value: "false"
+        - name: THREADS
+          value: "8"
+        - name: GPU_LAYERS
+          value: "35"
