@@ -61,7 +61,7 @@ class GitOpsSkillEvaluator:
         }
 
     def _check_invocation_timing(self, events: List[Dict[str, Any]]) -> bool:
-        """Check if skill was invoked at the correct time"""
+        """Check if skill was invoked at correct time"""
         skill_load_events = [e for e in events if e.get("name") == "skill_loaded"]
         execution_events = [e for e in events if e.get("name") == "workflow_started"]
 
@@ -89,6 +89,84 @@ class GitOpsSkillEvaluator:
         else:
             return 0.0  # Other failure cases
 
+    def evaluate_batch(self, traces: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Evaluate multiple traces and return aggregate results
+
+        Args:
+            traces: List of Langfuse trace data
+
+        Returns:
+            Aggregate evaluation results
+        """
+        results = []
+        scores = []
+        passed_count = 0
+
+        for trace in traces:
+            result = self.evaluate(trace)
+            results.append(result)
+            scores.append(result["score"])
+            if result["passed"]:
+                passed_count += 1
+
+        return {
+            "total_evaluations": len(results),
+            "passed_count": passed_count,
+            "failed_count": len(results) - passed_count,
+            "pass_rate": passed_count / len(results) if results else 0,
+            "average_score": sum(scores) / len(scores) if scores else 0,
+            "results": results,
+            "evaluator": "GitOpsSkillEvaluator",
+            "timestamp": datetime.now().isoformat()
+        }
+
+    def get_skill_coverage_report(self, traces: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Generate skill coverage report from traces
+
+        Args:
+            traces: List of Langfuse trace data
+
+        Returns:
+            Skill coverage statistics
+        """
+        skill_usage = {}
+        operation_counts = {}
+        total_traces = len(traces)
+
+        for trace in traces:
+            attributes = trace.get("attributes", {})
+            operation_type = attributes.get("operation_type", "")
+            skill_invoked = attributes.get("skill_invoked", False)
+
+            # Count operations
+            operation_counts[operation_type] = operation_counts.get(operation_type, 0) + 1
+
+            # Count skill usage
+            if skill_invoked:
+                skill_usage[operation_type] = skill_usage.get(operation_type, 0) + 1
+
+        # Calculate coverage percentages
+        coverage = {}
+        for operation in self.skill_operations:
+            count = operation_counts.get(operation, 0)
+            coverage[operation] = {
+                "total_operations": count,
+                "skill_invocations": skill_usage.get(operation, 0),
+                "coverage_percentage": (skill_usage.get(operation, 0) / count * 100) if count > 0 else 0
+            }
+
+        return {
+            "total_traces": total_traces,
+            "skill_operations": list(self.skill_operations),
+            "operation_counts": operation_counts,
+            "skill_usage": skill_usage,
+            "coverage": coverage,
+            "evaluator": "GitOpsSkillEvaluator",
+            "timestamp": datetime.now().isoformat()
+        }
+
 
 if __name__ == "__main__":
     # Example usage for testing
@@ -108,3 +186,25 @@ if __name__ == "__main__":
 
     result = evaluator.evaluate(test_trace)
     print(json.dumps(result, indent=2))
+
+    # Test batch evaluation
+    test_traces = [
+        test_trace,
+        {
+            "attributes": {
+                "operation_type": "security-scan",
+                "skill_invoked": False
+            },
+            "events": [
+                {"name": "workflow_started", "timestamp": 2000}
+            ]
+        }
+    ]
+
+    batch_result = evaluator.evaluate_batch(test_traces)
+    print("\nBatch Evaluation:")
+    print(json.dumps(batch_result, indent=2))
+
+    coverage_report = evaluator.get_skill_coverage_report(test_traces)
+    print("\nSkill Coverage Report:")
+    print(json.dumps(coverage_report, indent=2))
