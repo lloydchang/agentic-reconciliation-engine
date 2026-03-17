@@ -1,8 +1,15 @@
-# Self-Hosted Langfuse Setup Guide
+# Fully Autonomous Self-Hosted Langfuse Setup
 
 ## Overview
 
-This guide covers the complete setup and configuration of self-hosted Langfuse for the GitOps Infra Control Plane. We use Langfuse for observability across our Temporal workflows, AI agents, and system components.
+This guide covers the **completely automated, autonomous setup** of self-hosted Langfuse for the GitOps Infra Control Plane. **No manual configuration required** - everything including API key generation, secret creation, and application configuration is fully automated.
+
+🚀 **Key Features:**
+- ✅ **Zero Manual Setup** - Everything automated
+- ✅ **Auto-Generated API Keys** - No manual key creation
+- ✅ **Automatic Kubernetes Secrets** - Pre-configured
+- ✅ **Self-Hosted Only** - No cloud dependencies
+- ✅ **Complete Observability Stack** - Ready to use
 
 ## Architecture
 
@@ -23,113 +30,75 @@ This guide covers the complete setup and configuration of self-hosted Langfuse f
                                               ┌─────────────────┐
                                               │   PostgreSQL    │
                                               │     Redis       │
+                                              │   ClickHouse    │
                                               │     MinIO       │
                                               └─────────────────┘
 ```
 
-## Quick Start
+## 🚀 One-Command Fully Automated Setup
 
-### 1. Deploy Self-Hosted Langfuse
+### Complete Autonomous Deployment
 
-```bash
-# Deploy Langfuse with all dependencies
-./core/automation/scripts/deploy-langfuse-selfhosted.sh
-```
-
-### 2. Access Langfuse Dashboard
+**Run this single command for everything:**
 
 ```bash
-# Port-forward Langfuse UI
-kubectl port-forward svc/langfuse-server 3010:3000 -n langfuse
-
-# Open browser
-open http://localhost:3010
+# Fully automated setup - no manual steps required
+./core/automation/scripts/langfuse-auto-setup-complete.sh
 ```
 
-### 3. Default Credentials
+**This single command automatically:**
+- ✅ Deploys complete Langfuse stack (PostgreSQL, Redis, ClickHouse, MinIO, Langfuse)
+- ✅ Generates secure API keys automatically
+- ✅ Creates Kubernetes secrets with generated keys
+- ✅ Configures all applications for self-hosted Langfuse
+- ✅ Sets up port-forward for dashboard access
+- ✅ Verifies end-to-end connectivity
 
-- **Email**: `admin@example.com`
-- **Password**: `password`
+**No manual intervention required - completely autonomous!**
 
-⚠️ **Important**: Change credentials after first login!
+## 🤖 What Gets Automated
 
-## Complete Setup Process
+### Fully Autonomous Components
 
-### Prerequisites
+**🔐 API Key Generation (Automatic)**
+- Generates cryptographically secure API keys
+- Creates unique project ID
+- No manual UI interaction required
+- Keys stored securely in Kubernetes secrets
 
-- Kubernetes cluster (local or remote)
-- kubectl configured
-- Helm (optional, for advanced setups)
+**🚀 Complete Stack Deployment (Automatic)**
+- PostgreSQL database with automatic schema
+- Redis cache for session management
+- ClickHouse for analytics (Langfuse v3 requirement)
+- MinIO object storage for traces
+- Langfuse server with all dependencies
 
-### Step 1: Deploy Langfuse Stack
+**⚙️ Kubernetes Configuration (Automatic)**
+- Creates `observability` namespace
+- Generates `langfuse-secrets` secret with API keys
+- Creates `langfuse-config` ConfigMap with endpoints
+- Configures all environment variables
 
-The deployment script creates:
-- **Langfuse Server**: Main application (port 3000)
-- **PostgreSQL**: Database (port 5432)
-- **Redis**: Cache (port 6379)
-- **MinIO**: Object storage (ports 9000, 9001)
+**🔗 Application Integration (Automatic)**
+- Sets up OTLP endpoint for self-hosted Langfuse
+- Configures service names and sampling
+- Enables tracing for all components
+- No code changes required
+
+### Generated Credentials (Auto-Created)
+
+The automation generates these automatically:
 
 ```bash
-# Run the deployment script
-./core/automation/scripts/deploy-langfuse-selfhosted.sh
-
-# Verify deployment
-kubectl get pods -n langfuse
+# Example auto-generated keys (different each run)
+Public Key:  pk-lf-400fa063d6299b80450ff9d8d912a7db
+Secret Key:  sk-lf-eb7aeee5b802e359d236ce85ff547dfb47f4fa9f7a43b3377f7455e5e954207e
+Project ID:  proj_d1ddb68df4c87727
 ```
 
-Expected output:
-```
-NAME                               READY   STATUS    RESTARTS   AGE
-langfuse-server-xxxxxxxx-xxxx        1/1     Running   0          2m
-postgres-xxxxxxxx-xxxx              1/1     Running   0          2m
-redis-xxxxxxxx-xxxx                 1/1     Running   0          2m
-minio-xxxxxxxx-xxxx                1/1     Running   0          2m
-```
-
-### Step 2: Configure API Keys
-
-1. **Access Langfuse UI**:
-   ```bash
-   kubectl port-forward svc/langfuse-server 3010:3000 -n langfuse
-   # Open http://localhost:3010
-   ```
-
-2. **Create Account**:
-   - Login with default credentials
-   - Create your own account
-   - Generate API keys in Settings > API Keys
-
-3. **Update Kubernetes Secrets**:
-   ```bash
-   # Create/update secrets with your API keys
-   kubectl create secret generic langfuse-secrets \
-     --from-literal=public-key="pk-lf-your-public-key" \
-     --from-literal=secret-key="sk-lf-your-secret-key" \
-     --namespace=observability \
-     --dry-run=client -o yaml | kubectl apply -f -
-   ```
-
-### Step 3: Configure Applications
-
-Update your applications to use the self-hosted Langfuse endpoint:
-
-```yaml
-# Environment variables for all traced applications
-env:
-- name: LANGFUSE_PUBLIC_KEY
-  valueFrom:
-    secretKeyRef:
-      name: langfuse-secrets
-      key: public-key
-- name: LANGFUSE_SECRET_KEY
-  valueFrom:
-    secretKeyRef:
-      name: langfuse-secrets
-      key: secret-key
-- name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: "http://langfuse-server.langfuse.svc.cluster.local:3000/api/public/otel"
-- name: OTEL_SERVICE_NAME
-  value: "gitops-temporal-worker"
+**These are automatically stored in:**
+```bash
+kubectl get secret langfuse-secrets -n observability
 ```
 
 ## Access Methods
