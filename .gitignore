@@ -620,3 +620,4 @@ __marimo__/
 workspace/
 azure/
 logs/
+overlay-backup-*/
