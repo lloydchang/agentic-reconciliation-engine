@@ -613,6 +613,58 @@
             color: #3498db;
             transform: scale(1.05);
         }
+
+        /* Voice Chat Styles */
+        .voice-chat-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .voice-message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .voice-message.user {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+
+        .voice-message.assistant {
+            background: white;
+            color: #333;
+            border: 1px solid #e1e8ed;
+            border-bottom-left-radius: 6px;
+        }
+
+        .voice-message-time {
+            font-size: 0.75em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .voice-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background: #e74c3c;
+            animation: pulse 2s infinite;
+        }
+
+        .voice-indicator.active {
+            background: #e74c3c;
+        }
+
+        .voice-indicator.speaking {
+            background: #27ae60;
+        }
     </style>
 </head>
 <body>
@@ -708,6 +760,64 @@
                 <button class="btn" onclick="openSettings()">
                     ⚙️ Settings
                 </button>
+                <button class="btn" onclick="openVoiceChat()" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    🎤 Voice Assistant
+                </button>
+            </div>
+        </div>
+
+        <!-- Voice Chat Assistant Card -->
+        <div class="card" id="voiceChatCard" style="display: none;">
+            <h3>🎤 GitOps Voice Assistant</h3>
+            <div class="voice-chat-container">
+                <div class="voice-controls" style="margin-bottom: 15px;">
+                    <button class="btn" id="voiceChatToggle" onclick="toggleVoiceChat()">
+                        🎤 Start Voice Chat
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeVoiceChat()">
+                        ✖️ Close
+                    </button>
+                </div>
+                
+                <div id="voiceChatMessages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: #f8f9fa; margin-bottom: 15px;">
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🎤</div>
+                        <div>Click "Start Voice Chat" to begin speaking with your GitOps assistant</div>
+                    </div>
+                </div>
+                
+                <div class="voice-input-container" style="display: flex; gap: 10px;">
+                    <input type="text" id="voiceChatInput" placeholder="Ask about your GitOps infrastructure..." 
+                           style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px;"
+                           onkeypress="if(event.key==='Enter') sendVoiceMessage()">
+                    <button class="btn" onclick="sendVoiceMessage()" id="voiceSendBtn" disabled>
+                        📤 Send
+                    </button>
+                </div>
+                
+                <div class="voice-settings" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;" id="voiceSettings">
+                    <h4 style="margin-bottom: 10px;">Voice Settings</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Voice</label>
+                            <select id="voiceSelect" style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="default">Default Voice</option>
+                                <option value="female">Female Voice</option>
+                                <option value="male">Male Voice</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Speed</label>
+                            <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" style="width: 100%;">
+                            <span id="speedValue">1.0</span>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Pitch</label>
+                            <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1" style="width: 100%;">
+                            <span id="pitchValue">1.0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -937,7 +1047,247 @@
             successRateElement.onclick = showFailureDetails;
         }
 
-        // Show failure details when clicking success rate
+        // Voice Chat Functions
+        let voiceChatMessages = [];
+        let isVoiceChatActive = false;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+
+        // Initialize speech recognition
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                
+                recognition.onstart = () => {
+                    document.getElementById('voiceChatToggle').innerHTML = '🔴 Recording...';
+                    document.getElementById('voiceChatToggle').style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results)
+                        .map(result => result[0].transcript)
+                        .join('');
+                    
+                    document.getElementById('voiceChatInput').value = transcript;
+                    updateVoiceSendButton();
+                };
+                
+                recognition.onend = () => {
+                    document.getElementById('voiceChatToggle').innerHTML = '🎤 Start Voice Chat';
+                    document.getElementById('voiceChatToggle').style.background = '';
+                    
+                    // Auto-send if we have a transcript
+                    if (document.getElementById('voiceChatInput').value.trim()) {
+                        sendVoiceMessage();
+                    }
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    showToast('Speech recognition error: ' + event.error, 'error');
+                };
+            }
+        }
+
+        function openVoiceChat() {
+            document.getElementById('voiceChatCard').style.display = 'block';
+            document.getElementById('voiceChatCard').scrollIntoView({ behavior: 'smooth' });
+            
+            if (!recognition) {
+                initializeSpeechRecognition();
+            }
+        }
+
+        function closeVoiceChat() {
+            document.getElementById('voiceChatCard').style.display = 'none';
+            if (recognition && isVoiceChatActive) {
+                recognition.stop();
+                isVoiceChatActive = false;
+            }
+        }
+
+        function toggleVoiceChat() {
+            if (!recognition) {
+                showToast('Speech recognition not supported in this browser', 'error');
+                return;
+            }
+
+            if (isVoiceChatActive) {
+                recognition.stop();
+                isVoiceChatActive = false;
+            } else {
+                recognition.start();
+                isVoiceChatActive = true;
+            }
+        }
+
+        function updateVoiceSendButton() {
+            const input = document.getElementById('voiceChatInput');
+            const sendBtn = document.getElementById('voiceSendBtn');
+            sendBtn.disabled = !input.value.trim();
+        }
+
+        function addVoiceMessage(content, sender, sources = null) {
+            const messagesContainer = document.getElementById('voiceChatMessages');
+            
+            // Clear empty state if this is the first message
+            if (voiceChatMessages.length === 0) {
+                messagesContainer.innerHTML = '';
+            }
+
+            const message = {
+                id: Date.now(),
+                content,
+                sender,
+                timestamp: new Date(),
+                sources
+            };
+
+            voiceChatMessages.push(message);
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `voice-message ${sender}`;
+            
+            let sourcesHtml = '';
+            if (sources && sources.length > 0) {
+                sourcesHtml = `<div style="margin-top: 8px; font-size: 0.8em; opacity: 0.8;"><strong>Sources:</strong> ${sources.map(s => s.source || s).join(', ')}</div>`;
+            }
+            
+            messageDiv.innerHTML = `
+                <div>${content}</div>
+                ${sourcesHtml}
+                <div class="voice-message-time">${message.timestamp.toLocaleTimeString()}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendVoiceMessage() {
+            const input = document.getElementById('voiceChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addVoiceMessage(message, 'user');
+            
+            // Clear input
+            input.value = '';
+            updateVoiceSendButton();
+
+            try {
+                // Show typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'voice-message assistant';
+                typingDiv.innerHTML = '<div>🤔 Thinking...</div>';
+                typingDiv.id = 'typing-indicator';
+                document.getElementById('voiceChatMessages').appendChild(typingDiv);
+
+                // Call RAG API
+                const response = await fetch('/api/v1/rag/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: message,
+                        sources: ['documentation', 'kubernetes', 'dashboard', 'k8sgpt', 'flux', 'argocd']
+                    })
+                });
+
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Add assistant message
+                addVoiceMessage(data.answer, 'assistant', data.sources);
+
+                // Speak response if voice is enabled
+                speakVoiceResponse(data.answer);
+
+            } catch (error) {
+                console.error('Error sending voice message:', error);
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                addVoiceMessage('Sorry, I encountered an error processing your request. Please try again.', 'assistant');
+                showToast('Failed to get response: ' + error.message, 'error');
+            }
+        }
+
+        function speakVoiceResponse(text) {
+            if (!synthesis) return;
+
+            synthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            const speedSlider = document.getElementById('speedSlider');
+            const pitchSlider = document.getElementById('pitchSlider');
+            const voiceSelect = document.getElementById('voiceSelect');
+            
+            utterance.rate = parseFloat(speedSlider.value);
+            utterance.pitch = parseFloat(pitchSlider.value);
+            
+            // Select voice
+            const voices = synthesis.getVoices();
+            const selectedVoice = voiceSelect.value;
+            if (selectedVoice !== 'default' && voices.length > 0) {
+                const voice = voices.find(v => v.name.toLowerCase().includes(selectedVoice));
+                if (voice) {
+                    utterance.voice = voice;
+                }
+            }
+            
+            synthesis.speak(utterance);
+        }
+
+        // Voice settings event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update speed value display
+            const speedSlider = document.getElementById('speedSlider');
+            const pitchSlider = document.getElementById('pitchSlider');
+            const speedValue = document.getElementById('speedValue');
+            const pitchValue = document.getElementById('pitchValue');
+            
+            if (speedSlider) {
+                speedSlider.addEventListener('input', () => {
+                    speedValue.textContent = speedSlider.value;
+                });
+            }
+            
+            if (pitchSlider) {
+                pitchSlider.addEventListener('input', () => {
+                    pitchValue.textContent = pitchSlider.value;
+                });
+            }
+            
+            // Update send button on input
+            const voiceInput = document.getElementById('voiceChatInput');
+            if (voiceInput) {
+                voiceInput.addEventListener('input', updateVoiceSendButton);
+            }
+            
+            // Load voices for speech synthesis
+            if (synthesis) {
+                synthesis.getVoices();
+            }
+        });
         function showFailureDetails() {
             const failures = agents.filter(agent => (agent.successRate || 0) < 100);
             

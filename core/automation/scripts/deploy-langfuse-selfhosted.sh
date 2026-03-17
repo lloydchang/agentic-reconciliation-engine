@@ -82,6 +82,8 @@ spec:
           value: "postgresql://postgres:postgres@postgres:5432/langfuse"
         - name: REDIS_URL
           value: "redis://redis:6379"
+        - name: CLICKHOUSE_URL
+          value: "clickhouse://clickhouse:9000/langfuse"
         - name: NEXTAUTH_SECRET
           value: "your-secret-key-here"
         - name: NEXTAUTH_URL
@@ -214,6 +216,67 @@ spec:
   ports:
   - port: 6379
     targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+  namespace: langfuse
+  labels:
+    app: clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      containers:
+      - name: clickhouse
+        image: clickhouse/clickhouse-server:latest
+        ports:
+        - containerPort: 9000
+        - containerPort: 8123
+        env:
+        - name: CLICKHOUSE_DB
+          value: "langfuse"
+        - name: CLICKHOUSE_USER
+          value: "default"
+        - name: CLICKHOUSE_PASSWORD
+          value: ""
+        volumeMounts:
+        - name: clickhouse-storage
+          mountPath: /var/lib/clickhouse
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: clickhouse-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse
+  namespace: langfuse
+spec:
+  selector:
+    app: clickhouse
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: http
+  - port: 8123
+    targetPort: 8123
+    name: native
   type: ClusterIP
 ---
 apiVersion: apps/v1

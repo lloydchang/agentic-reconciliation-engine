@@ -1,0 +1,61 @@
+# Multi-stage build for AI Agent Evaluation Framework
+FROM python:3.12-slim as base
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY agent-tracing-evaluation/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy evaluation framework
+COPY agent-tracing-evaluation /app/agent-tracing-evaluation
+
+# Change to evaluation directory
+WORKDIR /app/agent-tracing-evaluation
+
+# Create necessary directories
+RUN mkdir -p /data /results /visualizations /config
+
+# Set Python path
+ENV PYTHONPATH=/app/agent-tracing-evaluation
+
+# Default command for CLI usage
+CMD ["python", "cli.py", "--help"]
+
+# Production stage with Flask API server
+FROM base as production
+
+# Install additional dependencies for API server
+RUN pip install --no-cache-dir flask flask-cors gunicorn
+
+# Copy API server code
+COPY deployments/api-server.py /app/agent-tracing-evaluation/api_server.py
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Run with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "300", "api_server:app"]
+
+# Temporal worker stage
+FROM base as temporal-worker
+
+# Install Temporal SDK
+RUN pip install --no-cache-dir temporalio
+
+# Copy temporal worker code
+COPY deployments/temporal_worker.py /app/agent-tracing-evaluation/temporal_worker.py
+
+# Run temporal worker
+CMD ["python", "temporal_worker.py"]
