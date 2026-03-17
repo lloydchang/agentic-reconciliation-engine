@@ -44,8 +44,96 @@ class TracingEvaluationFramework:
             "compliance": ComplianceEvaluator()
         }
 
-    def evaluate_traces(self, traces: List[Dict[str, Any]], 
-                      evaluator_types: List[str] = None) -> Dict[str, Any]:
+    def fetch_real_traces(self, count: int = 100, filters: dict = None) -> List[Dict[str, Any]]:
+        """
+        Fetch real traces from Langfuse
+        
+        Args:
+            count: Number of traces to fetch
+            filters: Optional filter criteria
+            
+        Returns:
+            List of real traces from Langfuse
+        """
+        if not self.use_langfuse or not self.langfuse_generator:
+            logger.warning("Langfuse integration not available, using sample traces")
+            from example_usage import generate_sample_traces
+            return generate_sample_traces(count)
+        
+        try:
+            # Convert filters to Langfuse format
+            langfuse_filters = None
+            if filters:
+                from integrations.langfuse_client import TraceFilter
+                langfuse_filters = TraceFilter(
+                    user_id=filters.get('user_id'),
+                    session_id=filters.get('session_id'),
+                    tags=filters.get('tags'),
+                    limit=count
+                )
+            
+            traces = self.langfuse_generator.generate_evaluation_traces(count, langfuse_filters)
+            logger.info(f"Fetched {len(traces)} real traces from Langfuse")
+            return traces
+            
+        except Exception as e:
+            logger.error(f"Failed to fetch real traces from Langfuse: {e}")
+            # Fallback to sample traces
+            from example_usage import generate_sample_traces
+            return generate_sample_traces(count)
+    
+    def stream_real_traces(self, duration_minutes: int = 60, filters: dict = None):
+        """
+        Stream real traces from Langfuse
+        
+        Args:
+            duration_minutes: Duration to stream traces
+            filters: Optional filter criteria
+            
+        Yields:
+            Real-time traces from Langfuse
+        """
+        if not self.use_langfuse or not self.langfuse_generator:
+            logger.warning("Langfuse integration not available")
+            return
+        
+        try:
+            # Convert filters to Langfuse format
+            langfuse_filters = None
+            if filters:
+                from integrations.langfuse_client import TraceFilter
+                langfuse_filters = TraceFilter(
+                    user_id=filters.get('user_id'),
+                    session_id=filters.get('session_id'),
+                    tags=filters.get('tags')
+                )
+            
+            for trace in self.langfuse_generator.generate_real_time_traces(duration_minutes, langfuse_filters):
+                yield trace
+                
+        except Exception as e:
+            logger.error(f"Failed to stream real traces from Langfuse: {e}")
+    
+    def get_langfuse_health(self) -> Dict[str, Any]:
+        """
+        Check Langfuse service health
+        
+        Returns:
+            Health status information
+        """
+        if not self.use_langfuse or not self.langfuse_client:
+            return {
+                'status': 'disabled',
+                'message': 'Langfuse integration not enabled'
+            }
+        
+        try:
+            return self.langfuse_client.health_check()
+        except Exception as e:
+            return {
+                'status': 'error',
+                'error': str(e)
+            }
         """
         Evaluate traces using specified evaluators
 
