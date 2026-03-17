@@ -149,21 +149,22 @@ npx tsc --noEmit
 
 ## Backend Development Setup
 
-### API Server (Flask)
+### API Server (FastAPI)
 ```bash
 # Navigate to repository root
 cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
 
 # Install Python dependencies
-pip3 install flask flask-cors
+pip3 install fastapi uvicorn[standard] pydantic
 
 # Verify installation
-python3 -c "import flask; print('Flask installed successfully')"
+python3 -c "import fastapi; print('FastAPI installed successfully')"
 
 # Start API server
-python3 api-server.py
+uvicorn api:app --host 0.0.0.0 --port 5000 --reload
 
 # Access at http://localhost:5000
+# Access interactive docs at http://localhost:5000/docs
 ```
 
 ### Backend Environment Configuration
@@ -173,33 +174,30 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install flask flask-cors python-dotenv
+pip install fastapi uvicorn[standard] pydantic python-dotenv
 
 # Create environment file
 cat > .env << EOF
-FLASK_ENV=development
-FLASK_DEBUG=True
+FASTAPI_ENV=development
 API_HOST=0.0.0.0
 API_PORT=5000
 EOF
 
 # Start with environment
-python api-server.py
+uvicorn api:app --host 0.0.0.0 --port 5000 --reload
 ```
 
 ### Backend Development Workflow
 ```bash
-# 1. Start API server
-python api-server.py
+# 1. Start API server with auto-reload
+uvicorn api:app --host 0.0.0.0 --port 5000 --reload
 
 # 2. Test endpoints
 curl http://localhost:5000/api/cluster-status
 curl http://localhost:5000/api/core/ai/runtime/detailed
 
-# 3. Run with auto-reload (development)
-export FLASK_ENV=development
-export FLASK_DEBUG=1
-python api-server.py
+# 3. Access interactive documentation
+open http://localhost:5000/docs
 ```
 
 ## Local Kubernetes Setup
