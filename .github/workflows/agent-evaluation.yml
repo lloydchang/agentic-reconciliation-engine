@@ -1,0 +1,45 @@
+name: Agent Evaluation Pipeline
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # Every 4 hours
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        cd agent-tracing-evaluation
+        pip install -r requirements.txt
+
+    - name: Run evaluation pipeline
+      run: |
+        cd agent-tracing-evaluation
+        python pipelines/evaluation_runner.py --time-range 24h
+
+    - name: Upload evaluation results
+      uses: actions/upload-artifact@v3
+      with:
+        name: evaluation-report
+        path: agent-tracing-evaluation/evaluation-results/
+
+    - name: Check evaluation thresholds
+      run: |
+        cd agent-tracing-evaluation
+        python alerts/alerter.py --check-only
+
+    - name: Send notifications
+      if: failure()
+      run: |
+        cd agent-tracing-evaluation
+        python alerts/alerter.py
