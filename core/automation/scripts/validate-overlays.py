@@ -233,7 +233,7 @@ class OverlayValidator:
 
     def _is_skill_overlay(self, overlay_dir: Path) -> bool:
         """Check if overlay is a skill overlay"""
-        return '.agents' in str(overlay_dir)
+        return 'ai/skills' in str(overlay_dir)
 
     def _validate_agentskills_compliance(self, overlay_dir: Path) -> bool:
         """Validate agentskills.io compliance for skill overlays"""
