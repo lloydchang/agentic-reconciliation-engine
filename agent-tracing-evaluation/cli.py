@@ -143,6 +143,40 @@ Examples:
         help="Filter by tags (Langfuse only)"
     )
 
+    # Alert management options
+    parser.add_argument(
+        "--alerts",
+        action="store_true",
+        help="Show alert status and metrics"
+    )
+    
+    parser.add_argument(
+        "--alert-type",
+        choices=["active", "history"],
+        default="active",
+        help="Type of alerts to show (default: active)"
+    )
+    
+    parser.add_argument(
+        "--acknowledge-alert",
+        type=str,
+        metavar="ALERT_ID",
+        help="Acknowledge an alert by ID"
+    )
+    
+    parser.add_argument(
+        "--resolve-alert", 
+        type=str,
+        metavar="ALERT_ID",
+        help="Resolve an alert by ID"
+    )
+    
+    parser.add_argument(
+        "--disable-alerts",
+        action="store_true",
+        help="Disable alert processing during evaluation"
+    )
+
     args = parser.parse_args()
 
     # Handle special commands
@@ -156,6 +190,19 @@ Examples:
 
     if args.generate_sample:
         generate_sample_data(args.generate_sample)
+        return
+
+    # Alert commands
+    if args.alerts:
+        show_alerts(args)
+        return
+
+    if args.acknowledge_alert:
+        acknowledge_alert(args.acknowledge_alert)
+        return
+
+    if args.resolve_alert:
+        resolve_alert(args.resolve_alert)
         return
 
     # Langfuse commands
@@ -182,7 +229,13 @@ def run_evaluation(args):
     print("=" * 50)
 
     # Initialize framework
-    framework = TracingEvaluationFramework()
+    enable_alerts = not args.disable_alerts
+    framework = TracingEvaluationFramework(enable_alerts=enable_alerts)
+    
+    if enable_alerts:
+        print("🔔 Alerts enabled")
+    else:
+        print("🔕 Alerts disabled")
 
     # Load traces
     print(f"📂 Loading traces from {args.file}")
@@ -477,6 +530,86 @@ def run_langfuse_stream(args):
     except Exception as e:
         print(f"\n❌ Streaming error: {e}")
         sys.exit(1)
+
+
+def show_alerts(args):
+    """Show alert status and metrics"""
+    print("🔔 Alert Management")
+    print("=" * 30)
+    
+    framework = TracingEvaluationFramework(enable_alerts=False)
+    
+    # Get alert metrics
+    metrics = framework.get_alert_metrics()
+    
+    if 'status' in metrics and metrics['status'] == 'Alert manager not initialized':
+        print("❌ Alert manager not initialized")
+        print("   Check configuration in config/alerts.json")
+        return
+    
+    print(f"📊 Alert Metrics:")
+    print(f"   Total alerts: {metrics.get('total_alerts', 0)}")
+    print(f"   Active alerts: {metrics.get('active_alerts', 0)}")
+    print(f"   Alerts (24h): {metrics.get('alerts_last_24h', 0)}")
+    print(f"   Rules configured: {metrics.get('rules_configured', 0)}")
+    
+    # Get alerts
+    alerts = framework.get_alerts(alert_type=args.alert_type)
+    
+    if not alerts:
+        print(f"\n✅ No {args.alert_type} alerts")
+        return
+    
+    print(f"\n📋 {args.alert_type.title()} Alerts ({len(alerts)}):")
+    print("-" * 50)
+    
+    for alert in alerts:
+        severity_icon = {
+            'critical': '🚨',
+            'high': '⚠️',
+            'medium': '🔸',
+            'low': '🔹',
+            'info': 'ℹ️'
+        }.get(alert['severity'], '❓')
+        
+        print(f"{severity_icon} [{alert['severity'].upper()}] {alert['title']}")
+        print(f"   ID: {alert['id']}")
+        print(f"   Description: {alert['description']}")
+        print(f"   Status: {alert['status']}")
+        print(f"   Timestamp: {alert['timestamp']}")
+        
+        if alert.get('acknowledged_by'):
+            print(f"   Acknowledged by: {alert['acknowledged_by']}")
+        
+        print()
+
+
+def acknowledge_alert(alert_id: str):
+    """Acknowledge an alert"""
+    print(f"🔔 Acknowledging Alert: {alert_id}")
+    
+    framework = TracingEvaluationFramework(enable_alerts=False)
+    success = framework.acknowledge_alert(alert_id, "cli-user")
+    
+    if success:
+        print(f"✅ Alert {alert_id} acknowledged")
+    else:
+        print(f"❌ Failed to acknowledge alert {alert_id}")
+        print("   Check if alert ID exists")
+
+
+def resolve_alert(alert_id: str):
+    """Resolve an alert"""
+    print(f"🔔 Resolving Alert: {alert_id}")
+    
+    framework = TracingEvaluationFramework(enable_alerts=False)
+    success = framework.resolve_alert(alert_id)
+    
+    if success:
+        print(f"✅ Alert {alert_id} resolved")
+    else:
+        print(f"❌ Failed to resolve alert {alert_id}")
+        print("   Check if alert ID exists")
 
 
 if __name__ == "__main__":
