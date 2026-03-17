@@ -158,7 +158,7 @@ spec:
             cpu: "50m"
       containers:
       - name: agent-memory
-        image: nginx:alpine  # Placeholder image
+        image: agent-memory-rust:latest  # Built from rust-agent/
         ports:
         - containerPort: 80
         env:
