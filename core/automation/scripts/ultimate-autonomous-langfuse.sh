@@ -300,7 +300,7 @@ ultimate_autonomous_test() {
     local signup_response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -d '{
-            "email": "admin@ultimate.dev",
+            "email": "admin@example.com",
             "password": "ultimate-password-123",
             "name": "Ultimate Admin"
         }' \
@@ -313,7 +313,7 @@ ultimate_autonomous_test() {
         local login_response=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -d '{
-                "email": "admin@ultimate.dev",
+                "email": "admin@example.com",
                 "password": "ultimate-password-123"
             }' \
             http://localhost:3000/api/auth/signin)
@@ -393,7 +393,7 @@ generate_ultimate_report() {
         echo "  • UI: http://localhost:3000"
         echo "  • API: http://localhost:3000/api"
         echo "  • Health: http://localhost:3000/api/health"
-        echo "  • Admin: admin@ultimate.dev / ultimate-password-123"
+        echo "  • Admin: admin@example.com / ultimate-password-123"
         echo ""
         echo "✨ Complete Autonomous Operation Achieved:"
         echo "  • Zero manual intervention"

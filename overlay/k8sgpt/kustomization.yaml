@@ -1,0 +1,69 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: k8sgpt-overlay
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    description: "K8sGPT with Qwen LLM integration overlay"
+
+resources:
+- resources/
+- deployments/
+- configmaps/
+- services/
+
+namespace: gitops-infra
+
+commonLabels:
+  app.kubernetes.io/name: k8sgpt
+  app.kubernetes.io/component: analyzer
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/created-by: gitops-infra-control-plane
+
+replicas:
+- name: k8sgpt-analyzer
+  count: 2
+
+patchesStrategicMerge:
+- patches/deployment-patch.yaml
+- patches/configmap-patch.yaml
+
+configMapGenerator:
+- name: k8sgpt-config
+  files:
+  - configs/k8sgpt-config.yaml
+  options:
+    labels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: config
+
+secretGenerator:
+- name: k8sgpt-secrets
+  envs:
+  - secrets/k8sgpt.env
+  options:
+    labels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: secrets
+
+images:
+- name: k8sgpt/k8sgpt
+  newTag: latest
+
+resources:
+- github.com/k8sgpt-ai/k8sgpt//deploy/kubernetes?ref=main
+
+vars:
+- name: K8SGPT_NAMESPACE
+  objref:
+    kind: ConfigMap
+    name: k8sgpt-config
+    fieldref:
+      fieldpath: data.namespace
+
+configurations:
+- transformers/namespace-transformer.yaml
