@@ -23,7 +23,7 @@ import (
 
 func main() {
 	// Initialize logger
-	logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 	defer logger.Sync()
 
 	// Load configuration
@@ -48,7 +48,7 @@ func main() {
 	agentService := services.NewAgentService(db, logger)
 	skillService := services.NewSkillService(db, logger)
 	activityService := services.NewActivityService(db, logger)
-	systemService := services.NewSystemService(logger)
+	systemService := services.NewSystemService(db, logger)
 	evaluationService := services.NewEvaluationService(logger)
 
 	// Initialize RAG service if enabled

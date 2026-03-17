@@ -475,3 +475,103 @@ class AgentMonitoringEvaluator:
     def _generate_correlation_id(self) -> str:
         """Generate unique correlation ID for tracking"""
         return f"eval_{int(time.time())}_{hash(str(datetime.utcnow())) % 10000}"
+
+    def evaluate(self, trace: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Main evaluation method for framework compatibility
+        
+        Args:
+            trace: Single trace data to evaluate
+            
+        Returns:
+            Dict containing evaluation results with score and status
+        """
+        try:
+            # Evaluate all monitoring aspects
+            infra_results = self.evaluate_infrastructure_health([trace])
+            temporal_results = self.evaluate_temporal_health([trace])
+            agent_results = self.evaluate_agent_health([trace])
+            
+            # Calculate overall score based on detected issues
+            issues = self.issues
+            critical_issues = sum(1 for issue in issues if issue.severity == IssueSeverity.CRITICAL)
+            high_issues = sum(1 for issue in issues if issue.severity == IssueSeverity.HIGH)
+            
+            # Score calculation: 1.0 for no issues, decreasing based on severity
+            base_score = 1.0
+            score = base_score - (critical_issues * 0.4) - (high_issues * 0.2)
+            score = max(0.0, min(1.0, score))
+            
+            # Determine pass/fail status
+            passed = score >= 0.7 and critical_issues == 0
+            
+            return {
+                "score": score,
+                "passed": passed,
+                "details": {
+                    "infrastructure_health": infra_results,
+                    "temporal_health": temporal_results,
+                    "agent_health": agent_results,
+                    "issues_detected": len(issues),
+                    "critical_issues": critical_issues,
+                    "high_issues": high_issues,
+                    "auto_fixes_applied": len(self.auto_fixes),
+                    "correlation_id": self._generate_correlation_id()
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in monitoring evaluation: {e}")
+            return {
+                "score": 0.0,
+                "passed": False,
+                "details": {
+                    "error": str(e),
+                    "evaluation_failed": True
+                }
+            }
+
+    def evaluate_batch(self, traces: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Batch evaluation method for multiple traces
+        
+        Args:
+            traces: List of trace data to evaluate
+            
+        Returns:
+            Dict containing batch evaluation results
+        """
+        try:
+            results = []
+            total_score = 0.0
+            passed_count = 0
+            
+            for trace in traces:
+                result = self.evaluate(trace)
+                results.append(result)
+                total_score += result["score"]
+                if result["passed"]:
+                    passed_count += 1
+            
+            return {
+                "total_traces": len(traces),
+                "average_score": total_score / len(traces) if traces else 0.0,
+                "pass_rate": passed_count / len(traces) if traces else 0.0,
+                "passed_count": passed_count,
+                "failed_count": len(traces) - passed_count,
+                "individual_results": results,
+                "aggregate_metrics": {
+                    "total_issues": len(self.issues),
+                    "auto_fixes_applied": len(self.auto_fixes),
+                    "recommendations": self._generate_recommendations(self.issues)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in batch monitoring evaluation: {e}")
+            return {
+                "total_traces": len(traces),
+                "average_score": 0.0,
+                "pass_rate": 0.0,
+                "error": str(e)
+            }

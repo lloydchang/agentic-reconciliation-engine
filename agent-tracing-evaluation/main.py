@@ -20,8 +20,10 @@ from skill_invocation_evaluator import GitOpsSkillEvaluator
 from performance_evaluator import PerformanceEvaluator
 from cost_evaluator import CostEvaluator
 from monitoring_evaluator import AgentMonitoringEvaluator
-from auto_fix_evaluator import AutoFixManager
 from health_check_evaluator import HealthCheckEvaluator
+from security_evaluator import SecurityEvaluator
+from compliance_evaluator import ComplianceEvaluator
+from auto_fix_evaluator import AutoFixManager
 
 class TracingEvaluationFramework:
     """Main framework for evaluating agent traces"""
@@ -37,7 +39,9 @@ class TracingEvaluationFramework:
             "performance": self.performance_evaluator,
             "cost": CostEvaluator(),
             "monitoring": self.monitoring_evaluator,
-            "health_check": self.health_check_evaluator
+            "health_check": self.health_check_evaluator,
+            "security": SecurityEvaluator(),
+            "compliance": ComplianceEvaluator()
         }
 
     def evaluate_traces(self, traces: List[Dict[str, Any]], 
@@ -66,11 +70,7 @@ class TracingEvaluationFramework:
             evaluator = self.evaluators[evaluator_type]
             
             # Run evaluation
-            if evaluator_type == "monitoring":
-                result = self.monitoring_evaluator.generate_monitoring_report(traces)
-            elif evaluator_type == "health_check":
-                result = self.health_check_evaluator.generate_health_report(traces)
-            elif hasattr(evaluator, 'evaluate_batch'):
+            if hasattr(evaluator, 'evaluate_batch'):
                 result = evaluator.evaluate_batch(traces)
             else:
                 # Fallback to individual evaluations

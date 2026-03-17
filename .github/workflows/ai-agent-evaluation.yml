@@ -1,0 +1,185 @@
+name: AI Agent Evaluation Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      evaluators:
+        description: 'Evaluators to run (comma-separated)'
+        required: false
+        default: 'skill_invocation,performance,cost,monitoring,health_check'
+        type: string
+      trace_count:
+        description: 'Number of sample traces to generate'
+        required: false
+        default: '100'
+        type: string
+
+jobs:
+  evaluation:
+    runs-on: ubuntu-latest
+    name: AI Agent Tracing Evaluation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        cd agent-tracing-evaluation
+        pip install -r requirements.txt
+        
+    - name: Run evaluation tests
+      run: |
+        cd agent-tracing-evaluation
+        python tests/test_evaluators.py
+        
+    - name: Generate sample traces
+      run: |
+        cd agent-tracing-evaluation
+        python cli.py --generate-sample ${{ github.event.inputs.trace_count || '100' }} --file evaluation_traces.json
+        
+    - name: Run evaluation
+      run: |
+        cd agent-tracing-evaluation
+        python cli.py --file evaluation_traces.json --evaluators ${{ github.event.inputs.evaluators || 'skill_invocation,performance,cost,monitoring,health_check' }} --format json --output evaluation_results.json
+        
+    - name: Generate visualizations
+      run: |
+        cd agent-tracing-evaluation
+        python cli.py --file evaluation_traces.json --visualize --report-dir evaluation_reports/
+        
+    - name: Parse evaluation results
+      id: parse_results
+      run: |
+        cd agent-tracing-evaluation
+        python -c "
+import json
+with open('evaluation_results.json', 'r') as f:
+    results = json.load(f)
+
+summary = results.get('summary', {})
+overall_score = summary.get('overall_score', 0)
+pass_rate = summary.get('overall_pass_rate', 0)
+
+print(f'overall_score={overall_score}')
+print(f'pass_rate={pass_rate}')
+print(f'total_evaluations={summary.get(\"total_evaluations\", 0)}')
+
+# Set outputs for GitHub Actions
+with open('github_output.txt', 'w') as f:
+    f.write(f'overall_score={overall_score}\n')
+    f.write(f'pass_rate={pass_rate}\n')
+    f.write(f'total_evaluations={summary.get(\"total_evaluations\", 0)}\n')
+"
+        
+    - name: Upload evaluation results
+      uses: actions/upload-artifact@v4
+      with:
+        name: evaluation-results
+        path: |
+          agent-tracing-evaluation/evaluation_results.json
+          agent-tracing-evaluation/evaluation_reports/
+        retention-days: 30
+        
+    - name: Check quality gates
+      run: |
+        cd agent-tracing-evaluation
+        
+        # Parse results
+        source github_output.txt
+        
+        echo "📊 Evaluation Results:"
+        echo "  Overall Score: $overall_score"
+        echo "  Pass Rate: $pass_rate"
+        echo "  Total Evaluations: $total_evaluations"
+        
+        # Quality gates
+        if (( $(echo "$overall_score < 0.8" | bc -l) )); then
+          echo "❌ FAIL: Overall score below threshold (0.8)"
+          exit 1
+        fi
+        
+        if (( $(echo "$pass_rate < 0.85" | bc -l) )); then
+          echo "❌ FAIL: Pass rate below threshold (85%)"
+          exit 1
+        fi
+        
+        echo "✅ PASS: All quality gates met"
+        
+    - name: Create evaluation summary
+      run: |
+        cd agent-tracing-evaluation
+        
+        source github_output.txt
+        
+        cat > evaluation_summary.md << EOF
+# AI Agent Evaluation Summary
+
+## 📊 Results
+- **Overall Score**: $overall_score
+- **Pass Rate**: $pass_rate
+- **Total Evaluations**: $total_evaluations
+
+## 🎯 Quality Gates
+- ✅ Overall Score ≥ 0.8
+- ✅ Pass Rate ≥ 85%
+
+## 📈 Performance
+This evaluation was run on $(date) with ${{ github.event.inputs.trace_count || '100' }} sample traces.
+
+## 🔧 Evaluators
+The following evaluators were run: ${{ github.event.inputs.evaluators || 'skill_invocation,performance,cost,monitoring,health_check' }}
+
+## 📋 Details
+See the uploaded artifacts for detailed results and visualizations.
+EOF
+        
+        echo "## 📊 AI Agent Evaluation Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Overall Score**: $overall_score" >> $GITHUB_STEP_SUMMARY
+        echo "**Pass Rate**: $pass_rate" >> $GITHUB_STEP_SUMMARY
+        echo "**Total Evaluations**: $total_evaluations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All quality gates passed!" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ AI Agent Evaluation Failed"
+        echo "Check the logs and artifacts for details"
+        
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    needs: evaluation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security scan
+      run: |
+        cd agent-tracing-evaluation
+        pip install safety bandit
+        safety check -r requirements.txt
+        bandit -r . -f json -o security_report.json || true
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: agent-tracing-evaluation/security_report.json
+        retention-days: 30

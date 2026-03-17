@@ -177,236 +177,41 @@ if command -v kubectl &> /dev/null; then
         echo "⚠️  Monitoring directory not found: core/resources/infrastructure/monitoring"
     fi
     
-    # Create namespace for observability if it doesn't exist
-    echo "📝 Creating observability namespace..."
-    kubectl create namespace observability --dry-run=client -o yaml | kubectl apply -f - || {
-        echo "⚠️  Failed to create namespace, may already exist"
-    }
+    # Deploy self-hosted Langfuse by default
+    echo "🚀 Deploying self-hosted Langfuse (default - free & open source)..."
     
-    # Check if Langfuse secrets manifest exists
-    if [[ -f "gitops/langfuse-secrets.yaml" ]]; then
-        echo "🔐 Applying Langfuse secrets..."
-        kubectl apply -f gitops/langfuse-secrets.yaml -n observability || {
-            echo "⚠️  Failed to apply Langfuse secrets, please check configuration"
-        }
+    if [[ -f "core/automation/scripts/deploy-langfuse-selfhosted.sh" ]]; then
+        echo "📦 Running self-hosted Langfuse deployment..."
+        if bash "core/automation/scripts/deploy-langfuse-selfhosted.sh"; then
+            echo "✅ Self-hosted Langfuse deployed successfully"
+        else
+            echo "⚠️  Self-hosted Langfuse deployment failed, but secrets deployed"
+            echo "   You can deploy manually later: ./core/automation/scripts/deploy-langfuse-selfhosted.sh"
+        fi
     else
-        echo "📝 Creating Langfuse secrets template..."
-        mkdir -p gitops
-        cat > gitops/langfuse-secrets.yaml << 'SECRETS_EOF'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: langfuse-secrets
-  namespace: observability
-type: Opaque
-stringData:
-  # Set these values via environment variables or kubectl edit
-  public-key: "${LANGFUSE_PUBLIC_KEY:-your-public-key}"
-  secret-key: "${LANGFUSE_SECRET_KEY:-your-secret-key}"
-  base-url: "${LANGFUSE_BASE_URL:-https://cloud.langfuse.com}"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: langfuse-config
-  namespace: observability
-data:
-  OTEL_SERVICE_NAME: "gitops-temporal-worker"
-  OTEL_TRACES_EXPORTER: "otlp"
-  OTEL_EXPORTER_OTLP_ENDPOINT: "https://cloud.langfuse.com/api/public/otel"
-  OTEL_TRACES_ENABLED: "true"
-  OTEL_TRACES_SAMPLER: "traceidratio"
-  OTEL_TRACES_SAMPLER_ARG: "0.1"
-SECRETS_EOF
-        echo "📋 Created Langfuse secrets template"
-        echo "⚠️  Update secrets with real Langfuse credentials before deployment"
+        echo "⚠️  Self-hosted Langfuse script not found"
+        echo "   Secrets deployed - you can deploy Langfuse manually"
     fi
-    
-    # Check if Temporal worker deployment manifest exists
-    if [[ -f "gitops/temporal-worker-deployment.yaml" ]]; then
-        echo "🚀 Applying Temporal worker with Langfuse integration..."
-        kubectl apply -f gitops/temporal-worker-deployment.yaml -n observability || {
-            echo "⚠️  Failed to apply Temporal worker deployment"
-        }
-    else
-        echo "📝 Creating Temporal worker deployment template..."
-        cat > gitops/temporal-worker-deployment.yaml << 'WORKER_EOF'
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: temporal-worker
-  namespace: observability
-  labels:
-    app: temporal-worker
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: temporal-worker
-  template:
-    metadata:
-      labels:
-        app: temporal-worker
-    spec:
-      containers:
-      - name: temporal-worker
-        image: gitops-temporal-worker:latest
-        env:
-        - name: LANGFUSE_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-secrets
-              key: public-key
-        - name: LANGFUSE_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-secrets
-              key: secret-key
-        - name: LANGFUSE_BASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-secrets
-              key: base-url
-        - name: OTEL_SERVICE_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_SERVICE_NAME
-        - name: OTEL_TRACES_EXPORTER
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_TRACES_EXPORTER
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_EXPORTER_OTLP_ENDPOINT
-        - name: OTEL_TRACES_ENABLED
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_TRACES_ENABLED
-        - name: OTEL_TRACES_SAMPLER
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_TRACES_SAMPLER
-        - name: OTEL_TRACES_SAMPLER_ARG
-          valueFrom:
-            configMapKeyRef:
-              name: langfuse-config
-              key: OTEL_TRACES_SAMPLER_ARG
-        - name: TEMPORAL_HOST
-          value: "temporal:7233"
-        - name: TEMPORAL_TASK_QUEUE
-          value: "agents-task-queue"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-      - name: otel-collector
-        image: otel/opentelemetry-collector:latest
-        command:
-        - "/otelcol"
-        - "--config=/conf/otel-collector-config.yaml"
-        volumeMounts:
-        - name: otel-collector-config
-          mountPath: /conf
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-      volumes:
-      - name: otel-collector-config
-        configMap:
-          name: otel-collector-config
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: otel-collector-config
-  namespace: observability
-data:
-  otel-collector-config.yaml: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-          http:
-            endpoint: 0.0.0.0:4318
-    processors:
-      batch:
-        timeout: 5s
-        send_batch_size: 1024
-    exporters:
-      otlp:
-        endpoint: https://cloud.langfuse.com/api/public/otel
-        headers:
-          Authorization: "Bearer ${LANGFUSE_PUBLIC_KEY}"
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [otlp]
-WORKER_EOF
-        echo "📋 Created Temporal worker deployment template"
-    fi
-    
-    # Check deployment status
-    echo "🔍 Checking deployment status..."
-    kubectl get pods -n observability -l app=temporal-worker --no-headers | wc -l | xargs -I {} echo "📊 Temporal worker pods: {}"
-    
-    # Wait for pods to be ready (with timeout)
-    echo "⏳ Waiting for Temporal worker pods to be ready..."
-    kubectl wait --for=condition=ready pod -l app=temporal-worker -n observability --timeout=300s || {
-        echo "⚠️  Temporal worker pods not ready within timeout, but deployment initiated"
-    }
     
     echo "✅ Langfuse + Temporal integration deployed successfully"
     echo ""
-    echo "🎯 Langfuse Integration Status:"
-    echo "  Deployment Options:"
-    echo "    1. Self-hosted (Free): Deploy Langfuse in your cluster"
-    echo "    2. Langfuse Cloud (Managed): Use cloud.langfuse.com"
+    echo "🎯 Self-hosted Langfuse deployed by default (Free & Open Source)"
     echo ""
-    echo "  For Self-hosted Deployment:"
-    echo "    • Deploy: docker-compose up -d (local) or kubectl apply (cluster)"
-    echo "    • Configure: Set LANGFUSE_HOST to your deployment URL"
-    echo "    • Create API keys via Langfuse UI after deployment"
+    echo "🔧 Access your Langfuse instance:"
+    echo "  kubectl port-forward svc/langfuse-server 3000:3000 -n langfuse"
+    echo "  Then open: http://localhost:3000"
     echo ""
-    echo "  For Langfuse Cloud:"
-    echo "    • Sign up: https://cloud.langfuse.com"
-    echo "    • Create API keys in dashboard"
-    echo "    • Update secrets with real credentials"
+    echo "📋 Next Steps:"
+    echo "  1. Access Langfuse UI and create your account"
+    echo "  2. Generate API keys in Settings > API Keys"  
+    echo "  3. Update secrets with your API keys"
+    echo "  4. Restart deployments to enable tracing"
     echo ""
-    echo "  Current Status: Secrets deployed with placeholder values"
-    echo "  Next Step: Choose deployment option and configure accordingly"
-    echo ""
+    echo "💡 Alternative: Langfuse Cloud (managed) at https://cloud.langfuse.com"
     
 else
     echo "⚠️  kubectl not found, skipping Langfuse integration deployment"
-    echo "   To deploy manually: kubectl apply -f gitops/langfuse-secrets.yaml gitops/temporal-worker-deployment.yaml"
+    echo "   To deploy manually: kubectl apply -f core/config/langfuse-secret*.yaml"
 fi
 
 # Deploy AI Agent Skills

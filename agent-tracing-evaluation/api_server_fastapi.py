@@ -2,17 +2,19 @@
 """
 Evaluation API Server
 
-HTTP API server for exposing agent tracing evaluation results to the dashboard.
+FastAPI server for exposing agent tracing evaluation results to the dashboard.
 Provides REST endpoints for monitoring, health checks, and auto-fix status.
 """
 
 import json
 import time
+import argparse
 from datetime import datetime
 from typing import Dict, Any, List
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import logging
+import uvicorn
 
 # Add parent directory to path for imports
 import sys
@@ -21,8 +23,21 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import TracingEvaluationFramework
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for dashboard integration
+# Initialize FastAPI app
+app = FastAPI(
+    title="Evaluation API",
+    description="Agent Tracing Evaluation Framework API",
+    version="1.0.0"
+)
+
+# Enable CORS for dashboard integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize evaluation framework
 evaluation_framework = TracingEvaluationFramework()
@@ -35,75 +50,67 @@ logger = logging.getLogger(__name__)
 latest_results = {}
 evaluation_history = []
 
-@app.route('/health', methods=['GET'])
-def health_check():
+@app.get("/health")
+async def health_check():
     """Health check endpoint"""
-    return jsonify({
+    return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "service": "evaluation-api"
-    })
+    }
 
-@app.route('/api/v1/evaluation/health', methods=['GET'])
-def get_evaluation_health():
+@app.get("/api/v1/evaluation/health")
+async def get_evaluation_health():
     """Get agent health evaluation results"""
     try:
         if "health_check" in latest_results:
-            return jsonify({
+            return {
                 "status": "success",
                 "data": latest_results["health_check"],
                 "timestamp": datetime.now().isoformat()
-            })
+            }
         else:
             # Run evaluation if no cached results
             traces = load_sample_traces()
             results = evaluation_framework.evaluate_traces(traces, ["health_check"])
             latest_results["health_check"] = results["evaluator_results"]["health_check"]
             
-            return jsonify({
+            return {
                 "status": "success", 
                 "data": latest_results["health_check"],
                 "timestamp": datetime.now().isoformat()
-            })
+            }
     except Exception as e:
         logger.error(f"Error getting health evaluation: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v1/evaluation/monitoring', methods=['GET'])
-def get_evaluation_monitoring():
+@app.get("/api/v1/evaluation/monitoring")
+async def get_evaluation_monitoring():
     """Get monitoring evaluation results"""
     try:
         if "monitoring" in latest_results:
-            return jsonify({
+            return {
                 "status": "success",
                 "data": latest_results["monitoring"],
                 "timestamp": datetime.now().isoformat()
-            })
+            }
         else:
             # Run evaluation if no cached results
             traces = load_sample_traces()
             results = evaluation_framework.evaluate_traces(traces, ["monitoring"])
             latest_results["monitoring"] = results["evaluator_results"]["monitoring"]
             
-            return jsonify({
+            return {
                 "status": "success",
                 "data": latest_results["monitoring"],
                 "timestamp": datetime.now().isoformat()
-            })
+            }
     except Exception as e:
         logger.error(f"Error getting monitoring evaluation: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v1/evaluation/issues', methods=['GET'])
-def get_evaluation_issues():
+@app.get("/api/v1/evaluation/issues")
+async def get_evaluation_issues():
     """Get detected issues from evaluation"""
     try:
         if "monitoring" in latest_results:
@@ -126,7 +133,7 @@ def get_evaluation_issues():
                 else:
                     serializable_issues.append(issue)
             
-            return jsonify({
+            return {
                 "status": "success",
                 "data": {
                     "issues": serializable_issues,
@@ -134,28 +141,24 @@ def get_evaluation_issues():
                     "critical_count": len([i for i in serializable_issues if i.get("severity") == "critical"])
                 },
                 "timestamp": datetime.now().isoformat()
-            })
+            }
         else:
-            return jsonify({
+            return {
                 "status": "success",
                 "data": {"issues": [], "total_count": 0, "critical_count": 0},
                 "timestamp": datetime.now().isoformat()
-            })
+            }
     except Exception as e:
         logger.error(f"Error getting issues: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v1/evaluation/auto-fix', methods=['GET'])
-def get_auto_fix_status():
+@app.get("/api/v1/evaluation/auto-fix")
+async def get_auto_fix_status():
     """Get auto-fix status and history"""
     try:
         auto_fix_manager = evaluation_framework.auto_fix_manager
         
-        return jsonify({
+        return {
             "status": "success",
             "data": {
                 "fix_history": [
@@ -171,17 +174,13 @@ def get_auto_fix_status():
                 "total_fixes": len(auto_fix_manager.fix_history)
             },
             "timestamp": datetime.now().isoformat()
-        })
+        }
     except Exception as e:
         logger.error(f"Error getting auto-fix status: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v1/evaluation/summary', methods=['GET'])
-def get_evaluation_summary():
+@app.get("/api/v1/evaluation/summary")
+async def get_evaluation_summary():
     """Get comprehensive evaluation summary"""
     try:
         # Ensure we have latest results
@@ -201,7 +200,7 @@ def get_evaluation_summary():
         if len(evaluation_history) > 10:
             evaluation_history.pop(0)
         
-        return jsonify({
+        return {
             "status": "success",
             "data": {
                 "summary": results["summary"],
@@ -210,47 +209,34 @@ def get_evaluation_summary():
                 "evaluators_run": results["evaluators_run"]
             },
             "timestamp": datetime.now().isoformat()
-        })
+        }
     except Exception as e:
         logger.error(f"Error getting evaluation summary: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v1/evaluation/evaluate', methods=['POST'])
-def run_evaluation():
+@app.post("/api/v1/evaluation/evaluate")
+async def run_evaluation(request: Dict[str, Any]):
     """Run evaluation on provided traces"""
     try:
-        data = request.get_json()
+        if not request or "traces" not in request:
+            raise HTTPException(status_code=400, detail="Missing traces in request body")
         
-        if not data or "traces" not in data:
-            return jsonify({
-                "status": "error",
-                "error": "Missing traces in request body"
-            }), 400
-        
-        traces = data["traces"]
-        evaluator_types = data.get("evaluator_types", ["monitoring", "health_check"])
+        traces = request["traces"]
+        evaluator_types = request.get("evaluator_types", ["monitoring", "health_check"])
         
         results = evaluation_framework.evaluate_traces(traces, evaluator_types)
         
         # Update cache
         latest_results.update(results["evaluator_results"])
         
-        return jsonify({
+        return {
             "status": "success",
             "data": results,
             "timestamp": datetime.now().isoformat()
-        })
+        }
     except Exception as e:
         logger.error(f"Error running evaluation: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 def load_sample_traces():
     """Load sample traces for demonstration"""
@@ -281,8 +267,6 @@ def load_sample_traces():
         ]
 
 if __name__ == "__main__":
-    import argparse
-    
     parser = argparse.ArgumentParser(description="Evaluation API Server")
     parser.add_argument("--port", type=int, default=8081, help="Port to run the server on")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
@@ -290,4 +274,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     logger.info(f"Starting Evaluation API Server on {args.host}:{args.port}")
-    app.run(host=args.host, port=args.port, debug=True)
+    
+    uvicorn.run(
+        "api_server:app",
+        host=args.host,
+        port=args.port,
+        reload=True,
+        log_level="info"
+    )

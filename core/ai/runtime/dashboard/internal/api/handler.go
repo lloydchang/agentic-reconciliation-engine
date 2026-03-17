@@ -185,16 +185,14 @@ func (h *Handler) GetSystemStatus(c *gin.Context) {
 }
 
 func (h *Handler) GetSystemMetrics(c *gin.Context) {
+	h.logger.Info("GetSystemMetrics handler called")
 	metrics, err := h.systemService.GetSystemMetrics(c.Request.Context())
 	if err != nil {
 		h.logger.Error("Failed to get system metrics", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get system metrics"})
 		return
 	}
-
-	// Broadcast metrics update
-	h.wsHub.BroadcastMetrics(*metrics)
-
+	h.logger.Info("System metrics retrieved successfully", zap.Int64("total_agents", metrics.AgentMetrics.Total))
 	c.JSON(http.StatusOK, metrics)
 }
 

@@ -15,8 +15,9 @@ type SystemService struct {
 	logger *zap.Logger
 }
 
-func NewSystemService(logger *zap.Logger) *SystemService {
+func NewSystemService(db *sql.DB, logger *zap.Logger) *SystemService {
 	return &SystemService{
+		db:     db,
 		logger: logger,
 	}
 }
@@ -56,11 +57,13 @@ func (s *SystemService) GetSystemMetrics(ctx context.Context) (*models.SystemMet
 
 	// Get agent metrics
 	if s.db != nil {
+		s.logger.Info("Getting agent metrics from database")
 		agentMetrics, err := s.getAgentMetrics(ctx)
 		if err != nil {
 			s.logger.Error("Failed to get agent metrics", zap.Error(err))
 		} else {
 			metrics.AgentMetrics = agentMetrics
+			s.logger.Info("Agent metrics retrieved", zap.Int64("total", agentMetrics.Total))
 		}
 
 		skillMetrics, err := s.getSkillMetrics(ctx)
@@ -68,8 +71,10 @@ func (s *SystemService) GetSystemMetrics(ctx context.Context) (*models.SystemMet
 			s.logger.Error("Failed to get skill metrics", zap.Error(err))
 		} else {
 			metrics.SkillMetrics = skillMetrics
+			s.logger.Info("Skill metrics retrieved", zap.Int64("total", skillMetrics.Total))
 		}
 	} else {
+		s.logger.Error("Database connection is nil")
 		// Default metrics when no database
 		metrics.AgentMetrics = models.AgentMetrics{
 			Total:   0,
@@ -100,20 +105,32 @@ func (s *SystemService) GetSystemMetrics(ctx context.Context) (*models.SystemMet
 func (s *SystemService) getAgentMetrics(ctx context.Context) (models.AgentMetrics, error) {
 	var metrics models.AgentMetrics
 
+	// Test database connection
+	var test int
+	err := s.db.QueryRowContext(ctx, "SELECT 1").Scan(&test)
+	if err != nil {
+		s.logger.Error("Database connection test failed", zap.Error(err))
+		return metrics, fmt.Errorf("database connection test failed: %w", err)
+	}
+	s.logger.Info("Database connection test passed", zap.Int("test", test))
+
 	// Get total agents
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM agents").Scan(&metrics.Total)
+	err = s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM agents").Scan(&metrics.Total)
 	if err != nil {
 		return metrics, fmt.Errorf("failed to get total agents: %w", err)
 	}
+	s.logger.Info("Got total agents", zap.Int64("total", metrics.Total))
 
 	// Get agents by status
-	statuses := []string{"running", "idle", "error", "stopped"}
+	statuses := []string{"running", "idle", "errored", "stopped"}
 	counts := []*int64{&metrics.Running, &metrics.Idle, &metrics.Errored, &metrics.Stopped}
 
 	for i, status := range statuses {
 		err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM agents WHERE status = $1", status).Scan(counts[i])
 		if err != nil {
 			s.logger.Error("Failed to get agent count by status", zap.String("status", status), zap.Error(err))
+		} else {
+			s.logger.Info("Got agent count by status", zap.String("status", status), zap.Int64("count", *counts[i]))
 		}
 	}
 
