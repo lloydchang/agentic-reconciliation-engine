@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
+	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
 )
 
 // EvaluationActivities contains all evaluation-related activities

@@ -23,6 +23,35 @@
   width: 100%;
 }
 
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.nav-btn.active {
+  background: rgba(52, 152, 219, 0.3);
+  border-color: #3498db;
+}
+
 .App-header h1 {
   margin: 0;
   color: #1f2937;
