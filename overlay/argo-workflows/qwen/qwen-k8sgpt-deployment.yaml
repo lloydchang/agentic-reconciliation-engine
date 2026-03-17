@@ -40,11 +40,16 @@ spec:
           protocol: TCP
         env:
         - name: K8SGPT_MODEL
-          value: "qwen"
+          value: "qwen2.5-7b-instruct"
         - name: K8SGPT_BACKEND
-          value: "localai"
-        - name: K8SGPT_LOCALAI_BASE_URL
-          value: "http://qwen-localai.argo-workflows.svc.cluster.local:8080"
+          value: "agent-memory"
+        - name: K8SGPT_API_BASE
+          value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: K8SGPT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent-memory-secrets
+              key: jwt-secret
         - name: K8SGPT_NAMESPACE
           value: "argo-workflows"
         - name: K8SGPT_OUTPUT
