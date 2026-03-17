@@ -120,7 +120,7 @@ class OverlayTester:
         overlay_dirs = []
         
         for root, dirs, files in os.walk(self.overlays_dir):
-            if 'kustomization.yaml' in files and 'composed' not in str(root):
+            if 'kustomization.yaml' in files and 'examples' not in str(root):
                 overlay_dirs.append(Path(root))
         
         return overlay_dirs
@@ -129,7 +129,7 @@ class OverlayTester:
         """Find all composed overlay directories"""
         composed_dirs = []
         
-        composed_path = self.overlays_dir / 'composed'
+        composed_path = self.overlays_dir / 'examples'
         if composed_path.exists():
             for root, dirs, files in os.walk(composed_path):
                 if 'kustomization.yaml' in files:
