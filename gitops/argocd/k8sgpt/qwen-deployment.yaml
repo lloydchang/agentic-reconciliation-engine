@@ -1,120 +1,32 @@
-# Qwen LocalAI Deployment for K8sGPT
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: qwen-localai
-  namespace: k8sgpt-system
-  labels:
-    app.kubernetes.io/name: qwen-localai
-    app.kubernetes.io/part-of: k8sgpt
-    app.kubernetes.io/version: v2.18.0
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: qwen-localai
-      app.kubernetes.io/part-of: k8sgpt
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: qwen-localai
-        app.kubernetes.io/part-of: k8sgpt
-        app.kubernetes.io/version: v2.18.0
-    spec:
-      containers:
-      - name: localai
-        image: localai/localai:v2.18.0-cuda
-        command:
-        - localai
-        - --models-path
-        - /models
-        - --config-file
-        - /config/config.yaml
-        - --address
-        - 0.0.0.0:8080
-        - --log-level
-        - info
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MODELS_PATH
-          value: "/models"
-        - name: CONFIG_FILE
-          value: "/config/config.yaml"
-        - name: THREADS
-          value: "4"
-        - name: DEBUG
-          value: "false"
-        resources:
-          limits:
-            cpu: 2000m
-            memory: 8Gi
-            # Uncomment if using GPU
-            # nvidia.com/gpu: 1
-          requests:
-            cpu: 1000m
-            memory: 4Gi
-        volumeMounts:
-        - name: models
-          mountPath: /models
-        - name: config
-          mountPath: /config
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        livenessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
-      volumes:
-      - name: models
-        persistentVolumeClaim:
-          claimName: qwen-models-pvc
-      - name: config
-        configMap:
-          name: qwen-localai-config
----
+# Qwen Configuration for K8sGPT - Using Centralized Service
 apiVersion: v1
-kind: Service
+kind: ConfigMap
 metadata:
-  name: qwen-localai
+  name: qwen-deployment-config
   namespace: k8sgpt-system
   labels:
-    app.kubernetes.io/name: qwen-localai
+    app.kubernetes.io/name: qwen-deployment-config
     app.kubernetes.io/part-of: k8sgpt
-spec:
-  type: ClusterIP
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
-    protocol: TCP
-  selector:
-    app.kubernetes.io/name: qwen-localai
-    app.kubernetes.io/part-of: k8sgpt
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: qwen-models-pvc
-  namespace: k8sgpt-system
-  labels:
-    app.kubernetes.io/name: qwen-models-pvc
-    app.kubernetes.io/part-of: k8sgpt
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
-  # Uncomment and adjust for your storage class
-  # storageClassName: fast-ssd
+data:
+  deployment.yaml: |
+    # This deployment is deprecated - using centralized agent-memory service
+    # All Qwen functionality now provided by agent-memory-rust
+    # Location: ai-infrastructure namespace
+    # Service: agent-memory-service:8080
+    # Metrics: agent-memory-service:9090
+    
+    # Migration completed: Use centralized service instead
+    status: "migrated_to_centralized"
+    migration_date: "2025-03-17"
+    new_service: "agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+    old_service: "qwen-localai.k8sgpt-system.svc.cluster.local:8080"
+    
+    # Configuration for K8sGPT to use centralized Qwen
+    k8sgpt_config:
+      backend: "agent-memory"
+      model: "qwen2.5-7b-instruct"
+      api_base: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+      api_key: "k8sgpt-api-key"
+      timeout: 30
+      max_tokens: 4096
+      temperature: 0.7

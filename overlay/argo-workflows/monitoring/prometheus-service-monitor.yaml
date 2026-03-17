@@ -41,6 +41,27 @@ spec:
     path: /metrics
 
 ---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: agent-memory-metrics
+  namespace: ai-infrastructure
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: agent-memory
+    app.kubernetes.io/llm: qwen
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      component: agent-memory
+  endpoints:
+  - name: metrics
+    port: metrics
+    path: /metrics
+    interval: 30s
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
