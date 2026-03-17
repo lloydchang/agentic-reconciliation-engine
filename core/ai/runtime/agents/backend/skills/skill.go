@@ -90,11 +90,9 @@ func (sm *SkillManager) scanDirectory(dir, scope string, priority int) error {
 			continue // Skip invalid skills
 		}
 
-		// Handle naming conflicts with priority
-		if existing, exists := sm.Skills[skill.Name]; exists {
-			if skill.Priority > existing.Priority {
-				sm.Skills[skill.Name] = skill
-			}
+		// Handle naming conflicts - keep the first one found
+		if _, exists := sm.Skills[skill.Name]; exists {
+			continue // Skip duplicates
 		} else {
 			sm.Skills[skill.Name] = skill
 		}
@@ -111,10 +109,8 @@ func (sm *SkillManager) parseSkill(skillPath, scope string, priority int) (*Skil
 	}
 
 	skill := &Skill{
-		Path:            skillPath,
-		Directory:       filepath.Dir(skillPath),
-		SupportingFiles: make(map[string]string),
-		UserInvocable:   true, // Default to true
+		FilePath:      skillPath,
+		UserInvocable: true, // Default to true
 	}
 
 	// Parse frontmatter and content
@@ -219,7 +215,7 @@ func (sm *SkillManager) ListSkills() []*Skill {
 func (sm *SkillManager) ListUserInvocableSkills() []*Skill {
 	var skills []*Skill
 	for _, skill := range sm.Skills {
-		if skill.UserInvocable && !skill.DisableModelInvocation {
+		if skill.UserInvocable && !skill.DisableModel {
 			skills = append(skills, skill)
 		}
 	}

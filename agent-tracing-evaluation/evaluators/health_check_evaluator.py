@@ -329,7 +329,15 @@ class HealthCheckEvaluator:
         for trace in traces:
             if "agent" in trace and "conversation" in trace["agent"]:
                 conv_data = trace["agent"]["conversation"]
-                conv_id = conv_data.get("conversation_id", "unknown")
+                
+                # Handle both dict and list formats
+                if isinstance(conv_data, dict):
+                    conv_id = conv_data.get("conversation_id", "unknown")
+                elif isinstance(conv_data, list):
+                    # For list format, generate an ID based on trace
+                    conv_id = trace.get("trace_id", f"conv-{total_conversations}")
+                else:
+                    continue
 
                 if conv_id not in conversations:
                     conversations[conv_id] = {
@@ -339,14 +347,19 @@ class HealthCheckEvaluator:
                     }
                     total_conversations += 1
 
-                conversations[conv_id]["turns"] += 1
-
-                if conv_data.get("completed", False):
-                    conversations[conv_id]["completed"] = True
-                    completed_conversations += 1
-
-                if conv_data.get("error"):
-                    conversations[conv_id]["errors"] += 1
+                if isinstance(conv_data, dict):
+                    conversations[conv_id]["turns"] += conv_data.get("turns", 0)
+                    if conv_data.get("completed", False):
+                        conversations[conv_id]["completed"] = True
+                        completed_conversations += 1
+                    if conv_data.get("error"):
+                        conversations[conv_id]["errors"] += 1
+                elif isinstance(conv_data, list):
+                    conversations[conv_id]["turns"] = len(conv_data)
+                    # Assume list conversations are incomplete unless marked otherwise
+                    if trace.get("completed", False):
+                        conversations[conv_id]["completed"] = True
+                        completed_conversations += 1
 
         completion_rate = completed_conversations / max(1, total_conversations)
 

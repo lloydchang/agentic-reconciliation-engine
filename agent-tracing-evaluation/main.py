@@ -66,7 +66,11 @@ class TracingEvaluationFramework:
             evaluator = self.evaluators[evaluator_type]
             
             # Run evaluation
-            if hasattr(evaluator, 'evaluate_batch'):
+            if evaluator_type == "monitoring":
+                result = self.monitoring_evaluator.generate_monitoring_report(traces)
+            elif evaluator_type == "health_check":
+                result = self.health_check_evaluator.generate_health_report(traces)
+            elif hasattr(evaluator, 'evaluate_batch'):
                 result = evaluator.evaluate_batch(traces)
             else:
                 # Fallback to individual evaluations
