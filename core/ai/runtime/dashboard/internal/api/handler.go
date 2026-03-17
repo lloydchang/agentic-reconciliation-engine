@@ -11,12 +11,13 @@ import (
 )
 
 type Handler struct {
-	agentService    *services.AgentService
-	skillService    *services.SkillService
-	activityService *services.ActivityService
-	systemService   *services.SystemService
-	wsHub           *ws.Hub
-	logger          *zap.Logger
+	agentService      *services.AgentService
+	skillService      *services.SkillService
+	activityService   *services.ActivityService
+	systemService     *services.SystemService
+	evaluationService *services.EvaluationService
+	wsHub            *ws.Hub
+	logger           *zap.Logger
 }
 
 func NewHandler(
@@ -24,16 +25,18 @@ func NewHandler(
 	skillService *services.SkillService,
 	activityService *services.ActivityService,
 	systemService *services.SystemService,
+	evaluationService *services.EvaluationService,
 	wsHub *ws.Hub,
 	logger *zap.Logger,
 ) *Handler {
 	return &Handler{
-		agentService:    agentService,
-		skillService:    skillService,
-		activityService: activityService,
-		systemService:   systemService,
-		wsHub:          wsHub,
-		logger:         logger,
+		agentService:      agentService,
+		skillService:      skillService,
+		activityService:   activityService,
+		systemService:     systemService,
+		evaluationService: evaluationService,
+		wsHub:            wsHub,
+		logger:           logger,
 	}
 }
 
@@ -193,6 +196,61 @@ func (h *Handler) GetSystemMetrics(c *gin.Context) {
 	h.wsHub.BroadcastMetrics(*metrics)
 
 	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *Handler) GetEvaluationHealth(c *gin.Context) {
+	health, err := h.evaluationService.GetHealthEvaluation(c.Request.Context())
+	if err != nil {
+		h.logger.Error("Failed to get evaluation health", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get evaluation health"})
+		return
+	}
+
+	c.JSON(http.StatusOK, health)
+}
+
+func (h *Handler) GetEvaluationMonitoring(c *gin.Context) {
+	monitoring, err := h.evaluationService.GetMonitoringEvaluation(c.Request.Context())
+	if err != nil {
+		h.logger.Error("Failed to get evaluation monitoring", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get evaluation monitoring"})
+		return
+	}
+
+	c.JSON(http.StatusOK, monitoring)
+}
+
+func (h *Handler) GetEvaluationIssues(c *gin.Context) {
+	issues, err := h.evaluationService.GetIssues(c.Request.Context())
+	if err != nil {
+		h.logger.Error("Failed to get evaluation issues", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get evaluation issues"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"issues": issues, "total_count": len(issues)})
+}
+
+func (h *Handler) GetAutoFixStatus(c *gin.Context) {
+	autoFix, err := h.evaluationService.GetAutoFixStatus(c.Request.Context())
+	if err != nil {
+		h.logger.Error("Failed to get auto-fix status", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get auto-fix status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, autoFix)
+}
+
+func (h *Handler) GetEvaluationSummary(c *gin.Context) {
+	summary, err := h.evaluationService.GetSummary(c.Request.Context())
+	if err != nil {
+		h.logger.Error("Failed to get evaluation summary", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get evaluation summary"})
+		return
+	}
+
+	c.JSON(http.StatusOK, summary)
 }
 
 func (h *Handler) GetHealth(c *gin.Context) {

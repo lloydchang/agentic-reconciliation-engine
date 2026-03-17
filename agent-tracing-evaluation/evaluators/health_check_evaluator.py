@@ -377,17 +377,33 @@ class HealthCheckEvaluator:
         for trace in traces:
             if "agent" in trace and "conversation" in trace["agent"]:
                 conv_data = trace["agent"]["conversation"]
-                start_time = conv_data.get("start_time")
-                end_time = conv_data.get("end_time")
+                
+                # Handle both dict and list formats
+                if isinstance(conv_data, dict):
+                    start_time = conv_data.get("start_time")
+                    end_time = conv_data.get("end_time")
 
-                if start_time and end_time:
-                    try:
-                        start = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                        end = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        duration = (end - start).total_seconds()
-                        durations.append(duration)
-                    except (ValueError, AttributeError):
-                        continue
+                    if start_time and end_time:
+                        try:
+                            start = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                            end = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                            duration = (end - start).total_seconds()
+                            durations.append(duration)
+                        except (ValueError, AttributeError):
+                            continue
+                elif isinstance(conv_data, list):
+                    # For list format, use trace timestamps if available
+                    trace_start = trace.get("start_time")
+                    trace_end = trace.get("end_time")
+                    
+                    if trace_start and trace_end:
+                        try:
+                            start = datetime.fromisoformat(trace_start.replace('Z', '+00:00'))
+                            end = datetime.fromisoformat(trace_end.replace('Z', '+00:00'))
+                            duration = (end - start).total_seconds()
+                            durations.append(duration)
+                        except (ValueError, AttributeError):
+                            continue
 
         if durations:
             return {
@@ -413,18 +429,35 @@ class HealthCheckEvaluator:
         for trace in traces:
             if "agent" in trace and "conversation" in trace["agent"]:
                 conv_data = trace["agent"]["conversation"]
-                conv_id = conv_data.get("conversation_id", "unknown")
-                error = conv_data.get("error")
+                
+                # Handle both dict and list formats
+                if isinstance(conv_data, dict):
+                    conv_id = conv_data.get("conversation_id", "unknown")
+                    error = conv_data.get("error")
 
-                if conv_id not in error_patterns:
-                    error_patterns[conv_id] = {"errors": [], "error_count": 0}
+                    if conv_id not in error_patterns:
+                        error_patterns[conv_id] = {"errors": [], "error_count": 0}
 
-                if error:
-                    error_patterns[conv_id]["errors"].append(error)
-                    error_patterns[conv_id]["error_count"] += 1
-                    conversations_with_errors += 1
+                    if error:
+                        error_patterns[conv_id]["errors"].append(error)
+                        error_patterns[conv_id]["error_count"] += 1
+                        conversations_with_errors += 1
 
-                total_conversations += 1
+                    total_conversations += 1
+                elif isinstance(conv_data, list):
+                    # For list format, use trace ID and check for errors
+                    conv_id = trace.get("trace_id", f"conv-{total_conversations}")
+                    error = trace.get("error")
+
+                    if conv_id not in error_patterns:
+                        error_patterns[conv_id] = {"errors": [], "error_count": 0}
+
+                    if error:
+                        error_patterns[conv_id]["errors"].append(error)
+                        error_patterns[conv_id]["error_count"] += 1
+                        conversations_with_errors += 1
+
+                    total_conversations += 1
 
         error_rate = conversations_with_errors / max(1, total_conversations)
 
@@ -443,20 +476,41 @@ class HealthCheckEvaluator:
         for trace in traces:
             if "agent" in trace and "conversation" in trace["agent"]:
                 conv_data = trace["agent"]["conversation"]
-                last_activity = conv_data.get("last_activity")
+                
+                # Handle both dict and list formats
+                if isinstance(conv_data, dict):
+                    last_activity = conv_data.get("last_activity")
+                    completed = conv_data.get("completed", False)
 
-                if last_activity:
-                    try:
-                        activity_time = datetime.fromisoformat(last_activity.replace('Z', '+00:00'))
-                        if activity_time < cutoff_time and not conv_data.get("completed", False):
-                            stuck_conversations.append({
-                                "conversation_id": conv_data.get("conversation_id"),
-                                "last_activity": last_activity,
-                                "turns": conv_data.get("turns", 0),
-                                "current_step": conv_data.get("current_step", "unknown")
-                            })
-                    except (ValueError, AttributeError):
-                        continue
+                    if last_activity and not completed:
+                        try:
+                            activity_time = datetime.fromisoformat(last_activity.replace('Z', '+00:00'))
+                            if activity_time < cutoff_time:
+                                stuck_conversations.append({
+                                    "conversation_id": conv_data.get("conversation_id", "unknown"),
+                                    "last_activity": last_activity,
+                                    "turns": conv_data.get("turns", 0),
+                                    "current_step": conv_data.get("current_step", "unknown")
+                                })
+                        except (ValueError, AttributeError):
+                            continue
+                elif isinstance(conv_data, list):
+                    # For list format, use trace timestamp
+                    last_activity = trace.get("last_activity")
+                    completed = trace.get("completed", False)
+
+                    if last_activity and not completed:
+                        try:
+                            activity_time = datetime.fromisoformat(last_activity.replace('Z', '+00:00'))
+                            if activity_time < cutoff_time:
+                                stuck_conversations.append({
+                                    "conversation_id": trace.get("trace_id", "unknown"),
+                                    "last_activity": last_activity,
+                                    "turns": len(conv_data),
+                                    "current_step": trace.get("current_step", "unknown")
+                                })
+                        except (ValueError, AttributeError):
+                            continue
 
         return stuck_conversations
 

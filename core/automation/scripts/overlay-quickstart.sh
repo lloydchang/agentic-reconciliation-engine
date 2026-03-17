@@ -87,10 +87,59 @@ EOF
 
 echo "🚀 Overlay post-quickstart hook executing..."
 
-# Create overlay-specific directories
-mkdir -p overlay/examples
-mkdir -p overlay/templates
-mkdir -p overlay/registry
+# Deploy Langfuse + Temporal Integration for Overlay
+echo "🔍 Deploying Langfuse + Temporal Integration for Overlay..."
+
+# Check if kubectl is available
+if command -v kubectl &> /dev/null; then
+    echo "☸️  kubectl detected, deploying Langfuse integration..."
+
+# Check if cluster is accessible
+if kubectl cluster-info &> /dev/null; then
+    # Deploy Langfuse secrets
+    echo "📋 Deploying Langfuse secrets..."
+    
+    if [[ -f "core/config/langfuse-secret.yaml" ]]; then
+        if kubectl apply -f core/config/langfuse-secret.yaml; then
+            echo "✅ Langfuse secrets deployed to control-plane namespace"
+        else
+            echo "⚠️  Failed to deploy Langfuse secrets to control-plane namespace"
+        fi
+    fi
+    
+    if [[ -f "core/config/langfuse-secret-gitops-infra.yaml" ]]; then
+        if kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml; then
+            echo "✅ Langfuse secrets deployed to ai-infrastructure namespace"
+        else
+            echo "⚠️  Failed to deploy Langfuse secrets to ai-infrastructure namespace"
+        fi
+    fi
+    
+    # Deploy monitoring with Langfuse dashboard
+    echo "📊 Deploying monitoring stack with Langfuse dashboard..."
+    
+    if [[ -d "core/resources/infrastructure/monitoring" ]]; then
+        if kubectl apply -k core/resources/infrastructure/monitoring; then
+            echo "✅ Monitoring stack with Langfuse dashboard deployed"
+        else
+            echo "⚠️  Failed to deploy monitoring stack"
+        fi
+    fi
+    
+    echo "🎯 Langfuse integration deployment completed!"
+    echo "📊 Choose your Langfuse deployment option:"
+    echo "  1. Self-hosted (Free): Deploy Langfuse in-cluster"
+    echo "     • docker-compose up -d (local development)"
+    echo "     • kubectl apply langfuse-deployment.yaml (cluster)"
+    echo "  2. Langfuse Cloud (Managed): https://cloud.langfuse.com"
+    echo ""
+    echo "🔧 Configure secrets with your chosen deployment:"
+    echo "  • Self-hosted: Set LANGFUSE_HOST to your deployment URL"
+    echo "  • Cloud: Use API keys from cloud.langfuse.com dashboard"
+    echo "  • Create API keys after initial Langfuse deployment"
+else
+    echo "⚠️  Kubernetes cluster not accessible - skipping Langfuse deployment"
+fi
 
 # Initialize overlay registry if it doesn't exist
 if [[ ! -f overlay/registry/catalog.yaml ]]; then
@@ -325,6 +374,9 @@ complete_overlay_quickstart() {
     # Deploy example overlay
     deploy_example_overlay || return 1
     
+    # Deploy AI Agent Skills and MCP servers
+    deploy_ai_agent_skills || return 1
+    
     print_success "Overlay quick start completed successfully!"
     echo ""
     echo -e "${BLUE}🎉 Overlay system is ready!${NC}"
@@ -336,6 +388,8 @@ complete_overlay_quickstart() {
     echo "2. Create custom overlays with overlay-cli.py"
     echo "3. Deploy overlays to your cluster"
     echo "4. Monitor overlay status and logs"
+    echo "5. Access your AI agents dashboard at http://localhost:8080"
+    echo "6. Configure Claude Desktop with AI Agent Skills"
 }
 
 # Help function
@@ -397,6 +451,7 @@ case "${1:-}" in
         setup_overlay_environment
         create_overlay_hooks
         create_overlay_examples
+        deploy_ai_agent_skills
         ;;
     -t|--test)
         setup_overlay_environment
@@ -407,6 +462,7 @@ case "${1:-}" in
         setup_overlay_environment
         create_overlay_hooks
         deploy_example_overlay
+        deploy_ai_agent_skills
         ;;
     -a|--all)
         complete_overlay_quickstart

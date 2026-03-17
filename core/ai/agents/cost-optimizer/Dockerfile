@@ -1,4 +1,10 @@
-FROM rust:1.80-slim AS builder
+FROM rust:1.83-alpine AS builder
+
+RUN apk add --no-cache \
+    pkgconfig \
+    openssl-dev \
+    musl-dev \
+    openssl-libs-static
 
 WORKDIR /app
 
@@ -12,11 +18,9 @@ COPY src ./src/
 RUN cargo update && cargo build --release
 
 # Final stage
-FROM debian:bookworm-slim
+FROM alpine:latest
 
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
@@ -28,7 +32,7 @@ EXPOSE 8080
 
 # Health check endpoints
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Run the application
 CMD ["./cost-optimizer"]

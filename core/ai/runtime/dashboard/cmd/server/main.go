@@ -14,6 +14,7 @@ import (
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/api"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/config"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/database"
+	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/rag"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/ws"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/pkg/metrics"
@@ -48,6 +49,33 @@ func main() {
 	skillService := services.NewSkillService(db, logger)
 	activityService := services.NewActivityService(db, logger)
 	systemService := services.NewSystemService(logger)
+	evaluationService := services.NewEvaluationService(logger)
+
+	// Initialize RAG service if enabled
+	var ragService *rag.RAGService
+	var ragHandler *api.RAGHandler
+	var voiceHandler *api.VoiceHandler
+	if os.Getenv("RAG_ENABLED") == "true" {
+		qwenClient := rag.NewQwenClient(
+			getEnv("QWEN_LLAMACPP_URL", "http://localhost:8080"),
+			getEnv("QWEN_MODEL", "qwen2.5:0.5b"),
+		)
+		ragService = rag.NewRAGService(db, qwenClient)
+		ragHandler = api.NewRAGHandler(ragService)
+		
+		// Initialize voice handler
+		voiceHandler = api.NewVoiceHandler(getEnv("VOICE_UPLOAD_DIR", "/tmp/voice-uploads"))
+		
+		// Index documentation on startup
+		go func() {
+			logger.Info("Indexing documentation...")
+			if err := ragService.IndexDocumentation(context.Background()); err != nil {
+				logger.Error("Failed to index documentation", zap.Error(err))
+			} else {
+				logger.Info("Documentation indexing completed")
+			}
+		}()
+	}
 
 	// Initialize WebSocket hub
 	wsHub := ws.NewHub(logger)
@@ -76,7 +104,7 @@ func main() {
 	})
 
 	// Initialize API handlers
-	apiHandler := api.NewHandler(agentService, skillService, activityService, systemService, wsHub, logger)
+	apiHandler := api.NewHandler(agentService, skillService, activityService, systemService, evaluationService, wsHub, logger)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -98,9 +126,34 @@ func main() {
 		v1.GET("/system/metrics", apiHandler.GetSystemMetrics)
 		v1.GET("/system/health", apiHandler.GetHealth)
 
+		// Evaluation APIs
+		v1.GET("/evaluation/health", apiHandler.GetEvaluationHealth)
+		v1.GET("/evaluation/monitoring", apiHandler.GetEvaluationMonitoring)
+		v1.GET("/evaluation/issues", apiHandler.GetEvaluationIssues)
+		v1.GET("/evaluation/auto-fix", apiHandler.GetAutoFixStatus)
+		v1.GET("/evaluation/summary", apiHandler.GetEvaluationSummary)
+
 		// Activity APIs
 		v1.GET("/activity", apiHandler.GetActivities)
 		v1.GET("/activity/stream", apiHandler.HandleWebSocket)
+
+		// RAG APIs (if enabled)
+		if ragHandler != nil {
+			v1.POST("/rag/query", func(c *gin.Context) {
+				ragHandler.HandleRAGQuery(c.Writer, c.Request)
+			})
+			v1.POST("/rag/index", func(c *gin.Context) {
+				ragHandler.HandleIndexDocumentation(c.Writer, c.Request)
+			})
+			v1.GET("/rag/status", func(c *gin.Context) {
+				ragHandler.HandleRAGStatus(c.Writer, c.Request)
+			})
+		}
+
+		// Voice APIs (if enabled)
+		if voiceHandler != nil {
+			voiceHandler.RegisterVoiceRoutes(router)
+		}
 	}
 
 	// Health check endpoint
@@ -140,4 +193,12 @@ func main() {
 	}
 
 	logger.Info("Server exited")
+}
+
+// Helper function to get environment variable
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }

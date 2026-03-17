@@ -570,6 +570,49 @@
             color: #3498db;
             border: 1px solid rgba(52, 152, 219, 0.2);
         }
+
+        /* Skills Distribution Styles */
+        .skills-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .skill-category {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .skill-category:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .category-count {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* Clickable metrics */
+        .metric-value {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .metric-value:hover {
+            color: #3498db;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -750,14 +793,16 @@
                 loadAgents(),
                 loadSkills(),
                 loadActivity(),
-                updateMetrics()
+                updateMetrics(),
+                loadPerformanceMetrics(),
+                loadSkillsDistribution()
             ]);
         }
 
         // Load agents
         async function loadAgents() {
             try {
-                const response = await fetch('http://localhost:5000/api/agents');
+                const response = await fetch('http://localhost:8081/api/agents');
                 const data = await response.json();
                 agents = data;
                 renderAgents();
@@ -816,7 +861,7 @@
         // Load skills
         async function loadSkills() {
             try {
-                const response = await fetch('http://localhost:5000/api/skills');
+                const response = await fetch('http://localhost:8081/api/skills');
                 const data = await response.json();
                 skills = data;
                 renderSkills();
@@ -845,7 +890,7 @@
         // Load activity
         async function loadActivity() {
             try {
-                const response = await fetch('http://localhost:5000/api/activity');
+                const response = await fetch('http://localhost:8081/api/activity');
                 const data = await response.json();
                 activities = data;
                 renderActivity();
@@ -884,6 +929,108 @@
                 ? (agents.reduce((sum, agent) => sum + (agent.successRate || 0), 0) / agents.length).toFixed(1)
                 : '0.0';
             document.getElementById('success-rate').textContent = avgSuccessRate + '%';
+            
+            // Make success rate clickable for failure analysis
+            const successRateElement = document.getElementById('success-rate');
+            successRateElement.style.cursor = 'pointer';
+            successRateElement.style.textDecoration = 'underline';
+            successRateElement.onclick = showFailureDetails;
+        }
+
+        // Show failure details when clicking success rate
+        function showFailureDetails() {
+            const failures = agents.filter(agent => (agent.successRate || 0) < 100);
+            
+            if (failures.length === 0) {
+                showToast('No failures detected. All agents operating at 100% success rate.', 'success', 'System Health');
+                return;
+            }
+            
+            let failureDetails = `Found ${failures.length} agents with failures:\n\n`;
+            failures.forEach(agent => {
+                const failureRate = (100 - (agent.successRate || 0)).toFixed(1);
+                failureDetails += `• ${agent.name}: ${failureRate}% failure rate\n`;
+                failureDetails += `  Status: ${agent.status}\n`;
+                failureDetails += `  Last Activity: ${agent.lastActivity}\n\n`;
+            });
+            
+            showToast(failureDetails, 'warning', 'Failure Analysis', 8000);
+        }
+
+        // Load performance metrics
+        async function loadPerformanceMetrics() {
+            try {
+                const response = await fetch('http://localhost:8081/api/metrics');
+                const data = await response.json();
+                
+                const performanceCard = document.querySelector('.card h3');
+                const performanceContent = performanceCard.parentElement.querySelector('.loading, .metrics-content');
+                
+                if (performanceContent) {
+                    performanceContent.innerHTML = `
+                        <div class="metrics">
+                            <div class="metric">
+                                <div class="metric-value">${data.avg_response_time || 0}ms</div>
+                                <div class="metric-label">Avg Response Time</div>
+                                <div class="metric-change">Real-time measurement</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${data.active_agents || 0}</div>
+                                <div class="metric-label">Active Workflows</div>
+                                <div class="metric-change">From Temporal</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${(data.success_rate || 0).toFixed(1)}%</div>
+                                <div class="metric-label">System Health</div>
+                                <div class="metric-change">Live monitoring</div>
+                            </div>
+                        </div>
+                    `;
+                    performanceContent.classList.remove('loading');
+                    performanceContent.classList.add('metrics-content');
+                }
+            } catch (error) {
+                console.error('Failed to load performance metrics:', error);
+            }
+        }
+
+        // Load skills distribution
+        async function loadSkillsDistribution() {
+            try {
+                const response = await fetch('http://localhost:8081/api/skills');
+                const data = await response.json();
+                
+                // Group skills by category
+                const categories = {};
+                data.forEach(skill => {
+                    const category = skill.category || 'General';
+                    categories[category] = (categories[category] || 0) + 1;
+                });
+                
+                const skillsCard = Array.from(document.querySelectorAll('.card h3')).find(h3 => 
+                    h3.textContent.includes('Skills Distribution')
+                );
+                const skillsContent = skillsCard?.parentElement.querySelector('.loading, .skills-content');
+                
+                if (skillsContent) {
+                    let skillsHTML = '<div class="skills-distribution">';
+                    for (const [category, count] of Object.entries(categories)) {
+                        skillsHTML += `
+                            <div class="skill-category">
+                                <div class="category-name">${category}</div>
+                                <div class="category-count">${count} skills</div>
+                            </div>
+                        `;
+                    }
+                    skillsHTML += '</div>';
+                    
+                    skillsContent.innerHTML = skillsHTML;
+                    skillsContent.classList.remove('loading');
+                    skillsContent.classList.add('skills-content');
+                }
+            } catch (error) {
+                console.error('Failed to load skills distribution:', error);
+            }
         }
 
         // Toast Notification System

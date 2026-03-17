@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,11 +71,14 @@ func (sm *SkillManager) AddSkillDir(dir string, scope string, priority int) erro
 
 // scanDirectory scans a directory for skills
 func (sm *SkillManager) scanDirectory(dir, scope string, priority int) error {
+	log.Printf("Scanning directory: %s (scope: %s, priority: %d)", dir, scope, priority)
 	entries, err := os.ReadDir(dir)
 	if err != nil {
+		log.Printf("Failed to read directory %s: %v", dir, err)
 		return err
 	}
 
+	skillCount := 0
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
@@ -87,17 +91,22 @@ func (sm *SkillManager) scanDirectory(dir, scope string, priority int) error {
 
 		skill, err := sm.parseSkill(skillPath, scope, priority)
 		if err != nil {
+			log.Printf("Failed to parse skill %s: %v", skillPath, err)
 			continue // Skip invalid skills
 		}
 
 		// Handle naming conflicts - keep the first one found
 		if _, exists := sm.Skills[skill.Name]; exists {
+			log.Printf("Skipping duplicate skill: %s", skill.Name)
 			continue // Skip duplicates
 		} else {
 			sm.Skills[skill.Name] = skill
+			skillCount++
+			log.Printf("Loaded skill: %s from %s", skill.Name, skillPath)
 		}
 	}
 
+	log.Printf("Scanned %d skills from %s", skillCount, dir)
 	return nil
 }
 
@@ -277,7 +286,7 @@ func (sm *SkillManager) applySubstitutions(content string, execution *SkillExecu
 
 	// Apply session and directory substitutions
 	content = strings.ReplaceAll(content, "${CLAUDE_SESSION_ID}", execution.SessionID)
-	content = strings.ReplaceAll(content, "${CLAUDE_SKILL_DIR}", execution.Skill.Directory)
+	content = strings.ReplaceAll(content, "${CLAUDE_SKILL_DIR}", execution.WorkingDir)
 
 	return content
 }

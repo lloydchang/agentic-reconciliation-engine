@@ -7,6 +7,7 @@ import ActiveAgents from './ActiveAgents';
 import AvailableSkills from './AvailableSkills';
 import RecentActivity from './RecentActivity';
 import SystemControls from './SystemControls';
+import RAGChat from '../RAGChat/RAGChat';
 import ApiService from '../../services/api';
 import { WebSocketService } from '../../services/websocket';
 
@@ -76,6 +77,7 @@ const Dashboard: React.FC = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'dashboard' | 'chat'>('dashboard');
 
   useEffect(() => {
     const api = new ApiService();
@@ -132,21 +134,46 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-grid">
-        <SystemOverview metrics={metrics} />
-        <PerformanceMetrics metrics={metrics} />
-        <SkillsDistribution skills={skills} />
+      <div className="dashboard-header">
+        <div className="view-toggle">
+          <button
+            className={`toggle-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveView('dashboard')}
+          >
+            📊 Dashboard
+          </button>
+          <button
+            className={`toggle-btn ${activeView === 'chat' ? 'active' : ''}`}
+            onClick={() => setActiveView('chat')}
+          >
+            🤖 RAG Chat
+          </button>
+        </div>
       </div>
 
-      <div className="dashboard-grid">
-        <ActiveAgents agents={agents} />
-        <AvailableSkills skills={skills} />
-        <RecentActivity activities={activities} />
-      </div>
+      {activeView === 'dashboard' ? (
+        <div className="dashboard-content">
+          <div className="dashboard-grid">
+            <SystemOverview metrics={metrics} />
+            <PerformanceMetrics metrics={metrics} />
+            <SkillsDistribution skills={skills} />
+          </div>
 
-      <div className="dashboard-grid full-width">
-        <SystemControls agents={agents} />
-      </div>
+          <div className="dashboard-grid">
+            <ActiveAgents agents={agents} />
+            <AvailableSkills skills={skills} />
+            <RecentActivity activities={activities} />
+          </div>
+
+          <div className="dashboard-grid full-width">
+            <SystemControls agents={agents} />
+          </div>
+        </div>
+      ) : (
+        <div className="chat-content">
+          <RAGChat />
+        </div>
+      )}
     </div>
   );
 };

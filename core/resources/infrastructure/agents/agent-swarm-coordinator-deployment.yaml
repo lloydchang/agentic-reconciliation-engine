@@ -18,7 +18,7 @@ spec:
       serviceAccountName: agent-swarm-sa
       containers:
       - name: swarm-coordinator
-        image: agent-swarm-coordinator:latest
+        image: localhost:5000/agent-swarm-coordinator:latest
         env:
         - name: CONSENSUS_PROTOCOL
           value: "raft"
