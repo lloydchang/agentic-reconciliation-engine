@@ -902,7 +902,7 @@ func main() {
 }
 ```
 
-### go.mod
+### core/config/go.mod
 
 ```go
 module github.com/your-org/cre-webhook-handler

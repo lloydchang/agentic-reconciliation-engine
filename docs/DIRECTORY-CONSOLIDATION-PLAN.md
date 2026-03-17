@@ -29,7 +29,7 @@ docs/ (224 items)         → KEEP (Documentation)
 overlay/editions/ (8 items)       → overlay/overlay/editions/
 overlay/examples/ (92 items)      → overlay/overlay/examples/
 fix_workspace_skills.sh (3929 bytes) → core/config/core/core/automation/ci-cd/scripts/
-go.mod (103 bytes)        → KEEP (Go module)
+core/config/go.mod (103 bytes)        → KEEP (Go module)
 hub-kubeconfig (5639 bytes) → core/config/kubeconfigs/
 core/resources/ (365 items) → core/resources/
 kind-config.yaml (689 bytes) → core/config/kind/

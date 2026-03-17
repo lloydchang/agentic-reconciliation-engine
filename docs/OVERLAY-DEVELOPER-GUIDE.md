@@ -116,14 +116,14 @@ git push origin feature/my-new-overlay
 Overlays mirror the base directory structure for intuitive mapping:
 
 ```
-base/                    core/deployment/overlays/
-├── core/ai/skills/            ├── core/ai/skills/
+base/                    overlay/
+├── core/ai/skills/            ├── ai/skills/
 │   ├── skill-a/        │   ├── skill-a-enhanced/
 │   └── skill-b/        │   └── skill-b-multi-cloud/
-├── core/ai/runtime/             ├── core/ai/runtime/
+├── core/ai/runtime/             ├── ai/runtime/
 │   └── dashboard/      │       └── dashboard/
-└── core/operators/      ├── core/operators/
-    ├── flux/                   ├── flux/
+└── core/operators/      ├── operators/
+    ├── flux/                   ├── control-plane/
     └── monitoring/             └── monitoring-enhanced/
 ```
 
@@ -133,19 +133,19 @@ base/                    core/deployment/overlays/
 
 **Skill Overlays**: Extend AI agent capabilities
 - Add new skills or enhance existing ones
-- Location: `core/deployment/overlays/core/ai/skills/`
+- Location: `overlay/ai/skills/`
 
 **Dashboard Overlays**: Customize UI/UX
 - Themes, widgets, visual enhancements
-- Location: `core/deployment/overlays/core/ai/runtime/dashboard/`
+- Location: `overlay/ai/runtime/dashboard/`
 
 **Infrastructure Overlays**: Enhance infrastructure
 - Monitoring, security, networking
-- Location: `core/deployment/overlays/core/operators/`
+- Location: `overlay/operators/`
 
 **Composed Overlays**: Combine multiple overlays
 - Complete solutions and bundles
-- Location: `core/deployment/overlays/composed/`
+- Location: `overlay/examples/`
 
 #### 2. Use Templates
 

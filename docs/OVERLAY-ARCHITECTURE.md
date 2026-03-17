@@ -16,9 +16,9 @@ Overlays mirror the base directory structure for intuitive mapping:
 
 ```
 Base Components                    Overlay Extensions
-core/ai/skills/debug/    →  core/deployment/overlays/core/ai/skills/debug/
-core/ai/runtime/dashboard/               →  core/deployment/overlays/core/ai/runtime/dashboard/
-core/operators/flux/             →  core/deployment/overlays/core/operators/flux/
+core/ai/skills/debug/    →  overlay/ai/skills/debug/
+core/ai/runtime/dashboard/               →  overlay/ai/runtime/dashboard/
+core/operators/flux/             →  overlay/operators/control-plane/flux/
 ```
 
 ### 3. **Composition Over Modification**
@@ -30,45 +30,83 @@ Instead of modifying base files, overlays compose new configurations using:
 ## Directory Structure
 
 ```
-gitops-infra-core/operators/
-├── core/ai/skills/                    # Base skills (upstream)
-├── core/ai/runtime/                     # Base dashboard (upstream)
-├── core/operators/              # Base infrastructure (upstream)
-├── core/deployment/overlays/                   # Overlay extensions
-│   ├── core/ai/skills/                # Skill overlays
+gitops-infra-control-plane/
+├── core/                           # Base components (upstream)
+│   ├── ai/skills/                  # Base skills
+│   ├── ai/runtime/                 # Base dashboard
+│   ├── operators/                  # Base infrastructure
+│   ├── automation/                  # Base automation
+│   ├── config/                      # Base configuration
+│   ├── deployment/                  # Base deployment
+│   ├── governance/                  # Base governance
+│   ├── resources/                   # Base resources
+│   └── workspace/                   # Base workspace
+├── overlay/                        # Overlay extensions (fork-specific)
+│   ├── ai/skills/                   # Skill overlays
 │   │   ├── debug/
-│   │   │   ├── enhanced/       # ML-enhanced debugging
-│   │   │   ├── enterprise/     # Enterprise features
-│   │   │   └── custom/         # Custom implementations
-│   │   └── new-skills/         # Entirely new skills
-│   ├── core/ai/runtime/                 # Dashboard overlays
+│   │   │   ├── enhanced/            # ML-enhanced debugging
+│   │   │   ├── enterprise/          # Enterprise features
+│   │   │   └── custom/              # Custom implementations
+│   │   └── new-skills/              # Entirely new skills
+│   ├── ai/runtime/                 # Dashboard overlays
 │   │   └── dashboard/
-│   │       ├── themes/         # Visual themes
-│   │       ├── widgets/        # Custom widgets
-│   │       └── integrations/   # External integrations
-│   ├── core/operators/          # Infrastructure overlays
-│   │   ├── flux/               # Flux customizations
-│   │   ├── monitoring/         # Monitoring extensions
-│   │   └── new-controllers/    # New infrastructure
-│   ├── composed/               # Cross-component compositions
-│   │   ├── enterprise-suite/  # Complete enterprise setup
-│   │   ├── community-bundle/  # Community-curated features
-│   │   └── custom-forks/       # Fork-specific compositions
-│   ├── registry/               # Overlay catalog and discovery
-│   │   ├── catalog.yaml        # Available overlays
-│   │   └── templates/          # Overlay templates
-│   └── templates/              # Development templates
-│       ├── skill-overlay/      # Skill overlay template
-│       ├── dashboard-overlay/  # Dashboard overlay template
-│       └── infra-overlay/      # Infrastructure overlay template
-└── docs/                       # Documentation
+│   │       ├── themes/              # Visual themes
+│   │       ├── widgets/             # Custom widgets
+│   │       └── integrations/        # External integrations
+│   ├── operators/                   # Infrastructure overlays
+│   │   ├── control-plane/
+│   │   │   ├── flux/                # Flux customizations
+│   │   │   ├── monitoring/          # Monitoring extensions
+│   │   │   └── new-controllers/     # New infrastructure
+│   │   └── crossplane/              # Crossplane overlays
+│   ├── automation/                  # Automation overlays
+│   │   ├── ci-cd/                   # CI/CD overlays
+│   │   ├── scripts/                 # Script overlays
+│   │   └── testing/                 # Testing overlays
+│   ├── config/                      # Configuration overlays
+│   │   ├── kind/                    # Kind cluster overlays
+│   │   ├── kubeconfigs/             # Kubeconfig overlays
+│   │   └── sops/                    # SOPS overlays
+│   ├── deployment/                  # Deployment overlays
+│   │   ├── overlays/                # Environment-specific overlays
+│   │   └── templates/               # Deployment templates
+│   ├── governance/                  # Governance overlays
+│   │   ├── policies/                # Policy overlays
+│   │   └── scripts/                 # Governance scripts
+│   ├── resources/                   # Resource overlays
+│   │   ├── infrastructure/          # Infrastructure resources
+│   │   ├── applications/            # Application resources
+│   │   └── monitoring/              # Monitoring resources
+│   ├── workspace/                   # Workspace overlays
+│   │   ├── workspace/               # Workspace configurations
+│   │   └── templates/               # Workspace templates
+│   ├── editions/                    # Edition collections
+│   │   ├── enterprise/              # Enterprise edition
+│   │   ├── opensource/              # Open source edition
+│   │   └── languages/               # Language-specific
+│   │       ├── csharp/
+│   │       ├── go/
+│   │       ├── java/
+│   │       ├── python/
+│   │       ├── rust/
+│   │       └── typescript/
+│   ├── examples/                    # Complete examples
+│   │   ├── complete-hub-spoke/
+│   │   ├── complete-hub-spoke-consensus/
+│   │   ├── complete-hub-spoke-kagent/
+│   │   ├── complete-hub-spoke-temporal/
+│   │   └── template-multi-cloud/
+│   └── registry/                    # Overlay catalog and discovery
+│       ├── catalog.yaml             # Available overlays
+│       └── templates/               # Overlay templates
+└── docs/                           # Documentation
     ├── OVERLAY-ARCHITECTURE.md
     └── OVERLAY-PLANNING.md
 ```
 
 ## Overlay Types
 
-### 1. **Skill Overlays** (`core/ai/skills/`)
+### 1. **Skill Overlays** (`overlay/ai/skills/`)
 Extend AI agent capabilities while maintaining agentskills.io compliance.
 
 **Examples:**
@@ -79,7 +117,7 @@ Extend AI agent capabilities while maintaining agentskills.io compliance.
 
 **Structure:**
 ```
-core/deployment/overlays/core/ai/skills/debug/enhanced/
+overlay/ai/skills/debug/enhanced/
 ├── kustomization.yaml          # Overlay composition
 ├── SKILL.md                   # Extended skill definition
 ├── core/core/automation/ci-cd/scripts/
@@ -90,7 +128,7 @@ core/deployment/overlays/core/ai/skills/debug/enhanced/
     └── enhanced-config.yaml   # Additional configuration
 ```
 
-### 2. **Dashboard Overlays** (`core/ai/runtime/dashboard/`)
+### 2. **Dashboard Overlays** (`overlay/ai/runtime/dashboard/`)
 Customize the React frontend experience.
 
 **Examples:**
@@ -101,7 +139,7 @@ Customize the React frontend experience.
 
 **Structure:**
 ```
-core/deployment/overlays/core/ai/runtime/dashboard/themes/dark-mode/
+overlay/ai/runtime/dashboard/themes/dark-mode/
 ├── kustomization.yaml          # Theme composition
 ├── config/
 │   └── theme-config.yaml      # Theme configuration
@@ -112,7 +150,7 @@ core/deployment/overlays/core/ai/runtime/dashboard/themes/dark-mode/
     └── deployment-patch.yaml  # Deployment modifications
 ```
 
-### 3. **Infrastructure Overlays** (`core/operators/`)
+### 3. **Infrastructure Overlays** (`overlay/operators/`)
 Extend Kubernetes infrastructure and GitOps components.
 
 **Examples:**
@@ -123,7 +161,7 @@ Extend Kubernetes infrastructure and GitOps components.
 
 **Structure:**
 ```
-core/deployment/overlays/core/operators/flux/enhanced-monitoring/
+overlay/operators/control-plane/flux/enhanced-monitoring/
 ├── kustomization.yaml          # Infrastructure composition
 ├── config/
 │   └── monitoring-config.yaml  # Monitoring configuration
@@ -133,7 +171,7 @@ core/deployment/overlays/core/operators/flux/enhanced-monitoring/
     └── flux-patch.yaml         # Flux modifications
 ```
 
-### 4. **Composed Overlays** (`composed/`)
+### 4. **Composed Overlays** (`overlay/examples/`)
 Combine multiple overlays into complete solutions.
 
 **Examples:**
@@ -143,7 +181,7 @@ Combine multiple overlays into complete solutions.
 
 **Structure:**
 ```
-core/deployment/overlays/composed/enterprise-suite/
+overlay/examples/enterprise-suite/
 ├── kustomization.yaml          # Master composition
 ├── components/                 # Component references
 │   ├── skills.yaml            # Skill overlay references
@@ -157,7 +195,7 @@ core/deployment/overlays/composed/enterprise-suite/
 
 ### 1. **Kustomize-Based Composition**
 ```yaml
-# core/deployment/overlays/core/ai/skills/debug/enhanced/kustomization.yaml
+# overlay/ai/skills/debug/enhanced/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -175,7 +213,7 @@ configMapGenerator:
 
 ### 2. **Cross-Component Composition**
 ```yaml
-# core/deployment/overlays/composed/enterprise-suite/kustomization.yaml
+# overlay/examples/enterprise-suite/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
@@ -186,14 +224,14 @@ resources:
   - ../../agents
   - ../../control-plane
   # Overlay components
-  - ../core/ai/skills/debug/enterprise
-  - ../core/ai/runtime/dashboard/themes/corporate
-  - ../core/operators/flux/enhanced-monitoring
+  - ../ai/skills/debug/enterprise
+  - ../ai/runtime/dashboard/themes/corporate
+  - ../operators/control-plane/flux/enhanced-monitoring
 ```
 
 ### 3. **Layer Composition**
 ```yaml
-# core/deployment/overlays/registry/catalog.yaml
+# overlay/registry/catalog.yaml
 apiVersion: v1
 kind: OverlayRegistry
 metadata:
@@ -203,7 +241,7 @@ overlays:
     base_path: "core/ai/skills/debug"
     overlays:
       - name: enhanced
-        path: "core/deployment/overlays/core/ai/skills/debug/enhanced"
+        path: "overlay/ai/skills/debug/enhanced"
         description: "ML-enhanced debugging capabilities"
         dependencies:
           - scikit-learn>=1.0.0
@@ -254,20 +292,28 @@ metadata:
 ### 1. **Fork Structure**
 ```bash
 my-fork/
-├── core/ai/skills/                    # Base (upstream, read-only)
-├── core/ai/runtime/                     # Base (upstream, read-only)
-├── core/operators/              # Base (upstream, read-only)
-├── core/deployment/overlays/                   # Customizations (active)
-│   ├── core/ai/skills/
+├── core/                           # Base (upstream, read-only)
+│   ├── ai/skills/
+│   ├── ai/runtime/
+│   ├── operators/
+│   ├── automation/
+│   ├── config/
+│   ├── deployment/
+│   ├── governance/
+│   ├── resources/
+│   └── workspace/
+├── overlay/                        # Customizations (active)
+│   ├── ai/skills/
 │   │   └── debug/
 │   │       └── my-org-enhancements/
-│   ├── core/ai/runtime/
+│   ├── ai/runtime/
 │   │   └── dashboard/
 │   │       └── my-org-theme/
-│   └── core/operators/
-│       └── flux/
-│           └── my-org-config/
-└── README.md                   # Document overlay strategy
+│   └── operators/
+│       └── control-plane/
+│           └── flux/
+│               └── my-org-config/
+└── README.md                       # Document overlay strategy
 ```
 
 ### 2. **Update Workflow**
@@ -278,11 +324,11 @@ git fetch upstream
 git merge upstream/main
 
 # Resolve any overlay conflicts
-cd core/deployment/overlays/core/ai/skills/debug/my-enhancements/
+cd overlay/ai/skills/debug/my-enhancements/
 # Update overlay compatibility if needed
 
 # Test composition
-kustomize build core/deployment/overlays/composed/my-org-suite/
+kustomize build overlay/examples/my-org-suite/
 ```
 
 ### 3. **Distribution**
