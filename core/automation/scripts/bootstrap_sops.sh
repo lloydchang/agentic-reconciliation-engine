@@ -25,14 +25,14 @@ else
     echo "Age key already exists at $AGE_KEY_FILE"
 fi
 
-# Ensure remove_age_key_and_reencrypt.sh exists in core/core/automation/ci-cd/scripts/
+# Ensure remove_age_key_and_reencrypt.sh exists in core/automation/scripts/
 if [ ! -f "$SCRIPT_DEST_DIR/$SCRIPT_NAME" ]; then
     echo "$SCRIPT_NAME not found in $SCRIPT_DEST_DIR, downloading from GitHub..."
-    curl -sL "https://raw.githubusercontent.com/lloydchang/gitops-infra-core/operators/main/core/core/automation/ci-cd/scripts/$SCRIPT_NAME" -o "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
+    curl -sL "https://raw.githubusercontent.com/lloydchang/gitops-infra-core/operators/main/core/automation/scripts/$SCRIPT_NAME" -o "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
     chmod +x "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
 else
     echo "$SCRIPT_NAME already present in $SCRIPT_DEST_DIR, updating..."
-    curl -sL "https://raw.githubusercontent.com/lloydchang/gitops-infra-core/operators/main/core/core/automation/ci-cd/scripts/$SCRIPT_NAME" -o "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
+    curl -sL "https://raw.githubusercontent.com/lloydchang/gitops-infra-core/operators/main/core/automation/scripts/$SCRIPT_NAME" -o "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
     chmod +x "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
 fi
 

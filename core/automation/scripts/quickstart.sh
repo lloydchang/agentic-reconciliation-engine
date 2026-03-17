@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Script information
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 
 print_header() {
     echo -e "${BLUE}=== $1 ===${NC}"
@@ -137,7 +137,7 @@ This directory contains basic examples for getting started with the GitOps Infra
 
 1. Read the documentation in `docs/`
 2. Check the examples in `overlay/examples/`
-3. Use the scripts in `core/core/automation/ci-cd/scripts/` for automation
+3. Use the scripts in `core/automation/scripts/` for automation
 EOF
         print_success "Basic examples created"
     fi

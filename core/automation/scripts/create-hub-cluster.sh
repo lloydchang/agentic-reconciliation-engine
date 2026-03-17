@@ -19,11 +19,11 @@ ensure_wsl_sanity "create-hub-cluster.sh" warn info
 
 # Default configuration
 HUB_CLUSTER_NAME="gitops-hub"
-HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+HUB_KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
 CLOUD_PROVIDER="azure"
 NODE_COUNT=3
 REGION="eastus"
-BOOTSTRAP_KUBECONFIG="${SCRIPT_DIR}/../bootstrap-kubeconfig"
+BOOTSTRAP_KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/bootstrap-kubeconfig"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -138,7 +138,7 @@ validate_prerequisites() {
   # Check bootstrap cluster
   if [[ ! -f "${BOOTSTRAP_KUBECONFIG}" ]]; then
     warn "Bootstrap kubeconfig not found at ${BOOTSTRAP_KUBECONFIG}"
-    info "Run 'core/core/automation/ci-cd/scripts/create-bootstrap-cluster.sh' first"
+    info "Run 'core/automation/scripts/create-bootstrap-cluster.sh' first"
   fi
   
   pass "Prerequisites validated"
@@ -481,8 +481,8 @@ show_cluster_info() {
   echo "  kubectl get nodes"
   echo
   echo "Next steps:"
-  echo "  1. Run: core/core/automation/ci-cd/scripts/install-crossplane.sh"
-  echo "  2. Run: core/core/automation/ci-cd/scripts/provision-spoke-clusters.sh"
+  echo "  1. Run: core/automation/scripts/install-crossplane.sh"
+  echo "  2. Run: core/automation/scripts/provision-spoke-clusters.sh"
   echo "  3. Apply GitOps manifests"
   echo
 }

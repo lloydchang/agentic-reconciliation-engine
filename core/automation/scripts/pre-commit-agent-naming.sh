@@ -70,7 +70,7 @@ validate_staged_agents() {
     
     if [ $violations -gt 0 ]; then
         print_status "ERROR" "Found $violations naming convention violations. Commit blocked."
-        print_status "INFO" "Run './core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh fix' to correct issues."
+        print_status "INFO" "Run './core/automation/scripts/ensure-agent-naming-standards.sh fix' to correct issues."
         exit 1
     else
         print_status "SUCCESS" "All agent naming conventions validated successfully!"

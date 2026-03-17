@@ -17,7 +17,7 @@ source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
 ensure_wsl_sanity "provision-spoke-clusters.sh" warn info
 
 # Default configuration
-HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+HUB_KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
 SPOKE_CONFIG="${SCRIPT_DIR}/../spoke-clusters.yaml"
 CLOUD_PROVIDERS="local"  # MVP: use local emulation
 SPOKE_COUNT=1  # MVP: one spoke at a time
@@ -100,7 +100,7 @@ validate_prerequisites() {
   # Check hub kubeconfig
   if [[ ! -f "${HUB_KUBECONFIG}" ]]; then
     fail "Hub kubeconfig not found at ${HUB_KUBECONFIG}"
-    fail "Run 'core/core/automation/ci-cd/scripts/create-hub-cluster.sh' first"
+    fail "Run 'core/automation/scripts/create-hub-cluster.sh' first"
   fi
   
   export KUBECONFIG="${HUB_KUBECONFIG}"
@@ -114,7 +114,7 @@ validate_prerequisites() {
   if [[ "$CLOUD_PROVIDERS" != "local" ]]; then
     if ! kubectl get providers.pkg.crossplane.io -n crossplane-system --no-headers | grep -q "Running"; then
       fail "Crossplane not running on hub cluster"
-      fail "Run 'core/core/automation/ci-cd/scripts/install-crossplane.sh' first"
+      fail "Run 'core/automation/scripts/install-crossplane.sh' first"
     fi
   else
     info "Local provider - skipping Crossplane check"

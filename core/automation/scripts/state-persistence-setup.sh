@@ -76,7 +76,7 @@ data:
     \`\`\`bash
     # Recovery from specific backup
     TIMESTAMP="20240312-143000"  # Replace with desired timestamp
-    kubectl exec -n flux-system deployment/state-recovery-controller -- /core/core/automation/ci-cd/scripts/recovery-script.sh "$TIMESTAMP"
+    kubectl exec -n flux-system deployment/state-recovery-controller -- /core/automation/scripts/recovery-script.sh "$TIMESTAMP"
     \`\`\`
     
     ### 4. Verify Recovery
@@ -108,7 +108,7 @@ data:
        \`\`\`bash
        LATEST_BACKUP=$(kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-state \
          --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.labels.backup\.fluxcd\.io/timestamp}')
-       kubectl exec -n flux-system deployment/state-recovery-controller -- /core/core/automation/ci-cd/scripts/recovery-script.sh "$LATEST_BACKUP"
+       kubectl exec -n flux-system deployment/state-recovery-controller -- /core/automation/scripts/recovery-script.sh "$LATEST_BACKUP"
        \`\`\`
     
     3. Verify operations:
@@ -143,4 +143,4 @@ echo "🔍 Monitor backups:"
 echo "  kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-state"
 echo ""
 echo "📖 Manual recovery:"
-echo "  kubectl exec -n flux-system deployment/state-recovery-controller -- /core/core/automation/ci-cd/scripts/recovery-script.sh <timestamp>"
+echo "  kubectl exec -n flux-system deployment/state-recovery-controller -- /core/automation/scripts/recovery-script.sh <timestamp>"

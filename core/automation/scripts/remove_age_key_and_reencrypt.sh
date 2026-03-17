@@ -58,7 +58,7 @@ fi
 grep -qxF "$SOPS_KEY_DIR/" .gitignore || echo "$SOPS_KEY_DIR/" >> .gitignore
 grep -qxF '*.agekey' .gitignore || echo '*.agekey' >> .gitignore
 
-# Add the cleanup script to core/core/automation/ci-cd/scripts/ if it doesn't exist or has changed
+# Add the cleanup script to core/automation/scripts/ if it doesn't exist or has changed
 mkdir -p "$SCRIPT_DEST_DIR"
 cp "$OLDPWD/$SCRIPT_NAME" "$SCRIPT_DEST_DIR/$SCRIPT_NAME"
 

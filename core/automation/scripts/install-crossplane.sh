@@ -17,7 +17,7 @@ source "${SCRIPT_DIR}/helpers/wsl-detect.sh"
 ensure_wsl_sanity "install-crossplane.sh" warn info
 
 # Default configuration
-HUB_KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+HUB_KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
 CLOUD_PROVIDERS="azure,aws,gcp,local"
 CROSSPLANE_VERSION="latest"
 NAMESPACE="crossplane-system"
@@ -79,7 +79,7 @@ validate_prerequisites() {
   # Check kubeconfig
   if [[ ! -f "${HUB_KUBECONFIG}" ]]; then
     fail "Hub kubeconfig not found at ${HUB_KUBECONFIG}"
-    fail "Run 'core/core/automation/ci-cd/scripts/create-hub-cluster.sh' first"
+    fail "Run 'core/automation/scripts/create-hub-cluster.sh' first"
   fi
   
   export KUBECONFIG="${HUB_KUBECONFIG}"
@@ -600,7 +600,7 @@ show_installation_info() {
   echo
   echo "Next steps:"
   echo "  1. Configure cloud provider credentials"
-  echo "  2. Run: core/core/automation/ci-cd/scripts/provision-spoke-clusters.sh"
+  echo "  2. Run: core/automation/scripts/provision-spoke-clusters.sh"
   echo "  3. Create Composite Resources"
   echo
 }

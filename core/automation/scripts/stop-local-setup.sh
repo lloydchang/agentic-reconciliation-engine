@@ -85,7 +85,7 @@ main() {
     echo ""
     echo "Port forwarding stopped. Dashboard no longer accessible."
     echo ""
-    echo "To restart: ./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh"
+    echo "To restart: ./core/automation/scripts/setup-local-ai-agents.sh"
     echo "To delete cluster: minikube delete -p ai-agents-local"
     echo ""
 }

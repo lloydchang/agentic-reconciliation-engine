@@ -18,7 +18,7 @@ ensure_wsl_sanity "create-bootstrap-cluster.sh" warn info
 
 # Default configuration
 BOOTSTRAP_CLUSTER_NAME="gitops-bootstrap"
-BOOTSTRAP_KUBECONFIG="${SCRIPT_DIR}/../bootstrap-kubeconfig"
+BOOTSTRAP_KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/bootstrap-kubeconfig"
 CLUSTER_TYPE="kind"  # kind, k3s, or local
 
 # Parse arguments
@@ -211,7 +211,7 @@ install_components() {
   # Install basic tools
   info "Installing kubectl tools in cluster..."
   kubectl create configmap bootstrap-scripts \
-    --from-file="${SCRIPT_DIR}/../core/core/automation/ci-cd/scripts/" \
+    --from-file="${SCRIPT_DIR}/../core/automation/scripts/" \
     --namespace gitops-system \
     --dry-run=client -o yaml | kubectl apply -f - || true
   
@@ -278,7 +278,7 @@ show_cluster_info() {
   echo "  kubectl get nodes -n gitops-system"
   echo
   echo "Next steps:"
-  echo "  1. Run: core/core/automation/ci-cd/scripts/create-hub-cluster.sh"
+  echo "  1. Run: core/automation/scripts/create-hub-cluster.sh"
   echo "  2. The hub cluster will use this bootstrap for recovery"
   echo
 }

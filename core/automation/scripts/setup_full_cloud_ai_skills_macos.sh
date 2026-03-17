@@ -61,7 +61,7 @@ get_skill_commands() {
   elif [ "$num" -ge 371 ] && [ "$num" -le 390 ]; then
     echo "git checkout -b fix/$skill; git add .; git commit -m 'Auto PR by $skill'; git push origin fix/$skill"
   elif [ "$num" -ge 391 ] && [ "$num" -le 400 ]; then
-    echo "echo Applying automated fixes; ./core/core/automation/ci-cd/scripts/run.sh"
+    echo "echo Applying automated fixes; ./core/automation/scripts/run.sh"
   else
     echo "echo Placeholder commands for $skill"
   fi
@@ -132,7 +132,7 @@ for idx in $(seq 0 $((${#SKILLS[@]} - 1))); do
     create_skill_md "$BASE_PATH/SKILL.md" "$skill" "$platform" "$advisory" "$actionable"
 
     # run.sh
-    create_run_script "$BASE_PATH/core/core/automation/ci-cd/scripts/run.sh" "$skill" "$platform" "$actionable"
+    create_run_script "$BASE_PATH/core/automation/scripts/run.sh" "$skill" "$platform" "$actionable"
 
     # reference
     cat > "$BASE_PATH/references/ref.md" <<EOF

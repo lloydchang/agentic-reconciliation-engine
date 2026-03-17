@@ -354,7 +354,7 @@ EOF
 
 # Make disaster recovery drill script executable
 echo "🔧 Setting up disaster recovery drill script..."
-chmod +x core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh
+chmod +x core/automation/scripts/disaster-recovery-drill.sh
 
 # Create initial drill schedule
 echo "📅 Creating drill schedule..."
@@ -381,7 +381,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              /core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh primary-outage
+              /core/automation/scripts/disaster-recovery-drill.sh primary-outage
             volumeMounts:
             - name: drill-scripts
               mountPath: /scripts
@@ -415,7 +415,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              /core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh complete-outage
+              /core/automation/scripts/disaster-recovery-drill.sh complete-outage
             volumeMounts:
             - name: drill-scripts
               mountPath: /scripts
@@ -444,8 +444,8 @@ echo "  - Monthly primary outage: kubectl get cronjob monthly-drill-primary-outa
 echo "  - Quarterly complete outage: kubectl get cronjob quarterly-drill-complete-outage -n flux-system"
 echo ""
 echo "🧪 Run manual drill:"
-echo "  ./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh primary-outage"
-echo "  ./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh complete-outage"
-echo "  ./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh cache-failure"
+echo "  ./core/automation/scripts/disaster-recovery-drill.sh primary-outage"
+echo "  ./core/automation/scripts/disaster-recovery-drill.sh complete-outage"
+echo "  ./core/automation/scripts/disaster-recovery-drill.sh cache-failure"
 echo ""
 echo "📖 Full documentation: docs/GIT-OUTAGE-DISASTER-RECOVERY.md"

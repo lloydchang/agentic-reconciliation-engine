@@ -49,7 +49,7 @@ check_prerequisites() {
     fi
     
     # Set KUBECONFIG to hub cluster (where AI agents should be deployed)
-    export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+    export KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
     
     # Switch to hub cluster context
     $KUBECTL_CMD config use-context kind-gitops-hub &> /dev/null || log_warning "Could not switch to hub context"
@@ -57,7 +57,7 @@ check_prerequisites() {
     # Check if connected to cluster using specific context
     if ! $KUBECTL_CMD cluster-info --context=kind-gitops-hub &> /dev/null; then
         log_error "Not connected to hub cluster. Make sure hub cluster is running."
-        log_error "Try: ./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig"
+        log_error "Try: ./core/automation/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig"
         exit 1
     fi
     

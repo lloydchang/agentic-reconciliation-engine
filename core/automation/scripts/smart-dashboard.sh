@@ -11,7 +11,7 @@ echo "🚀 Smart Dashboard Launcher..."
 echo ""
 
 # Set KUBECONFIG to hub cluster
-export KUBECONFIG="${SCRIPT_DIR}/../hub-kubeconfig"
+export KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
 
 # Switch to hub context
 kubectl config use-context hub &> /dev/null || echo "Could not switch to hub context"

@@ -38,7 +38,7 @@ fi
 # Check if Flux Operator is installed
 if ! kubectl get crd fluxinstances.fluxcd.controlplane.io &> /dev/null; then
     echo -e "${RED}❌ Flux Operator is not installed. Please install Flux Operator first.${NC}"
-    echo "Run: ./core/core/automation/ci-cd/scripts/install-flux-operator.sh"
+    echo "Run: ./core/automation/scripts/install-flux-operator.sh"
     exit 1
 fi
 

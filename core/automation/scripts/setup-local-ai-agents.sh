@@ -172,7 +172,7 @@ install_helm() {
                 choco install kubernetes-helm
                 ;;
             linux)
-                curl https://raw.githubusercontent.com/helm/helm/main/core/core/automation/ci-cd/scripts/get-helm-3 | bash
+                curl https://raw.githubusercontent.com/helm/helm/main/core/automation/scripts/get-helm-3 | bash
                 ;;
         esac
         log_success "Helm installed"
@@ -246,7 +246,7 @@ deploy_ecosystem() {
     log_step "Deploying autonomous AI agents ecosystem..."
 
     # Run the deployment script
-    ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+    ./core/automation/scripts/deploy-ai-agents-ecosystem.sh
 
     log_success "AI agents ecosystem deployed"
 }
@@ -328,7 +328,7 @@ show_access_info() {
     echo "   • Storage Management: Auto-resizing PVCs and pruning old data"
     echo "   • Monitoring: Collecting metrics and sending alerts"
     echo ""
-    echo "🛑 To stop: ./core/core/automation/ci-cd/scripts/stop-local-setup.sh"
+    echo "🛑 To stop: ./core/automation/scripts/stop-local-setup.sh"
     echo "🧹 To cleanup: minikube delete -p $MINIKUBE_PROFILE"
     echo ""
 }

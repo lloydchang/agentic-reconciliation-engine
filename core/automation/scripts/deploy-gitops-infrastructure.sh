@@ -362,13 +362,13 @@ $(kubectl get pods -n monitoring -o custom-columns=NAME:.metadata.name,STATUS:.s
 - \`flux-operator/user-management-rbac.md\` - User management guide
 
 #### Scripts
-- \`core/core/automation/ci-cd/scripts/install-flux-operator.sh\` - Flux Operator installation
-- \`core/core/automation/ci-cd/scripts/setup-flux-status-page.sh\` - Status Page setup
-- \`core/core/automation/ci-cd/scripts/setup-flux-sso.sh\` - SSO configuration
-- \`core/core/automation/ci-cd/scripts/setup-multi-cluster-workflows.sh\` - Multi-cluster setup
-- \`core/core/automation/ci-cd/scripts/setup-monitoring-observability.sh\` - Monitoring setup
-- \`core/core/automation/ci-cd/scripts/setup-testing-framework.sh\` - Testing framework
-- \`core/core/automation/ci-cd/scripts/validate-hub-spoke-architecture.sh\` - Architecture validation
+- \`core/automation/scripts/install-flux-operator.sh\` - Flux Operator installation
+- \`core/automation/scripts/setup-flux-status-page.sh\` - Status Page setup
+- \`core/automation/scripts/setup-flux-sso.sh\` - SSO configuration
+- \`core/automation/scripts/setup-multi-cluster-workflows.sh\` - Multi-cluster setup
+- \`core/automation/scripts/setup-monitoring-observability.sh\` - Monitoring setup
+- \`core/automation/scripts/setup-testing-framework.sh\` - Testing framework
+- \`core/automation/scripts/validate-hub-spoke-architecture.sh\` - Architecture validation
 
 #### Documentation
 - \`docs/FLUX-OPERATOR-COMPLETE-GUIDE.md\` - Flux Operator guide
@@ -458,8 +458,8 @@ display_completion_message() {
     echo "  Check deployment-report-$TIMESTAMP.md for complete details"
     echo ""
     echo -e "${BLUE}🧪 Validate Deployment:${NC}"
-    echo "  Run: ./core/core/automation/ci-cd/scripts/validate-hub-spoke-architecture.sh"
-    echo "  Run: ./core/core/automation/ci-cd/scripts/run-all-tests.sh"
+    echo "  Run: ./core/automation/scripts/validate-hub-spoke-architecture.sh"
+    echo "  Run: ./core/automation/scripts/run-all-tests.sh"
     echo ""
     echo -e "${GREEN}✨ Your GitOps Infra Control Plane is ready!${NC}"
 }
