@@ -1,0 +1,86 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: argo-workflows-overlay
+  namespace: argo-workflows
+
+resources:
+# Core Argo Workflows Installation
+- base/namespace.yaml
+- base/argo-workflows-install.yaml
+- base/workflow-controller-configmap.yaml
+
+# Qwen LLM Integration
+- qwen/qwen-k8sgpt-deployment.yaml
+- qwen/qwen-configmap.yaml
+- qwen/qwen-service.yaml
+
+# Workflow Examples and Templates
+- examples/basic-workflows.yaml
+- examples/qwen-analysis-workflows.yaml
+- examples/ci-cd-workflows.yaml
+
+# Monitoring and Observability
+- monitoring/prometheus-service-monitor.yaml
+- monitoring/grafana-dashboard.yaml
+
+# Security and RBAC
+- security/rbac.yaml
+- security/network-policies.yaml
+
+# Configurations
+- configurations/workflow-controller-config.yaml
+- configurations/artifact-repository.yaml
+
+patchesStrategicMerge:
+# Development environment patches
+- patches/dev/controller-resources.yaml
+- patches/dev/qwen-resources.yaml
+
+# Production environment patches  
+- patches/prod/controller-resources.yaml
+- patches/prod/qwen-resources.yaml
+
+configurations:
+- configurations/configmap-transformer.yaml
+
+commonLabels:
+  app.kubernetes.io/name: argo-workflows
+  app.kubernetes.io/component: workflows
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  argo-workflows/version: "v3.5.0"
+  gitops-infra-control-plane/managed: "true"
+  qwen-llm/integrated: "true"
+
+vars:
+- name: ARGOWF_NAMESPACE
+  objref:
+    kind: ConfigMap
+    name: workflow-controller-configmap
+    fieldref:
+      fieldpath: data.namespace
+- name: QWEN_SERVICE_URL
+  objref:
+    kind: Service
+    name: qwen-k8sgpt
+    fieldref:
+      fieldpath: metadata.name
+
+replicas:
+- name: argo-workflows-controller
+  count: 1
+- name: qwen-k8sgpt
+  count: 1
+
+images:
+- name: argoproj/argo-workflows
+  newTag: v3.5.0
+- name: python
+  newTag: 3.9-alpine
+- name: qwen/k8sgpt
+  newTag: latest
+
+namespace: argo-workflows
