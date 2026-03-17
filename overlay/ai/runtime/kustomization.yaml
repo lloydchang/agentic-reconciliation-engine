@@ -1,0 +1,64 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: ai-runtime-overlay
+  namespace: ai-agents
+
+resources:
+  # Base AI runtime resources
+  - ../../core/ai/runtime
+  # AI agent configurations
+  - agents
+  # Temporal workflows
+  - workflows
+  # Monitoring and observability
+  - monitoring
+
+patchesStrategicMerge:
+  # Environment-specific patches
+  - patches/runtime-config.yaml
+  - patches/resource-limits.yaml
+  - patches/network-policies.yaml
+
+configMapGenerator:
+  - name: ai-runtime-config
+    literals:
+      - LOG_LEVEL=info
+      - SKILLS_PATH=/app/skills
+      - MEMORY_BACKEND=llama-cpp
+      - TEMPORAL_HOST=temporal.temporal.svc.cluster.local:7233
+
+secretGenerator:
+  - name: ai-runtime-secrets
+    envs:
+      - .env.secrets
+
+vars:
+  - name: AI_RUNTIME_NAMESPACE
+    objref:
+      kind: ConfigMap
+      name: ai-runtime-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.namespace
+
+images:
+  - name: ai-runtime
+    newTag: latest
+    # For production, use specific tags
+    # newTag: v1.2.3
+
+replicas:
+  - name: ai-runtime-controller
+    count: 3
+  - name: ai-runtime-worker
+    count: 5
+
+commonLabels:
+  app.kubernetes.io/name: ai-runtime
+  app.kubernetes.io/component: runtime
+  app.kubernetes.io/managed-by: kustomize
+
+commonAnnotations:
+  config.kubernetes.io/origin: overlay/ai/runtime

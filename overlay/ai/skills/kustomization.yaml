@@ -1,0 +1,64 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: ai-skills-overlay
+  namespace: ai-agents
+
+resources:
+  # Base skills resources
+  - ../../core/ai/skills
+  # Skill-specific configurations
+  - debug-skills
+  - optimization-skills
+  - monitoring-skills
+  - deployment-skills
+
+patchesStrategicMerge:
+  # Skill configuration patches
+  - patches/skill-discovery.yaml
+  - patches/skill-execution.yaml
+  - patches/skill-dependencies.yaml
+
+configMapGenerator:
+  - name: ai-skills-config
+    literals:
+      - SKILLS_DIRECTORY=/app/skills
+      - SKILL_VALIDATION_ENABLED=true
+      - SKILL_CACHE_ENABLED=true
+      - SKILL_TIMEOUT_SECONDS=300
+      - MAX_CONCURRENT_SKILLS=10
+
+secretGenerator:
+  - name: ai-skills-secrets
+    envs:
+      - .env.skills
+
+vars:
+  - name: AI_SKILLS_NAMESPACE
+    objref:
+      kind: ConfigMap
+      name: ai-skills-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.namespace
+
+images:
+  - name: ai-skills-processor
+    newTag: latest
+  - name: ai-skills-validator
+    newTag: latest
+
+replicas:
+  - name: ai-skills-processor
+    count: 2
+  - name: ai-skills-validator
+    count: 1
+
+commonLabels:
+  app.kubernetes.io/name: ai-skills
+  app.kubernetes.io/component: skills
+  app.kubernetes.io/managed-by: kustomize
+
+commonAnnotations:
+  config.kubernetes.io/origin: overlay/ai/skills

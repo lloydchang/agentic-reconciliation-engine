@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: kind-config-overlay
+  namespace: kind-cluster
+
+resources:
+  # Kind cluster configuration templates
+  - cluster-configs
+  - node-configs
+  - networking-configs
+
+configMapGenerator:
+  - name: kind-cluster-config
+    files:
+      - kind-config.yaml
+      - calico-config.yaml
+      - ingress-config.yaml
+
+  - name: kind-scripts
+    files:
+      - setup-cluster.sh
+      - cleanup-cluster.sh
+      - load-images.sh
+
+secretGenerator:
+  - name: kind-secrets
+    envs:
+      - .env.kind
+
+vars:
+  - name: KIND_CLUSTER_NAME
+    objref:
+      kind: ConfigMap
+      name: kind-cluster-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.cluster-name
+
+  - name: KIND_KUBERNETES_VERSION
+    objref:
+      kind: ConfigMap
+      name: kind-cluster-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.kubernetes-version
+
+patchesStrategicMerge:
+  - patches/cluster-patches.yaml
+  - patches/network-patches.yaml
+
+commonLabels:
+  app.kubernetes.io/name: kind-cluster
+  app.kubernetes.io/component: config
+  app.kubernetes.io/managed-by: kustomize
+
+commonAnnotations:
+  config.kubernetes.io/origin: overlay/config/kind

@@ -1,0 +1,112 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: production-overlay
+  namespace: production
+
+resources:
+  # Base deployment resources
+  - ../../../core/deployment
+  # Production-specific resources
+  - resources
+  - networking
+  - security
+
+patchesStrategicMerge:
+  # Production patches
+  - patches/production-config.yaml
+  - patches/resource-limits.yaml
+  - patches/affinity.yaml
+  - patches/security-hardening.yaml
+
+patchesJson6902:
+  # JSON 6902 patches for complex modifications
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: ai-runtime-controller
+    path: patches/controller-patch.json
+  - target:
+      group: apps
+      version: v1
+      kind: StatefulSet
+      name: temporal-database
+    path: patches/database-patch.json
+
+configMapGenerator:
+  - name: production-config
+    literals:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=warn
+      - METRICS_ENABLED=true
+      - TRACING_ENABLED=true
+      - AUDIT_LOGGING=true
+      - BACKUP_ENABLED=true
+      - SECURITY_MODE=strict
+
+secretGenerator:
+  - name: production-secrets
+    envs:
+      - .env.production
+
+vars:
+  - name: PRODUCTION_NAMESPACE
+    objref:
+      kind: ConfigMap
+      name: production-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.namespace
+
+images:
+  - name: ai-runtime-controller
+    newTag: v1.2.3
+  - name: ai-runtime-worker
+    newTag: v1.2.3
+  - name: temporal-server
+    newTag: v1.20.0
+  - name: ai-dashboard
+    newTag: v1.2.3
+
+replicas:
+  - name: ai-runtime-controller
+    count: 5
+  - name: ai-runtime-worker
+    count: 10
+  - name: temporal-server
+    count: 3
+  - name: ai-dashboard
+    count: 2
+
+resourceLimits:
+  - type: Container
+    container: ai-runtime-controller
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+  - type: Container
+    container: ai-runtime-worker
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+
+commonLabels:
+  app.kubernetes.io/name: gitops-infra
+  app.kubernetes.io/component: production
+  app.kubernetes.io/managed-by: kustomize
+  environment: production
+
+commonAnnotations:
+  config.kubernetes.io/origin: overlay/deployment/overlays/production
+  security.policy.level: strict
+  compliance.level: production
+
+namespace: production
