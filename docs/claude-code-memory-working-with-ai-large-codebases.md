@@ -5,6 +5,8 @@ Transform Token Costs into Team Knowledge with Smart Memory Management
 By Thomas Landgraf  
 Jun 28, 2025
 
+**Original Source**: https://thomaslandgraf.substack.com/p/claude-codes-memory-working-with
+
 ## 1. Claude Code: It's Not a Tool — It's a Mindset Shift
 
 Over the years, I've seen dozens of developer tools that promised to revolutionize the way we write code. Most of them end up helping around the edges — they autocomplete a function, suggest some refactoring, maybe speed up boilerplate generation. Useful, yes. But transformative? Rarely.
