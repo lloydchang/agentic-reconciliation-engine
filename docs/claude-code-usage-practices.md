@@ -4,6 +4,8 @@
 
 This document summarizes the practical workflow patterns shared by Boris Cherny, creator of Claude Code, for effective AI-assisted development. These "vanilla" but disciplined approaches emphasize consistency, verification, and systematic automation over raw speed.
 
+**Source**: [How the Creator of Claude Code Actually Uses It: 13 Practical Moves](https://reading.sh/how-the-creator-of-claude-code-actually-uses-it-13-practical-moves-2bf02eec032a) by JP Caparas
+
 ## Target Audience
 
 - Teams already using Claude Code seeking more consistent results
