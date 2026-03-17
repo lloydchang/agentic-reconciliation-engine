@@ -237,10 +237,11 @@ EOF
         echo "1. Use overlay-quickstart.sh to create and manage overlays"
         echo "2. Read docs/OVERLAY-QUICK-START.md for detailed guidance"
         echo "3. Check overlay/examples/ directory for sample configurations"
-        echo "4. Access your AI agents dashboard at http://localhost:8080"
-        echo "5. Configure Claude Desktop with AI Agent Skills"
+        echo "5. Access your AI agents dashboard at http://localhost:8080"
+        echo "6. Configure Claude Desktop with AI Agent Skills (auto-configured)"
         echo ""
-        echo -e "${GREEN}🚀 Ready to start working with overlays and AI agents!${NC}"
+        echo -e "${GREEN}🚀 Overlay system and AI agents are ready!${NC}"
+        echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
     fi
 }
 

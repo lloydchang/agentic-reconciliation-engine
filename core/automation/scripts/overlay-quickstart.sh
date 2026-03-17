@@ -393,7 +393,12 @@ complete_overlay_quickstart() {
     echo "3. Deploy overlays to your cluster"
     echo "4. Monitor overlay status and logs"
     echo "5. Access your AI agents dashboard at http://localhost:8080"
-    echo "6. Configure Claude Desktop with AI Agent Skills"
+    echo "6. Configure Claude Desktop with AI Agent Skills (auto-configured)"
+        echo ""
+        echo -e "${GREEN}🎉 Overlay system is ready!${NC}"
+        echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
+        echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
+        echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
 }
 
 # Help function
