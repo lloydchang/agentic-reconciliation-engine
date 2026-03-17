@@ -1,161 +1,309 @@
-# GitOps Infra PAgents
+# GitOps Infra Agents
 
 ## Preface
 
-This document defines an **agent architecture** that integrates LLM-driven orchestration with GitOps-controlled infrastructure operations. It ensures clarity, precision, and unambiguous instructions following open standard specifications at https://agentskills.io/specification web page.
+This document defines the **agent architecture** for this repository. It integrates LLM-driven
+orchestration with GitOps-controlled infrastructure operations, ensuring clarity, precision, and
+unambiguous operating rules.
 
-Two complementary layers coexist:
+Skills in this repo follow the open [agentskills.io specification](https://agentskills.io/specification).
+Project-specific metadata (risk level, autonomy, layer) is stored under the standard `metadata:`
+key in each `SKILL.md` frontmatter — it is not part of the agentskills.io standard itself.
 
-1. **Temporal Agents**: General-purpose workflow orchestration, multi-tenant operations. Determines *what* actions are required.
-2. **GitOps/Control-PAgents**: Deterministic executor of LLM-generated structured plans. Ensures safe infrastructure changes via GitOps pipelines and Kubernetes reconciliation loops.
-
-**Key Principle:** LLM decides *what*, system decides *how*. This is called **tool-constrained or structured tool agents**.
+**Key Principle:** LLM decides *what*, the deterministic system decides *how*. This is the
+**tool-constrained / structured tool agent** pattern.
 
 ---
 
 ## Table of Contents
 
 1. Agent Overview
-2. Temporal Agent System
-3. GitOps Control PAgents (Appendix A)
-4. Autonomy, PR Gating, and Risk Levels
-5. Integration Guidelines
-6. Testing, Validation & Troubleshooting
-7. Appendices
-   * A: Skill Index Mapping (Temporal vs GitOps-specific)
-   * B: Environment Variables & Configurations
-   * C: Human Gate Reference Table
-   * D: Composite Workflows & Autonomy Rules
+2. Architecture Layers
+3. Memory Agent Layer
+4. Temporal Orchestration Layer
+5. GitOps Control Layer
+6. Skill System
+7. Autonomy, PR Gating, and Risk Levels
+8. Integration Guidelines
+9. Testing, Validation & Troubleshooting
+10. Appendices
+    * A: Skill Index Mapping
+    * B: Environment Variables & Configurations
+    * C: Human Gate Reference Table
+    * D: Composite Workflows & Autonomy Rules
+
+---
+
 ## Repository Structure
+
 ```
-repo/
-├── core/ai/skills/                    # Agent skill definitions (agentskills.io compliant)
-│   └── [skill_name]/
-│       ├── SKILL.md          # Skill definition with YAML frontmatter
-│       ├── core/core/automation/ci-cd/scripts/          # Optional executable code
-│       ├── references/       # Optional documentation
-│       └── assets/           # Optional templates/resources
-├── AGENTS.md                  # This file - agent operating rules
-├── core/ai/runtime/                    # Agent runtime implementation
-│   ├── backend/              # Go Temporal workflows and activities
-│   ├── dashboard/            # React dashboard and WebMCP client
-│   ├── cli/                  # Command-line interface
-│   └── tools/                # Tool permissions and configurations
-├── docs/                     # Documentation and interface specs
-├── core/core/automation/ci-cd/scripts/                  # Utility scripts for validation and fixes
-└── gitops/                   # GitOps/Control-Plane workflows
+gitops-infra-control-plane/
+├── core/ai/
+│   ├── AGENTS.md                          # This file
+│   ├── skills/                            # agentskills.io-compliant skill definitions
+│   │   └── [skill_name]/
+│   │       ├── SKILL.md                   # Required: name, description + metadata
+│   │       ├── scripts/                   # Optional: executable code
+│   │       ├── references/               # Optional: documentation
+│   │       └── assets/                    # Optional: templates/resources
+│   └── runtime/                           # Agent runtime implementation
+│       ├── backend/                       # Go Temporal workflows and activities
+│       ├── dashboard/                     # React dashboard and backend API
+│       ├── cli/                           # Command-line interface
+│       └── tools/                         # Tool permissions and configurations
+├── core/automation/ci-cd/scripts/         # Utility scripts for validation and fixes
+├── docs/                                  # Architecture documentation
+└── gitops/                                # GitOps/Control-Plane manifests (Flux/ArgoCD)
 ```
 
 ### Skills Directory
-The `core/ai/skills/` directory contains individual skill definitions that follow the [agentskills.io specification](https://agentskills.io/specification):
 
-- Each skill has a [SKILL.md](SKILL.md) file with YAML frontmatter containing `name`, `description`, and optional fields
-- Skills define specific capabilities like `cost-optimizer`, `alert-prioritizer`, `cluster-health-check`
-- Agents discover and load skills based on task requirements and skill descriptions
-- All 72 skills have been validated to comply with the specification
+The `core/ai/skills/` directory contains skill definitions following the
+[agentskills.io specification](https://agentskills.io/specification):
+
+- Each skill directory contains a `SKILL.md` with required `name` and `description` frontmatter
+- `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
+- Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
+- Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
+- 64+ skills are currently available
+
+**Example SKILL.md frontmatter (agentskills.io compliant):**
+```yaml
+---
+name: cost-optimizer
+description: >
+  Analyses cloud spend and recommends cost reductions. Use when asked to reduce
+  costs, right-size resources, or analyse billing across AWS, Azure, or GCP.
+metadata:
+  risk_level: medium
+  autonomy: conditional
+  layer: temporal
+  human_gate: PR approval required for changes > $100/day savings
+---
+```
 
 ---
 
 ## 1. Agent Overview
 
-Agents automate infrastructure workflows while preserving safety:
+Four layers work together to automate infrastructure operations safely:
 
-* Temporal layer decides *what* actions are needed and composes workflows.
-* GitOps/Control-Plane layer executes changes deterministically.
-* Risk-based gating controls which actions are fully autonomous vs PR-gated.
-* Skills define structured outputs, parameters, and error handling.
+| Layer | Purpose | Decides |
+|---|---|---|
+| **Memory Agents** | Persistent AI state, conversation history, local inference | What context exists |
+| **Temporal Orchestration** | Multi-skill workflow coordination | What actions are needed |
+| **GitOps Control** | Deterministic execution of structured plans | How changes are applied |
+| **Monitoring & Observability** | Metrics, logging, alerting | Whether the system is healthy |
+
+No LLM output is ever executed directly on a cluster. All changes flow through structured
+plans → GitOps pipelines → Kubernetes reconciliation.
 
 ---
 
-## 2. Temporal Agent System
+## 2. Architecture Layers
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                  User / Operator Request                     │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│              Temporal Orchestration Layer                    │
+│  Decides what actions are needed. Composes multi-skill       │
+│  workflows. Assesses risk. Routes to GitOps or Memory Agent. │
+└───────────┬──────────────────────────┬───────────────────────┘
+            │                          │
+            ▼                          ▼
+┌───────────────────────┐  ┌───────────────────────────────────┐
+│  Memory Agent Layer   │  │       GitOps Control Layer        │
+│                       │  │                                   │
+│  Rust / Go / Python   │  │  Executes structured JSON plans   │
+│  Local inference      │  │  via Flux or ArgoCD. Never runs   │
+│  (llama.cpp / Ollama) │  │  LLM output directly on cluster.  │
+│  SQLite persistence   │  │                                   │
+└───────────────────────┘  └───────────────────────────────────┘
+            │                          │
+            └──────────────┬───────────┘
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│           Monitoring & Observability Layer                   │
+│     Prometheus · Grafana · ELK · Alertmanager · Dashboard    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Memory Agent Layer
+
+Memory Agents provide persistent AI state across sessions. They are the foundation of the
+system's ability to learn from past operations and provide context-aware responses.
+
+### Implementation
+
+Three language implementations serve different purposes:
+
+| Implementation | Use Case | Inference |
+|---|---|---|
+| **Rust** (`agent-memory-rust`) | Performance-critical, high-throughput | llama.cpp (embedded) |
+| **Go** (`agent-memory-go`) | Orchestration integration, Temporal activities | llama.cpp or Ollama |
+| **Python** (`agent-memory-python`) | ML/AI prototyping, model experimentation | transformers/torch |
+
+Selection is controlled by `LANGUAGE_PRIORITY` environment variable (default: `rust,go,python`).
+
+### Inference Backend
+
+All inference is local by design — **no external API calls for inference**. This is a core
+privacy and security principle: infrastructure data never leaves the cluster.
+
+```
+Priority: llama.cpp → Ollama (fallback)
+
+Controlled by: BACKEND_PRIORITY=llama-cpp,ollama
+```
+
+### Persistence
+
+Each memory agent uses SQLite with a 10Gi PVC:
+
+| Memory Type | Description |
+|---|---|
+| Episodic | Conversation history across sessions |
+| Semantic | Learned concepts and entity relationships |
+| Procedural | Skill execution patterns and outcomes |
+| Working | Current session context |
+
+### Failure Handling
+
+- If the primary language agent is unavailable, the system falls back through `LANGUAGE_PRIORITY`
+- If llama.cpp fails, Ollama is used as the inference fallback
+- Health endpoint: `GET /api/health` on each agent
+- Kubernetes liveness and readiness probes are required on all memory agent deployments
+
+---
+
+## 4. Temporal Orchestration Layer
+
+Temporal provides durable, auditable workflow execution across all infrastructure operations.
 
 ### Core Principles
 
-* Multi-skill orchestration for general infrastructure operations
-* Safety, auditability, human oversight, idempotency
-* Structured output, logging, and monitoring
-* Risk-level assessment and human gating
+- Multi-skill orchestration for general infrastructure operations
+- Safety, auditability, human oversight, idempotency
+- Structured output, logging, and monitoring
+- Risk-level assessment and human gating before execution
 
 ### Agent Behavior Rules
 
-* Temporal orchestrates multi-step workflows and decides action sequences.
-* GitOps layer executes structured plans deterministically.
-* Skills define autonomy level, risk, and human gate requirements.
+- Temporal orchestrates multi-step workflows and decides action sequences
+- All LLM outputs are **structured JSON plans**, never shell commands
+- GitOps layer executes structured plans deterministically
+- Skills define autonomy level, risk, and human gate requirements
 
 ### Example Workflow: Cost Optimization
-1. **Temporal** receives request: "Optimize costs for production environment"
-2. **Skill Discovery**: Agent identifies `cost-optimizer` skill based on description
-3. **Plan Generation**: Agent creates structured plan using skill's input schema
-4. **Risk Assessment**: Plan marked as `medium` risk, `conditional` autonomy
-5. **GitOps Execution**: Plan executed via Flux or Argo CD with human approval gate
-6. **Results**: Cost savings report generated and monitored
 
-### Skill System & Interfaces
+1. **Request**: "Optimize costs for production environment"
+2. **Skill Discovery**: Agent loads `cost-optimizer` skill based on description match
+3. **Context Retrieval**: Memory agent provides historical cost patterns
+4. **Plan Generation**: Structured JSON plan created from skill instructions
+5. **Risk Assessment**: Plan marked `medium` risk, `conditional` autonomy
+6. **Human Gate**: PR created; awaits approval
+7. **GitOps Execution**: On approval, Flux/ArgoCD applies the plan
+8. **Results**: Cost savings recorded; memory agent updated with outcome
 
-* `core/ai/skills/[skill]/SKILL.md` defines the skill:
+### Temporal State Store
 
-  * **action_name**: unique identifier
-  * **risk_level**: low / medium / high
-  * **autonomy**: fully_auto / conditional / requires_PR
-  * **input_schema** and **output_schema**: JSON schemas
-  * **human_gate**: optional explanation of required approvals
-* Skills may include additional files in the skill directory (scripts, templates).
-* Composite workflows combine multiple skills, potentially across both layers.
+Temporal uses **Cassandra** for distributed workflow state persistence.
 
-### Monitoring, Observability & Compliance
+### Monitoring
 
-* Track execution times, success rates, resource usage.
-* Unified logs from Temporal and GitOps layers.
-* Risk and human gate auditing.
-
-### Operational Protocols & Human Gates
-
-* Low-risk actions may run fully automated.
-* Medium/high-risk actions are PR-gated, requiring explicit human approval.
-* Standardized confirmation and audit trail for all human-gated operations.
-
-### Workflows & Automation
-
-* Temporal workflows orchestrate general infrastructure operations.
-* GitOps workflows execute infrastructure changes via validated pipelines (Flux, Argo CD).
-* LLM output is never executed directly on clusters; only through structured plans.
+- Execution times, success/failure rates, resource usage
+- Unified logs from Temporal and GitOps layers
+- Risk and human gate audit trail
 
 ---
 
-## 3. GitOps Control PAgents (Appendix A)
+## 5. GitOps Control Layer
 
 ### Purpose & Scope
 
-* Manage clusters, multi- deployments, infrastructure provisioning.
-* Execute **structured plans** generated by Temporal.
-* Reconciliation ensures system-level safety even if automation misfires.
+- Executes **structured JSON plans** generated by the Temporal layer
+- Never accepts free-form LLM text or shell commands as input
+- All changes are PR-tracked, version-controlled, and reconciled by Flux or ArgoCD
+- Kubernetes reconciliation loops automatically revert invalid changes
 
 ### Key Workflows
 
-* Cluster Management: provision, upgrade, scale, troubleshoot nodes
-* GitOps Synchronization: PR validation, Flux and Argo CD reconciliation
-* Deployment Validation: smoke tests, canary, blue-green
-* Secrets & Certificates: rotation and management
-* Multi-Cloud Orchestration: region-specific deployments, networking
+- Cluster Management: provision, upgrade, scale, troubleshoot nodes
+- GitOps Synchronization: PR validation, Flux and ArgoCD reconciliation
+- Deployment Validation: smoke tests, canary, blue-green
+- Secrets & Certificates: rotation and management
+- Multi-Cloud Orchestration: region-specific deployments, networking
 
-### Monitoring & Logging
+### Safety Net
 
-* GitOps-specific metrics (sync status, drift detection, deployment success/failure)
-* Integration into unified Temporal monitoring dashboards
+Even `fully_auto` tasks flow through the GitOps pipeline for validation.
+Kubernetes reconciliation provides a final safety layer for all automated actions.
 
 ---
 
-## 4. Autonomy, PR Gating, and Risk Levels
+## 6. Skill System
 
-| Risk Level | Autonomy Options | Description                                                                    |
-| ---------- | ---------------- | ------------------------------------------------------------------------------ |
-| Low        | fully_auto       | LLM generates plan, GitOps executes without PR. Safe for dev or test clusters. |
-| Medium     | conditional      | LLM generates plan, PR created; human may approve or skip if policy allows.    |
-| High       | requires_PR      | LLM generates plan; all actions require human approval before execution.       |
+Skills follow the [agentskills.io specification](https://agentskills.io/specification) using
+**progressive disclosure**:
 
-**Structured Action Example:**
+1. **Discovery**: At startup, only `name` and `description` are loaded for all skills
+2. **Activation**: When a task matches a skill's description, the full `SKILL.md` body loads
+3. **Execution**: Agent follows instructions; optionally loads files from `scripts/`, `references/`, `assets/`
 
+### Standard SKILL.md Frontmatter Fields (agentskills.io)
+
+| Field | Required | Description |
+|---|---|---|
+| `name` | Yes | Lowercase, hyphens only, max 64 chars, matches directory name |
+| `description` | Yes | What the skill does and when to use it. Max 1024 chars. |
+| `license` | No | License name or reference |
+| `compatibility` | No | Environment requirements. Max 500 chars. |
+| `metadata` | No | Key-value map. Use for project-specific fields. |
+| `allowed-tools` | No | Space-delimited pre-approved tools (experimental) |
+
+### Project-Specific Metadata Keys
+
+These are stored under `metadata:` in frontmatter — they are not agentskills.io standard fields:
+
+| Key | Values | Description |
+|---|---|---|
+| `risk_level` | `low`, `medium`, `high` | Determines autonomy and PR gating |
+| `autonomy` | `fully_auto`, `conditional`, `requires_PR` | Execution mode |
+| `layer` | `temporal`, `gitops` | Which layer executes this skill |
+| `human_gate` | string | Description of required approval |
+
+### Skill Size Guidelines
+
+- Keep `SKILL.md` body under 500 lines / 5000 tokens
+- Move detailed reference material to `references/`
+- Tell the agent *when* to load each reference file — do not load all at startup
+
+### Validation
+
+All skills must pass `skills-ref validate` before merge. This is enforced as a CI gate:
+
+```bash
+skills-ref validate ./core/ai/skills/
 ```
+
+---
+
+## 7. Autonomy, PR Gating, and Risk Levels
+
+| Risk Level | Autonomy | Description |
+|---|---|---|
+| Low | `fully_auto` | Plan generated and executed via GitOps without PR. Safe for dev/test. |
+| Medium | `conditional` | PR created; human may approve or policy may auto-approve. |
+| High | `requires_PR` | All actions require explicit human approval before execution. |
+
+**Example — low risk (read operation):**
+```yaml
 action: get_pod_logs
 namespace: payments
 pod: api-123
@@ -163,43 +311,44 @@ risk_level: low
 autonomy: fully_auto
 ```
 
-**High-Risk Example:**
-
-```
+**Example — high risk (certificate rotation):**
+```yaml
 action: rotate_tls_certificates
 namespace: production
 risk_level: high
 autonomy: requires_PR
 ```
 
-* Even fully_auto tasks go through GitOps pipeline for validation and reconciliation.
-* Kubernetes reconciliation loops automatically revert invalid changes.
+---
+
+## 8. Integration Guidelines
+
+- LLM outputs **structured JSON plans only** — never shell commands or raw text
+- GitOps pipelines validate and apply changes deterministically
+- All deployments go through GitOps manifests — never `kubectl apply` in CI directly
+- Skills define risk and gating in `metadata:` under their `SKILL.md` frontmatter
+- Human gates are enforced at both the Temporal and GitOps layers where specified
+- Service addresses are always environment variables — never hardcoded URLs
 
 ---
 
-## 5. Integration Guidelines
+## 9. Testing, Validation & Troubleshooting
 
-* LLM outputs **structured JSON plans**, never shell commands.
-* GitOps pipelines validate and apply changes deterministically.
-* Skills define risk and gating clearly in `core/ai/skills/[skill]/SKILL.md`.
-* Human gates enforced at both Temporal orchestration and GitOps layers where specified.
-
----
-
-## 6. Testing, Validation & Troubleshooting
-
-* Temporal workflows: unit tests, mock cloud environments.
-* GitOps workflows: staging clusters, PR validation, rollback scenarios.
-* Continuous monitoring for errors, retries, and workflow consistency.
+- Skills: `skills-ref validate ./core/ai/skills/` (required CI gate)
+- Temporal workflows: unit tests with mock cloud environments
+- GitOps workflows: staging clusters, PR validation, rollback scenarios
+- Memory agents: integration tests via `/api/health` and `/api/chat` endpoints
+- Inference backends: smoke test llama.cpp availability before Ollama fallback
+- Continuous monitoring for errors, retries, and workflow consistency
 
 ---
 
-## 7. Appendices
+## 10. Appendices
 
 ### A: Skill Index Mapping
 
-| Skill Category | Example Skills | Default Layer | Autonomy |
-| -------------- | -------------- | ------------- | -------- |
+| Skill Category | Example Skills | Layer | Default Autonomy |
+|---|---|---|---|
 | **Cost Management** | cost-optimizer, capacity-planning | Temporal | conditional |
 | **Monitoring** | alert-prioritizer, cluster-health-check | Temporal | conditional |
 | **Security** | compliance-scanner, analyze-security | GitOps | requires_PR |
@@ -217,13 +366,21 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 
 # GitOps Endpoints
 ARGO_CD_SERVER=https://argocd.example.com
-FLUX_GIT_REPO=git@example.com:example/gitops-infra-control-plane.git
+FLUX_GIT_REPO=git@example.com:lloydchang/gitops-infra-control-plane.git
 
 # GitOps Configuration
-GITOPS_TOOL=flux # or argo_cd
+GITOPS_TOOL=flux                   # or argo_cd
 GITOPS_NAMESPACE=gitops-system
 
-# Monitoring Integration
+# Memory Agent Configuration
+MEMORY_AGENT_URL=http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080
+BACKEND_PRIORITY=llama-cpp,ollama  # local inference first — no external API calls
+LANGUAGE_PRIORITY=rust,go,python
+
+# Temporal
+TEMPORAL_ADDRESS=temporal-frontend.ai-infrastructure.svc.cluster.local:7233
+
+# Monitoring
 PROMETHEUS_URL=https://prometheus.example.com
 GRAFANA_API_KEY=your_grafana_key
 ```
@@ -231,52 +388,58 @@ GRAFANA_API_KEY=your_grafana_key
 ### C: Human Gate Reference Table
 
 | Operation Type | Risk Level | Human Gate Required | Approval Method |
-| -------------- | ---------- | ------------------ | -------------- |
+|---|---|---|---|
 | **Read Operations** | Low | No | N/A |
 | **Dev/Test Changes** | Low | No | N/A |
 | **Production Scaling** | Medium | Yes | PR approval |
+| **Cost Optimization** | Medium | Conditional | Auto-approve < $100/day |
 | **Security Changes** | High | Yes | PR + security review |
 | **Database Changes** | High | Yes | PR + DBA review |
 | **Network Changes** | High | Yes | PR + network review |
-| **Cost Optimization** | Medium | Conditional | Auto-approve < $100/day |
+| **Certificate Rotation** | High | Yes | PR + security review |
 
 ### D: Composite Workflows & Autonomy Rules
 
 #### Example: Tenant Onboarding Workflow
+
 ```yaml
 workflow: tenant-onboarding
 steps:
-  1. create-infrastructure:
-     skill: infrastructure-provisioning
-     risk: medium
-     autonomy: conditional
-  2. setup-monitoring:
-     skill: observability-stack
-     risk: low
-     autonomy: fully_auto
-  3. configure-security:
-     skill: analyze-security
-     risk: high
-     autonomy: requires_PR
-  4. deploy-applications:
-     skill: deployment-strategy
-     risk: medium
-     autonomy: conditional
+  - id: create-infrastructure
+    skill: infrastructure-provisioning
+    risk: medium
+    autonomy: conditional
+  - id: setup-monitoring
+    skill: observability-stack
+    risk: low
+    autonomy: fully_auto
+  - id: configure-security
+    skill: analyze-security
+    risk: high
+    autonomy: requires_PR
+  - id: deploy-applications
+    skill: deployment-strategy
+    risk: medium
+    autonomy: conditional
 ```
 
 #### Autonomy Rules Matrix
+
 | Layer | Low Risk | Medium Risk | High Risk |
-| ----- | -------- | ----------- | --------- |
+|---|---|---|---|
 | **Temporal** | fully_auto | conditional | requires_PR |
 | **GitOps** | fully_auto | conditional | requires_PR |
 | **Combined** | fully_auto | conditional | requires_PR |
 
 ---
 
-**Summary:**
+## Summary
 
-* Architecture is **tool-constrained / structured tool agent** pattern.
-* LLM decides *what*, deterministic system decides *how*.
-* Autonomy is explicitly defined per skill and risk level.
-* GitOps and Kubernetes reconciliation provide safety net for fully automated actions.
-* Document and skills follow open standard specifications at https://agentskills.io/specification web page.
+- Architecture follows the **tool-constrained / structured tool agent** pattern
+- LLM decides *what*; deterministic system decides *how*
+- Four layers: Memory Agents → Temporal Orchestration → GitOps Control → Monitoring
+- All inference is local (llama.cpp / Ollama) — infrastructure data stays on-prem
+- Skills follow [agentskills.io specification](https://agentskills.io/specification); project fields live under `metadata:`
+- Autonomy is explicitly defined per skill via `metadata:` in `SKILL.md`
+- All deployments go through GitOps — no direct `kubectl apply` in CI
+- GitOps and Kubernetes reconciliation provide the safety net for all automated actions
