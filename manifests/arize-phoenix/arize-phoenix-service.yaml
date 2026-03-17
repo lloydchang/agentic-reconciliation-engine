@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: arize-phoenix
+  namespace: staging
+  labels:
+    app: arize-phoenix
+    component: observability
+spec:
+  selector:
+    app: arize-phoenix
+  ports:
+  - name: http
+    port: 6006
+    targetPort: 6006
+    protocol: TCP
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+    protocol: TCP
+  type: ClusterIP

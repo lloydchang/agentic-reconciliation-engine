@@ -1,0 +1,48 @@
+{
+  "dashboard": {
+    "title": "Agent Observability - Staging",
+    "description": "Arize Phoenix monitoring for GitOps Infra Control Plane agents",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Workflow Completion Rate",
+        "targets": [
+          {
+            "expr": "rate(temporal_workflow_completed_total[5m]) / rate(temporal_workflow_started_total[5m])",
+            "legendFormat": "Completion Rate"
+          }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "Skill Trigger Success Rate",
+        "targets": [
+          {
+            "expr": "rate(skill_trigger_success_total[5m]) / rate(skill_trigger_attempts_total[5m])",
+            "legendFormat": "Success Rate"
+          }
+        ]
+      },
+      {
+        "type": "table",
+        "title": "Recent Agent Executions",
+        "targets": [
+          {
+            "expr": "temporal_activity_execution_duration{quantile=\"0.95\"}",
+            "legendFormat": "95th percentile duration"
+          }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "Memory Agent Query Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(memory_query_duration_bucket[5m]))",
+            "legendFormat": "95th percentile query time"
+          }
+        ]
+      }
+    ]
+  }
+}

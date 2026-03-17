@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arize-phoenix
+  namespace: staging
+  labels:
+    app: arize-phoenix
+    component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurplus: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: arize-phoenix
+  template:
+    metadata:
+      labels:
+        app: arize-phoenix
+        component: observability
+    spec:
+      containers:
+      - name: phoenix
+        image: arizephoenix/phoenix:latest
+        ports:
+        - containerPort: 6006
+          name: http
+          protocol: TCP
+        - containerPort: 4317
+          name: otlp-grpc
+          protocol: TCP
+        - containerPort: 4318
+          name: otlp-http
+          protocol: TCP
+        env:
+        - name: PHOENIX_STORAGE_PATH
+          value: "/tmp/phoenix"
+        - name: PHOENIX_PORT
+          value: "6006"
+        - name: PHOENIX_HOST
+          value: "0.0.0.0"
+        volumeMounts:
+        - name: phoenix-storage
+          mountPath: /tmp/phoenix
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 6006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 6006
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+      volumes:
+      - name: phoenix-storage
+        persistentVolumeClaim:
+          claimName: phoenix-storage-pvc
