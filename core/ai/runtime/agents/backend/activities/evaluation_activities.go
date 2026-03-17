@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/workflows"
 )
 
 // EvaluationActivities contains all evaluation-related activities
@@ -176,59 +175,6 @@ func (ea *EvaluationActivities) GetVisualizationPaths(ctx context.Context, paths
 	}
 
 	*paths = visualizations
-	return nil
-}
-
-// CheckQualityGates checks quality gate compliance
-func (ea *EvaluationActivities) CheckQualityGates(ctx context.Context, input workflows.EvaluationWorkflowInput) error {
-	logger := activity.GetLogger(ctx)
-	logger.Info("Checking quality gates")
-
-	// Read evaluation results
-	resultsFile := filepath.Join(ea.ResultsPath, "evaluation_results.json")
-	data, err := ioutil.ReadFile(resultsFile)
-	if err != nil {
-		return fmt.Errorf("failed to read results for quality gate check: %w", err)
-	}
-
-	var results map[string]interface{}
-	if err := json.Unmarshal(data, &results); err != nil {
-		return fmt.Errorf("failed to unmarshal results for quality gate check: %w", err)
-	}
-
-	// Extract metrics
-	summary, ok := results["summary"].(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid results format: missing summary")
-	}
-
-	overallScore := summary["overall_score"].(float64)
-	passRate := summary["overall_pass_rate"].(float64)
-
-	// Check quality gates
-	passed := true
-	if overallScore < input.QualityGateScore {
-		passed = false
-	}
-	if passRate < input.QualityGatePassRate {
-		passed = false
-	}
-
-	// Save quality gate results
-	qualityGateResults := map[string]interface{}{
-		"passed":           passed,
-		"overall_score":    overallScore,
-		"pass_rate":        passRate,
-		"score_threshold":  input.QualityGateScore,
-		"rate_threshold":   input.QualityGatePassRate,
-		"checked_at":       time.Now().Format(time.RFC3339),
-	}
-
-	qualityGateFile := filepath.Join(ea.ResultsPath, "quality_gate_results.json")
-	qualityGateData, _ := json.MarshalIndent(qualityGateResults, "", "  ")
-	ioutil.WriteFile(qualityGateFile, qualityGateData, 0644)
-
-	logger.Info("Quality gate check completed", "Passed", passed)
 	return nil
 }
 
