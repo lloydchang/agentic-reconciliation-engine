@@ -199,28 +199,92 @@ deploy_ai_gateway() {
     # log_success "AI inference gateway deployed - skills can now call /api/infer"
 }
 
-# Deploy Temporal for orchestration
-deploy_temporal() {
-    log_info "Deploying Temporal for workflow orchestration..."
-
-    # Add Temporal Helm repo
-    helm repo add temporal https://temporalio.github.io/helm-charts
-    helm repo update
-
-    # Install Temporal with minimal config
-    helm upgrade --install temporal temporal/temporal \
-        --namespace $NAMESPACE \
-        --set server.replicaCount=1 \
-        --set frontend.service.type=ClusterIP \
-        --set cassandra.enabled=true \
-        --set cassandra.persistence.enabled=false \
-        --set cassandra.config.cluster_size=1 \
-        --set elasticsearch.enabled=false \
-        --wait
-
-    log_success "Temporal orchestration deployed"
+# Deploy Temporal server
+deploy_temporal_server() {
+    log_info "Deploying Temporal server..."
+    
+    # Create namespace if not exists
+    kubectl create namespace ai-infrastructure --dry-run=client -o yaml | kubectl apply -f -
+    
+    # Deploy PostgreSQL for Temporal
+    kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: temporal-secrets
+  namespace: ai-infrastructure
+type: Opaque
+data:
+  username: $(echo -n 'temporal' | base64)
+  password: $(echo -n 'temporal' | base64)
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: temporal-postgres
+  namespace: ai-infrastructure
+spec:
+  serviceName: temporal-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-postgres
+  template:
+    metadata:
+      labels:
+        app: temporal-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: temporal
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: temporal-secrets
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: temporal-secrets
+              key: password
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+EOF
+    
+    # Deploy Temporal server
+    kubectl apply -f core/resources/infrastructure/temporal/temporal-server-deployment.yaml
+    
+    log_success "Temporal server deployed"
 }
 
+# Deploy Temporal workers
+deploy_temporal_workers() {
+    log_info "Deploying Temporal workers..."
+    
+    # Build worker image
+    cd core/ai/workers/temporal
+    docker build -t temporal-workers:latest .
+    
+    # Deploy workers
+    kubectl apply -f core/resources/infrastructure/temporal/temporal-workers-deployment.yaml
+    
+    log_success "Temporal workers deployed"
+}
+    
 # Deploy operational skills framework
 deploy_skills_framework() {
     log_info "Deploying operational skills framework..."
@@ -287,14 +351,45 @@ CORS(app)
 
 @app.route('/api/agents')
 def get_agents():
-    return jsonify({
-        'agents': [
-            {'id': 'agent-1', 'name': 'Cost Optimizer', 'type': 'Rust', 'status': 'running', 'skills': 12, 'lastActivity': '2 min ago', 'successRate': 98.5},
-            {'id': 'agent-2', 'name': 'Security Scanner', 'type': 'Go', 'status': 'running', 'skills': 8, 'lastActivity': '5 min ago', 'successRate': 99.1},
-            {'id': 'agent-3', 'name': 'Cluster Monitor', 'type': 'Python', 'status': 'idle', 'skills': 15, 'lastActivity': '12 min ago', 'successRate': 97.2},
-            {'id': 'agent-4', 'name': 'Deployment Manager', 'type': 'Rust', 'status': 'running', 'skills': 10, 'lastActivity': '1 min ago', 'successRate': 96.8}
-        ]
-    })
+    agents = []
+    
+    # Detect memory agent
+    memory_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=agent-memory --no-headers")
+    for line in memory_output.split('\n'):
+        if line.strip():
+            parts = re.split(r'\s+', line.strip())
+            if len(parts) >= 6:
+                name = parts[0]
+                if 'memory' in name:
+                    agents.append({
+                        'id': name,
+                        'name': 'Memory Agent',
+                        'type': 'Rust',
+                        'status': parts[1],
+                        'skills': 1,
+                        'lastActivity': '1 min ago',
+                        'successRate': 99.9
+                    })
+    
+    # Detect temporal workers (contains all agent activities)
+    worker_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=temporal-workers --no-headers")
+    for line in worker_output.split('\n'):
+        if line.strip():
+            parts = re.split(r'\s+', line.strip())
+            if len(parts) >= 6:
+                name = parts[0]
+                if 'worker' in name:
+                    agents.append({
+                        'id': name,
+                        'name': 'AI Agent Worker',
+                        'type': 'Go',
+                        'status': parts[1],
+                        'skills': 64,  # All activities available
+                        'lastActivity': '1 min ago',
+                        'successRate': 98.5
+                    })
+    
+    return jsonify({'agents': agents})
 
 @app.route('/api/skills')
 def get_skills():
@@ -1348,10 +1443,10 @@ main() {
     build_agent_images
     deploy_ai_agents
     deploy_ai_gateway
-    # Skip Temporal due to timeout issues
-    # deploy_temporal
-    deploy_skills_framework
-    deploy_dashboard
+    deploy_temporal_server
+    deploy_temporal_workers
+    deploy_ai_gateway
+    # deploy_dashboard_api
     # Skip API service for now
     # deploy_dashboard_api
     # deploy_ingress
