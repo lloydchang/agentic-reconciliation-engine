@@ -1,0 +1,320 @@
+# Argo Workflows Installation Manifests
+# Source: https://github.com/argoproj/argo-workflows/releases/latest/download/install.yaml
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-workflows
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/exec
+  - pods/log
+  - secrets
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - argoproj.io
+  resources:
+  - workflows
+  - workflowtemplates
+  - cronworkflows
+  - workflowtasksets
+  - workflowtaskresults
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - workflowtasksets/status
+  verbs:
+  - patch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-workflows
+subjects:
+- kind: ServiceAccount
+  name: argo-workflows
+  namespace: argo-workflows
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  containerRuntimeExecutor: "pns"
+  namespace: "argo-workflows"
+  instanceID: "argo-workflows"
+  telemetry: "true"
+  telemetryPath: "/metrics"
+  metricsPort: "9090"
+  persistence: "true"
+  archive: "true"
+  archiveLabelSelector: "workflows.argoproj.io/archive=true"
+  nodeEvents: "true"
+  workflowDefaults: |
+    {
+      "spec": {
+        "securityContext": {
+          "runAsNonRoot": true
+        },
+        "podSpecPatch": "[{\"op\": \"replace\", \"path\": \"/securityContext/runAsUser\", \"value\": 8737}]"
+      }
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-workflows-server
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  type: ClusterIP
+  ports:
+  - name: web
+    port: 2746
+    targetPort: 2746
+  selector:
+    app: argo-workflows-server
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-controller
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argo-workflows-controller
+  template:
+    metadata:
+      labels:
+        app: argo-workflows-controller
+        app.kubernetes.io/name: argo-workflows
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/part-of: gitops-infra-control-plane
+    spec:
+      serviceAccountName: argo-workflows
+      containers:
+      - name: workflow-controller
+        image: argoproj/argo-workflows:v3.5.0
+        args:
+        - workflow
+        - --configmap
+        - workflow-controller-configmap
+        - --executor-image
+        - argoproj/argo-workflows:v3.5.0
+        env:
+        - name: ARGOROOT
+          value: /argo
+        - name: ARGOWF_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: DEFAULT_CONTAINER_RUNTIME_EXECUTOR
+          value: pns
+        - name: LEADER_ELECTION_IDENTITY
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        ports:
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9090
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 8737
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: var-run
+          mountPath: /var/run
+        - name: workflows
+          mountPath: /argo
+      volumes:
+      - name: var-run
+        emptyDir: {}
+      - name: workflows
+        emptyDir: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 8737
+        fsGroup: 8737
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-workflows-server
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argo-workflows-server
+  template:
+    metadata:
+      labels:
+        app: argo-workflows-server
+        app.kubernetes.io/name: argo-workflows
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: gitops-infra-control-plane
+    spec:
+      serviceAccountName: argo-workflows
+      containers:
+      - name: argo-server
+        image: argoproj/argo-workflows:v3.5.0
+        args:
+        - server
+        - --namespaced
+        - --auth-mode
+        - server
+        env:
+        - name: BASE_HREF
+          value: /
+        - name: ARGO_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - name: web
+          containerPort: 2746
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 2746
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 2746
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "512Mi"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 8737
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 8737
+        fsGroup: 8737
