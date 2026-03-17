@@ -1,0 +1,414 @@
+name: Flux Security and Compliance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gitops/**'
+      - 'overlays/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gitops/**'
+      - 'overlays/**'
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:
+
+env:
+  TRIVY_VERSION: "latest"
+  KUBESEC_VERSION: "v0.4.18"
+  POLARIS_VERSION: "5.2.0"
+
+jobs:
+  # Security scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy config scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: './gitops'
+          format: 'table'
+          exit-code: '1'
+
+      - name: Run kube-score
+        run: |
+          docker run --rm -v $(pwd)/gitops:/workdir \
+            zegl/kube-score score \
+            --output-format ci \
+            --exit-one-on-warning \
+            /workdir/flux-system
+
+  # Kubernetes security validation
+  k8s-security:
+    name: Kubernetes Security Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Install kube-score
+        run: |
+          wget https://github.com/zegl/kube-score/releases/download/v1.15.0/kube-score_1.15.0_linux_amd64.tar.gz
+          tar xzf kube-score_1.15.0_linux_amd64.tar.gz
+          sudo mv kube-score /usr/local/bin/
+
+      - name: Install kube-bench
+        run: |
+          curl -LO https://github.com/aquasecurity/kube-bench/releases/download/v0.7.2/kube-bench_0.7.2_linux_amd64.tar.gz
+          tar xzf kube-bench_0.7.2_linux_amd64.tar.gz
+          sudo mv kube-bench /usr/local/bin/
+
+      - name: Run kube-score on all environments
+        run: |
+          for env in development staging production; do
+            echo "Scanning $env environment..."
+            kube-score score ./overlays/flux-system/$env --output-format ci || true
+          done
+
+      - name: Run kube-hunter
+        run: |
+          docker run --rm -v $(pwd):/scan aquasec/kube-hunter:latest \
+            --list-all-pods \
+            --active \
+            --network \
+            --file /scan/kube-hunter-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: k8s-security-reports
+          path: |
+            kube-hunter-report.json
+
+  # Policy validation
+  policy-validation:
+    name: Policy Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup OPA
+        run: |
+          wget https://github.com/open-policy-agent/opa/releases/download/v0.47.1/opa_linux_amd64
+          chmod +x opa_linux_amd64
+          sudo mv opa_linux_amd64 /usr/local/bin/opa
+
+      - name: Validate OPA policies
+        run: |
+          for policy in gitops/flux-system/policies/*.rego; do
+            echo "Validating $policy..."
+            opa check "$policy" || true
+          done
+
+      - name: Run conftest
+        run: |
+          wget https://github.com/open-policy-agent/conftest/releases/download/v0.46.0/conftest_0.46.0_Linux_x86_64.tar.gz
+          tar xzf conftest_0.46.0_Linux_x86_64.tar.gz
+          sudo mv conftest /usr/local/bin/
+
+      - name: Validate manifests with policies
+        run: |
+          conftest test gitops/flux-system/ --policy gitops/flux-system/policies/ --output json || true
+
+  # RBAC validation
+  rbac-validation:
+    name: RBAC Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Install rbac-lookup
+        run: |
+          wget https://github.com/FairwindsOps/rbac-lookup/releases/download/v1.5.1/rbac-lookup_v1.5.1_linux_amd64.tar.gz
+          tar xzf rbac-lookup_v1.5.1_linux_amd64.tar.gz
+          sudo mv rbac-lookup /usr/local/bin/
+
+      - name: Install rbac-view
+        run: |
+          wget https://github.com/FairwindsOps/rbac-view/releases/download/v1.2.0/rbac-view_v1.2.0_linux_amd64.tar.gz
+          tar xzf rbac-view_v1.2.0_linux_amd64.tar.gz
+          sudo mv rbac-view /usr/local/bin/
+
+      - name: Analyze RBAC permissions
+        run: |
+          rbac-lookup -i gitops/flux-system/ -o json > rbac-analysis.json || true
+
+      - name: Check for excessive permissions
+        run: |
+          # Check for cluster-admin usage
+          grep -r "cluster-admin" gitops/flux-system/ || echo "No cluster-admin found"
+
+          # Check for wildcard permissions
+          grep -r "\*.*\*" gitops/flux-system/ || echo "No wildcard permissions found"
+
+      - name: Generate RBAC report
+        run: |
+          rbac-view -f gitops/flux-system/ --output rbac-report.html || true
+
+      - name: Upload RBAC reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: rbac-reports
+          path: |
+            rbac-analysis.json
+            rbac-report.html
+
+  # Secret validation
+  secret-validation:
+    name: Secret Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SOPS
+        run: |
+          wget https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
+          chmod +x sops-v3.8.1.linux.amd64
+          sudo mv sops-v3.8.1.linux.amd64 /usr/local/bin/sops
+
+      - name: Check for unencrypted secrets
+        run: |
+          # Look for potential secrets in YAML files
+          grep -r "password\|secret\|key\|token" gitops/flux-system/ --include="*.yaml" --include="*.yml" | \
+            grep -v "ENC\|sops" || echo "No unencrypted secrets found"
+
+      - name: Validate SOPS encrypted files
+        run: |
+          for file in $(find gitops/flux-system/ -name "*.enc.yaml" -o -name "*.sops.yaml"); do
+            echo "Validating $file..."
+            sops --decrypt "$file" > /dev/null || echo "Failed to decrypt $file"
+          done
+
+      - name: Check for hardcoded values
+        run: |
+          # Check for hardcoded IPs, passwords, etc.
+          grep -r "192\.168\|10\.\|password123\|admin123" gitops/flux-system/ || echo "No hardcoded values found"
+
+  # Network policy validation
+  network-validation:
+    name: Network Policy Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Install kube-score
+        run: |
+          wget https://github.com/zegl/kube-score/releases/download/v1.15.0/kube-score_1.15.0_linux_amd64.tar.gz
+          tar xzf kube-score_1.15.0_linux_amd64.tar.gz
+          sudo mv kube-score /usr/local/bin/
+
+      - name: Validate network policies
+        run: |
+          # Check if network policies exist
+          if ! find gitops/flux-system/ -name "*networkpolicy*" -o -name "*netpol*"; then
+            echo "Warning: No network policies found"
+            exit 1
+          fi
+
+      - name: Check for default deny policies
+        run: |
+          grep -r "policyTypes.*Ingress.*Egress" gitops/flux-system/ || echo "No default deny policies found"
+
+      - name: Validate network policy completeness
+        run: |
+          kube-score score gitops/flux-system/ --output-format ci || true
+
+  # Compliance checks
+  compliance-checks:
+    name: Compliance Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for required labels
+        run: |
+          # Check for required labels on deployments
+          grep -r "app.kubernetes.io/name" gitops/flux-system/ || echo "Missing app.kubernetes.io/name labels"
+
+          # Check for version labels
+          grep -r "app.kubernetes.io/version" gitops/flux-system/ || echo "Missing version labels"
+
+      - name: Validate resource limits
+        run: |
+          # Check for resource requests and limits
+          grep -r "resources:" gitops/flux-system/ | grep -v "requests\|limits" || echo "Missing resource configuration"
+
+      - name: Check for security contexts
+        run: |
+          grep -r "securityContext:" gitops/flux-system/ || echo "Missing security contexts"
+
+      - name: Validate PodSecurityPolicies
+        run: |
+          grep -r "pod-security.kubernetes.io" gitops/flux-system/ || echo "Missing PodSecurity labels"
+
+      - name: Check for health checks
+        run: |
+          grep -r "livenessProbe\|readinessProbe" gitops/flux-system/ || echo "Missing health probes"
+
+  # Image security scanning
+  image-security:
+    name: Image Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract image references
+        run: |
+          grep -r "image:" gitops/flux-system/ | \
+            sed 's/.*image: *//' | \
+            sed 's/[^a-zA-Z0-9\/:._-]//g' | \
+            sort -u > images.txt
+
+      - name: Scan images for vulnerabilities
+        run: |
+          while read -r image; do
+            if [[ -n "$image" ]]; then
+              echo "Scanning $image..."
+              docker run --rm aquasec/trivy:latest image --severity CRITICAL,HIGH "$image" || true
+            fi
+          done < images.txt
+
+      - name: Check for trusted registries
+        run: |
+          while read -r image; do
+            if [[ -n "$image" ]]; then
+              registry=$(echo "$image" | cut -d'/' -f1)
+              case "$registry" in
+                ghcr.io|docker.io|gcr.io|quay.io)
+                  echo "✓ Trusted registry: $registry"
+                  ;;
+                *)
+                  echo "⚠ Untrusted registry: $registry"
+                  ;;
+              esac
+            fi
+          done < images.txt
+
+  # Generate security report
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [security-scan, k8s-security, policy-validation, rbac-validation, secret-validation, network-validation, compliance-checks, image-security]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts/
+
+      - name: Generate comprehensive security report
+        run: |
+          cat << EOF > security-report.md
+          # Flux Security Report
+          
+          Generated on: $(date)
+          Commit: ${{ github.sha }}
+          
+          ## Executive Summary
+          
+          This report provides a comprehensive security analysis of the Flux CD configuration.
+          
+          ## Findings
+          
+          ### Security Scanning
+          - Trivy scan completed: ${{ needs.security-scan.result }}
+          
+          ### Kubernetes Security
+          - kube-score validation: ${{ needs.k8s-security.result }}
+          - RBAC validation: ${{ needs.rbac-validation.result }}
+          - Network policy validation: ${{ needs.network-validation.result }}
+          
+          ### Policy Compliance
+          - OPA policy validation: ${{ needs.policy-validation.result }}
+          - Secret validation: ${{ needs.secret-validation.result }}
+          - Compliance checks: ${{ needs.compliance-checks.result }}
+          
+          ### Image Security
+          - Image vulnerability scanning: ${{ needs.image-security.result }}
+          
+          ## Recommendations
+          
+          1. Review any failed security checks
+          2. Implement missing security controls
+          3. Regularly update dependencies
+          4. Monitor for new vulnerabilities
+          
+          ## Detailed Reports
+          
+          See attached artifacts for detailed analysis results.
+          EOF
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report.md
+
+      - name: Comment PR with security report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🔒 Security Report\n\n${report}`
+            });
+
+      - name: Notify security team
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#security'
+          text: "Security scan failed! Review the security report for details."

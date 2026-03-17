@@ -1,0 +1,579 @@
+name: Flux Monitoring and Observability
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gitops/**'
+      - 'overlays/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gitops/**'
+      - 'overlays/**'
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+      detailed_scan:
+        description: 'Run detailed monitoring scan'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PROMETHEUS_VERSION: "v2.45.0"
+  GRAFANA_VERSION: "10.0.0"
+  ALERTMANAGER_VERSION: "v0.26.0"
+
+jobs:
+  # Health check
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [development, staging, production]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          case "${{ matrix.environment }}" in
+            "staging")
+              echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+              ;;
+            "production")
+              echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > $HOME/.kube/config
+              ;;
+            *)
+              echo "Using default kubeconfig for development"
+              ;;
+          esac
+
+      - name: Check Flux health
+        run: |
+          flux check --namespace flux-system
+
+      - name: Check component status
+        run: |
+          kubectl get pods -n flux-system
+          kubectl get deployments -n flux-system
+          kubectl get gitrepositories -n flux-system
+          kubectl get kustomizations -n flux-system
+
+      - name: Check Qwen health
+        run: |
+          if kubectl get namespace qwen-system &> /dev/null; then
+            kubectl get pods -n qwen-system
+            kubectl get deployments -n qwen-system
+          else
+            echo "Qwen namespace not found"
+          fi
+
+      - name: Check K8sGPT health
+        run: |
+          if kubectl get deployment k8sgpt -n flux-system &> /dev/null; then
+            kubectl get pods -n flux-system -l app.kubernetes.io/name=k8sgpt
+          else
+            echo "K8sGPT deployment not found"
+          fi
+
+      - name: Collect metrics
+        run: |
+          # Collect basic metrics
+          echo "=== Flux Metrics ==="
+          kubectl get pods -n flux-system -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,RESTARTS:.status.restartCount
+          
+          echo "=== Resource Usage ==="
+          kubectl top pods -n flux-system 2>/dev/null || echo "Metrics server not available"
+          
+          echo "=== Events ==="
+          kubectl get events -n flux-system --sort-by='.lastTimestamp' | tail -10
+
+      - name: Upload health data
+        uses: actions/upload-artifact@v3
+        with:
+          name: health-data-${{ matrix.environment }}
+          path: health-data-${{ matrix.environment }}.json
+
+  # Performance monitoring
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    needs: health-check
+    strategy:
+      matrix:
+        environment: [development, staging, production]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          case "${{ matrix.environment }}" in
+            "staging")
+              echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+              ;;
+            "production")
+              echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > $HOME/.kube/config
+              ;;
+            *)
+              echo "Using default kubeconfig for development"
+              ;;
+          esac
+
+      - name: Collect performance metrics
+        run: |
+          # Create performance report
+          cat > performance-report-${{ matrix.environment }}.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "${{ matrix.environment }}",
+            "flux_controllers": {
+              "source_controller": {
+                "pods": $(kubectl get pods -n flux-system -l app.kubernetes.io/name=source-controller --no-headers | wc -l),
+                "cpu_usage": "$(kubectl top pods -n flux-system -l app.kubernetes.io/name=source-controller --no-headers 2>/dev/null | awk '{sum+=$2} END {print sum}' || echo "0")",
+                "memory_usage": "$(kubectl top pods -n flux-system -l app.kubernetes.io/name=source-controller --no-headers 2>/dev/null | awk '{sum+=$3} END {print sum}' || echo "0")"
+              },
+              "kustomize_controller": {
+                "pods": $(kubectl get pods -n flux-system -l app.kubernetes.io/name=kustomize-controller --no-headers | wc -l),
+                "cpu_usage": "$(kubectl top pods -n flux-system -l app.kubernetes.io/name=kustomize-controller --no-headers 2>/dev/null | awk '{sum+=$2} END {print sum}' || echo "0")",
+                "memory_usage": "$(kubectl top pods -n flux-system -l app.kubernetes.io/name=kustomize-controller --no-headers 2>/dev/null | awk '{sum+=$3} END {print sum}' || echo "0")"
+              }
+            },
+            "qwen_llm": {
+              "pods": $(kubectl get pods -n qwen-system -l app.kubernetes.io/name=qwen-llm --no-headers 2>/dev/null | wc -l || echo "0"),
+              "cpu_usage": "$(kubectl top pods -n qwen-system -l app.kubernetes.io/name=qwen-llm --no-headers 2>/dev/null | awk '{sum+=$2} END {print sum}' || echo "0")",
+              "memory_usage": "$(kubectl top pods -n qwen-system -l app.kubernetes.io/name=qwen-llm --no-headers 2>/dev/null | awk '{sum+=$3} END {print sum}' || echo "0")"
+            },
+            "reconciliation_status": {
+              "total_kustomizations": $(kubectl get kustomizations -n flux-system --no-headers | wc -l),
+              "ready_kustomizations": $(kubectl get kustomizations -n flux-system --no-headers -o custom-columns=READY:.status.conditions[?(@.type=="Ready")].status | grep "True" | wc -l),
+              "total_gitrepositories": $(kubectl get gitrepositories -n flux-system --no-headers | wc -l),
+              "ready_gitrepositories": $(kubectl get gitrepositories -n flux-system --no-headers -o custom-columns=READY:.status.conditions[?(@.type=="Ready")].status | grep "True" | wc -l)
+            }
+          }
+          EOF
+
+      - name: Analyze performance trends
+        run: |
+          # Check for performance issues
+          echo "=== Performance Analysis for ${{ matrix.environment }} ==="
+          
+          # Check resource usage
+          if kubectl top pods -n flux-system &> /dev/null; then
+            echo "Flux CPU Usage:"
+            kubectl top pods -n flux-system --sort-by=cpu
+            
+            echo "Flux Memory Usage:"
+            kubectl top pods -n flux-system --sort-by=memory
+          fi
+          
+          # Check reconciliation times
+          echo "Reconciliation Status:"
+          flux get kustomizations -n flux-system
+          
+          # Check for errors
+          echo "Recent Errors:"
+          kubectl get events -n flux-system --field-selector type=Warning --sort-by='.lastTimestamp' | tail -5
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report-${{ matrix.environment }}
+          path: performance-report-${{ matrix.environment }}.json
+
+  # Alert validation
+  alert-validation:
+    name: Alert Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Validate PrometheusRules
+        run: |
+          # Check if PrometheusRules are valid
+          for rule in $(find gitops/flux-system/ -name "*prometheusrule*" -o -name "*alert*"); do
+            echo "Validating $rule..."
+            kubectl apply -f "$rule" --dry-run=client || echo "Validation failed for $rule"
+          done
+
+      - name: Check alert severity distribution
+        run: |
+          # Analyze alert rules
+          grep -r "severity:" gitops/flux-system/ | \
+            sed 's/.*severity: *//' | \
+            sort | uniq -c | \
+            sort -nr > alert-severity.txt
+          
+          echo "Alert Severity Distribution:"
+          cat alert-severity.txt
+
+      - name: Validate alert expressions
+        run: |
+          # Basic validation of alert expressions
+          grep -r "expr:" gitops/flux-system/ | \
+            while read -r line; do
+              expr=$(echo "$line" | sed 's/.*expr: *//')
+              # Check for common expression patterns
+              if [[ "$expr" =~ up.*==.*0 ]]; then
+                echo "✓ Found down check: $expr"
+              elif [[ "$expr" =~ rate.* ]]; then
+                echo "✓ Found rate expression: $expr"
+              elif [[ "$expr" =~ increase.* ]]; then
+                echo "✓ Found increase expression: $expr"
+              else
+                echo "⚠ Unknown expression pattern: $expr"
+              fi
+            done
+
+      - name: Upload alert analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: alert-analysis
+          path: alert-severity.txt
+
+  # Monitoring stack validation
+  monitoring-stack:
+    name: Monitoring Stack Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+
+      - name: Check monitoring components
+        run: |
+          echo "=== Monitoring Components Status ==="
+          
+          # Check Prometheus
+          if kubectl get deployment prometheus -n monitoring &> /dev/null; then
+            echo "Prometheus: $(kubectl get deployment prometheus -n monitoring -o jsonpath='{.status.readyReplicas}/{.spec.replicas}')"
+          else
+            echo "Prometheus: Not found"
+          fi
+          
+          # Check Grafana
+          if kubectl get deployment grafana -n monitoring &> /dev/null; then
+            echo "Grafana: $(kubectl get deployment grafana -n monitoring -o jsonpath='{.status.readyReplicas}/{.spec.replicas}')"
+          else
+            echo "Grafana: Not found"
+          fi
+          
+          # Check Alertmanager
+          if kubectl get deployment alertmanager -n monitoring &> /dev/null; then
+            echo "Alertmanager: $(kubectl get deployment alertmanager -n monitoring -o jsonpath='{.status.readyReplicas}/{.spec.replicas}')"
+          else
+            echo "Alertmanager: Not found"
+          fi
+
+      - name: Validate ServiceMonitors
+        run: |
+          echo "=== ServiceMonitors ==="
+          kubectl get servicemonitors -A
+          
+          # Check if Flux ServiceMonitors exist
+          flux_smons=$(kubectl get servicemonitors -A -l app.kubernetes.io/name=flux-system --no-headers | wc -l)
+          echo "Flux ServiceMonitors: $flux_smons"
+          
+          # Check if Qwen ServiceMonitors exist
+          qwen_smons=$(kubectl get servicemonitors -A -l app.kubernetes.io/name=qwen-llm --no-headers | wc -l)
+          echo "Qwen ServiceMonitors: $qwen_smons"
+
+      - name: Test metrics endpoints
+        run: |
+          echo "=== Metrics Endpoints Test ==="
+          
+          # Test Flux metrics
+          if kubectl get svc source-controller-metrics -n flux-system &> /dev/null; then
+            echo "Flux metrics service found"
+            kubectl port-forward -n flux-system svc/source-controller-metrics 8080:8080 &
+            PF_PID=$!
+            sleep 5
+            if curl -s http://localhost:8080/metrics | grep -q "flux_"; then
+              echo "✓ Flux metrics endpoint working"
+            else
+              echo "✗ Flux metrics endpoint not working"
+            fi
+            kill $PF_PID || true
+          fi
+          
+          # Test Qwen metrics
+          if kubectl get svc qwen-llm-metrics -n qwen-system &> /dev/null; then
+            echo "Qwen metrics service found"
+            kubectl port-forward -n qwen-system svc/qwen-llm-metrics 9090:9090 &
+            PF_PID=$!
+            sleep 5
+            if curl -s http://localhost:9090/metrics | grep -q "qwen_"; then
+              echo "✓ Qwen metrics endpoint working"
+            else
+              echo "✗ Qwen metrics endpoint not working"
+            fi
+            kill $PF_PID || true
+          fi
+
+      - name: Generate monitoring report
+        run: |
+          cat > monitoring-report.md << EOF
+          # Flux Monitoring Report
+          
+          Generated on: $(date)
+          
+          ## Monitoring Stack Status
+          
+          $(kubectl get deployments -n monitoring -o custom-columns=NAME:.metadata.name,READY:.status.readyReplicas/.spec.replicas,UP-TO-DATE:.status.updatedReplicas/.spec.replicas)
+          
+          ## ServiceMonitors
+          
+          Total ServiceMonitors: $(kubectl get servicemonitors -A --no-headers | wc -l)
+          
+          Flux ServiceMonitors: $(kubectl get servicemonitors -A -l app.kubernetes.io/name=flux-system --no-headers | wc -l)
+          
+          Qwen ServiceMonitors: $(kubectl get servicemonitors -A -l app.kubernetes.io/name=qwen-llm --no-headers | wc -l)
+          
+          ## Metrics Endpoints
+          
+          See individual test results above.
+          EOF
+
+      - name: Upload monitoring report
+        uses: actions/upload-artifact@v3
+        with:
+          name: monitoring-report
+          path: monitoring-report.md
+
+  # Log analysis
+  log-analysis:
+    name: Log Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+
+      - name: Collect Flux logs
+        run: |
+          mkdir -p logs/flux
+          
+          # Get logs from all Flux controllers
+          for controller in source-controller kustomize-controller helm-controller notification-controller; do
+            echo "=== $controller logs ===" > logs/flux/${controller}.log
+            kubectl logs -n flux-system deployment/${controller} --tail=100 >> logs/flux/${controller}.log 2>&1 || true
+          done
+
+      - name: Collect Qwen logs
+        run: |
+          mkdir -p logs/qwen
+          
+          if kubectl get deployment qwen-llm -n qwen-system &> /dev/null; then
+            echo "=== qwen-llm logs ===" > logs/qwen/qwen-llm.log
+            kubectl logs -n qwen-system deployment/qwen-llm --tail=100 >> logs/qwen/qwen-llm.log 2>&1 || true
+          fi
+
+      - name: Analyze logs for errors
+        run: |
+          echo "=== Error Analysis ==="
+          
+          # Analyze Flux logs
+          for log in logs/flux/*.log; do
+            controller=$(basename "$log" .log)
+            error_count=$(grep -c "ERROR\|FATAL\|error\|failed" "$log" 2>/dev/null || echo "0")
+            warning_count=$(grep -c "WARNING\|warn\|warning" "$log" 2>/dev/null || echo "0")
+            echo "$controller: $error_count errors, $warning_count warnings"
+          done
+          
+          # Analyze Qwen logs
+          if [[ -f logs/qwen/qwen-llm.log ]]; then
+            error_count=$(grep -c "ERROR\|FATAL\|error\|failed" logs/qwen/qwen-llm.log 2>/dev/null || echo "0")
+            warning_count=$(grep -c "WARNING\|warn\|warning" logs/qwen/qwen-llm.log 2>/dev/null || echo "0")
+            echo "qwen-llm: $error_count errors, $warning_count warnings"
+          fi
+
+      - name: Check for specific issues
+        run: |
+          echo "=== Specific Issues Check ==="
+          
+          # Check for reconciliation failures
+          echo "Reconciliation failures:"
+          grep -r "reconciliation failed" logs/ 2>/dev/null | wc -l
+          
+          # Check for network issues
+          echo "Network issues:"
+          grep -r "connection\|timeout\|network" logs/ 2>/dev/null | wc -l
+          
+          # Check for resource issues
+          echo "Resource issues:"
+          grep -r "resource.*exceeded\|memory.*pressure\|cpu.*throttle" logs/ 2>/dev/null | wc -l
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: logs/
+
+  # Generate observability dashboard
+  observability-dashboard:
+    name: Generate Observability Dashboard
+    runs-on: ubuntu-latest
+    needs: [health-check, performance-monitoring, alert-validation, monitoring-stack, log-analysis]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts/
+
+      - name: Generate dashboard HTML
+        run: |
+          cat << EOF > observability-dashboard.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Flux Observability Dashboard</title>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+              .card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+              .status-healthy { color: green; }
+              .status-warning { color: orange; }
+              .status-error { color: red; }
+              .chart-container { height: 300px; }
+            </style>
+          </head>
+          <body>
+            <h1>Flux CD Observability Dashboard</h1>
+            <p>Generated on: $(date)</p>
+            
+            <div class="dashboard">
+              <div class="card">
+                <h2>System Health</h2>
+                <div id="health-status"></div>
+              </div>
+              
+              <div class="card">
+                <h2>Performance Metrics</h2>
+                <div class="chart-container">
+                  <canvas id="performance-chart"></canvas>
+                </div>
+              </div>
+              
+              <div class="card">
+                <h2>Alert Status</h2>
+                <div id="alert-status"></div>
+              </div>
+              
+              <div class="card">
+                <h2>Log Analysis</h2>
+                <div id="log-analysis"></div>
+              </div>
+            </div>
+            
+            <script>
+              // Sample dashboard data
+              const healthData = {
+                flux: 'healthy',
+                qwen: 'healthy',
+                monitoring: 'healthy'
+              };
+              
+              const performanceData = {
+                labels: ['CPU', 'Memory', 'Disk', 'Network'],
+                datasets: [{
+                  label: 'Usage %',
+                  data: [65, 45, 30, 25],
+                  backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 205, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                  borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                  borderWidth: 1
+                }]
+              };
+              
+              // Render health status
+              const healthDiv = document.getElementById('health-status');
+              for (const [component, status] of Object.entries(healthData)) {
+                const statusClass = status === 'healthy' ? 'status-healthy' : 'status-error';
+                healthDiv.innerHTML += \`<div class="\${statusClass}">\${component}: \${status}</div>\`;
+              }
+              
+              // Render performance chart
+              new Chart(document.getElementById('performance-chart'), {
+                type: 'bar',
+                data: performanceData,
+                options: {
+                  responsive: true,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100
+                    }
+                  }
+                }
+              });
+            </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload dashboard
+        uses: actions/upload-artifact@v3
+        with:
+          name: observability-dashboard
+          path: observability-dashboard.html
+
+      - name: Notify on issues
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#monitoring'
+          text: "Observability monitoring detected issues. Check the dashboard for details."
