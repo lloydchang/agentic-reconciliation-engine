@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: k8sgpt-integration
+  namespace: pipecd
+
+resources:
+  - k8sgpt-config.yaml
+
+commonLabels:
+  app.kubernetes.io/name: k8sgpt
+  app.kubernetes.io/component: ai-analysis
+  app.kubernetes.io/part-of: gitops-infra-control-plane
+
+commonAnnotations:
+  k8sgpt.ai/version: "latest"
+  gitops-infra-control-plane/managed: "true"
+
+patchesStrategicMerge:
+  - patches/analyzer-config.yaml
+
+vars:
+  - name: K8SGPT_NAMESPACE
+    objref:
+      kind: Namespace
+      name: pipecd
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.name

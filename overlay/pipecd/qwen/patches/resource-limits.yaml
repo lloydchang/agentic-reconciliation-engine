@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-llm-service
+  namespace: qwen-ai
+spec:
+  template:
+    spec:
+      containers:
+      - name: qwen-llm
+        resources:
+          requests:
+            memory: "16Gi"
+            cpu: "4"
+            ephemeral-storage: "10Gi"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "32Gi"
+            cpu: "8"
+            ephemeral-storage: "50Gi"
+            nvidia.com/gpu: "1"
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "compute,utility"
+        - name: PYTORCH_CUDA_ALLOC_CONF
+          value: "max_split_size_mb:512"
+        volumeMounts:
+        - name: model-cache
+          mountPath: /models
+          readOnly: false
+        - name: tmp
+          mountPath: /tmp
+        - name: shm
+          mountPath: /dev/shm
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: qwen-model-cache-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: "5Gi"
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: "8Gi"
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        cloud.google.com/gke-accelerator: nvidia-tesla-v100
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      - key: cloud.google.com/gke-accelerator
+        operator: Exists
+        effect: NoSchedule

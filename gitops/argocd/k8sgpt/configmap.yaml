@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8sgpt-config
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt-config
+    app.kubernetes.io/part-of: k8sgpt
+data:
+  config.yaml: |
+    # K8sGPT Configuration with Qwen LLM Integration
+    version: "v1alpha1"
+    
+    # Backend configuration for Qwen
+    backend: "localai"
+    
+    # LocalAI configuration (for Qwen)
+    localai:
+      # LocalAI endpoint - can be deployed in-cluster
+      url: "http://qwen-localai.k8sgpt-system.svc.cluster.local:8080"
+      model: "qwen2.5-coder:7b"
+      # Alternative: use Ollama for local Qwen deployment
+      # url: "http://ollama.k8sgpt-system.svc.cluster.local:11434"
+      # model: "qwen2.5-coder:7b"
+    
+    # OpenAI-compatible configuration (if using external Qwen API)
+    # backend: "openai"
+    # openai:
+    #   model: "qwen2.5-coder-7b-instruct"
+    #   baseurl: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    #   apikey: "${QWEN_API_KEY}"
+    
+    # Analysis configuration
+    analysis:
+      # Enable explain mode for detailed analysis
+      explain: true
+      # Include official Kubernetes documentation
+      with-doc: true
+      # Number of resources to analyze in parallel
+      max-concurrency: 10
+      # Filters to apply during analysis
+      filters:
+        - "Deployment"
+        - "StatefulSet"
+        - "DaemonSet"
+        - "Pod"
+        - "Service"
+        - "Ingress"
+        - "PersistentVolume"
+        - "PersistentVolumeClaim"
+        - "ConfigMap"
+        - "Secret"
+        - "ServiceAccount"
+        - "Role"
+        - "RoleBinding"
+        - "ClusterRole"
+        - "ClusterRoleBinding"
+    
+    # Output configuration
+    output:
+      # Output format (json, yaml, text)
+      format: "json"
+      # Include resource information
+      include-resource-info: true
+      # Include recommendations
+      include-recommendations: true
+    
+    # Cache configuration
+    cache:
+      # Enable caching of analysis results
+      enabled: true
+      # Cache TTL in hours
+      ttl: 24
+      # Maximum cache size in MB
+      max-size: 100
+    
+    # Logging configuration
+    logging:
+      # Log level (debug, info, warn, error)
+      level: "info"
+      # Enable structured logging
+      structured: true
+      # Include timestamps
+      timestamp: true
+    
+    # Security configuration
+    security:
+      # Enable anonymization of sensitive data
+      anonymize: true
+      # Exclude sensitive fields from analysis
+      exclude-sensitive-fields: true
+      # Allowed namespaces for analysis
+      allowed-namespaces:
+        - "default"
+        - "kube-system"
+        - "argocd"
+        - "ai-infrastructure"
+        - "k8sgpt-system"
+    
+    # Integration configuration
+    integrations:
+      # Prometheus integration for metrics
+      prometheus:
+        enabled: true
+        endpoint: "http://prometheus.monitoring.svc.cluster.local:9090"
+      
+      # Grafana integration for dashboards
+      grafana:
+        enabled: true
+        endpoint: "http://grafana.monitoring.svc.cluster.local:3000"
+      
+      # Argo CD integration for GitOps context
+      argocd:
+        enabled: true
+        endpoint: "http://argocd-server.argocd.svc.cluster.local:8080"
+        
+    # Custom prompts for Qwen
+    prompts:
+      system-prompt: |
+        You are an expert Kubernetes and DevOps engineer with deep knowledge of cloud-native technologies, 
+        GitOps practices, and infrastructure automation. You are integrated with K8sGPT to analyze Kubernetes 
+        resources and provide intelligent insights.
+        
+        Your expertise includes:
+        - Kubernetes architecture and best practices
+        - Container orchestration and microservices
+        - GitOps with Argo CD and Flux
+        - Infrastructure as Code (IaC)
+        - Cloud security and compliance
+        - Performance optimization and troubleshooting
+        - Multi-cloud deployments (AWS, Azure, GCP)
+        
+        When analyzing Kubernetes resources:
+        1. Identify potential issues and misconfigurations
+        2. Provide specific, actionable recommendations
+        3. Explain the impact of each issue
+        4. Suggest best practices for improvement
+        5. Consider security implications
+        6. Reference official Kubernetes documentation when relevant
+        
+        Be thorough but concise in your analysis. Focus on practical solutions that can be implemented 
+        through GitOps workflows.
+      
+      analysis-prompt: |
+        Analyze the following Kubernetes resources and identify:
+        1. Configuration issues and misconfigurations
+        2. Security vulnerabilities and best practice violations
+        3. Performance bottlenecks and optimization opportunities
+        4. Resource allocation problems
+        5. Network and connectivity issues
+        6. Storage and persistence problems
+        
+        For each issue found, provide:
+        - Severity level (Critical, High, Medium, Low)
+        - Detailed explanation of the problem
+        - Specific remediation steps
+        - Best practice recommendations
+        - Related Kubernetes documentation
+        
+        Consider the context of a GitOps environment where changes are applied through Argo CD.
+        
+        Resources to analyze:
+        {resources}

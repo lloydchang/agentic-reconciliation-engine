@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-rollouts-config
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+data:
+  namespace: argo-rollouts
+  image: quay.io/argoproj/kube-argo-rollouts
+  version: v1.7.0
+  # Controller configuration
+  log_level: "info"
+  log_format: "json"
+  # Metrics configuration
+  metrics_port: "8090"
+  metrics_enabled: "true"
+  # Health check configuration
+  healthz_port: "8080"
+  # Instance ID for multi-controller setups
+  instance_id: "default"
+  # Leader election configuration
+  leader_election_enabled: "true"
+  leader_election_namespace: "argo-rollouts"
+  # Notification configuration
+  notification_enabled: "true"
+  # Service account configuration
+  service_account_name: "argo-rollouts"
+  # Default rollout configuration
+  default_progress_deadline_seconds: "600"
+  default_revision_history_limit: "10"
+  # Traffic routing configuration
+  traffic_routing_enabled: "true"
+  # Analysis configuration
+  analysis_timeout: "1800"
+  # Experimentation configuration
+  experimentation_enabled: "true"
+  # Resource configuration
+  resource_request_cpu: "50m"
+  resource_request_memory: "128Mi"
+  resource_limit_cpu: "500m"
+  resource_limit_memory: "512Mi"

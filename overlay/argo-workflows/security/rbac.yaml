@@ -1,0 +1,314 @@
+# Security and RBAC Configuration for Argo Workflows
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-workflows-sa
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-workflows-role
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+rules:
+# Core workflow permissions
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates", "cronworkflows", "workflowtasksets", "workflowtaskresults"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+# Pod permissions for workflow execution
+- apiGroups: [""]
+  resources: ["pods", "pods/exec", "pods/log"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+# ConfigMap and Secret permissions
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+# Event permissions
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+# PVC permissions
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["create", "delete", "get", "list", "watch"]
+# Service permissions
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+# Resource quotas
+- apiGroups: [""]
+  resources: ["resourcequotas"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-workflows-binding
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argo-workflows-role
+subjects:
+- kind: ServiceAccount
+  name: argo-workflows-sa
+  namespace: argo-workflows
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: qwen-k8sgpt-cluster-role
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+rules:
+# Core Kubernetes resources for analysis
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets", "events", "nodes"]
+  verbs: ["get", "list", "watch"]
+# Pod logs and exec
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "list"]
+# Workload resources
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+# Argo Workflows resources
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates", "cronworkflows", "workflowtasksets"]
+  verbs: ["get", "list", "watch"]
+# Monitoring resources
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["prometheuses", "prometheusrules", "servicemonitors"]
+  verbs: ["get", "list", "watch"]
+# Network resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+# Storage resources
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses", "persistentvolumes"]
+  verbs: ["get", "list", "watch"]
+# Batch resources
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: qwen-k8sgpt-cluster-binding
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: qwen-k8sgpt-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: qwen-k8sgpt-sa
+  namespace: argo-workflows
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-network-policy
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-workflows
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from within the namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: argo-workflows
+  # Allow traffic from monitoring namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+  # Allow traffic from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 2746
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow traffic to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow traffic to Qwen service
+  - to:
+    - podSelector:
+        matchLabels:
+          app: qwen-k8sgpt
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow traffic to MinIO
+  - to:
+    - podSelector:
+        matchLabels:
+          app: minio
+    ports:
+    - protocol: TCP
+      port: 9000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qwen-k8sgpt-network-policy
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+spec:
+  podSelector:
+    matchLabels:
+      app: qwen-k8sgpt
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from Argo Workflows
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-workflows
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow traffic from monitoring
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow traffic to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow traffic to LocalAI
+  - to:
+    - podSelector:
+        matchLabels:
+          app: qwen-localai
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+apiVersion: policy/v1
+kind: PodSecurityPolicy
+metadata:
+  name: argo-workflows-psp
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-workflows-webhook-secret
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+type: Opaque
+data:
+  # Base64 encoded webhook secret (replace with actual value)
+  webhook-secret: c2VjdXJlLXdlYmhvb2stc2VjcmV0LTEyMzQ1  # secure-webhook-secret-12345
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: qwen-k8sgpt-api-secret
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+type: Opaque
+data:
+  # Base64 encoded API keys (replace with actual values)
+  api-key: ""  # Empty for local deployment
+  model-key: ""  # Empty for local model
+  encryption-key: ""  # Optional: encryption key for cache

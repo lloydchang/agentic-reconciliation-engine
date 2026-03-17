@@ -1,0 +1,250 @@
+# Workflow Controller Configuration
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  # Core Controller Configuration
+  containerRuntimeExecutor: "pns"
+  namespace: "argo-workflows"
+  instanceID: "argo-workflows"
+  
+  # Persistence and Archiving
+  persistence: "true"
+  persistenceConnectionPool: "10"
+  archive: "true"
+  archiveLabelSelector: "workflows.argoproj.io/archive=true"
+  archiveTTL: "30d"
+  
+  # Node Events and Logging
+  nodeEvents: "true"
+  logs: "true"
+  logsHistoryLimit: "100"
+  
+  # Monitoring and Telemetry
+  telemetry: "true"
+  telemetryPath: "/metrics"
+  metricsPort: "9090"
+  
+  # Security Configuration
+  security: "true"
+  enforceNonRoot: "true"
+  
+  # Qwen LLM Integration
+  qwenIntegration: "true"
+  qwenServiceURL: "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080"
+  qwenAnalysisEnabled: "true"
+  qwenModelName: "qwen"
+  qwenMaxTokens: "4096"
+  qwenTemperature: "0.7"
+  
+  # Workflow Defaults
+  workflowDefaults: |
+    {
+      "spec": {
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 8737,
+          "fsGroup": 8737
+        },
+        "podSpecPatch": "[{\"op\": \"replace\", \"path\": \"/securityContext/runAsUser\", \"value\": 8737}]",
+        "entrypoint": "main",
+        "serviceAccountName": "argo-workflows-sa",
+        "containerRuntimeExecutor": "pns",
+        "activeDeadlineSeconds": 3600,
+        "podGC": {
+          "strategy": "OnWorkflowCompletion"
+        },
+        "hooks": {
+          "running": [
+            {
+              "template": "qwen-analysis-hook"
+            }
+          ]
+        },
+        "onExit": "qwen-summary-hook",
+        "affinity": {
+          "podAntiAffinity": {
+            "preferredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "weight": 100,
+                "podAffinityTerm": {
+                  "labelSelector": {
+                    "matchExpressions": [
+                      {
+                        "key": "workflows.argoproj.io/workflow",
+                        "operator": "Exists"
+                      }
+                    ]
+                  },
+                  "topologyKey": "kubernetes.io/hostname"
+                }
+              }
+            ]
+          }
+        },
+        "tolerations": [
+          {
+            "key": "workflows.argoproj.io",
+            "operator": "Equal",
+            "value": "true",
+            "effect": "NoSchedule"
+          }
+        ]
+      }
+    }
+  
+  # Artifact Repository Configuration
+  artifactRepository: |
+    {
+      "s3": {
+        "endpoint": "minio.argo-workflows.svc.cluster.local:9000",
+        "bucket": "argo-workflows",
+        "insecure": true,
+        "accessKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "accesskey"
+        },
+        "secretKeySecret": {
+          "name": "argo-workflows-minio",
+          "key": "secretkey"
+        }
+      }
+    }
+  
+  # Resource Limits and Defaults
+  resources: |
+    {
+      "requests": {
+        "cpu": "100m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "500m",
+        "memory": "1Gi"
+      }
+    }
+  
+  # Parallelism and Concurrency
+  parallelism: "10"
+  workflowDefaultsRetries: "3"
+  
+  # Node and Pod Configuration
+  nodeSelector: |
+    {
+      "kubernetes.io/os": "linux",
+      "kubernetes.io/arch": "amd64"
+    }
+  
+  tolerations: |
+    [
+      {
+        "key": "workflows.argoproj.io",
+        "operator": "Equal",
+        "value": "true",
+        "effect": "NoSchedule"
+      },
+      {
+        "key": "node-role.kubernetes.io/master",
+        "operator": "Equal",
+        "effect": "NoSchedule"
+      }
+    ]
+  
+  # Environment Variables
+  environment: |
+    {
+      "ARGO_NAMESPACE": "argo-workflows",
+      "ARGO_INSTANCE_ID": "argo-workflows",
+      "QWEN_LLM_ENABLED": "true",
+      "QWEN_SERVICE_URL": "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080",
+      "QWEN_MODEL_NAME": "qwen",
+      "QWEN_MAX_TOKENS": "4096",
+      "QWEN_TEMPERATURE": "0.7",
+      "METRICS_ENABLED": "true",
+      "LOG_LEVEL": "info"
+    }
+  
+  # SSO Configuration (optional)
+  sso: |
+    {
+      "issuer": "https://your-oauth-provider.com",
+      "clientId": {
+        "name": "argo-workflows-sso",
+        "key": "client-id"
+      },
+      "clientSecret": {
+        "name": "argo-workflows-sso",
+        "key": "client-secret"
+      },
+      "redirectUrl": "https://argo-workflows.example.com/oauth2/callback"
+    }
+  
+  # Notifications Configuration
+  notifications: |
+    {
+      "slack": {
+        "token": {
+          "name": "argo-workflows-slack",
+          "key": "token"
+        },
+        "channel": "#argo-workflows",
+        "username": "Argo Workflows"
+      },
+      "email": {
+        "host": "smtp.example.com",
+        "port": "587",
+        "from": "argo-workflows@example.com",
+        "username": {
+          "name": "argo-workflows-email",
+          "key": "username"
+        },
+        "password": {
+          "name": "argo-workflows-email",
+          "key": "password"
+        }
+      }
+    }
+  
+  # Plugin Configuration
+  plugins: |
+    {
+      "qwen-analysis": {
+        "enabled": true,
+        "endpoint": "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze",
+        "timeout": "60s",
+        "retryAttempts": 3
+      },
+      "metrics-collector": {
+        "enabled": true,
+        "interval": "30s",
+        "prometheus": {
+          "enabled": true,
+          "port": "9090"
+        }
+      }
+    }
+  
+  # Cache Configuration
+  cache: |
+    {
+      "enabled": true,
+      "ttl": "1h",
+      "maxSize": "100MB",
+      "backend": "memory"
+    }
+  
+  # Rate Limiting
+  rateLimit: |
+    {
+      "enabled": true,
+      "requestsPerSecond": 100,
+      "burstSize": 200
+    }

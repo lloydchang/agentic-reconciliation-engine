@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-rollouts-metrics
+  namespace: argo-rollouts
+  labels:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/service: metrics
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gitops-infra-control-plane
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8090"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    app.kubernetes.io/name: argo-rollouts
+    app.kubernetes.io/component: controller
+  ports:
+  - name: metrics
+    port: 8090
+    targetPort: 8090
+    protocol: TCP
+  - name: healthz
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt-analyzer
+  namespace: pipecd
+spec:
+  template:
+    spec:
+      containers:
+      - name: k8sgpt
+        env:
+        - name: QWEN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: k8sgpt-secrets
+              key: qwen-api-key
+        - name: GRAFANA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: k8sgpt-secrets
+              key: grafana-api-key
+        - name: K8SGPT_CONFIG_PATH
+          value: "/etc/k8sgpt/config.yaml"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: ANALYSIS_INTERVAL
+          value: "300"
+        - name: ENABLE_DEPLOYMENT_ANALYSIS
+          value: "true"
+        - name: ENABLE_PERFORMANCE_MONITORING
+          value: "true"
+        - name: ENABLE_SECURITY_ANALYSIS
+          value: "true"
+        - name: MAX_INSIGHTS_PER_RUN
+          value: "50"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/k8sgpt
+          readOnly: true
+        - name: output
+          mountPath: /tmp/k8sgpt-output
+        - name: cache
+          mountPath: /tmp/k8sgpt-cache
+        - name: insights
+          mountPath: /tmp/k8sgpt-insights
+      volumes:
+      - name: config
+        configMap:
+          name: k8sgpt-config
+      - name: output
+        emptyDir:
+          sizeLimit: "2Gi"
+      - name: cache
+        emptyDir:
+          sizeLimit: "1Gi"
+      - name: insights
+        persistentVolumeClaim:
+          claimName: k8sgpt-insights-pvc

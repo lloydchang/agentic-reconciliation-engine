@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qwen-localai-config
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: qwen-localai-config
+    app.kubernetes.io/part-of: k8sgpt
+data:
+  config.yaml: |
+    # LocalAI Configuration for Qwen Models
+    version: "2"
+    
+    # Model configurations
+    models:
+      # Qwen2.5 Coder 7B - Optimized for code analysis and Kubernetes
+      - name: "qwen2.5-coder:7b"
+        backend: "llama-cpp"
+        model: "models/qwen2.5-coder-7b-instruct-q4_0.gguf"
+        # Model parameters
+        parameters:
+          model: "models/qwen2.5-coder-7b-instruct-q4_0.gguf"
+          temperature: 0.1
+          top_p: 0.9
+          max_tokens: 4096
+          # Context window
+          context_size: 8192
+          # GPU settings (uncomment if using GPU)
+          # gpu_layers: 35
+          # f16_kv: true
+          # batch_size: 512
+          # threads: 4
+          # Use mmap for memory efficiency
+          use_mmap: true
+          use_mlock: false
+          # Embedding settings
+          embedding_mode: false
+          # Rope scaling for longer context
+          rope_scaling_type: "yarn"
+          rope_freq_scale: 1.0
+          rope_freq_base: 10000
+        
+        # Template configuration for Qwen
+        template:
+          chat: |
+            <|im_start|>system
+            {{.System}}
+            <|im_end|>
+            <|im_start|>user
+            {{.Prompt}}
+            <|im_end|>
+            <|im_start|>assistant
+          completion: |
+            {{.Prompt}}
+        
+        # Function calling configuration (if needed)
+        function_calling:
+          enabled: false
+        
+        # Model metadata
+        metadata:
+          description: "Qwen2.5 Coder 7B - Specialized for code analysis and Kubernetes troubleshooting"
+          license: "Apache 2.0"
+          tags: ["code", "kubernetes", "devops", "troubleshooting", "analysis"]
+          size: "7B parameters"
+          quantization: "Q4_0"
+      
+      # Alternative: Qwen2.5 7B General Purpose
+      - name: "qwen2.5:7b"
+        backend: "llama-cpp"
+        model: "models/qwen2.5-7b-instruct-q4_0.gguf"
+        parameters:
+          model: "models/qwen2.5-7b-instruct-q4_0.gguf"
+          temperature: 0.3
+          top_p: 0.9
+          max_tokens: 4096
+          context_size: 8192
+          use_mmap: true
+          use_mlock: false
+          embedding_mode: false
+        template:
+          chat: |
+            <|im_start|>system
+            {{.System}}
+            <|im_end|>
+            <|im_start|>user
+            {{.Prompt}}
+            <|im_end|>
+            <|im_start|>assistant
+        metadata:
+          description: "Qwen2.5 7B - General purpose model for Kubernetes analysis"
+          license: "Apache 2.0"
+          tags: ["general", "kubernetes", "analysis", "troubleshooting"]
+          size: "7B parameters"
+          quantization: "Q4_0"
+    
+    # Backend configuration
+    backend:
+      # llama-cpp backend configuration
+      llama-cpp:
+        # Number of threads for model inference
+        threads: 4
+        # Enable/disable debug mode
+        debug: false
+        # Enable/disable model loading progress
+        progress: true
+        # Model loading timeout in seconds
+        load_timeout: 300
+        # Inference timeout in seconds
+        inference_timeout: 120
+    
+    # API configuration
+    api:
+      # API server configuration
+      address: "0.0.0.0:8080"
+      # Enable CORS
+      cors: true
+      # CORS allowed origins
+      cors_origins: ["*"]
+      # Enable metrics
+      metrics: true
+      # Metrics address
+      metrics_address: "0.0.0.0:8081"
+      # Enable health check
+      health: true
+      # Health check address
+      health_address: "0.0.0.0:8082"
+    
+    # Logging configuration
+    logging:
+      # Log level
+      level: "info"
+      # Log format (text, json)
+      format: "json"
+      # Enable timestamps
+      timestamp: true
+      # Enable caller information
+      caller: false
+    
+    # Security configuration
+    security:
+      # Enable authentication (optional)
+      authentication: false
+      # API key (if authentication is enabled)
+      api_key: ""
+      # Enable TLS (optional)
+      tls: false
+      # TLS certificate file
+      cert_file: ""
+      # TLS key file
+      key_file: ""
+    
+    # Performance configuration
+    performance:
+      # Enable model caching
+      cache: true
+      # Cache size in MB
+      cache_size: 1024
+      # Enable model preloading
+      preload: true
+      # Enable model unloading when not in use
+      auto_unload: false
+      # Model idle timeout in minutes
+      idle_timeout: 30
+    
+    # Monitoring configuration
+    monitoring:
+      # Enable Prometheus metrics
+      prometheus: true
+      # Prometheus metrics path
+      prometheus_path: "/metrics"
+      # Enable OpenTelemetry
+      opentelemetry: false
+      # OpenTelemetry endpoint
+      otlp_endpoint: ""
+      # OpenTelemetry service name
+      service_name: "qwen-localai"

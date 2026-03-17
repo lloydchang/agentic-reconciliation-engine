@@ -1,0 +1,312 @@
+# Network Policies for Argo Workflows Security
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-deny-all
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "deny-all"
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-allow-internal
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "allow-internal"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-workflows
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from within the same namespace
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-workflows
+    ports:
+    - protocol: TCP
+      port: 2746  # Argo Workflows server
+    - protocol: TCP
+      port: 9090  # Metrics
+  egress:
+  # Allow traffic to Qwen services
+  - to:
+    - podSelector:
+        matchLabels:
+          app: qwen-k8sgpt
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow traffic to MinIO
+  - to:
+    - podSelector:
+        matchLabels:
+          app: minio
+    ports:
+    - protocol: TCP
+      port: 9000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-allow-monitoring
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "allow-monitoring"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-workflows
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow monitoring traffic
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090  # Metrics
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-allow-ingress
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "allow-ingress"
+spec:
+  podSelector:
+    matchLabels:
+      app: argo-workflows-server
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow ingress controller traffic
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 2746
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qwen-k8sgpt-allow-internal
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-k8sgpt
+    app.kubernetes.io/llm: qwen
+    security.policy: "qwen-allow-internal"
+spec:
+  podSelector:
+    matchLabels:
+      app: qwen-k8sgpt
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from Argo Workflows
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-workflows
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow traffic from monitoring
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow traffic to LocalAI
+  - to:
+    - podSelector:
+        matchLabels:
+          app: qwen-localai
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qwen-localai-allow-internal
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: qwen-localai
+    app.kubernetes.io/llm: qwen
+    security.policy: "qwen-localai-allow-internal"
+spec:
+  podSelector:
+    matchLabels:
+      app: qwen-localai
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow traffic from Qwen K8sGPT
+  - from:
+    - podSelector:
+        matchLabels:
+          app: qwen-k8sgpt
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: minio-allow-internal
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: minio
+    security.policy: "minio-allow-internal"
+spec:
+  podSelector:
+    matchLabels:
+      app: minio
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow traffic from Argo Workflows
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-workflows
+    ports:
+    - protocol: TCP
+      port: 9000
+  # Allow traffic from MinIO console
+  - from:
+    - podSelector:
+        matchLabels:
+          app: minio
+    ports:
+    - protocol: TCP
+      port: 9001
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "allow-dns"
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-kubernetes-api
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "allow-k8s-api"
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow traffic to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-pod-execution
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    security.policy: "pod-execution"
+spec:
+  podSelector:
+    matchLabels:
+      workflows.argoproj.io/workflow: ""
+  policyTypes:
+  - Egress
+  egress:
+  # Allow workflow pods to access necessary services
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argo-workflows
+    ports:
+    - protocol: TCP
+      port: 2746  # Argo Workflows server
+  - to:
+    - podSelector:
+        matchLabels:
+          app: qwen-k8sgpt
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow external internet access for workflow containers (if needed)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443

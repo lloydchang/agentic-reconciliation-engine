@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipecd-gateway
+  namespace: pipecd
+spec:
+  template:
+    spec:
+      containers:
+      - name: gateway
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: SERVER_ADDRESS
+          value: "pipecd-server:9080"
+        - name: CORS_ALLOWED_ORIGINS
+          value: "http://localhost:8080,http://127.0.0.1:8080"
+        - name: ENABLE_TLS
+          value: "false"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
