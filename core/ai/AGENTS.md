@@ -254,7 +254,123 @@ Kubernetes reconciliation provides a final safety layer for all automated action
 
 ---
 
-## 6. Skill System
+## 6. Pi-Mono RPC Execution Layer
+
+### Purpose & Scope
+
+Pi-Mono provides a third agent execution method that runs as a containerized service with RPC communication. It offers interactive AI assistance with rich tooling while maintaining the safety constraints of the GitOps Control Plane.
+
+### Core Characteristics
+
+- **Container-based**: Runs as Kubernetes deployment alongside other agents
+- **RPC Communication**: JSON-RPC over stdin/stdout for container integration
+- **Interactive**: Rich TUI and web interfaces for human-in-the-loop operations
+- **Skill Compatible**: Full agentskills.io specification compliance
+- **Multi-Provider**: Built-in support for 15+ LLM providers
+
+### Key Features
+
+#### RPC Mode
+```bash
+# Container runs in RPC mode for service integration
+pi --mode rpc --no-session --session-dir /home/pi/.pi/agent/sessions
+```
+
+#### Communication Protocol
+- **Commands**: JSON objects sent to stdin
+- **Responses**: JSON objects with correlation IDs
+- **Events**: Real-time streaming of agent activities
+
+#### Example RPC Commands
+```json
+{"type": "prompt", "message": "Review this Kubernetes manifest"}
+{"type": "skill", "skill": "gitops-operations", "message": "Deploy to staging"}
+{"type": "ping"}
+```
+
+### Integration Points
+
+#### Memory Agent Integration
+```bash
+# Query memory agent for historical context
+curl -X POST "$MEMORY_AGENT_URL/api/query" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "previous deployment patterns"}'
+```
+
+#### GitOps Control Integration
+- All infrastructure changes flow through GitOps pipelines
+- PR creation and approval workflows
+- Kubernetes reconciliation safety nets
+
+#### Monitoring Integration
+- Built-in metrics collection (token usage, response times)
+- Prometheus scraping endpoints
+- Structured logging with correlation IDs
+
+### Deployment
+
+```bash
+# Build and deploy pi-mono agent
+cd core/ai/runtime/pi-mono-agent
+docker build -t gitops-infra-control-plane/pi-mono-agent:latest .
+kubectl apply -f k8s/
+
+# Verify deployment
+kubectl get pods -n ai-infrastructure -l app=pi-mono-agent
+```
+
+### Service Configuration
+
+```yaml
+# Environment variables
+ANTHROPIC_API_KEY: "sk-ant-..."
+OPENAI_API_KEY: "sk-..."
+PI_WORKSPACE_DIR: "/workspace"
+MEMORY_AGENT_URL: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+TEMPORAL_ADDRESS: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+```
+
+### Use Cases
+
+#### Interactive Infrastructure Operations
+- Real-time deployment assistance
+- Interactive troubleshooting
+- Code review and optimization
+
+#### Skill-Based Automation
+- agentskills.io compatible skill execution
+- Custom GitOps operations
+- Security and compliance checks
+
+#### Development Support
+- Code generation and review
+- Documentation creation
+- Testing and validation
+
+### Safety and Security
+
+- **Non-root execution**: Containers run as non-privileged users
+- **API Key Management**: Secrets stored in Kubernetes secrets
+- **Network Policies**: Restricted inter-service communication
+- **Resource Limits**: CPU/memory constraints for DoS protection
+- **GitOps Integration**: All changes audited via PR workflow
+
+### Comparison with Other Methods
+
+| Feature | Temporal | Container Agents | Pi-Mono RPC |
+|---|---|---|---|
+| **Complexity** | High | Medium | Low |
+| **Interactivity** | Low | Medium | High |
+| **Skill System** | Custom | Custom | agentskills.io |
+| **LLM Support** | Custom | Custom | Built-in 15+ |
+| **UI/UX** | None | Basic | Rich TUI/Web |
+| **State Management** | Built-in | Custom | Sessions |
+| **Setup Required** | Complex | Medium | Simple |
+
+---
+
+## 7. Skill System
 
 Skills follow the [agentskills.io specification](https://agentskills.io/specification) using
 **progressive disclosure**:
