@@ -37,4 +37,4 @@ This repository uses dual licensing:
 - `Apache-2.0`: Specific sample snippets requiring user adaptations
   - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
-![logo.svg](core/ai/runtime/dashboard/src/logo.svg)
+![logo.svg](core/ai/runtime/agents/dashboard/src/logo.svg)
