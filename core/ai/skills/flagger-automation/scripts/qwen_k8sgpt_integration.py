@@ -29,14 +29,14 @@ class QwenK8sGPTIntegration:
         default_config = {
             'qwen': {
                 'model': 'qwen2.5-7b-instruct',
-                'base_url': 'http://localhost:8000/v1',
-                'api_key': 'not-required-for-local',
+                'base_url': 'http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080',
+                'api_key': 'flagger-api-key',
                 'max_tokens': 4096,
                 'temperature': 0.7,
                 'timeout': 30
             },
             'k8sgpt': {
-                'backend': 'localai',
+                'backend': 'agent-memory',
                 'model': 'qwen2.5-7b-instruct',
                 'namespace': 'default',
                 'output_format': 'json',
@@ -81,10 +81,10 @@ class QwenK8sGPTIntegration:
         qwen_config = self.config['qwen']
         
         try:
-            # Configure K8sGPT to use Qwen backend
+            # Configure K8sGPT to use agent-memory-rust backend
             cmd = [
                 self.k8sgpt_path, 'auth', 'add',
-                '--backend', qwen_config['backend'],
+                '--backend', 'agent-memory',
                 '--model', qwen_config['model'],
                 '--baseurl', qwen_config['base_url']
             ]
@@ -99,7 +99,7 @@ class QwenK8sGPTIntegration:
             
             return {
                 'operation': 'setup_qwen_backend',
-                'backend': qwen_config['backend'],
+                'backend': 'agent-memory',
                 'model': qwen_config['model'],
                 'base_url': qwen_config['base_url'],
                 'setup_result': result.stdout,
@@ -117,10 +117,10 @@ class QwenK8sGPTIntegration:
     def _verify_qwen_configuration(self) -> Dict[str, Any]:
         """Verify Qwen configuration in K8sGPT"""
         try:
-            # Test K8sGPT with Qwen backend
+            # Test K8sGPT with agent-memory backend
             cmd = [
                 self.k8sgpt_path, 'analyze',
-                '--backend', self.config['qwen']['backend'],
+                '--backend', 'agent-memory',
                 '--explain',
                 '--output', 'json',
                 '--filter', 'namespace=default'
@@ -255,7 +255,7 @@ class QwenK8sGPTIntegration:
         try:
             cmd = [
                 self.k8sgpt_path, 'analyze',
-                '--backend', self.config['qwen']['backend'],
+                '--backend', 'agent-memory',
                 '--explain',
                 '--output', 'json',
                 '--namespace', namespace,
@@ -337,60 +337,56 @@ Focus on actionable insights and specific recommendations for improving the prog
 """
         return prompt
     
-    def _call_qwen_api(self, prompt: str) -> str:
-        """Call Qwen API for analysis"""
-        qwen_config = self.config['qwen']
-        
+    def _call_qwen_api(self, prompt: str) -> Dict[str, Any]:
+        """Call Qwen API via agent-memory-rust"""
         try:
+            qwen_config = self.config['qwen']
+            
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {qwen_config["api_key"]}'
+                'X-API-Key': qwen_config.get('api_key', '')
             }
             
-            data = {
-                'model': qwen_config['model'],
-                'messages': [
-                    {
-                        'role': 'system',
-                        'content': 'You are an expert Kubernetes and progressive delivery specialist. Provide detailed, actionable analysis.'
-                    },
-                    {
-                        'role': 'user',
-                        'content': prompt
-                    }
-                ],
+            payload = {
+                'message': prompt,
                 'max_tokens': qwen_config['max_tokens'],
                 'temperature': qwen_config['temperature']
             }
             
             response = requests.post(
-                f"{qwen_config['base_url']}/chat/completions",
+                f"{qwen_config['base_url']}/api/v1/chat",
                 headers=headers,
-                json=data,
+                json=payload,
                 timeout=qwen_config['timeout']
             )
             
-            response.raise_for_status()
-            result = response.json()
-            
-            return result['choices'][0]['message']['content']
-            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    return {
+                        'response': result['data'].get('message', ''),
+                        'usage': result['data'].get('usage'),
+                        'status': 'success'
+                    }
+                else:
+                    return {
+                        'response': '',
+                        'error': result.get('error', 'Unknown error'),
+                        'status': 'failed'
+                    }
+            else:
+                return {
+                    'response': '',
+                    'error': f'HTTP {response.status_code}: {response.text}',
+                    'status': 'failed'
+                }
+                
         except Exception as e:
-            raise Exception(f"Qwen API call failed: {str(e)}")
-    
-    def _parse_qwen_response(self, response: str) -> Dict[str, Any]:
-        """Parse Qwen response into structured insights"""
-        try:
-            # Try to parse as JSON first
-            insights = json.loads(response)
-        except json.JSONDecodeError:
-            # If not JSON, parse text response
-            insights = {
-                'raw_response': response,
-                'structured_insights': self._extract_structured_insights(response)
+            return {
+                'response': '',
+                'error': str(e),
+                'status': 'failed'
             }
-        
-        return insights
     
     def _extract_structured_insights(self, response: str) -> Dict[str, Any]:
         """Extract structured insights from text response"""
