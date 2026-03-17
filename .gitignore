@@ -617,7 +617,10 @@ __marimo__/
 
 # Python compiled files
 *.pyc
+examples/workspace/
 workspace/
+aws/
 azure/
+gcp/
 logs/
 overlay-backup-*/

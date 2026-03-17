@@ -1,23 +1,33 @@
 package main
 
 import (
+	"context"
 	"log"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
+	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/workflow"
 	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
 )
 
 func main() {
-	// Create Temporal client
+	ctx := context.Background()
+
+	tp, err := observability.InitTracer(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tp.Shutdown(ctx)
+
 	c, err := client.Dial(client.Options{})
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}
 	defer c.Close()
 
-	// Create worker
-	w := worker.New(c, "cloud-ai-task-queue", worker.Options{})
+	interceptor := observability.NewTracingInterceptor()
+
+	w := worker.New(c, "gitops-temporal", worker.Options{Interceptors: []worker.Interceptor{interceptor}})
 
 	// Register workflows
 	workflow.RegisterAgentWorkflows(w)
