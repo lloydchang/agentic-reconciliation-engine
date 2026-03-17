@@ -413,7 +413,134 @@
             background: rgba(0, 0, 0, 0.1);
         }
         
-        /* Status indicators */
+        /* Agent Wizard Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #7f8c8d;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-content {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -543,6 +670,67 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
+
+    <!-- Agent Wizard Modal -->
+    <div class="modal-overlay" id="agent-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">🤖 Deploy New Agent</h3>
+                <button class="modal-close" onclick="closeAgentModal(event)">×</button>
+            </div>
+            <div class="modal-content">
+                <form id="agent-form" onsubmit="deployNewAgent(event)">
+                    <div class="form-group">
+                        <label for="agent-name">Agent Name</label>
+                        <input type="text" id="agent-name" name="agent-name" required placeholder="e.g., Cost Optimizer">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agent-type">Agent Type</label>
+                        <select id="agent-type" name="agent-type" required>
+                            <option value="">Select agent type...</option>
+                            <option value="cost-optimizer">Cost Optimizer</option>
+                            <option value="security-scanner">Security Scanner</option>
+                            <option value="cluster-monitor">Cluster Monitor</option>
+                            <option value="deployment-manager">Deployment Manager</option>
+                            <option value="log-analyzer">Log Analyzer</option>
+                            <option value="backup-manager">Backup Manager</option>
+                            <option value="network-monitor">Network Monitor</option>
+                            <option value="resource-planner">Resource Planner</option>
+                            <option value="compliance-checker">Compliance Checker</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agent-language">Language</label>
+                        <select id="agent-language" name="agent-language" required>
+                            <option value="">Select language...</option>
+                            <option value="rust">Rust</option>
+                            <option value="go">Go</option>
+                            <option value="python">Python</option>
+                            <option value="typescript">TypeScript/Node.js</option>
+                            <option value="java">Java/JVM</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agent-skills">Skills (comma-separated)</label>
+                        <input type="text" id="agent-skills" name="agent-skills" placeholder="e.g., Cost Analysis, Resource Optimization, Performance Tuning">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agent-description">Description</label>
+                        <textarea id="agent-description" name="agent-description" rows="3" placeholder="Describe what this agent does..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAgentModal()">Cancel</button>
+                        <button type="submit" class="btn">🚀 Deploy Agent</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Global state
@@ -738,7 +926,43 @@
 
         // Control functions
         function addAgent() {
-            showToast('Add Agent functionality would open a modal to configure and deploy a new agent', 'info', 'Add Agent');
+            openAgentModal();
+        }
+
+        function openAgentModal() {
+            document.getElementById('agent-modal').classList.add('show');
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+        
+        function closeAgentModal(event) {
+            if (event) event.preventDefault();
+            document.getElementById('agent-modal').classList.remove('show');
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+        
+        function deployNewAgent(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const agentData = {
+                name: formData.get('agent-name'),
+                type: formData.get('agent-type'),
+                language: formData.get('agent-language'),
+                skills: formData.get('agent-skills').split(',').map(s => s.trim()).filter(s => s),
+                description: formData.get('agent-description')
+            };
+            
+            // Close modal
+            closeAgentModal();
+            
+            // Show deployment toast
+            showToast(`Deploying ${agentData.name} agent...`, 'processing', 'Agent Deployment');
+            
+            // Simulate deployment (in real implementation, this would call backend API)
+            setTimeout(() => {
+                showToast(`${agentData.name} agent deployed successfully!`, 'success', 'Deployment Complete');
+                loadAllData(); // Refresh agents list
+            }, 3000);
         }
 
         function executeSkill(skill) {
