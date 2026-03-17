@@ -57,6 +57,29 @@ spec:
           value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
         - name: TEMPORAL_ADDRESS
           value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        - name: LANGFUSE_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: public-key
+        - name: LANGFUSE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: secret-key
+        - name: LANGFUSE_HOST
+          value: "https://us.cloud.langfuse.com"
+        - name: LANGFUSE_RELEASE
+          value: "1.0.0"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "https://us.cloud.langfuse.com/api/public/otel"
+        - name: OTEL_EXPORTER_OTLP_HEADERS
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: otlp-headers
+        - name: OTEL_SERVICE_NAME
+          value: "pi-mono-agent"
         resources:
           requests:
             cpu: 500m
