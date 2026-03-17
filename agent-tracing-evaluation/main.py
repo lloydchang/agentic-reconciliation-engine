@@ -19,6 +19,9 @@ sys.path.append(str(Path(__file__).parent / "evaluators"))
 from skill_invocation_evaluator import GitOpsSkillEvaluator
 from performance_evaluator import PerformanceEvaluator
 from cost_evaluator import CostEvaluator
+from monitoring_evaluator import AgentMonitoringEvaluator
+from auto_fix_evaluator import AutoFixManager
+from health_check_evaluator import HealthCheckEvaluator
 
 class TracingEvaluationFramework:
     """Main framework for evaluating agent traces"""
@@ -26,10 +29,15 @@ class TracingEvaluationFramework:
     def __init__(self):
         self.skill_evaluator = GitOpsSkillEvaluator()
         self.performance_evaluator = PerformanceEvaluator()
+        self.monitoring_evaluator = AgentMonitoringEvaluator()
+        self.auto_fix_manager = AutoFixManager()
+        self.health_check_evaluator = HealthCheckEvaluator()
         self.evaluators = {
             "skill_invocation": self.skill_evaluator,
             "performance": self.performance_evaluator,
-            "cost": CostEvaluator()
+            "cost": CostEvaluator(),
+            "monitoring": self.monitoring_evaluator,
+            "health_check": self.health_check_evaluator
         }
 
     def evaluate_traces(self, traces: List[Dict[str, Any]], 

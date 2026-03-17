@@ -103,6 +103,15 @@ data:
                     elif 'temporal' in name:
                         agent_type = "Temporal"
                         agent_name = name.replace('temporal-', '').title()
+                    elif 'cost-optimizer-agent' in name:
+                        agent_type = "Independent"
+                        agent_name = "Cost Optimizer"
+                    elif 'security-scanner-agent' in name:
+                        agent_type = "Independent"
+                        agent_name = "Security Scanner"
+                    elif 'agent-swarm-coordinator' in name:
+                        agent_type = "Independent"
+                        agent_name = "Swarm Coordinator"
                     else:
                         agent_type = "Kubernetes"
                         agent_name = name
@@ -147,7 +156,10 @@ data:
                 "Web": 4,
                 "Grafana": 3,
                 "Prometheus": 5,
-                "Cassandra": 2
+                "Cassandra": 2,
+                "Cost Optimizer": 8,
+                "Security Scanner": 12,
+                "Swarm Coordinator": 6
             }
             
             for agent in agents_data:
