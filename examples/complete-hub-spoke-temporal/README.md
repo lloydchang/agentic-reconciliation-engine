@@ -85,7 +85,7 @@ This example implements all three phases of Temporal integration with comprehens
 
 ### Agent Skills
 - `skills/infrastructure-discovery.ts` - Resource discovery skill
-- `skills/security-analysis.ts` - Security assessment skill
+- `skills/analyze-security.ts` - Security assessment skill
 - `skills/cost-optimization.ts` - Cost optimization skill
 - `skills/compliance-checking.ts` - Policy validation skill
 

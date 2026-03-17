@@ -18,7 +18,7 @@ def check_specification_compliance():
     template_compliance = check_single_file(template_file, "TEMPLATE")
     
     # Check sample skills
-    sample_skills = ['cost-optimizer', 'kubectl-assistant', 'security-analysis']
+    sample_skills = ['cost-optimizer', 'kubectl-assistant', 'analyze-security']
     skill_results = {}
     
     for skill_name in sample_skills:

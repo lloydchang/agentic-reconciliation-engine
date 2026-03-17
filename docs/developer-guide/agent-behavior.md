@@ -256,16 +256,16 @@ The following 28 skills are available for automated operations. Each skill follo
 | pipeline, CI/CD, build failure, DORA | `cicd-pipeline-monitor` | Re-trigger prod |
 | incident, alert, P1, P2, outage, degraded | `incident-triage-runbook` | Novel P0/P1 decisions |
 | tenant, onboard, new customer, offboard | `tenant-lifecycle-manager` | Offboard/delete |
-| scan, CVE, compliance, checkov, trivy | `compliance-security-scanner` | No (scan only) |
-| SLA, SLO, error budget, breach | `sla-monitoring-alerting` | No (monitoring only) |
+| scan, CVE, compliance, checkov, trivy | `generate-security-report` | No (scan only) |
+| SLA, SLO, error budget, breach | `monitor-sla-alerting` | No (monitoring only) |
 | deploy, rollout, smoke test, canary gate | `deployment-validation` | GO/NO-GO in prod |
 | KPI, metrics, report, DORA, quarterly | `kpi-report-generator` | Before send |
 | runbook, documentation, ADR, wiki | `runbook-documentation-gen` | No |
 | email, comms, announcement, stakeholder | `stakeholder-comms-drafter` | Always (never auto-sends) |
-| kubernetes, cluster, AKS, node pool, upgrade | `kubernetes-cluster-manager` | Any prod cluster change |
+| kubernetes, cluster, AKS, node pool, upgrade | `manage-kubernetes-cluster` | Any prod cluster change |
 | cost, spend, waste, FinOps, savings | `cost-optimisation` | Resource deletion |
-| secret, certificate, rotation, Key Vault, cert-manager | `secrets-certificate-manager` | Root CA rotation |
-| migrate, migration, move workload, cutover | `workload-migration` | Prod cutover |
+| secret, certificate, rotation, Key Vault, cert-manager | `manage-certificates` | Root CA rotation |
+| migrate, migration, move workload, cutover | `migrate-workload` | Prod cutover |
 | policy, OPA, Gatekeeper, governance, tagging | `policy-as-code` | Deny-all policy changes |
 | capacity, forecast, headroom, growth | `capacity-planning` | No (analysis only) |
 | monitoring, Prometheus, Grafana, Loki, tracing | `observability-stack` | Prod alerting changes |
@@ -273,9 +273,9 @@ The following 28 skills are available for automated operations. Each skill follo
 | database, PostgreSQL, SQL, backup, restore, failover | `database-operations` | PITR restore, failover |
 | disaster recovery, DR, failover, RPO, RTO, drill | `disaster-recovery` | Any prod failover |
 | GitOps, ArgoCD, Flux, sync, ApplicationSet | `gitops-workflow` | Prod promotion |
-| service mesh, Istio, mTLS, circuit breaker, traffic split | `service-mesh` | Strict mTLS in prod |
+| service mesh, Istio, mTLS, circuit breaker, traffic split | `manage-service-mesh` | Strict mTLS in prod |
 | container, image, ACR, scan, sign, promote | `container-registry` | Prod registry push |
-| developer portal, Backstage, self-service, golden path | `developer-self-service` | Enterprise resource requests |
+| developer portal, Backstage, self-service, golden path | `enable-self-service` | Enterprise resource requests |
 | audit, SIEM, Sentinel, security event, log query | `audit-siem` | No (read-only queries) |
 | change request, CAB, change freeze, risk score | `change-management` | Major/emergency changes |
 | chaos, load test, resilience, fault injection, k6 | `chaos-load-testing` | Any prod chaos |

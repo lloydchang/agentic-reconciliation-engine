@@ -9,7 +9,7 @@ set -euxo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 SECRETS_DIR="$PROJECT_ROOT/infrastructure/tenants/3-workloads/helm-releases/monitoring"
-LOG_FILE="$PROJECT_ROOT/logs/secret-rotation.log"
+LOG_FILE="$PROJECT_ROOT/logs/rotate-secrets.log"
 
 # Colors for output
 RED='\033[0;31m'

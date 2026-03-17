@@ -170,10 +170,10 @@ The system fully uses AGENTS.md:
 ### Core Skills
 
 - **infrastructure-provisioning**: Infrastructure provisioning with Terraform
-- **compliance-security-scanner**: Security and compliance scanning
+- **generate-security-report**: Security and compliance scanning
 - **cicd-pipeline-monitor**: CI/CD pipeline monitoring and analysis
 - **incident-triage-runbook**: Incident response and runbook execution
-- **kubernetes-cluster-manager**: Kubernetes cluster management
+- **manage-kubernetes-cluster**: Kubernetes cluster management
 - **cost-optimisation**: Cloud cost analysis and optimization
 - **orchestrator**: Master coordination for complex workflows
 
@@ -199,7 +199,7 @@ The system fully uses AGENTS.md:
 ```json
 {
   "request": "run security scan on production resources",
-  "skill_used": "compliance-security-scanner",
+  "skill_used": "generate-security-report",
   "status": "success",
   "result": {
     "scan_id": "SCAN-1640995200",

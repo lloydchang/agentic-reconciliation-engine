@@ -97,42 +97,42 @@ Pre-defined multi-step workflows coordinate multiple skills for complex operatio
 ### WF-01: Full Tenant Onboarding
 
 **Trigger:** "Onboard [tenant] as enterprise tier in [region]"  
-**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
+**Skills:** infrastructure-provisioning, manage-kubernetes-cluster, manage-certificates, multi-cloud-networking, database-operations, enable-self-service, observability-stack, policy-as-code, audit-siem, generate-security-report, cost-optimisation, capacity-planning, gitops-workflow
 
 ### WF-02: P0/P1 Incident Response
 
 **Trigger:** "Take over P0/P1 incident response"  
-**Skills:** incident-triage-runbook, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter, compliance-security-scanner, audit-siem, sla-monitoring-alerting, change-management, orchestrator
+**Skills:** incident-triage-runbook, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter, generate-security-report, audit-siem, monitor-sla-alerting, change-management, orchestrator
 
 ### WF-03: Weekly Compliance Scan
 
 **Trigger:** Automatic (Monday 06:00 UTC)  
-**Skills:** compliance-security-scanner, policy-as-code, audit-siem, runbook-documentation-gen, kpi-report-generator, stakeholder-comms-drafter
+**Skills:** generate-security-report, policy-as-code, audit-siem, runbook-documentation-gen, kpi-report-generator, stakeholder-comms-drafter
 
 ### WF-04: Monthly Executive Report
 
 **Trigger:** Automatic (1st of month 07:00 UTC)  
-**Skills:** kpi-report-generator, sla-monitoring-alerting, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter
+**Skills:** kpi-report-generator, monitor-sla-alerting, cost-optimisation, capacity-planning, generate-security-report, runbook-documentation-gen, stakeholder-comms-drafter
 
 ### WF-05: Pre-Release Readiness Check
 
 **Trigger:** "Is v[X] ready to release?"  
-**Skills:** deployment-validation, cicd-pipeline-monitor, compliance-security-scanner, chaos-load-testing, observability-stack, container-registry, gitops-workflow
+**Skills:** deployment-validation, cicd-pipeline-monitor, generate-security-report, chaos-load-testing, observability-stack, container-registry, gitops-workflow
 
 ### WF-06: QBR Preparation
 
 **Trigger:** "Prepare the Q[N] QBR deck"  
-**Skills:** kpi-report-generator, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter, sla-monitoring-alerting, change-management
+**Skills:** kpi-report-generator, cost-optimisation, capacity-planning, generate-security-report, runbook-documentation-gen, stakeholder-comms-drafter, monitor-sla-alerting, change-management
 
 ### WF-07: New Cluster Provisioning
 
 **Trigger:** "Provision a new [env] cluster in [region]"  
-**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
+**Skills:** infrastructure-provisioning, manage-kubernetes-cluster, manage-certificates, policy-as-code, observability-stack, gitops-workflow, manage-service-mesh
 
 ### WF-08: Security Incident Response
 
 **Trigger:** "Sentinel fired — investigate [alert]"  
-**Skills:** audit-siem, incident-triage-runbook, compliance-security-scanner, stakeholder-comms-drafter
+**Skills:** audit-siem, incident-triage-runbook, generate-security-report, stakeholder-comms-drafter
 
 ### WF-09: DR Drill Execution
 
@@ -142,17 +142,17 @@ Pre-defined multi-step workflows coordinate multiple skills for complex operatio
 ### WF-10: Platform Team Onboarding
 
 **Trigger:** "Onboard the [team name] engineering team"  
-**Skills:** developer-self-service, gitops-workflow, observability-stack, secrets-certificate-manager, policy-as-code, compliance-security-scanner, audit-siem, runbook-documentation-gen, kubernetes-cluster-manager, container-registry, cicd-pipeline-monitor, change-management, stakeholder-comms-drafter
+**Skills:** enable-self-service, gitops-workflow, observability-stack, manage-certificates, policy-as-code, generate-security-report, audit-siem, runbook-documentation-gen, manage-kubernetes-cluster, container-registry, cicd-pipeline-monitor, change-management, stakeholder-comms-drafter
 
 ## Automated Schedules
 
 | Task | Schedule | Skill |
 |------|----------|-------|
-| Compliance scan | Monday 06:00 UTC | `compliance-security-scanner` |
-| Certificate expiry check | Daily 09:00 UTC | `secrets-certificate-manager` |
+| Compliance scan | Monday 06:00 UTC | `generate-security-report` |
+| Certificate expiry check | Daily 09:00 UTC | `manage-certificates` |
 | Capacity planning check | Monday 10:00 UTC | `capacity-planning` |
 | Monthly executive report | 1st of month 07:00 UTC | `kpi-report-generator` |
-| SLO error budget check | Every 30 minutes | `sla-monitoring-alerting` |
+| SLO error budget check | Every 30 minutes | `monitor-sla-alerting` |
 | DR drill | Quarterly (Jan/Apr/Jul/Oct 15th) | `disaster-recovery` |
 | Chaos experiment (staging) | Wednesday 14:00 UTC | `chaos-load-testing` |
 | Audit SIEM review | Monday 08:00 UTC | `audit-siem` |
@@ -270,7 +270,7 @@ All skill executions generate comprehensive audit logs:
     "session_id": "session-uuid"
   },
   "skill_details": {
-    "name": "compliance-security-scanner",
+    "name": "generate-security-report",
     "version": "1.0.0",
     "parameters": { /* input parameters */ }
   },
@@ -305,7 +305,7 @@ const performanceMetrics = {
   // Success rates
   overall_success_rate: 0.987,
   skill_specific_rates: {
-    "compliance-security-scanner": 0.992,
+    "generate-security-report": 0.992,
     "infrastructure-provisioning": 0.978
   },
 

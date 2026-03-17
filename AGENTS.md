@@ -202,7 +202,7 @@ autonomy: requires_PR
 | -------------- | -------------- | ------------- | -------- |
 | **Cost Management** | cost-optimizer, capacity-planning | Temporal | conditional |
 | **Monitoring** | alert-prioritizer, cluster-health-check | Temporal | conditional |
-| **Security** | compliance-scanner, security-analysis | GitOps | requires_PR |
+| **Security** | compliance-scanner, analyze-security | GitOps | requires_PR |
 | **Deployment** | deployment-strategy, gitops-workflow | GitOps | conditional |
 | **Database** | database-maintenance, database-operations | GitOps | conditional |
 
@@ -255,7 +255,7 @@ steps:
      risk: low
      autonomy: fully_auto
   3. configure-security:
-     skill: security-analysis
+     skill: analyze-security
      risk: high
      autonomy: requires_PR
   4. deploy-applications:

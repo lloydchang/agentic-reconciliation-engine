@@ -231,7 +231,7 @@ components:
   - flux-core (parallel deployment)
   - multi-cloud (selective)
   - compliance-modules
-  - gradual-workload-migration
+  - gradual-migrate-workload
   - legacy-integration
 
 timeline: "6-12 months"

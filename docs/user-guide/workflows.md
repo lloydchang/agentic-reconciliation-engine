@@ -17,7 +17,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Onboard [tenant] as enterprise tier in [region]"  
 **Steps:** 13  
-**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, multi-cloud-networking, database-operations, developer-self-service, observability-stack, policy-as-code, audit-siem, compliance-security-scanner, cost-optimisation, capacity-planning, gitops-workflow
+**Skills:** infrastructure-provisioning, manage-kubernetes-cluster, manage-certificates, multi-cloud-networking, database-operations, enable-self-service, observability-stack, policy-as-code, audit-siem, generate-security-report, cost-optimisation, capacity-planning, gitops-workflow
 
 **What it does:**
 
@@ -39,7 +39,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Take over P0/P1 incident response"  
 **Steps:** 9  
-**Skills:** incident-triage-runbook, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter, compliance-security-scanner, audit-siem, sla-monitoring-alerting, change-management, orchestrator
+**Skills:** incident-triage-runbook, observability-stack, runbook-documentation-gen, stakeholder-comms-drafter, generate-security-report, audit-siem, monitor-sla-alerting, change-management, orchestrator
 
 **What it does:**
 
@@ -57,7 +57,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** Automatic (Monday 06:00 UTC)  
 **Steps:** 6  
-**Skills:** compliance-security-scanner, policy-as-code, audit-siem, runbook-documentation-gen, kpi-report-generator, stakeholder-comms-drafter
+**Skills:** generate-security-report, policy-as-code, audit-siem, runbook-documentation-gen, kpi-report-generator, stakeholder-comms-drafter
 
 **What it does:**
 
@@ -72,7 +72,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** Automatic (1st of month 07:00 UTC)  
 **Steps:** 7  
-**Skills:** kpi-report-generator, sla-monitoring-alerting, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter
+**Skills:** kpi-report-generator, monitor-sla-alerting, cost-optimisation, capacity-planning, generate-security-report, runbook-documentation-gen, stakeholder-comms-drafter
 
 **What it does:**
 
@@ -88,7 +88,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Is v[X] ready to release?"  
 **Steps:** 7  
-**Skills:** deployment-validation, cicd-pipeline-monitor, compliance-security-scanner, chaos-load-testing, observability-stack, container-registry, gitops-workflow
+**Skills:** deployment-validation, cicd-pipeline-monitor, generate-security-report, chaos-load-testing, observability-stack, container-registry, gitops-workflow
 
 **What it does:**
 
@@ -104,7 +104,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Prepare the Q[N] QBR deck"  
 **Steps:** 8  
-**Skills:** kpi-report-generator, cost-optimisation, capacity-planning, compliance-security-scanner, runbook-documentation-gen, stakeholder-comms-drafter, sla-monitoring-alerting, change-management
+**Skills:** kpi-report-generator, cost-optimisation, capacity-planning, generate-security-report, runbook-documentation-gen, stakeholder-comms-drafter, monitor-sla-alerting, change-management
 
 **What it does:**
 
@@ -121,7 +121,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Provision a new [env] cluster in [region]"  
 **Steps:** 7  
-**Skills:** infrastructure-provisioning, kubernetes-cluster-manager, secrets-certificate-manager, policy-as-code, observability-stack, gitops-workflow, service-mesh
+**Skills:** infrastructure-provisioning, manage-kubernetes-cluster, manage-certificates, policy-as-code, observability-stack, gitops-workflow, manage-service-mesh
 
 **What it does:**
 
@@ -137,7 +137,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Sentinel fired — investigate [alert]"  
 **Steps:** 4  
-**Skills:** audit-siem, incident-triage-runbook, compliance-security-scanner, stakeholder-comms-drafter
+**Skills:** audit-siem, incident-triage-runbook, generate-security-report, stakeholder-comms-drafter
 
 **What it does:**
 
@@ -164,7 +164,7 @@ Workflows are pre-defined sequences of skills that work together to accomplish c
 
 **Trigger:** "Onboard the [team name] engineering team"  
 **Steps:** 13  
-**Skills:** developer-self-service, gitops-workflow, observability-stack, secrets-certificate-manager, policy-as-code, compliance-security-scanner, audit-siem, runbook-documentation-gen, kubernetes-cluster-manager, container-registry, cicd-pipeline-monitor, change-management, stakeholder-comms-drafter
+**Skills:** enable-self-service, gitops-workflow, observability-stack, manage-certificates, policy-as-code, generate-security-report, audit-siem, runbook-documentation-gen, manage-kubernetes-cluster, container-registry, cicd-pipeline-monitor, change-management, stakeholder-comms-drafter
 
 **What it does:**
 
@@ -203,10 +203,10 @@ orchestrator (S18)
         │
         ├── tenant-lifecycle-manager (S04)
         │       ├── infrastructure-provisioning (S01)
-        │       ├── kubernetes-cluster-manager (S11)
+        │       ├── manage-kubernetes-cluster (S11)
         │       ├── multi-cloud-networking (S19)
         │       ├── database-operations (S20)
-        │       └── secrets-certificate-manager (S13)
+        │       └── manage-certificates (S13)
         │
         ├── incident-triage-runbook (S03)
         │       ├── observability-stack (S17)
@@ -218,13 +218,13 @@ orchestrator (S18)
         │       ├── gitops-workflow (S22)
         │       └── container-registry (S24)
         │
-        ├── compliance-security-scanner (S05)
+        ├── generate-security-report (S05)
         │       ├── policy-as-code (S15)
         │       ├── audit-siem (S26)
-        │       └── secrets-certificate-manager (S13)
+        │       └── manage-certificates (S13)
         │
         └── kpi-report-generator (S08)
-                ├── sla-monitoring-alerting (S06)
+                ├── monitor-sla-alerting (S06)
                 ├── cost-optimisation (S12)
                 └── capacity-planning (S16)
 ```

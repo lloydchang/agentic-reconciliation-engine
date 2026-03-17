@@ -120,11 +120,11 @@ Raft Consensus ← Distributed State Management
 
 - **ai-agent-orchestration:** Multi-agent coordination with dispatcher routing
 - **incident-triage-runbook:** Automated incident response with human gates
-- **compliance-security-scanner:** Continuous compliance and security monitoring
+- **generate-security-report:** Continuous compliance and security monitoring
 - **observability-stack:** 24/7 metrics, logs, traces, and alerting
 - **cost-optimization:** AI-driven cloud cost management
 - **infrastructure-provisioning:** Infrastructure as Code automation
-- **kubernetes-cluster-manager:** K8s fleet operations
+- **manage-kubernetes-cluster:** K8s fleet operations
 - **temporal-workflow:** Workflow orchestration and monitoring
 
 ### Specialized Capabilities

@@ -900,7 +900,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 ## 11. https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills
 
-**Content Summary**: Skills directory with markdown files for temporal-workflow, backstage-catalog, ai-agent-orchestration, etc.
+**Content Summary**: Skills directory with markdown files for temporal-workflow, analyze-backstage-catalog, ai-agent-orchestration, etc.
 
 **Applicability**: Provides ready-made skills for infrastructure tasks; "infrastructure-discovery" fits GitOps inventory.
 
@@ -5706,9 +5706,9 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Implement Temporal workflows for agent task coordination.
 
-### backstage-catalog
+### analyze-backstage-catalog
 
-**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/backstage-catalog
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/analyze-backstage-catalog
 
 **SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
 
@@ -5762,9 +5762,9 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Add to cost monitoring systems.
 
-### security-analysis
+### analyze-security
 
-**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/security-analysis
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/analyze-security
 
 **SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
 
@@ -5804,9 +5804,9 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Use for automated infrastructure mapping.
 
-### developer-self-service
+### enable-self-service
 
-**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/developer-self-service
+**Location**: https://github.com/lloydchang/gitops-infra-control-plane/tree/main/.agents/skills/enable-self-service
 
 **SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
 
@@ -5898,7 +5898,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Communication workflow integration.
 
-### security-analysis
+### analyze-security
 
 **SKILL.md Content**: See above - duplicate entry.
 
@@ -5928,7 +5928,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: See above.
 
-### workload-migration
+### migrate-workload
 
 **SKILL.md Content**: Use this skill to plan and execute migrations of cloud workloads: cloud-to- cloud (Azure to AWS, etc.), region migrations, subscription moves, Kubernetes cluster upgrades with data migration, database migrations, and SaaS tenant migrations to a new platform tier or cloud environment. Triggers: any request to migrate a workload, move a tenant to a new cluster or region, consolidate environments, perform a blue-green environment switch, or validate a migration plan before execution.
 
@@ -5958,7 +5958,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Pipeline operations.
 
-### compliance-security-scanner
+### generate-security-report
 
 **SKILL.md Content**: Use this skill to run automated security and compliance scans across cloud infrastructure, IaC code, containers, and APIs. Triggers: any request to run a security audit, check compliance posture (SOC2, ISO27001, CIS benchmarks), scan Terraform/Kubernetes manifests, review IAM permissions, detect secrets in code, assess CVE exposure, or generate a compliance report for executive or auditor review. Also handles before major deployments, quarterly security audits, and new compliance vulnerability notifications.
 
@@ -5978,7 +5978,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Container operations.
 
-### kubernetes-cluster-manager
+### manage-kubernetes-cluster
 
 **SKILL.md Content**: Use this skill to manage the full Kubernetes cluster lifecycle across Azure AKS, AWS EKS, and GCP GKE. Triggers: any request to provision, upgrade, scale, harden, or decommission a Kubernetes cluster; manage node pools; configure RBAC or network policies; perform version upgrades with zero downtime; diagnose cluster health; or enforce Kubernetes operational standards across a multi-cloud fleet.
 
@@ -6028,7 +6028,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Governance automation.
 
-### sla-monitoring-alerting
+### monitor-sla-alerting
 
 **SKILL.md Content**: Use this skill to define, monitor, and report on platform SLAs and SLOs for uptime, deployment success, incident response, and performance. Triggers: requests to check SLA status, calculate SLO error budgets, set up alerting thresholds, generate SLA compliance reports, detect SLA breaches, or review operational reliability metrics across tenants and environments.
 
@@ -6058,7 +6058,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: DR workflows.
 
-### secrets-certificate-manager
+### manage-certificates
 
 **SKILL.md Content**: Use this skill to manage secrets, API keys, connection strings, and TLS certificates across cloud secret stores and Kubernetes clusters. Triggers: any request to rotate a secret, renew a certificate, audit secret access, detect expiring certs, inject secrets into workloads, set up cert-manager, migrate secrets between environments, or detect hardcoded credentials in infrastructure or application code.
 
@@ -6108,7 +6108,7 @@ This section analyzes the complete skills tree from [gitops-infra-control-plane/
 
 **Integration Approach**: Network operations.
 
-### service-mesh
+### manage-service-mesh
 
 **SKILL.md Content**: Use this skill to install, configure, and operate a service mesh (Istio or Linkerd) across Kubernetes clusters. Triggers: any request to enable mTLS between services, configure traffic management (canary, circuit breaker, retries, timeouts), set up mutual TLS enforcement, generate a service dependency map, debug inter-service connectivity, configure observability through the mesh, or enforce zero-trust service-to-service communication.
 
@@ -6162,24 +6162,24 @@ The system includes 64 specialized skills across multiple operational domains:
 
 #### Infrastructure & Provisioning (6 skills)
 - **infrastructure-provisioning**: IaC provisioning, drift detection, and validation
-- **kubernetes-cluster-manager**: Full cluster lifecycle (provision, upgrade, scale)
+- **manage-kubernetes-cluster**: Full cluster lifecycle (provision, upgrade, scale)
 - **multi-cloud-networking**: Network infrastructure across Azure/AWS/GCP
 - **container-registry**: Image management, scanning, and promotion
 - **infrastructure-discovery**: Resource discovery and visualization
-- **workload-migration**: Cloud-to-cloud and region migrations
+- **migrate-workload**: Cloud-to-cloud and region migrations
 
 #### Security & Compliance (6 skills)
-- **compliance-security-scanner**: Automated security and compliance scans
-- **secrets-certificate-manager**: Secret rotation and certificate lifecycle
+- **generate-security-report**: Automated security and compliance scans
+- **manage-certificates**: Secret rotation and certificate lifecycle
 - **audit-siem**: SIEM integration and audit log querying
-- **security-analysis**: Dynamic security analysis and vulnerability scanning
+- **analyze-security**: Dynamic security analysis and vulnerability scanning
 - **policy-as-code**: OPA/Gatekeeper policy enforcement
 - **compliance-check**: SOC2/GDPR/HIPAA compliance validation
 
 #### Operations & Reliability (8 skills)
 - **incident-triage-runbook**: Automated incident response and runbook execution
 - **observability-stack**: Monitoring setup (Prometheus/Grafana/Loki)
-- **sla-monitoring-alerting**: SLO/SLA monitoring and error budget tracking
+- **monitor-sla-alerting**: SLO/SLA monitoring and error budget tracking
 - **chaos-load-testing**: Resilience testing and fault injection
 - **disaster-recovery**: DR planning, testing, and failover execution
 - **deployment-validation**: Pre/post deployment validation and rollback
@@ -6201,8 +6201,8 @@ The system includes 64 specialized skills across multiple operational domains:
 - **kpi-report-generator**: KPI and quarterly report generation
 
 #### Developer Experience (2 skills)
-- **developer-self-service**: Internal developer portal and golden paths
-- **backstage-catalog**: Backstage catalog management
+- **enable-self-service**: Internal developer portal and golden paths
+- **analyze-backstage-catalog**: Backstage catalog management
 
 #### Tenant Management (1 skill)
 - **tenant-lifecycle-manager**: SaaS tenant onboarding, scaling, offboarding
@@ -6350,7 +6350,7 @@ The system integrates with enterprise environments through:
 
 #### Phase 1: Foundation (Safe, Read-Only)
 1. Deploy observability-stack skill for monitoring setup
-2. Implement compliance-security-scanner for automated audits
+2. Implement generate-security-report for automated audits
 3. Add infrastructure-discovery for resource visualization
 4. Integrate audit-siem for enhanced logging
 
@@ -6369,7 +6369,7 @@ The system integrates with enterprise environments through:
 #### Phase 4: Full AI Operations
 1. Deploy ai-agent-orchestration for intelligent coordination
 2. Implement workflow-management for multi-agent operations
-3. Add developer-self-service for enhanced DX
+3. Add enable-self-service for enhanced DX
 4. Full integration with MCP server for standardized AI communication
 
 ### Conclusion
