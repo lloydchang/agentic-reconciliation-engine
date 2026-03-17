@@ -56,6 +56,7 @@ class TracingEvaluationFramework:
         
         # Try to initialize Langfuse if environment variables are set
         try:
+            from integrations.langfuse_client import create_langfuse_client, LangfuseTraceGenerator
             self.langfuse_client = create_langfuse_client()
             self.langfuse_generator = LangfuseTraceGenerator(self.langfuse_client)
             self.use_langfuse = True
@@ -235,10 +236,43 @@ class TracingEvaluationFramework:
             else:
                 summary["evaluators_failed"] += 1
         
+            "total_evaluations": 0,
+            "passed_evaluations": 0,
+            "evaluator_summaries": {}
+        }
+
+        total_score = 0
+        evaluator_count = 0
+
+        for evaluator_type, result in results.items():
+            evaluator_summary = {}
+            
+            # Extract key metrics
+            if "average_score" in result:
+                evaluator_summary["average_score"] = result["average_score"]
+                total_score += result["average_score"]
+                evaluator_count += 1
+            
+            if "pass_rate" in result:
+                evaluator_summary["pass_rate"] = result["pass_rate"]
+                summary["passed_evaluations"] += result.get("passed_count", 0)
+            
+            if "total_evaluations" in result:
+                evaluator_summary["total_evaluations"] = result["total_evaluations"]
+                summary["total_evaluations"] += result["total_evaluations"]
+
+            summary["evaluator_summaries"][evaluator_type] = evaluator_summary
+
+        # Calculate overall score
         if evaluator_count > 0:
             summary["overall_score"] = total_score / evaluator_count
-            summary["overall_pass_rate"] = total_pass_rate / evaluator_count
-        
+
+        # Calculate overall pass rate
+        if summary["total_evaluations"] > 0:
+            summary["overall_pass_rate"] = summary["passed_evaluations"] / summary["total_evaluations"]
+        else:
+            summary["overall_pass_rate"] = 0
+
         return summary
 
     def load_traces_from_file(self, file_path: str) -> List[Dict[str, Any]]:
@@ -246,19 +280,34 @@ class TracingEvaluationFramework:
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            
+                
+            # Handle different file formats
             if isinstance(data, list):
                 return data
-            elif isinstance(data, dict) and 'traces' in data:
-                return data['traces']
+            elif isinstance(data, dict) and "traces" in data:
+                return data["traces"]
+            elif isinstance(data, dict) and "data" in data:
+                return data["data"]
             else:
-                print(f"Error: Unexpected data format in {file_path}")
+                print(f"Error: Unexpected file format in {file_path}")
                 return []
+                
         except FileNotFoundError:
             print(f"Error: File {file_path} not found")
             return []
         except json.JSONDecodeError as e:
             print(f"Error: Invalid JSON in {file_path}: {e}")
+            return []
+
+    def load_traces_from_langfuse(self, langfuse_config: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Load traces directly from Langfuse API"""
+        try:
+            # This would require langfuse client library
+            # For now, return placeholder
+            print("Langfuse API integration not yet implemented")
+            return []
+        except Exception as e:
+            print(f"Error loading from Langfuse: {e}")
             return []
 
     def generate_report(self, evaluation_result: Dict[str, Any], 
@@ -278,22 +327,32 @@ class TracingEvaluationFramework:
         summary = result["summary"]
         lines = []
         
-        lines.append("AI Agent Evaluation Summary")
-        lines.append("=" * 40)
-        lines.append(f"Overall Score: {summary['overall_score']:.3f}")
-        lines.append(f"Overall Pass Rate: {summary['overall_pass_rate']:.1%}")
-        lines.append(f"Evaluators Passed: {summary['evaluators_passed']}")
-        lines.append(f"Evaluators Failed: {summary['evaluators_failed']}")
+        lines.append("=" * 60)
+        lines.append("AI AGENT TRACING EVALUATION REPORT")
+        lines.append("=" * 60)
+        lines.append(f"Generated: {result['timestamp']}")
+        lines.append(f"Total Traces: {result['trace_count']}")
+        lines.append(f"Evaluators Run: {', '.join(result['evaluators_run'])}")
         lines.append("")
         
-        # Add evaluator-specific summaries
-        for evaluator_name, evaluator_result in result["evaluator_results"].items():
-            if 'error' in evaluator_result:
-                lines.append(f"{evaluator_name}: ERROR - {evaluator_result['error']}")
-            else:
-                score = evaluator_result.get('average_score', 0)
-                pass_rate = evaluator_result.get('pass_rate', 0)
-                lines.append(f"{evaluator_name}: {score:.3f} ({pass_rate:.1%} pass rate)")
+        # Overall metrics
+        lines.append("OVERALL PERFORMANCE:")
+        lines.append(f"  Overall Score: {summary['overall_score']:.2f}")
+        lines.append(f"  Pass Rate: {summary['overall_pass_rate']:.1%}")
+        lines.append(f"  Total Evaluations: {summary['total_evaluations']}")
+        lines.append("")
+        
+        # Evaluator-specific summaries
+        lines.append("EVALUATOR DETAILS:")
+        for evaluator_type, evaluator_summary in summary["evaluator_summaries"].items():
+            lines.append(f"  {evaluator_type.upper()}:")
+            if "average_score" in evaluator_summary:
+                lines.append(f"    Average Score: {evaluator_summary['average_score']:.2f}")
+            if "pass_rate" in evaluator_summary:
+                lines.append(f"    Pass Rate: {evaluator_summary['pass_rate']:.1%}")
+            if "total_evaluations" in evaluator_summary:
+                lines.append(f"    Total Evaluations: {evaluator_summary['total_evaluations']}")
+            lines.append("")
         
         return "\n".join(lines)
 
@@ -301,17 +360,135 @@ class TracingEvaluationFramework:
         """Generate detailed report with all results"""
         lines = [self._generate_summary_report(result)]
         lines.append("\nDETAILED RESULTS:")
-        lines.append("=" * 50)
+        lines.append("=" * 40)
         
-        for evaluator_name, evaluator_result in result["evaluator_results"].items():
-            lines.append(f"\n{evaluator_name.upper()}:")
+        # Add detailed results from each evaluator
+        for evaluator_type, evaluator_result in result["evaluator_results"].items():
+            lines.append(f"\n{evaluator_type.upper()} EVALUATOR:")
             lines.append("-" * 30)
             
-            if 'error' in evaluator_result:
-                lines.append(f"ERROR: {evaluator_result['error']}")
-            else:
-                for key, value in evaluator_result.items():
-                    if key != 'error':
-                        lines.append(f"{key}: {value}")
+            if "results" in evaluator_result:
+                for i, individual_result in enumerate(evaluator_result["results"][:5]):  # Limit to first 5
+                    lines.append(f"  Result {i+1}:")
+                    lines.append(f"    Score: {individual_result.get('score', 'N/A')}")
+                    lines.append(f"    Passed: {individual_result.get('passed', 'N/A')}")
+                    
+                    if "details" in individual_result:
+                        details = individual_result["details"]
+                        lines.append("    Details:")
+                        for key, value in details.items():
+                            lines.append(f"      {key}: {value}")
+                    lines.append("")
+                
+                if len(evaluator_result["results"]) > 5:
+                    lines.append(f"  ... and {len(evaluator_result['results']) - 5} more results")
         
         return "\n".join(lines)
+
+
+def main():
+    """Main entry point"""
+    parser = argparse.ArgumentParser(
+        description="Evaluate AI agent traces from Langfuse",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Evaluate traces from file
+  python main.py --file traces.json
+  
+  # Run specific evaluators
+  python main.py --file traces.json --evaluators skill_invocation performance
+  
+  # Generate summary report
+  python main.py --file traces.json --format summary
+  
+  # Load from Langfuse API
+  python main.py --langfuse --config langfuse-config.json
+        """
+    )
+    
+    parser.add_argument(
+        "--file", "-f",
+        help="JSON file containing trace data"
+    )
+    
+    parser.add_argument(
+        "--evaluators", "-e",
+        nargs="+",
+        choices=["skill_invocation", "performance", "all"],
+        default=["all"],
+        help="Evaluators to run (default: all)"
+    )
+    
+    parser.add_argument(
+        "--format", "-o",
+        choices=["json", "summary", "detailed"],
+        default="summary",
+        help="Output format (default: summary)"
+    )
+    
+    parser.add_argument(
+        "--output", "-w",
+        help="Write report to file"
+    )
+    
+    parser.add_argument(
+        "--langfuse", "-l",
+        action="store_true",
+        help="Load traces from Langfuse API"
+    )
+    
+    parser.add_argument(
+        "--config", "-c",
+        help="Configuration file for Langfuse API"
+    )
+    
+    args = parser.parse_args()
+    
+    # Initialize framework
+    framework = TracingEvaluationFramework()
+    
+    # Load traces
+    traces = []
+    if args.langfuse:
+        if not args.config:
+            print("Error: --config required when using --langfuse")
+            sys.exit(1)
+        
+        with open(args.config, 'r') as f:
+            langfuse_config = json.load(f)
+        traces = framework.load_traces_from_langfuse(langfuse_config)
+    elif args.file:
+        traces = framework.load_traces_from_file(args.file)
+    else:
+        print("Error: Either --file or --langfuse must be specified")
+        parser.print_help()
+        sys.exit(1)
+    
+    if not traces:
+        print("Error: No traces found to evaluate")
+        sys.exit(1)
+    
+    # Determine evaluators to run
+    evaluators = args.evaluators
+    if "all" in evaluators:
+        evaluators = None  # Run all evaluators
+    
+    # Run evaluation
+    print(f"Evaluating {len(traces)} traces...")
+    evaluation_result = framework.evaluate_traces(traces, evaluators)
+    
+    # Generate report
+    report = framework.generate_report(evaluation_result, args.format)
+    
+    # Output report
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(report)
+        print(f"Report written to {args.output}")
+    else:
+        print(report)
+
+
+if __name__ == "__main__":
+    main()
