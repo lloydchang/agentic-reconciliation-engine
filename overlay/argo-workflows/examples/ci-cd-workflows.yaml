@@ -1,0 +1,539 @@
+# CI/CD Workflows with Qwen Integration
+# These workflows demonstrate automated build, test, and deployment pipelines
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: ci-cd-pipeline
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: ci-cd
+    app.kubernetes.io/llm: qwen
+spec:
+  entrypoint: pipeline
+  arguments:
+    parameters:
+    - name: repo-url
+      value: "https://github.com/example/app.git"
+    - name: branch
+      value: "main"
+    - name: commit-sha
+      value: ""
+    - name: docker-image
+      value: "example/app:latest"
+  templates:
+  - name: pipeline
+    steps:
+    - - name: checkout-code
+        template: git-checkout
+    - - name: run-tests
+        template: test-suite
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{steps.checkout-code.outputs.artifacts.source}}"
+    - - name: build-image
+        template: docker-build
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{steps.checkout-code.outputs.artifacts.source}}"
+    - - name: security-scan
+        template: security-analysis
+        arguments:
+          artifacts:
+          - name: image
+            from: "{{steps.build-image.outputs.artifacts.image}}"
+    - - name: qwen-analysis
+        template: qwen-pipeline-analysis
+        arguments:
+          parameters:
+          - name: pipeline-results
+            value: "{{steps.run-tests.outputs.result}},{{steps.security-scan.outputs.result}}"
+    - - name: deploy
+        template: deploy-app
+        when: "{{steps.qwen-analysis.outputs.result}} == 'success'"
+        arguments:
+          artifacts:
+          - name: image
+            from: "{{steps.build-image.outputs.artifacts.image}}"
+  - name: git-checkout
+    container:
+      image: alpine/git:latest
+      command: [sh, -c]
+      args: |
+        git clone {{workflow.parameters.repo-url}} /src
+        cd /src
+        git checkout {{workflow.parameters.branch}}
+        if [ -n "{{workflow.parameters.commit-sha}}" ]; then
+          git checkout {{workflow.parameters.commit-sha}}
+        fi
+        echo "Checked out commit: $(git rev-parse HEAD)"
+    outputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+  - name: test-suite
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: golang:1.21-alpine
+      workingDir: /src
+      command: [sh, -c]
+      args: |
+        echo "Running test suite..."
+        go mod download
+        go test -v ./...
+        echo "Tests completed successfully"
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: docker-build
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: docker:latest
+      command: [sh, -c]
+      args: |
+        echo "Building Docker image..."
+        cd /src
+        docker build -t {{workflow.parameters.docker-image}} .
+        echo "Image built successfully"
+        docker save {{workflow.parameters.docker-image}} > /tmp/image.tar
+    outputs:
+      artifacts:
+      - name: image
+        path: /tmp/image.tar
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: security-analysis
+    inputs:
+      artifacts:
+      - name: image
+        path: /tmp/image.tar
+    container:
+      image: aquasec/trivy:latest
+      command: [sh, -c]
+      args: |
+        echo "Loading Docker image..."
+        docker load < /tmp/image.tar
+        
+        echo "Running security scan..."
+        trivy image --format json --output /tmp/security-report.json {{workflow.parameters.docker-image}}
+        
+        echo "Security scan completed"
+        cat /tmp/security-report.json
+    outputs:
+      artifacts:
+      - name: security-report
+        path: /tmp/security-report.json
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: qwen-pipeline-analysis
+    inputs:
+      parameters:
+      - name: pipeline-results
+    container:
+      image: python:3.9-alpine
+      command: [python, -c]
+      args: |
+        import json
+        import requests
+        import os
+        
+        # Pipeline results
+        pipeline_results = "{{inputs.parameters.pipeline-results}}"
+        
+        # Qwen K8sGPT API call
+        qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+        
+        analysis_request = {
+            "event_type": "ci_cd_pipeline_analysis",
+            "namespace": "argo-workflows",
+            "component": "ci-cd-pipeline",
+            "severity": "info",
+            "description": "CI/CD pipeline analysis using Qwen LLM",
+            "timestamp": "$(date -Iseconds)",
+            "analysis_context": "pipeline-performance-analysis",
+            "pipeline_data": {
+                "repository": "{{workflow.parameters.repo-url}}",
+                "branch": "{{workflow.parameters.branch}}",
+                "commit": "{{workflow.parameters.commit-sha}}",
+                "results": pipeline_results
+            }
+        }
+        
+        try:
+            response = requests.post(qwen_url, json=analysis_request, timeout=60)
+            if response.status_code == 200:
+                analysis_result = response.json()
+                print(f"Qwen Pipeline Analysis Result: {json.dumps(analysis_result, indent=2)}")
+                
+                # Determine if pipeline should proceed
+                if analysis_result.get('status') == 'success':
+                    print("success")
+                else:
+                    print("failure")
+            else:
+                print(f"Analysis failed with status {response.status_code}")
+                print("failure")
+        except Exception as e:
+            print(f"Error during analysis: {str(e)}")
+            print("failure")
+    env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: deploy-app
+    inputs:
+      artifacts:
+      - name: image
+        path: /tmp/image.tar
+    container:
+      image: bitnami/kubectl:latest
+      command: [sh, -c]
+      args: |
+        echo "Deploying application..."
+        docker load < /tmp/image.tar
+        
+        # Update deployment with new image
+        kubectl set image deployment/app app={{workflow.parameters.docker-image}} -n production
+        
+        # Wait for rollout
+        kubectl rollout status deployment/app -n production --timeout=300s
+        
+        echo "Deployment completed successfully"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: automated-testing
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: testing
+    app.kubernetes.io/llm: qwen
+spec:
+  entrypoint: test-pipeline
+  arguments:
+    parameters:
+    - name: app-name
+      value: "example-app"
+    - name: test-suite
+      value: "comprehensive"
+  templates:
+  - name: test-pipeline
+    steps:
+    - - name: unit-tests
+        template: run-unit-tests
+    - - name: integration-tests
+        template: run-integration-tests
+        arguments:
+          artifacts:
+          - name: test-results
+            from: "{{steps.unit-tests.outputs.artifacts.results}}"
+    - - name: performance-tests
+        template: run-performance-tests
+    - - name: qwen-test-analysis
+        template: qwen-test-analysis
+        arguments:
+          parameters:
+          - name: test-results
+            value: "{{steps.unit-tests.outputs.result}},{{steps.integration-tests.outputs.result}},{{steps.performance-tests.outputs.result}}"
+    - - name: generate-test-report
+        template: create-test-report
+        arguments:
+          artifacts:
+          - name: analysis-result
+            from: "{{steps.qwen-test-analysis.outputs.artifacts.analysis}}"
+  - name: run-unit-tests
+    container:
+      image: golang:1.21-alpine
+      command: [sh, -c]
+      args: |
+        echo "Running unit tests..."
+        go test -v -json ./... > /tmp/unit-test-results.json
+        echo "Unit tests completed"
+        echo "success"
+    outputs:
+      artifacts:
+      - name: results
+        path: /tmp/unit-test-results.json
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: run-integration-tests
+    inputs:
+      artifacts:
+      - name: test-results
+        path: /tmp
+    container:
+      image: python:3.9-alpine
+      command: [sh, -c]
+      args: |
+        echo "Running integration tests..."
+        python -m pytest integration/ --junit-xml=/tmp/integration-test-results.xml
+        echo "Integration tests completed"
+        echo "success"
+    outputs:
+      artifacts:
+      - name: results
+        path: /tmp/integration-test-results.xml
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: run-performance-tests
+    container:
+      image: grafana/k6:latest
+      command: [sh, -c]
+      args: |
+        echo "Running performance tests..."
+        k6 run --out json=/tmp/performance-test-results.json performance-test.js
+        echo "Performance tests completed"
+        echo "success"
+    outputs:
+      artifacts:
+      - name: results
+        path: /tmp/performance-test-results.json
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: qwen-test-analysis
+    inputs:
+      parameters:
+      - name: test-results
+    container:
+      image: python:3.9-alpine
+      command: [python, -c]
+      args: |
+        import json
+        import requests
+        import os
+        
+        # Test results
+        test_results = "{{inputs.parameters.test-results}}"
+        
+        # Qwen K8sGPT API call
+        qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+        
+        analysis_request = {
+            "event_type": "test_suite_analysis",
+            "namespace": "argo-workflows",
+            "component": "{{workflow.parameters.app-name}}",
+            "severity": "info",
+            "description": "Test suite analysis using Qwen LLM",
+            "timestamp": "$(date -Iseconds)",
+            "analysis_context": "test-performance-analysis",
+            "test_data": {
+                "app_name": "{{workflow.parameters.app-name}}",
+                "test_suite": "{{workflow.parameters.test-suite}}",
+                "results": test_results
+            }
+        }
+        
+        try:
+            response = requests.post(qwen_url, json=analysis_request, timeout=60)
+            if response.status_code == 200:
+                analysis_result = response.json()
+                print(f"Qwen Test Analysis Result: {json.dumps(analysis_result, indent=2)}")
+                
+                # Save analysis result
+                with open("/tmp/qwen-analysis.json", "w") as f:
+                    json.dump(analysis_result, f)
+            else:
+                print(f"Analysis failed with status {response.status_code}")
+        except Exception as e:
+            print(f"Error during analysis: {str(e)}")
+    env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    outputs:
+      artifacts:
+      - name: analysis
+        path: /tmp/qwen-analysis.json
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  - name: create-test-report
+    inputs:
+      artifacts:
+      - name: analysis-result
+        path: /tmp
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: |
+        echo "=== Automated Testing Report ==="
+        echo "Generated at: $(date)"
+        echo "Application: {{workflow.parameters.app-name}}"
+        echo "Test Suite: {{workflow.parameters.test-suite}}"
+        echo ""
+        echo "Qwen Analysis Results:"
+        cat /tmp/analysis-result
+        echo ""
+        echo "=== End Report ==="
+        
+        # Create comprehensive report
+        mkdir -p /tmp/final-report
+        echo "{{workflow.parameters.app-name}} Test Report" > /tmp/final-report/summary.txt
+        echo "Generated: $(date)" >> /tmp/final-report/summary.txt
+        cat /tmp/analysis-result >> /tmp/final-report/summary.txt
+    outputs:
+      artifacts:
+      - name: final-report
+        path: /tmp/final-report
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "128Mi"
+      limits:
+        cpu: "100m"
+        memory: "256Mi"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: nightly-security-scan
+  namespace: argo-workflows
+  labels:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: security
+    app.kubernetes.io/llm: qwen
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  timezone: "UTC"
+  workflowSpec:
+    entrypoint: security-scan
+    arguments:
+      parameters:
+      - name: scan-scope
+        value: "cluster-wide"
+    templates:
+    - name: security-scan
+      steps:
+      - - name: cluster-scan
+          template: qwen-security-analysis
+          arguments:
+            parameters:
+            - name: scan-type
+              value: "cluster-security"
+      - - name: generate-report
+          template: security-report
+          arguments:
+            artifacts:
+            - name: scan-results
+              from: "{{steps.cluster-scan.outputs.artifacts.results}}"
+    - name: qwen-security-analysis
+      inputs:
+        parameters:
+        - name: scan-type
+      container:
+        image: python:3.9-alpine
+        command: [python, -c]
+        args: |
+          import json
+          import requests
+          
+          qwen_url = "http://qwen-k8sgpt.argo-workflows.svc.cluster.local:8080/analyze"
+          
+          analysis_request = {
+              "event_type": "security_scan",
+              "namespace": "all",
+              "component": "cluster",
+              "severity": "high",
+              "description": "Automated security scan using Qwen LLM",
+              "timestamp": "$(date -Iseconds)",
+              "analysis_context": "security-vulnerability-assessment",
+              "scan_data": {
+                  "scan_type": "{{inputs.parameters.scan-type}}",
+                  "scope": "{{workflow.parameters.scan-scope}}"
+              }
+          }
+          
+          response = requests.post(qwen_url, json=analysis_request, timeout=300)
+          if response.status_code == 200:
+              analysis_result = response.json()
+              with open("/tmp/security-scan-results.json", "w") as f:
+                  json.dump(analysis_result, f)
+              print("Security scan completed")
+          else:
+              print(f"Security scan failed: {response.status_code}")
+        outputs:
+          artifacts:
+          - name: results
+            path: /tmp/security-scan-results.json
+    - name: security-report
+      inputs:
+        artifacts:
+        - name: scan-results
+          path: /tmp
+      container:
+        image: alpine:latest
+        command: [sh, -c]
+        args: |
+          echo "=== Nightly Security Scan Report ==="
+          echo "Generated at: $(date)"
+          echo "Scan Scope: {{workflow.parameters.scan-scope}}"
+          echo ""
+          echo "Security Analysis Results:"
+          cat /tmp/scan-results
+          echo ""
+          echo "=== End Report ==="
