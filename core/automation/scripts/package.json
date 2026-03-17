@@ -1,0 +1,20 @@
+{
+  "name": "langfuse-automation",
+  "version": "1.0.0",
+  "description": "Automated Langfuse setup with Playwright",
+  "main": "setup-langfuse-playwright.ts",
+  "scripts": {
+    "setup": "ts-node setup-langfuse-playwright.ts",
+    "build": "tsc",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}

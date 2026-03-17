@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comprehensive-dashboard-api
+  namespace: ai-infrastructure
+  labels:
+    app: comprehensive-dashboard-api
+    component: analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comprehensive-dashboard-api
+  template:
+    metadata:
+      labels:
+        app: comprehensive-dashboard-api
+        component: analytics
+    spec:
+      containers:
+      - name: api
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: PYTHONPATH
+          value: "/app"
+        - name: METRICS_SERVER_URL
+          value: "http://temporal-worker.temporal.svc.cluster.local:8080"
+        command: ["python"]
+        args: ["-m", "uvicorn", "comprehensive_analytics:app", "--host", "0.0.0.0", "--port", "5000"]
+        volumeMounts:
+        - name: api-code
+          mountPath: /app
+        - name: skills-data
+          mountPath: /skills
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: api-code
+        configMap:
+          name: comprehensive-dashboard-api
+      - name: skills-data
+        hostPath:
+          path: /Users/lloyd/github/antigravity/gitops-infra-control-plane/core/ai/skills
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comprehensive-dashboard-api
+  namespace: ai-infrastructure
+  labels:
+    app: comprehensive-dashboard-api
+    component: analytics
+spec:
+  selector:
+    app: comprehensive-dashboard-api
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comprehensive-dashboard-frontend
+  namespace: ai-infrastructure
+  labels:
+    app: comprehensive-dashboard-frontend
+    component: analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comprehensive-dashboard-frontend
+  template:
+    metadata:
+      labels:
+        app: comprehensive-dashboard-frontend
+        component: analytics
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: dashboard-html
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: dashboard-html
+        configMap:
+          name: comprehensive-dashboard-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comprehensive-dashboard-frontend
+  namespace: ai-infrastructure
+  labels:
+    app: comprehensive-dashboard-frontend
+    component: analytics
+spec:
+  selector:
+    app: comprehensive-dashboard-frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP
