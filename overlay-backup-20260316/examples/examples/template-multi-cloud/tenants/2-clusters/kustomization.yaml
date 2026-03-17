@@ -1,0 +1,23 @@
+# Cluster Infrastructure Template - INCOMPLETE
+# TODO: Complete this template with cloud-specific cluster deployments
+# Use prompts like: "Create EKS/AKS/GKE clusters with hub-spoke networking"
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: clusters-template
+resources:
+  # TODO: Add cluster deployments for each cloud
+  # - aws-eks.yaml
+  # - azure-aks.yaml
+  # - gcp-gke.yaml
+
+  # TODO: Add node pools/worker nodes
+  # - node-pools.yaml
+
+  # TODO: Add cluster add-ons (CNI, CSI, etc.)
+  # - addons.yaml
+---
+# TODO: Add dependsOn for network resources
+# TODO: Add cluster monitoring and logging
+# TODO: Add backup and disaster recovery configurations

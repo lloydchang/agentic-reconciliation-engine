@@ -1,0 +1,262 @@
+# Complete AI CronJobs for Infrastructure Automation
+# Production-ready Claude Code jobs with safety controls
+# 
+# ⚠️  CRITICAL: Problem-Solution Fit Assessment Required
+# 
+# Before deploying these AI jobs, ensure you have:
+# 1. Clearly defined problems that require AI automation (see docs/PROBLEM-SOLUTION-FIT.md)
+# 2. Confirmed that simpler automation approaches are insufficient
+# 3. Team skills to maintain AI workflows and monitor outputs
+# 4. Measurable success criteria for AI automation ROI
+# 
+# SCENARIO APPROPRIATENESS:
+# - ❌ SMALL TEAMS (1-5): Overkill, use basic automation instead
+# - ⚠️ MEDIUM TEAMS (6-20): Consider if you have complex operational needs
+# - ✅ LARGE TEAMS (20+): Appropriate for complex operational challenges
+# - ✅ MULTI-CLOUD: Valuable for cross-cloud coordination and optimization
+# - ❌ SINGLE CLOUD + SIMPLE APPS: Use basic monitoring instead
+# 
+# PROBLEM TYPES WHERE THIS HELPS:
+# - High operational toil requiring intelligent automation
+# - Complex multi-cloud environment coordination
+# - Advanced compliance and security monitoring
+# - Predictive maintenance and optimization
+# - PROBLEM TYPES WHERE THIS IS OVERKILL:
+# - Basic deployment automation (use simple CI/CD)
+# - Simple monitoring (use Prometheus/Grafana)
+# - Small-scale infrastructure (manual processes may be sufficient)
+# 
+# Architecture Note: These jobs can use either:
+# 1. AI Gateway for enterprise compliance (default)
+# 2. Direct Claude API for local LLM setups (set GATEWAY_MODE=direct)
+# 3. Local LLM service (set CLAUDE_BASE_URL to local endpoint)
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-infra-drift-analysis
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    task: drift-analysis
+    component: ai-integration
+spec:
+  schedule: "0 */4 * * *"  # Every 4 hours
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 14400  # 4 hours
+      template:
+        metadata:
+          labels:
+            app: ai-cronjob
+            task: drift-analysis
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: claude-analyzer
+            image: gendosu/claude-code-docker:latest
+            command: ["/bin/sh"]
+            args:
+            - -c
+            - |
+              claude -p --dangerously-skip-permissions \
+                --verbose --output-format json \
+                "Analyze infrastructure drift across all clusters. Check for:
+                - Resource configuration changes
+                - Security policy violations  
+                - Cost optimization opportunities
+                - Health and performance issues
+                Generate detailed report in JSON format"
+            env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: token
+            - name: CLAUDE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: claude-secrets
+                  key: api-key
+            - name: GATEWAY_MODE
+              value: "gateway"  # Options: gateway, direct, local
+            - name: CLAUDE_BASE_URL
+              value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+              # Override with local LLM endpoint when GATEWAY_MODE=local
+            volumeMounts:
+            - name: reports-volume
+              mountPath: /reports
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "1Gi"
+                cpu: "1000m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                - ALL
+          volumes:
+          - name: reports-volume
+            persistentVolumeClaim:
+              claimName: ai-reports-pvc
+          serviceAccountName: ai-cronjob-sa
+          securityContext:
+            fsGroup: 1000
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-manifest-validation
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    task: validation
+    component: ai-integration
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 7200  # 2 hours
+      template:
+        metadata:
+          labels:
+            app: ai-cronjob
+            task: validation
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: claude-validator
+            image: gendosu/claude-code-docker:latest
+            command: ["/bin/sh"]
+            args:
+            - -c
+            - |
+              claude -p --dangerously-skip-permissions \
+                --verbose --output-format json \
+                "Validate all Kubernetes manifests against:
+                - Schema compliance (use kubeconform)
+                - Security best practices
+                - Resource limits and requests
+                - Dependency correctness
+                Generate validation report and fix suggestions"
+            env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: token
+            - name: CLAUDE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: claude-secrets
+                  key: api-key
+            - name: GATEWAY_MODE
+              value: "gateway"  # Options: gateway, direct, local
+            - name: CLAUDE_BASE_URL
+              value: "http://claude-code-gateway.control-plane.svc.cluster.local:80"
+              # Override with local LLM endpoint when GATEWAY_MODE=local
+            volumeMounts:
+            - name: validation-volume
+              mountPath: /validation
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "1Gi"
+                cpu: "1000m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                - ALL
+          volumes:
+          - name: validation-volume
+            persistentVolumeClaim:
+              claimName: ai-validation-pvc
+          serviceAccountName: ai-cronjob-sa
+          securityContext:
+            fsGroup: 1000
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-reports-pvc
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-validation-pvc
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-cronjob-sa
+  namespace: control-plane
+  labels:
+    app: ai-cronjob
+    component: ai-integration
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-cronjob-role
+  labels:
+    app: ai-cronjob
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+  resourceNames: ["github-secrets", "claude-secrets"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+  resourceNames: ["ai-reports-pvc", "ai-validation-pvc"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-cronjob-binding
+  labels:
+    app: ai-cronjob
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-cronjob-role
+subjects:
+- kind: ServiceAccount
+  name: ai-cronjob-sa
+  namespace: control-plane

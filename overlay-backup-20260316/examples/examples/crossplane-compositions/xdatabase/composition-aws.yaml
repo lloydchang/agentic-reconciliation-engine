@@ -1,0 +1,83 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-aws
+  labels:
+    provider: aws
+    platform.example.com/xrd: xdatabase
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  writeConnectionSecretsToNamespace: crossplane-system
+  resources:
+    - name: rds-subnet-group
+      base:
+        apiVersion: rds.aws.crossplane.io/v1alpha1
+        kind: DBSubnetGroup
+        spec:
+          forProvider:
+            region: us-east-1
+            description: "Managed by Crossplane"
+            subnetIds: []          # inject via EnvironmentConfig or patch
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+
+    - name: rds-instance
+      base:
+        apiVersion: rds.aws.crossplane.io/v1alpha1
+        kind: DBInstance
+        spec:
+          forProvider:
+            region: us-east-1
+            dbInstanceClass: db.t3.medium
+            engine: postgres
+            engineVersion: "15"
+            allocatedStorage: 20
+            publiclyAccessible: false
+            skipFinalSnapshot: true
+            deletionPolicy: Orphan
+          providerConfigRef:
+            name: aws-provider
+          writeConnectionSecretToRef:
+            namespace: crossplane-system
+            name: ""               # patched to XDatabase name
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.engine
+          toFieldPath: spec.forProvider.engine
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.version
+          toFieldPath: spec.forProvider.engineVersion
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.deletionPolicy
+          toFieldPath: spec.forProvider.deletionPolicy
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.size
+          toFieldPath: spec.forProvider.dbInstanceClass
+          transforms:
+            - type: map
+              map:
+                small:  db.t3.small
+                medium: db.t3.medium
+                large:  db.r6g.large
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-conn"
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.endpoint.address
+          toFieldPath: status.endpoint
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.endpoint.port
+          toFieldPath: status.port

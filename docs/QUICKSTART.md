@@ -11,7 +11,7 @@ Get a working GitOps control plane running locally in minutes.
 
 ```bash
 # One-command MVP setup with AI agents and dashboard
-./core/core/automation/ci-cd/scripts/quickstart.sh
+./core/automation/scripts/quickstart.sh
 ```
 
 **What it deploys:**
@@ -25,35 +25,35 @@ Or run steps manually:
 
 ```bash
 # 1. Validate your environment
-./core/core/automation/ci-cd/scripts/prerequisites.sh
+./core/automation/scripts/prerequisites.sh
 
 # 2. Setup GitOps configuration
-./core/core/automation/ci-cd/scripts/setup-gitops-config.sh
+./core/automation/scripts/setup-gitops-config.sh
 
 # 3. Create bootstrap cluster (recovery anchor)
-./core/core/automation/ci-cd/scripts/create-bootstrap-cluster.sh
+./core/automation/scripts/create-bootstrap-cluster.sh
 
 # 4. Create hub cluster (GitOps control plane)
-./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
+./core/automation/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
 
 # 5. Install Crossplane with Kubernetes provider for local development
-./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers local
+./core/automation/scripts/install-crossplane.sh --providers local
 
 # 6. Create spoke cluster (MVP - local emulation)
-./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh
+./core/automation/scripts/create-spoke-clusters.sh
 
 # 7. Deploy AI agents ecosystem with dashboard
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/automation/scripts/deploy-ai-agents-ecosystem.sh
 ```
 
 ## MVP Options
 
 ```bash
 # Full MVP setup (recommended)
-./core/core/automation/ci-cd/scripts/quickstart.sh
+./core/automation/scripts/quickstart.sh
 
 # Show help
-./core/core/automation/ci-cd/scripts/quickstart.sh --help
+./core/automation/scripts/quickstart.sh --help
 ```
 
 ## What You Get
