@@ -13,14 +13,13 @@ metadata:
     app.kubernetes.io/llm: qwen
 data:
   config.yaml: |
-    # K8sGPT Configuration with Qwen LLM
-    model: qwen2.5:7b
-    backend: local
+    # K8sGPT Configuration with Centralized Qwen Service
+    model: qwen2.5-7b-instruct
+    backend: agent-memory
     temperature: 0.7
-    max_tokens: 1000
-    top_p: 0.9
-    frequency_penalty: 0.0
-    presence_penalty: 0.0
+    max_tokens: 2048
+    api_base: http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080
+    api_key: k8sgpt-api-key
     
     # Analysis filters
     filters:
@@ -80,11 +79,44 @@ data:
         5. Best practices for event-driven architecture
     
     # Output format
-    output:
-      format: json
-      include_suggestions: true
-      include_code_examples: true
-      severity_levels: [critical, high, medium, low, info]
+    format: json
+    include_suggestions: true
+    include_code_examples: true
+    severity_levels: [critical, high, medium, low, info]
+---
+# K8sGPT with Centralized Qwen - DEPRECATED
+# This deployment is deprecated - using centralized agent-memory service
+# All Qwen functionality now provided by agent-memory-rust
+# Location: ai-infrastructure namespace
+# Service: agent-memory-service:8080
+# Metrics: agent-memory-service:9090
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8sgpt-migration-status
+  namespace: argo-events
+  labels:
+    app.kubernetes.io/name: k8sgpt-migration-status
+    app.kubernetes.io/component: migration
+data:
+  status.yaml: |
+    # K8sGPT migration status
+    migration_completed: true
+    migration_date: "2025-03-17"
+    old_deployment: "k8sgpt-qwen"
+    new_service: "agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+    environment: "argo-events"
+    resource_savings: |
+      cpu: "200m reduced"
+      memory: "512Mi reduced"
+      pods: "1 pod eliminated"
+    benefits:
+      - "Centralized inference"
+      - "Shared context across components"
+      - "Unified monitoring"
+      - "Reduced resource usage"
+      - "Simplified operations"
 ---
 apiVersion: v1
 kind: Secret

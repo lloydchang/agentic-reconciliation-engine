@@ -55,7 +55,7 @@ spec:
     - template:
         name: qwen-k8sgpt-analysis-trigger
         http:
-          url: http://k8sgpt-qwen:8080/analyze
+          url: http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/v1/chat
           method: POST
           headers:
             - name: Content-Type
@@ -77,7 +77,7 @@ spec:
     - template:
         name: qwen-periodic-analysis-trigger
         http:
-          url: http://k8sgpt-qwen:8080/analyze
+          url: http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/v1/chat
           method: POST
           headers:
             - name: Content-Type
@@ -99,7 +99,7 @@ spec:
     - template:
         name: qwen-alert-analysis-trigger
         http:
-          url: http://k8sgpt-qwen:8080/analyze
+          url: http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/v1/chat
           method: POST
           headers:
             - name: Content-Type
@@ -166,8 +166,8 @@ spec:
                       component = "{{workflow.parameters.component}}"
                       severity = "{{workflow.parameters.severity}}"
                       
-                      # Call K8sGPT with Qwen
-                      k8sgpt_url = "http://k8sgpt-qwen.argo-events.svc.cluster.local:8080/analyze"
+                      # Call centralized Qwen service via agent-memory-rust
+                      qwen_url = "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/v1/chat"
                       
                       analysis_request = {
                         "event_type": analysis_type,
@@ -178,7 +178,14 @@ spec:
                       }
                       
                       try:
-                        response = requests.post(k8sgpt_url, json=analysis_request, timeout=60)
+                        response = requests.post(qwen_url, json={
+                          "message": f"Analyze this Kubernetes event: {json.dumps(analysis_request)}",
+                          "max_tokens": 2048,
+                          "temperature": 0.7
+                        }, headers={
+                          "Content-Type": "application/json",
+                          "X-API-Key": "k8sgpt-api-key"
+                        }, timeout=60)
                         if response.status_code == 200:
                             analysis_result = response.json()
                             print(f"Qwen Analysis Result: {json.dumps(analysis_result, indent=2)}")
@@ -192,8 +199,8 @@ spec:
                         print(f"Error during analysis: {str(e)}")
                     "]
                     env:
-                    - name: K8SGPT_URL
-                      value: "http://k8sgpt-qwen.argo-events.svc.cluster.local:8080"
+                    - name: QWEN_URL
+                      value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/v1/chat"
                     resources:
                       requests:
                         cpu: "100m"
