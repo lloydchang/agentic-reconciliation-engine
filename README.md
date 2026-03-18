@@ -54,7 +54,7 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 
 **GitOps:** Flux | Flagger | Argo CD | Argo Rollout | Argo Workflow | Argo Events | Go
 
-**Infrastructure as Code:** Crossplane | CDK (AWS) | Bicep (Azure) | Terraform Blueprints (GCP) | YAML
+**Infrastructure as Code:** Crossplane Composite Resources Definitions (XRD) | CDK (AWS) | Bicep (Azure) | Terraform Blueprints (GCP) | YAML
 
 **Containers:** Docker | Kubernetes | CAPI | Go
 
