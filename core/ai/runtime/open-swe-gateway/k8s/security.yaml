@@ -1,0 +1,109 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: open-swe-gateway-network-policy
+  namespace: ai-infrastructure
+  labels:
+    app: open-swe-gateway
+    component: open-swe-integration
+spec:
+  podSelector:
+    matchLabels:
+      app: open-swe-gateway
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow webhooks from external sources (load balancer)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow internal communication
+  - from:
+    - podSelector:
+        matchLabels:
+          component: temporal
+    - podSelector:
+        matchLabels:
+          component: gitops
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS outbound (for external API calls)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow internal cluster communication
+  - to:
+    - podSelector:
+        matchLabels:
+          component: temporal
+    - podSelector:
+        matchLabels:
+          component: gitops
+    - podSelector:
+        matchLabels:
+          component: memory-agent
+    ports:
+    - protocol: TCP
+      port: 7233  # Temporal
+    - protocol: TCP
+      port: 8080  # Various services
+  # Allow metrics to monitoring namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: open-swe-gateway-psp
+  labels:
+    app: open-swe-gateway
+    component: open-swe-integration
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+  - ALL
+  allowedCapabilities: []
+  runAsUser:
+    rule: MustRunAsNonRoot
+  runAsGroup:
+    rule: MustRunAs
+    ranges:
+    - min: 1000
+      max: 1000
+  supplementalGroups:
+    rule: MustRunAs
+    ranges:
+    - min: 1000
+      max: 1000
+  fsGroup:
+    rule: MustRunAs
+    ranges:
+    - min: 1000
+      max: 1000
+  readOnlyRootFilesystem: true
+  seLinux:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - emptyDir
+  - secret

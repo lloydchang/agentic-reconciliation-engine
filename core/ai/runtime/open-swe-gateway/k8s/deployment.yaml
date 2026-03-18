@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-swe-gateway
+  namespace: ai-infrastructure
+  labels:
+    app: open-swe-gateway
+    component: open-swe-integration
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: open-swe-gateway
+  template:
+    metadata:
+      labels:
+        app: open-swe-gateway
+        component: open-swe-integration
+    spec:
+      serviceAccountName: open-swe-gateway-sa
+      containers:
+      - name: gateway
+        image: gitops-infra-control-plane/open-swe-gateway:latest
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        env:
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: slack-bot-token
+        - name: SLACK_SIGNING_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: slack-signing-secret
+        - name: LINEAR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: linear-api-key
+        - name: LINEAR_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: linear-webhook-secret
+        - name: GITHUB_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: github-webhook-secret
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: github-app-id
+        - name: GITHUB_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: github-private-key
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        - name: MEMORY_AGENT_URL
+          value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: config
+        configMap:
+          name: open-swe-gateway-config
+      - name: tmp
+        emptyDir: {}
+      securityContext:
+        fsGroup: 1000

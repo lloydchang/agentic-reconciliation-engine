@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-swe-gateway-config
+  namespace: ai-infrastructure
+  labels:
+    app: open-swe-gateway
+    component: open-swe-integration
+data:
+  webhook-config.yaml: |
+    # Webhook configuration for Open SWE Gateway
+    webhook_config:
+      slack:
+        enabled: true
+        allowed_channels: ["infrastructure", "devops", "platform"]
+        mention_pattern: "@openswe"
+
+      linear:
+        enabled: true
+        mention_pattern: "@openswe"
+        allowed_actions: ["Comment.create", "Issue.update"]
+
+      github:
+        enabled: true
+        mention_pattern: "@openswe"
+        allowed_events: ["issue_comment", "pull_request_review_comment"]
+
+    # Agent routing configuration
+    agent_routing:
+      default_agent: "temporal-gitops-agent"
+
+      platform_mappings:
+        slack:
+          agent: "temporal-gitops-agent"
+          priority: "high"
+          timeout_seconds: 3600
+
+        linear:
+          agent: "temporal-gitops-agent"
+          priority: "medium"
+          timeout_seconds: 7200
+
+        github:
+          agent: "temporal-gitops-agent"
+          priority: "medium"
+          timeout_seconds: 3600
+
+      skill_mappings:
+        "infrastructure_deployment": "provision-infrastructure"
+        "security_audit": "generate-security-report"
+        "monitoring_setup": "aggregate-observability"
+        "cost_optimization": "balance-resources"
+        "disaster_recovery": "recover-from-disaster"
+        "performance_analysis": "optimize-resources"
+
+    # Sandbox configuration
+    sandbox_config:
+      default_resources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
+          ephemeral-storage: "2Gi"
+
+      max_sandboxes: 10
+      sandbox_ttl_seconds: 7200
+      cleanup_interval_seconds: 300
+
+      security_context:
+        run_as_non_root: true
+        run_as_user: 1000
+        read_only_root_filesystem: true
+        drop_capabilities: ["ALL"]
+
+    # Middleware configuration
+    middleware_config:
+      enabled_middleware:
+        - GitOpsValidationMiddleware
+        - RiskAssessmentMiddleware
+        - MessageQueueMiddleware
+        - PRSafetyNetMiddleware
+        - ToolErrorMiddleware
+
+      risk_thresholds:
+        low: 0.2
+        medium: 0.5
+        high: 0.8
+
+      human_gates:
+        low_risk: []
+        medium_risk: ["pr_approval"]
+        high_risk: ["security_review", "pr_approval"]
+
+    # Service configuration
+    service_config:
+      port: 8080
+      host: "0.0.0.0"
+      log_level: "INFO"
+      cors_origins: ["*"]
+
+      health_check:
+        enabled: true
+        interval_seconds: 30
+        timeout_seconds: 10
+
+      metrics:
+        enabled: true
+        port: 9090
+        path: "/metrics"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: open-swe-secrets
+  namespace: ai-infrastructure
+  labels:
+    app: open-swe-gateway
+    component: open-swe-integration
+type: Opaque
+data:
+  # These should be base64 encoded
+  # slack-bot-token: <base64-encoded-token>
+  # slack-signing-secret: <base64-encoded-secret>
+  # linear-api-key: <base64-encoded-key>
+  # linear-webhook-secret: <base64-encoded-secret>
+  # github-webhook-secret: <base64-encoded-secret>
+  # github-app-id: <base64-encoded-id>
+  # github-private-key: <base64-encoded-key>
+  # Placeholder - actual secrets should be populated via external secret management
+  placeholder: cGxhY2Vob2xkZXI=
