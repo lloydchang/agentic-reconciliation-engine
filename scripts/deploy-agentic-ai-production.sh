@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 PRODUCTION_NAMESPACE="production"
 BACKUP_NAMESPACE="production-backup"
 ROLLBACK_ENABLED=true
-HEALTH_CHECK_TIMEOUT=5m
+HEALTH_CHECK_TIMEOUT=10m
 MONITORING_ENABLED=true
 
 echo -e "${BLUE}🚀 Agentic AI Platform - Production Deployment${NC}"
@@ -187,7 +187,7 @@ spec:
       containers:
       - name: $skill
         image: python:3.11-slim
-        command: ["python", "-c", "print('$skill skill ready for production')"]
+        command: ["python", "-c", "import time; time.sleep(5); print('$skill skill ready for production')"]
         ports:
         - containerPort: 8080
         env:
@@ -266,7 +266,7 @@ spec:
       containers:
       - name: $skill
         image: python:3.11-slim
-        command: ["python", "-c", "print('$skill skill ready for production')"]
+        command: ["python", "-c", "import time; time.sleep(5); print('$skill skill ready for production')"]
         ports:
         - containerPort: 8080
         env:
@@ -343,7 +343,7 @@ spec:
       containers:
       - name: mcp-gateway
         image: python:3.11-slim
-        command: ["python", "-c", "print('MCP Gateway ready for production')"]
+        command: ["python", "-c", "import time; time.sleep(5); print('MCP Gateway ready for production')"]
         ports:
         - containerPort: 8080
         env:
@@ -428,7 +428,7 @@ spec:
       containers:
       - name: parallel-workflow-executor
         image: python:3.11-slim
-        command: ["python", "-c", "print('Parallel Workflow Executor ready for production')"]
+        command: ["python", "-c", "import time; time.sleep(5); print('Parallel Workflow Executor ready for production')"]
         ports:
         - containerPort: 8080
         env:
@@ -513,7 +513,7 @@ spec:
       containers:
       - name: cost-tracker
         image: python:3.11-slim
-        command: ["python", "-c", "print('Cost Tracker ready for production')"]
+        command: ["python", "-c", "import time; time.sleep(5); print('Cost Tracker ready for production')"]
         ports:
         - containerPort: 9090
         env:
