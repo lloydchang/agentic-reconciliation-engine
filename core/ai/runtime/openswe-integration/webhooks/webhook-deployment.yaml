@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-swe-webhook-config
+  namespace: open-swe
+  labels:
+    app: open-swe-webhook
+data:
+  GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
+  LINEAR_WEBHOOK_SECRET: "your-linear-webhook-secret"
+  SLACK_SIGNING_SECRET: "your-slack-signing-secret"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-swe-webhook-handler
+  namespace: open-swe
+  labels:
+    app: open-swe-webhook
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: open-swe-webhook
+  template:
+    metadata:
+      labels:
+        app: open-swe-webhook
+    spec:
+      containers:
+      - name: webhook-handler
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: GITHUB_WEBHOOK_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: open-swe-webhook-config
+              key: GITHUB_WEBHOOK_SECRET
+        - name: LINEAR_WEBHOOK_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: open-swe-webhook-config
+              key: LINEAR_WEBHOOK_SECRET
+        - name: SLACK_SIGNING_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: open-swe-webhook-config
+              key: SLACK_SIGNING_SECRET
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: langsmith-api-key
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: webhook-scripts
+          mountPath: /app
+      volumes:
+      - name: webhook-scripts
+        configMap:
+          name: open-swe-webhook-scripts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-swe-webhook
+  namespace: open-swe
+  labels:
+    app: open-swe-webhook
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: open-swe-webhook
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-swe-webhook
+  namespace: open-swe
+  labels:
+    app: open-swe-webhook
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - open-swe-webhooks.your-domain.com
+    secretName: open-swe-webhook-tls
+  rules:
+  - host: open-swe-webhooks.your-domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: open-swe-webhook
+            port:
+              number: 8080
