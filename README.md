@@ -5,6 +5,7 @@
 A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that combines Flux, Crossplane, and Cluster API to keep your GitOps state enforced 24/7 across EKS, AKS, GKE, and on-prem Kubernetes.
 
 ## Quick links
+- [Using This as a Reference Implementation](./docs/REFERENCE-IMPLEMENTATION.md) — You can include this repository in your own project as a `git submodule` — this keeps the commit histories separate, which is important for license clarity.
 - [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
 - [Repository Setup](./core/scripts/automation/quickstart.sh) — Development environment setup and prerequisites.
 - [Overlay Quick Start](./core/scripts/automation/overlay-quickstart.sh) — Overlay approach to quickstart with hooks and extensions.
