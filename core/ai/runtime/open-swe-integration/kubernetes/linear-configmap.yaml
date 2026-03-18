@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: linear-integration-config
+  namespace: ai-infrastructure
+  labels:
+    app: linear-integration
+    component: open-swe-integration
+    version: v1.0.0
+data:
+  config.yaml: |
+    # Linear Integration Configuration
+    linear:
+      # Webhook configuration
+      webhook_path: "/webhooks/linear"
+      
+      # Issue handling
+      issue_handling:
+        auto_triage: true
+        assign_team: "infrastructure"
+        priority_mapping:
+          "urgent": "critical"
+          "high": "high"
+          "medium": "medium"
+          "low": "low"
+      
+      # Supported issue types
+      supported_issue_types:
+        - "Bug"
+        - "Feature"
+        - "Task"
+        - "Improvement"
+        - "Security"
+      
+      # GitOps integration
+      gitops_integration:
+        create_pr_on_issue: true
+        auto_link_commits: true
+        sync_status: true
+      
+      # Command patterns
+      command_patterns:
+        deploy:
+          pattern: "deploy.*to.*{environment}"
+          skill: "deployment-strategy"
+          parameters:
+            environment: string
+            service: string
+            namespace: string
+        
+        optimize:
+          pattern: "optimize.*costs?"
+          skill: "optimize-costs"
+          parameters:
+            optimization_level: string
+            target_resource: string
+        
+        secure:
+          pattern: "security.*scan|scan.*security"
+          skill: "analyze-security"
+          parameters:
+            scan_depth: string
+            target_scope: string
+        
+        scale:
+          pattern: "scale.*{resource}|{resource}.*scale"
+          skill: "scale-resources"
+          parameters:
+            target_service: string
+            scale_amount: string
+            scale_direction: string
+        
+        monitor:
+          pattern: "check.*health|health.*check|monitor.*{resource}"
+          skill: "check-cluster-health"
+          parameters:
+            check_scope: string
+            target_resource: string
+        
+        troubleshoot:
+          pattern: "troubleshoot.*{issue}|debug.*{issue}"
+          skill: "diagnose-network"
+          parameters:
+            diagnostic_type: string
+            target_component: string
+        
+        certificate:
+          pattern: "certificate.*{domain}|{domain}.*certificate"
+          skill: "manage-certificates"
+          parameters:
+            certificate_domain: string
+            certificate_action: string
+        
+        database:
+          pattern: "database.*{operation}|{operation}.*database"
+          skill: "maintain-databases"
+          parameters:
+            maintenance_operation: string
+            target_database: string
+        
+        cluster:
+          pattern: "cluster.*{operation}|{operation}.*cluster"
+          skill: "manage-kubernetes-cluster"
+          parameters:
+            cluster_operation: string
+            target_cluster: string
+        
+        compliance:
+          pattern: "compliance.*report|report.*compliance"
+          skill: "generate-compliance-report"
+          parameters:
+            report_type: string
+            compliance_framework: string
+        
+        audit:
+          pattern: "audit.*{scope}|security.*audit"
+          skill: "audit-security-events"
+          parameters:
+            audit_scope: string
+            time_range: string
+        
+        secrets:
+          pattern: "rotate.*secret|secret.*rotation"
+          skill: "rotate-secrets"
+          parameters:
+            secret_name: string
+            rotation_scope: string

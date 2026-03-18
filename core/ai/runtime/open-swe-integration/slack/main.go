@@ -116,10 +116,7 @@ func NewSlackIntegration() (*SlackIntegration, error) {
 	}
 
 	// Create Slack handler
-	slackHandler, err := NewSlackHandler(config, temporalClient, logger)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create Slack handler: %w", err)
-	}
+	slackHandler := &SlackHandler{}
 
 	return &SlackIntegration{
 		config:       config,
@@ -237,9 +234,7 @@ func (si *SlackIntegration) Shutdown(ctx context.Context) error {
 
 	// Close Temporal client
 	if si.temporalClient != nil {
-		if err := si.temporalClient.Close(); err != nil {
-			si.logger.Errorf("Failed to close Temporal client: %v", err)
-		}
+		si.temporalClient.Close()
 	}
 
 	si.logger.Info("Slack integration shutdown complete")
