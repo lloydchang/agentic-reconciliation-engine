@@ -143,8 +143,8 @@ uuid = { version = "1.0", features = ["v4"] }
    - Verify connectivity
 
 **Files to Create/Modify**:
-- `gitops/k8sgpt/configmap-centralized-qwen.yaml`
-- `gitops/k8sgpt/deployment-updated.yaml`
+- `core/gitops/k8sgpt/configmap-centralized-qwen.yaml`
+- `core/gitops/k8sgpt/deployment-updated.yaml`
 - `scripts/migrate-k8sgpt-to-central-qwen.sh`
 
 ### Phase 3: Update Flagger AI Integration

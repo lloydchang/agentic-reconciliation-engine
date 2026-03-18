@@ -20,7 +20,7 @@ The following files have been successfully moved from the root directory to appr
 - `fix-timeout-issues.sh` - Script to fix timeout and ImagePullBackOff issues
 
 ### 🎤 Voice Chat Files
-**Moved to `voice-chat/`:**
+**Moved to `core/voice-chat/`:**
 - `floating-voice-chat.js` - Universal embeddable voice chat widget
 - `voice-chatbot.html` - Standalone voice chat interface
 - `README-VOICE-CHAT.md` - Documentation for voice chat features
@@ -45,10 +45,11 @@ gitops-infra-control-plane/
 │   ├── deploy-comprehensive-dashboard.sh
 │   ├── fix-agent-deployment.sh
 │   └── fix-timeout-issues.sh
-├── voice-chat/
-│   ├── floating-voice-chat.js
-│   ├── voice-chatbot.html
-│   └── README-VOICE-CHAT.md
+├── core/
+│   └── voice-chat/
+│       ├── floating-voice-chat.js
+│       ├── voice-chatbot.html
+│       └── README-VOICE-CHAT.md
 └── examples/
     └── test_rag.go
 ```
@@ -57,7 +58,7 @@ gitops-infra-control-plane/
 
 - **Dashboard files** grouped together for easier deployment management
 - **Scripts** centralized in existing scripts directory for better maintainability  
-- **Voice chat** isolated as a distinct feature module
+- **Voice chat** integrated into core module for better architecture alignment
 - **Test files** placed in examples for reference and testing
 - **Root directory** cleaned up for better organization
 
@@ -66,7 +67,7 @@ gitops-infra-control-plane/
 1. **Cleaner root directory** - Reduced clutter and improved navigation
 2. **Logical grouping** - Related files organized by purpose
 3. **Easier maintenance** - Scripts and deployments in standard locations
-4. **Better discoverability** - Voice chat features in dedicated directory
+4. **Better discoverability** - Voice chat features integrated into core architecture
 5. **Consistent structure** - Follows existing repository patterns
 
 All files have been successfully moved and the root directory is now better organized!
