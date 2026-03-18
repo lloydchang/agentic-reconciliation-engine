@@ -13,6 +13,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
+  storageClassName: standard
   volumeMode: Filesystem
 ---
 apiVersion: v1
@@ -125,11 +126,9 @@ spec:
         - name: INBOX_PATH
           value: "/data/inbox"
         - name: BACKEND_PRIORITY
-          value: "llama.cpp,ollama"
+          value: "llama.cpp"
         - name: LANGUAGE_PRIORITY
           value: "rust,go,python"
-        - name: OLLAMA_URL
-          value: "http://ollama-service:11434"
         - name: MODEL
           value: "qwen2.5:0.5b"
         - name: BIND_ADDRESS

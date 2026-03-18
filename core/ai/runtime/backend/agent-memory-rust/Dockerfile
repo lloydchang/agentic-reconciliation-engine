@@ -1,5 +1,5 @@
 # Multi-stage build for agent-memory-rust
-FROM rust:1.75 as builder
+FROM rust:1.80 as builder
 
 WORKDIR /app
 

@@ -32,8 +32,6 @@ spec:
               key: openai-api-key
         - name: AGENT_MEMORY_URL
           value: "http://agent-memory-service:8080"
-        - name: OLLAMA_URL
-          value: "http://ollama-service:11434"
         - name: MODEL_NAME
           value: "qwen2.5:0.5b"
         - name: KUBECTL_ENABLED
@@ -103,16 +101,11 @@ data:
     # LLM Configuration
     llm:
       primary: "openai"
-      fallback: "ollama"
       models:
         openai:
           model: "gpt-3.5-turbo"
           max_tokens: 1000
           temperature: 0.7
-        ollama:
-          model: "qwen2.5:0.5b"
-          max_tokens: 800
-          temperature: 0.6
     
     # Memory Configuration
     memory:

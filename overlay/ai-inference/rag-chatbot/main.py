@@ -51,7 +51,6 @@ class RAGChatbot:
         self.k8s_client = self._init_kubernetes()
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.agent_memory_url = os.getenv('AGENT_MEMORY_URL', 'http://agent-memory-service:8080')
-        self.ollama_url = os.getenv('OLLAMA_URL', 'http://ollama-service:11434')
         self.model_name = os.getenv('MODEL_NAME', 'qwen2.5:0.5b')
         
         # Knowledge base with AI skills
@@ -74,10 +73,8 @@ class RAGChatbot:
             'chatbot': {'name': 'GitOps AI Assistant', 'version': '1.0.0'},
             'llm': {
                 'primary': 'openai',
-                'fallback': 'ollama',
                 'models': {
-                    'openai': {'model': 'gpt-3.5-turbo', 'max_tokens': 1000, 'temperature': 0.7},
-                    'ollama': {'model': 'qwen2.5:0.5b', 'max_tokens': 800, 'temperature': 0.6}
+                    'openai': {'model': 'gpt-3.5-turbo', 'max_tokens': 1000, 'temperature': 0.7}
                 }
             },
             'memory': {'agent_memory_url': 'http://agent-memory-service:8080'},
@@ -228,28 +225,6 @@ class RAGChatbot:
             logger.error("OpenAI inference failed", error=str(e))
             raise
 
-    async def generate_ollama_response(self, prompt: str) -> str:
-        """Generate response using Ollama"""
-        try:
-            response = requests.post(f"{self.ollama_url}/api/generate",
-                                  json={
-                                      "model": self.model_name,
-                                      "prompt": prompt,
-                                      "stream": False
-                                  },
-                                  timeout=30)
-            
-            if response.status_code == 200:
-                result = response.json()
-                INFERENCE_COUNT.labels(provider='ollama', model=self.model_name).inc()
-                return result.get('response', 'Sorry, I could not generate a response.')
-            else:
-                raise Exception(f"Ollama API error: {response.status_code}")
-                
-        except Exception as e:
-            logger.error("Ollama inference failed", error=str(e))
-            raise
-
     async def generate_response(self, query: str) -> Dict:
         """Generate RAG response"""
         try:
@@ -282,13 +257,14 @@ class RAGChatbot:
             
             full_prompt = "\n".join(prompt_parts)
             
-            # Try OpenAI first, then fallback to Ollama
+            # Generate response using OpenAI
             try:
                 response = await self.generate_openai_response(full_prompt)
                 provider = "openai"
-            except:
-                response = await self.generate_ollama_response(full_prompt)
-                provider = "ollama"
+            except Exception as e:
+                logger.error("Failed to generate response", error=str(e))
+                response = f"Sorry, I encountered an error: {str(e)}"
+                provider = "error"
             
             # Store in memory if available
             try:
