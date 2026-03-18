@@ -1,0 +1,303 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-chatbot
+  namespace: ai-infrastructure
+  labels:
+    app: rag-chatbot
+    component: ai-assistant
+    version: v2.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rag-chatbot
+      component: ai-assistant
+  template:
+    metadata:
+      labels:
+        app: rag-chatbot
+        component: ai-assistant
+        version: v2.0
+    spec:
+      containers:
+      - name: rag-chatbot
+        image: rag-chatbot:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        # Agent Memory Integration
+        - name: AGENT_MEMORY_URL
+          value: "http://agent-memory-service:8080"
+        
+        # Data Source Configuration
+        - name: KUBERNETES_API
+          value: "https://kubernetes.default.svc"
+        - name: TEMPORAL_API
+          value: "http://temporal-frontend:7233"
+        - name: DASHBOARD_API
+          value: "http://dashboard-api-service:5000"
+        - name: K8SGPT_API
+          value: "http://k8sgpt-service:8080"
+        
+        # RAG Configuration
+        - name: MAX_CONTEXT_LENGTH
+          value: "4000"
+        - name: SIMILARITY_THRESHOLD
+          value: "0.7"
+        - name: MAX_SOURCES_PER_QUERY
+          value: "5"
+        
+        # Voice Chat Configuration
+        - name: VOICE_ENABLED
+          value: "true"
+        - name: SPEECH_RECOGNITION_LANG
+          value: "en-US"
+        
+        # Model Configuration
+        - name: MODEL_NAME
+          value: "qwen2.5:0.5b"
+        - name: INFERENCE_BACKEND
+          value: "llama.cpp"
+        
+        # System Configuration
+        - name: LOG_LEVEL
+          value: "info"
+        - name: KUBECTL_ENABLED
+          value: "true"
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        
+        # Health Checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        volumeMounts:
+        - name: docs-storage
+          mountPath: /app/data/docs
+          readOnly: true
+      
+      volumes:
+      - name: docs-storage
+        configMap:
+          name: rag-chatbot-docs
+      
+      # Security Context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      
+      # Restart Policy
+      restartPolicy: Always
+      
+      # Node Selection for AI Workloads
+      nodeSelector:
+        node-type: worker
+        ai-capable: "true"
+      
+      # Tolerations for AI Workloads
+      tolerations:
+      - key: "ai-workload"
+        operator: "Equal"
+        value: "enabled"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-chatbot-service
+  namespace: ai-infrastructure
+  labels:
+    app: rag-chatbot
+    component: ai-assistant
+spec:
+  selector:
+    app: rag-chatbot
+    component: ai-assistant
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-chatbot-docs
+  namespace: ai-infrastructure
+  labels:
+    component: ai-assistant
+data:
+  # Quick Start Guide
+  quickstart.md: |
+    # RAG Chatbot Quick Start
+    
+    This RAG chatbot provides intelligent responses using 9 comprehensive data sources.
+    
+    ## Access Methods
+    
+    ### 1. Web Interface
+    ```bash
+    kubectl port-forward -n ai-infrastructure svc/rag-chatbot-service 8000:8000
+    # Open: http://localhost:8000/voice-chat
+    ```
+    
+    ### 2. API Endpoint
+    ```bash
+    # Health check
+    curl http://localhost:8000/health
+    
+    # Query with sources
+    curl -X POST http://localhost:8000/api/v1/query \
+      -H "Content-Type: application/json" \
+      -d '{
+        "query": "What is the status of our clusters?",
+        "sources": ["agent_memory", "kubernetes_api", "dashboard_apis"]
+      }'
+    ```
+    
+    ### 3. Voice Chat
+    - Access voice interface at: http://localhost:8000/voice-chat
+    - Click microphone button for speech recognition
+    - System will respond with text-to-speech
+    
+    ## Data Sources Available
+    
+    1. **Agent Memory** - Conversation history and learned patterns
+    2. **Kubernetes API** - Live cluster state and resources
+    3. **Temporal Workflows** - Workflow execution history
+    4. **Dashboard APIs** - Real-time agent status and metrics
+    5. **K8sGPT Analysis** - AI-powered cluster insights
+    6. **File System Docs** - Static documentation and procedures
+    
+    ## Features
+    
+    - 🧠 **Multi-Source RAG** - Intelligent source selection
+    - 🎤 **Voice Support** - Speech recognition and synthesis
+    - 📊 **Real-time Data** - Live cluster integration
+    - 🔍 **Smart Search** - Vector similarity and context matching
+    - 📝 **Conversation History** - Persistent chat memory
+    
+    ## Usage Examples
+    
+    ### Infrastructure Queries
+    - "Show me cluster health status"
+    - "What deployments are currently running?"
+    - "Are there any security vulnerabilities?"
+    
+    ### Cost Optimization
+    - "How can we reduce our cloud costs?"
+    - "What resources are over-provisioned?"
+    - "Show me cost optimization recommendations"
+    
+    ### Troubleshooting
+    - "Why is pod X failing?"
+    - "What caused the recent deployment failure?"
+    - "Show me error patterns from last 24 hours"
+  
+  # API Documentation
+  api-docs.md: |
+    # RAG Chatbot API Documentation
+    
+    ## Endpoints
+    
+    ### Health Checks
+    - `GET /health` - Basic health check
+    - `GET /ready` - Readiness check
+    
+    ### Query Endpoints
+    - `POST /api/v1/query` - Main RAG query endpoint
+    - `GET /api/v1/sources` - Available data sources
+    
+    ### Voice Endpoints
+    - `GET /api/v1/voice/status` - Voice chat status
+    - `POST /api/v1/voice/speech-to-text` - Speech recognition
+    - `POST /api/v1/voice/text-to-speech` - Text to speech
+    
+    ### Conversation
+    - `GET /api/v1/conversation/history` - Chat history
+    
+    ## Query Request Model
+    ```json
+    {
+      "query": "string",
+      "sources": ["agent_memory", "kubernetes_api"],
+      "max_results": 10,
+      "include_voice": false
+    }
+    ```
+    
+    ## Query Response Model
+    ```json
+    {
+      "answer": "string",
+      "sources": [
+        {
+          "source": "agent_memory",
+          "name": "Agent Memory",
+          "relevance": 0.9,
+          "content": "..."
+        }
+      ],
+      "confidence": 0.85,
+      "response_time": 1.2,
+      "voice_enabled": true
+    }
+    ```
+    
+    ## Data Sources
+    
+    ### Agent Memory
+    - URL: `http://agent-memory-service:8080/api/search`
+    - Provides conversation history and learned patterns
+    - Search by relevance and similarity
+    
+    ### Kubernetes API
+    - Direct Kubernetes API integration
+    - Live cluster state and resource information
+    - Pod, service, deployment status
+    
+    ### Temporal Workflows
+    - URL: `http://temporal-frontend:7233/api/workflows`
+    - Workflow execution history and outcomes
+    - Pattern recognition from previous operations
+    
+    ### Dashboard APIs
+    - URL: `http://dashboard-api-service:5000/api/v1/agents`
+    - Real-time agent status and metrics
+    - Performance data and activity feeds
+    
+    ### K8sGPT Analysis
+    - URL: `http://k8sgpt-service:8080/api/analyze`
+    - AI-powered cluster analysis
+    - Intelligent troubleshooting and recommendations
+    
+    ### File System Documentation
+    - Static documentation and configuration files
+    - Procedures and best practices
+    - Search through indexed content
