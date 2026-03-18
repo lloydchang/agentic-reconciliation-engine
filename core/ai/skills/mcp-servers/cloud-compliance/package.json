@@ -15,7 +15,7 @@
     "aws-sdk": "^2.1500.0",
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-policyinsights": "^4.1.0",
-    "@google-cloud/security-center": "^5.0.0"
+    "@google-cloud/security-center": "^9.2.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",
