@@ -8,6 +8,21 @@ metadata:
   category: enterprise
   risk-level: medium
   autonomy: conditional
+  layer: temporal
+  human_gate: PR approval required for production infrastructure changes
+  openswe:
+    sandbox_required: true
+    sandbox_providers: [modal, daytona, runloop]
+    middleware_hooks:
+      - pre_execution: validate_infrastructure_permissions
+      - post_execution: audit_infrastructure_changes
+      - error_recovery: rollback_on_failure
+    integrations:
+      slack: "@gitops-bot provision infrastructure"
+      github: "@openswe provision infrastructure"
+      linear: "@openswe provision infrastructure"
+    context_engineering: "AGENTS.md infrastructure patterns"
+    subagent_capabilities: [terraform_validation, cost_estimation, security_scan]
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
 ---
