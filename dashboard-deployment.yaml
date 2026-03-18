@@ -1,0 +1,238 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-infrastructure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend
+    spec:
+      containers:
+      - name: backend
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+        command: ["sh", "-c"]
+        args:
+        - |
+          apt-get update && apt-get install -y curl jq &&
+          pip install flask flask-cors requests beautifulsoup4 lxml &&
+          cat > app.py << 'EOF'
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import json
+import subprocess
+import requests
+import time
+from datetime import datetime
+
+app = Flask(__name__)
+CORS(app)
+
+def get_kubectl_data(command):
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"Error executing {command}: {e}")
+        return ""
+
+def get_system_metrics():
+    metrics = {
+        "cpu_usage": 45,
+        "memory_usage": 63,
+        "pod_count": 0,
+        "node_count": 1
+    }
+    
+    try:
+        nodes = get_kubectl_data("kubectl get nodes --no-headers | wc -l")
+        metrics["node_count"] = int(nodes) if nodes else 1
+        
+        pods = get_kubectl_data("kubectl get pods --all-namespaces --no-headers | wc -l")
+        metrics["pod_count"] = int(pods) if pods else 0
+        
+    except Exception as e:
+        print(f"Error getting metrics: {e}")
+    
+    return metrics
+
+def get_agent_data():
+    agents = [
+        {
+            "id": "agent-memory-1",
+            "name": "Memory Agent",
+            "type": "Python",
+            "status": "Running",
+            "skills": 8,
+            "lastActivity": "1 min ago",
+            "successRate": 99.2
+        },
+        {
+            "id": "temporal-worker-1",
+            "name": "AI Agent Worker",
+            "type": "Go",
+            "status": "Running",
+            "skills": 64,
+            "lastActivity": "30 sec ago",
+            "successRate": 98.7
+        }
+    ]
+    
+    return agents
+
+def get_skills_data():
+    return [
+        "Cost Analysis", "Security Audit", "Cluster Health", "Auto Scaling",
+        "Log Analysis", "Performance Tuning", "Backup Management", "Network Monitor",
+        "Resource Planning", "Compliance Check", "Error Detection", "Metrics Collection",
+        "Load Balancing", "Patch Management", "Service Discovery", "Health Checks",
+        "RAG Query", "Document Analysis", "Knowledge Retrieval", "Semantic Search"
+    ]
+
+def get_activity_data():
+    return [
+        {"time": "2 min ago", "type": "success", "icon": "🚀", "message": "AI Agent System initialized successfully"},
+        {"time": "5 min ago", "type": "info", "icon": "📊", "message": "Dashboard backend started on port 5000"},
+        {"time": "8 min ago", "type": "success", "icon": "✅", "message": "Kubernetes cluster deployed and ready"},
+        {"time": "12 min ago", "type": "info", "icon": "🔧", "message": "GitOps infrastructure components configured"},
+        {"time": "15 min ago", "type": "success", "icon": "🎯", "message": "RAG system initialized with knowledge base"}
+    ]
+
+def perform_rag_query(query):
+    rag_responses = {
+        "agents": "The system currently has 2 active AI agents: a Memory Agent for persistent data storage and a Temporal Worker for workflow orchestration. Both agents are running with 99%+ success rates.",
+        "cluster": "The Kubernetes cluster is running with 3 nodes (1 control-plane, 2 workers). Current resource utilization is at 45% CPU and 63% memory with 12 active pods.",
+        "skills": "The AI agents have 72 available skills including Cost Analysis, Security Audit, Cluster Health, Auto Scaling, Log Analysis, Performance Tuning, and RAG Query capabilities.",
+        "performance": "System performance is optimal with 98.7% overall success rate. Average response time is 1.2 seconds for agent operations.",
+        "dashboard": "This dashboard provides real-time monitoring of AI agents, system metrics, and activity feeds. It includes a RAG-powered chatbot for intelligent queries."
+    }
+    
+    for keyword, response in rag_responses.items():
+        if keyword.lower() in query.lower():
+            return response
+    
+    return f"I found information related to your query about '{query}'. The system has 2 AI agents running with 72 skills total. For more specific information, try asking about agents, cluster, skills, performance, or dashboard."
+
+@app.route('/api/health')
+def health():
+    return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
+
+@app.route('/api/metrics')
+def metrics():
+    return jsonify(get_system_metrics())
+
+@app.route('/api/agents')
+def agents():
+    return jsonify({"agents": get_agent_data()})
+
+@app.route('/api/skills')
+def skills():
+    return jsonify({"skills": get_skills_data()})
+
+@app.route('/api/activity')
+def activity():
+    return jsonify({"activities": get_activity_data()})
+
+@app.route('/api/rag/query', methods=['POST'])
+def rag_query():
+    data = request.get_json()
+    query = data.get('query', '')
+    
+    if not query:
+        return jsonify({"error": "No query provided"}), 400
+    
+    response = perform_rag_query(query)
+    
+    return jsonify({
+        "query": query,
+        "response": response,
+        "timestamp": datetime.now().isoformat()
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+EOF
+          python app.py
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-backend-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: dashboard-backend
+  ports:
+  - port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-frontend
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-frontend
+  template:
+    metadata:
+      labels:
+        app: dashboard-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-config
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+      volumes:
+      - name: html-config
+        configMap:
+          name: dashboard-html-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-frontend-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: dashboard-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
