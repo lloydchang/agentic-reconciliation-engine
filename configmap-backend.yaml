@@ -29,6 +29,7 @@ data:
     def rag():
         data = request.get_json()
         query = data.get('query', '').lower()
+        session_id = data.get('session_id', 'default')
         
         # Get real-time cluster data
         nodes = len(kubectl('get nodes --no-headers').split('\n')) if kubectl('get nodes --no-headers') else 0
@@ -39,10 +40,10 @@ data:
         pod_details = kubectl('get pods -n ai-infrastructure -o json')
         agent_info = extract_agent_info(pod_details)
         
-        # Use knowledge-base-server skill for RAG
-        response = perform_rag_query(query, nodes, ai_pods, all_pods, agent_info)
+        # Use agent-memory-rust for true RAG with Qwen reasoning
+        response = perform_true_rag_query(query, session_id, nodes, ai_pods, all_pods, agent_info)
         
-        return jsonify({'response': response, 'sources': [{'type': 'kubernetes-api', 'confidence': 0.95}, {'type': 'knowledge-base', 'confidence': 0.90}]})
+        return jsonify({'response': response, 'sources': [{'type': 'kubernetes-api', 'confidence': 0.95}, {'type': 'agent-memory-rust', 'confidence': 0.90}]})
 
     def extract_agent_info(pod_details_json):
         """Extract useful agent information from pod JSON"""
@@ -88,6 +89,31 @@ data:
         except:
             # Fallback to enhanced pattern matching if skill integration fails
             return generate_intelligent_response(query, nodes, ai_pods, all_pods, agent_info, cluster_context)
+
+    def perform_true_rag_query(query, session_id, nodes, ai_pods, all_pods, agent_info):
+        """Perform true RAG using agent-memory-rust service with Qwen reasoning"""
+        
+        try:
+            # Call agent-memory-rust service for AI reasoning
+            import requests
+            agent_memory_url = "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080/api/rag/query"
+            
+            payload = {
+                'query': query,
+                'session_id': session_id
+            }
+            
+            response = requests.post(agent_memory_url, json=payload, timeout=5)
+            if response.status_code == 200:
+                ai_response = response.json()
+                return ai_response.get('response', f"Qwen reasoning unavailable. Cluster: {nodes} nodes, {ai_pods} AI pods, {all_pods} total pods.")
+            else:
+                # Fallback to enhanced pattern matching if AI service unavailable
+                return generate_intelligent_response(query, nodes, ai_pods, all_pods, agent_info, "")
+                
+        except Exception as e:
+            # Fallback to enhanced pattern matching if AI service fails
+            return generate_intelligent_response(query, nodes, ai_pods, all_pods, agent_info, f"AI service error: {str(e)}")
 
     def generate_intelligent_response(query, nodes, ai_pods, all_pods, agent_info, context):
         """Generate intelligent responses using context and reasoning"""
