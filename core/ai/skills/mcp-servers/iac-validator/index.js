@@ -901,7 +901,15 @@ class IacValidatorServer {
             });
           }
         } else {
-          await fs.access(filePath);
+          fs.access(filePath, (err) => {
+            if (err) {
+              issues.push({
+                type: 'structure',
+                severity: 'high',
+                message: `Missing required file: ${file}`
+              });
+            }
+          });
         }
       } catch (error) {
         issues.push({

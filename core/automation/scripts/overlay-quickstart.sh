@@ -356,6 +356,20 @@ deploy_example_overlay() {
     fi
 }
 
+# Deploy AI Agent Skills and MCP servers
+deploy_ai_agent_skills() {
+    print_header "Deploying AI Agent Skills and MCP Servers"
+    
+    # Source the deploy_ai_agent_skills script
+    local deploy_script="$SCRIPT_DIR/deploy_ai_agent_skills.sh"
+    if [[ -f "$deploy_script" ]]; then
+        source "$deploy_script"
+        deploy_ai_agent_skills
+    else
+        print_warning "deploy_ai_agent_skills.sh not found - skipping AI agent deployment"
+    fi
+}
+
 # Complete overlay quick start
 complete_overlay_quickstart() {
     print_header "Complete Overlay Quick Start"
