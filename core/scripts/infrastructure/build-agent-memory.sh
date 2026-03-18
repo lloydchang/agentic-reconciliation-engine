@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 AGENT_MEMORY_DIR="${REPO_ROOT}/core/ai/runtime/backend/agent-memory-rust"
 IMAGE_NAME="agent-memory-rust"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
