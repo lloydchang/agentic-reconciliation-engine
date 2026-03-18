@@ -1,0 +1,355 @@
+# Consolidated K8sGPT Configuration
+# Unified configuration for all GitOps infrastructure components
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8sgpt-config
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+data:
+  config.yaml: |
+    # K8sGPT Unified Configuration
+    # Serves all components: ArgoCD, Flux, Argo Workflows, Argo Rollouts, Argo Events, PipeCD
+    
+    # Core configuration
+    version: "v0.3.40"
+    log_level: "info"
+    cache_dir: "/cache"
+    
+    # Backend configuration with fallback chain
+    backend:
+      primary: "agent-memory"
+      fallback: "localai"
+      openai:
+        # External API fallback (if needed)
+        model: "qwen2.5-7b-instruct"
+        base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        api_key_env: "K8SGPT_OPENAI_APIKEY"
+      
+      agent_memory:
+        # Primary backend - agent-memory-rust with Qwen2.5B
+        model: "qwen2.5-7b-instruct"
+        base_url: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        api_key_env: "K8SGPT_API_KEY"
+        temperature: 0.7
+        max_tokens: 2048
+        
+      localai:
+        # Fallback backend - LocalAI with Qwen
+        model: "qwen2.5-coder:7b"
+        base_url: "http://qwen-localai.k8sgpt-system.svc.cluster.local:8080"
+        api_key: "not-required"
+    
+    # Analysis configuration
+    analysis:
+      # Analysis interval (default: 5 minutes)
+      interval: "5m"
+      
+      # Namespaces to analyze (exclude system namespaces)
+      namespaces:
+        include:
+          - "default"
+          - "gitops-infra"
+          - "production"
+          - "staging"
+          - "development"
+          - "argo-workflows"
+          - "argo-rollouts"
+          - "argo-events"
+          - "flux-system"
+          - "pipecd"
+        exclude:
+          - "kube-system"
+          - "k8sgpt-system"
+          - "ai-infrastructure"
+          - "monitoring"
+      
+      # Resource types to analyze
+      resources:
+        - "deployments"
+        - "statefulsets"
+        - "daemonsets"
+        - "replicasets"
+        - "services"
+        - "ingresses"
+        - "configmaps"
+        - "secrets"
+        - "persistentvolumeclaims"
+        - "horizontalpodautoscalers"
+        - "networkpolicies"
+        - "poddisruptionbudgets"
+        - "jobs"
+        - "cronjobs"
+        - "workflows"          # Argo Workflows
+        - "workflowtemplates"  # Argo Workflows
+        - "rollouts"           # Argo Rollouts
+        - "analysistemplates"  # Argo Rollouts
+        - "eventsources"       # Argo Events
+        - "sensors"            # Argo Events
+        - "kustomizations"     # Flux
+        - "helmreleases"       # Flux
+      
+      # Auto-analysis settings
+      auto_analysis: true
+      max_concurrent_analysis: 5
+      
+      # Filters for different analysis types
+      filters:
+        # Core Kubernetes resources
+        core_resources:
+          - "Ingress"
+          - "Service"
+          - "Deployment"
+          - "StatefulSet"
+          - "DaemonSet"
+          - "Pod"
+          - "ConfigMap"
+          - "Secret"
+          - "PersistentVolumeClaim"
+          - "HorizontalPodAutoscaler"
+          - "NetworkPolicy"
+          - "PodDisruptionBudget"
+        
+        # Argo Workflows specific
+        argo_workflows:
+          - "Workflow"
+          - "WorkflowTemplate"
+          - "CronWorkflow"
+          - "WorkflowTaskSet"
+        
+        # Argo Rollouts specific
+        argo_rollouts:
+          - "Rollout"
+          - "AnalysisTemplate"
+          - "Experiment"
+          - "AnalysisRun"
+        
+        # Argo Events specific
+        argo_events:
+          - "EventBus"
+          - "EventSource"
+          - "Sensor"
+        
+        # Flux specific
+        flux_cd:
+          - "Kustomization"
+          - "HelmRelease"
+          - "GitRepository"
+          - "HelmRepository"
+          - "Bucket"
+    
+    # Processors for different analysis types
+    processors:
+      # AI-powered analysis processor
+      - name: "unified-ai-analyzer"
+        type: "ai"
+        enabled: true
+        config:
+          temperature: 0.7
+          max_tokens: 2048
+          system_prompt: |
+            You are an expert Kubernetes and GitOps engineer. Analyze the provided Kubernetes resources 
+            and identify potential issues, security vulnerabilities, or optimization opportunities across 
+            all GitOps components (ArgoCD, Flux, Argo Workflows, Argo Rollouts, Argo Events, PipeCD).
+            
+            Provide specific, actionable recommendations with YAML examples when applicable.
+            Focus on production readiness and best practices.
+            
+            Analysis areas to consider:
+            - Security context misconfigurations
+            - Resource requests/limits missing or inadequate
+            - Image pull policy and security issues
+            - Liveness/readiness probe problems
+            - Network policy gaps and connectivity issues
+            - RBAC permission issues (principle of least privilege)
+            - Storage class and volume claim problems
+            - GitOps-specific issues (sync failures, drift detection)
+            - Workflow and pipeline configuration issues
+            - Rollout strategy and analysis template problems
+            - Event source and sensor configuration issues
+            
+            For each issue found, provide:
+            1. Severity level (critical, high, medium, low)
+            2. Category (security, performance, reliability, cost, gitops)
+            3. Specific description of the problem
+            4. Recommended fix with YAML example
+            5. Auto-fix command if applicable
+      
+      # Resource analysis processor
+      - name: "resource-analyzer"
+        type: "resource"
+        enabled: true
+        config:
+          check_resource_requests: true
+          check_resource_limits: true
+          check_image_pull_policy: true
+          check_liveness_probes: true
+          check_readiness_probes: true
+          check_security_context: true
+          check_network_policies: true
+          check_rbac: true
+          check_gitops_sync: true
+          check_workflow_status: true
+          check_rollout_health: true
+          check_event_sources: true
+      
+      # GitOps-specific processor
+      - name: "gitops-analyzer"
+        type: "gitops"
+        enabled: true
+        config:
+          check_argocd_sync: true
+          check_flux_reconciliation: true
+          check_workflow_execution: true
+          check_rollout_progression: true
+          check_event_processing: true
+          check_deployment_drift: true
+    
+    # Sink configuration for different destinations
+    sink:
+      type: "webhook"
+      primary:
+        endpoint: "http://flux-webhook.flux-system.svc.cluster.local/webhook"
+        timeout: "30s"
+        max_retries: 3
+        retry_delay: "5s"
+      
+      # Additional sinks for different components
+      additional_sinks:
+        argo_workflows:
+          endpoint: "http://argo-workflows-server.argo-workflows.svc.cluster.local:2746/webhook"
+          timeout: "30s"
+          max_retries: 3
+          retry_delay: "5s"
+        
+        argo_rollouts:
+          endpoint: "http://argo-rollouts.argo-rollouts.svc.cluster.local:8080/webhook"
+          timeout: "30s"
+          max_retries: 3
+          retry_delay: "5s"
+        
+        monitoring:
+          endpoint: "http://alertmanager.monitoring.svc.cluster.local:9093/api/v1/alerts"
+          timeout: "30s"
+          max_retries: 3
+          retry_delay: "5s"
+    
+    # Remediation configuration
+    remediation:
+      enabled: true
+      auto_apply: false
+      require_approval: true
+      dry_run: false
+      
+      # Exclude resources from auto-remediation
+      exclude_resources:
+        - "kube-system/*"
+        - "k8sgpt-system/*"
+        - "ai-infrastructure/*"
+        - "monitoring/*"
+      
+      # Remediation strategies for different issue types
+      strategies:
+        security:
+          auto_fix: false
+          require_approval: true
+          priority: "high"
+        
+        performance:
+          auto_fix: false
+          require_approval: false
+          priority: "medium"
+        
+        reliability:
+          auto_fix: false
+          require_approval: true
+          priority: "high"
+        
+        gitops:
+          auto_fix: false
+          require_approval: true
+          priority: "medium"
+    
+    # Metrics and monitoring
+    metrics:
+      enabled: true
+      port: 9090
+      path: "/metrics"
+      
+      # Custom metrics
+      custom_metrics:
+        - name: "k8sgpt_analysis_duration_seconds"
+          type: "histogram"
+          help: "Duration of K8sGPT analysis operations"
+        
+        - name: "k8sgpt_issues_found_total"
+          type: "counter"
+          help: "Total number of issues found by K8sGPT"
+        
+        - name: "k8sgpt_backend_requests_total"
+          type: "counter"
+          help: "Total number of backend requests"
+        
+        - name: "k8sgpt_gitops_sync_status"
+          type: "gauge"
+          help: "GitOps synchronization status"
+    
+    # Tracing configuration
+    tracing:
+      enabled: true
+      jaeger_endpoint: "http://jaeger.argo-workflows.svc.cluster.local:14268/api/traces"
+      service_name: "k8sgpt-unified"
+      sample_rate: 0.1
+    
+    # Integration-specific configurations
+    integrations:
+      argo_workflows:
+        enabled: true
+        workflow_analysis_enabled: true
+        template_validation_enabled: true
+        execution_analysis_enabled: true
+      
+      argo_rollouts:
+        enabled: true
+        rollout_analysis_enabled: true
+        strategy_analysis_enabled: true
+        health_check_analysis_enabled: true
+      
+      argo_events:
+        enabled: true
+        event_source_analysis_enabled: true
+        sensor_analysis_enabled: true
+        event_bus_analysis_enabled: true
+      
+      flux_cd:
+        enabled: true
+        kustomization_analysis_enabled: true
+        helm_release_analysis_enabled: true
+        reconciliation_analysis_enabled: true
+      
+      argocd:
+        enabled: true
+        application_sync_analysis_enabled: true
+        health_analysis_enabled: true
+        drift_detection_enabled: true
+      
+      pipecd:
+        enabled: true
+        deployment_analysis_enabled: true
+        pipeline_analysis_enabled: true
+    
+    # Cache configuration
+    cache:
+      enabled: true
+      ttl: "1h"
+      max_size: "1GB"
+      
+      # Cache strategies for different data types
+      strategies:
+        analysis_results: "1h"
+        backend_responses: "30m"
+        resource_metadata: "2h"
+        gitops_status: "5m"
