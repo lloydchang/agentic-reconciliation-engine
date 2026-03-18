@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openswe-config
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-orchestrator
+    component: openswe-integration
+data:
+  # OpenSWE Orchestrator Configuration
+  OPENSWE_CONFIG: |
+    {
+      "server": {
+        "host": "0.0.0.0",
+        "port": 8080,
+        "metrics_port": 9090,
+        "shutdown_timeout": "30s"
+      },
+      "temporal": {
+        "address": "temporal-frontend.ai-infrastructure.svc.cluster.local:7233",
+        "namespace": "default",
+        "task_queue": "openswe-agents"
+      },
+      "memory_agent": {
+        "url": "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080",
+        "timeout": "30s"
+      },
+      "sandbox": {
+        "default_provider": "modal",
+        "timeout": "1800s",
+        "max_concurrent": 10,
+        "providers": {
+          "modal": {
+            "enabled": true,
+            "api_url": "https://api.modal.com",
+            "workspace": "gitops-infra-control-plane"
+          },
+          "daytona": {
+            "enabled": true,
+            "api_url": "https://api.daytona.io",
+            "workspace_size": "20Gi"
+          },
+          "runloop": {
+            "enabled": true,
+            "api_url": "https://api.runloop.io",
+            "persistent_storage": true
+          },
+          "langsmith": {
+            "enabled": true,
+            "api_url": "https://api.langsmith.com",
+            "evaluation_enabled": true
+          }
+        }
+      },
+      "integrations": {
+        "slack": {
+          "enabled": true,
+          "verification_token": "${SLACK_VERIFICATION_TOKEN}",
+          "bot_user_id": "${SLACK_BOT_USER_ID}"
+        },
+        "github": {
+          "enabled": true,
+          "app_id": "${GITHUB_APP_ID}",
+          "webhook_secret": "${GITHUB_WEBHOOK_SECRET}"
+        },
+        "linear": {
+          "enabled": true,
+          "webhook_secret": "${LINEAR_WEBHOOK_SECRET}"
+        }
+      },
+      "middleware": {
+        "gitops_safety": {
+          "enabled": true,
+          "gitops_url": "https://github.com/lloydchang/gitops-infra-control-plane",
+          "branch_protection": true
+        },
+        "security_validation": {
+          "enabled": true,
+          "scan_timeout": "300s"
+        },
+        "audit_logging": {
+          "enabled": true,
+          "retention_days": 90
+        }
+      },
+      "logging": {
+        "level": "info",
+        "format": "json",
+        "outputs": ["stdout", "/var/log/openswe/orchestrator.log"]
+      },
+      "metrics": {
+        "enabled": true,
+        "path": "/metrics",
+        "namespace": "openswe"
+      },
+      "health": {
+        "path": "/health",
+        "checks": ["temporal", "memory_agent", "sandbox_providers"]
+      }
+    }
+
+  # Environment-specific overrides can be added here
+  DEVELOPMENT_CONFIG: |
+    {
+      "sandbox": {
+        "max_concurrent": 2,
+        "timeout": "900s"
+      },
+      "logging": {
+        "level": "debug"
+      }
+    }
+
+  PRODUCTION_CONFIG: |
+    {
+      "sandbox": {
+        "max_concurrent": 20,
+        "timeout": "3600s"
+      },
+      "middleware": {
+        "security_validation": {
+          "scan_timeout": "600s"
+        }
+      }
+    }

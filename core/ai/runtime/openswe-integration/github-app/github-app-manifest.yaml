@@ -1,0 +1,27 @@
+name: GitOps Infra Control Plane Agent
+description: AI-powered infrastructure automation and software engineering assistance
+url: https://open-swe.your-domain.com
+public: false
+webhook:
+  active: true
+  url: https://open-swe-webhooks.your-domain.com/api/webhooks/github
+permissions:
+  contents: read
+  issues: write
+  pull_requests: write
+  repository_hooks: write
+  statuses: write
+  deployments: write
+  checks: write
+  metadata: read
+events:
+  - issues
+  - issue_comment
+  - pull_request
+  - pull_request_review
+  - pull_request_review_comment
+  - push
+  - check_suite
+  - check_run
+  - deployment
+  - deployment_status
