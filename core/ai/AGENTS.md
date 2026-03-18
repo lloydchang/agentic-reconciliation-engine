@@ -58,7 +58,7 @@ gitops-infra-control-plane/
 │           └── k8s/                       # Kubernetes deployment manifests
 ├── core/automation/ci-cd/scripts/         # Utility scripts for validation and fixes
 ├── docs/                                  # Architecture documentation
-└── gitops/                                # GitOps/Control-Plane manifests (Flux/ArgoCD)
+└── core/gitops/                                # GitOps/Control-Plane manifests (Flux/ArgoCD)
 ```
 
 ### Skills Directory

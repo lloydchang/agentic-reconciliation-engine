@@ -117,13 +117,13 @@ curl -X POST "$MEMORY_AGENT_URL/api/query" \
 # User: "Deploy the new payment service to staging"
 
 # 1. Check manifests
-ls /workspace/gitops-infra-control-plane/gitops/staging/payment-service/
+ls /workspace/gitops-infra-control-plane/core/gitops/staging/payment-service/
 
 # 2. Validate
-kubectl apply --dry-run=client -f gitops/staging/payment-service/
+kubectl apply --dry-run=client -f core/gitops/staging/payment-service/
 
 # 3. Deploy via GitOps
-git add gitops/staging/payment-service/
+git add core/gitops/staging/payment-service/
 git commit -m "Add payment service to staging"
 git push origin main
 

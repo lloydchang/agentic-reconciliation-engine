@@ -325,18 +325,18 @@ deploy_gitops() {
     log_step "Deploying GitOps components..."
     
     # Apply CRDs
-    if [[ -d "gitops/crds" ]]; then
+    if [[ -d "core/gitops/crds" ]]; then
         log_info "Applying CRDs..."
-        kubectl apply -f gitops/crds/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/crds/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
     
     # Deploy Flux or ArgoCD (choose based on available manifests)
-    if [[ -d "gitops/flux" ]]; then
+    if [[ -d "core/gitops/flux" ]]; then
         log_info "Deploying Flux..."
-        kubectl apply -f gitops/flux/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
-    elif [[ -d "gitops/argocd" ]]; then
+        kubectl apply -f core/gitops/flux/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+    elif [[ -d "core/gitops/argocd" ]]; then
         log_info "Deploying ArgoCD..."
-        kubectl apply -f gitops/argocd/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/argocd/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
     
     # Wait for deployments
@@ -357,9 +357,9 @@ setup_ai_agents() {
     fi
     
     # Deploy Temporal if available
-    if [[ -d "gitops/temporal" ]]; then
+    if [[ -d "core/gitops/temporal" ]]; then
         log_info "Deploying Temporal..."
-        kubectl apply -f gitops/temporal/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/temporal/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
 }
 
