@@ -1,0 +1,194 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  repo: https://prometheus-community.github.io/helm-charts
+  chart: kube-prometheus-stack
+  version: "45.0.0"
+  bootstrap: true
+  values:
+    # Prometheus configuration
+    prometheus:
+      enabled: true
+      prometheusSpec:
+        retention: 30d
+        retentionSize: "50GB"
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "gp2"
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: "100Gi"
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 4Gi
+          limits:
+            cpu: 4000m
+            memory: 8Gi
+        ruleSelectorNilUsesHelmValues: false
+        ruleSelector:
+          matchLabels:
+            app.kubernetes.io/name: prometheus-rules
+        serviceMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorSelector:
+          matchLabels:
+            app.kubernetes.io/name: service-monitors
+        podMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelector:
+          matchLabels:
+            app.kubernetes.io/name: pod-monitors
+        additionalScrapeConfigs:
+          - job_name: 'kubernetes-apiservers'
+            kubernetes_sd_configs:
+            - role: endpoints
+            scheme: https
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            relabel_configs:
+            - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+              action: keep
+              regex: default;kubernetes;https
+    
+    # Grafana configuration
+    grafana:
+      enabled: true
+      adminPassword: admin123
+      persistence:
+        enabled: true
+        size: "10Gi"
+        storageClassName: "gp2"
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+      grafana.ini:
+        server:
+          domain: grafana.local
+          root_url: "https://grafana.local"
+        auth.anonymous:
+          enabled: false
+        security:
+          allow_embedding: true
+          content_security_policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' ws: wss:;"
+      sidecar:
+        dashboards:
+          enabled: true
+          searchNamespace: "ALL"
+        datasources:
+          enabled: true
+          searchNamespace: "ALL"
+    
+    # Alertmanager configuration
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        retention: "120h"
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "gp2"
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: "20Gi"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      config:
+        global:
+          smtp_smarthost: smtp.example.com
+          smtp_from: alerts@gitops-infra-control-plane.local
+        route:
+          group_by: ['alertname', 'cluster', 'service']
+          group_wait: 10s
+          group_interval: 10s
+          repeat_interval: 1h
+          receiver: 'web.hook'
+          routes:
+          - match:
+              severity: critical
+            receiver: 'critical-alerts'
+          - match:
+              severity: warning
+            receiver: 'warning-alerts'
+        receivers:
+        - name: 'web.hook'
+          webhook_configs:
+          - url: 'http://127.0.0.1:5001/'
+        - name: 'critical-alerts'
+          email_configs:
+          - to: 'admin@example.com'
+            subject: '[CRITICAL] GitOps Infrastructure Alert'
+            body: |
+              {{ range .Alerts }}
+              Alert: {{ .Annotations.summary }}
+              Description: {{ .Annotations.description }}
+              Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+              {{ end }}
+        - name: 'warning-alerts'
+          email_configs:
+          - to: 'ops@example.com'
+            subject: '[WARNING] GitOps Infrastructure Alert'
+            body: |
+              {{ range .Alerts }}
+              Alert: {{ .Annotations.summary }}
+              Description: {{ .Annotations.description }}
+              Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+              {{ end }}
+    
+    # Node Exporter
+    nodeExporter:
+      enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+    
+    # Kube State Metrics
+    kubeStateMetrics:
+      enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
+    
+    # Blackbox Exporter
+    blackboxExporter:
+      enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
