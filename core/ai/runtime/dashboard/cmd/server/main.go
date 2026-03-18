@@ -58,7 +58,6 @@ func main() {
 	// Initialize RAG service if enabled
 	var ragService *rag.RAGService
 	var ragHandler *api.RAGHandler
-	var voiceHandler *api.VoiceHandler
 	if os.Getenv("RAG_ENABLED") == "true" {
 		qwenClient := rag.NewQwenClient(
 			getEnv("QWEN_LLAMACPP_URL", "http://localhost:8080"),
@@ -66,9 +65,6 @@ func main() {
 		)
 		ragService = rag.NewRAGService(db, qwenClient)
 		ragHandler = api.NewRAGHandler(ragService)
-		
-		// Initialize voice handler
-		voiceHandler = api.NewVoiceHandler(getEnv("VOICE_UPLOAD_DIR", "/tmp/voice-uploads"))
 		
 		// Index documentation on startup
 		go func() {
@@ -80,6 +76,10 @@ func main() {
 			}
 		}()
 	}
+
+	// Initialize voice handler
+	var voiceHandler *api.VoiceHandler
+	voiceHandler = api.NewVoiceHandler(getEnv("VOICE_UPLOAD_DIR", "/tmp/voice-uploads"))
 
 	// Initialize WebSocket hub
 	wsHub := ws.NewHub(logger)
