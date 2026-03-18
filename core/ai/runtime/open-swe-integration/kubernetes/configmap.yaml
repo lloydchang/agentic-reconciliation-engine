@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slack-integration-config
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+    version: v1.0.0
+data:
+  config.yaml: |
+    # Slack Integration Configuration
+    slack:
+      # Bot configuration
+      bot_name: "GitOpsBot"
+      bot_icon: ":robot_face:"
+      
+      # Command patterns
+      command_prefix: "@GitOpsBot"
+      
+      # Supported commands
+      commands:
+        deploy:
+          skill: "deployment-strategy"
+          description: "Deploy applications to environments"
+          parameters:
+            - name: environment
+              type: string
+              required: true
+              default: "staging"
+            - name: namespace
+              type: string
+              required: false
+            - name: service
+              type: string
+              required: false
+        
+        optimize:
+          skill: "optimize-costs"
+          description: "Optimize cloud costs"
+          parameters:
+            - name: optimization_level
+              type: string
+              required: false
+              default: "moderate"
+              options: ["conservative", "moderate", "aggressive"]
+        
+        secure:
+          skill: "analyze-security"
+          description: "Run security analysis"
+          parameters:
+            - name: scan_depth
+              type: string
+              required: false
+              default: "standard"
+              options: ["quick", "standard", "deep"]
+        
+        scale:
+          skill: "scale-resources"
+          description: "Scale resources"
+          parameters:
+            - name: target_service
+              type: string
+              required: false
+            - name: scale_amount
+              type: string
+              required: false
+        
+        monitor:
+          skill: "check-cluster-health"
+          description: "Check cluster health"
+          parameters:
+            - name: check_scope
+              type: string
+              required: false
+              default: "full"
+        
+        troubleshoot:
+          skill: "diagnose-network"
+          description: "Network troubleshooting"
+          parameters:
+            - name: diagnostic_type
+              type: string
+              required: false
+              default: "general"
+        
+        certificate:
+          skill: "manage-certificates"
+          description: "Certificate management"
+          parameters:
+            - name: certificate_domain
+              type: string
+              required: false
+        
+        database:
+          skill: "maintain-databases"
+          description: "Database maintenance"
+          parameters:
+            - name: maintenance_operation
+              type: string
+              required: false
+              default: "maintenance"
+        
+        cluster:
+          skill: "manage-kubernetes-cluster"
+          description: "Cluster management"
+          parameters:
+            - name: cluster_operation
+              type: string
+              required: false
+              default: "maintenance"
+        
+        compliance:
+          skill: "generate-compliance-report"
+          description: "Generate compliance reports"
+          parameters: []
+        
+        audit:
+          skill: "audit-security-events"
+          description: "Audit security events"
+          parameters: []
+        
+        secrets:
+          skill: "rotate-secrets"
+          description: "Rotate secrets"
+          parameters: []
+
+    # Temporal configuration
+    temporal:
+      host: "temporal-frontend.temporal.svc.cluster.local:7233"
+      task_queue: "slack-integration"
+      workflow_timeout: "30m"
+      activity_timeout: "10m"
+
+    # Memory agent configuration
+    memory_agent:
+      url: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+      context_ttl: "24h"
+      max_context_size: "1MB"
+
+    # Monitoring configuration
+    monitoring:
+      metrics_port: "8080"
+      health_port: "8081"
+      log_level: "info"
+      
+    # Security configuration
+    security:
+      max_request_size: "1MB"
+      rate_limit_per_minute: 100
+      signature_validation: true
+      timestamp_validation: true
+      
+    # Feature flags
+    feature_flags:
+      enable_linear_integration: false
+      enable_subagent_parallelism: true
+      enable_middleware_hooks: true
+      enable_context_enhancement: true
+      enable_advanced_nlp: false

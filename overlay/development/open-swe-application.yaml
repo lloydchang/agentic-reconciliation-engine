@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-swe-development
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: open-swe
+    app.kubernetes.io/component: application
+    environment: development
+spec:
+  project: development
+  source:
+    repoURL: https://github.com/lloydchang/gitops-infra-control-plane
+    path: helm/open-swe
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values-development.yaml
+      parameters:
+        - name: global.ingress.enabled
+          value: "true"
+        - name: global.ingress.className
+          value: "nginx"
+        - name: gateway.replicas
+          value: "1"
+        - name: sandboxOperator.replicas
+          value: "1"
+        - name: reasoningEngine.replicas
+          value: "1"
+        - name: orchestrator.replicas
+          value: "1"
+        - name: workflowEngine.replicas
+          value: "1"
+        - name: analyticsEngine.replicas
+          value: "1"
+        - name: temporal.persistence.size
+          value: "8Gi"
+        - name: prometheus.server.persistentVolume.size
+          value: "8Gi"
+        - name: grafana.persistence.size
+          value: "10Gi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: open-swe-development
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 10

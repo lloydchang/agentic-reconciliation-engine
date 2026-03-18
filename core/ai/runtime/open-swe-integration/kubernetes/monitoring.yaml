@@ -1,0 +1,95 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: slack-integration-metrics
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+    version: v1.0.0
+    monitoring: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: slack-integration
+      component: open-swe-integration
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    honorLabels: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slack-integration-alerts
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+    version: v1.0.0
+    monitoring: prometheus
+spec:
+  groups:
+  - name: slack-integration.rules
+    rules:
+    - alert: SlackIntegrationDown
+      expr: up{job="slack-integration"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: slack-integration
+      annotations:
+        summary: "Slack integration service is down"
+        description: "Slack integration service has been down for more than 1 minute."
+    
+    - alert: SlackIntegrationHighErrorRate
+      expr: rate(http_requests_total{job="slack-integration",status=~"5.."}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        service: slack-integration
+      annotations:
+        summary: "High error rate in Slack integration"
+        description: "Slack integration has error rate above 10% for more than 2 minutes."
+    
+    - alert: SlackIntegrationHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="slack-integration"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+        service: slack-integration
+      annotations:
+        summary: "High latency in Slack integration"
+        description: "95th percentile latency is above 2 seconds for more than 5 minutes."
+    
+    - alert: SlackIntegrationMemoryUsageHigh
+      expr: (container_memory_usage_bytes{pod=~"slack-integration-.*"} / container_spec_memory_limit_bytes{pod=~"slack-integration-.*"}) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: slack-integration
+      annotations:
+        summary: "High memory usage in Slack integration"
+        description: "Memory usage is above 80% for more than 5 minutes."
+    
+    - alert: SlackIntegrationCPUUsageHigh
+      expr: rate(container_cpu_usage_seconds_total{pod=~"slack-integration-.*"}[5m]) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: slack-integration
+      annotations:
+        summary: "High CPU usage in Slack integration"
+        description: "CPU usage is above 80% for more than 5 minutes."
+    
+    - alert: SlackIntegrationWorkflowFailures
+      expr: rate(temporal_workflow_execution_failed_total{namespace="default",task_queue="slack-integration"}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        service: slack-integration
+      annotations:
+        summary: "High workflow failure rate"
+        description: "Temporal workflow failure rate is above 10% for more than 2 minutes."

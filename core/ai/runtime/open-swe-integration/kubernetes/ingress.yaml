@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slack-integration-ingress
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+    version: v1.0.0
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,X-Slack-Signature,X-Slack-Request-Timestamp"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  tls:
+  - hosts:
+    - slack-integration.gitops.example.com
+    secretName: slack-integration-tls
+  rules:
+  - host: slack-integration.gitops.example.com
+    http:
+      paths:
+      - path: /webhooks/slack
+        pathType: Prefix
+        backend:
+          service:
+            name: slack-integration-service
+            port:
+              number: 80
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: slack-integration-service
+            port:
+              number: 8081
+      - path: /ready
+        pathType: Prefix
+        backend:
+          service:
+            name: slack-integration-service
+            port:
+              number: 8081
+      - path: /metrics
+        pathType: Prefix
+        backend:
+          service:
+            name: slack-integration-service
+            port:
+              number: 8080
