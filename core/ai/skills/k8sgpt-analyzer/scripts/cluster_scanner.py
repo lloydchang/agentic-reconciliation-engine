@@ -206,7 +206,7 @@ class ClusterScanner:
         resources = {}
         
         try:
-            # Try to parse the filter (e.g., "pods", "deployments/my-app", "namespace/pods")
+            # Try to parse the filter (e.g., "pods", "core/deployment/my-app", "namespace/pods")
             if '/' in resource_filter:
                 parts = resource_filter.split('/')
                 if len(parts) == 2:

@@ -33,11 +33,11 @@ Added minimal hook calls to `quickstart.sh`:
 ```bash
 # After argument parsing (line 77-78):
 # Overlay: Allow pre-quickstart hook
-[ -f "./hooks/pre-quickstart.sh" ] && source ./hooks/pre-quickstart.sh
+[ -f "./core/hooks/pre-quickstart.sh" ] && source ./core/hooks/pre-quickstart.sh
 
 # Before final summary (line 149-150):
 # Overlay: Allow post-quickstart hook  
-[ -f "./hooks/post-quickstart.sh" ] && source ./hooks/post-quickstart.sh
+[ -f "./core/hooks/post-quickstart.sh" ] && source ./core/hooks/post-quickstart.sh
 ```
 
 **Impact**: Only 2 lines added to enable full overlay capability.
@@ -74,13 +74,13 @@ source "${SCRIPT_DIR}/quickstart.sh" "$@"
 
 #### 3. Hook System
 
-**Pre-Quickstart Hook** (`./hooks/pre-quickstart.sh`):
+**Pre-Quickstart Hook** (`./core/hooks/pre-quickstart.sh`):
 - Runs before any quickstart logic
 - Sets overlay-specific environment variables
 - Creates overlay directories
 - Prepares additional resources
 
-**Post-Quickstart Hook** (`./hooks/post-quickstart.sh`):
+**Post-Quickstart Hook** (`./core/hooks/post-quickstart.sh`):
 - Runs after base quickstart completes
 - Deploys overlay-specific resources
 - Applies custom configurations
@@ -160,7 +160,7 @@ overlay-quickstart.sh       # True overlay implementation
 core/core/automation/ci-cd/scripts/
 ├── quickstart.sh              # Base script with hook support
 ├── overlay-quickstart.sh      # Overlay implementation
-└── hooks/                    # Created dynamically by overlay
+└── core/hooks/                    # Created dynamically by overlay
     ├── pre-quickstart.sh      # Pre-execution hook
     └── post-quickstart.sh     # Post-execution hook
 ```

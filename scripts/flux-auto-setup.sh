@@ -243,7 +243,7 @@ setup_repository_structure() {
     
     # Create necessary directories
     mkdir -p "clusters/$ENVIRONMENT/flux-system"
-    mkdir -p "gitops/flux-system"
+    mkdir -p "core/gitops/flux-system"
     mkdir -p "overlays/flux-system/$ENVIRONMENT"
     mkdir -p "core/resources/tenants/{1-network,2-clusters,3-workloads}"
     mkdir -p "core/operators"
@@ -318,7 +318,7 @@ setup_qwen_integration() {
     fi
     
     # Apply Qwen manifests
-    if kubectl apply -f gitops/flux-system/qwen-integration.yaml; then
+    if kubectl apply -f core/gitops/flux-system/qwen-integration.yaml; then
         log_success "Qwen LLM integration manifests applied"
     else
         log_error "Failed to apply Qwen manifests"
@@ -349,7 +349,7 @@ setup_k8sgpt() {
     fi
     
     # Apply K8sGPT manifests
-    if kubectl apply -f gitops/flux-system/k8sgpt-qwen.yaml; then
+    if kubectl apply -f core/gitops/flux-system/k8sgpt-qwen.yaml; then
         log_success "K8sGPT manifests applied"
     else
         log_error "Failed to apply K8sGPT manifests"
@@ -380,7 +380,7 @@ setup_monitoring() {
     fi
     
     # Apply monitoring manifests
-    if kubectl apply -f gitops/flux-system/monitoring.yaml; then
+    if kubectl apply -f core/gitops/flux-system/monitoring.yaml; then
         log_success "Monitoring manifests applied"
     else
         log_error "Failed to apply monitoring manifests"

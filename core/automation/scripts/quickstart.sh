@@ -38,7 +38,7 @@ print_info() {
 # Hook support - allows overlays to extend quickstart without modification
 run_hooks() {
     local hook_name="$1"
-    local hook_file="hooks/${hook_name}.sh"
+    local hook_file="core/hooks/${hook_name}.sh"
     
     if [[ -f "$hook_file" ]]; then
         print_info "Running $hook_name hook..."
@@ -260,8 +260,8 @@ show_help() {
     echo "  and deployment of AI agents dashboard with running agents."
     echo ""
     echo "  This script supports overlay extensions through hooks:"
-    echo "  - hooks/pre-quickstart.sh: Runs before main quickstart logic"
-    echo "  - hooks/post-quickstart.sh: Runs after main quickstart logic"
+    echo "  - core/hooks/pre-quickstart.sh: Runs before main quickstart logic"
+    echo "  - core/hooks/post-quickstart.sh: Runs after main quickstart logic"
     echo ""
     echo "  Overlay mode is activated when OVERLAY_MODE=true is set."
     echo "  In overlay mode, the script adapts behavior for overlay workflows."
@@ -278,9 +278,9 @@ show_help() {
     echo ""
     echo "HOOKS:"
     echo "  To extend quickstart.sh without modifying it:"
-    echo "  1. Create hooks/ directory"
-    echo "  2. Add hooks/pre-quickstart.sh (runs before main logic)"
-    echo "  3. Add hooks/post-quickstart.sh (runs after main logic)"
+    echo "  1. Create core/hooks/ directory"
+    echo "  2. Add core/hooks/pre-quickstart.sh (runs before main logic)"
+    echo "  3. Add core/hooks/post-quickstart.sh (runs after main logic)"
     echo "  4. Set OVERLAY_MODE=true when running"
     echo ""
     echo "  The hooks will be automatically sourced and executed."

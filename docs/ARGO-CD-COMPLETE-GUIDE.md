@@ -82,20 +82,20 @@ kubectl get pods -n k8sgpt-system
 
 ```bash
 # 1. Install Argo CD
-kubectl apply -f gitops/argocd/namespace.yaml
-kubectl apply -f gitops/argocd/install.yaml
+kubectl apply -f core/gitops/argocd/namespace.yaml
+kubectl apply -f core/gitops/argocd/install.yaml
 
 # 2. Install K8sGPT with Qwen
-kubectl apply -f gitops/argocd/k8sgpt/namespace.yaml
-kubectl apply -f gitops/argocd/k8sgpt/qwen-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/qwen-config.yaml
-kubectl apply -f gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/configmap.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/namespace.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-config.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/configmap.yaml
 
 # 3. Configure applications
-kubectl apply -f gitops/argocd/applications/root-app.yaml
-kubectl apply -f gitops/argocd/applications/k8sgpt-app.yaml
-kubectl apply -f gitops/argocd/applications/ai-infrastructure-app.yaml
+kubectl apply -f core/gitops/argocd/applications/root-app.yaml
+kubectl apply -f core/gitops/argocd/applications/k8sgpt-app.yaml
+kubectl apply -f core/gitops/argocd/applications/ai-infrastructure-app.yaml
 ```
 
 ## Installation Guide
@@ -118,7 +118,7 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Or use our custom installation
-kubectl apply -f gitops/argocd/install.yaml
+kubectl apply -f core/gitops/argocd/install.yaml
 
 # Wait for deployment
 kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
@@ -131,12 +131,12 @@ kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -
 kubectl create namespace k8sgpt-system
 
 # Deploy Qwen LocalAI
-kubectl apply -f gitops/argocd/k8sgpt/qwen-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/qwen-config.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-config.yaml
 
 # Deploy K8sGPT
-kubectl apply -f gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/configmap.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/configmap.yaml
 
 # Wait for deployment
 kubectl wait --for=condition=available --timeout=600s deployment/qwen-localai -n k8sgpt-system
@@ -158,18 +158,18 @@ kubectl cp qwen2.5-coder-7b-instruct-q4_0.gguf $POD_NAME:/models/ -n k8sgpt-syst
 
 ```bash
 # Apply root application
-kubectl apply -f gitops/argocd/applications/root-app.yaml
+kubectl apply -f core/gitops/argocd/applications/root-app.yaml
 
 # Apply individual applications
-kubectl apply -f gitops/argocd/applications/k8sgpt-app.yaml
-kubectl apply -f gitops/argocd/applications/ai-infrastructure-app.yaml
+kubectl apply -f core/gitops/argocd/applications/k8sgpt-app.yaml
+kubectl apply -f core/gitops/argocd/applications/ai-infrastructure-app.yaml
 ```
 
 ## Configuration
 
 ### Argo CD Configuration
 
-Edit `gitops/argocd/install.yaml` to customize:
+Edit `core/gitops/argocd/install.yaml` to customize:
 
 ```yaml
 # Server configuration
@@ -193,7 +193,7 @@ env:
 
 ### K8sGPT Configuration
 
-Edit `gitops/argocd/k8sgpt/configmap.yaml`:
+Edit `core/gitops/argocd/k8sgpt/configmap.yaml`:
 
 ```yaml
 data:
@@ -218,7 +218,7 @@ data:
 
 ### Qwen Model Configuration
 
-Edit `gitops/argocd/k8sgpt/qwen-config.yaml`:
+Edit `core/gitops/argocd/k8sgpt/qwen-config.yaml`:
 
 ```yaml
 data:
@@ -330,7 +330,7 @@ curl -X POST http://localhost:8081/analyze \
 
 ### Custom Prompts
 
-Configure specialized prompts in `gitops/argocd/k8sgpt/configmap.yaml`:
+Configure specialized prompts in `core/gitops/argocd/k8sgpt/configmap.yaml`:
 
 ```yaml
 prompts:

@@ -6,9 +6,9 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 
 ## Quick links
 - [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
-- [Repository Setup](./core/automation/scripts/quickstart.sh) — Development environment setup and prerequisites.
-- [Overlay Quick Start](./core/automation/scripts/overlay-quickstart.sh) — Overlay approach to quickstart with hooks and extensions.
-- [Overlay Manager](./core/automation/scripts/overlay-manager.sh) — Complete overlay lifecycle management.
+- [Repository Setup](./core/scripts/automation/quickstart.sh) — Development environment setup and prerequisites.
+- [Overlay Quick Start](./core/scripts/automation/overlay-quickstart.sh) — Overlay approach to quickstart with hooks and extensions.
+- [Overlay Manager](./core/scripts/automation/overlay-manager.sh) — Complete overlay lifecycle management.
 - [Overlay System](./docs/OVERLAY-QUICK-START.md) — complete overlay system with documentation, examples, and automation.
 - [Overview](./docs/OVERVIEW.md) — architecture narrative, operations references, zero-touch automation, and known limitations.
 - [Agent Runtime](./docs/AGENT-RUNTIME.md) — Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
@@ -18,8 +18,8 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 
 ## Getting started
 1. Open a POSIX shell (Mac Zsh, WSL Bash, Linux Bash via GitHub Codespaces, etc.) before touching the automation scripts.
-2. Run `core/automation/scripts/prerequisites.sh` to validate tools, skill files, and environment variables.
-3. Use `core/automation/scripts/run-local-automation.sh` or `core/automation/scripts/run-emulator-then-cloud.sh` to execute the full workflow; each script now logs whether you are in WSL or a native Windows shell.
+2. Run `core/scripts/automation/prerequisites.sh` to validate tools, skill files, and environment variables.
+3. Use `core/scripts/automation/run-local-automation.sh` or `core/scripts/automation/run-emulator-then-cloud.sh` to execute the full workflow; each script now logs whether you are in WSL or a native Windows shell.
 4. Check `logs/local-core/automation/ci-cd/latest-summary.json` and the `.log` files in `logs/local-core/automation/ci-cd/` for details, then iterate on your config or documentation as needed.
 
 For deeper architecture context, risk signals, and feature walkthrough, open [docs/OVERVIEW.md](docs/OVERVIEW.md).

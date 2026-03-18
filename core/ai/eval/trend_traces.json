@@ -1,0 +1,3514 @@
+{
+  "traces": [
+    {
+      "id": "trace-001",
+      "timestamp": 1773745170281,
+      "duration": {
+        "duration_ms": 512
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 323,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 950,
+        "output_tokens": 148,
+        "total_tokens": 1098
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745171281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745172281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745170793.569
+        }
+      ]
+    },
+    {
+      "id": "trace-002",
+      "timestamp": 1773745230281,
+      "duration": {
+        "duration_ms": 561
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 628,
+        "cpu_usage_percent": 50
+      },
+      "usage": {
+        "input_tokens": 1162,
+        "output_tokens": 556,
+        "total_tokens": 1718
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745232281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745230842.569
+        }
+      ]
+    },
+    {
+      "id": "trace-003",
+      "timestamp": 1773745290281,
+      "duration": {
+        "duration_ms": 1373
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 935,
+        "cpu_usage_percent": 70
+      },
+      "usage": {
+        "input_tokens": 833,
+        "output_tokens": 421,
+        "total_tokens": 1254
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745291281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745292281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745291654.569
+        }
+      ]
+    },
+    {
+      "id": "trace-004",
+      "timestamp": 1773745350281,
+      "duration": {
+        "duration_ms": 1254
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 851,
+        "cpu_usage_percent": 36
+      },
+      "usage": {
+        "input_tokens": 1993,
+        "output_tokens": 623,
+        "total_tokens": 2616
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745351281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745352281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745351535.569
+        }
+      ]
+    },
+    {
+      "id": "trace-005",
+      "timestamp": 1773745410281,
+      "duration": {
+        "duration_ms": 359
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 391,
+        "cpu_usage_percent": 35
+      },
+      "usage": {
+        "input_tokens": 678,
+        "output_tokens": 87,
+        "total_tokens": 765
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745411281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745412281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745410640.569
+        }
+      ]
+    },
+    {
+      "id": "trace-006",
+      "timestamp": 1773745470281,
+      "duration": {
+        "duration_ms": 289
+      },
+      "attributes": {
+        "operation_type": "database-maintenance",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 350,
+        "cpu_usage_percent": 30
+      },
+      "usage": {
+        "input_tokens": 721,
+        "output_tokens": 62,
+        "total_tokens": 783
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745471281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745472281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745470570.569
+        }
+      ]
+    },
+    {
+      "id": "trace-007",
+      "timestamp": 1773745530281,
+      "duration": {
+        "duration_ms": 1400
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 744,
+        "cpu_usage_percent": 64
+      },
+      "usage": {
+        "input_tokens": 1503,
+        "output_tokens": 319,
+        "total_tokens": 1822
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745531281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745532281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773745533281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745531681.569
+        }
+      ]
+    },
+    {
+      "id": "trace-008",
+      "timestamp": 1773745590281,
+      "duration": {
+        "duration_ms": 1770
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 827,
+        "cpu_usage_percent": 61
+      },
+      "usage": {
+        "input_tokens": 1202,
+        "output_tokens": 486,
+        "total_tokens": 1688
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745592281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745592051.569
+        }
+      ]
+    },
+    {
+      "id": "trace-009",
+      "timestamp": 1773745650281,
+      "duration": {
+        "duration_ms": 414
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 222,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 224,
+        "output_tokens": 151,
+        "total_tokens": 375
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745652281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745650695.569
+        }
+      ]
+    },
+    {
+      "id": "trace-010",
+      "timestamp": 1773745710281,
+      "duration": {
+        "duration_ms": 1189
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1098,
+        "cpu_usage_percent": 34
+      },
+      "usage": {
+        "input_tokens": 943,
+        "output_tokens": 243,
+        "total_tokens": 1186
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745711281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745712281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745711470.569
+        }
+      ]
+    },
+    {
+      "id": "trace-011",
+      "timestamp": 1773745770281,
+      "duration": {
+        "duration_ms": 726
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 348,
+        "cpu_usage_percent": 40
+      },
+      "usage": {
+        "input_tokens": 944,
+        "output_tokens": 306,
+        "total_tokens": 1250
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745771281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745772281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773745773281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745771007.569
+        }
+      ]
+    },
+    {
+      "id": "trace-012",
+      "timestamp": 1773745830281,
+      "duration": {
+        "duration_ms": 782
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 965,
+        "cpu_usage_percent": 53
+      },
+      "usage": {
+        "input_tokens": 1119,
+        "output_tokens": 463,
+        "total_tokens": 1582
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745831281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745832281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745831063.569
+        }
+      ]
+    },
+    {
+      "id": "trace-013",
+      "timestamp": 1773745890281,
+      "duration": {
+        "duration_ms": 444
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 268,
+        "cpu_usage_percent": 23
+      },
+      "usage": {
+        "input_tokens": 987,
+        "output_tokens": 252,
+        "total_tokens": 1239
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745891281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745892281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745890725.569
+        }
+      ]
+    },
+    {
+      "id": "trace-014",
+      "timestamp": 1773745950281,
+      "duration": {
+        "duration_ms": 552
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 463,
+        "cpu_usage_percent": 27
+      },
+      "usage": {
+        "input_tokens": 735,
+        "output_tokens": 391,
+        "total_tokens": 1126
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773745951281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773745952281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773745950833.569
+        }
+      ]
+    },
+    {
+      "id": "trace-015",
+      "timestamp": 1773746010281,
+      "duration": {
+        "duration_ms": 398
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 232,
+        "cpu_usage_percent": 40
+      },
+      "usage": {
+        "input_tokens": 486,
+        "output_tokens": 163,
+        "total_tokens": 649
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746011281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746012281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746010679.569
+        }
+      ]
+    },
+    {
+      "id": "trace-016",
+      "timestamp": 1773746070281,
+      "duration": {
+        "duration_ms": 420
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 493,
+        "cpu_usage_percent": 49
+      },
+      "usage": {
+        "input_tokens": 446,
+        "output_tokens": 369,
+        "total_tokens": 815
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746071281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746072281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746070701.569
+        }
+      ]
+    },
+    {
+      "id": "trace-017",
+      "timestamp": 1773746130281,
+      "duration": {
+        "duration_ms": 572
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1111,
+        "cpu_usage_percent": 56
+      },
+      "usage": {
+        "input_tokens": 1835,
+        "output_tokens": 753,
+        "total_tokens": 2588
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746132281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746130853.569
+        }
+      ]
+    },
+    {
+      "id": "trace-018",
+      "timestamp": 1773746190281,
+      "duration": {
+        "duration_ms": 259
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 355,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 623,
+        "output_tokens": 193,
+        "total_tokens": 816
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746192281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746190540.569
+        }
+      ]
+    },
+    {
+      "id": "trace-019",
+      "timestamp": 1773746250281,
+      "duration": {
+        "duration_ms": 1879
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 604,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 1657,
+        "output_tokens": 286,
+        "total_tokens": 1943
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746252281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773746253281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746252160.569
+        }
+      ]
+    },
+    {
+      "id": "trace-020",
+      "timestamp": 1773746310281,
+      "duration": {
+        "duration_ms": 632
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 450,
+        "cpu_usage_percent": 34
+      },
+      "usage": {
+        "input_tokens": 625,
+        "output_tokens": 224,
+        "total_tokens": 849
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746311281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746312281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746310913.569
+        }
+      ]
+    },
+    {
+      "id": "trace-021",
+      "timestamp": 1773746370281,
+      "duration": {
+        "duration_ms": 627
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 538,
+        "cpu_usage_percent": 47
+      },
+      "usage": {
+        "input_tokens": 1671,
+        "output_tokens": 727,
+        "total_tokens": 2398
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746372281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746370908.569
+        }
+      ]
+    },
+    {
+      "id": "trace-022",
+      "timestamp": 1773746430281,
+      "duration": {
+        "duration_ms": 168
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 223,
+        "cpu_usage_percent": 13
+      },
+      "usage": {
+        "input_tokens": 619,
+        "output_tokens": 112,
+        "total_tokens": 731
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746432281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746430449.569
+        }
+      ]
+    },
+    {
+      "id": "trace-023",
+      "timestamp": 1773746490281,
+      "duration": {
+        "duration_ms": 423
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 536,
+        "cpu_usage_percent": 27
+      },
+      "usage": {
+        "input_tokens": 525,
+        "output_tokens": 311,
+        "total_tokens": 836
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746491281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746492281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746490704.569
+        }
+      ]
+    },
+    {
+      "id": "trace-024",
+      "timestamp": 1773746550281,
+      "duration": {
+        "duration_ms": 368
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 265,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 476,
+        "output_tokens": 85,
+        "total_tokens": 561
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746551281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746552281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746550649.569
+        }
+      ]
+    },
+    {
+      "id": "trace-025",
+      "timestamp": 1773746610281,
+      "duration": {
+        "duration_ms": 351
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 344,
+        "cpu_usage_percent": 26
+      },
+      "usage": {
+        "input_tokens": 685,
+        "output_tokens": 200,
+        "total_tokens": 885
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746611281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746612281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746610632.569
+        }
+      ]
+    },
+    {
+      "id": "trace-026",
+      "timestamp": 1773746670281,
+      "duration": {
+        "duration_ms": 449
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 526,
+        "cpu_usage_percent": 44
+      },
+      "usage": {
+        "input_tokens": 887,
+        "output_tokens": 215,
+        "total_tokens": 1102
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746671281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746672281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746670730.569
+        }
+      ]
+    },
+    {
+      "id": "trace-027",
+      "timestamp": 1773746730281,
+      "duration": {
+        "duration_ms": 449
+      },
+      "attributes": {
+        "operation_type": "database-maintenance",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 226,
+        "cpu_usage_percent": 14
+      },
+      "usage": {
+        "input_tokens": 695,
+        "output_tokens": 241,
+        "total_tokens": 936
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746731281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746732281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746730730.569
+        }
+      ]
+    },
+    {
+      "id": "trace-028",
+      "timestamp": 1773746790281,
+      "duration": {
+        "duration_ms": 170
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 132,
+        "cpu_usage_percent": 11
+      },
+      "usage": {
+        "input_tokens": 533,
+        "output_tokens": 74,
+        "total_tokens": 607
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746791281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746792281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746790451.569
+        }
+      ]
+    },
+    {
+      "id": "trace-029",
+      "timestamp": 1773746850281,
+      "duration": {
+        "duration_ms": 1618
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 658,
+        "cpu_usage_percent": 51
+      },
+      "usage": {
+        "input_tokens": 1365,
+        "output_tokens": 615,
+        "total_tokens": 1980
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773746851281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746852281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746851899.569
+        }
+      ]
+    },
+    {
+      "id": "trace-030",
+      "timestamp": 1773746910281,
+      "duration": {
+        "duration_ms": 655
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 450,
+        "cpu_usage_percent": 49
+      },
+      "usage": {
+        "input_tokens": 510,
+        "output_tokens": 156,
+        "total_tokens": 666
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746912281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746910936.569
+        }
+      ]
+    },
+    {
+      "id": "trace-031",
+      "timestamp": 1773746970281,
+      "duration": {
+        "duration_ms": 1147
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 938,
+        "cpu_usage_percent": 59
+      },
+      "usage": {
+        "input_tokens": 1760,
+        "output_tokens": 377,
+        "total_tokens": 2137
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773746972281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773746971428.569
+        }
+      ]
+    },
+    {
+      "id": "trace-032",
+      "timestamp": 1773747030281,
+      "duration": {
+        "duration_ms": 283
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 314,
+        "cpu_usage_percent": 30
+      },
+      "usage": {
+        "input_tokens": 775,
+        "output_tokens": 139,
+        "total_tokens": 914
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747031281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747032281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773747033281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747030564.569
+        }
+      ]
+    },
+    {
+      "id": "trace-033",
+      "timestamp": 1773747090281,
+      "duration": {
+        "duration_ms": 527
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 418,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 1002,
+        "output_tokens": 390,
+        "total_tokens": 1392
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747091281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747092281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747090808.569
+        }
+      ]
+    },
+    {
+      "id": "trace-034",
+      "timestamp": 1773747150281,
+      "duration": {
+        "duration_ms": 546
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 256,
+        "cpu_usage_percent": 36
+      },
+      "usage": {
+        "input_tokens": 1111,
+        "output_tokens": 147,
+        "total_tokens": 1258
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747152281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747150827.569
+        }
+      ]
+    },
+    {
+      "id": "trace-035",
+      "timestamp": 1773747210281,
+      "duration": {
+        "duration_ms": 1239
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 920,
+        "cpu_usage_percent": 52
+      },
+      "usage": {
+        "input_tokens": 946,
+        "output_tokens": 329,
+        "total_tokens": 1275
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747211281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747212281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747211520.569
+        }
+      ]
+    },
+    {
+      "id": "trace-036",
+      "timestamp": 1773747270281,
+      "duration": {
+        "duration_ms": 499
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 364,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 1179,
+        "output_tokens": 357,
+        "total_tokens": 1536
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747271281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747272281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747270780.569
+        }
+      ]
+    },
+    {
+      "id": "trace-037",
+      "timestamp": 1773747330281,
+      "duration": {
+        "duration_ms": 283
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 196,
+        "cpu_usage_percent": 13
+      },
+      "usage": {
+        "input_tokens": 748,
+        "output_tokens": 122,
+        "total_tokens": 870
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747331281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747332281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747330564.569
+        }
+      ]
+    },
+    {
+      "id": "trace-038",
+      "timestamp": 1773747390281,
+      "duration": {
+        "duration_ms": 1393
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 753,
+        "cpu_usage_percent": 74
+      },
+      "usage": {
+        "input_tokens": 1716,
+        "output_tokens": 303,
+        "total_tokens": 2019
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747391281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747392281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747391674.569
+        }
+      ]
+    },
+    {
+      "id": "trace-039",
+      "timestamp": 1773747450281,
+      "duration": {
+        "duration_ms": 716
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 499,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 673,
+        "output_tokens": 302,
+        "total_tokens": 975
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747451281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747452281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747450997.569
+        }
+      ]
+    },
+    {
+      "id": "trace-040",
+      "timestamp": 1773747510281,
+      "duration": {
+        "duration_ms": 709
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 242,
+        "cpu_usage_percent": 42
+      },
+      "usage": {
+        "input_tokens": 1087,
+        "output_tokens": 163,
+        "total_tokens": 1250
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747511281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747512281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747510990.569
+        }
+      ]
+    },
+    {
+      "id": "trace-041",
+      "timestamp": 1773747570281,
+      "duration": {
+        "duration_ms": 760
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 540,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 942,
+        "output_tokens": 355,
+        "total_tokens": 1297
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747572281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747571041.569
+        }
+      ]
+    },
+    {
+      "id": "trace-042",
+      "timestamp": 1773747630281,
+      "duration": {
+        "duration_ms": 940
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1245,
+        "cpu_usage_percent": 49
+      },
+      "usage": {
+        "input_tokens": 1332,
+        "output_tokens": 941,
+        "total_tokens": 2273
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747631281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747632281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747631221.569
+        }
+      ]
+    },
+    {
+      "id": "trace-043",
+      "timestamp": 1773747690281,
+      "duration": {
+        "duration_ms": 2198
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 836,
+        "cpu_usage_percent": 64
+      },
+      "usage": {
+        "input_tokens": 1842,
+        "output_tokens": 865,
+        "total_tokens": 2707
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747692281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773747693281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747692479.569
+        }
+      ]
+    },
+    {
+      "id": "trace-044",
+      "timestamp": 1773747750281,
+      "duration": {
+        "duration_ms": 2840
+      },
+      "attributes": {
+        "operation_type": "log-analysis",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1149,
+        "cpu_usage_percent": 43
+      },
+      "usage": {
+        "input_tokens": 2428,
+        "output_tokens": 940,
+        "total_tokens": 3368
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747752281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747753121.569
+        }
+      ]
+    },
+    {
+      "id": "trace-045",
+      "timestamp": 1773747810281,
+      "duration": {
+        "duration_ms": 117
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 138,
+        "cpu_usage_percent": 39
+      },
+      "usage": {
+        "input_tokens": 795,
+        "output_tokens": 131,
+        "total_tokens": 926
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747811281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747812281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747810398.569
+        }
+      ]
+    },
+    {
+      "id": "trace-046",
+      "timestamp": 1773747870281,
+      "duration": {
+        "duration_ms": 1904
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 521,
+        "cpu_usage_percent": 51
+      },
+      "usage": {
+        "input_tokens": 1826,
+        "output_tokens": 463,
+        "total_tokens": 2289
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747871281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747872281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747872185.569
+        }
+      ]
+    },
+    {
+      "id": "trace-047",
+      "timestamp": 1773747930281,
+      "duration": {
+        "duration_ms": 150
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 312,
+        "cpu_usage_percent": 34
+      },
+      "usage": {
+        "input_tokens": 472,
+        "output_tokens": 288,
+        "total_tokens": 760
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747931281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747932281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747930431.569
+        }
+      ]
+    },
+    {
+      "id": "trace-048",
+      "timestamp": 1773747990281,
+      "duration": {
+        "duration_ms": 1577
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 638,
+        "cpu_usage_percent": 62
+      },
+      "usage": {
+        "input_tokens": 2410,
+        "output_tokens": 781,
+        "total_tokens": 3191
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773747991281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773747992281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773747991858.569
+        }
+      ]
+    },
+    {
+      "id": "trace-049",
+      "timestamp": 1773748050281,
+      "duration": {
+        "duration_ms": 1647
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 417,
+        "cpu_usage_percent": 65
+      },
+      "usage": {
+        "input_tokens": 1483,
+        "output_tokens": 303,
+        "total_tokens": 1786
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748052281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748051928.569
+        }
+      ]
+    },
+    {
+      "id": "trace-050",
+      "timestamp": 1773748110281,
+      "duration": {
+        "duration_ms": 232
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 258,
+        "cpu_usage_percent": 41
+      },
+      "usage": {
+        "input_tokens": 722,
+        "output_tokens": 191,
+        "total_tokens": 913
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748111281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748112281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773748113281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748110513.569
+        }
+      ]
+    },
+    {
+      "id": "trace-051",
+      "timestamp": 1773748170281,
+      "duration": {
+        "duration_ms": 203
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 308,
+        "cpu_usage_percent": 24
+      },
+      "usage": {
+        "input_tokens": 403,
+        "output_tokens": 210,
+        "total_tokens": 613
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748172281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748170484.569
+        }
+      ]
+    },
+    {
+      "id": "trace-052",
+      "timestamp": 1773748230281,
+      "duration": {
+        "duration_ms": 293
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 364,
+        "cpu_usage_percent": 23
+      },
+      "usage": {
+        "input_tokens": 299,
+        "output_tokens": 101,
+        "total_tokens": 400
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748231281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748232281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748230574.569
+        }
+      ]
+    },
+    {
+      "id": "trace-053",
+      "timestamp": 1773748290281,
+      "duration": {
+        "duration_ms": 2921
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1010,
+        "cpu_usage_percent": 67
+      },
+      "usage": {
+        "input_tokens": 1235,
+        "output_tokens": 883,
+        "total_tokens": 2118
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748291281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748292281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748293202.569
+        }
+      ]
+    },
+    {
+      "id": "trace-054",
+      "timestamp": 1773748350281,
+      "duration": {
+        "duration_ms": 1572
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 836,
+        "cpu_usage_percent": 64
+      },
+      "usage": {
+        "input_tokens": 1686,
+        "output_tokens": 344,
+        "total_tokens": 2030
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748351281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748352281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748351853.569
+        }
+      ]
+    },
+    {
+      "id": "trace-055",
+      "timestamp": 1773748410281,
+      "duration": {
+        "duration_ms": 218
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 238,
+        "cpu_usage_percent": 21
+      },
+      "usage": {
+        "input_tokens": 414,
+        "output_tokens": 73,
+        "total_tokens": 487
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748412281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748410499.569
+        }
+      ]
+    },
+    {
+      "id": "trace-056",
+      "timestamp": 1773748470281,
+      "duration": {
+        "duration_ms": 217
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 308,
+        "cpu_usage_percent": 35
+      },
+      "usage": {
+        "input_tokens": 645,
+        "output_tokens": 343,
+        "total_tokens": 988
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748471281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748472281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748470498.569
+        }
+      ]
+    },
+    {
+      "id": "trace-057",
+      "timestamp": 1773748530281,
+      "duration": {
+        "duration_ms": 278
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 172,
+        "cpu_usage_percent": 27
+      },
+      "usage": {
+        "input_tokens": 227,
+        "output_tokens": 279,
+        "total_tokens": 506
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748531281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748532281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748530559.569
+        }
+      ]
+    },
+    {
+      "id": "trace-058",
+      "timestamp": 1773748590281,
+      "duration": {
+        "duration_ms": 628
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 420,
+        "cpu_usage_percent": 40
+      },
+      "usage": {
+        "input_tokens": 581,
+        "output_tokens": 372,
+        "total_tokens": 953
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748591281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748592281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748590909.569
+        }
+      ]
+    },
+    {
+      "id": "trace-059",
+      "timestamp": 1773748650281,
+      "duration": {
+        "duration_ms": 1258
+      },
+      "attributes": {
+        "operation_type": "log-analysis",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 855,
+        "cpu_usage_percent": 73
+      },
+      "usage": {
+        "input_tokens": 1578,
+        "output_tokens": 656,
+        "total_tokens": 2234
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748652281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748651539.569
+        }
+      ]
+    },
+    {
+      "id": "trace-060",
+      "timestamp": 1773748710281,
+      "duration": {
+        "duration_ms": 962
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 726,
+        "cpu_usage_percent": 65
+      },
+      "usage": {
+        "input_tokens": 811,
+        "output_tokens": 627,
+        "total_tokens": 1438
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748711281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748712281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748711243.569
+        }
+      ]
+    },
+    {
+      "id": "trace-061",
+      "timestamp": 1773748770281,
+      "duration": {
+        "duration_ms": 587
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 211,
+        "cpu_usage_percent": 46
+      },
+      "usage": {
+        "input_tokens": 1018,
+        "output_tokens": 112,
+        "total_tokens": 1130
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748771281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748772281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748770868.569
+        }
+      ]
+    },
+    {
+      "id": "trace-062",
+      "timestamp": 1773748830281,
+      "duration": {
+        "duration_ms": 832
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 940,
+        "cpu_usage_percent": 78
+      },
+      "usage": {
+        "input_tokens": 2376,
+        "output_tokens": 407,
+        "total_tokens": 2783
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748832281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748831113.569
+        }
+      ]
+    },
+    {
+      "id": "trace-063",
+      "timestamp": 1773748890281,
+      "duration": {
+        "duration_ms": 396
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 217,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 1153,
+        "output_tokens": 353,
+        "total_tokens": 1506
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748891281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748892281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748890677.569
+        }
+      ]
+    },
+    {
+      "id": "trace-064",
+      "timestamp": 1773748950281,
+      "duration": {
+        "duration_ms": 285
+      },
+      "attributes": {
+        "operation_type": "database-maintenance",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 399,
+        "cpu_usage_percent": 27
+      },
+      "usage": {
+        "input_tokens": 759,
+        "output_tokens": 218,
+        "total_tokens": 977
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773748951281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773748952281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773748950566.569
+        }
+      ]
+    },
+    {
+      "id": "trace-065",
+      "timestamp": 1773749010281,
+      "duration": {
+        "duration_ms": 948
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1006,
+        "cpu_usage_percent": 66
+      },
+      "usage": {
+        "input_tokens": 2039,
+        "output_tokens": 629,
+        "total_tokens": 2668
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749012281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749011229.569
+        }
+      ]
+    },
+    {
+      "id": "trace-066",
+      "timestamp": 1773749070281,
+      "duration": {
+        "duration_ms": 323
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 495,
+        "cpu_usage_percent": 41
+      },
+      "usage": {
+        "input_tokens": 684,
+        "output_tokens": 245,
+        "total_tokens": 929
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749071281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749072281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749070604.569
+        }
+      ]
+    },
+    {
+      "id": "trace-067",
+      "timestamp": 1773749130281,
+      "duration": {
+        "duration_ms": 485
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 211,
+        "cpu_usage_percent": 31
+      },
+      "usage": {
+        "input_tokens": 1061,
+        "output_tokens": 159,
+        "total_tokens": 1220
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749131281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749132281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773749133281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749130766.569
+        }
+      ]
+    },
+    {
+      "id": "trace-068",
+      "timestamp": 1773749190281,
+      "duration": {
+        "duration_ms": 1852
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1052,
+        "cpu_usage_percent": 48
+      },
+      "usage": {
+        "input_tokens": 1206,
+        "output_tokens": 534,
+        "total_tokens": 1740
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749191281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749192281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749192133.569
+        }
+      ]
+    },
+    {
+      "id": "trace-069",
+      "timestamp": 1773749250281,
+      "duration": {
+        "duration_ms": 2808
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1029,
+        "cpu_usage_percent": 42
+      },
+      "usage": {
+        "input_tokens": 1999,
+        "output_tokens": 878,
+        "total_tokens": 2877
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749252281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749253089.569
+        }
+      ]
+    },
+    {
+      "id": "trace-070",
+      "timestamp": 1773749310281,
+      "duration": {
+        "duration_ms": 2397
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1069,
+        "cpu_usage_percent": 47
+      },
+      "usage": {
+        "input_tokens": 1334,
+        "output_tokens": 344,
+        "total_tokens": 1678
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749312281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749312678.569
+        }
+      ]
+    },
+    {
+      "id": "trace-071",
+      "timestamp": 1773749370281,
+      "duration": {
+        "duration_ms": 724
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 809,
+        "cpu_usage_percent": 56
+      },
+      "usage": {
+        "input_tokens": 1389,
+        "output_tokens": 299,
+        "total_tokens": 1688
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749372281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749371005.569
+        }
+      ]
+    },
+    {
+      "id": "trace-072",
+      "timestamp": 1773749430281,
+      "duration": {
+        "duration_ms": 774
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 297,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 943,
+        "output_tokens": 276,
+        "total_tokens": 1219
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749431281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749432281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749431055.569
+        }
+      ]
+    },
+    {
+      "id": "trace-073",
+      "timestamp": 1773749490281,
+      "duration": {
+        "duration_ms": 1091
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 596,
+        "cpu_usage_percent": 31
+      },
+      "usage": {
+        "input_tokens": 955,
+        "output_tokens": 419,
+        "total_tokens": 1374
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749491281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749492281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749491372.569
+        }
+      ]
+    },
+    {
+      "id": "trace-074",
+      "timestamp": 1773749550281,
+      "duration": {
+        "duration_ms": 474
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 146,
+        "cpu_usage_percent": 23
+      },
+      "usage": {
+        "input_tokens": 645,
+        "output_tokens": 236,
+        "total_tokens": 881
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749551281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749552281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749550755.569
+        }
+      ]
+    },
+    {
+      "id": "trace-075",
+      "timestamp": 1773749610281,
+      "duration": {
+        "duration_ms": 281
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 385,
+        "cpu_usage_percent": 17
+      },
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 131,
+        "total_tokens": 640
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749611281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749612281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749610562.569
+        }
+      ]
+    },
+    {
+      "id": "trace-076",
+      "timestamp": 1773749670281,
+      "duration": {
+        "duration_ms": 290
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 343,
+        "cpu_usage_percent": 30
+      },
+      "usage": {
+        "input_tokens": 788,
+        "output_tokens": 271,
+        "total_tokens": 1059
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749671281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749672281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773749673281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749670571.569
+        }
+      ]
+    },
+    {
+      "id": "trace-077",
+      "timestamp": 1773749730281,
+      "duration": {
+        "duration_ms": 2994
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 842,
+        "cpu_usage_percent": 48
+      },
+      "usage": {
+        "input_tokens": 1039,
+        "output_tokens": 962,
+        "total_tokens": 2001
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749731281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749732281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749733275.569
+        }
+      ]
+    },
+    {
+      "id": "trace-078",
+      "timestamp": 1773749790281,
+      "duration": {
+        "duration_ms": 1539
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 853,
+        "cpu_usage_percent": 37
+      },
+      "usage": {
+        "input_tokens": 1879,
+        "output_tokens": 670,
+        "total_tokens": 2549
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749792281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749791820.569
+        }
+      ]
+    },
+    {
+      "id": "trace-079",
+      "timestamp": 1773749850281,
+      "duration": {
+        "duration_ms": 1659
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1146,
+        "cpu_usage_percent": 63
+      },
+      "usage": {
+        "input_tokens": 1029,
+        "output_tokens": 552,
+        "total_tokens": 1581
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749851281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749852281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749851940.569
+        }
+      ]
+    },
+    {
+      "id": "trace-080",
+      "timestamp": 1773749910281,
+      "duration": {
+        "duration_ms": 411
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 302,
+        "cpu_usage_percent": 23
+      },
+      "usage": {
+        "input_tokens": 783,
+        "output_tokens": 305,
+        "total_tokens": 1088
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749911281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749912281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749910692.569
+        }
+      ]
+    },
+    {
+      "id": "trace-081",
+      "timestamp": 1773749970281,
+      "duration": {
+        "duration_ms": 279
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 299,
+        "cpu_usage_percent": 36
+      },
+      "usage": {
+        "input_tokens": 733,
+        "output_tokens": 274,
+        "total_tokens": 1007
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773749971281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773749972281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773749970560.569
+        }
+      ]
+    },
+    {
+      "id": "trace-082",
+      "timestamp": 1773750030281,
+      "duration": {
+        "duration_ms": 200
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 104,
+        "cpu_usage_percent": 35
+      },
+      "usage": {
+        "input_tokens": 679,
+        "output_tokens": 101,
+        "total_tokens": 780
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750031281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750032281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750030481.569
+        }
+      ]
+    },
+    {
+      "id": "trace-083",
+      "timestamp": 1773750090281,
+      "duration": {
+        "duration_ms": 2786
+      },
+      "attributes": {
+        "operation_type": "infrastructure-provisioning",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 646,
+        "cpu_usage_percent": 71
+      },
+      "usage": {
+        "input_tokens": 1115,
+        "output_tokens": 582,
+        "total_tokens": 1697
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750091281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750092281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750093067.569
+        }
+      ]
+    },
+    {
+      "id": "trace-084",
+      "timestamp": 1773750150281,
+      "duration": {
+        "duration_ms": 214
+      },
+      "attributes": {
+        "operation_type": "database-maintenance",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 452,
+        "cpu_usage_percent": 47
+      },
+      "usage": {
+        "input_tokens": 849,
+        "output_tokens": 347,
+        "total_tokens": 1196
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750151281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750152281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750150495.569
+        }
+      ]
+    },
+    {
+      "id": "trace-085",
+      "timestamp": 1773750210281,
+      "duration": {
+        "duration_ms": 292
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 420,
+        "cpu_usage_percent": 23
+      },
+      "usage": {
+        "input_tokens": 765,
+        "output_tokens": 192,
+        "total_tokens": 957
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750211281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750212281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750210573.569
+        }
+      ]
+    },
+    {
+      "id": "trace-086",
+      "timestamp": 1773750270281,
+      "duration": {
+        "duration_ms": 2092
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 1319,
+        "cpu_usage_percent": 63
+      },
+      "usage": {
+        "input_tokens": 1370,
+        "output_tokens": 835,
+        "total_tokens": 2205
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750271281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750272281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750272373.569
+        }
+      ]
+    },
+    {
+      "id": "trace-087",
+      "timestamp": 1773750330281,
+      "duration": {
+        "duration_ms": 234
+      },
+      "attributes": {
+        "operation_type": "secret-rotation",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 361,
+        "cpu_usage_percent": 42
+      },
+      "usage": {
+        "input_tokens": 834,
+        "output_tokens": 292,
+        "total_tokens": 1126
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750331281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750332281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750330515.569
+        }
+      ]
+    },
+    {
+      "id": "trace-088",
+      "timestamp": 1773750390281,
+      "duration": {
+        "duration_ms": 588
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 476,
+        "cpu_usage_percent": 40
+      },
+      "usage": {
+        "input_tokens": 1080,
+        "output_tokens": 343,
+        "total_tokens": 1423
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750392281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750390869.569
+        }
+      ]
+    },
+    {
+      "id": "trace-089",
+      "timestamp": 1773750450281,
+      "duration": {
+        "duration_ms": 155
+      },
+      "attributes": {
+        "operation_type": "simple-query",
+        "skill_invoked": false,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 187,
+        "cpu_usage_percent": 16
+      },
+      "usage": {
+        "input_tokens": 704,
+        "output_tokens": 172,
+        "total_tokens": 876
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750452281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750450436.569
+        }
+      ]
+    },
+    {
+      "id": "trace-090",
+      "timestamp": 1773750510281,
+      "duration": {
+        "duration_ms": 652
+      },
+      "attributes": {
+        "operation_type": "log-analysis",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 442,
+        "cpu_usage_percent": 24
+      },
+      "usage": {
+        "input_tokens": 781,
+        "output_tokens": 341,
+        "total_tokens": 1122
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750512281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773750513281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750510933.569
+        }
+      ]
+    },
+    {
+      "id": "trace-091",
+      "timestamp": 1773750570281,
+      "duration": {
+        "duration_ms": 459
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 506,
+        "cpu_usage_percent": 47
+      },
+      "usage": {
+        "input_tokens": 1129,
+        "output_tokens": 274,
+        "total_tokens": 1403
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750571281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750572281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750570740.569
+        }
+      ]
+    },
+    {
+      "id": "trace-092",
+      "timestamp": 1773750630281,
+      "duration": {
+        "duration_ms": 1720
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 879,
+        "cpu_usage_percent": 50
+      },
+      "usage": {
+        "input_tokens": 1297,
+        "output_tokens": 637,
+        "total_tokens": 1934
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750631281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750632281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750632001.569
+        }
+      ]
+    },
+    {
+      "id": "trace-093",
+      "timestamp": 1773750690281,
+      "duration": {
+        "duration_ms": 495
+      },
+      "attributes": {
+        "operation_type": "network-configuration",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 337,
+        "cpu_usage_percent": 20
+      },
+      "usage": {
+        "input_tokens": 711,
+        "output_tokens": 76,
+        "total_tokens": 787
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750691281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750692281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750690776.569
+        }
+      ]
+    },
+    {
+      "id": "trace-094",
+      "timestamp": 1773750750281,
+      "duration": {
+        "duration_ms": 931
+      },
+      "attributes": {
+        "operation_type": "log-analysis",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1066,
+        "cpu_usage_percent": 62
+      },
+      "usage": {
+        "input_tokens": 1923,
+        "output_tokens": 295,
+        "total_tokens": 2218
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750752281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750751212.569
+        }
+      ]
+    },
+    {
+      "id": "trace-095",
+      "timestamp": 1773750810281,
+      "duration": {
+        "duration_ms": 743
+      },
+      "attributes": {
+        "operation_type": "health-check",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 472,
+        "cpu_usage_percent": 42
+      },
+      "usage": {
+        "input_tokens": 675,
+        "output_tokens": 255,
+        "total_tokens": 930
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750812281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773750813281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750811024.569
+        }
+      ]
+    },
+    {
+      "id": "trace-096",
+      "timestamp": 1773750870281,
+      "duration": {
+        "duration_ms": 293
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "openai:gpt-3.5-turbo",
+        "memory_usage_mb": 147,
+        "cpu_usage_percent": 24
+      },
+      "usage": {
+        "input_tokens": 677,
+        "output_tokens": 87,
+        "total_tokens": 764
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750871281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750872281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750870574.569
+        }
+      ]
+    },
+    {
+      "id": "trace-097",
+      "timestamp": 1773750930281,
+      "duration": {
+        "duration_ms": 407
+      },
+      "attributes": {
+        "operation_type": "log-analysis",
+        "skill_invoked": false,
+        "model": "anthropic:claude-3-haiku-20240307",
+        "memory_usage_mb": 359,
+        "cpu_usage_percent": 49
+      },
+      "usage": {
+        "input_tokens": 1128,
+        "output_tokens": 350,
+        "total_tokens": 1478
+      },
+      "events": [
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750932281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773750933281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750930688.569
+        }
+      ]
+    },
+    {
+      "id": "trace-098",
+      "timestamp": 1773750990281,
+      "duration": {
+        "duration_ms": 1755
+      },
+      "attributes": {
+        "operation_type": "deployment-strategy",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 656,
+        "cpu_usage_percent": 80
+      },
+      "usage": {
+        "input_tokens": 2129,
+        "output_tokens": 441,
+        "total_tokens": 2570
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773750991281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773750992281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773750992036.569
+        }
+      ]
+    },
+    {
+      "id": "trace-099",
+      "timestamp": 1773751050281,
+      "duration": {
+        "duration_ms": 1309
+      },
+      "attributes": {
+        "operation_type": "cluster-scaling",
+        "skill_invoked": true,
+        "model": "openai:gpt-4",
+        "memory_usage_mb": 724,
+        "cpu_usage_percent": 53
+      },
+      "usage": {
+        "input_tokens": 2413,
+        "output_tokens": 911,
+        "total_tokens": 3324
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773751051281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773751052281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773751051590.569
+        }
+      ]
+    },
+    {
+      "id": "trace-100",
+      "timestamp": 1773751110281,
+      "duration": {
+        "duration_ms": 1281
+      },
+      "attributes": {
+        "operation_type": "security-scan",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-5-sonnet-20241022",
+        "memory_usage_mb": 1096,
+        "cpu_usage_percent": 49
+      },
+      "usage": {
+        "input_tokens": 1348,
+        "output_tokens": 624,
+        "total_tokens": 1972
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1773751111281.569
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1773751112281.569
+        },
+        {
+          "name": "error",
+          "level": "error",
+          "timestamp": 1773751113281.569
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1773751111562.569
+        }
+      ]
+    }
+  ]
+}

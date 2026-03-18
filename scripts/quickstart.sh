@@ -300,10 +300,10 @@ build_docker_images() {
         log_info "Building image: $image"
         
         # Build the image (assuming Dockerfile exists)
-        if [[ -f "Dockerfile" ]] || [[ -f "deployments/${image}-Dockerfile" ]]; then
+        if [[ -f "Dockerfile" ]] || [[ -f "core/deployment/${image}-Dockerfile" ]]; then
             local dockerfile="Dockerfile"
             if [[ ! -f "$dockerfile" ]]; then
-                dockerfile="deployments/${image}-Dockerfile"
+                dockerfile="core/deployment/${image}-Dockerfile"
             fi
             
             docker build -f "$dockerfile" -t "$image:latest" . || {
@@ -325,18 +325,18 @@ deploy_gitops() {
     log_step "Deploying GitOps components..."
     
     # Apply CRDs
-    if [[ -d "gitops/crds" ]]; then
+    if [[ -d "core/gitops/crds" ]]; then
         log_info "Applying CRDs..."
-        kubectl apply -f gitops/crds/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/crds/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
     
     # Deploy Flux or ArgoCD (choose based on available manifests)
-    if [[ -d "gitops/flux" ]]; then
+    if [[ -d "core/gitops/flux" ]]; then
         log_info "Deploying Flux..."
-        kubectl apply -f gitops/flux/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
-    elif [[ -d "gitops/argocd" ]]; then
+        kubectl apply -f core/gitops/flux/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+    elif [[ -d "core/gitops/argocd" ]]; then
         log_info "Deploying ArgoCD..."
-        kubectl apply -f gitops/argocd/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/argocd/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
     
     # Wait for deployments
@@ -351,15 +351,15 @@ setup_ai_agents() {
     log_step "Setting up AI agents..."
     
     # Deploy AI agent runtime
-    if [[ -f "deployments/ai-agent-evaluation-cronjob.yaml" ]]; then
+    if [[ -f "core/deployment/ai-agent-evaluation-cronjob.yaml" ]]; then
         log_info "Deploying AI agent evaluation..."
-        kubectl apply -f deployments/ai-agent-evaluation-cronjob.yaml --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/deployment/ai-agent-evaluation-cronjob.yaml --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
     
     # Deploy Temporal if available
-    if [[ -d "gitops/temporal" ]]; then
+    if [[ -d "core/gitops/temporal" ]]; then
         log_info "Deploying Temporal..."
-        kubectl apply -f gitops/temporal/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
+        kubectl apply -f core/gitops/temporal/ --context "kind-$BOOTSTRAP_CLUSTER_NAME"
     fi
 }
 
