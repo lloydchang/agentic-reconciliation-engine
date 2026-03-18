@@ -32,6 +32,8 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	log.Printf("Configuration loaded: DatabaseURL = %s", cfg.DatabaseURL)
+
 	// Initialize database
 	db, err := database.NewConnection(cfg.DatabaseURL)
 	if err != nil {
