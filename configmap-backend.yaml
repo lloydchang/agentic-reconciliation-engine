@@ -231,7 +231,11 @@ spec:
         image: python:3.9-slim
         ports:
         - containerPort: 5000
-        command: ["sh", "-c", "pip install flask flask-cors && python /app/app.py"]
+        command: ["sh", "-c"]
+        args:
+        - |
+          pip install flask flask-cors requests &&
+          python /app/app.py
         volumeMounts:
         - name: script-volume
           mountPath: /app

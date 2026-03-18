@@ -135,7 +135,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - |
-          pip install flask flask-cors &&
+          pip install flask flask-cors requests &&
           python /app/app.py
         volumeMounts:
         - name: config-volume
