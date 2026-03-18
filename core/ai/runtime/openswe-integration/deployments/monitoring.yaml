@@ -1,0 +1,232 @@
+# OpenSWE Integration Monitoring & Observability
+# Comprehensive monitoring setup for OpenSWE components
+
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: openswe-agent-monitor
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-agent
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: openswe-agent
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openswe-monitoring-config
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-agent
+    component: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - /etc/prometheus/alerting_rules.yml
+
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - alertmanager:9093
+
+    scrape_configs:
+      - job_name: 'openswe-agent'
+        static_configs:
+        - targets: ['localhost:8080']
+        metrics_path: '/metrics'
+        scrape_interval: 15s
+
+  alerting_rules.yml: |
+    groups:
+    - name: openswe_alerts
+      rules:
+      - alert: OpenSWEAgentDown
+        expr: up{job="openswe-agent"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "OpenSWE Agent is down"
+          description: "OpenSWE Agent has been down for more than 5 minutes."
+
+      - alert: OpenSWEHighErrorRate
+        expr: rate(openswe_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High OpenSWE error rate"
+          description: "OpenSWE error rate is above 10% for 5 minutes."
+
+      - alert: OpenSWEHighLatency
+        expr: histogram_quantile(0.95, rate(openswe_request_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High OpenSWE request latency"
+          description: "95th percentile of OpenSWE request latency is above 10 seconds."
+
+      - alert: OpenSWESessionTimeout
+        expr: openswe_sessions_active > openswe_sessions_max
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "OpenSWE session limit reached"
+          description: "Active OpenSWE sessions have reached the maximum limit."
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: openswe-prometheus-rules
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-agent
+    component: monitoring
+spec:
+  groups:
+  - name: openswe.rules
+    rules:
+    - record: openswe:requests_total:rate5m
+      expr: rate(openswe_requests_total[5m])
+
+    - record: openswe:errors_total:rate5m
+      expr: rate(openswe_errors_total[5m])
+
+    - record: openswe:request_duration_seconds:95p5m
+      expr: histogram_quantile(0.95, rate(openswe_request_duration_seconds_bucket[5m]))
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openswe-grafana-dashboards
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-agent
+    component: monitoring
+data:
+  openswe-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "OpenSWE Integration Dashboard",
+        "tags": ["openswe", "ai", "development"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "OpenSWE Agent Health",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "up{job=\"openswe-agent\"}",
+                "legendFormat": "Agent Status"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [
+                  {
+                    "options": {
+                      "0": {
+                        "text": "DOWN",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "UP",
+                        "color": "green"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": 2,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(openswe_requests_total[5m])",
+                "legendFormat": "Requests/sec"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Error Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(openswe_errors_total[5m]) / rate(openswe_requests_total[5m]) * 100",
+                "legendFormat": "Error Rate %"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Request Latency (95th percentile)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(openswe_request_duration_seconds_bucket[5m]))",
+                "legendFormat": "Latency (s)"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Active Sessions",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "openswe_sessions_active",
+                "legendFormat": "Active Sessions"
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "title": "Code Changes Applied",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(openswe_code_changes_total[5m])",
+                "legendFormat": "Changes/min"
+              }
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "timepicker": {},
+        "templating": {
+          "list": []
+        },
+        "annotations": {
+          "list": []
+        },
+        "refresh": "30s",
+        "schemaVersion": 27,
+        "version": 0,
+        "links": []
+      }
+    }
