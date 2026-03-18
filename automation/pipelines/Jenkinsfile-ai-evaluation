@@ -20,8 +20,8 @@ pipeline {
     }
     
     environment {
-        PYTHONPATH = "${WORKSPACE}/agent-tracing-evaluation"
-        EVALUATION_DIR = "${WORKSPACE}/agent-tracing-evaluation"
+        PYTHONPATH = "${WORKSPACE}/core/ai/eval"
+        EVALUATION_DIR = "${WORKSPACE}/core/ai/eval"
         REPORTS_DIR = "${WORKSPACE}/evaluation-reports"
     }
     
@@ -64,7 +64,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'agent-tracing-evaluation/test-results.xml' allowEmptyResults: true
+                    junit 'core/ai/eval/test-results.xml' allowEmptyResults: true
                 }
             }
         }
@@ -144,10 +144,10 @@ pipeline {
         always {
             // Archive artifacts
             archiveArtifacts artifacts: '''
-                agent-tracing-evaluation/evaluation_results.json,
-                agent-tracing-evaluation/evaluation_traces.json,
+                core/ai/eval/evaluation_results.json,
+                core/ai/eval/evaluation_traces.json,
                 evaluation-reports/**/*,
-                agent-tracing-evaluation/security_report.json
+                core/ai/eval/security_report.json
             ''', fingerprint: true
             
             // Clean up workspace

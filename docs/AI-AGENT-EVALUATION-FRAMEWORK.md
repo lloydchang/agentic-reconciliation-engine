@@ -62,7 +62,7 @@ The AI Agent Evaluation Framework is a comprehensive system for evaluating AI ag
 ### System Components
 
 #### 1. Evaluation Framework Core
-- **Location**: `agent-tracing-evaluation/`
+- **Location**: `core/ai/eval/`
 - **Language**: Python
 - **Purpose**: Main evaluation engine with all evaluators
 
@@ -94,7 +94,7 @@ Background Services ← Quality Gates ← Notifications
 ## Evaluators
 
 ### 1. Skill Invocation Evaluator
-**File**: `agent-tracing-evaluation/evaluators/skill_invocation_evaluator.py`
+**File**: `core/ai/eval/evaluators/skill_invocation_evaluator.py`
 
 **Purpose**: Evaluates AI agent skill execution patterns and effectiveness.
 
@@ -111,7 +111,7 @@ Background Services ← Quality Gates ← Notifications
 - Error handling weight: 10%
 
 ### 2. Performance Evaluator
-**File**: `agent-tracing-evaluation/evaluators/performance_evaluator.py`
+**File**: `core/ai/eval/evaluators/performance_evaluator.py`
 
 **Purpose**: Analyzes system performance metrics and response times.
 
@@ -128,7 +128,7 @@ Background Services ← Quality Gates ← Notifications
 - Trend analysis weight: 15%
 
 ### 3. Cost Evaluator
-**File**: `agent-tracing-evaluation/evaluators/cost_evaluator.py`
+**File**: `core/ai/eval/evaluators/cost_evaluator.py`
 
 **Purpose**: Evaluates cost efficiency and resource optimization.
 
@@ -145,7 +145,7 @@ Background Services ← Quality Gates ← Notifications
 - Trend analysis weight: 10%
 
 ### 4. Monitoring Evaluator
-**File**: `agent-tracing-evaluation/evaluators/monitoring_evaluator.py`
+**File**: `core/ai/eval/evaluators/monitoring_evaluator.py`
 
 **Purpose**: Monitors system health and infrastructure status.
 
@@ -162,7 +162,7 @@ Background Services ← Quality Gates ← Notifications
 - Auto-fix effectiveness weight: 15%
 
 ### 5. Health Check Evaluator
-**File**: `agent-tracing-evaluation/evaluators/health_check_evaluator.py`
+**File**: `core/ai/eval/evaluators/health_check_evaluator.py`
 
 **Purpose**: Evaluates agent health and readiness status.
 
@@ -179,7 +179,7 @@ Background Services ← Quality Gates ← Notifications
 - Error analysis weight: 10%
 
 ### 6. Security Evaluator
-**File**: `agent-tracing-evaluation/evaluators/security_evaluator.py`
+**File**: `core/ai/eval/evaluators/security_evaluator.py`
 
 **Purpose**: Evaluates security compliance and vulnerability assessment.
 
@@ -196,7 +196,7 @@ Background Services ← Quality Gates ← Notifications
 - Risk analysis weight: 10%
 
 ### 7. Compliance Evaluator
-**File**: `agent-tracing-evaluation/evaluators/compliance_evaluator.py`
+**File**: `core/ai/eval/evaluators/compliance_evaluator.py`
 
 **Purpose**: Evaluates regulatory compliance (GDPR, HIPAA, NIST, etc.).
 
@@ -423,7 +423,7 @@ kubectl apply -f core/deployment/ai-agent-evaluator-deployment.yaml -n ai-agents
 
 #### Basic Evaluation
 ```bash
-cd agent-tracing-evaluation
+cd core/ai/eval
 
 # Generate sample traces
 python cli.py --generate-sample 100 --file sample_traces.json
@@ -947,7 +947,7 @@ print('Temporal SDK available')
 #### Prerequisites
 ```bash
 # Python dependencies
-pip install -r agent-tracing-evaluation/requirements.txt
+pip install -r core/ai/eval/requirements.txt
 
 # Development tools
 pip install pytest black flake8 mypy
@@ -959,7 +959,7 @@ docker build -f core/deployment/ai-agent-evaluator-Dockerfile -t ai-agent-evalua
 #### Running Tests
 ```bash
 # Unit tests
-cd agent-tracing-evaluation
+cd core/ai/eval
 python -m pytest tests/ -v
 
 # Integration tests
@@ -972,20 +972,20 @@ python -m pytest --cov=. tests/
 #### Code Quality
 ```bash
 # Code formatting
-black agent-tracing-evaluation/
+black core/ai/eval/
 
 # Linting
-flake8 agent-tracing-evaluation/
+flake8 core/ai/eval/
 
 # Type checking
-mypy agent-tracing-evaluation/
+mypy core/ai/eval/
 ```
 
 ### Adding New Evaluators
 
 #### 1. Create Evaluator Class
 ```python
-# agent-tracing-evaluation/evaluators/new_evaluator.py
+# core/ai/eval/evaluators/new_evaluator.py
 class NewEvaluator:
     def __init__(self):
         self.issues = []
@@ -1001,7 +1001,7 @@ class NewEvaluator:
 
 #### 2. Register Evaluator
 ```python
-# agent-tracing-evaluation/main.py
+# core/ai/eval/main.py
 from evaluators.new_evaluator import NewEvaluator
 
 # In __init__ method
@@ -1010,7 +1010,7 @@ self.evaluators["new_evaluator"] = NewEvaluator()
 
 #### 3. Add Tests
 ```python
-# agent-tracing-evaluation/tests/test_new_evaluator.py
+# core/ai/eval/tests/test_new_evaluator.py
 def test_new_evaluator():
     evaluator = NewEvaluator()
     result = evaluator.evaluate(test_trace)
