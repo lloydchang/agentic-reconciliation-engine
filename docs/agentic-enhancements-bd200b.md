@@ -327,3 +327,917 @@ code-review/
 **Estimated Timeline**: 6 months for full implementation with incremental value delivery every 2 weeks.
 
 **Success Criteria**: Achieve 70% toil automation, 2x developer productivity, and 30% cost reduction while maintaining 99.9% system reliability.
+
+## Detailed Implementation Examples
+
+### Example 1: Async Agent Workflow Implementation
+
+**Background Agent Task Execution**:
+```go
+// async-workflows/executor.go
+package main
+
+import (
+    "context"
+    "fmt"
+    "time"
+    
+    "go.temporal.io/sdk/activity"
+    "go.temporal.io/sdk/workflow"
+)
+
+type BackgroundTask struct {
+    ID          string                 `json:"id"`
+    Type        string                 `json:"type"`
+    Input       map[string]interface{} `json:"input"`
+    Priority    int                    `json:"priority"`
+    Timeout     time.Duration          `json:"timeout"`
+    Notifications NotificationConfig   `json:"notifications"`
+}
+
+type NotificationConfig struct {
+    Slack   SlackConfig   `json:"slack"`
+    Email   EmailConfig   `json:"email"`
+    GitHub  GitHubConfig  `json:"github"`
+}
+
+func BackgroundAgentWorkflow(ctx workflow.Context, task BackgroundTask) (*TaskResult, error) {
+    // Configure retry policy
+    retryPolicy := &workflow.RetryPolicy{
+        InitialInterval:    time.Second * 30,
+        BackoffCoefficient: 2.0,
+        MaximumInterval:    time.Minute * 10,
+        MaximumAttempts:    3,
+    }
+    
+    // Set activity timeout
+    activityOptions := workflow.ActivityOptions{
+        StartToCloseTimeout: task.Timeout,
+        RetryPolicy:        retryPolicy,
+    }
+    
+    ctx = workflow.WithActivityOptions(ctx, activityOptions)
+    
+    // Execute the task
+    var result TaskResult
+    err := workflow.ExecuteActivity(ctx, ExecuteBackgroundTask, task).Get(ctx, &result)
+    if err != nil {
+        // Send failure notification
+        notificationErr := workflow.ExecuteActivity(ctx, SendFailureNotification, task, err).Get(ctx, nil)
+        if notificationErr != nil {
+            workflow.GetLogger(ctx).Warn("Failed to send failure notification", "error", notificationErr)
+        }
+        return nil, fmt.Errorf("task execution failed: %w", err)
+    }
+    
+    // Send success notification
+    notificationErr := workflow.ExecuteActivity(ctx, SendSuccessNotification, task, result).Get(ctx, nil)
+    if notificationErr != nil {
+        workflow.GetLogger(ctx).Warn("Failed to send success notification", "error", notificationErr)
+    }
+    
+    return &result, nil
+}
+
+func ExecuteBackgroundTask(ctx context.Context, task BackgroundTask) (TaskResult, error) {
+    logger := activity.GetLogger(ctx)
+    logger.Info("Executing background task", "task_id", task.ID, "type", task.Type)
+    
+    start := time.Now()
+    
+    // Select appropriate agent based on task type
+    agent, err := SelectAgent(task.Type)
+    if err != nil {
+        return TaskResult{}, fmt.Errorf("agent selection failed: %w", err)
+    }
+    
+    // Execute the task with the selected agent
+    result, err := agent.Execute(ctx, task.Input)
+    if err != nil {
+        return TaskResult{}, fmt.Errorf("agent execution failed: %w", err)
+    }
+    
+    duration := time.Since(start)
+    
+    return TaskResult{
+        TaskID:     task.ID,
+        Status:     "completed",
+        Result:     result,
+        Duration:   duration,
+        Timestamp:  time.Now(),
+    }, nil
+}
+
+func SendSuccessNotification(ctx context.Context, task BackgroundTask, result TaskResult) error {
+    logger := activity.GetLogger(ctx)
+    
+    // Send Slack notification
+    if task.Notifications.Slack.Enabled {
+        message := fmt.Sprintf("✅ Task %s completed successfully in %v", task.ID, result.Duration)
+        err := SendSlackMessage(task.Notifications.Slack.Channel, message)
+        if err != nil {
+            logger.Error("Failed to send Slack notification", "error", err)
+        }
+    }
+    
+    // Send email notification
+    if task.Notifications.Email.Enabled {
+        subject := fmt.Sprintf("Task %s Completed", task.ID)
+        body := fmt.Sprintf("Background task %s completed successfully in %v\n\nResult: %+v", task.ID, result.Duration, result.Result)
+        err := SendEmail(task.Notifications.Email.Recipients, subject, body)
+        if err != nil {
+            logger.Error("Failed to send email notification", "error", err)
+        }
+    }
+    
+    // Update GitHub PR if applicable
+    if task.Notifications.GitHub.Enabled {
+        comment := fmt.Sprintf("🤖 Automated task %s completed successfully\n\n**Duration**: %v\n**Result**: Success", task.ID, result.Duration)
+        err := AddGitHubComment(task.Notifications.GitHub.PRNumber, comment)
+        if err != nil {
+            logger.Error("Failed to add GitHub comment", "error", err)
+        }
+    }
+    
+    return nil
+}
+```
+
+### Example 2: MCP Gateway Implementation
+
+**Central MCP Proxy Service**:
+```go
+// mcp-gateway/gateway/proxy.go
+package main
+
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "time"
+    
+    "github.com/gorilla/mux"
+    "github.com/prometheus/client_golang/prometheus"
+)
+
+type MCPRequest struct {
+    ServerID string                 `json:"server_id"`
+    Method   string                 `json:"method"`
+    Params   map[string]interface{} `json:"params"`
+    Metadata map[string]string      `json:"metadata"`
+}
+
+type MCPResponse struct {
+    Result    interface{} `json:"result"`
+    Error     *string     `json:"error,omitempty"`
+    Metadata  map[string]string `json:"metadata"`
+    Timestamp time.Time   `json:"timestamp"`
+}
+
+type MCPGateway struct {
+    registry    *ServerRegistry
+    auth        *AuthService
+    telemetry   *TelemetryService
+    rateLimiter *RateLimiter
+    metrics     *GatewayMetrics
+}
+
+func (g *MCPGateway) ProxyRequest(w http.ResponseWriter, r *http.Request) {
+    start := time.Now()
+    
+    // Parse request
+    var req MCPRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    
+    // Authentication
+    user, err := g.auth.Authenticate(r)
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        g.metrics.RecordAuthFailure(req.ServerID)
+        return
+    }
+    
+    // Rate limiting
+    if !g.rateLimiter.Allow(user, req.ServerID) {
+        http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
+        g.metrics.RecordRateLimitExceeded(req.ServerID)
+        return
+    }
+    
+    // Get server configuration
+    server, err := g.registry.GetServer(req.ServerID)
+    if err != nil {
+        http.Error(w, "Server not found", http.StatusNotFound)
+        g.metrics.RecordServerNotFound(req.ServerID)
+        return
+    }
+    
+    // Check permissions
+    if !g.auth.HasPermission(user, server, req.Method) {
+        http.Error(w, "Insufficient permissions", http.StatusForbidden)
+        g.metrics.RecordPermissionDenied(req.ServerID)
+        return
+    }
+    
+    // Proxy request to actual MCP server
+    response, err := g.proxyToServer(server, req)
+    duration := time.Since(start)
+    
+    if err != nil {
+        g.metrics.RecordRequestError(req.ServerID, duration)
+        g.telemetry.RecordError(req.ServerID, user, err)
+        
+        response = MCPResponse{
+            Error:     func(s string) *string { return &s }(err.Error()),
+            Metadata:  map[string]string{"gateway_error": "true"},
+            Timestamp: time.Now(),
+        }
+    } else {
+        g.metrics.RecordRequestSuccess(req.ServerID, duration)
+        g.telemetry.RecordRequest(req.ServerID, user, req.Method, duration)
+    }
+    
+    // Send response
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
+}
+
+func (g *MCPGateway) proxyToServer(server *MCPServer, req MCPRequest) (MCPResponse, error) {
+    // Create HTTP client with timeout
+    client := &http.Client{
+        Timeout: 30 * time.Second,
+    }
+    
+    // Prepare request body
+    requestBody, err := json.Marshal(req.Params)
+    if err != nil {
+        return MCPResponse{}, fmt.Errorf("failed to marshal request: %w", err)
+    }
+    
+    // Create HTTP request
+    httpReq, err := http.NewRequest("POST", server.URL+"/"+req.Method, bytes.NewBuffer(requestBody))
+    if err != nil {
+        return MCPResponse{}, fmt.Errorf("failed to create request: %w", err)
+    }
+    
+    // Set headers
+    httpReq.Header.Set("Content-Type", "application/json")
+    httpReq.Header.Set("X-Gateway-Request-ID", generateRequestID())
+    httpReq.Header.Set("X-Gateway-User", req.Metadata["user"])
+    
+    // Send request
+    resp, err := client.Do(httpReq)
+    if err != nil {
+        return MCPResponse{}, fmt.Errorf("failed to send request: %w", err)
+    }
+    defer resp.Body.Close()
+    
+    // Read response
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return MCPResponse{}, fmt.Errorf("failed to read response: %w", err)
+    }
+    
+    if resp.StatusCode != http.StatusOK {
+        return MCPResponse{}, fmt.Errorf("server returned status %d: %s", resp.StatusCode, string(body))
+    }
+    
+    // Parse response
+    var result interface{}
+    if err := json.Unmarshal(body, &result); err != nil {
+        return MCPResponse{}, fmt.Errorf("failed to parse response: %w", err)
+    }
+    
+    return MCPResponse{
+        Result:    result,
+        Metadata:  map[string]string{"server_id": server.ID},
+        Timestamp: time.Now(),
+    }, nil
+}
+```
+
+### Example 3: Toil Automation Skill
+
+**Certificate Rotation Skill Implementation**:
+```go
+// skills/certificate-rotation/executor.go
+package main
+
+import (
+    "context"
+    "crypto/x509"
+    "encoding/pem"
+    "fmt"
+    "time"
+)
+
+type CertificateRotationInput struct {
+    ClusterFilter     string    `json:"cluster_filter"`
+    ExpiryThreshold   int       `json:"expiry_threshold"` // days
+    AutoRenew         bool      `json:"auto_renew"`
+    NotificationConfig NotificationConfig `json:"notification_config"`
+}
+
+type CertificateInfo struct {
+    Domain      string    `json:"domain"`
+    ExpiresAt   time.Time `json:"expires_at"`
+    DaysLeft    int       `json:"days_left"`
+    Cluster     string    `json:"cluster"`
+    Namespace   string    `json:"namespace"`
+    SecretName  string    `json:"secret_name"`
+}
+
+type CertificateRotationResult struct {
+    DiscoveredCertificates []CertificateInfo `json:"discovered_certificates"`
+    RotatedCertificates    []CertificateInfo `json:"rotated_certificates"`
+    FailedRotations       []RotationError    `json:"failed_rotations"`
+    Summary                RotationSummary    `json:"summary"`
+}
+
+func CertificateRotationSkill(ctx context.Context, input CertificateRotationInput) (*CertificateRotationResult, error) {
+    logger := skill.GetLogger(ctx)
+    logger.Info("Starting certificate rotation", "cluster_filter", input.ClusterFilter)
+    
+    result := &CertificateRotationResult{}
+    
+    // Discover certificates
+    certificates, err := discoverCertificates(ctx, input.ClusterFilter)
+    if err != nil {
+        return nil, fmt.Errorf("failed to discover certificates: %w", err)
+    }
+    
+    result.DiscoveredCertificates = certificates
+    logger.Info("Discovered certificates", "count", len(certificates))
+    
+    // Filter certificates that need rotation
+    needingRotation := filterCertificatesForRotation(certificates, input.ExpiryThreshold)
+    logger.Info("Certificates needing rotation", "count", len(needingRotation))
+    
+    // Rotate certificates
+    for _, cert := range needingRotation {
+        err := rotateCertificate(ctx, cert, input)
+        if err != nil {
+            result.FailedRotations = append(result.FailedRotations, RotationError{
+                Certificate: cert,
+                Error:       err.Error(),
+            })
+            logger.Error("Failed to rotate certificate", "domain", cert.Domain, "error", err)
+            continue
+        }
+        
+        result.RotatedCertificates = append(result.RotatedCertificates, cert)
+        logger.Info("Successfully rotated certificate", "domain", cert.Domain)
+    }
+    
+    // Generate summary
+    result.Summary = RotationSummary{
+        TotalDiscovered:    len(certificates),
+        TotalRotated:       len(result.RotatedCertificates),
+        TotalFailed:        len(result.FailedRotations),
+        RotationPercentage: float64(len(result.RotatedCertificates)) / float64(len(certificates)) * 100,
+        ExecutionTime:      time.Since(start),
+    }
+    
+    // Send notifications
+    if input.NotificationConfig.Enabled {
+        err := sendRotationNotifications(ctx, result, input.NotificationConfig)
+        if err != nil {
+            logger.Error("Failed to send notifications", "error", err)
+        }
+    }
+    
+    return result, nil
+}
+
+func discoverCertificates(ctx context.Context, clusterFilter string) ([]CertificateInfo, error) {
+    var certificates []CertificateInfo
+    
+    // Get all clusters
+    clusters, err := kubernetes.GetClusters(ctx, clusterFilter)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get clusters: %w", err)
+    }
+    
+    // Scan each cluster for certificates
+    for _, cluster := range clusters {
+        clusterCerts, err := scanClusterCertificates(ctx, cluster)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan cluster %s: %w", cluster.Name, err)
+        }
+        certificates = append(certificates, clusterCerts...)
+    }
+    
+    return certificates, nil
+}
+
+func scanClusterCertificates(ctx context.Context, cluster *kubernetes.Cluster) ([]CertificateInfo, error) {
+    var certificates []CertificateInfo
+    
+    // Get client for this cluster
+    client, err := kubernetes.GetClient(ctx, cluster)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get client for cluster %s: %w", cluster.Name, err)
+    }
+    
+    // List all secrets
+    secrets, err := client.CoreV1().Secrets("").List(ctx, metav1.ListOptions{})
+    if err != nil {
+        return nil, fmt.Errorf("failed to list secrets: %w", err)
+    }
+    
+    // Analyze each secret for certificates
+    for _, secret := range secrets.Items {
+        certInfos, err := analyzeSecretForCertificates(ctx, secret, cluster.Name)
+        if err != nil {
+            continue // Skip problematic secrets
+        }
+        certificates = append(certificates, certInfos...)
+    }
+    
+    return certificates, nil
+}
+
+func analyzeSecretForCertificates(ctx context.Context, secret *corev1.Secret, clusterName string) ([]CertificateInfo, error) {
+    var certificates []CertificateInfo
+    
+    // Check for TLS certificates
+    if secret.Type == corev1.SecretTypeTLS {
+        certData := secret.Data[corev1.TLSCertKey]
+        if len(certData) == 0 {
+            return nil, fmt.Errorf("no certificate data found")
+        }
+        
+        certInfo, err := parseCertificate(certData, clusterName, secret.Namespace, secret.Name)
+        if err != nil {
+            return nil, err
+        }
+        certificates = append(certificates, *certInfo)
+    }
+    
+    // Check for custom certificates
+    for key, data := range secret.Data {
+        if strings.HasSuffix(key, ".crt") || strings.HasSuffix(key, ".pem") {
+            certInfo, err := parseCertificate(data, clusterName, secret.Namespace, secret.Name)
+            if err != nil {
+                continue
+            }
+            certificates = append(certificates, *certInfo)
+        }
+    }
+    
+    return certificates, nil
+}
+
+func parseCertificate(certData []byte, clusterName, namespace, secretName string) (*CertificateInfo, error) {
+    block, _ := pem.Decode(certData)
+    if block == nil {
+        return nil, fmt.Errorf("failed to decode PEM block")
+    }
+    
+    cert, err := x509.ParseCertificate(block.Bytes)
+    if err != nil {
+        return nil, fmt.Errorf("failed to parse certificate: %w", err)
+    }
+    
+    daysLeft := int(time.Until(cert.NotAfter).Hours() / 24)
+    
+    return &CertificateInfo{
+        Domain:     cert.Subject.CommonName,
+        ExpiresAt:  cert.NotAfter,
+        DaysLeft:   daysLeft,
+        Cluster:    clusterName,
+        Namespace:  namespace,
+        SecretName: secretName,
+    }, nil
+}
+```
+
+### Example 4: Code Review Automation
+
+**Intelligent Code Review Pipeline**:
+```go
+// code-review/pipeline.go
+package main
+
+import (
+    "context"
+    "fmt"
+    "go/ast"
+    "go/parser"
+    "go/token"
+    "strings"
+)
+
+type ReviewRequest struct {
+    Repository     string   `json:"repository"`
+    PullRequest    int      `json:"pull_request"`
+    Files          []string `json:"files"`
+    Diff           string   `json:"diff"`
+    Reviewers      []string `json:"reviewers"`
+    Config         ReviewConfig `json:"config"`
+}
+
+type ReviewComment struct {
+    Type        string  `json:"type"`
+    Severity    string  `json:"severity"`
+    Confidence  float64 `json:"confidence"`
+    Impact      float64 `json:"impact"`
+    Message     string  `json:"message"`
+    Suggestion  string  `json:"suggestion"`
+    LineNumber  int     `json:"line_number"`
+    FilePath    string  `json:"file_path"`
+    Rule        string  `json:"rule"`
+}
+
+type ReviewResult struct {
+    Comments    []ReviewComment `json:"comments"`
+    Summary     ReviewSummary   `json:"summary"`
+    Metadata    ReviewMetadata  `json:"metadata"`
+}
+
+func CodeReviewPipeline(ctx context.Context, req ReviewRequest) (*ReviewResult, error) {
+    logger := pipeline.GetLogger(ctx)
+    logger.Info("Starting code review pipeline", "repo", req.Repository, "pr", req.PullRequest)
+    
+    result := &ReviewResult{
+        Comments: []ReviewComment{},
+        Metadata: ReviewMetadata{
+            Repository:  req.Repository,
+            PullRequest: req.PullRequest,
+            Timestamp:   time.Now(),
+        },
+    }
+    
+    // Pre-process the diff
+    analysis, err := preprocessDiff(ctx, req.Diff, req.Files)
+    if err != nil {
+        return nil, fmt.Errorf("preprocessing failed: %w", err)
+    }
+    
+    // Run analysis plugins
+    for _, plugin := range getEnabledPlugins(req.Config) {
+        pluginComments, err := plugin.Analyze(ctx, analysis)
+        if err != nil {
+            logger.Error("Plugin analysis failed", "plugin", plugin.Name(), "error", err)
+            continue
+        }
+        result.Comments = append(result.Comments, pluginComments...)
+    }
+    
+    // Grade and filter comments
+    gradedComments := gradeComments(result.Comments)
+    filteredComments := applyNoiseReduction(gradedComments, req.Config)
+    result.Comments = filteredComments
+    
+    // Generate summary
+    result.Summary = generateReviewSummary(result.Comments, analysis)
+    
+    // Post comments to GitHub if enabled
+    if req.Config.PostToGitHub {
+        err := postCommentsToGitHub(ctx, req, result.Comments)
+        if err != nil {
+            logger.Error("Failed to post comments to GitHub", "error", err)
+        }
+    }
+    
+    return result, nil
+}
+
+// Security Analysis Plugin
+type SecurityPlugin struct {
+    rules []SecurityRule
+}
+
+func (p *SecurityPlugin) Analyze(ctx context.Context, analysis *DiffAnalysis) ([]ReviewComment, error) {
+    var comments []ReviewComment
+    
+    for _, file := range analysis.ChangedFiles {
+        if !isSecurityRelevantFile(file.Path) {
+            continue
+        }
+        
+        // Check for hardcoded secrets
+        secrets := p.detectHardcodedSecrets(file.Content)
+        for _, secret := range secrets {
+            comments = append(comments, ReviewComment{
+                Type:       "security",
+                Severity:   "high",
+                Confidence:  0.9,
+                Impact:      0.8,
+                Message:    fmt.Sprintf("Potential hardcoded secret detected: %s", secret.Type),
+                Suggestion: "Use environment variables or secret management system",
+                LineNumber: secret.LineNumber,
+                FilePath:   file.Path,
+                Rule:       "hardcoded-secrets",
+            })
+        }
+        
+        // Check for SQL injection vulnerabilities
+        sqlVulns := p.detectSQLInjection(file.Content)
+        for _, vuln := range sqlVulns {
+            comments = append(comments, ReviewComment{
+                Type:       "security",
+                Severity:   "medium",
+                Confidence:  0.7,
+                Impact:      0.9,
+                Message:    "Potential SQL injection vulnerability",
+                Suggestion: "Use parameterized queries or prepared statements",
+                LineNumber: vuln.LineNumber,
+                FilePath:   file.Path,
+                Rule:       "sql-injection",
+            })
+        }
+        
+        // Check for insecure dependencies
+        deps := p.detectInsecureDependencies(file.Path)
+        for _, dep := range deps {
+            comments = append(comments, ReviewComment{
+                Type:       "security",
+                Severity:   "medium",
+                Confidence:  0.8,
+                Impact:      0.6,
+                Message:    fmt.Sprintf("Insecure dependency detected: %s", dep.Name),
+                Suggestion: fmt.Sprintf("Update to version %s or later", dep.SafeVersion),
+                LineNumber: dep.LineNumber,
+                FilePath:   file.Path,
+                Rule:       "insecure-dependency",
+            })
+        }
+    }
+    
+    return comments, nil
+}
+
+// Performance Analysis Plugin
+type PerformancePlugin struct {
+    rules []PerformanceRule
+}
+
+func (p *PerformancePlugin) Analyze(ctx context.Context, analysis *DiffAnalysis) ([]ReviewComment, error) {
+    var comments []ReviewComment
+    
+    for _, file := range analysis.ChangedFiles {
+        if !isPerformanceRelevantFile(file.Path) {
+            continue
+        }
+        
+        // Check for N+1 query patterns
+        nPlusOneQueries := p.detectNPlusOneQueries(file.Content)
+        for _, query := range nPlusOneQueries {
+            comments = append(comments, ReviewComment{
+                Type:       "performance",
+                Severity:   "medium",
+                Confidence:  0.8,
+                Impact:      0.7,
+                Message:    "Potential N+1 query pattern detected",
+                Suggestion: "Use bulk loading or eager loading to reduce database queries",
+                LineNumber: query.LineNumber,
+                FilePath:   file.Path,
+                Rule:       "n-plus-one-queries",
+            })
+        }
+        
+        // Check for inefficient loops
+        inefficientLoops := p.detectInefficientLoops(file.Content)
+        for _, loop := range inefficientLoops {
+            comments = append(comments, ReviewComment{
+                Type:       "performance",
+                Severity:   "low",
+                Confidence:  0.6,
+                Impact:      0.5,
+                Message:    "Inefficient loop pattern detected",
+                Suggestion: "Consider using more efficient algorithms or data structures",
+                LineNumber: loop.LineNumber,
+                FilePath:   file.Path,
+                Rule:       "inefficient-loops",
+            })
+        }
+    }
+    
+    return comments, nil
+}
+
+func gradeComments(comments []ReviewComment) []ReviewComment {
+    for i := range comments {
+        comment := &comments[i]
+        
+        // Calculate confidence based on rule reliability and context
+        baseConfidence := getRuleConfidence(comment.Rule)
+        contextAdjustment := getContextConfidenceAdjustment(comment)
+        comment.Confidence = baseConfidence * contextAdjustment
+        
+        // Calculate impact based on severity and file importance
+        baseImpact := getSeverityImpact(comment.Severity)
+        fileImportance := getFileImportance(comment.FilePath)
+        comment.Impact = baseImpact * fileImportance
+    }
+    
+    return comments
+}
+
+func applyNoiseReduction(comments []ReviewComment, config ReviewConfig) []ReviewComment {
+    var filtered []ReviewComment
+    seen := make(map[string]bool)
+    
+    for _, comment := range comments {
+        // Skip low-confidence comments
+        if comment.Confidence < config.ConfidenceThreshold {
+            continue
+        }
+        
+        // Skip low-impact comments
+        if comment.Impact < config.ImpactThreshold {
+            continue
+        }
+        
+        // Skip duplicates
+        key := fmt.Sprintf("%s:%s:%d", comment.FilePath, comment.Message, comment.LineNumber)
+        if seen[key] {
+            continue
+        }
+        seen[key] = true
+        
+        filtered = append(filtered, comment)
+    }
+    
+    return filtered
+}
+```
+
+## Advanced Configuration Examples
+
+### MCP Gateway Configuration
+
+**Complete Gateway Configuration**:
+```yaml
+# mcp-gateway/config.yaml
+gateway:
+  server:
+    host: "0.0.0.0"
+    port: 8080
+    timeout: "30s"
+    
+  auth:
+    provider: "oauth2"
+    oauth2:
+      issuer_url: "https://auth.company.com"
+      client_id: "${OAUTH_CLIENT_ID}"
+      client_secret: "${OAUTH_CLIENT_SECRET}"
+      scopes: ["openid", "profile", "email"]
+      
+  rate_limit:
+    enabled: true
+    requests_per_minute: 100
+    burst_size: 20
+    
+  telemetry:
+    prometheus:
+      enabled: true
+      port: 9090
+      path: "/metrics"
+      
+    jaeger:
+      enabled: true
+      endpoint: "http://jaeger:14268/api/traces"
+      service_name: "mcp-gateway"
+      
+    logging:
+      level: "info"
+      format: "json"
+      
+registry:
+  storage:
+    type: "postgres"
+    connection_string: "${DATABASE_URL}"
+    
+  discovery:
+    enabled: true
+    health_check_interval: "30s"
+    
+  sandbox:
+    enabled: true
+    base_url: "http://sandbox.mcp-gateway.internal"
+    
+servers:
+  playwright:
+    url: "http://playwright-mcp:3000"
+    auth_type: "token"
+    permissions:
+      execute: true
+      read: true
+    health_check:
+      path: "/health"
+      interval: "10s"
+      timeout: "5s"
+      
+  puppeteer:
+    url: "http://puppeteer-mcp:3001"
+    auth_type: "token"
+    permissions:
+      execute: true
+      read: true
+    health_check:
+      path: "/health"
+      interval: "10s"
+      timeout: "5s"
+      
+  file-system:
+    url: "http://file-system-mcp:3002"
+    auth_type: "token"
+    permissions:
+      execute: true
+      read: true
+      write: true
+    health_check:
+      path: "/health"
+      interval: "10s"
+      timeout: "5s"
+```
+
+### Background Agent Configuration
+
+**Async Workflow Configuration**:
+```yaml
+# async-workflows/config.yaml
+workflows:
+  background_agent:
+    task_queue: "background-tasks"
+    execution_timeout: "24h"
+    workflow_timeout: "48h"
+    
+    retry_policy:
+      initial_interval: "30s"
+      maximum_interval: "10m"
+      backoff_coefficient: 2.0
+      maximum_attempts: 3
+      
+    rate_limiting:
+      concurrent_tasks: 10
+      tasks_per_second: 5
+      
+    notifications:
+      slack:
+        enabled: true
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        default_channel: "#infra-automation"
+        
+      email:
+        enabled: true
+        smtp_server: "smtp.company.com:587"
+        username: "${SMTP_USERNAME}"
+        password: "${SMTP_PASSWORD}"
+        from_address: "automation@company.com"
+        
+      github:
+        enabled: true
+        token: "${GITHUB_TOKEN}"
+        default_org: "company"
+        
+scheduler:
+  enabled: true
+  polling_interval: "5s"
+  max_concurrent_workflows: 100
+  
+  priority_levels:
+    - name: "critical"
+      weight: 100
+      max_concurrent: 5
+      
+    - name: "high"
+      weight: 50
+      max_concurrent: 10
+      
+    - name: "normal"
+      weight: 10
+      max_concurrent: 20
+      
+    - name: "low"
+      weight: 1
+      max_concurrent: 50
+      
+monitoring:
+  metrics:
+    enabled: true
+    port: 9091
+    path: "/metrics"
+    
+  health_check:
+    enabled: true
+    port: 8081
+    path: "/health"
+    
+  profiling:
+    enabled: true
+    port: 6060
+    path: "/debug/pprof"
+```
+
+## Success Criteria
+
+Achieve 70% toil automation, 2x developer productivity, and 30% cost reduction while maintaining 99.9% system reliability.
+
+The detailed implementation examples, configuration files, and technical specifications provided in this enhanced plan ensure comprehensive guidance for transforming infrastructure operations with agentic AI capabilities based on Uber's proven production patterns.
