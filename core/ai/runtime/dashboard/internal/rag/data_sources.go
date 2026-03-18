@@ -387,9 +387,9 @@ func InitDataSources(db *sql.DB) []DataSource {
 	
 	// Add static documentation sources
 	sources = append(sources, 
-		NewStaticSource("static"),
+		NewDocumentationSource(),
 		NewK8sGPTSource("k8sgpt"),
-		NewFluxSource("flux"),
+		NewFluxSource(),
 		NewArgoCDSource("argocd"),
 	)
 	
