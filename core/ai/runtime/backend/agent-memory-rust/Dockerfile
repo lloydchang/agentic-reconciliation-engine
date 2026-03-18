@@ -1,5 +1,5 @@
-# Multi-stage build for agent-memory-rust
-FROM rust:1.80 as builder
+# Simple build for agent-memory-rust
+FROM rust:1.65 as builder
 
 WORKDIR /app
 
@@ -9,18 +9,11 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Cargo files
-COPY Cargo.toml Cargo.lock ./
-
-# Create dummy main.rs to cache dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release && rm -rf src
-
 # Copy source code
-COPY src ./src
+COPY . .
 
-# Build the application
-RUN cargo build --release
+# Build the application with timeout
+RUN timeout 300 cargo build --release
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -38,7 +31,7 @@ RUN useradd -m -u 1000 agent
 # Set up directories
 RUN mkdir -p /data && chown agent:agent /data
 
-# Copy the binary
+# Copy binary
 COPY --from=builder /app/target/release/agent-memory /usr/local/bin/agent-memory
 
 # Set permissions
@@ -65,5 +58,5 @@ ENV METRICS_PORT=9090
 # Volume for persistent data
 VOLUME ["/data"]
 
-# Run the application
+# Run application
 CMD ["agent-memory"]
