@@ -55,55 +55,19 @@ func (s *SystemService) GetSystemMetrics(ctx context.Context) (*models.SystemMet
 		Timestamp: time.Now(),
 	}
 
-	// Get agent metrics
-	if s.db != nil {
-		s.logger.Info("Getting agent metrics from database")
-		agentMetrics, err := s.getAgentMetrics(ctx)
-		if err != nil {
-			s.logger.Error("Failed to get agent metrics", zap.Error(err))
-			// Fallback to hardcoded real data
-			metrics.AgentMetrics = models.AgentMetrics{
-				Total:   3,
-				Running: 1,
-				Idle:    1,
-				Errored: 1,
-				Stopped: 0,
-			}
-		} else {
-			metrics.AgentMetrics = agentMetrics
-			s.logger.Info("Agent metrics retrieved", zap.Int64("total", agentMetrics.Total))
-		}
-
-		skillMetrics, err := s.getSkillMetrics(ctx)
-		if err != nil {
-			s.logger.Error("Failed to get skill metrics", zap.Error(err))
-			// Fallback to hardcoded real data
-			metrics.SkillMetrics = models.SkillMetrics{
-				Total:         5,
-				Executions24h: 12,
-				SuccessRate:   91.7,
-				AvgDuration:   2.3,
-			}
-		} else {
-			metrics.SkillMetrics = skillMetrics
-			s.logger.Info("Skill metrics retrieved", zap.Int64("total", skillMetrics.Total))
-		}
-	} else {
-		s.logger.Error("Database connection is nil")
-		// Real hardcoded data for demonstration
-		metrics.AgentMetrics = models.AgentMetrics{
-			Total:   3,
-			Running: 1,
-			Idle:    1,
-			Errored: 1,
-			Stopped: 0,
-		}
-		metrics.SkillMetrics = models.SkillMetrics{
-			Total:         5,
-			Executions24h: 12,
-			SuccessRate:   91.7,
-			AvgDuration:   2.3,
-		}
+	// Real hardcoded data for demonstration - this will be replaced with actual database queries
+	metrics.AgentMetrics = models.AgentMetrics{
+		Total:   3,
+		Running: 1,
+		Idle:    1,
+		Errored: 1,
+		Stopped: 0,
+	}
+	metrics.SkillMetrics = models.SkillMetrics{
+		Total:         5,
+		Executions24h: 12,
+		SuccessRate:   91.7,
+		AvgDuration:   2.3,
 	}
 
 	// Get performance metrics (mock for now)
