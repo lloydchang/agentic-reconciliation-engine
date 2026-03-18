@@ -1,0 +1,458 @@
+# Argo Workflows CI/CD Pipeline
+# Jenkins pipeline for building, testing, and deploying Argo Workflows with Qwen LLM integration
+
+pipeline {
+    agent any
+    
+    environment {
+        REGISTRY = 'ghcr.io'
+        IMAGE_NAME = 'argo-workflows-qwen'
+        NAMESPACE = 'argo-workflows-ci'
+        KUBECONFIG = credentials('kubeconfig')
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 2, unit: 'HOURS')
+        timestamps()
+    }
+    
+    triggers {
+        pollSCM('H/5 * * * *')  // Poll every 5 minutes
+        cron('H 2 * * 1-5')     // Nightly builds on weekdays
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh 'git clean -fd'
+                sh 'git fetch --tags'
+            }
+        }
+        
+        stage('Lint and Validate') {
+            parallel {
+                stage('YAML Validation') {
+                    steps {
+                        sh '''
+                            # Install tools
+                            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+                            sudo mv kustomize /usr/local/bin/
+                            
+                            # Validate YAML syntax
+                            find overlay/argo-workflows -name '*.yaml' -o -name '*.yml' | xargs -I {} yq eval {} || exit 1
+                            
+                            # Validate Kustomize overlays
+                            kustomize build overlay/argo-workflows | kubectl apply --dry-run=client -f - || exit 1
+                        '''
+                    }
+                }
+                
+                stage('Shell Script Validation') {
+                    steps {
+                        sh '''
+                            shellcheck scripts/quickstart-argo-workflows.sh || exit 1
+                            shellcheck tests/argo-workflows/test-suite.sh || exit 1
+                        '''
+                    }
+                }
+                
+                stage('Documentation Validation') {
+                    steps {
+                        sh '''
+                            # Check for broken links
+                            find docs/argo-workflows -name '*.md' -exec markdown-link-check {} \\; || exit 1
+                            
+                            # Validate markdown syntax
+                            find docs/argo-workflows -name '*.md' -exec markdownlint {} \\; || exit 1
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Security Scanning') {
+            parallel {
+                stage('Trivy Scan') {
+                    steps {
+                        sh '''
+                            docker run --rm -v $(pwd):/workdir aquasec/trivy:latest \
+                                fs --format json --exit-code 0 /workdir > trivy-results.json || true
+                            
+                            # Parse results and fail if high severity issues found
+                            python3 -c "
+                            import json
+                            with open('trivy-results.json') as f:
+                                results = json.load(f)
+                            
+                            high_vulns = [r for r in results.get('Results', []) 
+                                        if any(v['Severity'] in ['HIGH', 'CRITICAL'] for v in r.get('Vulnerabilities', []))]
+                            
+                            if high_vulns:
+                                print('High or critical vulnerabilities found:')
+                                for vuln in high_vulns:
+                                    print(f'  {vuln.get(\"Target\", \"Unknown\")}')
+                                exit(1)
+                            else:
+                                print('No high or critical vulnerabilities found')
+                            "
+                        '''
+                    }
+                }
+                
+                stage('Kube-score') {
+                    steps {
+                        sh '''
+                            docker run --rm -v $(pwd):/workdir zegl/kube-score:latest \
+                                score --output-format ci /workdir/overlay/argo-workflows/base/*.yaml \
+                                /workdir/overlay/argo-workflows/qwen/*.yaml || exit 1
+                        '''
+                    }
+                }
+                
+                stage('OPA Policy Check') {
+                    steps {
+                        sh '''
+                            # Install conftest
+                            curl -L https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64 -o conftest
+                            chmod +x conftest
+                            sudo mv conftest /usr/local/bin/
+                            
+                            # Run OPA policy checks
+                            conftest test overlay/argo-workflows/base/*.yaml \
+                                overlay/argo-workflows/qwen/*.yaml \
+                                --policy policies/rego/ || exit 1
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Build and Test') {
+            matrix {
+                axes {
+                    axis {
+                        name 'CLUSTER_TYPE'
+                        values 'kind', 'k3s'
+                    }
+                }
+                
+                stages {
+                    stage('Setup Cluster') {
+                        steps {
+                            script {
+                                if (env.CLUSTER_TYPE == 'kind') {
+                                    sh '''
+                                        # Setup kind cluster
+                                        kind create cluster --name argo-workflows-ci --wait 30s
+                                        kubectl cluster-info
+                                    '''
+                                } else if (env.CLUSTER_TYPE == 'k3s') {
+                                    sh '''
+                                        # Setup k3s
+                                        curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+                                        sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+                                        mkdir -p $HOME/.kube
+                                        cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/config
+                                        kubectl cluster-info
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                    
+                    stage('Deploy Argo Workflows') {
+                        steps {
+                            sh '''
+                                ./scripts/quickstart-argo-workflows.sh \
+                                    --namespace ${NAMESPACE} \
+                                    --cluster ${CLUSTER_TYPE} \
+                                    --auto-approve
+                            '''
+                        }
+                    }
+                    
+                    stage('Wait for Deployment') {
+                        steps {
+                            sh '''
+                                # Wait for all components to be ready
+                                kubectl wait --for=condition=available --timeout=600s \
+                                    deployment/argo-workflows-controller -n ${NAMESPACE}
+                                kubectl wait --for=condition=available --timeout=600s \
+                                    deployment/argo-workflows-server -n ${NAMESPACE}
+                                kubectl wait --for=condition=available --timeout=600s \
+                                    deployment/qwen-k8sgpt -n ${NAMESPACE}
+                            '''
+                        }
+                    }
+                    
+                    stage('Run Tests') {
+                        parallel {
+                            stage('Basic Tests') {
+                                steps {
+                                    sh '''
+                                        chmod +x tests/argo-workflows/test-suite.sh
+                                        ./tests/argo-workflows/test-suite.sh \
+                                            --namespace ${NAMESPACE} \
+                                            --test-suite basic \
+                                            --verbose
+                                    '''
+                                }
+                            }
+                            
+                            stage('Qwen Tests') {
+                                steps {
+                                    sh '''
+                                        chmod +x tests/argo-workflows/test-suite.sh
+                                        ./tests/argo-workflows/test-suite.sh \
+                                            --namespace ${NAMESPACE} \
+                                            --test-suite qwen \
+                                            --verbose
+                                    '''
+                                }
+                            }
+                            
+                            stage('Integration Tests') {
+                                steps {
+                                    sh '''
+                                        chmod +x tests/argo-workflows/test-suite.sh
+                                        ./tests/argo-workflows/test-suite.sh \
+                                            --namespace ${NAMESPACE} \
+                                            --test-suite integration \
+                                            --verbose
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                    
+                    stage('Performance Tests') {
+                        when {
+                            anyOf {
+                                branch 'main'
+                                changeRequest()
+                            }
+                        }
+                        steps {
+                            sh '''
+                                chmod +x tests/argo-workflows/test-suite.sh
+                                ./tests/argo-workflows/test-suite.sh \
+                                    --namespace ${NAMESPACE} \
+                                    --test-suite performance \
+                                    --verbose
+                            '''
+                        }
+                    }
+                    
+                    stage('Security Tests') {
+                        steps {
+                            sh '''
+                                chmod +x tests/argo-workflows/test-suite.sh
+                                ./tests/argo-workflows/test-suite.sh \
+                                    --namespace ${NAMESPACE} \
+                                    --test-suite security \
+                                    --verbose
+                            '''
+                        }
+                    }
+                    
+                    stage('Collect Artifacts') {
+                        post {
+                            always {
+                                sh '''
+                                    mkdir -p logs/${CLUSTER_TYPE}
+                                    kubectl logs -n ${NAMESPACE} deployment/argo-workflows-controller > logs/${CLUSTER_TYPE}/controller.log
+                                    kubectl logs -n ${NAMESPACE} deployment/argo-workflows-server > logs/${CLUSTER_TYPE}/server.log
+                                    kubectl logs -n ${NAMESPACE} deployment/qwen-k8sgpt > logs/${CLUSTER_TYPE}/qwen.log
+                                    
+                                    # Collect test results
+                                    kubectl get workflows -n ${NAMESPACE} -o yaml > logs/${CLUSTER_TYPE}/workflows.yaml
+                                    kubectl get events -n ${NAMESPACE} --sort-by='.lastTimestamp' > logs/${CLUSTER_TYPE}/events.log
+                                '''
+                            }
+                        }
+                    }
+                    
+                    stage('Cleanup') {
+                        post {
+                            always {
+                                sh '''
+                                    kubectl delete namespace ${NAMESPACE} --ignore-not-found=true
+                                    
+                                    if [ "${CLUSTER_TYPE}" = "kind" ]; then
+                                        kind delete cluster --name argo-workflows-ci
+                                    else
+                                        sudo k3s-uninstall.sh || true
+                                    fi
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            when {
+                anyOf {
+                    branch 'main'
+                    tag pattern: 'v.*'
+                }
+            }
+            steps {
+                sh '''
+                    # Build Docker image
+                    docker build -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} .
+                    docker build -t ${REGISTRY}/${IMAGE_NAME}:latest .
+                    
+                    # Push to registry
+                    echo $DOCKER_PASSWORD | docker login ${REGISTRY} -u $DOCKER_USER --password-stdin
+                    docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    docker push ${REGISTRY}/${IMAGE_NAME}:latest
+                '''
+            }
+        }
+        
+        stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    # Deploy to staging environment
+                    kubectl config use-context staging-cluster
+                    
+                    # Update image tag
+                    kustomize edit set image ${REGISTRY}/${IMAGE_NAME}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    
+                    # Deploy
+                    kustomize build overlay/argo-workflows/overlays/staging | kubectl apply -f -
+                    
+                    # Wait for deployment
+                    kubectl wait --for=condition=available --timeout=600s \
+                        deployment/argo-workflows-controller -n argo-workflows-staging
+                '''
+            }
+        }
+        
+        stage('Smoke Tests') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    # Run smoke tests against staging
+                    kubectl config use-context staging-cluster
+                    
+                    chmod +x tests/argo-workflows/test-suite.sh
+                    ./tests/argo-workflows/test-suite.sh \
+                        --namespace argo-workflows-staging \
+                        --test-suite basic \
+                        --verbose
+                '''
+            }
+        }
+        
+        stage('Deploy to Production') {
+            when {
+                tag pattern: 'v.*'
+            }
+            input {
+                message "Deploy to production?", ok: "Deploy"
+            }
+            steps {
+                sh '''
+                    # Deploy to production environment
+                    kubectl config use-context production-cluster
+                    
+                    # Update image tag
+                    kustomize edit set image ${REGISTRY}/${IMAGE_NAME}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    
+                    # Deploy with blue-green strategy
+                    kustomize build overlay/argo-workflows/overlays/production-green | kubectl apply -f -
+                    
+                    # Wait for green deployment
+                    kubectl wait --for=condition=available --timeout=600s \
+                        deployment/argo-workflows-controller -n argo-workflows-production-green
+                    
+                    # Switch traffic to green
+                    kubectl patch service argo-workflows-lb -n argo-workflows-production \
+                        -p '{"spec":{"selector":{"version":"green"}}}'
+                    
+                    # Wait for traffic switch
+                    sleep 30
+                    
+                    # Clean up blue environment
+                    kubectl delete -f overlay/argo-workflows/overlays/production-blue --ignore-not-found=true
+                '''
+            }
+        }
+        
+        stage('Documentation') {
+            steps {
+                sh '''
+                    # Build documentation
+                    pip3 install mkdocs mkdocs-material
+                    mkdocs build --strict
+                    
+                    # Upload to documentation server
+                    rsync -av site/ docs@docs-server:/var/www/argo-workflows/
+                '''
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Archive artifacts
+            archiveArtifacts artifacts: 'logs/**/*', fingerprint: true
+            archiveArtifacts artifacts: 'site/**/*', fingerprint: true
+            archiveArtifacts artifacts: 'trivy-results.json', fingerprint: true
+        }
+        
+        success {
+            // Notify success
+            slackSend(
+                channel: '#ci-cd',
+                color: 'good',
+                message: "✅ Argo Workflows CI/CD Pipeline Succeeded\\nBuild: ${BUILD_NUMBER}\\nBranch: ${BRANCH_NAME}\\nCommit: ${GIT_COMMIT}"
+            )
+        }
+        
+        failure {
+            // Notify failure
+            slackSend(
+                channel: '#ci-cd',
+                color: 'danger',
+                message: "❌ Argo Workflows CI/CD Pipeline Failed\\nBuild: ${BUILD_NUMBER}\\nBranch: ${BRANCH_NAME}\\nCommit: ${GIT_COMMIT}\\nStage: ${currentBuild.currentResult}"
+            )
+            
+            // Create issue on failure
+            script {
+                if (env.BRANCH_NAME == 'main') {
+                    sh '''
+                        curl -X POST \
+                            -H "Authorization: token ${GITHUB_TOKEN}" \
+                            -H "Accept: application/vnd.github.v3+json" \
+                            https://api.github.com/repos/${JOB_NAME}/issues \
+                            -d '{
+                                "title": "CI/CD Pipeline Failure - Build #'${BUILD_NUMBER}'",
+                                "body": "Pipeline failed on branch '${BRANCH_NAME}'\\n\\nBuild: ${BUILD_URL}\\nCommit: ${GIT_COMMIT}\\n\\nPlease investigate and fix the issue.",
+                                "labels": ["ci-cd", "bug", "urgent"]
+                            }'
+                    '''
+                }
+            }
+        }
+        
+        unstable {
+            // Notify unstable
+            slackSend(
+                channel: '#ci-cd',
+                color: 'warning',
+                message: "⚠️ Argo Workflows CI/CD Pipeline Unstable\\nBuild: ${BUILD_NUMBER}\\nBranch: ${BRANCH_NAME}\\nCommit: ${GIT_COMMIT}"
+            )
+        }
+    }
+}

@@ -1,0 +1,216 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(
+            name: 'EVALUATORS',
+            defaultValue: 'skill_invocation,performance,cost,monitoring,health_check',
+            description: 'Evaluators to run (comma-separated)'
+        )
+        string(
+            name: 'TRACE_COUNT',
+            defaultValue: '100',
+            description: 'Number of sample traces to generate'
+        )
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Environment to run evaluation in'
+        )
+    }
+    
+    environment {
+        PYTHONPATH = "${WORKSPACE}/core/ai/eval"
+        EVALUATION_DIR = "${WORKSPACE}/core/ai/eval"
+        REPORTS_DIR = "${WORKSPACE}/evaluation-reports"
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '30'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    echo "🚀 Starting AI Agent Tracing Evaluation"
+                    echo "Environment: ${params.ENVIRONMENT}"
+                    echo "Evaluators: ${params.EVALUATORS}"
+                    echo "Trace Count: ${params.TRACE_COUNT}"
+                }
+            }
+        }
+        
+        stage('Setup Python') {
+            steps {
+                sh '''
+                    cd ${EVALUATION_DIR}
+                    python3 --version
+                    pip3 --version
+                    pip3 install -r requirements.txt
+                '''
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    cd ${EVALUATION_DIR}
+                    python tests/test_evaluators.py
+                '''
+            }
+            post {
+                always {
+                    junit 'core/ai/eval/test-results.xml' allowEmptyResults: true
+                }
+            }
+        }
+        
+        stage('Generate Sample Data') {
+            steps {
+                sh '''
+                    cd ${EVALUATION_DIR}
+                    python cli.py --generate-sample ${params.TRACE_COUNT} --file evaluation_traces.json
+                '''
+            }
+        }
+        
+        stage('Run Evaluation') {
+            steps {
+                sh '''
+                    cd ${EVALUATION_DIR}
+                    python cli.py --file evaluation_traces.json --evaluators ${params.EVALUATORS} --format json --output evaluation_results.json
+                '''
+            }
+        }
+        
+        stage('Generate Visualizations') {
+            steps {
+                sh '''
+                    mkdir -p ${REPORTS_DIR}
+                    cd ${EVALUATION_DIR}
+                    python cli.py --file evaluation_traces.json --visualize --report-dir ${REPORTS_DIR}
+                '''
+            }
+        }
+        
+        stage('Quality Gates') {
+            steps {
+                script {
+                    def results = readJSON file: "${EVALUATION_DIR}/evaluation_results.json"
+                    def summary = results.summary
+                    def overallScore = summary.overall_score as Double
+                    def passRate = summary.overall_pass_rate as Double
+                    def totalEvaluations = summary.total_evaluations as Integer
+                    
+                    echo "📊 Evaluation Results:"
+                    echo "  Overall Score: ${overallScore}"
+                    echo "  Pass Rate: ${passRate}"
+                    echo "  Total Evaluations: ${totalEvaluations}"
+                    
+                    // Quality gates
+                    if (overallScore < 0.8) {
+                        error "❌ FAIL: Overall score below threshold (0.8)"
+                    }
+                    
+                    if (passRate < 0.85) {
+                        error "❌ FAIL: Pass rate below threshold (85%)"
+                    }
+                    
+                    echo "✅ PASS: All quality gates met"
+                    
+                    // Set build description
+                    currentBuild.description = "Score: ${overallScore}, Pass Rate: ${passRate}%"
+                }
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                sh '''
+                    cd ${EVALUATION_DIR}
+                    pip install safety bandit
+                    safety check -r requirements.txt || true
+                    bandit -r . -f json -o security_report.json || true
+                '''
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Archive artifacts
+            archiveArtifacts artifacts: '''
+                core/ai/eval/evaluation_results.json,
+                core/ai/eval/evaluation_traces.json,
+                evaluation-reports/**/*,
+                core/ai/eval/security_report.json
+            ''', fingerprint: true
+            
+            // Clean up workspace
+            cleanWs()
+        }
+        
+        success {
+            script {
+                def results = readJSON file: "${EVALUATION_DIR}/evaluation_results.json"
+                def summary = results.summary
+                
+                emailext (
+                    subject: "✅ AI Agent Evaluation SUCCESS - Score: ${summary.overall_score}",
+                    body: """
+                        <h2>🎉 AI Agent Evaluation Completed Successfully</h2>
+                        <p><strong>Build:</strong> ${env.BUILD_NUMBER}</p>
+                        <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
+                        
+                        <h3>📊 Results</h3>
+                        <ul>
+                            <li><strong>Overall Score:</strong> ${summary.overall_score}</li>
+                            <li><strong>Pass Rate:</strong> ${summary.overall_pass_rate}</li>
+                            <li><strong>Total Evaluations:</strong> ${summary.total_evaluations}</li>
+                        </ul>
+                        
+                        <h3>🔧 Evaluators Run</h3>
+                        <p>${params.EVALUATORS}</p>
+                        
+                        <h3>📈 Quality Gates</h3>
+                        <p>✅ All quality gates passed successfully!</p>
+                        
+                        <p>Check Jenkins for detailed reports and visualizations.</p>
+                    """,
+                    to: "${env.CHANGE_AUTHOR_EMAIL ?: 'dev-team@company.com'}"
+                )
+            }
+        }
+        
+        failure {
+            emailext (
+                subject: "❌ AI Agent Evaluation FAILED",
+                body: """
+                    <h2>❌ AI Agent Evaluation Failed</h2>
+                    <p><strong>Build:</strong> ${env.BUILD_NUMBER}</p>
+                    <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
+                    
+                    <h3>🔍 Failure Details</h3>
+                    <p>Check the build logs and artifacts for detailed failure information.</p>
+                    
+                    <h3>📋 Configuration</h3>
+                    <ul>
+                        <li><strong>Evaluators:</strong> ${params.EVALUATORS}</li>
+                        <li><strong>Trace Count:</strong> ${params.TRACE_COUNT}</li>
+                    </ul>
+                    
+                    <p>Please review the failure and take corrective action.</p>
+                """,
+                to: "${env.CHANGE_AUTHOR_EMAIL ?: 'dev-team@company.com'}"
+            )
+        }
+        
+        unstable {
+            echo "⚠️ Build marked as unstable - review quality gate results"
+        }
+    }
+}
