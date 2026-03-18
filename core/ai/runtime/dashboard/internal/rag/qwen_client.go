@@ -53,10 +53,12 @@ func (q *QwenClient) Generate(ctx context.Context, prompt string, context []Docu
 	ragPrompt := q.buildRAGPrompt(prompt, context)
 	
 	// Prepare request payload
+	maxTokens := 2048
+	temperature := 0.1
 	payload := QwenRequest{
 		Message: ragPrompt,
-		MaxTokens: &[]int{2048},
-		Temperature: &[]float64{0.1},
+		MaxTokens: &maxTokens,
+		Temperature: &temperature,
 	}
 	
 	// Convert to JSON

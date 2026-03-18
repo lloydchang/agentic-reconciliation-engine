@@ -1,17 +1,14 @@
 package api
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services"
+	"go.uber.org/zap"
 )
 
 // VoiceHandler handles voice-related API requests
