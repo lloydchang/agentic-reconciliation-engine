@@ -1,6 +1,26 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './VoiceChat.css';
 
+// Type declaration for Web Speech API
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: ((event: any) => void) | null;
+}
+
 interface VoiceChatProps {
   onTranscript: (text: string) => void;
   onAudioResponse: (audioData: ArrayBuffer) => void;
@@ -66,7 +86,7 @@ const VoiceChat: React.FC<VoiceChatProps> = ({
         console.log('Speech recognition started');
       };
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         let finalTranscript = '';
         let interimTranscript = '';
 
@@ -84,7 +104,7 @@ const VoiceChat: React.FC<VoiceChatProps> = ({
         }
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         setIsRecording(false);

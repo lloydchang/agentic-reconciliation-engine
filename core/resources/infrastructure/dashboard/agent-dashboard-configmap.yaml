@@ -1,0 +1,601 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-dashboard-config
+  namespace: ai-infrastructure
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <title>Agents Control Center</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            :root {
+                --primary: #6366f1;
+                --primary-dark: #4f46e5;
+                --secondary: #8b5cf6;
+                --success: #10b981;
+                --warning: #f59e0b;
+                --danger: #ef4444;
+                --dark: #1f2937;
+                --light: #f3f4f6;
+                --border: #e5e7eb;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: var(--dark);
+            }
+            
+            .dashboard {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .header {
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 24px;
+                font-weight: bold;
+                color: var(--primary);
+            }
+            
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            .status-online {
+                background: var(--success);
+                color: white;
+            }
+            
+            .status-warning {
+                background: var(--warning);
+                color: white;
+            }
+            
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+            
+            .card {
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+            
+            .card-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--dark);
+            }
+            
+            .metric {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .metric-value {
+                font-size: 32px;
+                font-weight: bold;
+                color: var(--primary);
+            }
+            
+            .metric-label {
+                font-size: 14px;
+                color: #6b7280;
+            }
+            
+            .metric-change {
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-weight: 500;
+            }
+            
+            .change-positive {
+                background: #d1fae5;
+                color: var(--success);
+            }
+            
+            .change-negative {
+                background: #fee2e2;
+                color: var(--danger);
+            }
+            
+            .agent-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .agent-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                transition: background-color 0.2s;
+            }
+            
+            .agent-item:hover {
+                background: var(--light);
+            }
+            
+            .agent-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .agent-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--primary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+            }
+            
+            .agent-details h4 {
+                font-size: 16px;
+                margin-bottom: 4px;
+            }
+            
+            .agent-details p {
+                font-size: 14px;
+                color: #6b7280;
+            }
+            
+            .agent-status {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+            }
+            
+            .status-running {
+                background: var(--success);
+            }
+            
+            .status-warning {
+                background: var(--warning);
+            }
+            
+            .status-error {
+                background: var(--danger);
+            }
+            
+            .activity-feed {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            
+            .activity-item {
+                display: flex;
+                align-items: start;
+                gap: 12px;
+                padding: 12px 0;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+            
+            .activity-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+            
+            .activity-success {
+                background: #d1fae5;
+                color: var(--success);
+            }
+            
+            .activity-warning {
+                background: #fef3c7;
+                color: var(--warning);
+            }
+            
+            .activity-error {
+                background: #fee2e2;
+                color: var(--danger);
+            }
+            
+            .activity-info {
+                background: #dbeafe;
+                color: #3b82f6;
+            }
+            
+            .activity-content {
+                flex: 1;
+            }
+            
+            .activity-time {
+                font-size: 12px;
+                color: #6b7280;
+                margin-bottom: 4px;
+            }
+            
+            .activity-message {
+                font-size: 14px;
+                color: var(--dark);
+            }
+            
+            .controls {
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .control-buttons {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .btn-primary {
+                background: var(--primary);
+                color: white;
+            }
+            
+            .btn-primary:hover {
+                background: var(--primary-dark);
+            }
+            
+            .btn-secondary {
+                background: var(--light);
+                color: var(--dark);
+                border: 1px solid var(--border);
+            }
+            
+            .btn-secondary:hover {
+                background: var(--border);
+            }
+            
+            .btn-danger {
+                background: var(--danger);
+                color: white;
+            }
+            
+            .btn-danger:hover {
+                background: #dc2626;
+            }
+            
+            @media (max-width: 768px) {
+                .dashboard {
+                    padding: 10px;
+                }
+                
+                .header {
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .control-buttons {
+                    flex-direction: column;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="dashboard">
+            <header class="header">
+                <div class="logo">
+                    <i data-feather="cpu"></i>
+                    <span>Agents Control Center</span>
+                </div>
+                <div class="status-indicator status-online">
+                    <div class="status-dot status-running"></div>
+                    <span>All Systems Operational</span>
+                </div>
+            </header>
+            
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Agents</h3>
+                        <i data-feather="users"></i>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2</div>
+                        <div class="metric-label">Running</div>
+                    </div>
+                    <div class="metric-change change-positive">+1 from last hour</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Success Rate</h3>
+                        <i data-feather="trending-up"></i>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">98.5%</div>
+                        <div class="metric-label">Last 24h</div>
+                    </div>
+                    <div class="metric-change change-positive">+2.1% improvement</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Skills Executed</h3>
+                        <i data-feather="zap"></i>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">1,247</div>
+                        <div class="metric-label">Today</div>
+                    </div>
+                    <div class="metric-change change-positive">+18% from yesterday</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Response Time</h3>
+                        <i data-feather="clock"></i>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">1.2s</div>
+                        <div class="metric-label">Average</div>
+                    </div>
+                    <div class="metric-change change-positive">-0.3s faster</div>
+                </div>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Agent Status</h3>
+                        <i data-feather="activity"></i>
+                    </div>
+                    <div class="agent-list">
+                        <div class="agent-item">
+                            <div class="agent-info">
+                                <div class="agent-avatar">M</div>
+                                <div class="agent-details">
+                                    <h4>Memory Agent</h4>
+                                    <p>Rust Implementation</p>
+                                </div>
+                            </div>
+                            <div class="agent-status">
+                                <div class="status-dot status-running"></div>
+                                <span>Running</span>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-item">
+                            <div class="agent-info">
+                                <div class="agent-avatar">W</div>
+                                <div class="agent-details">
+                                    <h4>AI Agent Worker</h4>
+                                    <p>Go Implementation</p>
+                                </div>
+                            </div>
+                            <div class="agent-status">
+                                <div class="status-dot status-running"></div>
+                                <span>Running</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <i data-feather="list"></i>
+                    </div>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon activity-success">🚀</div>
+                            <div class="activity-content">
+                                <div class="activity-time">2 min ago</div>
+                                <div class="activity-message">Cost Optimizer completed analysis for production cluster</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon activity-warning">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-time">5 min ago</div>
+                                <div class="activity-message">Security Scanner detected unusual network traffic</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon activity-info">📊</div>
+                            <div class="activity-content">
+                                <div class="activity-time">12 min ago</div>
+                                <div class="activity-message">Cluster Monitor generated performance report</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon activity-success">✅</div>
+                            <div class="activity-content">
+                                <div class="activity-time">18 min ago</div>
+                                <div class="activity-message">Deployment Manager successfully rolled out update</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon activity-error">❌</div>
+                            <div class="activity-content">
+                                <div class="activity-time">25 min ago</div>
+                                <div class="activity-message">Backup Manager failed to connect to storage</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="card-header">
+                    <h3 class="card-title">System Controls</h3>
+                    <i data-feather="settings"></i>
+                </div>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="deployNewAgent()">
+                        <i data-feather="plus"></i>
+                        Deploy New Agent
+                    </button>
+                    <button class="btn btn-secondary" onclick="showLogs()">
+                        <i data-feather="file-text"></i>
+                        View Logs
+                    </button>
+                    <button class="btn btn-secondary" onclick="showMetrics()">
+                        <i data-feather="bar-chart"></i>
+                        Detailed Metrics
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportLogs()">
+                        <i data-feather="download"></i>
+                        Export Logs
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSettings()">
+                        <i data-feather="settings"></i>
+                        Settings
+                    </button>
+                    <button class="btn btn-danger" onclick="restartSystem()">
+                        <i data-feather="refresh-cw"></i>
+                        Restart System
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Initialize Feather icons
+            feather.replace();
+            
+            // Simulate real-time updates
+            setInterval(() => {
+                // Update metrics randomly
+                const metrics = document.querySelectorAll('.metric-value');
+                metrics.forEach(metric => {
+                    if (metric.textContent.includes('%')) {
+                        const currentValue = parseFloat(metric.textContent);
+                        const newValue = (currentValue + (Math.random() - 0.5) * 0.5).toFixed(1);
+                        metric.textContent = newValue + '%';
+                    } else if (metric.textContent.includes('s')) {
+                        const currentValue = parseFloat(metric.textContent);
+                        const newValue = Math.max(0.5, currentValue + (Math.random() - 0.5) * 0.2).toFixed(1);
+                        metric.textContent = newValue + 's';
+                    }
+                });
+            }, 5000);
+            
+            // Control functions
+            function deployNewAgent() {
+                alert('Deploy new agent dialog would open here...');
+            }
+            
+            function showLogs() {
+                alert('Logs viewer would open here...');
+            }
+            
+            function showMetrics() {
+                alert('Detailed metrics dashboard would open here...');
+            }
+            
+            function restartSystem() {
+                if (confirm('Restart the entire system? This will temporarily interrupt all services.')) {
+                    alert('System restart initiated...');
+                }
+            }
+            
+            function exportLogs() {
+                alert('Exporting system logs...');
+            }
+            
+            function showSettings() {
+                alert('Settings panel would open here');
+            }
+            
+            function executeSkill(skill) {
+                alert(`Executing skill: ${skill}`);
+            }
+        </script>
+    </body>
+    </html>
