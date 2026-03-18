@@ -26,7 +26,39 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 - [Task Completion Summary](./docs/TASK-COMPLETION-SUMMARY.md) — Comprehensive summary of agentic AI platform implementation.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
 
+---
+
 ## Architecture Overview
+
+---
+
+### Approximate Decomposition and Abstraction Layers
+
+**AI Frontend UI/UX:** React | Vite | Node.js | TypeScript / JavaScript
+
+**AI Dashboard Database:** Postgres (OLTP) | SQL
+
+**AI Backend API:** FastAPI | Python
+
+**AI Workflow:** Temporal | Langfuse and ClickHouse (OLAP) | Go
+
+**AI SKILL.md:** https://agentskills.io/ | English | Python
+
+**AI AGENTS.md:** https://agents.md/ | English | Python
+
+**AI Memory Agent:** SQLite (OLTP) | Rust
+
+**AI LLM:** Qwen2.5-0.5B | English / Multilingual
+
+**AI Inference:** LlamaCPP | C++
+
+**GitOps:** Flux | Flagger | Argo CD | Argo Rollout | Argo Workflow | Argo Events | Go
+
+**Infrastructure as Code:** Crossplane | CDK (AWS) | Bicep (Azure) | Blueprints (GCP) | YAML
+
+**Containers:** Docker | Kubernetes | CAPI | Go
+
+---
 
 This GitOps infrastructure control plane implements **advanced agentic AI capabilities** with compound engineering integration:
 
