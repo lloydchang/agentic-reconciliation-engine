@@ -10,7 +10,7 @@ description = "Memory agent with Qwen LLM integration using llama.cpp"
 axum = "0.7"
 tokio = { version = "1.0", features = ["full"] }
 tower = "0.4"
-tower-http = { version = "0.5", features = ["cors", "trace", "compression"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
