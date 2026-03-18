@@ -361,11 +361,11 @@ deploy_consolidated_k8sgpt() {
     print_header "Deploying Consolidated K8sGPT"
     
     # Check if the consolidated deployment script exists
-    local k8sgpt_script="$REPO_ROOT/scripts/deploy-consolidated-k8sgpt.sh"
+    local k8sgpt_script="$SCRIPT_DIR/deploy-consolidated-k8sgpt.sh"
     
     if [[ ! -f "$k8sgpt_script" ]]; then
         print_warning "Consolidated K8sGPT deployment script not found at $k8sgpt_script"
-        print_info "You can manually run: ./scripts/deploy-consolidated-k8sgpt.sh deploy"
+        print_info "You can manually run: ./core/scripts/deploy-consolidated-k8sgpt.sh deploy"
         return 0
     fi
     
@@ -417,7 +417,7 @@ deploy_consolidated_k8sgpt() {
     else
         print_error "Failed to deploy consolidated K8sGPT"
         print_info "Check the logs above for errors and try running the script manually"
-        print_info "Manual deployment: ./scripts/deploy-consolidated-k8sgpt.sh deploy"
+        print_info "Manual deployment: ./core/scripts/deploy-consolidated-k8sgpt.sh deploy"
         return 1
     fi
 }

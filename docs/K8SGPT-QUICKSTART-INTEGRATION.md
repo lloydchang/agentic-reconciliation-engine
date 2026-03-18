@@ -40,7 +40,7 @@ deploy_consolidated_k8sgpt() {
 
 ### When Quickstart Runs
 1. **Prerequisites Check**: Verifies kubectl and cluster access
-2. **Script Detection**: Looks for `scripts/deploy-consolidated-k8sgpt.sh`
+2. **Script Detection**: Looks for `core/scripts/deploy-consolidated-k8sgpt.sh`
 3. **Existing Deployment Check**: Detects if K8sGPT already deployed
 4. **Smart Deployment**:
    - If not deployed → Full deployment
@@ -183,12 +183,12 @@ cd gitops-infra-control-plane
 ### Manual K8sGPT Management
 ```bash
 # Direct access to deployment script still available
-./scripts/deploy-consolidated-k8sgpt.sh --help
+./core/scripts/deploy-consolidated-k8sgpt.sh --help
 
 # Individual operations
-./scripts/deploy-consolidated-k8sgpt.sh validate
-./scripts/deploy-consolidated-k8sgpt.sh test
-./scripts/deploy-consolidated-k8sgpt.sh cleanup
+./core/scripts/deploy-consolidated-k8sgpt.sh validate
+./core/scripts/deploy-consolidated-k8sgpt.sh test
+./core/scripts/deploy-consolidated-k8sgpt.sh cleanup
 ```
 
 ## ✅ Validation Checklist

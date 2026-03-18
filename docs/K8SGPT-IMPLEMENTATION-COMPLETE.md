@@ -74,12 +74,12 @@ core/gitops/consolidated/component-integration-guide.md # Component integration
 ### For Existing Clusters
 1. **Backup Current State**:
    ```bash
-   ./scripts/migrate-to-consolidated-k8sgpt.sh --backup
+   ./core/scripts/migrate-to-consolidated-k8sgpt.sh --backup
    ```
 
 2. **Run Migration**:
    ```bash
-   ./scripts/migrate-to-consolidated-k8sgpt.sh
+   ./core/scripts/migrate-to-consolidated-k8sgpt.sh
    ```
 
 3. **Verify Integration**:
