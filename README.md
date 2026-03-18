@@ -15,9 +15,23 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 - [Dashboard Real-Time Data System](./docs/DASHBOARD-REALTIME-DATA-SYSTEM.md) — Complete implementation guide for the AI Agents Dashboard with real-time autonomous data.
 - [Dashboard Quick Reference](./docs/DASHBOARD-QUICK-REFERENCE.md) — Quick setup guide and common commands for the dashboard.
 - [Dashboard Technical Implementation](./docs/DASHBOARD-TECHNICAL-IMPLEMENTATION.md) — Technical architecture and implementation details.
+- [K8sGPT Consolidation](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) — Single instance per cluster architecture for all GitOps components.
 - [FastAPI Migration](./docs/FLASK-TO-FASTAPI-MIGRATION-PLAN.md) — Migration plan from Flask to FastAPI for dashboard API backend.
 - Compatibility: [Windows](./docs/WINDOWS-COMPATIBILITY.md), [Mac](./docs/MAC-COMPATIBILITY.md), [Linux](./docs/LINUX-COMPATIBILITY.md), [Shell](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
+
+## Architecture Overview
+
+This GitOps infrastructure control plane implements a **consolidated K8sGPT architecture** where:
+
+- **Single K8sGPT Instance**: One AI analysis service per cluster in `k8sgpt-system` namespace
+- **Multi-Backend Support**: Agent-memory (primary), LocalAI (fallback), OpenAI (optional)
+- **Unified Service Endpoint**: `http://k8sgpt.k8sgpt-system.svc.cluster.local:8080`
+- **Component Integration**: All GitOps tools (ArgoCD, Flux, Argo Workflows, etc.) use the same instance
+
+**Benefits**: 75% resource reduction, simplified management, consistent AI analysis across all components.
+
+See [K8sGPT Consolidation Summary](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) for complete migration guide and architecture details.
 
 ## Getting started
 1. Open a POSIX shell (Mac Zsh, WSL Bash, Linux Bash via GitHub Codespaces, etc.) before touching the automation scripts.
