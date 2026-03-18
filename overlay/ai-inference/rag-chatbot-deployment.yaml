@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-chatbot
+  namespace: ai-infrastructure
+  labels:
+    app: rag-chatbot
+    component: ai-assistant
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rag-chatbot
+      component: ai-assistant
+  template:
+    metadata:
+      labels:
+        app: rag-chatbot
+        component: ai-assistant
+    spec:
+      containers:
+      - name: rag-chatbot
+        image: rag-chatbot:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: openai-api-key
+        - name: AGENT_MEMORY_URL
+          value: "http://agent-memory-service:8080"
+        - name: OLLAMA_URL
+          value: "http://ollama-service:11434"
+        - name: MODEL_NAME
+          value: "qwen2.5:0.5b"
+        - name: KUBECTL_ENABLED
+          value: "true"
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-chatbot-service
+  namespace: ai-infrastructure
+  labels:
+    app: rag-chatbot
+    component: ai-assistant
+spec:
+  selector:
+    app: rag-chatbot
+    component: ai-assistant
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-secrets
+  namespace: ai-infrastructure
+type: Opaque
+data:
+  # Base64 encoded placeholder - replace with actual key
+  openai-api-key: c2stcGxhY2Vob2xkZXItb3BlbmFpLWtleQ==  # sk-placeholder-openai-key
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-chatbot-config
+  namespace: ai-infrastructure
+data:
+  config.yaml: |
+    # RAG Chatbot Configuration
+    chatbot:
+      name: "GitOps AI Assistant"
+      version: "1.0.0"
+      
+    # LLM Configuration
+    llm:
+      primary: "openai"
+      fallback: "ollama"
+      models:
+        openai:
+          model: "gpt-3.5-turbo"
+          max_tokens: 1000
+          temperature: 0.7
+        ollama:
+          model: "qwen2.5:0.5b"
+          max_tokens: 800
+          temperature: 0.6
+    
+    # Memory Configuration
+    memory:
+      agent_memory_url: "http://agent-memory-service:8080"
+      max_context_length: 4000
+      session_timeout: 3600
+    
+    # Knowledge Base Configuration
+    knowledge_base:
+      skills_path: "/app/data/skills"
+      cache_enabled: true
+      cache_ttl: 300
+    
+    # Kubernetes Integration
+    kubernetes:
+      enabled: true
+      namespace: "ai-infrastructure"
+      watch_resources: ["pods", "services", "deployments"]
+    
+    # System Controls
+    system_controls:
+      enabled: true
+      allowed_commands: ["deploy", "stop", "restart", "status"]
+      require_confirmation: true
+    
+    # Logging Configuration
+    logging:
+      level: "info"
+      format: "json"
+      audit_enabled: true
