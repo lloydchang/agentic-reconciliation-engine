@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend-realtime
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend-realtime
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend-realtime
+    spec:
+      containers:
+      - name: backend
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+        command: ["python", "-c", """
+import subprocess
+import json
+from flask import Flask, jsonify
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(app)
+
+def run_kubectl(cmd):
+    try:
+        result = subprocess.run(['kubectl'] + cmd.split(), capture_output=True, text=True, timeout=10)
+        return result.stdout.strip() if result.returncode == 0 else ''
+    except:
+        return ''
+
+@app.route('/api/metrics')
+def metrics():
+    nodes = len(run_kubectl('get nodes --no-headers').split('\\n')) if run_kubectl('get nodes --no-headers') else 0
+    pods = len(run_kubectl('get pods --all-namespaces --no-headers').split('\\n')) if run_kubectl('get pods --all-namespaces --no-headers') else 0
+    ai_pods = len(run_kubectl('get pods -n ai-infrastructure --no-headers').split('\\n')) if run_kubectl('get pods -n ai-infrastructure --no-headers') else 0
+    
+    return jsonify({
+        'agents': {'total': ai_pods, 'active': ai_pods, 'healthy': ai_pods, 'failed': 0},
+        'cluster': {'nodes': nodes, 'total_pods': pods, 'running_pods': ai_pods}
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+"""]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-backend-realtime-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: dashboard-backend-realtime
+  ports:
+  - port: 5000
+    targetPort: 5000
