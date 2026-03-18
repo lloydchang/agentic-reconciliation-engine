@@ -24,8 +24,8 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Or use our custom installation with GitOps integration
-kubectl apply -f gitops/argocd/namespace.yaml
-kubectl apply -f gitops/argocd/install.yaml
+kubectl apply -f core/gitops/argocd/namespace.yaml
+kubectl apply -f core/gitops/argocd/install.yaml
 ```
 
 ### 2. Access Argo CD UI
@@ -51,7 +51,7 @@ argocd repo add https://github.com/lloydchang/gitops-infra-control-plane.git --t
 
 ```bash
 # Apply the root application
-kubectl apply -f gitops/argocd/applications/root-app.yaml
+kubectl apply -f core/gitops/argocd/applications/root-app.yaml
 
 # This will automatically deploy:
 # - AI Infrastructure (K8sGPT with Qwen)
@@ -80,10 +80,10 @@ kubectl get pods -n k8sgpt-system
 
 ```bash
 # Apply namespace
-kubectl apply -f gitops/argocd/namespace.yaml
+kubectl apply -f core/gitops/argocd/namespace.yaml
 
 # Apply complete installation
-kubectl apply -f gitops/argocd/install.yaml
+kubectl apply -f core/gitops/argocd/install.yaml
 
 # Verify installation
 kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
@@ -110,15 +110,15 @@ helm install argocd argo/argo-cd \
 
 ```bash
 # Deploy Qwen LocalAI
-kubectl apply -f gitops/argocd/k8sgpt/qwen-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/qwen-config.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/qwen-config.yaml
 
 # Wait for Qwen to be ready
 kubectl wait --for=condition=available --timeout=600s deployment/qwen-localai -n k8sgpt-system
 
 # Deploy K8sGPT
-kubectl apply -f gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
-kubectl apply -f gitops/argocd/k8sgpt/configmap.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/configmap.yaml
 ```
 
 #### Option 2: External Qwen API (Cloud-based)
@@ -130,10 +130,10 @@ kubectl create secret generic k8sgpt-secrets \
   -n k8sgpt-system
 
 # Update configmap to use external API
-# Edit gitops/argocd/k8sgpt/configmap.yaml and uncomment the openai backend section
+# Edit core/gitops/argocd/k8sgpt/configmap.yaml and uncomment the openai backend section
 
 # Deploy K8sGPT
-kubectl apply -f gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
+kubectl apply -f core/gitops/argocd/k8sgpt/k8sgpt-deployment.yaml
 ```
 
 ### Model Download and Setup

@@ -118,7 +118,7 @@ wait_for_deployment() {
         local response
         response=$(curl -s \
             -H "Authorization: Bearer $PIPECD_TOKEN" \
-            "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/deployments/$deployment_id")
+            "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/core/deployment/$deployment_id")
         
         if [[ $? -ne 0 ]]; then
             log_warning "Failed to get deployment status, retrying..."
@@ -164,7 +164,7 @@ get_deployment_logs() {
     local response
     response=$(curl -s \
         -H "Authorization: Bearer $PIPECD_TOKEN" \
-        "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/deployments/$deployment_id/logs")
+        "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/core/deployment/$deployment_id/logs")
     
     if [[ $? -eq 0 ]]; then
         echo "$response" | jq -r '.logs // [] | .[] | .message' 2>/dev/null || echo "$response"
@@ -279,7 +279,7 @@ get_ai_analysis() {
     if [[ -n "$deployment_id" ]]; then
         deployment_data=$(curl -s \
             -H "Authorization: Bearer $PIPECD_TOKEN" \
-            "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/deployments/$deployment_id")
+            "$PIPECD_URL/api/v1/projects/$PIPECD_PROJECT/core/deployment/$deployment_id")
     else
         # Get latest deployment
         local deployments

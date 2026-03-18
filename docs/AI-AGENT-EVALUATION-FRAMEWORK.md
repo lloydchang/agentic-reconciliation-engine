@@ -357,12 +357,12 @@ cd gitops-infra-control-plane
 
 #### 2. Deploy Everything
 ```bash
-./deployments/deploy-evaluation-framework.sh deploy
+./core/deployment/deploy-evaluation-framework.sh deploy
 ```
 
 #### 3. Verify Installation
 ```bash
-./deployments/deploy-evaluation-framework.sh status
+./core/deployment/deploy-evaluation-framework.sh status
 ```
 
 ### Custom Installation
@@ -377,9 +377,9 @@ export NAMESPACE=ai-evaluators
 #### Selective Deployment
 ```bash
 # Deploy specific options
-./deployments/deploy-evaluation-framework.sh scheduled  # Option 1
-./deployments/deploy-evaluation-framework.sh api        # Option 2
-./deployments/deploy-evaluation-framework.sh temporal   # Option 3
+./core/deployment/deploy-evaluation-framework.sh scheduled  # Option 1
+./core/deployment/deploy-evaluation-framework.sh api        # Option 2
+./core/deployment/deploy-evaluation-framework.sh temporal   # Option 3
 ```
 
 ### Manual Installation Steps
@@ -387,11 +387,11 @@ export NAMESPACE=ai-evaluators
 #### 1. Build Docker Images
 ```bash
 # Build all images
-docker build -f deployments/ai-agent-evaluator-Dockerfile -t ai-agent-evaluator:latest .
+docker build -f core/deployment/ai-agent-evaluator-Dockerfile -t ai-agent-evaluator:latest .
 
 # Build specific targets
-docker build -f deployments/ai-agent-evaluator-Dockerfile --target production -t ai-agent-evaluator-api:latest .
-docker build -f deployments/ai-agent-evaluator-Dockerfile --target temporal-worker -t ai-agent-evaluator:latest .
+docker build -f core/deployment/ai-agent-evaluator-Dockerfile --target production -t ai-agent-evaluator-api:latest .
+docker build -f core/deployment/ai-agent-evaluator-Dockerfile --target temporal-worker -t ai-agent-evaluator:latest .
 ```
 
 #### 2. Deploy Kubernetes Resources
@@ -400,16 +400,16 @@ docker build -f deployments/ai-agent-evaluator-Dockerfile --target temporal-work
 kubectl create namespace ai-agents
 
 # Apply manifests
-kubectl apply -f deployments/ai-agent-evaluator-complete.yaml -n ai-agents
+kubectl apply -f core/deployment/ai-agent-evaluator-complete.yaml -n ai-agents
 ```
 
 #### 3. Deploy Specific Options
 ```bash
 # Option 1: Scheduled Jobs
-kubectl apply -f deployments/ai-agent-evaluation-cronjob.yaml -n ai-agents
+kubectl apply -f core/deployment/ai-agent-evaluation-cronjob.yaml -n ai-agents
 
 # Option 2: API Server
-kubectl apply -f deployments/ai-agent-evaluator-deployment.yaml -n ai-agents
+kubectl apply -f core/deployment/ai-agent-evaluator-deployment.yaml -n ai-agents
 
 # Option 3: Temporal Workers (included in complete manifest)
 # Workers are deployed as part of the complete manifest
@@ -953,7 +953,7 @@ pip install -r agent-tracing-evaluation/requirements.txt
 pip install pytest black flake8 mypy
 
 # Docker (for local testing)
-docker build -f deployments/ai-agent-evaluator-Dockerfile -t ai-agent-evaluator:dev .
+docker build -f core/deployment/ai-agent-evaluator-Dockerfile -t ai-agent-evaluator:dev .
 ```
 
 #### Running Tests
@@ -1027,7 +1027,7 @@ def test_new_evaluator():
 
 #### Adding New Endpoints
 ```python
-# deployments/api-server.py
+# core/deployment/api-server.py
 @app.route('/evaluators/<evaluator_name>/config', methods=['GET'])
 def get_evaluator_config(evaluator_name):
     # Return evaluator-specific configuration
@@ -1278,7 +1278,7 @@ curl -X POST http://api-server/evaluate \
 0 */4 * * * cd /app && python cli.py --file /data/traces.json --evaluators all
 
 # New Kubernetes CronJob
-kubectl apply -f deployments/ai-agent-evaluation-cronjob.yaml
+kubectl apply -f core/deployment/ai-agent-evaluation-cronjob.yaml
 ```
 
 ### C. Performance Benchmarks

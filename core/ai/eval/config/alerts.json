@@ -1,0 +1,36 @@
+{
+  "actions": {
+    "email": {
+      "smtp_host": "localhost",
+      "smtp_port": 587,
+      "use_tls": true,
+      "username": "",
+      "password": "",
+      "from_email": "ai-agent-evaluation@company.com",
+      "recipients": [
+        "devops@company.com",
+        "security@company.com"
+      ]
+    },
+    "slack": {
+      "webhook_url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+      "channel": "#ai-agent-alerts"
+    },
+    "webhook": {
+      "webhook_url": "http://localhost:8080/webhooks/alerts",
+      "headers": {
+        "Authorization": "Bearer your-webhook-token"
+      }
+    }
+  },
+  "rules": {
+    "enable_default_rules": true,
+    "custom_rules": []
+  },
+  "settings": {
+    "max_alerts_per_hour": 50,
+    "alert_retention_days": 30,
+    "enable_deduplication": true,
+    "deduplication_window_minutes": 5
+  }
+}

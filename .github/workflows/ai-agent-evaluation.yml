@@ -38,33 +38,33 @@ jobs:
         
     - name: Install dependencies
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         pip install -r requirements.txt
         
     - name: Run evaluation tests
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         python tests/test_evaluators.py
         
     - name: Generate sample traces
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         python cli.py --generate-sample ${{ github.event.inputs.trace_count || '100' }} --file evaluation_traces.json
         
     - name: Run evaluation
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         python cli.py --file evaluation_traces.json --evaluators ${{ github.event.inputs.evaluators || 'skill_invocation,performance,cost,monitoring,health_check' }} --format json --output evaluation_results.json
         
     - name: Generate visualizations
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         python cli.py --file evaluation_traces.json --visualize --report-dir evaluation_reports/
         
     - name: Parse evaluation results
       id: parse_results
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         python -c "
 import json
 with open('evaluation_results.json', 'r') as f:
@@ -90,13 +90,13 @@ with open('github_output.txt', 'w') as f:
       with:
         name: evaluation-results
         path: |
-          agent-tracing-evaluation/evaluation_results.json
-          agent-tracing-evaluation/evaluation_reports/
+          core/ai/eval/evaluation_results.json
+          core/ai/eval/evaluation_reports/
         retention-days: 30
         
     - name: Check quality gates
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         
         # Parse results
         source github_output.txt
@@ -121,7 +121,7 @@ with open('github_output.txt', 'w') as f:
         
     - name: Create evaluation summary
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         
         source github_output.txt
         
@@ -172,7 +172,7 @@ EOF
       
     - name: Run security scan
       run: |
-        cd agent-tracing-evaluation
+        cd core/ai/eval
         pip install safety bandit
         safety check -r requirements.txt
         bandit -r . -f json -o security_report.json || true
@@ -181,5 +181,5 @@ EOF
       uses: actions/upload-artifact@v4
       with:
         name: security-report
-        path: agent-tracing-evaluation/security_report.json
+        path: core/ai/eval/security_report.json
         retention-days: 30

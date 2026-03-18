@@ -129,7 +129,7 @@ flux bootstrap git \
 
 ```bash
 # Deploy K8sGPT with Qwen
-kubectl apply -f ./gitops/flux-system/k8sgpt-qwen.yaml
+kubectl apply -f ./core/gitops/flux-system/k8sgpt-qwen.yaml
 
 # Configure Qwen model
 cat <<EOF | kubectl apply -f -
@@ -154,7 +154,7 @@ EOF
 ### Qwen Configuration
 
 ```yaml
-# gitops/flux-system/qwen-config.yaml
+# core/gitops/flux-system/qwen-config.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -251,7 +251,7 @@ gitops-infra-control-plane/
 ### Network Policies
 
 ```yaml
-# gitops/flux-system/network-policies.yaml
+# core/gitops/flux-system/network-policies.yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -291,7 +291,7 @@ spec:
 ### RBAC Configuration
 
 ```yaml
-# gitops/flux-system/rbac.yaml
+# core/gitops/flux-system/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -343,7 +343,7 @@ sops --age=$(cat age.key | grep "public key:" | cut -d' ' -f4) --encrypt \
 ### Prometheus Integration
 
 ```yaml
-# gitops/flux-system/monitoring.yaml
+# core/gitops/flux-system/monitoring.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -377,7 +377,7 @@ spec:
 ### Grafana Dashboards
 
 ```yaml
-# gitops/flux-system/grafana-dashboard.yaml
+# core/gitops/flux-system/grafana-dashboard.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -456,7 +456,7 @@ jobs:
 ### Webhook Configuration
 
 ```yaml
-# gitops/flux-system/webhooks.yaml
+# core/gitops/flux-system/webhooks.yaml
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
 kind: Receiver
 metadata:
@@ -500,7 +500,7 @@ stringData:
 ### Health Checks
 
 ```yaml
-# gitops/flux-system/health-checks.yaml
+# core/gitops/flux-system/health-checks.yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
@@ -627,7 +627,7 @@ stringData:
 ### Image Update Automation
 
 ```yaml
-# gitops/flux-system/image-automation.yaml
+# core/gitops/flux-system/image-automation.yaml
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
@@ -672,7 +672,7 @@ spec:
 ### Progressive Delivery with Flagger
 
 ```yaml
-# gitops/flux-system/flagger.yaml
+# core/gitops/flux-system/flagger.yaml
 apiVersion: flagger.app/v1beta1
 kind: Canary
 metadata:

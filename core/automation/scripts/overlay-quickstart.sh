@@ -60,7 +60,7 @@ create_overlay_hooks() {
     print_header "Creating Overlay Hooks"
     
     # Pre-quickstart hook - runs before base quickstart
-    cat > hooks/pre-quickstart.sh << 'EOF'
+    cat > core/hooks/pre-quickstart.sh << 'EOF'
 #!/bin/bash
 # Overlay pre-quickstart hook
 # This runs before the base quickstart.sh
@@ -80,7 +80,7 @@ echo "✅ Overlay environment prepared"
 EOF
     
     # Post-quickstart hook - runs after base quickstart
-    cat > hooks/post-quickstart.sh << 'EOF'
+    cat > core/hooks/post-quickstart.sh << 'EOF'
 #!/bin/bash
 # Overlay post-quickstart hook
 # This runs after the base quickstart.sh
@@ -167,8 +167,8 @@ echo "✅ Overlay structure initialized"
 EOF
     
     # Make hooks executable
-    chmod +x hooks/pre-quickstart.sh
-    chmod +x hooks/post-quickstart.sh
+    chmod +x core/hooks/pre-quickstart.sh
+    chmod +x core/hooks/post-quickstart.sh
     
     print_success "Overlay hooks created"
 }

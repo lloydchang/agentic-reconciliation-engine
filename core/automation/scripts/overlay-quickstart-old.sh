@@ -130,13 +130,13 @@ add_overlay_support_to_quickstart() {
     sed -i '' '/^done$/a\
 \
 # Overlay: Allow pre-quickstart hook\
-[ -f "./hooks/pre-quickstart.sh" ] && source ./hooks/pre-quickstart.sh' "$quickstart_path"
+[ -f "./core/hooks/pre-quickstart.sh" ] && source ./core/hooks/pre-quickstart.sh' "$quickstart_path"
     
     # Add post-hook before final summary
     sed -i '' '/# Summary/i\
 \
 # Overlay: Allow post-quickstart hook\
-[ -f "./hooks/post-quickstart.sh" ] && source ./hooks/post-quickstart.sh' "$quickstart_path"
+[ -f "./core/hooks/post-quickstart.sh" ] && source ./core/hooks/post-quickstart.sh' "$quickstart_path"
     
     pass "Overlay hook support added to quickstart.sh"
     warn "Note: This is a one-time modification to enable overlay pattern"

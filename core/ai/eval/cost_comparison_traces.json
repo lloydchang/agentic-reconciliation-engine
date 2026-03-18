@@ -1,0 +1,1364 @@
+{
+  "traces": [
+    {
+      "id": "expensive-trace-001",
+      "timestamp": 1773226770288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-002",
+      "timestamp": 1773226830288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-003",
+      "timestamp": 1773226890288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-004",
+      "timestamp": 1773226950288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-005",
+      "timestamp": 1773227010288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-006",
+      "timestamp": 1773227070288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-007",
+      "timestamp": 1773227130288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-008",
+      "timestamp": 1773227190288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-009",
+      "timestamp": 1773227250288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-010",
+      "timestamp": 1773227310288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-011",
+      "timestamp": 1773227370288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-012",
+      "timestamp": 1773227430288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-013",
+      "timestamp": 1773227490288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-014",
+      "timestamp": 1773227550288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-015",
+      "timestamp": 1773227610288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-016",
+      "timestamp": 1773227670288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-017",
+      "timestamp": 1773227730288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-018",
+      "timestamp": 1773227790288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-019",
+      "timestamp": 1773227850288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "expensive-trace-020",
+      "timestamp": 1773227910288,
+      "duration": {
+        "duration_ms": 3000
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "openai:gpt-4"
+      },
+      "usage": {
+        "input_tokens": 3000,
+        "output_tokens": 1500,
+        "total_tokens": 4500
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 2000
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 5000
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-001",
+      "timestamp": 1773485970288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-002",
+      "timestamp": 1773486030288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-003",
+      "timestamp": 1773486090288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-004",
+      "timestamp": 1773486150288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-005",
+      "timestamp": 1773486210288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-006",
+      "timestamp": 1773486270288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-007",
+      "timestamp": 1773486330288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-008",
+      "timestamp": 1773486390288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-009",
+      "timestamp": 1773486450288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-010",
+      "timestamp": 1773486510288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-011",
+      "timestamp": 1773486570288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-012",
+      "timestamp": 1773486630288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-013",
+      "timestamp": 1773486690288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-014",
+      "timestamp": 1773486750288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-015",
+      "timestamp": 1773486810288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-016",
+      "timestamp": 1773486870288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-017",
+      "timestamp": 1773486930288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-018",
+      "timestamp": 1773486990288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-019",
+      "timestamp": 1773487050288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    },
+    {
+      "id": "efficient-trace-020",
+      "timestamp": 1773487110288,
+      "duration": {
+        "duration_ms": 800
+      },
+      "attributes": {
+        "operation_type": "cost-optimization",
+        "skill_invoked": true,
+        "model": "anthropic:claude-3-haiku-20240307"
+      },
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 250,
+        "total_tokens": 750
+      },
+      "events": [
+        {
+          "name": "skill_loaded",
+          "level": "info",
+          "timestamp": 1000
+        },
+        {
+          "name": "workflow_started",
+          "level": "info",
+          "timestamp": 1500
+        },
+        {
+          "name": "response",
+          "level": "info",
+          "timestamp": 1800
+        }
+      ]
+    }
+  ]
+}

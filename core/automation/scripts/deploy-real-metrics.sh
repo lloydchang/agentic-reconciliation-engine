@@ -56,7 +56,7 @@ kind load docker-image ai-metrics-server:latest --name gitops-hub
 
 # Step 3: Deploy the metrics server
 echo "🚀 Deploying metrics server..."
-kubectl apply -f deployments/metrics-server.yaml
+kubectl apply -f core/deployment/metrics-server.yaml
 
 # Step 4: Wait for deployment to be ready
 echo "⏳ Waiting for metrics server to be ready..."

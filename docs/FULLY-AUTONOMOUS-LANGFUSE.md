@@ -110,7 +110,7 @@ core/resources/infrastructure/monitoring/
 ├── kustomization.yaml                    # Updated with langfuse-dashboard.yaml
 └── langfuse-dashboard.yaml               # Grafana dashboard
 
-hooks/
+core/hooks/
 └── post-quickstart.sh                    # Updated for autonomous setup
 ```
 
