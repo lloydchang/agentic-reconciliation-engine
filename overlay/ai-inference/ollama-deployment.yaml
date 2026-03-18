@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-infrastructure
+  labels:
+    name: ai-infrastructure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: ai-infrastructure
+  labels:
+    app: ollama
+    component: llm-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+      component: llm-inference
+  template:
+    metadata:
+      labels:
+        app: ollama
+        component: llm-inference
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434
+          name: http
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0"
+        - name: OLLAMA_ORIGINS
+          value: "*"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: ollama-storage
+          mountPath: /root/.ollama
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 11434
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: ollama-storage
+        persistentVolumeClaim:
+          claimName: ollama-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-pvc
+  namespace: ai-infrastructure
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+  namespace: ai-infrastructure
+  labels:
+    app: ollama
+    component: llm-inference
+spec:
+  selector:
+    app: ollama
+    component: llm-inference
+  ports:
+  - name: http
+    port: 11434
+    targetPort: 11434
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ollama-init-script
+  namespace: ai-infrastructure
+data:
+  init-models.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Initializing Ollama models..."
+    
+    # Wait for Ollama to be ready
+    until curl -f http://localhost:11434/api/version; do
+      echo "Waiting for Ollama to start..."
+      sleep 5
+    done
+    
+    echo "Ollama is ready. Downloading Qwen model..."
+    
+    # Download Qwen 2.5 0.5B model (small, efficient)
+    ollama pull qwen2.5:0.5b
+    
+    # Verify model is available
+    ollama list
+    
+    echo "Qwen model initialization complete!"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ollama-init
+  namespace: ai-infrastructure
+  labels:
+    app: ollama-init
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: ollama-init
+        image: ollama/ollama:latest
+        command: ["/bin/bash", "/scripts/init-models.sh"]
+        env:
+        - name: OLLAMA_HOST
+          value: "http://ollama-service:11434"
+        volumeMounts:
+        - name: init-script
+          mountPath: /scripts
+        - name: ollama-storage
+          mountPath: /root/.ollama
+      volumes:
+      - name: init-script
+        configMap:
+          name: ollama-init-script
+          defaultMode: 0755
+      - name: ollama-storage
+        persistentVolumeClaim:
+          claimName: ollama-pvc
+      serviceAccountName: default

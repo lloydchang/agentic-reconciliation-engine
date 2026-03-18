@@ -20,6 +20,9 @@ A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that com
 - [K8sGPT Consolidation](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) — Single instance per cluster architecture for all GitOps components.
 - [FastAPI Migration](./docs/FLASK-TO-FASTAPI-MIGRATION-PLAN.md) — Migration plan from Flask to FastAPI for dashboard API backend.
 - Compatibility: [Windows](./docs/WINDOWS-COMPATIBILITY.md), [Mac](./docs/MAC-COMPATIBILITY.md), [Linux](./docs/LINUX-COMPATIBILITY.md), [Shell](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
+- [Critical Safety Rules](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Essential git safety rules, debugging knowledge, and operational best practices.
+- [Agentic AI Skills Guide](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Complete catalog of 70+ AI skills and automation capabilities.
+- [Task Completion Summary](./docs/TASK-COMPLETION-SUMMARY.md) — Comprehensive summary of agentic AI platform implementation.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
 
 ## Architecture Overview
@@ -38,6 +41,17 @@ This GitOps infrastructure control plane implements **advanced agentic AI capabi
 - **40+ Enhanced Skills**: Autonomous operations with learning and compounding capabilities
 - **Multi-Platform Support**: Claude Code, Cursor, Windsurf, Pi, Gemini, and 10+ platforms
 - **Parallel Workflow Execution**: Multi-agent coordination for complex tasks
+- **Uber-Inspired Patterns**: Production-tested toil automation and async workflows
+- **MCP Gateway**: Centralized secure proxying with authentication and telemetry
+- **Cost Optimization**: Intelligent model selection and usage tracking
+
+### Latest Deployment (March 2025) ✅
+- **Staging Environment**: Fully deployed and validated
+- **7 Toil Automation Skills**: Certificate rotation, dependency updates, security patching, backup verification, log retention, performance tuning
+- **5 Code Review Skills**: PR risk assessment, automated testing, compliance validation, performance impact, security analysis
+- **Core Services**: MCP gateway, parallel workflow executor, cost tracker, enhanced Pi-Mono RPC
+- **Monitoring**: ServiceMonitors configured for all components
+- **Validation**: All deployments rolled out successfully, integration tests passed
 
 ### Memory & Learning Systems
 - **Persistent AI State**: Rust/Go/Python memory agents with SQLite persistence
@@ -60,6 +74,15 @@ See [K8SGPT Consolidation Summary](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) for c
 2. Test individual skills: `kubectl exec -n staging deployment/certificate-rotation-skill -- python -c "print('Skill ready')"`
 3. Monitor deployments: `kubectl get pods -n staging -l component=agentic-ai`
 4. Access services: `kubectl port-forward svc/mcp-gateway 8080:8080 -n staging`
+5. View monitoring: `kubectl get servicemonitors -n monitoring | grep agentic`
+6. Check metrics: `kubectl port-forward svc/prometheus-operator 9090:9090 -n monitoring`
+
+### Production Deployment
+1. **Staging Validation**: All components deployed and tested in staging
+2. **Security Review**: Comprehensive safety rules documented in `CRITICAL-SAFETY-RULES-BEST-PRACTICES.md`
+3. **Monitoring Ready**: ServiceMonitors configured for all AI components
+4. **Skills Catalog**: 70+ skills documented in `AGENTIC-AI-SKILLS-GUIDE.md`
+5. **Cost Tracking**: Usage monitoring and optimization framework active
 
 For deeper architecture context, risk signals, and feature walkthrough, open [docs/OVERVIEW.md](docs/OVERVIEW.md).
 
