@@ -1,0 +1,219 @@
+# Default values for open-swe.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  # Global image pull secrets
+  imagePullSecrets: []
+
+  # Global ingress configuration
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+  # Global TLS configuration
+  tls:
+    enabled: false
+    secretName: "open-swe-tls"
+
+# Gateway service configuration
+gateway:
+  enabled: true
+  replicas: 2
+
+  image:
+    repository: gitops-infra-control-plane/gateway
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    webhookSecret: "your-webhook-secret-here"
+    logLevel: "info"
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+
+  ingress:
+    enabled: true
+    hosts:
+      - host: gateway.local
+        paths:
+          - path: /
+            pathType: Prefix
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Sandbox operator configuration
+sandboxOperator:
+  enabled: true
+  replicas: 1
+
+  image:
+    repository: gitops-infra-control-plane/sandbox-operator
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    namespace: "open-swe-sandboxes"
+    baseResources:
+      cpu: "500m"
+      memory: "1Gi"
+      storage: "5Gi"
+    cleanupInterval: "5m"
+    maxLifetime: "2h"
+    inactivityTimeout: "2h"
+    security:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      dropCapabilities: ["ALL"]
+    audit:
+      enabled: true
+      logLevel: "info"
+
+  rbac:
+    create: true
+
+  serviceAccount:
+    create: true
+    name: ""
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 100Mi
+    requests:
+      cpu: 100m
+      memory: 20Mi
+
+# Reasoning engine configuration
+reasoningEngine:
+  enabled: true
+  replicas: 1
+
+  image:
+    repository: gitops-infra-control-plane/reasoning-engine
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    openaiApiKey: "your-openai-api-key"
+    maxRetries: 3
+    timeout: 30
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# Multi-agent orchestrator configuration
+orchestrator:
+  enabled: true
+  replicas: 1
+
+  image:
+    repository: gitops-infra-control-plane/orchestrator
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    reasoningEnabled: true
+    maxConcurrentTasks: 10
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Workflow engine configuration
+workflowEngine:
+  enabled: true
+  replicas: 1
+
+  image:
+    repository: gitops-infra-control-plane/workflow-engine
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    maxWorkflowDuration: 1h
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Analytics engine configuration
+analyticsEngine:
+  enabled: true
+  replicas: 1
+
+  image:
+    repository: gitops-infra-control-plane/analytics-engine
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  config:
+    windowSize: 1h
+    anomalyThreshold: 3.0
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# Temporal configuration
+temporal:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 8Gi
+  elasticsearch:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+  server:
+    persistentVolume:
+      enabled: true
+      size: 8Gi
+
+# Grafana configuration
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    type: pvc
+    size: 10Gi
+  adminPassword: "admin"
+  datasources:
+    prometheus:
+      url: "http://prometheus-server"

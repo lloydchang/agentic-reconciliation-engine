@@ -1,0 +1,248 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "open-swe.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part-of: open-swe
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: gateway
+        app.kubernetes.io/part-of: open-swe
+    spec:
+      containers:
+      - name: gateway
+        image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: WEBHOOK_SECRET
+          value: {{ .Values.gateway.config.webhookSecret | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.gateway.config.logLevel | quote }}
+        resources:
+          {{- toYaml .Values.gateway.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- if .Values.gateway.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "open-swe.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part-of: open-swe
+spec:
+  type: {{ .Values.gateway.service.type }}
+  ports:
+  - port: {{ .Values.gateway.service.port }}
+    targetPort: {{ .Values.gateway.service.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+---
+{{- if and .Values.gateway.ingress.enabled .Values.global.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "open-swe.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part-of: open-swe
+  {{- with .Values.global.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.global.ingress.className }}
+  ingressClassName: {{ .Values.global.ingress.className }}
+  {{- end }}
+  {{- if .Values.global.tls.enabled }}
+  tls:
+  - hosts:
+    {{- range .Values.gateway.ingress.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    secretName: {{ .Values.global.tls.secretName }}
+  {{- end }}
+  rules:
+  {{- range .Values.gateway.ingress.hosts }}
+  - host: {{ .host | quote }}
+    http:
+      paths:
+      {{- range .paths }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ include "open-swe.fullname" $ }}-gateway
+            port:
+              number: {{ $.Values.gateway.service.port }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+---
+{{- end }}
+{{- if .Values.sandboxOperator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "open-swe.fullname" . }}-sandbox-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/part-of: open-swe
+spec:
+  replicas: {{ .Values.sandboxOperator.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-operator
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sandbox-operator
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: operator
+        app.kubernetes.io/part-of: open-swe
+    spec:
+      {{- if .Values.sandboxOperator.serviceAccount.create }}
+      serviceAccountName: {{ include "open-swe.serviceAccountName" . }}-sandbox-operator
+      {{- end }}
+      containers:
+      - name: operator
+        image: "{{ .Values.sandboxOperator.image.repository }}:{{ .Values.sandboxOperator.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.sandboxOperator.image.pullPolicy }}
+        env:
+        - name: WATCH_NAMESPACE
+          value: {{ .Values.sandboxOperator.config.namespace | quote }}
+        - name: CLEANUP_INTERVAL
+          value: {{ .Values.sandboxOperator.config.cleanupInterval | quote }}
+        - name: MAX_LIFETIME
+          value: {{ .Values.sandboxOperator.config.maxLifetime | quote }}
+        - name: INACTIVITY_TIMEOUT
+          value: {{ .Values.sandboxOperator.config.inactivityTimeout | quote }}
+        resources:
+          {{- toYaml .Values.sandboxOperator.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- if .Values.sandboxOperator.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "open-swe.fullname" . }}-sandbox-operator
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/part-of: open-swe
+rules:
+- apiGroups: [""]
+  resources: ["namespaces", "pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies", "poddisruptionbudgets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "open-swe.fullname" . }}-sandbox-operator
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/part-of: open-swe
+subjects:
+- kind: ServiceAccount
+  name: {{ include "open-swe.serviceAccountName" . }}-sandbox-operator
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "open-swe.fullname" . }}-sandbox-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+{{- if .Values.sandboxOperator.serviceAccount.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "open-swe.serviceAccountName" . }}-sandbox-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/part-of: open-swe
+{{- end }}
+---
+{{- end }}
+{{- end }}
