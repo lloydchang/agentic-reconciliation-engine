@@ -1,0 +1,257 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-sandbox-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-operator
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-reasoning-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: reasoning-engine
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: reasoning-engine
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-orchestrator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orchestrator
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-workflow-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: workflow-engine
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workflow-engine
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "open-swe.fullname" . }}-analytics-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: analytics-engine
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: analytics-engine
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "open-swe.fullname" . }}-alerting-rules
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: alerting-rules
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: open-swe
+spec:
+  groups:
+  - name: open-swe.alerts
+    rules:
+    # Service availability alerts
+    - alert: OpenSWEComponentDown
+      expr: up{job=~".*open-swe.*"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        category: availability
+      annotations:
+        summary: "Open SWE component is down"
+        description: "Open SWE component {{ $labels.job }} has been down for more than 5 minutes."
+
+    # Performance alerts
+    - alert: OpenSWEHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{pod=~".*open-swe.*"}[5m]) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+        category: performance
+      annotations:
+        summary: "High CPU usage detected"
+        description: "Open SWE pod {{ $labels.pod }} is using more than 80% CPU for 10 minutes."
+
+    - alert: OpenSWEHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~".*open-swe.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        category: performance
+      annotations:
+        summary: "High memory usage detected"
+        description: "Open SWE pod {{ $labels.pod }} is using more than 90% of its memory limit."
+
+    # AI-specific alerts
+    - alert: OpenSWEHighErrorRate
+      expr: rate(http_requests_total{status=~"5..", job=~".*open-swe.*"}[5m]) / rate(http_requests_total{job=~".*open-swe.*"}[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        category: errors
+      annotations:
+        summary: "High error rate detected"
+        description: "Open SWE component {{ $labels.job }} has an error rate above 5% for 5 minutes."
+
+    # Sandbox-specific alerts
+    - alert: OpenSWESandboxCreationFailure
+      expr: increase(sandbox_creation_total{status="failed"}[5m]) > 0
+      for: 1m
+      labels:
+        severity: warning
+        category: sandbox
+      annotations:
+        summary: "Sandbox creation failure"
+        description: "Failed to create {{ $value }} sandbox(es) in the last 5 minutes."
+
+    - alert: OpenSWESandboxResourceExhaustion
+      expr: sandbox_resource_usage > 0.95
+      for: 10m
+      labels:
+        severity: critical
+        category: resources
+      annotations:
+        summary: "Sandbox resource exhaustion"
+        description: "Sandbox resources are exhausted ({{ $value }}% usage)."
+
+    # Workflow alerts
+    - alert: OpenSWEWorkflowFailure
+      expr: increase(workflow_execution_total{status="failed"}[5m]) > 0
+      for: 1m
+      labels:
+        severity: warning
+        category: workflow
+      annotations:
+        summary: "Workflow execution failure"
+        description: "Failed to execute {{ $value }} workflow(s) in the last 5 minutes."
+
+    - alert: OpenSWEWorkflowTimeout
+      expr: increase(workflow_execution_total{status="timeout"}[5m]) > 0
+      for: 1m
+      labels:
+        severity: warning
+        category: workflow
+      annotations:
+        summary: "Workflow timeout"
+        description: "Workflow timeout occurred {{ $value }} time(s) in the last 5 minutes."
+
+    # Security alerts
+    - alert: OpenSWESecurityViolation
+      expr: increase(security_violation_total[5m]) > 0
+      for: 1m
+      labels:
+        severity: critical
+        category: security
+      annotations:
+        summary: "Security violation detected"
+        description: "Security violation detected in Open SWE system."
+
+    # Reasoning engine alerts
+    - alert: OpenSWEReasoningFailure
+      expr: increase(reasoning_request_total{status="failed"}[5m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+        category: ai
+      annotations:
+        summary: "Reasoning engine failure"
+        description: "Reasoning engine failed {{ $value }} time(s) in the last 5 minutes."
+
+    # Analytics alerts
+    - alert: OpenSWEAnomalyDetected
+      expr: increase(anomaly_detection_total[5m]) > 5
+      for: 1m
+      labels:
+        severity: info
+        category: analytics
+      annotations:
+        summary: "Multiple anomalies detected"
+        description: "Detected {{ $value }} anomalies in the last 5 minutes. Check analytics dashboard."

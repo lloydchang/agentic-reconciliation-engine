@@ -16,7 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o slack-integration ./slack/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o slack-integration .
 
 # Final stage
 FROM alpine:latest
@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=builder /app/slack-integration .
 
 # Copy config files
-COPY --from=builder /app/kubernetes/config.yaml ./config.yaml
+COPY --from=builder /app/kubernetes/configmap.yaml ./config.yaml
 
 # Create necessary directories
 RUN mkdir -p /tmp && \

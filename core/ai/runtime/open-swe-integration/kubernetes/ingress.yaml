@@ -37,6 +37,13 @@ spec:
             name: slack-integration-service
             port:
               number: 80
+      - path: /webhooks/linear
+        pathType: Prefix
+        backend:
+          service:
+            name: slack-integration-service
+            port:
+              number: 80
       - path: /health
         pathType: Prefix
         backend:
