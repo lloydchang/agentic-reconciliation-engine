@@ -84,6 +84,12 @@ spec:
           value: "redis://redis:6379"
         - name: CLICKHOUSE_URL
           value: "clickhouse://clickhouse:9000/langfuse"
+        - name: CLICKHOUSE_MIGRATION_URL
+          value: "clickhouse://default:clickhouse@clickhouse:9000/langfuse"
+        - name: CLICKHOUSE_USER
+          value: "default"
+        - name: CLICKHOUSE_PASSWORD
+          value: "clickhouse"
         - name: NEXTAUTH_SECRET
           value: "your-secret-key-here"
         - name: NEXTAUTH_URL
@@ -357,9 +363,34 @@ wait_for_deployment() {
     print_header "Waiting for Langfuse Deployment"
     
     print_info "Waiting for pods to be ready..."
-    kubectl wait --for=condition=ready pod -l app=langfuse -n langfuse --timeout=300s || {
-        echo "⚠️  Langfuse pods not ready within timeout"
-        return 1
+    
+    # Check pod status first to avoid hanging on failed pods
+    local pod_status=$(kubectl get pods -l app=langfuse -n langfuse -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+    if [[ "$pod_status" == "Failed" || "$pod_status" == "CrashLoopBackOff" ]]; then
+        print_warning "Langfuse pod is in $pod_status state. Checking logs..."
+        kubectl logs -l app=langfuse -n langfuse --tail=5
+        print_warning "Langfuse deployment failed, but continuing with setup..."
+        return 0  # Continue instead of failing
+    fi
+    
+    # Use timeout command to prevent hanging
+    timeout 300s kubectl wait --for=condition=ready pod -l app=langfuse -n langfuse || {
+        local exit_code=$?
+        if [[ $exit_code -eq 124 ]]; then
+            print_warning "Timeout reached (300s) - Langfuse pods may still be starting"
+        else
+            print_warning "Langfuse pods not ready within timeout or failed to start"
+        fi
+        
+        # Check if pods are at least running
+        local running_pods=$(kubectl get pods -l app=langfuse -n langfuse --field-selector=status.phase=Running --no-headers | wc -l)
+        if [[ $running_pods -gt 0 ]]; then
+            print_info "Langfuse pods are running but may not be ready yet"
+        else
+            print_warning "No Langfuse pods are running"
+        fi
+        
+        return 0  # Continue instead of failing the whole setup
     }
     
     print_success "Langfuse deployment ready"

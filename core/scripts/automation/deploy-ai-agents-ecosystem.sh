@@ -378,92 +378,92 @@ metadata:
   namespace: $NAMESPACE
 data:
   api.py: |
-from flask import Flask, jsonify
-from flask_cors import CORS
-import json
-import re
-import subprocess
-app = Flask(__name__)
-CORS(app)
+    from flask import Flask, jsonify
+    from flask_cors import CORS
+    import json
+    import re
+    import subprocess
+    app = Flask(__name__)
+    CORS(app)
 
-def get_kubectl_data(command):
-    try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
-        return result.stdout.strip()
-    except Exception as e:
-        print(f"Error executing {command}: {e}")
-        return ""
+    def get_kubectl_data(command):
+        try:
+            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+            return result.stdout.strip()
+        except Exception as e:
+            print(f"Error executing {command}: {e}")
+            return ""
 
-@app.route('/api/agents')
-def get_agents():
-    agents = []
-    
-    # Detect memory agent
-    memory_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=agent-memory --no-headers")
-    for line in memory_output.split('\n'):
-        if line.strip():
-            parts = re.split(r'\s+', line.strip())
-            if len(parts) >= 6:
-                name = parts[0]
-                if 'memory' in name:
-                    agents.append({
-                        'id': name,
-                        'name': 'Memory Agent',
-                        'type': 'Rust',
-                        'status': parts[1],
-                        'skills': 1,
-                        'lastActivity': '1 min ago',
-                        'successRate': 99.9
-                    })
-    
-    # Detect temporal workers
-    worker_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=temporal-workers --no-headers")
-    for line in worker_output.split('\n'):
-        if line.strip():
-            parts = re.split(r'\s+', line.strip())
-            if len(parts) >= 6:
-                name = parts[0]
-                if 'worker' in name:
-                    agents.append({
-                        'id': name,
-                        'name': 'AI Agent Worker',
-                        'type': 'Go',
-                        'status': parts[1],
-                        'skills': 64,
-                        'lastActivity': '1 min ago',
-                        'successRate': 98.5
-                    })
-    
-    return jsonify({'agents': agents})
+    @app.route('/api/agents')
+    def get_agents():
+        agents = []
+        
+        # Detect memory agent
+        memory_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=agent-memory --no-headers")
+        for line in memory_output.split('\n'):
+            if line.strip():
+                parts = re.split(r'\s+', line.strip())
+                if len(parts) >= 6:
+                    name = parts[0]
+                    if 'memory' in name:
+                        agents.append({
+                            'id': name,
+                            'name': 'Memory Agent',
+                            'type': 'Rust',
+                            'status': parts[1],
+                            'skills': 1,
+                            'lastActivity': '1 min ago',
+                            'successRate': 99.9
+                        })
+        
+        # Detect temporal workers
+        worker_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=temporal-workers --no-headers")
+        for line in worker_output.split('\n'):
+            if line.strip():
+                parts = re.split(r'\s+', line.strip())
+                if len(parts) >= 6:
+                    name = parts[0]
+                    if 'worker' in name:
+                        agents.append({
+                            'id': name,
+                            'name': 'AI Agent Worker',
+                            'type': 'Go',
+                            'status': parts[1],
+                            'skills': 64,
+                            'lastActivity': '1 min ago',
+                            'successRate': 98.5
+                        })
+        
+        return jsonify({'agents': agents})
 
-@app.route('/api/skills')
-def get_skills():
-    return jsonify({
-        'skills': [
-            'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
-            'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
-            'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
-            'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
-        ]
-    })
+    @app.route('/api/skills')
+    def get_skills():
+        return jsonify({
+            'skills': [
+                'Cost Analysis', 'Security Audit', 'Cluster Health', 'Auto Scaling',
+                'Log Analysis', 'Performance Tuning', 'Backup Management', 'Network Monitor',
+                'Resource Planning', 'Compliance Check', 'Error Detection', 'Metrics Collection',
+                'Load Balancing', 'Patch Management', 'Service Discovery', 'Health Checks'
+            ]
+        })
 
-@app.route('/api/activity')
-def get_activity():
-    return jsonify({
-        'activities': [
-            {'time': '2 min ago', 'type': 'success', 'icon': '', 'message': 'Cost Optimizer completed analysis for production cluster'},
-            {'time': '5 min ago', 'type': 'warning', 'icon': '', 'message': 'Security Scanner detected unusual network traffic'},
-            {'time': '12 min ago', 'type': 'info', 'icon': '', 'message': 'Cluster Monitor generated performance report'},
-            {'time': '18 min ago', 'type': 'success', 'icon': '', 'message': 'Deployment Manager successfully rolled out update'},
-            {'time': '25 min ago', 'type': 'error', 'icon': '', 'message': 'Backup Manager failed to connect to storage'}
-        ]
-    })
+    @app.route('/api/activity')
+    def get_activity():
+        return jsonify({
+            'activities': [
+                {'time': '2 min ago', 'type': 'success', 'icon': '', 'message': 'Cost Optimizer completed analysis for production cluster'},
+                {'time': '5 min ago', 'type': 'warning', 'icon': '', 'message': 'Security Scanner detected unusual network traffic'},
+                {'time': '12 min ago', 'type': 'info', 'icon': '', 'message': 'Cluster Monitor generated performance report'},
+                {'time': '18 min ago', 'type': 'success', 'icon': '', 'message': 'Deployment Manager successfully rolled out update'},
+                {'time': '25 min ago', 'type': 'error', 'icon': '', 'message': 'Backup Manager failed to connect to storage'}
+            ]
+        })
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=5000, debug=True)
 EOF
 
-    # Deploy dashboard and API resources
+    # Deploy dashboard deployment
     cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -501,7 +501,10 @@ spec:
       - name: dashboard-html
         configMap:
           name: agent-dashboard-config
----
+EOF
+
+    # Deploy dashboard API deployment
+    cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -545,7 +548,10 @@ spec:
       - name: api-script
         configMap:
           name: dashboard-api-script
----
+EOF
+
+    # Deploy services
+    cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -557,189 +563,6 @@ spec:
   ports:
   - port: 5000
     targetPort: 5000
-  type: ClusterIP
----
-apiVersion: v1
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Load all data
-            async function loadAllData() {
-                await Promise.all([
-                    loadAgents(),
-                    loadSkills(),
-                    loadActivity(),
-                    updateMetrics()
-                ]);
-            }
-            
-            // Load agents
-            async function loadAgents() {
-                try {
-                    const response = await fetch('http://localhost:5000/api/agents');
-                    const data = await response.json();
-                    agents = data;
-                    renderAgents();
-                } catch (error) {
-                    console.error('Failed to load agents:', error);
-                    agents = [];
-                    renderAgents();
-                }
-            }
-            
-            // Render agents
-            function renderAgents() {
-                const agentList = document.getElementById('agent-list');
-                agentList.innerHTML = agents.map(agent => \`
-                    <div class="agent-item">
-                        <div class="agent-info">
-                            <div class="agent-avatar">\${agent.type[0]}</div>
-                            <div class="agent-details">
-                                <h4>\${agent.name}</h4>
-                                <p>\${agent.type} • \${agent.skills} skills • Last: \${agent.lastActivity}</p>
-                            </div>
-                        </div>
-                        <div class="agent-status">
-                            <span class="status-dot status-\${agent.status}"></span>
-                            <span>\${agent.successRate}%</span>
-                        </div>
-                    </div>
-                \`).join('');
-            }
-            
-            // Load skills
-            async function loadSkills() {
-                try {
-                    const response = await fetch('http://localhost:5000/api/skills');
-                    const data = await response.json();
-                    skills = data;
-                    renderSkills();
-                } catch (error) {
-                    console.error('Failed to load skills:', error);
-                    skills = [];
-                    renderSkills();
-                }
-            }
-            
-            // Render skills
-            function renderSkills() {
-                const skillsGrid = document.getElementById('skills-grid');
-                skillsGrid.innerHTML = skills.map(skill => \`
-                    <div class="skill-item" onclick="executeSkill('\${skill}')">
-                        \${skill}
-                    </div>
-                \`).join('');
-            }
-            
-            // Load activity
-            async function loadActivity() {
-                try {
-                    const response = await fetch('http://localhost:5000/api/activity');
-                    const data = await response.json();
-                    activities = data;
-                    renderActivity();
-                } catch (error) {
-                    console.error('Failed to load activity:', error);
-                    activities = [];
-                    renderActivity();
-                }
-            }
-            
-            // Render activity
-            function renderActivity() {
-                const activityFeed = document.getElementById('activity-feed');
-                activityFeed.innerHTML = activities.map(activity => \`
-                    <div class="activity-item">
-                        <div class="activity-icon">\${activity.icon}</div>
-                        <div class="activity-content">
-                            <div class="activity-time">\${activity.time}</div>
-                            <div class="activity-message">\${activity.message}</div>
-                        </div>
-                    </div>
-                \`).join('');
-            }
-            
-            // Update metrics
-            function updateMetrics() {
-                document.getElementById('total-agents').textContent = agents.length;
-                document.getElementById('active-skills').textContent = skills.length;
-                document.getElementById('success-rate').textContent = '97.4%';
-            }
-            
-            // Control functions
-            function refreshData() {
-                loadAllData();
-            }
-            
-            function refreshSkills() {
-                loadSkills();
-            }
-            
-            function addAgent() {
-                const name = prompt('Enter agent name:');
-                if (name) {
-                    alert(\`Agent "\${name}" would be added to the system\`);
-                }
-            }
-            
-            function deployAllAgents() {
-                if (confirm('Deploy all agents? This may take a few minutes.')) {
-                    alert('Deploying all agents...');
-                }
-            }
-            
-            function stopAllAgents() {
-                if (confirm('Stop all agents? This may interrupt running tasks.')) {
-                    alert('Stopping all agents...');
-                }
-            }
-            
-            function restartSystem() {
-                if (confirm('Restart the entire system? This will temporarily interrupt all services.')) {
-                    alert('System restart initiated...');
-                }
-            }
-            
-            function exportLogs() {
-                alert('Exporting system logs...');
-            }
-            
-            function showSettings() {
-                alert('Settings panel would open here');
-            }
-            
-            function executeSkill(skill) {
-                alert(\`Executing skill: \${skill}\`);
-            }
-        </script>
-    </body>
-    </html>
-  favicon.ico: |
-    # Base64 encoded favicon.ico content
-    # To generate: base64 -i core/ai/runtime/agents/dashboard/public/favicon.ico
-    # Placeholder - replace with actual base64 content
-    AAEAAAABAIAAAAAQABAAEAKABAAALAAAAAAQABAAQAJAAUAAgAKAAEACgAAAAMAAAAGAAAABgY...
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dashboard-api-service
-  namespace: $NAMESPACE
-spec:
-  selector:
-    component: ai-inference-gateway
-  ports:
-  - port: 5000
-    targetPort: 80
-    name: http
   type: ClusterIP
 ---
 apiVersion: v1

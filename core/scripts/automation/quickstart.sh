@@ -168,9 +168,25 @@ deploy_ai_agents_dashboard() {
         echo -e "${YELLOW}📊 Access it at: http://localhost:8080${NC}"
         echo -e "${BLUE}🔄 Or via ingress: http://dashboard.local${NC}"
         echo ""
-        echo "To access the dashboard:"
-        echo "1. Port forward: kubectl port-forward -n ai-infrastructure svc/agent-dashboard-service 8080:80"
-        echo "2. Open browser: http://localhost:8080"
+        
+        # Start all required port-forwards in background
+        start_all_port_forwards
+        
+        echo ""
+        echo "🌐 All Services Access:"
+        echo "  🚪 Infrastructure Portal:  http://localhost:9000"
+        echo "  🤖 AI Dashboard:        http://localhost:8080"
+        echo "  📊 Dashboard API:        http://localhost:5000"
+        echo "  ⏰ Temporal UI:          http://localhost:7233"
+        echo "  🔍 Langfuse Observability: http://localhost:3000"
+        echo "  📈 Comprehensive API:   http://localhost:5001"
+        echo "  🖥️  Comprehensive Frontend: http://localhost:8082"
+        echo "  🧠 Memory Service:       http://localhost:8081"
+        echo ""
+        echo "💡 Management:"
+        echo "  📝 View logs: tail -f /tmp/quickstart-port-forwards/*.log"
+        echo "  🧹 Clean up: ./core/scripts/automation/quickstart.sh --cleanup"
+        echo "  🔄 Restart: ./core/scripts/automation/quickstart.sh --start-pf"
         echo ""
         echo "Dashboard features:"
         echo "  ✅ Real-time AI agents monitoring"
@@ -178,11 +194,67 @@ deploy_ai_agents_dashboard() {
         echo "  ✅ Performance metrics and charts"
         echo "  ✅ Activity feed and system controls"
         echo "  ✅ Temporal workflow orchestration UI"
+        echo "  ✅ Comprehensive analytics dashboard"
     else
         print_error "Failed to deploy AI agents dashboard"
         print_info "Check the logs above for errors and try running the script manually"
         return 1
     fi
+}
+
+# Start all required port-forwards in background
+start_all_port_forwards() {
+    print_info "Starting all required port-forwards in background..."
+    
+    # Define port-forward configurations
+    declare -A PORT_FORWARDS=(
+        ["agent-dashboard"]="svc/agent-dashboard-service 8080:80"
+        ["comprehensive-dashboard-frontend"]="svc/comprehensive-dashboard-frontend 8083:80"
+        ["comprehensive-dashboard-api"]="svc/comprehensive-dashboard-api 5001:5000"
+    )
+    
+    # Check if port-forwards are already running and start them if not
+    for service_name in "${!PORT_FORWARDS[@]}"; do
+        local port_config="${PORT_FORWARDS[$service_name]}"
+        local local_port=$(echo "$port_config" | cut -d' ' -f2 | cut -d':' -f1)
+        
+        # Check if this specific port-forward is already running
+        if pgrep -f "port-forward.*$service_name.*$local_port" > /dev/null; then
+            print_info "Port-forward for $service_name (port $local_port) already running"
+        else
+            # Start port-forward in background with logging
+            local log_file="/tmp/${service_name}-port-forward.log"
+            nohup kubectl port-forward -n ai-infrastructure $port_config > "$log_file" 2>&1 &
+            local pid=$!
+            
+            # Give it a moment to start
+            sleep 2
+            
+            # Verify it started successfully
+            if pgrep -f "port-forward.*$service_name.*$local_port" > /dev/null; then
+                print_success "Background port-forward started for $service_name (port $local_port)"
+                echo -e "${GREEN}🌐 Access: http://localhost:$local_port${NC}"
+                echo -e "${YELLOW}📝 Logs: tail -f $log_file${NC}"
+            else
+                print_warning "Port-forward failed to start for $service_name (port $local_port)"
+                echo "Check logs: cat $log_file"
+            fi
+        fi
+        echo ""
+    done
+    
+    # Show summary of all running port-forwards
+    print_info "Current port-forward status:"
+    for service_name in "${!PORT_FORWARDS[@]}"; do
+        local port_config="${PORT_FORWARDS[$service_name]}"
+        local local_port=$(echo "$port_config" | cut -d' ' -f2 | cut -d':' -f1)
+        
+        if pgrep -f "port-forward.*$service_name.*$local_port" > /dev/null; then
+            echo -e "  ✅ $service_name: http://localhost:$local_port"
+        else
+            echo -e "  ❌ $service_name: Not running"
+        fi
+    done
 }
 
 # Main quick start function
@@ -318,6 +390,122 @@ EOF
     fi
 }
 
+# Comprehensive port-forward manager
+start_all_port_forwards() {
+    print_info "Starting background port-forwards for all services..."
+    
+    # Create log directory
+    mkdir -p /tmp/quickstart-port-forwards
+    
+    local started_count=0
+    local failed_count=0
+    
+    # AI Infrastructure Services
+    local services=(
+        "ai-infrastructure:ai-infrastructure-portal:80:9000"
+        "ai-infrastructure:agent-dashboard-service:80:8080"
+        "ai-infrastructure:dashboard-api-service:5000:5000"
+        "ai-infrastructure:temporal-server-service:7233:7233"
+        "ai-infrastructure:comprehensive-dashboard-api:5000:5001"
+        "ai-infrastructure:comprehensive-dashboard-frontend:80:8082"
+        "ai-infrastructure:agent-memory-service:8080:8081"
+        
+        # Langfuse Services
+        "langfuse:langfuse-server:3000:3000"
+    )
+    
+    for service_config in "${services[@]}"; do
+        IFS=':' read -r namespace service_name target_port local_port <<< "$service_config"
+        local log_file="/tmp/quickstart-port-forwards/${namespace}-${service_name}.log"
+        local service_key="${namespace}-${service_name}"
+        
+        # Check if port-forward already running
+        if pgrep -f "port-forward.*${service_name}.*${local_port}" > /dev/null; then
+            print_info "Port-forward already running: ${service_name} -> ${local_port}"
+            ((started_count++))
+            continue
+        fi
+        
+        # Start port-forward in background
+        print_info "Starting: ${service_name} -> localhost:${local_port}"
+        nohup kubectl port-forward -n "${namespace}" svc/"${service_name}" "${local_port}:${target_port}" > "${log_file}" 2>&1 &
+        
+        # Wait a moment and check if it started successfully
+        sleep 2
+        if pgrep -f "port-forward.*${service_name}.*${local_port}" > /dev/null; then
+            print_success "✅ ${service_name} -> localhost:${local_port}"
+            ((started_count++))
+        else
+            print_warning "❌ Failed to start: ${service_name} -> localhost:${local_port}"
+            ((failed_count++))
+        fi
+    done
+    
+    # Summary
+    echo ""
+    print_success "Port-forward summary:"
+    echo "  ✅ Started: ${started_count} services"
+    if [[ $failed_count -gt 0 ]]; then
+        echo "  ❌ Failed: ${failed_count} services"
+    fi
+    echo ""
+    echo -e "${GREEN}🌐 Access URLs:${NC}"
+    echo "  🚪 Infrastructure Portal:  http://localhost:9000"
+    echo "  🤖 AI Dashboard:        http://localhost:8080"
+    echo "  📊 Dashboard API:        http://localhost:5000"
+    echo "  ⏰ Temporal UI:          http://localhost:7233"
+    echo "  🔍 Langfuse Observability: http://localhost:3000"
+    echo "  📈 Comprehensive API:   http://localhost:5001"
+    echo "  🖥️  Comprehensive Frontend: http://localhost:8082"
+    echo "  🧠 Memory Service:       http://localhost:8081"
+    echo ""
+    echo -e "${YELLOW}📝 Logs: tail -f /tmp/quickstart-port-forwards/*.log${NC}"
+}
+
+# Enhanced cleanup function
+cleanup_port_forwards() {
+    print_info "Cleaning up all background port-forwards..."
+    
+    # Define all services for cleanup
+    local services=(
+        "ai-infrastructure-portal:9000"
+        "agent-dashboard-service:8080"
+        "dashboard-api-service:5000"
+        "temporal-server-service:7233"
+        "comprehensive-dashboard-api:5001"
+        "comprehensive-dashboard-frontend:8082"
+        "langfuse-server:3000"
+        "agent-memory-service:8081"
+    )
+    
+    for service_config in "${services[@]}"; do
+        IFS=':' read -r service_name local_port <<< "$service_config"
+        
+        # Kill the port-forward process
+        if pgrep -f "port-forward.*${service_name}.*${local_port}" > /dev/null; then
+            pkill -f "port-forward.*${service_name}.*${local_port}"
+            print_success "Stopped ${service_name} port-forward (port ${local_port})"
+        fi
+    done
+    
+    # Clean up log directory
+    if [[ -d /tmp/quickstart-port-forwards ]]; then
+        rm -rf /tmp/quickstart-port-forwards
+        print_info "Cleaned up port-forward logs"
+    fi
+    
+    # Clean up old individual log files
+    for service_config in "${services[@]}"; do
+        IFS=':' read -r service_name local_port <<< "$service_config"
+        local log_file="/tmp/${service_name}-port-forward.log"
+        if [[ -f "$log_file" ]]; then
+            rm -f "$log_file"
+        fi
+    done
+    
+    print_success "All port-forwards cleaned up"
+}
+
 # Help function
 show_help() {
     echo "GitOps Infrastructure Control Plane - Quick Start"
@@ -326,6 +514,8 @@ show_help() {
     echo ""
     echo "OPTIONS:"
     echo "  -h, --help     Show this help message"
+    echo "  --cleanup      Clean up all background port-forwards"
+    echo "  --start-pf     Start all port-forwards (if not already running)"
     echo ""
     echo "DESCRIPTION:"
     echo "  Sets up development environment for GitOps Infrastructure Control Plane."
@@ -363,6 +553,14 @@ show_help() {
 case "${1:-}" in
     -h|--help)
         show_help
+        exit 0
+        ;;
+    --cleanup)
+        cleanup_port_forwards
+        exit 0
+        ;;
+    --start-pf)
+        start_all_port_forwards
         exit 0
         ;;
     "")

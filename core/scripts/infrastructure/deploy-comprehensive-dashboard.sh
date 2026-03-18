@@ -42,10 +42,10 @@ echo ""
 echo "✅ Comprehensive Dashboard Deployment Complete!"
 echo ""
 echo "🎯 Access Information:"
-echo "  Frontend: http://localhost:8083 (after port-forward)"
-echo "  API: http://localhost:5001 (after port-forward)"
+echo "  Frontend: http://localhost:8083 (auto-started)"
+echo "  API: http://localhost:5001 (auto-started)"
 echo ""
-echo "🔧 Port Forward Commands:"
+echo "🔧 Port Forward Commands (if needed manually):"
 echo "  kubectl port-forward svc/comprehensive-dashboard-frontend 8083:80 -n ai-infrastructure &"
 echo "  kubectl port-forward svc/comprehensive-dashboard-api 5001:5000 -n ai-infrastructure &"
 echo ""
@@ -57,6 +57,38 @@ echo "  ✅ Failure analysis with root cause and post-mortem"
 echo "  ✅ Dynamic success rate calculation"
 echo "  ✅ Comprehensive agent discovery across all execution methods"
 echo ""
-echo "🚀 Start the port forwards and access your new dashboard!"
+echo "🚀 Starting port-forwards for immediate access..."
+
+# Start port-forwards in background
+PORT_FORWARDS=(
+    "svc/comprehensive-dashboard-frontend 8083:80"
+    "svc/comprehensive-dashboard-api 5001:5000"
+)
+
+for port_config in "${PORT_FORWARDS[@]}"; do
+    service_name=$(echo "$port_config" | cut -d' ' -f1)
+    local_port=$(echo "$port_config" | cut -d' ' -f2 | cut -d':' -f1)
+    log_file="/tmp/${service_name##*/}-port-forward.log"
+    
+    # Check if already running
+    if pgrep -f "port-forward.*$service_name.*$local_port" > /dev/null; then
+        echo "  ✅ Port-forward for $service_name (port $local_port) already running"
+    else
+        # Start port-forward
+        nohup kubectl port-forward -n ai-infrastructure $port_config > "$log_file" 2>&1 &
+        sleep 2
+        
+        # Verify it started
+        if pgrep -f "port-forward.*$service_name.*$local_port" > /dev/null; then
+            echo "  ✅ Started port-forward for $service_name: http://localhost:$local_port"
+            echo "     Logs: tail -f $log_file"
+        else
+            echo "  ❌ Failed to start port-forward for $service_name"
+        fi
+    fi
+done
+
+echo ""
+echo "🌐 Dashboard Access:"
 echo "   Frontend: http://localhost:8083"
 echo "   API: http://localhost:5001"
