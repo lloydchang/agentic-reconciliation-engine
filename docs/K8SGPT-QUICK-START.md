@@ -15,8 +15,8 @@ kubectl top nodes
 
 ### 2️⃣ One-Command Deployment
 ```bash
-# Deploy and validate everything in one command
-./scripts/deploy-consolidated-k8sgpt.sh full
+# One-command deployment and validation
+./core/scripts/deploy-consolidated-k8sgpt.sh full
 ```
 
 ### 3️⃣ Verify Success
@@ -33,31 +33,31 @@ curl -f http://localhost:8080/healthz
 
 ```bash
 # Deploy only
-./scripts/deploy-consolidated-k8sgpt.sh deploy
+./core/scripts/deploy-consolidated-k8sgpt.sh deploy
 
 # Validate existing deployment
-./scripts/deploy-consolidated-k8sgpt.sh validate
+./core/scripts/deploy-consolidated-k8sgpt.sh validate
 
 # Test connectivity only
-./scripts/deploy-consolidated-k8sgpt.sh test
+./core/scripts/deploy-consolidated-k8sgpt.sh test
 
 # Clean up old deployments
-./scripts/deploy-consolidated-k8sgpt.sh cleanup
+./core/scripts/deploy-consolidated-k8sgpt.sh cleanup
 
 # Generate deployment report
-./scripts/deploy-consolidated-k8sgpt.sh report
+./core/scripts/deploy-consolidated-k8sgpt.sh report
 
 # Full deployment and validation
-./scripts/deploy-consolidated-k8sgpt.sh full
+./core/scripts/deploy-consolidated-k8sgpt.sh full
 
 # Dry run (show commands without executing)
-./scripts/deploy-consolidated-k8sgpt.sh --dry-run full
+./core/scripts/deploy-consolidated-k8sgpt.sh --dry-run full
 
 # Custom namespace
-./scripts/deploy-consolidated-k8sgpt.sh --namespace my-k8sgpt deploy
+./core/scripts/deploy-consolidated-k8sgpt.sh --namespace my-k8sgpt deploy
 
 # Verbose output
-./scripts/deploy-consolidated-k8sgpt.sh --verbose full
+./core/scripts/deploy-consolidated-k8sgpt.sh --verbose full
 ```
 
 ## 🔧 Manual Steps (Optional)
@@ -136,7 +136,7 @@ kubectl top pod -n k8sgpt-system -l app.kubernetes.io/name=k8sgpt
 ## 📚 Additional Resources
 
 - **Complete Guide**: `docs/K8SGPT-DEPLOYMENT-VALIDATION-GUIDE.md`
-- **Migration Script**: `scripts/migrate-to-consolidated-k8sgpt.sh`
+- **Migration Script**: `core/scripts/migrate-to-consolidated-k8sgpt.sh`
 - **Integration Guide**: `core/gitops/consolidated/component-integration-guide.md`
 - **Architecture Summary**: `docs/K8SGPT-CONSOLIDATION-SUMMARY.md`
 

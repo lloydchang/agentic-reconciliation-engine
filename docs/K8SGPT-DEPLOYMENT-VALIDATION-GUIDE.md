@@ -265,7 +265,7 @@ chmod +x validate-integration.sh
 ### Step 4.1: Backup Current State
 ```bash
 # Create backup before migration
-./scripts/migrate-to-consolidated-k8sgpt.sh --backup
+./core/scripts/migrate-to-consolidated-k8sgpt.sh --backup
 
 # Verify backup created
 BACKUP_DIR="/tmp/k8sgpt-migration-backup-$(date +%Y%m%d-%H%M%S)"
@@ -281,7 +281,7 @@ fi
 ### Step 4.2: Run Migration Script
 ```bash
 # Execute full migration
-./scripts/migrate-to-consolidated-k8sgpt.sh
+./core/scripts/migrate-to-consolidated-k8sgpt.sh
 
 # Verify migration success
 if kubectl get deployment k8sgpt -n k8sgpt-system &>/dev/null; then

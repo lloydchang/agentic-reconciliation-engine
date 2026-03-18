@@ -63,7 +63,7 @@ This approach violated the principle of "one instance per cluster" and led to:
 - `core/gitops/consolidated/component-integration-guide.md` - Integration guide
 
 ### Migration Tools
-- `scripts/migrate-to-consolidated-k8sgpt.sh` - Migration automation script
+- `core/scripts/migrate-to-consolidated-k8sgpt.sh` - Migration automation script
 
 ## Files to Remove
 
@@ -125,8 +125,8 @@ kubectl apply -f core/gitops/consolidated/k8sgpt-unified-deployment.yaml
 
 ### 5. Remove Old Deployments
 ```bash
-# Run the full migration script
-./scripts/migrate-to-consolidated-k8sgpt.sh
+# Run the migration script
+./core/scripts/migrate-to-consolidated-k8sgpt.sh
 ```
 
 ## Component Integration Updates
