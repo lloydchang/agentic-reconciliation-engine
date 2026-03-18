@@ -1,0 +1,147 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unified-trigger-config
+  namespace: open-swe
+  labels:
+    app: unified-trigger
+data:
+  TRIGGER_RULES: |
+    # GitHub triggers
+    github.issues.opened: issue-triage-workflow
+    github.issues.labeled: priority-assignment-workflow
+    github.pull_request.opened: pr-review-workflow
+    github.pull_request.review_requested: reviewer-assignment-workflow
+    github.check_suite.completed: ci-status-update-workflow
+
+    # Linear triggers
+    linear.issue.created: linear-to-github-sync-workflow
+    linear.issue.updated: linear-status-sync-workflow
+    linear.comment.created: cross-platform-notification-workflow
+
+    # Slack triggers
+    slack.app_mention: slack-command-handler-workflow
+    slack.message.im: direct-message-handler-workflow
+    slack.channel_join: user-onboarding-workflow
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unified-trigger-dispatcher
+  namespace: open-swe
+  labels:
+    app: unified-trigger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: unified-trigger
+  template:
+    metadata:
+      labels:
+        app: unified-trigger
+    spec:
+      containers:
+      - name: trigger-dispatcher
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: TRIGGER_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: unified-trigger-config
+              key: TRIGGER_RULES
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: github-token
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: slack-bot-token
+        - name: LINEAR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: linear-api-key
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: langsmith-api-key
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: trigger-scripts
+          mountPath: /app
+      volumes:
+      - name: trigger-scripts
+        configMap:
+          name: unified-trigger-scripts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unified-trigger-dispatcher
+  namespace: open-swe
+  labels:
+    app: unified-trigger
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: unified-trigger
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unified-trigger-dispatcher
+  namespace: open-swe
+  labels:
+    app: unified-trigger
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - unified-trigger.your-domain.com
+    secretName: unified-trigger-tls
+  rules:
+  - host: unified-trigger.your-domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unified-trigger-dispatcher
+            port:
+              number: 8080
