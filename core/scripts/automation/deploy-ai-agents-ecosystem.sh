@@ -217,6 +217,7 @@ type: Opaque
 data:
   username: $(echo -n 'temporal' | base64)
   password: $(echo -n 'temporal' | base64)
+  postgres-db: $(echo -n 'temporal' | base64)
 ---
 apiVersion: apps/v1
 kind: StatefulSet
