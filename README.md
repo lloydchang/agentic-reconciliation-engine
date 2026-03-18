@@ -94,10 +94,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onbo
 
 ## License
 
-This repository uses dual licensing:
-- `AGPL-3.0`: Core infrastructure manifests, logic, documentation, examples, and more
+`AGPL-3.0-or-later`
+  - GNU Affero General Public License Version 3 or Later
   - See [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
-- `Apache-2.0`: Specific sample snippets requiring user adaptations
-  - See [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
 ![logo.svg](core/ai/runtime/agents/dashboard/src/logo.svg)
