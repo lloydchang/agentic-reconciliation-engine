@@ -24,6 +24,48 @@ The gitops-infra-control-plane repository implements a GitOps-controlled agent a
 - **GitOps Control Layer**: Structured JSON plan execution via Flux/ArgoCD
 - **Pi-Mono RPC**: Interactive AI assistance with agent skills.io compliance
 
+## Compound Engineering Methodology
+
+Compound engineering represents a paradigm shift in software development, enabling AI agents to work autonomously within structured workflows that learn and improve with each cycle.
+
+### The Compound Engineering Loop
+
+The core methodology follows a four-step cycle:
+
+1. **Plan**: AI agents analyze requirements, research approaches, and synthesize detailed implementation plans
+2. **Work**: Agents execute the plans, writing code and creating tests according to specifications  
+3. **Review**: The engineer reviews outputs and captures lessons learned
+4. **Compound**: Results are fed back into the system to improve future cycles
+
+### Autonomous AI Operation
+
+Unlike traditional AI assistance that requires constant human oversight, compound engineering enables AI to:
+
+- **Run tests and identify issues** without human intervention
+- **Fix bugs and implement features** autonomously
+- **Commit changes** with appropriate documentation
+- **Learn from successes and failures** to improve future work
+
+### Key Principles
+
+- **80/20 Rule**: 80% of engineering work in planning and review, 20% in execution
+- **Parallel Operation**: Multiple AI agents can work simultaneously on complex tasks
+- **Continuous Learning**: Each cycle compounds knowledge and improves capabilities
+- **Trust in AI**: The system is designed for autonomous operation within defined boundaries
+
+This methodology transforms software development from human-driven processes to AI-orchestrated workflows that continuously improve.
+
+### Integration Benefits
+
+Incorporating compound engineering into the gitops-infra-control-plane repository will:
+
+- Enable autonomous agent operation within the existing GitOps framework
+- Enhance Temporal orchestration with learning workflows
+- Provide structured methods for continuous improvement
+- Leverage AI capabilities for complex engineering tasks
+
+The integration will align the existing agent architecture with proven compound engineering practices, enabling more efficient and autonomous software development processes.
+
 ## Integration Analysis
 
 ### Compatibility Assessment
@@ -234,9 +276,11 @@ The integration will align compound engineering capabilities with existing layer
 
 ### Business Metrics
 - **Adoption Rate**: >80% of development workflows using compound engineering features within 3 months
-- **Efficiency Gains**: Measurable improvement in engineering productivity
+- **Efficiency Gains**: Measurable improvement in engineering productivity through autonomous AI operation
+- **Autonomous Operation**: AI agents successfully execute complex engineering tasks independently (>90% success rate)
 - **Error Reduction**: Reduction in engineering workflow errors
-- **Knowledge Capture**: Improved documentation and knowledge sharing
+- **Knowledge Capture**: Improved documentation and knowledge sharing through compound learning cycles
+- **Cycle Time Reduction**: Faster completion of engineering cycles through parallel agent operation
 
 ## Dependencies and Prerequisites
 
