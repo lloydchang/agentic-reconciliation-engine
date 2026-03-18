@@ -28,13 +28,11 @@ spec:
           value: "/app"
         - name: METRICS_SERVER_URL
           value: "http://temporal-worker.temporal.svc.cluster.local:8080"
-        command: ["python"]
-        args: ["-m", "uvicorn", "comprehensive_analytics:app", "--host", "0.0.0.0", "--port", "5000"]
+        command: ["/bin/sh", "-c"]
+        args: ["pip install -r /app/requirements.txt && python -m uvicorn comprehensive_analytics:app --host 0.0.0.0 --port 5000"]
         volumeMounts:
         - name: api-code
           mountPath: /app
-        - name: skills-data
-          mountPath: /skills
         resources:
           requests:
             memory: "256Mi"
@@ -58,10 +56,6 @@ spec:
       - name: api-code
         configMap:
           name: comprehensive-dashboard-api
-      - name: skills-data
-        hostPath:
-          path: /Users/lloyd/github/antigravity/gitops-infra-control-plane/core/ai/skills
-          type: Directory
 ---
 apiVersion: v1
 kind: Service
