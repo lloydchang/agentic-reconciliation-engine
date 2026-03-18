@@ -5,11 +5,11 @@ metadata:
   name: argocd-staging
 
 resources:
-- ../../../gitops/argocd/namespace.yaml
-- ../../../gitops/argocd/install.yaml
-- ../../../gitops/argocd/applications/root-app.yaml
-- ../../../gitops/argocd/applications/k8sgpt-app.yaml
-- ../../../gitops/argocd/applications/ai-infrastructure-app.yaml
+- ../../../core/gitops/argocd/namespace.yaml
+- ../../../core/gitops/argocd/install.yaml
+- ../../../core/gitops/argocd/applications/root-app.yaml
+- ../../../core/gitops/argocd/applications/k8sgpt-app.yaml
+- ../../../core/gitops/argocd/applications/ai-infrastructure-app.yaml
 
 patchesStrategicMerge:
 - argocd-server-patch.yaml
