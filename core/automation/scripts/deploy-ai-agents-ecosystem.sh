@@ -188,15 +188,19 @@ EOF
     log_success "AI memory agents deployed (with placeholder images)"
 }
 
-# Deploy AI inference gateway
+# Deploy AI inference gateway (RAG Chatbot)
 deploy_ai_gateway() {
-    log_info "AI inference gateway deployment skipped (file not found)"
-    log_info "Skills will use direct agent communication"
+    log_info "Deploying RAG Chatbot with full data source integration..."
     
-    # $KUBECTL_CMD apply -f core/resources/ai-inference/shared/ai-inference-gateway.yaml -n $NAMESPACE
-    # # Wait for deployment
-    # $KUBECTL_CMD wait --for=condition=available --timeout=60s deployment/ai-inference-gateway -n $NAMESPACE
-    # log_success "AI inference gateway deployed - skills can now call /api/infer"
+    # Deploy RAG chatbot with voice support
+    kubectl apply -f core/resources/infrastructure/rag-chatbot-deployment.yaml
+    
+    # Wait for deployment
+    kubectl wait --for=condition=available --timeout=120s deployment/rag-chatbot -n $NAMESPACE
+    
+    log_success "RAG Chatbot with voice support deployed"
+    log_info "Voice chat available at: http://localhost:8000/voice-chat"
+    log_info "API endpoints available at: http://localhost:8000/api/v1"
 }
 
 # Deploy Temporal server
@@ -399,7 +403,7 @@ def get_kubectl_data(command):
         print(f"Error executing {command}: {e}")
         return ""
 
-@app.route('/api/agents')
+@app.route('/api/v1/agents')
 def get_agents():
     agents = []
     
@@ -419,6 +423,25 @@ def get_agents():
                         'skills': 1,
                         'lastActivity': '1 min ago',
                         'successRate': 99.9
+                    })
+    
+    # Detect autonomous decision engine (NEW)
+    autonomous_output = get_kubectl_data("kubectl get pods -n ai-infrastructure -l component=autonomous-agent --no-headers")
+    for line in autonomous_output.split('\n'):
+        if line.strip():
+            parts = re.split(r'\s+', line.strip())
+            if len(parts) >= 6:
+                name = parts[0]
+                if 'autonomous' in name:
+                    agents.append({
+                        'id': name,
+                        'name': 'Autonomous Decision Engine',
+                        'type': 'Go',
+                        'status': parts[1],
+                        'skills': 8,  # Autonomous operations
+                        'lastActivity': '30 sec ago',
+                        'successRate': 95.2,
+                        'autonomy': 'fully_auto'
                     })
     
     # Detect temporal workers (contains all agent activities)
