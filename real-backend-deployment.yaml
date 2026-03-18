@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend-real
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend-real
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend-real
+    spec:
+      containers:
+      - name: backend
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+        command: ["sh", "-c"]
+        args:
+        - |
+          apt-get update && apt-get install -y curl jq &&
+          pip install flask flask-cors requests &&
+          cat > app.py << 'PYEOF'
+$(cat real-backend.py)
+PYEOF
+          python app.py
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-backend-real-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: dashboard-backend-real
+  ports:
+  - port: 5000
+    targetPort: 5000
+  type: ClusterIP
