@@ -356,6 +356,72 @@ deploy_example_overlay() {
     fi
 }
 
+# Deploy consolidated K8sGPT (same function as in quickstart.sh)
+deploy_consolidated_k8sgpt() {
+    print_header "Deploying Consolidated K8sGPT"
+    
+    # Check if the consolidated deployment script exists
+    local k8sgpt_script="$REPO_ROOT/scripts/deploy-consolidated-k8sgpt.sh"
+    
+    if [[ ! -f "$k8sgpt_script" ]]; then
+        print_warning "Consolidated K8sGPT deployment script not found at $k8sgpt_script"
+        print_info "You can manually run: ./scripts/deploy-consolidated-k8sgpt.sh deploy"
+        return 0
+    fi
+    
+    # Check if cluster is accessible
+    if ! kubectl cluster-info &> /dev/null; then
+        print_warning "Kubernetes cluster not accessible - skipping K8sGPT deployment"
+        print_info "To deploy K8sGPT later: QUICKSTART_DEPLOY_K8SGPT=true ./core/automation/scripts/overlay-quickstart.sh"
+        return 0
+    fi
+    
+    # Check if K8sGPT is already deployed
+    if kubectl get deployment k8sgpt -n k8sgpt-system &> /dev/null; then
+        print_info "K8sGPT already deployed - validating existing deployment"
+        if bash "$k8sgpt_script" validate; then
+            print_success "K8sGPT deployment validated successfully!"
+        else
+            print_warning "K8sGPT deployment validation failed - attempting redeployment"
+            if bash "$k8sgpt_script" deploy; then
+                print_success "K8sGPT redeployment successful!"
+            else
+                print_error "K8sGPT redeployment failed"
+                return 1
+            fi
+        fi
+        return 0
+    fi
+    
+    print_info "Deploying consolidated K8sGPT (single instance per cluster)..."
+    
+    # Run the consolidated deployment
+    if bash "$k8sgpt_script" deploy; then
+        print_success "Consolidated K8sGPT deployed successfully!"
+        echo ""
+        echo -e "${GREEN}🎉 Your consolidated K8sGPT is now running!${NC}"
+        echo -e "${YELLOW}🤖 Service endpoint: http://k8sgpt.k8sgpt-system.svc.cluster.local:8080${NC}"
+        echo -e "${BLUE}📊 Metrics endpoint: http://k8sgpt.k8sgpt-system.svc.cluster.local:9090/metrics${NC}"
+        echo ""
+        echo "K8sGPT features:"
+        echo "  ✅ Single instance per cluster (75% resource reduction)"
+        echo "  ✅ Multi-backend support (agent-memory, LocalAI, OpenAI)"
+        echo "  ✅ Cluster-wide RBAC for all GitOps components"
+        echo "  ✅ Unified service endpoint for all integrations"
+        echo "  ✅ Real-time metrics and health monitoring"
+        echo ""
+        echo "To access K8sGPT:"
+        echo "1. Health check: curl http://k8sgpt.k8sgpt-system.svc.cluster.local:8080/healthz"
+        echo "2. Analysis: curl -X POST http://k8sgpt.k8sgpt-system.svc.cluster.local:8080/analyze -H 'Content-Type: application/json' -d '{\"namespace\":\"default\",\"resources\":[\"deployments\"]}'"
+        echo "3. Metrics: curl http://k8sgpt.k8sgpt-system.svc.cluster.local:9090/metrics"
+    else
+        print_error "Failed to deploy consolidated K8sGPT"
+        print_info "Check the logs above for errors and try running the script manually"
+        print_info "Manual deployment: ./scripts/deploy-consolidated-k8sgpt.sh deploy"
+        return 1
+    fi
+}
+
 # Complete overlay quick start
 complete_overlay_quickstart() {
     print_header "Complete Overlay Quick Start"
@@ -378,6 +444,9 @@ complete_overlay_quickstart() {
     # Deploy example overlay
     deploy_example_overlay || return 1
     
+    # Deploy consolidated K8sGPT
+    deploy_consolidated_k8sgpt || return 1
+    
     # Deploy AI Agent Skills and MCP servers
     deploy_ai_agent_skills || return 1
     
@@ -386,6 +455,7 @@ complete_overlay_quickstart() {
     echo -e "${BLUE}🎉 Overlay system is ready!${NC}"
     echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
     echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
+    echo -e "${BLUE}🤖 Consolidated K8sGPT is deployed and integrated!${NC}"
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
     echo "1. Use overlay-manager.sh to manage overlays"
@@ -394,11 +464,13 @@ complete_overlay_quickstart() {
     echo "4. Monitor overlay status and logs"
     echo "5. Access your AI agents dashboard at http://localhost:8080"
     echo "6. Configure Claude Desktop with AI Agent Skills (auto-configured)"
-        echo ""
-        echo -e "${GREEN}🎉 Overlay system is ready!${NC}"
-        echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
-        echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
-        echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
+    echo "7. Use consolidated K8sGPT: http://k8sgpt.k8sgpt-system.svc.cluster.local:8080"
+    echo ""
+    echo -e "${GREEN}🎉 Overlay system is ready!${NC}"
+    echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
+    echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
+    echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
+    echo -e "${BLUE}🤖 Consolidated K8sGPT is deployed and integrated!${NC}"
 }
 
 # Help function
@@ -460,6 +532,7 @@ case "${1:-}" in
         setup_overlay_environment
         create_overlay_hooks
         create_overlay_examples
+        deploy_consolidated_k8sgpt
         deploy_ai_agent_skills
         ;;
     -t|--test)
@@ -471,6 +544,7 @@ case "${1:-}" in
         setup_overlay_environment
         create_overlay_hooks
         deploy_example_overlay
+        deploy_consolidated_k8sgpt
         deploy_ai_agent_skills
         ;;
     -a|--all)
