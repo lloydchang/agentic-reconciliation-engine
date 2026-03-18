@@ -9,6 +9,9 @@ metadata:
   namespace: monitoring
 
 resources:
+  # Namespace
+  - namespace.yaml
+  
   # Core monitoring components
   - flux-health.yaml
   - honeycomb.yaml
@@ -20,9 +23,10 @@ resources:
   - pixie.yaml
 
 # Common labels for all monitoring resources
-commonLabels:
-  app.kubernetes.io/part-of: gitops-monitoring
-  app.kubernetes.io/managed-by: flux
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: gitops-monitoring
+      app.kubernetes.io/managed-by: flux
 
 # Namespace configuration
 # namespace: monitoring
@@ -76,7 +80,7 @@ secretGenerator:
       - HONEYCOMB_API_KEY=your-honeycomb-api-key-here
 
 # Resource constraints for monitoring components
-patchesJson6902:
+patches:
   - target:
       kind: Deployment
       name: otel-collector-cluster

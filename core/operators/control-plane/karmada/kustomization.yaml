@@ -5,7 +5,11 @@ metadata:
   namespace: flux-system
 resources:
   - multi-cluster-gitops.yaml
-commonLabels:
-  managed-by: karmada-flux
-  component: multi-cluster-gitops
-  platform: gitops-infra-control-plane
+  - pairs:
+      labels: 
+  - pairs:
+      managed-by: karmada-flux
+  - pairs:
+      component: multi-cluster-gitops
+  - pairs:
+      platform: gitops-infra-control-plane

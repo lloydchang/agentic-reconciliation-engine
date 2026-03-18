@@ -27,7 +27,7 @@ wait_and_configure_langfuse() {
     print_header "Auto-configuring Langfuse"
     
     print_info "Waiting for Langfuse pod to be ready..."
-    kubectl wait --for=condition=ready pod -l app=langfuse-server -n langfuse --timeout=300s
+    kubectl wait --for=condition=ready pod -l app=langfuse -n langfuse --timeout=300s
     
     print_info "Setting up port-forward for Langfuse..."
     kubectl port-forward svc/langfuse-server 3000:3000 -n langfuse &
@@ -134,7 +134,7 @@ main() {
     echo ""
     
     # Check if Langfuse is already deployed
-    if kubectl get pod -l app=langfuse-server -n langfuse --no-headers 2>/dev/null | grep -q "Running"; then
+    if kubectl get pod -l app=langfuse -n langfuse --no-headers 2>/dev/null | grep -q "Running"; then
         print_success "Langfuse already running - configuring..."
         wait_and_configure_langfuse
     else
