@@ -1,0 +1,242 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: github-issue-triage
+  namespace: open-swe
+spec:
+  workflowMetadata:
+    labels:
+      workflow-template: github-issue-triage
+  entrypoint: main
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: issue-url
+      - name: issue-title
+      - name: issue-body
+      - name: issue-labels
+      - name: issue-assignee
+    steps:
+    - - name: analyze-issue
+        template: analyze-issue
+        arguments:
+          parameters:
+          - name: issue-url
+            value: "{{inputs.parameters.issue-url}}"
+          - name: issue-title
+            value: "{{inputs.parameters.issue-title}}"
+          - name: issue-body
+            value: "{{inputs.parameters.issue-body}}"
+    - - name: classify-issue
+        template: classify-issue
+        arguments:
+          parameters:
+          - name: analysis
+            value: "{{steps.analyze-issue.outputs.result}}"
+    - - name: apply-labels
+        template: apply-labels
+        arguments:
+          parameters:
+          - name: issue-url
+            value: "{{inputs.parameters.issue-url}}"
+          - name: labels
+            value: "{{steps.classify-issue.outputs.result}}"
+    - - name: assign-issue
+        template: assign-issue
+        arguments:
+          parameters:
+          - name: issue-url
+            value: "{{inputs.parameters.issue-url}}"
+          - name: assignee
+            value: "{{steps.classify-issue.outputs.parameters.assignee}}"
+
+  - name: analyze-issue
+    inputs:
+      parameters:
+      - name: issue-url
+      - name: issue-title
+      - name: issue-body
+    container:
+      image: python:3.11-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import json
+        import re
+        import sys
+
+        title = "{{inputs.parameters.issue-title}}"
+        body = "{{inputs.parameters.issue-body}}"
+
+        # Analyze issue content for keywords and patterns
+        analysis = {
+            "type": "unknown",
+            "priority": "medium",
+            "components": [],
+            "requires_expert": False
+        }
+
+        # Bug detection
+        if re.search(r'\b(bug|error|fail|broken|crash)\b', title + body, re.I):
+            analysis["type"] = "bug"
+
+        # Feature request detection
+        if re.search(r'\b(feature|enhancement|add|new|improve)\b', title + body, re.I):
+            analysis["type"] = "feature"
+
+        # Documentation
+        if re.search(r'\b(doc|documentation|readme|guide)\b', title + body, re.I):
+            analysis["type"] = "documentation"
+
+        # Security
+        if re.search(r'\b(security|vulnerability|exploit|hack)\b', title + body, re.I):
+            analysis["type"] = "security"
+            analysis["priority"] = "high"
+            analysis["requires_expert"] = True
+
+        # Component detection
+        components = []
+        if re.search(r'\b(kubernetes|k8s|cluster|pod|deployment)\b', body, re.I):
+            components.append("kubernetes")
+        if re.search(r'\b(github|git|repo|pull.request|issue)\b', body, re.I):
+            components.append("github")
+        if re.search(r'\b(ai|agent|automation|workflow)\b', body, re.I):
+            components.append("ai-agents")
+
+        analysis["components"] = components
+
+        print(json.dumps(analysis))
+
+  - name: classify-issue
+    inputs:
+      parameters:
+      - name: analysis
+    container:
+      image: python:3.11-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import json
+        import sys
+
+        analysis = json.loads("{{inputs.parameters.analysis}}")
+
+        # Determine labels based on analysis
+        labels = []
+
+        # Type labels
+        if analysis["type"] == "bug":
+            labels.extend(["bug", "needs-triage"])
+        elif analysis["type"] == "feature":
+            labels.extend(["enhancement", "feature-request"])
+        elif analysis["type"] == "security":
+            labels.extend(["security", "critical"])
+        elif analysis["type"] == "documentation":
+            labels.extend(["documentation"])
+
+        # Component labels
+        for component in analysis["components"]:
+            labels.append(f"component/{component}")
+
+        # Priority labels
+        if analysis["priority"] == "high":
+            labels.append("priority/high")
+        elif analysis["priority"] == "low":
+            labels.append("priority/low")
+
+        # Expert assignment
+        assignee = None
+        if analysis["requires_expert"]:
+            assignee = "security-team"
+        elif "kubernetes" in analysis["components"]:
+            assignee = "platform-team"
+        elif "ai-agents" in analysis["components"]:
+            assignee = "ai-team"
+
+        result = {
+            "labels": labels,
+            "assignee": assignee
+        }
+
+        print(json.dumps(result))
+
+  - name: apply-labels
+    inputs:
+      parameters:
+      - name: issue-url
+      - name: labels
+    container:
+      image: python:3.11-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import os
+        import json
+        from github import Github
+
+        # GitHub API integration
+        g = Github(os.environ.get("GITHUB_TOKEN"))
+
+        issue_url = "{{inputs.parameters.issue-url}}"
+        labels = json.loads("{{inputs.parameters.labels}}")
+
+        # Extract repo and issue number from URL
+        # issue_url format: https://github.com/owner/repo/issues/number
+        parts = issue_url.split("/")
+        owner = parts[3]
+        repo_name = parts[4]
+        issue_number = int(parts[6])
+
+        repo = g.get_repo(f"{owner}/{repo_name}")
+        issue = repo.get_issue(issue_number)
+
+        # Apply labels
+        issue.add_to_labels(*labels)
+
+        print(f"Applied labels {labels} to issue #{issue_number}")
+
+  - name: assign-issue
+    inputs:
+      parameters:
+      - name: issue-url
+      - name: assignee
+    container:
+      image: python:3.11-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import os
+        from github import Github
+
+        if "{{inputs.parameters.assignee}}" == "null":
+            print("No assignee specified")
+            sys.exit(0)
+
+        g = Github(os.environ.get("GITHUB_TOKEN"))
+
+        issue_url = "{{inputs.parameters.issue-url}}"
+        assignee = "{{inputs.parameters.assignee}}"
+
+        parts = issue_url.split("/")
+        owner = parts[3]
+        repo_name = parts[4]
+        issue_number = int(parts[6])
+
+        repo = g.get_repo(f"{owner}/{repo_name}")
+        issue = repo.get_issue(issue_number)
+
+        # Assign issue
+        issue.add_to_assignees(assignee)
+
+        print(f"Assigned issue #{issue_number} to {assignee}")
+    env:
+    - name: GITHUB_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: open-swe-secrets
+          key: github-token

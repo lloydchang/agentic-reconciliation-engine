@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Gateway
+metadata:
+  name: github-gateway
+  namespace: open-swe
+  labels:
+    gateways.argoproj.io/gateway-controller-instanceid: argo-events
+spec:
+  type: github
+  eventSourceName: github-eventsource
+  template:
+    metadata:
+      labels:
+        gateway-selector: github-gateway
+    spec:
+      containers:
+      - name: gateway-client
+        image: argoproj/gateway-client:latest
+        command:
+        - /bin/gateway-client
+      serviceAccountName: open-swe-workflow-sa
+  subscribers:
+    http:
+    - /github
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github-eventsource
+  namespace: open-swe
+spec:
+  type: github
+  github:
+    example:
+      active: true
+      events:
+      - issues
+      - issue_comment
+      - pull_request
+      - pull_request_review
+      - push
+      - check_suite
+      - check_run
+      - deployment
+      - deployment_status
+      owner: "your-org"  # Replace with your GitHub org/user
+      repository: "gitops-infra-control-plane"
+      apiToken:
+        name: open-swe-secrets
+        key: github-token
+      webhook:
+        endpoint: /github
+        method: POST
+        port: "12000"
+        url: "https://open-swe-webhooks.your-domain.com/api/webhooks/github"
+      insecure: false
+      contentType: json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-eventsource-svc
+  namespace: open-swe
+spec:
+  ports:
+  - port: 12000
+    targetPort: 12000
+  selector:
+    event-source-name: github-eventsource
