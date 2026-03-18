@@ -7,14 +7,14 @@ on:
       - 'gitops/**'
       - 'overlays/**'
       - 'core/**'
-      - 'tests/**'
+      - 'core/tests/**'
   pull_request:
     branches: [main]
     paths:
       - 'gitops/**'
       - 'overlays/**'
       - 'core/**'
-      - 'tests/**'
+      - 'core/tests/**'
   workflow_dispatch:
     inputs:
       environment:
