@@ -1,0 +1,259 @@
+# ArgoCD Application for Consolidated K8sGPT Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8sgpt-unified
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: k8sgpt-unified
+    app.kubernetes.io/component: gitops
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    app.kubernetes.io/managed-by: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    targetRevision: main
+    path: core/gitops/consolidated
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: k8sgpt-system
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 3
+  ignoreDifferences:
+  - group: apps
+    kind: Deployment
+    jsonPointers:
+    - /spec/replicas
+  - group: ""
+    kind: Service
+    jsonPointers:
+    - /spec/clusterIP
+
+---
+# Flux Kustomization for Consolidated K8sGPT Deployment
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: k8sgpt-unified
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: k8sgpt-unified
+    app.kubernetes.io/component: gitops
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  interval: 5m
+  retryInterval: 1m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: gitops-infra-control-plane
+    namespace: flux-system
+  path: ./core/gitops/consolidated
+  prune: false
+  wait: true
+  targetNamespace: k8sgpt-system
+  
+  # Post-build subprocess for secret generation
+  postBuild:
+    substitute:
+      CLUSTER_NAME: "${CLUSTER_NAME}"
+      ENVIRONMENT: "${ENVIRONMENT}"
+    substituteFrom:
+    - kind: ConfigMap
+      name: cluster-config
+    - kind: Secret
+      name: cluster-secrets
+  
+  # Health checks
+  healthChecks:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: k8sgpt
+    namespace: k8sgpt-system
+  - apiVersion: v1
+    kind: Service
+    name: k8sgpt
+    namespace: k8sgpt-system
+  
+  # Dependencies
+  dependsOn:
+  - name: agent-memory-rust
+    namespace: flux-system
+  - name: ai-infrastructure
+    namespace: flux-system
+
+---
+# K8sGPT Custom Resource for unified deployment
+apiVersion: core.k8sgpt.ai/v1alpha1
+kind: K8sGPT
+metadata:
+  name: k8sgpt-unified
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt-unified
+    app.kubernetes.io/component: ai-analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    app.kubernetes.io/managed-by: gitops
+spec:
+  # Model configuration
+  model: qwen2.5-7b-instruct
+  backend: agent-memory
+  
+  # Connection to agent-memory service
+  secret: k8sgpt-secrets
+  
+  # Analysis configuration
+  noCache: false
+  version: "v0.3.40"
+  
+  # Sink configuration for multiple destinations
+  sink:
+    type: webhook
+    webhook:
+      endpoint: http://flux-webhook.flux-system.svc.cluster.local/webhook
+      timeout: 30s
+      maxRetries: 3
+      retryDelay: 5s
+  
+  # Filters for comprehensive analysis
+  filters:
+    # Core Kubernetes resources
+    - Ingress
+    - Service
+    - Deployment
+    - StatefulSet
+    - DaemonSet
+    - Pod
+    - ConfigMap
+    - Secret
+    - PersistentVolumeClaim
+    - HorizontalPodAutoscaler
+    - NetworkPolicy
+    - PodDisruptionBudget
+    
+    # Argo Workflows
+    - Workflow
+    - WorkflowTemplate
+    - CronWorkflow
+    
+    # Argo Rollouts
+    - Rollout
+    - AnalysisTemplate
+    - Experiment
+    
+    # Argo Events
+    - EventBus
+    - EventSource
+    - Sensor
+    
+    # Flux CD
+    - Kustomization
+    - HelmRelease
+    - GitRepository
+    - HelmRepository
+  
+  # Exclude system namespaces
+  exclude:
+    - kube-system
+    - k8sgpt-system
+    - ai-infrastructure
+    - monitoring
+  
+  # Processors for different analysis types
+  processors:
+    - name: unified-ai-analyzer
+      type: ai
+      enabled: true
+      config:
+        temperature: 0.7
+        maxTokens: 2048
+        systemPrompt: |
+          You are an expert Kubernetes and GitOps engineer. Analyze the provided resources and 
+          identify issues across all GitOps components (ArgoCD, Flux, Argo Workflows, Argo Rollouts, 
+          Argo Events, PipeCD). Provide specific, actionable recommendations.
+    
+    - name: resource-analyzer
+      type: resource
+      enabled: true
+      config:
+        checkResourceRequests: true
+        checkResourceLimits: true
+        checkImagePullPolicy: true
+        checkLivenessProbes: true
+        checkReadinessProbes: true
+        checkSecurityContext: true
+        checkNetworkPolicies: true
+        checkRBAC: true
+        checkGitOpsSync: true
+  
+  # Analysis configuration
+  analysis:
+    interval: 5m
+    namespaces:
+      - default
+      - gitops-infra
+      - production
+      - staging
+      - development
+      - argo-workflows
+      - argo-rollouts
+      - argo-events
+      - flux-system
+      - pipecd
+    resources:
+      - deployments
+      - statefulsets
+      - daemonsets
+      - services
+      - ingresses
+      - configmaps
+      - secrets
+      - persistentvolumeclaims
+      - horizontalpodautoscalers
+      - networkpolicies
+      - poddisruptionbudgets
+      - jobs
+      - cronjobs
+      - workflows
+      - workflowtemplates
+      - rollouts
+      - analysistemplates
+      - eventsources
+      - sensors
+      - kustomizations
+      - helmreleases
+    autoAnalysis: true
+    maxConcurrentAnalysis: 5
+  
+  # Remediation configuration
+  remediation:
+    enabled: true
+    autoApply: false
+    requireApproval: true
+    dryRun: false
+    excludeResources:
+      - "kube-system/*"
+      - "k8sgpt-system/*"
+      - "ai-infrastructure/*"
+      - "monitoring/*"

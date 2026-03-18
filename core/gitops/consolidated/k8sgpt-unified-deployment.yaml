@@ -1,0 +1,346 @@
+# Consolidated K8sGPT Deployment for GitOps Infrastructure Control Plane
+# Single instance per cluster serving all components and subsystems
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai-analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/version: v0.3.40
+  annotations:
+    app.kubernetes.io/managed-by: gitops
+    app.kubernetes.io/created-by: consolidation-effort
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8sgpt
+      app.kubernetes.io/component: ai-analysis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8sgpt
+        app.kubernetes.io/component: ai-analysis
+        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/version: v0.3.40
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: k8sgpt
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: k8sgpt
+        image: ghcr.io/k8sgpt-ai/k8sgpt:v0.3.40
+        imagePullPolicy: IfNotPresent
+        command:
+        - k8sgpt
+        - serve
+        - --config
+        - /config/config.yaml
+        - --port
+        - "8080"
+        - --log-level
+        - info
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: K8SGPT_CONFIG
+          value: "/config/config.yaml"
+        - name: K8SGPT_LOG_LEVEL
+          value: "info"
+        - name: K8SGPT_CACHE_DIR
+          value: "/cache"
+        - name: K8SGPT_BACKEND
+          value: "agent-memory"
+        - name: K8SGPT_API_BASE
+          value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: K8SGPT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: k8sgpt-secrets
+              key: agent-memory-jwt-secret
+        - name: K8SGPT_MODEL
+          value: "qwen2.5-7b-instruct"
+        - name: K8SGPT_TEMPERATURE
+          value: "0.7"
+        - name: K8SGPT_MAX_TOKENS
+          value: "2048"
+        - name: K8SGPT_ENABLE_METRICS
+          value: "true"
+        - name: K8SGPT_METRICS_PORT
+          value: "9090"
+        - name: K8SGPT_ENABLE_TRACING
+          value: "true"
+        - name: K8SGPT_JAEGER_ENDPOINT
+          value: "http://jaeger.argo-workflows.svc.cluster.local:14268/api/traces"
+        # Fallback to LocalAI if agent-memory unavailable
+        - name: K8SGPT_LOCALAI_URL
+          value: "http://qwen-localai.k8sgpt-system.svc.cluster.local:8080"
+        - name: K8SGPT_LOCALAI_MODEL
+          value: "qwen2.5-coder:7b"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: cache
+          mountPath: /cache
+        - name: tmp
+          mountPath: /tmp
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: config
+        configMap:
+          name: k8sgpt-config
+      - name: cache
+        persistentVolumeClaim:
+          claimName: k8sgpt-cache-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+      terminationGracePeriodSeconds: 60
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - k8sgpt
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai-analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai-analysis
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: ai-analysis
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8sgpt
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+rules:
+# Core Kubernetes resources for analysis
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets", "persistentvolumes", "persistentvolumeclaims", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "list"]
+# Workload resources
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+# Network resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+# Batch resources
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+# RBAC resources
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list", "watch"]
+# Policy resources
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets", "podsecuritypolicies"]
+  verbs: ["get", "list", "watch"]
+# Autoscaling resources
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers", "verticalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+# Storage resources
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses", "volumeattachments"]
+  verbs: ["get", "list", "watch"]
+# Coordination resources
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["get", "list", "watch"]
+# Scheduling resources
+- apiGroups: ["scheduling.k8s.io"]
+  resources: ["priorityclasses"]
+  verbs: ["get", "list", "watch"]
+# Node resources
+- apiGroups: ["node.k8s.io"]
+  resources: ["runtimeclasses"]
+  verbs: ["get", "list", "watch"]
+# Certificate resources
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["certificatesigningrequests", "certificates"]
+  verbs: ["get", "list", "watch"]
+# Admission resources
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]
+  verbs: ["get", "list", "watch"]
+# API extensions
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list", "watch"]
+# Argo Workflows resources
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflowtemplates", "cronworkflows", "workflowtasksets"]
+  verbs: ["get", "list", "watch"]
+# Argo Rollouts resources
+- apiGroups: ["argoproj.io"]
+  resources: ["rollouts", "analysistemplates", "experiments", "analyses"]
+  verbs: ["get", "list", "watch"]
+# Argo Events resources
+- apiGroups: ["argoproj.io"]
+  resources: ["eventbus", "eventsources", "sensors"]
+  verbs: ["get", "list", "watch"]
+# Flux resources
+- apiGroups: ["kustomize.toolkit.fluxcd.io"]
+  resources: ["kustomizations"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["helm.toolkit.fluxcd.io"]
+  resources: ["helmreleases"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["source.toolkit.fluxcd.io"]
+  resources: ["gitrepositories", "helmrepositories", "buckets"]
+  verbs: ["get", "list", "watch"]
+# K8sGPT CRD resources
+- apiGroups: ["core.k8sgpt.ai"]
+  resources: ["*"]
+  verbs: ["*"]
+# Monitoring resources
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["prometheuses", "prometheusrules", "servicemonitors"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8sgpt
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: k8sgpt
+subjects:
+- kind: ServiceAccount
+  name: k8sgpt
+  namespace: k8sgpt-system
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k8sgpt-cache-pvc
+  namespace: k8sgpt-system
+  labels:
+    app.kubernetes.io/name: k8sgpt
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/part-of: gitops-infra-control-plane
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # Uncomment and adjust for your storage class
+  # storageClassName: fast-ssd
