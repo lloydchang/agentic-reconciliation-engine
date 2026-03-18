@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open-swe
+  labels:
+    purpose: ai-agent-platform
+    security-level: high
+    integration: gitops-infra-control-plane
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-swe-config
+  namespace: open-swe
+  labels:
+    app: open-swe
+data:
+  # Open-SWE specific configuration
+  SANDBOX_TYPE: "langsmith"
+  LANGGRAPH_URL: "http://open-swe-langgraph.open-swe.svc.cluster.local:2024"
+
+  # Integration with existing GitOps system
+  MEMORY_AGENT_URL: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+  TEMPORAL_ADDRESS: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+
+  # GitOps integration
+  GITOPS_CONTROL_URL: "http://gitops-control-service.gitops-system.svc.cluster.local:8080"
+
+  # Security and compliance
+  RISK_ASSESSMENT_LEVEL: "medium"
+  AUDIT_LOG_ENABLED: "true"
+  COMPLIANCE_MODE: "strict"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: open-swe-secrets
+  namespace: open-swe
+  labels:
+    app: open-swe
+type: Opaque
+data:
+  # Placeholder for actual secrets - to be populated during deployment
+  # LANGSMITH_API_KEY: <base64-encoded-key>
+  # GITHUB_APP_PRIVATE_KEY: <base64-encoded-key>
+  # GITHUB_APP_ID: <base64-encoded-app-id>
+  # LINEAR_API_KEY: <base64-encoded-key>
+  # SLACK_BOT_TOKEN: <base64-encoded-token>
+  placeholder: dGVtcG9yYXJ5LXBsYWNlaG9sZGVy
