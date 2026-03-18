@@ -1,0 +1,278 @@
+name: Open SWE CI/CD Pipeline
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'helm/open-swe/**'
+      - 'core/ai/runtime/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'helm/open-swe/**'
+      - 'core/ai/runtime/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    name: Test Open SWE Components
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Run Go tests
+      run: |
+        cd core/ai/runtime
+        go test -v -race -coverprofile=coverage.out ./...
+        go tool cover -html=coverage.out -o coverage.html
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Python tests
+      run: |
+        python -m pytest --cov=core/ai/runtime --cov-report=html
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.html
+        flags: go
+        name: Open SWE Go Coverage
+
+  lint:
+    name: Lint and Validate
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        working-directory: core/ai/runtime
+
+    - name: Validate Helm charts
+      uses: helm/chart-testing-action@v2.6.1
+      with:
+        command: lint
+        config: .github/ct.yaml
+
+    - name: Validate Kubernetes manifests
+      run: |
+        find helm/open-swe/templates -name "*.yaml" -exec kubectl apply --dry-run=client {} \;
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    needs: [test, lint, security]
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push gateway image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime/open-swe-gateway
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-gateway
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push sandbox operator image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime/sandbox
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-sandbox-operator
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push reasoning engine image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime
+        file: ./core/ai/runtime/Dockerfile.reasoning
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-reasoning-engine
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push orchestrator image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime
+        file: ./core/ai/runtime/Dockerfile.orchestrator
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-orchestrator
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push workflow engine image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime
+        file: ./core/ai/runtime/Dockerfile.workflow
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-workflow-engine
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push analytics engine image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./core/ai/runtime
+        file: ./core/ai/runtime/Dockerfile.analytics
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-analytics-engine
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure kubectl
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.STAGING_KUBECONFIG }}
+
+    - name: Deploy to staging with ArgoCD
+      run: |
+        # Trigger ArgoCD sync for staging application
+        argocd app sync open-swe-staging --prune
+        argocd app wait open-swe-staging --timeout 600
+
+    - name: Run smoke tests
+      run: |
+        # Wait for services to be ready
+        kubectl wait --for=condition=available --timeout=300s deployment/open-swe-gateway -n open-swe-staging
+        kubectl wait --for=condition=available --timeout=300s deployment/open-swe-sandbox-operator -n open-swe-staging
+
+        # Basic health checks
+        kubectl run test-pod --image=curlimages/curl --rm -i --restart=Never -- curl -f http://open-swe-gateway.open-swe-staging.svc.cluster.local/health
+        kubectl run test-pod --image=curlimages/curl --rm -i --restart=Never -- curl -f http://open-swe-sandbox-operator.open-swe-staging.svc.cluster.local:8080/healthz
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure kubectl
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.PRODUCTION_KUBECONFIG }}
+
+    - name: Deploy to production with ArgoCD
+      run: |
+        # Trigger ArgoCD sync for production application
+        argocd app sync open-swe-production --prune
+        argocd app wait open-swe-production --timeout 600
+
+    - name: Run production smoke tests
+      run: |
+        # Wait for services to be ready
+        kubectl wait --for=condition=available --timeout=300s deployment/open-swe-gateway -n open-swe-production
+        kubectl wait --for=condition=available --timeout=300s deployment/open-swe-sandbox-operator -n open-swe-production
+
+        # Comprehensive health checks
+        kubectl run test-pod --image=curlimages/curl --rm -i --restart=Never -- curl -f http://open-swe-gateway.open-swe-production.svc.cluster.local/health
+        kubectl run test-pod --image=curlimages/curl --rm -i --restart=Never -- curl -f http://open-swe-sandbox-operator.open-swe-production.svc.cluster.local:8080/healthz
+
+        # Integration tests
+        ./scripts/integration-test.sh production

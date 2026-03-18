@@ -1,0 +1,216 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-manager-config
+  namespace: open-swe
+  labels:
+    app: sandbox-manager
+data:
+  SANDBOX_PROVIDERS: |
+    providers:
+      - name: modal
+        priority: 1
+        api_key: ${MODAL_API_KEY}
+        workspace: ${MODAL_WORKSPACE}
+        region: us-east-1
+      - name: daytona
+        priority: 2
+        api_key: ${DAYTONA_API_KEY}
+        endpoint: ${DAYTONA_ENDPOINT}
+      - name: runloop
+        priority: 3
+        api_key: ${RUNLOOP_API_KEY}
+        workspace: ${RUNLOOP_WORKSPACE}
+      - name: langsmith
+        priority: 4
+        api_key: ${LANGSMITH_SANDBOX_API_KEY}
+        project: gitops-infra-sandbox
+  SANDBOX_SECURITY: |
+    security:
+      network_policy: strict
+      resource_limits:
+        cpu: "2"
+        memory: "4Gi"
+        storage: "10Gi"
+      timeout: 30m
+      auto_cleanup: true
+      audit_logging: true
+  SANDBOX_POOLING: |
+    pooling:
+      max_idle: 10
+      max_total: 50
+      warmup_count: 5
+      health_check_interval: 60s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-manager
+  namespace: open-swe
+  labels:
+    app: sandbox-manager
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sandbox-manager
+  template:
+    metadata:
+      labels:
+        app: sandbox-manager
+    spec:
+      serviceAccountName: sandbox-manager-sa
+      containers:
+      - name: sandbox-manager
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: MODAL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: modal-api-key
+        - name: DAYTONA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: daytona-api-key
+        - name: RUNLOOP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: runloop-api-key
+        - name: LANGSMITH_SANDBOX_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: open-swe-secrets
+              key: langsmith-sandbox-api-key
+        - name: MODAL_WORKSPACE
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-manager-config
+              key: MODAL_WORKSPACE
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        volumeMounts:
+        - name: sandbox-scripts
+          mountPath: /app
+      volumes:
+      - name: sandbox-scripts
+        configMap:
+          name: sandbox-manager-scripts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-manager
+  namespace: open-swe
+  labels:
+    app: sandbox-manager
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: sandbox-manager
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sandbox-manager-sa
+  namespace: open-swe
+  labels:
+    app: sandbox-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sandbox-manager-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/exec", "pods/log"]
+  verbs: ["get", "list", "watch", "create", "delete", "patch", "update"]
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sandbox-manager-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sandbox-manager-role
+subjects:
+- kind: ServiceAccount
+  name: sandbox-manager-sa
+  namespace: open-swe
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sandbox-manager-policy
+  namespace: open-swe
+spec:
+  podSelector:
+    matchLabels:
+      app: sandbox-manager
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: open-swe
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sandbox-storage
+  namespace: open-swe
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: standard

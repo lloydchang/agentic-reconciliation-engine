@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-integration-service
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+    version: v1.0.0
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: health
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  selector:
+    app: slack-integration
+    component: open-swe-integration
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: slack-integration
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: slack-integration
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create"]
+- apiGroups: ["temporal.io"]
+  resources: ["workflows", "workflowexecutions"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: slack-integration
+  namespace: ai-infrastructure
+  labels:
+    app: slack-integration
+    component: open-swe-integration
+subjects:
+- kind: ServiceAccount
+  name: slack-integration
+  namespace: ai-infrastructure
+roleRef:
+  kind: Role
+  name: slack-integration
+  apiGroup: rbac.authorization.k8s.io
