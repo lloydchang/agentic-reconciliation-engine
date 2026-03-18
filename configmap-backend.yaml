@@ -234,6 +234,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - |
+          apt-get update && apt-get install -y curl &&
           pip install flask flask-cors requests &&
           python /app/app.py
         volumeMounts:
