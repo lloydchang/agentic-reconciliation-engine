@@ -1,0 +1,111 @@
+# Webhook configuration for Open SWE Gateway
+# Maps webhook sources to GitOps agent routing
+
+webhook_config:
+  slack:
+    enabled: true
+    bot_token: "${SLACK_BOT_TOKEN}"
+    signing_secret: "${SLACK_SIGNING_SECRET}"
+    allowed_channels: ["infrastructure", "devops", "platform"]
+    mention_pattern: "@openswe"
+
+  linear:
+    enabled: true
+    api_key: "${LINEAR_API_KEY}"
+    webhook_secret: "${LINEAR_WEBHOOK_SECRET}"
+    mention_pattern: "@openswe"
+    allowed_actions: ["Comment.create", "Issue.update"]
+
+  github:
+    enabled: true
+    webhook_secret: "${GITHUB_WEBHOOK_SECRET}"
+    app_id: "${GITHUB_APP_ID}"
+    private_key: "${GITHUB_PRIVATE_KEY}"
+    mention_pattern: "@openswe"
+    allowed_events: ["issue_comment", "pull_request_review_comment"]
+
+# Agent routing configuration
+agent_routing:
+  default_agent: "temporal-gitops-agent"
+
+  platform_mappings:
+    slack:
+      agent: "temporal-gitops-agent"
+      priority: "high"
+      timeout_seconds: 3600
+
+    linear:
+      agent: "temporal-gitops-agent"
+      priority: "medium"
+      timeout_seconds: 7200
+
+    github:
+      agent: "temporal-gitops-agent"
+      priority: "medium"
+      timeout_seconds: 3600
+
+  skill_mappings:
+    # Map Open SWE requests to existing agentskills.io skills
+    "infrastructure_deployment": "provision-infrastructure"
+    "security_audit": "generate-security-report"
+    "monitoring_setup": "aggregate-observability"
+    "cost_optimization": "balance-resources"
+    "disaster_recovery": "recover-from-disaster"
+    "performance_analysis": "optimize-resources"
+
+# Sandbox configuration
+sandbox_config:
+  default_resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+      ephemeral-storage: "2Gi"
+
+  max_sandboxes: 10
+  sandbox_ttl_seconds: 7200  # 2 hours
+  cleanup_interval_seconds: 300  # 5 minutes
+
+  security_context:
+    run_as_non_root: true
+    run_as_user: 1000
+    read_only_root_filesystem: true
+    drop_capabilities: ["ALL"]
+
+# Middleware configuration
+middleware_config:
+  enabled_middleware:
+    - GitOpsValidationMiddleware
+    - RiskAssessmentMiddleware
+    - MessageQueueMiddleware
+    - PRSafetyNetMiddleware
+    - ToolErrorMiddleware
+
+  risk_thresholds:
+    low: 0.2
+    medium: 0.5
+    high: 0.8
+
+  human_gates:
+    low_risk: []
+    medium_risk: ["pr_approval"]
+    high_risk: ["security_review", "pr_approval"]
+
+# Service configuration
+service_config:
+  port: 8080
+  host: "0.0.0.0"
+  log_level: "INFO"
+  cors_origins: ["*"]  # TODO: Restrict in production
+
+  health_check:
+    enabled: true
+    interval_seconds: 30
+    timeout_seconds: 10
+
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"

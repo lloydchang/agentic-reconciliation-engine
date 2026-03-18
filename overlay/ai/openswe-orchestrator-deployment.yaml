@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openswe-orchestrator
+  namespace: ai-infrastructure
+  labels:
+    app: openswe-orchestrator
+    component: openswe-integration
+    version: v1.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openswe-orchestrator
+  template:
+    metadata:
+      labels:
+        app: openswe-orchestrator
+        component: openswe-integration
+    spec:
+      serviceAccountName: openswe-service-account
+      containers:
+      - name: orchestrator
+        image: gitops-infra-control-plane/openswe-orchestrator:latest
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        env:
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        - name: MEMORY_AGENT_URL
+          value: "http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: SANDBOX_PROVIDER
+          value: "modal"
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: slack-bot-token
+        - name: GITHUB_APP_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: github-app-private-key
+        - name: LINEAR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: linear-api-key
+        - name: MODAL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: modal-token
+        - name: DAYTONA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: daytona-api-key
+        - name: RUNLOOP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: runloop-api-key
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openswe-secrets
+              key: langsmith-api-key
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        envFrom:
+        - configMapRef:
+            name: openswe-config
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/openswe
+          readOnly: true
+        - name: workspace
+          mountPath: /workspace
+      volumes:
+      - name: config-volume
+        configMap:
+          name: openswe-config
+      - name: workspace
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: openswe-orchestrator
+              topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
