@@ -29,6 +29,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     sqlite3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -40,12 +41,8 @@ RUN mkdir -p /data && chown agent:agent /data
 # Copy the binary
 COPY --from=builder /app/target/release/agent-memory /usr/local/bin/agent-memory
 
-# Copy configuration templates
-COPY config/ /etc/agent-memory/
-
 # Set permissions
 RUN chmod +x /usr/local/bin/agent-memory
-RUN chown -R agent:agent /etc/agent-memory
 
 # Switch to non-root user
 USER agent
