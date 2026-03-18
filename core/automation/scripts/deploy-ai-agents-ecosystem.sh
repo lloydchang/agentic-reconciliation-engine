@@ -286,9 +286,14 @@ deploy_temporal_workers() {
     
 # Deploy independent agent containers (Phase 2)
 deploy_independent_agents() {
-    log_info "Deploying independent agent containers..."
+    log_info "Deploying independent agents..."
     
-    # Build agent images
+    # Build autonomous decision engine
+    log_info "Building autonomous decision engine..."
+    cd core/ai/agents/autonomous-decision-engine
+    docker build -t autonomous-decision-engine:latest .
+    
+    # Build other agents
     log_info "Building cost-optimizer agent..."
     cd core/ai/agents/cost-optimizer
     docker build -t cost-optimizer-agent:latest .
@@ -301,12 +306,16 @@ deploy_independent_agents() {
     cd core/ai/agents/swarm-coordinator
     docker build -t agent-swarm-coordinator:latest .
     
-    # Deploy independent agents
+    # Deploy autonomous decision engine (NEW)
+    log_info "Deploying autonomous decision engine for full autonomy..."
+    kubectl apply -f core/resources/infrastructure/agents/autonomous-decision-engine-deployment.yaml
+    
+    # Deploy other independent agents
     kubectl apply -f core/resources/infrastructure/agents/cost-optimizer-deployment.yaml
     kubectl apply -f core/resources/infrastructure/agents/security-scanner-deployment.yaml
     kubectl apply -f core/resources/infrastructure/agents/agent-swarm-coordinator-deployment.yaml
     
-    log_success "Independent agents deployed"
+    log_success "Autonomous agents deployed with full decision-making capabilities"
 }
 
 # Update FastAPI to detect independent agents
@@ -1478,6 +1487,30 @@ print_access_info() {
     echo "  1. Add hosts entries: echo '127.0.0.1 dashboard.local temporal.local' >> /etc/hosts"
     echo "  2. Port forward: $KUBECTL_CMD port-forward -n $NAMESPACE svc/agent-dashboard-service 8080:80"
     echo "  3. Access dashboard at http://localhost:8080"
+}
+
+# Deploy AI agents ecosystem with dashboard
+deploy_ai_agents_ecosystem() {
+    log_info "Deploying AI agents ecosystem with dashboard..."
+    
+    # Call the dedicated deployment script
+    local deploy_script="$SCRIPT_DIR/deploy_ai_agent_skills.sh"
+    
+    if [[ -f "$deploy_script" ]]; then
+        log_info "Running AI Agent Skills deployment..."
+        if bash "$deploy_script"; then
+            log_success "AI Agent Skills deployed successfully"
+        else
+            log_error "AI Agent Skills deployment failed"
+            return 1
+        fi
+    else
+        log_error "AI Agent Skills deployment script not found at $deploy_script"
+        return 1
+    fi
+    
+    # Deploy autonomous decision engine for full autonomy
+    deploy_independent_agents
 }
 
 # Main deployment function

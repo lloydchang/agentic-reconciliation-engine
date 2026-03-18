@@ -1,0 +1,262 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonomous-decision-engine
+  namespace: ai-infrastructure
+  labels:
+    app: autonomous-decision-engine
+    component: autonomous-agent
+    autonomy-level: fully_auto
+    learning-enabled: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autonomous-decision-engine
+      component: autonomous-agent
+  template:
+    metadata:
+      labels:
+        app: autonomous-decision-engine
+        component: autonomous-agent
+        autonomy-level: fully_auto
+        learning-enabled: "true"
+    spec:
+      containers:
+      - name: autonomous-decision-engine
+        image: autonomous-decision-engine:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 7233
+          name: temporal
+        env:
+        # Autonomy Configuration
+        - name: AUTONOMY_LEVEL
+          value: "fully_auto"
+        - name: LEARNING_ENABLED
+          value: "true"
+        - name: LEARNING_RETENTION_HOURS
+          value: "24"
+        
+        # Safety Thresholds (increased for learning)
+        - name: MAX_COST_PER_HOUR
+          value: "1000.0"
+        - name: MAX_FAILURE_RATE
+          value: "0.15"
+        - name: REQUIRE_APPROVAL
+          value: "false"
+        - name: ROLLBACK_ENABLED
+          value: "true"
+        
+        # Temporal Integration
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend:7233"
+        - name: TEMPORAL_NAMESPACE
+          value: "default"
+        - name: TEMPORAL_WORKER_TASK_QUEUE
+          value: "autonomous-decision-engine"
+        
+        # Learning Storage
+        - name: REDIS_ADDR
+          value: "redis-service:6379"
+        - name: LEARNING_STORAGE_PATH
+          value: "/data/learning"
+        
+        # Risk Configuration
+        - name: RISK_THRESHOLD
+          value: "0.3"
+        - name: EXPERIENCE_BONUS
+          value: "0.01"
+        
+        # Memory Integration
+        - name: AGENT_MEMORY_URL
+          value: "http://agent-memory-service:8080"
+        - name: MEMORY_INTEGRATION_ENABLED
+          value: "true"
+        
+        # Logging and Monitoring
+        - name: LOG_LEVEL
+          value: "info"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: AUDIT_LOGGING
+          value: "true"
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        
+        # Health Checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        volumeMounts:
+        - name: learning-storage
+          mountPath: /data/learning
+        - name: config-storage
+          mountPath: /app/config
+      
+      volumes:
+      - name: learning-storage
+        persistentVolumeClaim:
+          claimName: autonomous-learning-pvc
+      
+      - name: config-storage
+        configMap:
+          name: autonomous-decision-engine-config
+      
+      # Security Context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      
+      # Restart Policy for Learning
+      restartPolicy: Always
+      
+      # Node Selection for Learning Workloads
+      nodeSelector:
+        node-type: worker
+        learning-capable: "true"
+      
+      # Tolerations for Autonomous Operations
+      tolerations:
+      - key: "autonomous-operations"
+        operator: "Equal"
+        value: "enabled"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: autonomous-learning-pvc
+  namespace: ai-infrastructure
+  labels:
+    component: autonomous-agent
+    storage-type: learning-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autonomous-decision-engine-service
+  namespace: ai-infrastructure
+  labels:
+    app: autonomous-decision-engine
+    component: autonomous-agent
+spec:
+  selector:
+    app: autonomous-decision-engine
+    component: autonomous-agent
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: temporal
+    port: 7233
+    targetPort: 7233
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autonomous-decision-engine-config
+  namespace: ai-infrastructure
+  labels:
+    component: autonomous-agent
+data:
+  config.yaml: |
+    # Autonomous Decision Engine Configuration
+    autonomy:
+      level: "fully_auto"
+      learning_enabled: true
+      trial_error_learning: true
+      reconciliation_guard: true
+    
+    safety:
+      max_cost_per_hour: 1000.0
+      max_failure_rate: 0.15
+      require_approval: false
+      rollback_enabled: true
+      risk_threshold: 0.3
+    
+    learning:
+      retention_hours: 24
+      experience_bonus: 0.01
+      min_confidence_threshold: 0.7
+      learning_rate: 0.1
+    
+    operations:
+      autonomous_types:
+        - cost_optimization
+        - scaling_decision
+        - performance_tuning
+        - security_fix
+        - deployment_update
+        - failure_recovery
+        - self_healing
+        - optimization_application
+      
+      risk_levels:
+        low:
+          max_cost_impact: 250.0
+          approval_required: false
+        medium:
+          max_cost_impact: 750.0
+          approval_required: false
+        high:
+          max_cost_impact: 1500.0
+          approval_required: false
+        critical:
+          max_cost_impact: 3000.0
+          approval_required: false
+    
+    monitoring:
+      metrics_enabled: true
+      audit_logging: true
+      learning_tracking: true
+      performance_monitoring: true
+    
+    integration:
+      temporal:
+        address: "temporal-frontend:7233"
+        namespace: "default"
+        task_queue: "autonomous-decision-engine"
+      
+      memory_agent:
+        url: "http://agent-memory-service:8080"
+        integration_enabled: true
+      
+      gitops:
+        execution_mode: "structured_plans"
+        rollback_on_failure: true
+        audit_trail: true
