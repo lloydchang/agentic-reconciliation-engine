@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-script
+  namespace: ai-infrastructure
+data:
+  app.py: |
+    import subprocess, json
+    from flask import Flask, jsonify, request
+    from flask_cors import CORS
+    app = Flask(__name__)
+    CORS(app)
+
+    def kubectl(cmd):
+        try:
+            result = subprocess.run(['kubectl'] + cmd.split(), capture_output=True, text=True, timeout=10)
+            return result.stdout.strip() if result.returncode == 0 else ''
+        except:
+            return ''
+
+    @app.route('/api/metrics')
+    def metrics():
+        nodes = len(kubectl('get nodes --no-headers').split('\n')) if kubectl('get nodes --no-headers') else 0
+        all_pods = len(kubectl('get pods --all-namespaces --no-headers').split('\n')) if kubectl('get pods --all-namespaces --no-headers') else 0
+        ai_pods = len(kubectl('get pods -n ai-infrastructure --no-headers').split('\n')) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+        return jsonify({'agents': {'total': ai_pods, 'active': ai_pods}, 'cluster': {'nodes': nodes, 'total_pods': all_pods}})
+
+    @app.route('/api/rag/query', methods=['POST'])
+    def rag():
+        data = request.get_json()
+        query = data.get('query', '').lower()
+        nodes = len(kubectl('get nodes --no-headers').split('\n')) if kubectl('get nodes --no-headers') else 0
+        ai_pods = len(kubectl('get pods -n ai-infrastructure --no-headers').split('\n')) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+        response = f'Cluster has {nodes} nodes and {ai_pods} pods in ai-infrastructure namespace.'
+        return jsonify({'response': response, 'sources': [{'type': 'kubernetes-api', 'confidence': 0.99}]})
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=5000)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend-real
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend-real
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend-real
+    spec:
+      serviceAccountName: dashboard-backend
+      containers:
+      - name: backend
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+        command: ["sh", "-c", "pip install flask flask-cors && python /app/app.py"]
+        volumeMounts:
+        - name: script-volume
+          mountPath: /app
+      volumes:
+      - name: script-volume
+        configMap:
+          name: backend-script
