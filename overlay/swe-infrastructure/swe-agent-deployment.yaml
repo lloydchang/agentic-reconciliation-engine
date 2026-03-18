@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swe-agent
+  namespace: swe-infrastructure
+  labels:
+    app: swe-agent
+    component: coding-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swe-agent
+  template:
+    metadata:
+      labels:
+        app: swe-agent
+        component: coding-agent
+    spec:
+      containers:
+      - name: swe-agent
+        image: sweagent/swe-agent:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: SWE_AGENT_MODEL
+          value: "gpt-4"
+        - name: SWE_AGENT_GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: swe-secrets
+              key: github-token
+        - name: SWE_AGENT_LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: swe-data
+          mountPath: /app/data
+      volumes:
+      - name: swe-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: swe-agent-service
+  namespace: swe-infrastructure
+  labels:
+    app: swe-agent
+spec:
+  selector:
+    app: swe-agent
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP

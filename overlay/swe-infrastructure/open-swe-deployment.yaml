@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-swe-framework
+  namespace: swe-infrastructure
+  labels:
+    app: open-swe-framework
+    component: swe-framework
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-swe-framework
+  template:
+    metadata:
+      labels:
+        app: open-swe-framework
+        component: swe-framework
+    spec:
+      containers:
+      - name: open-swe-framework
+        image: langchainai/open-swe:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: OPEN_SWE_MODEL
+          value: "gpt-4"
+        - name: OPEN_SWE_ENV
+          value: "development"
+        - name: OPEN_SWE_SANDBOX_ENABLED
+          value: "true"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: swe-framework-data
+          mountPath: /app/data
+        - name: swe-sandbox-config
+          mountPath: /app/config
+      volumes:
+      - name: swe-framework-data
+        emptyDir: {}
+      - name: swe-sandbox-config
+        configMap:
+          name: swe-framework-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-swe-service
+  namespace: swe-infrastructure
+  labels:
+    app: open-swe-framework
+spec:
+  selector:
+    app: open-swe-framework
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP
