@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend-real
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend-real
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend-real
+    spec:
+      serviceAccountName: dashboard-backend
+      containers:
+      - name: backend
+        image: python:3.9-slim
+        ports:
+        - containerPort: 5000
+        command: ["python", "-c", """
+import subprocess, json, os
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(app)
+
+def kubectl(cmd):
+    try:
+        result = subprocess.run(['kubectl'] + cmd.split(), capture_output=True, text=True, timeout=10)
+        return result.stdout.strip() if result.returncode == 0 else ''
+    except:
+        return ''
+
+@app.route('/api/metrics')
+def metrics():
+    nodes = len(kubectl('get nodes --no-headers').split('\\n')) if kubectl('get nodes --no-headers') else 0
+    all_pods = len(kubectl('get pods --all-namespaces --no-headers').split('\\n')) if kubectl('get pods --all-namespaces --no-headers') else 0
+    ai_pods = len(kubectl('get pods -n ai-infrastructure --no-headers').split('\\n')) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+    running = len([line for line in kubectl('get pods -n ai-infrastructure --no-headers').split('\\n') if 'Running' in line]) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+    
+    return jsonify({
+        'agents': {'total': ai_pods, 'active': running, 'healthy': running, 'failed': max(0, ai_pods - running)},
+        'cluster': {'nodes': nodes, 'total_pods': all_pods, 'running_pods': running}
+    })
+
+@app.route('/api/rag/query', methods=['POST'])
+def rag():
+    data = request.get_json()
+    query = data.get('query', '').lower()
+    nodes = len(kubectl('get nodes --no-headers').split('\\n')) if kubectl('get nodes --no-headers') else 0
+    ai_pods = len(kubectl('get pods -n ai-infrastructure --no-headers').split('\\n')) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+    running = len([line for line in kubectl('get pods -n ai-infrastructure --no-headers').split('\\n') if 'Running' in line]) if kubectl('get pods -n ai-infrastructure --no-headers') else 0
+    
+    if 'nodes' in query:
+        response = f'Your Kubernetes cluster has {nodes} nodes running.'
+    elif 'pods' in query or 'agents' in query:
+        response = f'There are {ai_pods} pods in ai-infrastructure namespace, with {running} currently active.'
+    else:
+        response = f'Cluster has {nodes} nodes and {ai_pods} pods running.'
+    
+    return jsonify({
+        'response': response, 
+        'sources': [{'type': 'kubernetes-api', 'confidence': 0.99}]
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+"""]
