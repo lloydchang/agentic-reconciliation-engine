@@ -1,0 +1,221 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/managed-by: sandbox-operator
+    open-swe/component: sandbox-manager
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sandbox-operator
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sandbox-operator
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: operator
+rules:
+- apiGroups: [""]
+  resources: ["namespaces", "pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies", "poddisruptionbudgets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sandbox-operator
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: operator
+binding:
+  subjects:
+  - kind: ServiceAccount
+    name: sandbox-operator
+    namespace: open-swe-sandboxes
+  roleRef:
+    kind: ClusterRole
+    name: sandbox-operator
+    apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-operator
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sandbox-operator
+        app.kubernetes.io/component: operator
+        app.kubernetes.io/version: "1.0.0"
+    spec:
+      serviceAccountName: sandbox-operator
+      containers:
+      - name: operator
+        image: gitops-infra-control-plane/sandbox-operator:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: "sandbox-operator"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      nodeSelector:
+        kubernetes.io/os: linux
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-operator-service
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: operator
+spec:
+  selector:
+    app.kubernetes.io/name: sandbox-operator
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: webhook
+    port: 443
+    targetPort: 9443
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sandbox-isolation
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      open-swe/managed-by: sandbox-operator
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          app.kubernetes.io/managed-by: sandbox-operator
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          app.kubernetes.io/managed-by: sandbox-operator
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-operator-config
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: config
+data:
+  config.yaml: |
+    apiVersion: v1
+    kind: Config
+    sandbox:
+      baseResources:
+        cpu: "500m"
+        memory: "1Gi"
+        storage: "5Gi"
+      cleanupInterval: "5m"
+      maxLifetime: "2h"
+      inactivityTimeout: "2h"
+    security:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      dropCapabilities: ["ALL"]
+    audit:
+      enabled: true
+      logLevel: "info"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sandbox-operator-pdb
+  namespace: open-swe-sandboxes
+  labels:
+    app.kubernetes.io/name: sandbox-operator
+    app.kubernetes.io/component: pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-operator
