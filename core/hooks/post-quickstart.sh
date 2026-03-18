@@ -37,7 +37,7 @@ if command -v python3 &> /dev/null; then
     echo "🐍 Python3 detected, setting up agent evaluation system..."
 
     # Navigate to evaluation directory
-    cd agent-tracing-evaluation || {
+    cd core/ai/eval || {
         echo "⚠️  Agent tracing evaluation directory not found, skipping deployment"
         exit 0
     }
@@ -122,16 +122,16 @@ RESULTS_EOF
     echo "✅ GitOps Agent Observability System deployed successfully"
     echo ""
     echo "🎯 Quick Start Commands:"
-    echo "  cd agent-tracing-evaluation"
+    echo "  cd core/ai/eval"
     echo "  python3 pipelines/evaluation_runner.py --time-range 24h    # Run evaluation"
     echo "  python3 dashboard/dashboard.py                          # Start dashboard"
     echo "  python3 alerts/alerter.py --check-only                  # Check alerts"
     echo ""
-    echo "📚 For full documentation, see: agent-tracing-evaluation/README.md"
+    echo "📚 For full documentation, see: core/ai/eval/README.md"
 
 else
     echo "⚠️  Python3 not found, skipping agent evaluation system deployment"
-    echo "   To deploy manually: cd agent-tracing-evaluation && pip3 install -r requirements.txt"
+    echo "   To deploy manually: cd core/ai/eval && pip3 install -r requirements.txt"
 fi
 
 # Deploy Langfuse + Temporal Integration

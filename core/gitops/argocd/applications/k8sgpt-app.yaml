@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/lloydchang/gitops-infra-control-plane.git
     targetRevision: HEAD
-    path: gitops/argocd/k8sgpt
+    path: core/gitops/argocd/k8sgpt
   destination:
     server: https://kubernetes.default.svc
     namespace: k8sgpt-system
