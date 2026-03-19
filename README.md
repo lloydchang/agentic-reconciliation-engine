@@ -74,7 +74,7 @@ core/scripts/automation/quickstart.sh --validate-only
 #### Telemetry Feedback Loop
 * **Observation:** Crossplane (2) emits an event once the resource reaches a Ready state.
 * **Capture:** Argo (4) captures the event and signals the completion of the delivery.
-* **Storage:** Argo (6) updates the entry to Success, providing the Agent (9) with verified history for future reasoning.
+* **Storage:** SQLite (6) updates the entry to Success, providing the Agent (9) with verified history for future reasoning.
 
 
 ---
