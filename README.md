@@ -4,7 +4,7 @@
 
 A Continuous Reconciliation Engine (CRE) that combines [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Temporal](https://temporal.io/) with [AGENTS.md](https://agents.md/) and [SKILL.md](https://agentskills.io/)
 
-_Experimental Sandbox._
+_Experimental Sandbox_
 
 ## Quick links
 - [Using This as a Reference Implementation](./docs/REFERENCE-IMPLEMENTATION.md) — You can include this repository in your own project as a `git submodule` — this keeps the commit histories separate, which is important for license clarity.
