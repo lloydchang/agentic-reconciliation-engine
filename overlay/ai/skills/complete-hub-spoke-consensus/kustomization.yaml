@@ -56,7 +56,7 @@ commonLabels:
   app.kubernetes.io/name: consensus-orchestration
   app.kubernetes.io/component: infrastructure
   app.kubernetes.io/managed-by: kustomize
-  app.kubernetes.io/created-by: gitops-control-plane
+  app.kubernetes.io/created-by: $TOPDIR-control-plane
 # Common annotations
 commonAnnotations:
   config.kubernetes.io/origin: agentic-reconciliation-engine

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+source ../../scripts/set-topdir.sh
 # Overlay post-quickstart hook
 # This runs after the base quickstart.sh
 

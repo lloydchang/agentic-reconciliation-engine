@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+source ../../../../scripts/set-topdir.sh
 
 # Git Outage Disaster Recovery Drill Script
 # Simulates Git outage scenarios and tests recovery procedures
