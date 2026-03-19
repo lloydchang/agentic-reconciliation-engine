@@ -1,6 +1,6 @@
 ---
 name: provision-infrastructure
-description: Provisions infrastructure resources across multi-cloud environments with automation and best practices. Use when creating resources, implementing IaC, or managing provisioning.
+description: Use when you need to create new cloud resources or infrastructure. Handles VM provisioning, Kubernetes clusters, databases, networking, and storage across AWS, Azure, GCP with proper tagging, security, and compliance. Includes cost estimation and resource validation.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
