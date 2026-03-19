@@ -51,16 +51,16 @@ start_service() {
 
 # Start all services
 echo "📊 Starting Real Data API Service..."
-start_service "Real Data API" "real-data-api.js" 5000 ""
+start_service "Real Data API" "real-data-api.js" 5000 "$TOPDIR/dashboard/services"
 
 echo "🖥️  Starting Real Dashboard..."
-start_service "Real Dashboard" "real-dashboard-server.js" 8081 ""
+start_service "Real Dashboard" "../real-dashboard-server.js" 8081 "$TOPDIR/dashboard"
 
 echo "📈 Starting Comprehensive API..."
-start_service "Comprehensive API" "comprehensive-api.js" 5001 ""
+start_service "Comprehensive API" "comprehensive-api.js" 5001 "$TOPDIR/dashboard/services"
 
 echo "🧠 Starting Memory Service..."
-start_service "Memory Service" "memory-service.js" 8081 ""
+start_service "Memory Service" "memory-service.js" 8082 "$TOPDIR/dashboard/services"
 
 echo
 echo -e "${GREEN}🎉 All services started successfully!${NC}"
