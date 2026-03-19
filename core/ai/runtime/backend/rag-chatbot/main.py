@@ -622,10 +622,4 @@ async def voice_chat_page():
     return html_content
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "rag_chatbot:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
