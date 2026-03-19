@@ -19,10 +19,45 @@ allowed-tools: Bash Read Write Grep
 Enterprise-grade automation solution for alert prioritizer operations across AWS, Azure, GCP, and on-premise environments to maximize operational efficiency while maintaining security and compliance standards.
 
 ## When to Use
-- **alert prioritizer operations** across multi-cloud environments
-- **Automation and optimization** of alert prioritizer workflows
-- **Monitoring and management** of alert prioritizer resources
-- **Compliance and governance** for alert prioritizer activities
+- **Alert Floods**: When dealing with high volumes of alerts from monitoring systems
+- **Incident Response**: When quickly identifying the most critical alerts during incidents
+- **Noise Reduction**: When filtering out false positives and low-priority alerts
+- **Multi-Source Alerts**: When consolidating alerts from different monitoring systems
+- **On-Call Support**: When helping on-call engineers focus on important issues
+- **Alert Fatigue Prevention**: When reducing alert fatigue for engineering teams
+- **Escalation Management**: When automatically escalating critical alerts to appropriate teams
+
+## Gotchas
+
+### Common Pitfalls
+- **Over-Filtering**: Aggressive filtering may cause important alerts to be missed
+- **Context Loss**: Alert prioritization may lose important context about the issue
+- **Team Silos**: Different teams may have different priorities for the same alerts
+- **Alert Correlation**: Related alerts may not be properly correlated, causing duplication
+
+### Edge Cases
+- **Cascading Failures**: Single issues may trigger cascading alerts across systems
+- **Maintenance Windows**: Alerts during maintenance should be deprioritized or suppressed
+- **Third-Party Outages**: External service issues may generate many related alerts
+- **Multi-Region Issues**: Global issues may generate region-specific alerts
+
+### Performance Issues
+- **Alert Volume**: High alert volumes (1000+/minute) can overwhelm processing systems
+- **Real-time Requirements**: Alert prioritization must happen in near real-time
+- **Memory Usage**: Alert correlation requires keeping alerts in memory for analysis
+- **Network Latency**: Distributed alert sources may have network delays
+
+### Security Considerations
+- **Sensitive Information**: Alerts may contain sensitive system information or PII
+- **Access Control**: Alert configuration and prioritization rules should be restricted
+- **Audit Requirements**: All alert prioritization decisions must be logged
+- **Data Privacy**: Alert content may be subject to privacy regulations
+
+### Troubleshooting
+- **Missing Alerts**: Some alerts may not reach the prioritization system
+- **Incorrect Priorities**: Prioritization logic may misclassify alert severity
+- **Integration Failures**: Monitoring system integrations may fail or be unreliable
+- **Rule Conflicts**: Multiple prioritization rules may conflict with each other
 
 ## Inputs
 - **operation**: Operation type (required)
@@ -83,10 +118,11 @@ alert, prioritizer, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
 - **Dynamic Code Generation**: Agents can modify logic dynamically
 - **Cross-Cloud Orchestration**: Coordinated operations across providers
 
-## Best Practices
-- **Idempotent Operations**: Safe retry mechanisms
-- **Circuit Breaker Patterns**: Resilience against failures
-- **Rate Limiting**: Respect API limits and implement backpressure
-- **Graceful Degradation**: Fallback strategies when providers are unavailable
-- **Comprehensive Testing**: Integration tests and compliance validation
-- **Security First**: Zero-trust architecture and principle of least privilege
+## References
+
+Load these files when needed:
+- `scripts/alert-processor.py` - Core alert ingestion and processing logic
+- `scripts/prioritization-engine.py` - Alert scoring and ranking algorithms
+- `references/alert-taxonomy.md` - Alert classification and severity guidelines
+- `assets/escalation-rules.yaml` - Escalation policies and team assignments
+- `examples/alert-dashboards/` - Sample alert management dashboards and reports
