@@ -54,7 +54,7 @@ core/scripts/automation/quickstart.sh --validate-only
 
 ---
 
-### The Reconciliation Loop
+### Example
 
 #### The Request Path
 1. **Skill (10):** Defines provision_ha_database via Resource schemas and Scripts.
