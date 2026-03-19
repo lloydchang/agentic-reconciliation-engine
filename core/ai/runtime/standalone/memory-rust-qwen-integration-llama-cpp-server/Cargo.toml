@@ -1,0 +1,43 @@
+[package]
+name = "agent-memory-rust"
+version = "1.0.0"
+edition = "2021"
+authors = ["GitOps Infrastructure Team"]
+description = "Memory agent with Qwen LLM integration using llama.cpp"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+# HTTP server
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+# HTTP client for API calls
+reqwest = { version = "0.11", features = ["json"] }
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# Database
+rusqlite = { version = "0.28", features = ["bundled"] }
+# Authentication
+jsonwebtoken = "9.0"
+# Time and UUID
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+# Async traits
+async-trait = "0.1"
+# Streaming support
+futures-util = "0.3"
+
+# llama.cpp bindings (commented out - would need to be built separately)
+# llama-cpp-rs = "0.1"  # This would be a real llama.cpp binding crate
+
+[[bin]]
+name = "agent-memory"
+path = "src/main.rs"
