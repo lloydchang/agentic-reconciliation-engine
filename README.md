@@ -2,16 +2,16 @@
 
 <img width="180" height="180" alt="ARE Logo" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
 
-**ARE** is a sandbox that provides agentic AI memory and reasoning for challenges beyond stateless reconciliation. Combines AGENTS.md, SKILL.md, SQLite,Qwen, Temporal with Crossplane, Flux, Kubernetes.
+**ARE** is a sandbox that provides agentic AI memory and reasoning for challenges beyond stateless reconciliation. Combines AGENTS.md, SKILL.md, SQLite, Qwen, Temporal with Crossplane, Flux, Kubernetes.
 
-Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [Temporal](https://temporal.io/) with [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/).
+Combines [AGENTS.md](./AGENTS.md), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [Temporal](https://temporal.io/) with [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/).
 
 ---
 
 ### 🏗️ Separation of Concerns
 
-* **Agentic AI Layer (A):** [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
-* **Reconciliation Engine (RE):** [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
+* **Agentic AI Layer (A):** [AGENTS.md](./AGENTS.md), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [Temporal](https://temporal.io/), [Argo Events](https://argoproj.github.io/argo-events/), [Argo Workflows](https://argoproj.github.io/argo-workflows/): Complex actions that stateless controllers cannot reconcile.
+* **Reconciliation Engine (RE):** [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/), [Prometheus](https://prometheus.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
 
