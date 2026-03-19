@@ -460,13 +460,13 @@ cleanup_docker_desktop() {
     print_success "Docker Desktop environment cleanup completed"
 }
 
-# Main function for Docker Desktop quickstart
+# Override main function for Docker Desktop-specific setup
 main() {
-    print_header "Agentic Reconciliation Engine - Docker Desktop Local Quick Start"
+    print_header "Agentic Reconciliation Engine Local Docker Desktop Quick Start"
 
-    echo -e "${BLUE}Welcome to Agentic Reconciliation Engine - Docker Desktop Local Development!${NC}"
+    echo -e "${BLUE}Welcome to Agentic Reconciliation Engine - Docker Desktop Edition!${NC}"
     echo ""
-    echo -e "${YELLOW}This will set up a complete local development environment using Docker Desktop.${NC}"
+    echo -e "${YELLOW}This script sets up your development environment using Docker Desktop Kubernetes.${NC}"
     echo ""
 
     # Check if we're in the right directory
@@ -475,28 +475,32 @@ main() {
         exit 1
     fi
 
-    # Run Docker Desktop-specific validation
-    print_info "Running Docker Desktop-specific prerequisites validation..."
-    if ! run_docker_desktop_validation; then
-        print_error "Docker Desktop validation failed. Please fix errors above and retry."
+    # Docker Desktop specific setup
+    validate_docker_desktop_prerequisites
+    setup_docker_desktop_cluster
+
+    # Run comprehensive validation
+    print_info "Running comprehensive prerequisites validation..."
+    if ! run_comprehensive_validation; then
+        print_error "Prerequisites validation failed. Please fix errors above and retry."
         exit 1
     fi
 
     # If there are warnings, prompt user to continue
     if [[ $WARNINGS -gt 0 ]]; then
-        echo -e "${YELLOW}⚠️  Found $WARNINGS warning(s). Continue with Docker Desktop setup? (Y/n)${NC}"
+        echo -e "${YELLOW}⚠️  Found $WARNINGS warning(s). Continue with deployment? (Y/n)${NC}"
         read -r response
         if [[ "$response" =~ ^[Nn]$ ]]; then
-            print_info "Docker Desktop setup cancelled by user."
+            print_info "Deployment cancelled by user."
             exit 0
         fi
     fi
 
-    # Run pre-quickstart hook
+    # Run pre-quickstart hook (overlay extension point)
     run_hooks "pre-quickstart" || return 1
 
     # Setup basic configuration
-    print_info "Setting up Docker Desktop development environment..."
+    print_info "Setting up development environment..."
 
     # Create basic directories if they don't exist
     mkdir -p logs/
@@ -506,31 +510,76 @@ main() {
     find "$SCRIPT_DIR" -name "*.sh" -exec chmod +x {} \;
     find "$SCRIPT_DIR" -name "*.py" -exec chmod +x {} \;
 
-    print_success "Docker Desktop development environment ready"
+    print_success "Development environment ready"
 
-    # Setup Docker Desktop environment
-    setup_docker_desktop_environment || return 1
+    # Skip examples if in overlay mode and requested
+    if [[ "${OVERLAY_MODE:-false}" == "true" && "${QUICKSTART_SKIP_EXAMPLES:-false}" == "true" ]]; then
+        print_info "Skipping example creation (overlay mode)"
+    else
+        # Create basic examples for non-overlay mode
+        echo -e "${BLUE}Creating basic examples...${NC}"
+        mkdir -p overlay/examples/basic/
+        cat > overlay/examples/basic/README.md << 'EOF'
+# Basic Examples
 
-    # Run post-quickstart hook
+This directory contains basic examples for getting started with the Agentic Reconciliation Engine.
+
+## Quick Start Examples
+
+1. **Local Docker Desktop**: Run `./quickstart-local-docker-desktop.sh` to get started with Docker Desktop
+2. **Overlay Mode**: Run `./overlay-quickstart-local-docker-desktop.sh` for overlay-based setup
+3. **Advanced**: See `overlay/examples/` directory for comprehensive examples
+
+## Next Steps
+
+1. Read the documentation in `docs/`
+2. Check the examples in `overlay/examples/`
+3. Use the scripts in `core/automation/scripts/` for automation
+EOF
+        print_success "Basic examples created"
+    fi
+
+    # Run post-quickstart hook (overlay extension point)
     run_hooks "post-quickstart" || return 1
 
     # Deploy AI agents dashboard
     deploy_ai_agents_dashboard || return 1
+
+    # Deploy Agent Memory Service
+    deploy_agent_memory_service || return 1
+
+    # Deploy consolidated K8sGPT
+    deploy_consolidated_k8sgpt || return 1
 
     # Deploy AI Agent Skills and MCP servers
     deploy_ai_agent_skills || return 1
 
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
-    echo "1. Access your AI agents dashboard at http://localhost:8080"
-    echo "2. Configure Claude Desktop with AI Agent Skills (auto-configured)"
-    echo "3. Use consolidated K8sGPT: http://k8sgpt.k8sgpt-system.svc.cluster.local:8080"
-    echo "4. View port-forward logs: tail -f /tmp/quickstart-port-forwards/*.log"
-    echo "5. Clean up environment: ./core/scripts/automation/quickstart-local-docker-desktop.sh --cleanup"
-    echo ""
-    echo -e "${GREEN}🚀 Docker Desktop local development environment is ready!${NC}"
-    echo -e "${YELLOW}🧠 AI agents are fully operational!${NC}"
-    echo -e "${BLUE}🤖 Consolidated K8sGPT is deployed and integrated!${NC}"
+
+    if [[ "${OVERLAY_MODE:-false}" == "true" ]]; then
+        echo "1. Use overlay-manager.sh to manage overlays"
+        echo "2. Create custom overlays with overlay-cli.py"
+        echo "3. Deploy overlays to your cluster"
+        echo "4. Monitor overlay status and logs"
+        echo "5. Access your AI agents dashboard at http://localhost:8080"
+        echo "6. Configure Claude Desktop with AI Agent Skills"
+        echo "7. Use consolidated K8sGPT: http://k8sgpt.k8sgpt-system.svc.cluster.local:8080"
+        echo ""
+        echo -e "${GREEN}🚀 Overlay system and AI agents are ready!${NC}"
+        echo -e "${YELLOW}🤖 Consolidated K8sGPT is deployed and integrated!${NC}"
+    else
+        echo "1. Use overlay-quickstart-local-docker-desktop.sh to create and manage overlays"
+        echo "2. Read docs/OVERLAY-QUICK-START.md for detailed guidance"
+        echo "3. Check overlay/examples/ directory for sample configurations"
+        echo "4. Access your AI agents dashboard at http://localhost:8080"
+        echo "5. Configure Claude Desktop with AI Agent Skills (auto-configured)"
+        echo "6. Use consolidated K8sGPT: http://k8sgpt.k8sgpt-system.svc.cluster.local:8080"
+        echo ""
+        echo -e "${GREEN}🚀 Overlay system and AI agents are ready!${NC}"
+        echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
+        echo -e "${BLUE}🤖 Consolidated K8sGPT is deployed and integrated!${NC}"
+    fi
 }
 
 # Enhanced cleanup function (same as base)

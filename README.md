@@ -17,7 +17,28 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ### Getting Started
 
-Run [core/automation/scripts/quickstart.sh](https://github.com/lloydchang/agentic-reconciliation-engine/blob/main/core/automation/scripts/quickstart.sh)
+Choose the appropriate quickstart script for your environment:
+
+#### Local Development
+- **Kind**: `./core/scripts/automation/quickstart-local-kind.sh`
+- **Docker Desktop**: `./core/scripts/automation/quickstart-local-docker-desktop.sh`
+- **Minikube**: `./core/scripts/automation/quickstart-local-minikube.sh`
+
+#### Cloud Service Emulators
+- **LocalStack AWS**: `./core/scripts/automation/quickstart-local-localstack-aws.sh`
+- **Azurite + LocalStack Azure**: `./core/scripts/automation/quickstart-local-azurite-and-localstack-azure.sh`
+- **Google Cloud Emulator**: `./core/scripts/automation/quickstart-local-gcloud-emulator.sh`
+
+#### Production Deployments
+- **AWS EKS**: `./core/scripts/automation/quickstart-remote-aws.sh`
+- **Azure AKS**: `./core/scripts/automation/quickstart-remote-azure.sh`
+- **Google Cloud GKE**: `./core/scripts/automation/quickstart-remote-gcp.sh`
+- **On-Premises**: `./core/scripts/automation/quickstart-remote-on-prem.sh`
+
+#### Overlay Extensions
+Each environment has an overlay version (e.g., `overlay-quickstart-local-kind.sh`) that adds enhanced features without modifying the base scripts.
+
+**Example**: `./core/scripts/automation/quickstart-local-kind.sh`
 
 ---
 
