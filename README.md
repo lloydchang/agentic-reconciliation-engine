@@ -15,13 +15,16 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 
 ---
 
-### ⚙️ Sample Escalation Loop
+### 🛠️ Getting Started
 
-1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
-2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
-3.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
-4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
-5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
+**Initialize:** Run `core/scripts/automation/quickstart.sh`
+
+*This single command validates prerequisites and sets up the entire environment.*
+
+**Optional:** Validate prerequisites only:
+```bash
+core/scripts/automation/quickstart.sh --validate-only
+```
 
 ---
 
@@ -34,7 +37,17 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 
 ---
 
-### � Critical Integration Points & Implementation Details
+### ⚙️ Sample Escalation Loop
+
+1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
+2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
+3.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
+4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
+5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
+
+---
+
+### Sample's Integration Points & Implementation Details
 
 **Event Flow Requirements:**
 - **Prometheus Configuration:** Alert rules must target controller-specific metrics (reconcile failures, resource drift)
@@ -56,19 +69,6 @@ Initial data comes from historical logs and manual incident records imported via
 
 **Argo Events Communication Protocol:**
 Sensors send HTTP POST requests to memory agent `/api/events` endpoint with JSON payloads containing alert metadata, resource context, and correlation IDs. Responses include workflow initiation confirmations and status updates.
-
----
-
-### �🛠️ Getting Started
-
-**Initialize:** Run `core/scripts/automation/quickstart.sh`
-
-*This single command validates prerequisites and sets up the entire environment.*
-
-**Optional:** Validate prerequisites only:
-```bash
-core/scripts/automation/quickstart.sh --validate-only
-```
 
 ---
 
