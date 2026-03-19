@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agents-definitions
+  namespace: ai-infrastructure
+data:
+  agents.json: |
+    {
+      "agents": [
+        {
+          "id": "memory-agent-rust",
+          "name": "Memory Agent",
+          "type": "Rust",
+          "description": "Persistent AI state with SQLite and llama.cpp inference",
+          "backend": "llama-cpp",
+          "language": "rust",
+          "capabilities": ["episodic_memory", "semantic_memory", "procedural_memory", "working_memory"],
+          "skills": ["recall", "store", "query", "learn"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "memory-agent-go",
+          "name": "Memory Agent (Go)",
+          "type": "Go",
+          "description": "Orchestration integration with Temporal activities",
+          "backend": "llama-cpp",
+          "language": "go",
+          "capabilities": ["temporal_integration", "workflow_coordination", "activity_execution"],
+          "skills": ["orchestrate", "coordinate", "execute"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "memory-agent-python",
+          "name": "Memory Agent (Python)",
+          "type": "Python",
+          "description": "ML/AI prototyping with transformers/torch",
+          "backend": "transformers",
+          "language": "python",
+          "capabilities": ["ml_inference", "model_experimentation", "data_analysis"],
+          "skills": ["analyze", "predict", "experiment"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "temporal-worker",
+          "name": "Temporal Worker",
+          "type": "Worker",
+          "description": "Durable workflow execution with 91 operational skills",
+          "backend": "temporal",
+          "language": "go",
+          "capabilities": ["workflow_execution", "activity_running", "skill_invocation"],
+          "skills": ["all_91_skills"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "k8sgpt-analyzer",
+          "name": "K8sGPT Analyzer",
+          "type": "AI",
+          "description": "Kubernetes cluster analysis and diagnostics",
+          "backend": "localai",
+          "language": "go",
+          "capabilities": ["cluster_analysis", "error_diagnosis", "recommendations"],
+          "skills": ["analyze_cluster", "diagnose_errors", "suggest_fixes"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "cost-optimizer",
+          "name": "Cost Optimizer",
+          "type": "Agent",
+          "description": "Multi-cloud cost optimization",
+          "backend": "temporal",
+          "language": "python",
+          "capabilities": ["cost_analysis", "resource_optimization", "savings_recommendations"],
+          "skills": ["optimize-costs", "analyze-spending", "recommend-savings"],
+          "autonomous": true,
+          "status": "active"
+        },
+        {
+          "id": "security-scanner",
+          "name": "Security Scanner",
+          "type": "Agent",
+          "description": "Security analysis and vulnerability detection",
+          "backend": "temporal",
+          "language": "python",
+          "capabilities": ["vulnerability_scanning", "compliance_checking", "threat_detection"],
+          "skills": ["analyze-security", "audit-security-events", "detect-threats"],
+          "autonomous": true,
+          "status": "active"
+        }
+      ],
+      "escalation_workflow": {
+        "observe": {
+          "description": "Stateless controllers flag persistent or non-deterministic errors",
+          "sources": ["flux", "crossplane", "argocd", "kubernetes"]
+        },
+        "recall": {
+          "description": "ARE queries SQLite for historical context and successful interventions",
+          "storage": "sqlite",
+          "memory_types": ["episodic", "semantic", "procedural"]
+        },
+        "select": {
+          "description": "Qwen summarizes failure against AGENTS.md policies and selects SKILL.md",
+          "model": "qwen2.5",
+          "policy_file": "AGENTS.md",
+          "skill_selection": "dynamic"
+        },
+        "execute": {
+          "description": "Temporal runs durable multi-step workflow to resolve issue",
+          "orchestrator": "temporal",
+          "execution_mode": "durable"
+        },
+        "commit": {
+          "description": "Result logged to SQLite, informing Agent and future telemetry",
+          "storage": "sqlite",
+          "telemetry_update": true
+        }
+      }
+    }

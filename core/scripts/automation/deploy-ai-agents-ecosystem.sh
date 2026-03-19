@@ -48,20 +48,16 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Use default kubeconfig and switch to hub context
-    # export KUBECONFIG="${SCRIPT_DIR}/../core/config/kubeconfigs/hub-kubeconfig"
-    
-    # Switch to hub cluster context
-    $KUBECTL_CMD config use-context hub &> /dev/null || log_warning "Could not switch to hub context"
-    
-    # Check if connected to cluster using specific context
-    if ! $KUBECTL_CMD cluster-info --context=hub &> /dev/null; then
-        log_error "Not connected to hub cluster. Make sure hub cluster is running."
-        log_error "Try: ./core/automation/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig"
+    # Check if connected to any cluster
+    if ! $KUBECTL_CMD cluster-info &> /dev/null; then
+        log_error "Not connected to any Kubernetes cluster."
+        log_error "Please connect to a cluster or create one with: kind create cluster --name agentic-test"
         exit 1
     fi
     
-    log_success "Connected to hub cluster"
+    # Get current context
+    CURRENT_CONTEXT=$($KUBECTL_CMD config current-context 2>/dev/null || echo "unknown")
+    log_success "Connected to cluster: $CURRENT_CONTEXT"
 
     # Check Docker (for building images)
     if ! command -v docker &> /dev/null; then
@@ -158,17 +154,29 @@ spec:
             cpu: "50m"
       containers:
       - name: agent-memory
-        image: agent-memory-rust:latest  # Built from rust-agent/
+        image: python:3.11-alpine  # Use Python for autonomous agent
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          pip install --no-cache-dir pyyaml flask flask-cors;
+          python /app/autonomous_agent.py --once
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         env:
         - name: DATABASE_PATH
           value: "/data/memory.db"
         - name: INBOX_PATH
           value: "/data/inbox"
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: memory-storage
           mountPath: /data
+        - name: autonomous-agent
+          mountPath: /app/autonomous_agent.py
+          subPath: autonomous_agent.py
         resources:
           requests:
             memory: "256Mi"
@@ -176,16 +184,53 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: api
+        image: python:3.11-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          pip install --no-cache-dir flask flask-cors pyyaml;
+          python /app/backend.py
+        ports:
+        - containerPort: 5000
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: backend-code
+          mountPath: /app/backend.py
+          subPath: backend.py
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
       volumes:
       - name: memory-storage
         persistentVolumeClaim:
           claimName: agent-memory-pvc
+      - name: autonomous-agent
+        configMap:
+          name: autonomous-agent-code
+      - name: backend-code
+        configMap:
+          name: dashboard-backend-realtime
 EOF
     
-    # Wait for memory agent deployment
-    $KUBECTL_CMD wait --for=condition=available --timeout=120s deployment/agent-memory-rust -n $NAMESPACE
+    # Create ConfigMap with autonomous agent code
+    log_info "Creating autonomous agent ConfigMap..."
+    kubectl create configmap autonomous-agent-code \
+      --from-file=autonomous_agent.py=core/ai/runtime/agents/autonomous_agent.py \
+      -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     
-    log_success "AI memory agents deployed (with placeholder images)"
+    # Wait for memory agent deployment
+    $KUBECTL_CMD wait --for=condition=available --timeout=180s deployment/agent-memory-rust -n $NAMESPACE
+    
+    log_success "AI memory agents deployed with autonomous capabilities"
 }
 
 # Deploy AI inference gateway
@@ -370,7 +415,16 @@ deploy_dashboard() {
     log_info "Deploying dashboard ConfigMap..."
     $KUBECTL_CMD apply -f core/resources/infrastructure/dashboard/agent-dashboard-configmap.yaml
 
-    # Create API ConfigMap
+    # Deploy real-time backend with K8s data access
+    log_info "Deploying real-time dashboard backend..."
+    $KUBECTL_CMD apply -f core/resources/infrastructure/dashboard/dashboard-backend-realtime.yaml
+
+    # Deploy skills and agents definitions
+    log_info "Deploying skills and agents definitions..."
+    $KUBECTL_CMD apply -f core/resources/infrastructure/temporal/skills-definitions-configmap.yaml
+    $KUBECTL_CMD apply -f core/resources/infrastructure/temporal/agents-definitions-configmap.yaml
+
+    # Create API ConfigMap for fallback
     cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: v1
 kind: ConfigMap

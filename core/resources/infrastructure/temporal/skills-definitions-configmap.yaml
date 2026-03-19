@@ -1,0 +1,180 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: skills-definitions
+  namespace: ai-infrastructure
+data:
+  skills.json: |
+    {
+      "skills": [
+        {
+          "name": "debug",
+          "description": "Comprehensive debugging skill for agents, Temporal workflows, and Kubernetes infrastructure",
+          "risk_level": "low",
+          "autonomy": "fully_auto",
+          "layer": "temporal",
+          "category": "troubleshooting",
+          "trigger_keywords": ["debug", "troubleshoot", "diagnose", "error", "failure"],
+          "escalation": false
+        },
+        {
+          "name": "execute-troubleshooting-playbook",
+          "description": "Automated troubleshooting playbooks for common infrastructure issues",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "troubleshooting",
+          "trigger_keywords": ["playbook", "troubleshoot", "runbook", "incident"],
+          "escalation": true
+        },
+        {
+          "name": "check-cluster-health",
+          "description": "Comprehensive health checks on Kubernetes clusters",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "monitoring",
+          "trigger_keywords": ["health", "cluster", "status", "check"],
+          "escalation": false
+        },
+        {
+          "name": "analyze-security",
+          "description": "Security analysis across multi-cloud environments",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "security",
+          "trigger_keywords": ["security", "vulnerability", "threat", "audit"],
+          "escalation": true
+        },
+        {
+          "name": "generate-docs",
+          "description": "Technical documentation generation",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "documentation",
+          "trigger_keywords": ["docs", "documentation", "readme", "guide"],
+          "escalation": false
+        },
+        {
+          "name": "optimize-costs",
+          "description": "Multi-cloud cost optimization",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "optimization",
+          "trigger_keywords": ["cost", "optimize", "savings", "budget"],
+          "escalation": false
+        },
+        {
+          "name": "remediate-issues",
+          "description": "Automated remediation of infrastructure issues",
+          "risk_level": "high",
+          "autonomy": "human_gate",
+          "layer": "temporal",
+          "category": "remediation",
+          "trigger_keywords": ["remediate", "fix", "resolve", "repair"],
+          "escalation": true
+        },
+        {
+          "name": "scale-resources",
+          "description": "Auto-scaling for Kubernetes resources",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "scaling",
+          "trigger_keywords": ["scale", "autoscale", "expand", "shrink"],
+          "escalation": false
+        },
+        {
+          "name": "deploy-observability-stack",
+          "description": "Deploy monitoring and observability tools",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "deployment",
+          "trigger_keywords": ["observability", "monitoring", "prometheus", "grafana"],
+          "escalation": false
+        },
+        {
+          "name": "manage-gitops-workflows",
+          "description": "GitOps workflow management with Flux/ArgoCD",
+          "risk_level": "medium",
+          "autonomy": "conditional",
+          "layer": "temporal",
+          "category": "gitops",
+          "trigger_keywords": ["gitops", "flux", "argocd", "sync"],
+          "escalation": false
+        },
+        {
+          "name": "audit-security-events",
+          "description": "Security event auditing and compliance",
+          "risk_level": "low",
+          "autonomy": "fully_auto",
+          "layer": "temporal",
+          "category": "security",
+          "trigger_keywords": ["audit", "compliance", "security", "event"],
+          "escalation": true
+        },
+        {
+          "name": "predict-incidents",
+          "description": "ML-based incident prediction",
+          "risk_level": "low",
+          "autonomy": "fully_auto",
+          "layer": "temporal",
+          "category": "prediction",
+          "trigger_keywords": ["predict", "incident", "forecast", "ml"],
+          "escalation": true
+        },
+        {
+          "name": "rotate-secrets",
+          "description": "Automated secrets rotation",
+          "risk_level": "high",
+          "autonomy": "human_gate",
+          "layer": "temporal",
+          "category": "security",
+          "trigger_keywords": ["secret", "rotate", "credential", "certificate"],
+          "escalation": true
+        },
+        {
+          "name": "migrate-workload",
+          "description": "Workload migration across clusters/clouds",
+          "risk_level": "high",
+          "autonomy": "human_gate",
+          "layer": "temporal",
+          "category": "migration",
+          "trigger_keywords": ["migrate", "move", "transfer", "workload"],
+          "escalation": false
+        },
+        {
+          "name": "validate-deployment",
+          "description": "Deployment validation and testing",
+          "risk_level": "low",
+          "autonomy": "fully_auto",
+          "layer": "temporal",
+          "category": "testing",
+          "trigger_keywords": ["validate", "test", "verify", "deployment"],
+          "escalation": false
+        }
+      ],
+      "escalation_skills": [
+        "execute-troubleshooting-playbook",
+        "analyze-security",
+        "remediate-issues",
+        "audit-security-events",
+        "predict-incidents",
+        "rotate-secrets"
+      ],
+      "non_escalation_skills": [
+        "debug",
+        "check-cluster-health",
+        "generate-docs",
+        "optimize-costs",
+        "scale-resources",
+        "deploy-observability-stack",
+        "manage-gitops-workflows",
+        "migrate-workload",
+        "validate-deployment"
+      ]
+    }
