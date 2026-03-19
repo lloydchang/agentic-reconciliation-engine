@@ -57,24 +57,24 @@ core/scripts/automation/quickstart.sh --validate-only
 ### Example
 
 #### The Request Path
-1. **Skill (10):** Defines provision_ha_database via Resource schemas and Scripts.
-2. **Agent (9):** Receives Traffic spike alert; invokes the Skill based on Instruction set.
-3. **Logic & Runtime (8-7):** Qwen (8) plans specs; llama.cpp (7) executes the inference.
-4. **Memory (6):** SQLite persists the intent: Agent initiated HA database upgrade.
-5. **Durable Execution (5):** Temporal manages the long-running commit and retry logic.
+1. **Skill (10):** Defines `provision_ha_database` via Resource schemas and Scripts.
+2. **Agent (9):** Receives _Traffic Spike_ alert; invokes the Skill (10) based on Instruction set.
+3. **Logic & Runtime (8-7):** Qwen (8) reasons; llama.cpp (7) inferences.
+4. **Memory (6):** SQLite (6) persists the intent: Agent (9) initiated HA database upgrade.
+5. **Durable Execution (5):** Temporal (5) manages the long-running commit and retry logic.
 6. **Dependency & Delivery (4-3):** Argo (4) clears event dependencies; Flux (3) syncs YAML to cluster.
-7. **Control Planes (2):** Crossplane reconciles the CompositeDatabase against external APIs.
-8. **Orchestration (1):** Kubernetes hosts the controllers and maintains connection secrets.
+7. **Control Planes (2):** Crossplane (2) reconciles the CompositeDatabase against external APIs.
+8. **Orchestration (1):** Kubernetes (1) hosts the controllers and maintains connection secrets.
 
 #### Self-Healing Loop
-* **Detection:** Layer 2 (Crossplane) identifies drift if the database is manually deleted.
-* **Authority:** Layer 3 (Flux) provides the desired state from Git.
-* **Action:** Layer 2 re-provisions the resource to match the Agent’s (9) original intent.
+* **Detection:** Crossplane (2) identifies drift if the database is manually deleted.
+* **Authority:** Flux (3) provides the desired state from Git.
+* **Action:** Crossplane (2) re-provisions the resource to match the Agent’s (9) original intent.
 
 #### Telemetry Feedback Loop
-* **Observation:** Layer 2 (Crossplane) emits an event once the resource reaches a Ready state.
-* **Capture:** Layer 4 (Argo) captures the event and signals the completion of the delivery.
-* **Storage:** Layer 6 (SQLite) updates the entry to Success, providing the Agent (9) with verified history for future reasoning.
+* **Observation:** Crossplane (2) emits an event once the resource reaches a Ready state.
+* **Capture:** Argo (4) captures the event and signals the completion of the delivery.
+* **Storage:** Argo (6) updates the entry to Success, providing the Agent (9) with verified history for future reasoning.
 
 
 ---
