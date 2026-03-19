@@ -398,7 +398,8 @@ const dashboardHTML = `
                 return;
             }
             
-            const servicesHTML = Object.entries(data.services).map(([name, service]) => \`
+            const servicesHTML = Object.entries(data.services).map(([name, service]) => {
+                return \`
                 <div class="service-card">
                     <div class="service-header">
                         <div class="service-name">\${name}</div>
@@ -408,7 +409,7 @@ const dashboardHTML = `
                         <a href="\${service.url}" target="_blank" class="service-url">\${service.url}</a>
                     </div>
                 </div>
-            \`).join('');
+            \`}).join('');
             
             container.innerHTML = servicesHTML;
         }
@@ -423,7 +424,8 @@ const dashboardHTML = `
                 return;
             }
             
-            const agentsHTML = data.agents.map(agent => \`
+            const agentsHTML = data.agents.map(agent => {
+                return \`
                 <div class="agent-card">
                     <div class="agent-header">
                         <div class="agent-name">\${agent.name}</div>
@@ -453,7 +455,7 @@ const dashboardHTML = `
                         </div>
                     </div>
                 </div>
-            \`).join('');
+            \`}).join('');
             
             container.innerHTML = agentsHTML;
             
