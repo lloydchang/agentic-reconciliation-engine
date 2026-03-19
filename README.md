@@ -4,14 +4,14 @@
 
 **ARE** is a sandbox that provides agentic AI memory and reasoning for challenges beyond stateless reconciliation. Combines AGENTS.md, SKILL.md, SQLite, Qwen, llama.cpp, Temporal with Crossplane, Flux, Kubernetes.
 
-Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Temporal](https://temporal.io/) with [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/).
+Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Temporal](https://temporal.io/) with [Crossplane](https://www.crossplane.io/), [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/).
 
 ---
 
 ### 🏗️ Separation of Concerns
 
 * **Agentic AI Layer (A):** [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
-* **Reconciliation Engine (RE):** [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
+* **Reconciliation Engine (RE):** [Crossplane](https://www.crossplane.io/), [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Kubernetes](https://kubernetes.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
 
