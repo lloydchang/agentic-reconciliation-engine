@@ -63,6 +63,8 @@ if command -v kubectl &> /dev/null; then
     # Initialize overlay registry if it doesn't exist
     if [[ ! -f overlay/registry/catalog.yaml ]]; then
         cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
+if [[ ! -f overlay/registry/catalog.yaml ]]; then
+    cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
 apiVersion: v1
 kind: OverlayRegistry
 metadata:
@@ -71,7 +73,7 @@ metadata:
 spec:
   overlays: []
 REGISTRY_EOF
-    fi
+fi
 
 # Create overlay templates if they don't exist
 if [[ ! -d overlay/templates ]]; then
@@ -79,8 +81,3 @@ if [[ ! -d overlay/templates ]]; then
 fi
 
 echo "✅ Overlay structure initialized"
-    else
-        echo "⚠️  kubectl not available - skipping cluster operations"
-    fi
-
-echo "✅ Overlay post-quickstart hook completed"

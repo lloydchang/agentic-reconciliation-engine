@@ -371,21 +371,75 @@ run_hooks() {
     fi
 }
 
-# Deploy AI Agent Skills and MCP servers
-deploy_ai_agent_skills() {
-    # Call the dedicated deployment script
-    local deploy_script="$SCRIPT_DIR/deploy_ai_agent_skills.sh"
+# Deploy Agent Memory Service
+deploy_agent_memory_service() {
+    print_header "Deploying Agent Memory Service"
     
-    if [[ -f "$deploy_script" ]]; then
-        print_info "Running AI Agent Skills deployment..."
-        if bash "$deploy_script"; then
-            print_success "AI Agent Skills deployed successfully"
+    # Check if the Agent Memory Service deployment script exists
+    local memory_service_script="$SCRIPT_DIR/deploy-agent-memory-service.sh"
+    
+    if [[ ! -f "$memory_service_script" ]]; then
+        print_warning "Agent Memory Service deployment script not found at $memory_service_script"
+        print_info "You can manually run: ./core/scripts/automation/deploy-agent-memory-service.sh deploy"
+        return 0
+    fi
+    
+    # Check if cluster is accessible
+    if ! kubectl cluster-info &> /dev/null; then
+        print_warning "Kubernetes cluster not accessible - skipping Agent Memory Service deployment"
+        print_info "To deploy Agent Memory Service later: QUICKSTART_DEPLOY_MEMORY_SERVICE=true ./core/automation/scripts/quickstart.sh"
+        return 0
+    fi
+    
+    # Check if Agent Memory Service is already deployed
+    if kubectl get deployment agent-memory-rust -n ai-infrastructure &> /dev/null; then
+        print_info "Agent Memory Service already deployed - validating existing deployment"
+        if bash "$memory_service_script" validate; then
+            print_success "Agent Memory Service deployment validated successfully!"
         else
-            print_error "AI Agent Skills deployment failed"
-            return 1
+            print_warning "Agent Memory Service deployment validation failed - attempting redeployment"
+            if bash "$memory_service_script" deploy; then
+                print_success "Agent Memory Service redeployment successful!"
+            else
+                print_error "Agent Memory Service redeployment failed"
+                return 1
+            fi
         fi
+        return 0
+    fi
+    
+    print_info "Deploying Agent Memory Service (Rust-based memory agent with LLaMA.cpp/Qwen support)..."
+    
+    # Run the Agent Memory Service deployment
+    if bash "$memory_service_script" deploy; then
+        print_success "Agent Memory Service deployed successfully!"
+        echo ""
+        echo -e "${GREEN}🧠 Your Agent Memory Service is now running!${NC}"
+        echo -e "${YELLOW}🤖 Service endpoint: http://agent-memory-service.ai-infrastructure.svc.cluster.local:8080${NC}"
+        echo -e "${BLUE}📊 Metrics endpoint: http://agent-memory-service.ai-infrastructure.svc.cluster.local:9090/metrics${NC}"
+        echo -e "${CYAN}🌐 Local access: http://localhost:8081${NC}"
+        echo ""
+        echo "Agent Memory Service features:"
+        echo "  ✅ Rust-based high-performance memory agent"
+        echo "  ✅ SQLite database for persistent memory (episodes, semantic, procedural)"
+        echo "  ✅ Multi-LLM backend support (LLaMA.cpp, OpenAI, Ollama)"
+        echo "  ✅ Qwen model integration with automatic server management"
+        echo "  ✅ Event processing and correlation for Argo Events"
+        echo "  ✅ Skill engine with agentskills.io compliance"
+        echo "  ✅ Workflow orchestration with Temporal patterns"
+        echo "  ✅ REST API with comprehensive endpoints"
+        echo "  ✅ Prometheus metrics and health monitoring"
+        echo ""
+        echo "To access Agent Memory Service:"
+        echo "1. Health check: curl http://localhost:8081/api/health"
+        echo "2. List skills: curl http://localhost:8081/api/skills/list"
+        echo "3. Send event: curl -X POST http://localhost:8081/api/events -H 'Content-Type: application/json' -d '{\"event_type\":\"test\",\"component\":\"test\",\"severity\":\"info\"}'"
+        echo "4. Chat with memory: curl -X POST http://localhost:8081/api/chat -H 'Content-Type: application/json' -d '{\"message\":\"Hello, what can you help me with?\"}'"
+        echo "5. Metrics: curl http://localhost:8081/metrics"
     else
-        print_error "AI Agent Skills deployment script not found at $deploy_script"
+        print_error "Failed to deploy Agent Memory Service"
+        print_info "Check the logs above for errors and try running the script manually"
+        print_info "Manual deployment: ./core/scripts/automation/deploy-agent-memory-service.sh deploy"
         return 1
     fi
 }
@@ -661,6 +715,9 @@ EOF
     
     # Deploy AI agents dashboard
     deploy_ai_agents_dashboard || return 1
+    
+    # Deploy Agent Memory Service
+    deploy_agent_memory_service || return 1
     
     # Deploy consolidated K8sGPT
     deploy_consolidated_k8sgpt || return 1
