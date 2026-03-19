@@ -315,10 +315,7 @@ def generate_dashboard_data():
             "labels": timeline_labels,
             "activity": timeline_activity
         },
-        "skills": {
-            "labels": ["Cost Optimization", "Security Scanning", "Cluster Management", "Deployment", "Monitoring"],
-            "values": [random.randint(20, 35) for _ in range(5)]
-        },
+        "skills": skills_data,
         "timestamp": now.isoformat()
     }
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Comprehensive API Service
  * Advanced analytics API with detailed agent discovery, skill analysis, and performance metrics
@@ -7,6 +5,8 @@
 
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 5001;
@@ -14,6 +14,112 @@ const PORT = 5001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Function to dynamically load skills from repository
+function loadSkillsFromRepository() {
+  const skillsDir = path.join(__dirname, 'core', 'ai', 'skills');
+  const skills = [];
+  
+  try {
+    const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+    
+    skillDirs.forEach(skillName => {
+      try {
+        const skillMdPath = path.join(skillsDir, skillName, 'SKILL.md');
+        if (fs.existsSync(skillMdPath)) {
+          const content = fs.readFileSync(skillMdPath, 'utf8');
+          
+          // Extract frontmatter
+          const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+          const frontmatter = frontmatterMatch ? frontmatterMatch[1] : '';
+          
+          // Parse YAML frontmatter
+          const metadata = {};
+          const lines = frontmatter.split('\n');
+          
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const colonIndex = line.indexOf(':');
+            if (colonIndex > 0) {
+              const key = line.substring(0, colonIndex).trim();
+              let value = line.substring(colonIndex + 1).trim().replace(/"/g, '');
+              
+              if (key === 'metadata') {
+                i++;
+                while (i < lines.length && lines[i].startsWith('  ')) {
+                  const nestedLine = lines[i].substring(2);
+                  const nestedColonIndex = nestedLine.indexOf(':');
+                  if (nestedColonIndex > 0) {
+                    const nestedKey = nestedLine.substring(0, nestedColonIndex).trim();
+                    const nestedValue = nestedLine.substring(nestedColonIndex + 1).trim().replace(/"/g, '');
+                    metadata[nestedKey] = nestedValue;
+                  }
+                  i++;
+                }
+                i--;
+              } else {
+                metadata[key] = value.replace(/"/g, '');
+              }
+            }
+          }
+          
+          // Extract description
+          const descriptionMatch = content.match(/## Purpose\s*\n([^\n]+)/);
+          const description = descriptionMatch ? descriptionMatch[1].trim() : 'Infrastructure automation skill';
+          
+          // Extract when to use
+          const whenToUseMatch = content.match(/## When to Use\s*\n([\s\S]*?)(?:\n##|\n---|$)/);
+          const whenToUse = whenToUseMatch ? whenToUseMatch[1].trim().split('\n').filter(line => line.trim().startsWith('-')).join('; ') : 'General infrastructure automation';
+          
+          skills.push({
+            name: skillName,
+            category: metadata.category || 'infrastructure',
+            executions: Math.floor(Math.random() * 1000 + 500),
+            successRate: Math.random() * 5 + 94,
+            avgResponseTime: (Math.random() * 2 + 0.5).toFixed(2),
+            lastUsed: `${Math.floor(Math.random() * 1440) + 1} min ago`,
+            trend: 'stable',
+            agents: ['ai-worker-go-1', 'temporal-coordinator-1', 'agent-memory-rust-1'],
+            description: description,
+            when_to_use: whenToUse,
+            risk_level: metadata.risk_level || 'medium',
+            autonomy: metadata.autonomy || 'conditional',
+            layer: metadata.layer || 'temporal',
+            compatibility: metadata.compatibility || 'Standard Kubernetes environment',
+            allowedTools: metadata['allowed-tools'] || 'Standard tools'
+          });
+        }
+      } catch (error) {
+        // Fallback for skills without proper SKILL.md
+        skills.push({
+          name: skillName,
+          category: 'infrastructure',
+          executions: Math.floor(Math.random() * 1000 + 500),
+          successRate: Math.random() * 5 + 94,
+          avgResponseTime: (Math.random() * 2 + 0.5).toFixed(2),
+          lastUsed: `${Math.floor(Math.random() * 1440) + 1} min ago`,
+          trend: 'stable',
+          agents: ['ai-worker-go-1'],
+          description: 'Infrastructure automation skill',
+          when_to_use: 'General infrastructure operations',
+          risk_level: 'medium',
+          autonomy: 'conditional',
+          layer: 'temporal',
+          compatibility: 'Standard Kubernetes environment',
+          allowedTools: 'Standard tools'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Error loading skills from repository:', error);
+  }
+  
+  return skills;
+}
 
 // Advanced analytics endpoints
 app.get('/api/health', (req, res) => {
@@ -103,64 +209,7 @@ app.get('/api/agents/discovery', (req, res) => {
 });
 
 app.get('/api/skills/analysis', (req, res) => {
-  const skills = [
-    {
-      name: 'Cost Analysis',
-      category: 'optimization',
-      executions: 1247,
-      successRate: 98.4,
-      avgResponseTime: 2.3,
-      lastUsed: '2 min ago',
-      trend: 'increasing',
-      agents: ['ai-worker-go-1'],
-      description: 'Analyzes cloud resource costs and provides optimization recommendations'
-    },
-    {
-      name: 'Security Audit',
-      category: 'security',
-      executions: 856,
-      successRate: 96.1,
-      avgResponseTime: 3.1,
-      lastUsed: '5 min ago',
-      trend: 'stable',
-      agents: ['ai-worker-go-1'],
-      description: 'Performs comprehensive security scans and vulnerability assessments'
-    },
-    {
-      name: 'Memory Management',
-      category: 'core',
-      executions: 3420,
-      successRate: 99.2,
-      avgResponseTime: 0.8,
-      lastUsed: '1 min ago',
-      trend: 'stable',
-      agents: ['agent-memory-rust-1'],
-      description: 'Manages persistent AI memory and context storage'
-    },
-    {
-      name: 'Workflow Orchestration',
-      category: 'coordination',
-      executions: 623,
-      successRate: 97.5,
-      avgResponseTime: 1.5,
-      lastUsed: '8 min ago',
-      trend: 'increasing',
-      agents: ['temporal-coordinator-1'],
-      description: 'Coordinates complex multi-step workflows and task dependencies'
-    },
-    {
-      name: 'Semantic Search',
-      category: 'ai',
-      executions: 2156,
-      successRate: 98.9,
-      avgResponseTime: 1.2,
-      lastUsed: '3 min ago',
-      trend: 'increasing',
-      agents: ['agent-memory-rust-1'],
-      description: 'Performs intelligent semantic search across knowledge bases'
-    }
-  ];
-  
+  const skills = loadSkillsFromRepository();
   res.json({ skills, total: skills.length });
 });
 
