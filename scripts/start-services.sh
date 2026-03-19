@@ -12,13 +12,14 @@ sleep 2
 
 # Start Memory Service (port 8081) 
 echo "🧠 Starting Memory Service on port 8081..."
-python3 api_server.py --port 8081 --host 0.0.0.0 --background &
+cd $TOPDIR/dashboard/services
+python3 simple_memory_service.py --port 8081 --host 0.0.0.0 --background &
 sleep 2
 
 # Start Comprehensive API (port 5001)
 echo "📈 Starting Comprehensive API on port 5001..."
-cd $TOPDIR/core/automation/scripts
-python3 real-data-api.py --port 5001 --host 0.0.0.0 &
+cd $TOPDIR/portal
+python3 comprehensive_api.py --port 5001 --host 0.0.0.0 &
 sleep 2
 
 # Start Dashboard Flask app (port 5000 alternative)

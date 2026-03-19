@@ -31,10 +31,14 @@ start_service() {
     local service_name=$1
     local script_file=$2
     local port=$3
+    local working_dir=$4
     
     echo -e "${BLUE}Starting $service_name on port $port...${NC}"
     
     if check_port $port; then
+        if [ -n "$working_dir" ]; then
+            cd "$working_dir"
+        fi
         node $script_file &
         local pid=$!
         echo $pid > /tmp/${service_name// /_}.pid
@@ -47,16 +51,16 @@ start_service() {
 
 # Start all services
 echo "📊 Starting Real Data API Service..."
-start_service "Real Data API" "real-data-api.js" 5000
+start_service "Real Data API" "real-data-api.js" 5000 ""
 
 echo "🖥️  Starting Real Dashboard..."
-start_service "Real Dashboard" "real-dashboard-server.js" 8081
+start_service "Real Dashboard" "real-dashboard-server.js" 8081 ""
 
 echo "📈 Starting Comprehensive API..."
-start_service "Comprehensive API" "comprehensive-api.js" 5001
+start_service "Comprehensive API" "comprehensive-api.js" 5001 ""
 
 echo "🧠 Starting Memory Service..."
-start_service "Memory Service" "memory-service.js" 8081
+start_service "Memory Service" "memory-service.js" 8081 ""
 
 echo
 echo -e "${GREEN}🎉 All services started successfully!${NC}"
