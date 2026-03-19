@@ -15,12 +15,6 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 
 ---
 
-### 🔍 Critical Integration Points & Implementation Details
-
-**Event Flow Requirements:**
-- **Prometheus Configuration:** Alert rules must target controller-specific metrics (reconcile failures, resource drift)
-- **Argo Events Setup:** Sensors need proper RBAC and network access to memory agent endpoints
-- **Memory Agent API:** REST endpoints for event ingestion, context queries, and result storage
 ### ⚙️ Sample Escalation Loop
 
 1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
@@ -28,8 +22,14 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 3.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
 4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
 5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
-* [**Architecture**](./docs/AGENT-ARCHITECTURE-OVERVIEW.md) — Deep dive into the escalation logic.
-* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 91 autonomous capabilities.
+
+---
+
+### 📂 Quick Links
+
+* [**Quickstart**](./docs/QUICKSTART.md) — Prerequisites and automation.
+* [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
+* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 98 autonomous capabilities.
 * [**Safety Rules**](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Operational best practices.
 
 ---
