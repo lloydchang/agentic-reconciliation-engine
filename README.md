@@ -15,7 +15,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 
 ---
 
-### ⚙️ The Escalation Loop
+### ⚙️ Sample Escalation Loop
 
 1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
 2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
