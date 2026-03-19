@@ -23,6 +23,7 @@ spec:
       containers:
       - name: rag-chatbot
         image: rag-chatbot:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8000
           name: http
