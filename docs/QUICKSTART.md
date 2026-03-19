@@ -62,7 +62,7 @@ Or run steps manually:
 ✅ **Hub Cluster** - Runs Flux, Crossplane with Kubernetes Provider, Cluster API  
 ✅ **Spoke Cluster** - Local kind cluster for workloads  
 ✅ **GitOps Workflow** - Full continuous reconciliation  
-✅ **AI Agents Ecosystem** - 92 operational skills with Temporal orchestration  
+✅ **AI Agents Ecosystem** - 86 operational skills with Temporal orchestration  
 ✅ **Interactive Dashboard** - Real-time monitoring and control with FastAPI backend  
 ✅ **Auto API Documentation** - Interactive docs at `/docs` endpoint  
 ✅ **Zero Cloud Costs** - Everything runs locally with full functionality  

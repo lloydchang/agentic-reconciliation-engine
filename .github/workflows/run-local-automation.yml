@@ -1,0 +1,93 @@
+name: Run Local Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      connector:
+        description: 'Git connector to use'
+        required: false
+        default: 'github'
+        type: choice
+        options:
+          - github
+          - azure-devops
+          - gitlab
+          - bitbucket
+      overlay_order:
+        description: 'Overlay order (comma-separated)'
+        required: false
+        default: './bootstrap,./hub,./emulator-azure,./spoke-local'
+        type: string
+      emulator_action:
+        description: 'Emulator action'
+        required: false
+        default: 'enable'
+        type: choice
+        options:
+          - enable
+          - disable
+
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+          
+      - name: Install conftest
+        run: |
+          curl -Lo conftest https://github.com/open-policy-agent/conftest/releases/download/v0.48.0/conftest_0.48.0_Linux_x86_64.tar.gz
+          tar -xzf conftest
+          sudo mv conftest /usr/local/bin/
+          conftest --version
+          
+      - name: Install kubeconform
+        run: |
+          curl -Lo kubeconform https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64
+          chmod +x kubeconform
+          sudo mv kubeconform /usr/local/bin/
+          kubeconform -v
+          
+      - name: Run local automation
+        run: |
+          chmod +x core/scripts/automation/quickstart.sh
+          chmod +x core/scripts/automation/prerequisites.sh
+          
+          # Run prerequisites check
+          ./core/scripts/automation/prerequisites.sh
+          
+          # Run quickstart with specified parameters
+          ./core/scripts/automation/quickstart.sh \
+            --connector ${{ inputs.connector }} \
+            --overlay-order ${{ inputs.overlay_order }} \
+            --emulator-action ${{ inputs.emulator_action }}
+        env:
+          CONNECTOR: ${{ inputs.connector }}
+          OVERLAY_ORDER: ${{ inputs.overlay_order }}
+          EMULATOR_ACTION: ${{ inputs.emulator_action }}
+          
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: automation-logs
+          path: logs/local-core/automation/ci-cd/
+          retention-days: 30
+          
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: automation-summary
+          path: logs/local-core/automation/ci-cd/latest-summary.json
+          retention-days: 30

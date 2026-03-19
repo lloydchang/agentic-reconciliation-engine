@@ -1,5 +1,5 @@
 ---
-name: ai-system-debugger
+name: debug
 description: Comprehensive debugging skill for agents, Temporal workflows, and Kubernetes infrastructure in distributed environments
 version: 1.0.0
 risk_level: low
