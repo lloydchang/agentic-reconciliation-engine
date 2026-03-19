@@ -20,8 +20,10 @@ const {
   McpError,
 } = require('@modelcontextprotocol/sdk/types.js');
 
-// AWS SDK
-const AWS = require('aws-sdk');
+// AWS SDK v3
+const { SecurityHubClient, GetFindingsCommand, DescribeFindingsCommand } = require('@aws-sdk/client-securityhub');
+const { ResourceGroupsTaggingAPIClient, GetResourcesCommand } = require('@aws-sdk/client-resource-groups-tagging-api');
+const { OrganizationsClient, ListAccountsCommand } = require('@aws-sdk/client-organizations');
 // Azure SDK
 const { ResourceManagementClient } = require('@azure/arm-resources');
 const { PolicyInsightsClient } = require('@azure/arm-policyinsights');
@@ -214,31 +216,40 @@ class CloudComplianceServer {
   async awsSecurityHubAnalysis(args) {
     const { region = 'us-east-1', severity, compliance_standard } = args;
     
-    // Initialize AWS Security Hub client
-    const securityHub = new AWS.SecurityHub({ region });
+    // Initialize AWS Security Hub client v3
+    const securityHub = new SecurityHubClient({ region });
     
     try {
-      // Get findings
-      const findingsParams = {
-        Filters: {
-          SeverityLabel: severity ? [{ Comparison: 'GREATER_THAN_OR_EQUAL', Value: severity }] : undefined,
-          ComplianceStandards: compliance_standard ? [{ Comparison: 'EQUALS', Value: compliance_standard }] : undefined
-        }
-      };
+      // Build filters for findings
+      const filters = {};
       
-      const findings = await securityHub.getFindings(findingsParams).promise();
+      if (severity) {
+        filters.SeverityLabel = [{ Comparison: 'EQUALS', Value: severity }];
+      }
+      
+      if (compliance_standard) {
+        filters.ComplianceStandards = [{ Comparison: 'EQUALS', Value: compliance_standard }];
+      }
+      
+      // Get findings
+      const findingsCommand = new GetFindingsCommand({
+        Filters: filters,
+        MaxResults: 100
+      });
+      
+      const findings = await securityHub.send(findingsCommand);
       
       // Process findings
       const processedFindings = findings.Findings.map(finding => ({
         id: finding.Id,
         title: finding.Title,
-        severity: finding.Severity.Label,
+        severity: finding.Severity?.Label,
         description: finding.Description,
-        resource: finding.Resources[0]?.Id,
+        resource: finding.Resources?.[0]?.Id,
         compliance: finding.Compliance?.Status,
         remediation: finding.Remediation?.Recommendation?.Text,
-        firstObserved: finding.FirstObservedAt,
-        lastObserved: finding.LastObservedAt
+        firstObserved: finding.FirstObservedAt?.toISOString(),
+        lastObserved: finding.LastObservedAt?.toISOString()
       }));
       
       // Generate compliance summary
