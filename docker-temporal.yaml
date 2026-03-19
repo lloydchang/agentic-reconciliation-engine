@@ -1,0 +1,14 @@
+log-level: info
+persistence:
+  default:
+    driver: cassandra
+    cassandra:
+      hosts: ["cassandra"]
+      keyspace: temporal
+      port: 9042
+  visibility:
+    driver: cassandra
+    cassandra:
+      hosts: ["cassandra"]
+      keyspace: temporal_visibility
+      port: 9042
