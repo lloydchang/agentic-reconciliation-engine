@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../../../../scripts/set-topdir.sh
+
 # Multi-Hub Architecture Setup Script
 # Implements geographic distribution and automatic failover
 

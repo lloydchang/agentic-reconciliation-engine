@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source scripts/set-topdir.sh
+
 echo "🚀 Starting AI Infrastructure Services..."
 
 # Start Dashboard API (port 5000)

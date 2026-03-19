@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../../../../scripts/set-topdir.sh
+
 # Disaster Recovery Setup Script
 # Configures and validates disaster recovery procedures for Git outages
 

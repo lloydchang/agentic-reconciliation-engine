@@ -8,6 +8,7 @@ import json
 import time
 from datetime import datetime, timedelta
 import random
+import requests
 from flask import Flask, jsonify, render_template_string
 from flask_cors import CORS
 
@@ -53,8 +54,8 @@ DASHBOARD_HTML = """
     <div class="container">
         <div class="grid">
             <div class="card">
-                <h3>🤖 Agent Status</h3>
-                <div id="agent-metrics"></div>
+                <h3>🤖 Agent Details</h3>
+                <div id="agent-details"></div>
             </div>
             
             <div class="card">
@@ -94,14 +95,29 @@ DASHBOARD_HTML = """
         }
         
         function updateAgentMetrics(data) {
-            const container = document.getElementById('agent-metrics');
+            const container = document.getElementById('agent-details');
             container.innerHTML = data.agents.map(agent => `
-                <div class="metric">
-                    <div>
-                        <span class="status-indicator status-${agent.status.toLowerCase()}"></span>
-                        <span>${agent.name}</span>
+                <div class="agent-card" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #f7fafc;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; color: #2d3748; font-size: 1.1rem;">${agent.name}</h4>
+                        <span class="status-indicator status-${agent.status?.toLowerCase() || 'idle'}" style="margin-left: 0.5rem;"></span>
                     </div>
-                    <div class="metric-value">${agent.success_rate}%</div>
+                    <p style="margin: 0 0 0.5rem 0; color: #4a5568; font-size: 0.9rem;">${agent.description || 'No description available'}</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+                        <div><strong>Type:</strong> ${agent.type || 'Unknown'}</div>
+                        <div><strong>Risk Level:</strong> ${agent.risk_level || 'Unknown'}</div>
+                        <div><strong>Autonomy:</strong> ${agent.autonomy || 'Unknown'}</div>
+                        <div><strong>Success Rate:</strong> ${agent.success_rate || 0}%</div>
+                    </div>
+                    ${agent.received_prompt ? `<div style="margin-top: 0.5rem; font-size: 0.85rem;"><strong>Received:</strong> ${agent.received_prompt}</div>` : ''}
+                    ${agent.response_prompt ? `<div style="margin-top: 0.25rem; font-size: 0.85rem;"><strong>Response:</strong> ${agent.response_prompt}</div>` : ''}
+                    ${agent.live_data && (agent.live_data.kubernetes_pods?.length || agent.live_data.docker_containers?.length || agent.live_data.temporal_workflows?.length) ? 
+                        `<div style="margin-top: 0.5rem; font-size: 0.8rem; color: #718096;">
+                            <strong>Live Data:</strong> 
+                            K8s: ${agent.live_data.kubernetes_pods?.length || 0} pods, 
+                            Docker: ${agent.live_data.docker_containers?.length || 0} containers, 
+                            Temporal: ${agent.live_data.temporal_workflows?.length || 0} workflows
+                        </div>` : ''}
                 </div>
             `).join('');
         }
@@ -219,17 +235,25 @@ def generate_dashboard_data():
 
     # Try to fetch agent data from comprehensive API
     try:
-        response = requests.get('http://localhost:5001/api/agents/discovery', timeout=5)
+        response = requests.get('http://localhost:5001/api/agents', timeout=5)
         if response.status_code == 200:
             api_data = response.json()
+            detailed_agents = api_data.get("detailed_agents", [])
             agents_data = [
                 {
                     "name": agent.get("name", "Unknown Agent"),
                     "status": agent.get("status", "Unknown"),
                     "success_rate": agent.get("success_rate", 0),
-                    "lastActivity": agent.get("lastActivity", "Unknown")
+                    "lastActivity": agent.get("lastActivity", "Unknown"),
+                    "type": agent.get("type", "unknown"),
+                    "description": agent.get("description", ""),
+                    "risk_level": agent.get("risk_level", ""),
+                    "autonomy": agent.get("autonomy", ""),
+                    "received_prompt": agent.get("received_prompt", ""),
+                    "response_prompt": agent.get("response_prompt", ""),
+                    "live_data": agent.get("live_data", {})
                 }
-                for agent in api_data.get("agents", [])
+                for agent in detailed_agents
             ]
     except:
         # Fallback to fake data if API unavailable

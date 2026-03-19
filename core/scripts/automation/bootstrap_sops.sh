@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source ../../../../scripts/set-topdir.sh
+
 # bootstrap_sops.sh
 # Minimal SOPS bootstrap for a fresh clone
 
