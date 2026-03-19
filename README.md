@@ -10,7 +10,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 
 ### 🏗️ Separation of Concerns
 
-* **Agentic Layer (A):** [Temporal](https://temporal.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/): Complex recovery, and ambiguous failures that stateless controllers cannot resolve.
+* **Agentic Layer (A):** [Temporal](https://temporal.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/): Ccomplex actions that stateless controllers cannot own.
 * **Reconciliation Engine (RE):** [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
