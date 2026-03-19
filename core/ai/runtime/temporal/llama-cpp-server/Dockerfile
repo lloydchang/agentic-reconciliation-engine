@@ -16,9 +16,15 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git /llama.cpp
 WORKDIR /llama.cpp
 RUN mkdir build && cd build && cmake .. -DLLAMA_CURL=ON && make -j$(nproc) llama-server
 
-# Download Qwen model (you may want to use a specific model file)
-# For now, we'll create a placeholder and assume the model will be mounted
+# Copy model setup script
+COPY setup-qwen-model.sh /usr/local/bin/setup-qwen-model.sh
+RUN chmod +x /usr/local/bin/setup-qwen-model.sh
+
+# Create models directory
 RUN mkdir -p /models
+
+# Download Qwen model (will be skipped if already present in volume)
+RUN /usr/local/bin/setup-qwen-model.sh || echo "Model download failed - will be loaded from volume"
 
 # Expose the server port
 EXPOSE 8080

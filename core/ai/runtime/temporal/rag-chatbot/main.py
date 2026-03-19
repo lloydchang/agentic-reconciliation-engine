@@ -43,6 +43,10 @@ class Config:
     # Agent Memory Integration
     AGENT_MEMORY_URL = os.getenv("AGENT_MEMORY_URL", "http://agent-memory-service:8080")
     
+    # AI Inference Integration
+    LLAMACPP_URL = os.getenv("LLAMACPP_URL", "http://llama-cpp-server:8080")
+    QWEN_MODEL = os.getenv("QWEN_MODEL", "qwen2.5-coder-7b-instruct.gguf")
+    
     # Data Source Endpoints
     KUBERNETES_API = os.getenv("KUBERNETES_API", "https://kubernetes.default.svc")
     TEMPORAL_API = os.getenv("TEMPORAL_API", "http://temporal-frontend:7233")
@@ -157,6 +161,60 @@ class RAGEngine:
     def __init__(self):
         self.data_manager = DataSourceManager()
         self.conversation_history = []
+    
+    async def query_ai_inference(self, query: str, context: List[Dict[str, Any]]) -> str:
+        """Query Qwen model for AI-powered responses"""
+        try:
+            # Prepare context for the AI
+            context_text = "\n".join([
+                f"- {item.get('source', 'unknown')}: {item.get('content', '')}"
+                for item in context[:3]  # Limit context to prevent token overflow
+            ])
+            
+            system_prompt = """You are an AI assistant specializing in GitOps, Kubernetes, and infrastructure operations. 
+            Provide helpful, accurate responses based on the given context. If context is insufficient, 
+            provide general guidance and suggest what additional information would be helpful."""
+            
+            user_prompt = f"""Context:
+{context_text}
+
+User Query: {query}
+
+Please provide a comprehensive response based on the context and your knowledge."""
+            
+            async with aiohttp.ClientSession() as session:
+                payload = {
+                    "model": config.QWEN_MODEL,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    "max_tokens": 1024,
+                    "temperature": 0.7,
+                    "stream": False
+                }
+                
+                async with session.post(
+                    f"{config.LLAMACPP_URL}/api/chat",
+                    json=payload,
+                    timeout=30
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        if "message" in result and "content" in result["message"]:
+                            return result["message"]["content"]
+                        elif "choices" in result and len(result["choices"]) > 0:
+                            return result["choices"][0]["message"]["content"]
+                        else:
+                            logger.warning(f"Unexpected AI response format: {result}")
+                            return "I apologize, but I received an unexpected response format from the AI model."
+                    else:
+                        logger.error(f"AI inference request failed: {response.status}")
+                        return "I apologize, but I'm currently unable to process AI requests. Please try again later."
+                        
+        except Exception as e:
+            logger.error(f"Error querying AI inference: {e}")
+            return "I apologize, but I encountered an error while processing your request with the AI model."
     
     async def query_agent_memory(self, query: str) -> Dict[str, Any]:
         """Query agent memory for relevant context"""
@@ -292,42 +350,49 @@ class RAGEngine:
         # Sort by relevance
         results.sort(key=lambda x: x.get("relevance", 0), reverse=True)
         
-        # Build context from top results
-        context_parts = []
-        sources_cited = []
-        
-        for result in results[:3]:  # Use top 3 results
-            if result.get("content"):
-                if isinstance(result["content"], list):
-                    for item in result["content"]:
-                        context_parts.append(f"From {result['source']}: {str(item)}")
-                else:
-                    context_parts.append(f"From {result['source']}: {str(result['content'])}")
-                sources_cited.append(result["source"])
-        
-        context = "\n\n".join(context_parts)
-        
-        # Simple response synthesis (in production, use LLM)
-        response = f"Based on the available information:\n\n{context}\n\n"
-        
-        if "agent_memory" in sources_cited:
-            response += "I found relevant information from my memory and experience with similar operations. "
-        
-        if "kubernetes_api" in sources_cited:
-            response += "The current cluster state shows healthy resources. "
-        
-        if "temporal_workflows" in sources_cited:
-            response += "Previous workflow executions provide relevant patterns. "
-        
-        if "dashboard_apis" in sources_cited:
-            response += "Agent status monitoring shows current activity. "
-        
-        if "k8sgpt_analysis" in sources_cited:
-            response += "AI analysis indicates potential optimizations. "
-        
-        response += f"\n\nTo address your query about '{query}', I recommend checking the specific resources mentioned above."
-        
-        return response
+        # Use AI inference for intelligent response synthesis
+        try:
+            ai_response = await self.query_ai_inference(query, results[:3])
+            return ai_response
+        except Exception as e:
+            logger.warning(f"AI inference failed, falling back to basic synthesis: {e}")
+            
+            # Fallback to basic synthesis
+            context_parts = []
+            sources_cited = []
+            
+            for result in results[:3]:  # Use top 3 results
+                if result.get("content"):
+                    if isinstance(result["content"], list):
+                        for item in result["content"]:
+                            context_parts.append(f"From {result['source']}: {str(item)}")
+                    else:
+                        context_parts.append(f"From {result['source']}: {str(result['content'])}")
+                    sources_cited.append(result["source"])
+            
+            context = "\n\n".join(context_parts)
+            
+            # Simple response synthesis
+            response = f"Based on the available information:\n\n{context}\n\n"
+            
+            if "agent_memory" in sources_cited:
+                response += "I found relevant information from my memory and experience with similar operations. "
+            
+            if "kubernetes_api" in sources_cited:
+                response += "The current cluster state shows healthy resources. "
+            
+            if "temporal_workflows" in sources_cited:
+                response += "Previous workflow executions provide relevant patterns. "
+            
+            if "dashboard_apis" in sources_cited:
+                response += "Agent status monitoring shows current activity. "
+            
+            if "k8sgpt_analysis" in sources_cited:
+                response += "AI analysis indicates potential optimizations. "
+            
+            response += f"\n\nTo address your query about '{query}', I recommend checking the specific resources mentioned above."
+            
+            return response
     
     async def process_query(self, request: QueryRequest) -> QueryResponse:
         """Process RAG query with voice support"""
