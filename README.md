@@ -34,7 +34,32 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 
 ---
 
-### 🛠️ Getting Started
+### � Critical Integration Points & Implementation Details
+
+**Event Flow Requirements:**
+- **Prometheus Configuration:** Alert rules must target controller-specific metrics (reconcile failures, resource drift)
+- **Argo Events Setup:** Sensors need proper RBAC and network access to memory agent endpoints
+- **Memory Agent API:** REST endpoints for event ingestion, context queries, and result storage
+- **Temporal Integration:** Workflow templates for common remediation patterns
+
+**Data Flow Gaps & Solutions:**
+- **Alert Enrichment:** Prometheus rules are configured with custom labels extracting controller context from Kubernetes annotations and resource specs. Alert payloads include resource namespace, kind, name, and failure reason via kube-state-metrics.
+- **Event Correlation:** Argo Events uses sensor grouping and deduplication rules based on resource identifiers (namespace/name) and failure types. Related alerts within a 5-minute window trigger a single correlated event.
+- **State Synchronization:** Memory agents subscribe to controller status via Kubernetes API watch streams, maintaining real-time views through continuous updates from Flux/Crossplane status conditions.
+- **Rollback Handling:** Failed workflows automatically revert changes using GitOps rollback mechanisms (Flux/ArgoCD sync to previous commit). Failed remediations log incidents to SQLite with rollback actions taken.
+
+**Skill Invocation Mechanism:**
+Skills are invoked via Temporal activities that load SKILL.md instructions at runtime. Qwen LLM parses the skill body, generates execution parameters, and Temporal orchestrates the multi-step plan with GitOps validation gates.
+
+**SQLite Memory Population:**
+Initial data comes from historical logs and manual incident records imported via bulk CSV/JSON scripts. Continuous updates occur through workflow completion hooks that store outcomes, patterns, and effectiveness metrics in structured tables.
+
+**Argo Events Communication Protocol:**
+Sensors send HTTP POST requests to memory agent `/api/events` endpoint with JSON payloads containing alert metadata, resource context, and correlation IDs. Responses include workflow initiation confirmations and status updates.
+
+---
+
+### �🛠️ Getting Started
 
 **Initialize:** Run `core/scripts/automation/quickstart.sh`
 
