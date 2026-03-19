@@ -15,13 +15,13 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ---
 
-### 🛠️ Getting Started
+### Getting Started
 
-Run `core/scripts/automation/quickstart.sh`
+Run [core/automation/scripts/quickstart.sh](https://github.com/lloydchang/agentic-reconciliation-engine/blob/main/core/automation/scripts/quickstart.sh)
 
 ---
 
-### 📂 Quick Links
+### Quick Links
 
 * [**Quickstart**](./docs/QUICKSTART.md) — Prerequisites and automation.
 * [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
@@ -30,7 +30,7 @@ Run `core/scripts/automation/quickstart.sh`
 
 ---
 
-### ARE Abstraction Layers
+### Abstraction Layers
 
 | Layer | Component | Role |
 | :--- | :--- | :--- |
@@ -72,6 +72,6 @@ Run `core/scripts/automation/quickstart.sh`
 
 ---
 
-### ⚖️ License
+### License
 
 [AGPL-3.0-or-later](LICENSE)
