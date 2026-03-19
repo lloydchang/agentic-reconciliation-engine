@@ -13,6 +13,35 @@ data:
         <title>AI Agents Dashboard - Agentic Reconciliation Engine</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://unpkg.com/feather-icons"></script>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI Agents Dashboard - Agentic Reconciliation Engine</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+  nginx.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+        
+        # Serve static files
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+        }
+        
+        # Proxy API requests to backend service
+        location /api/ {
+            proxy_pass http://dashboard-backend-service:5000/api/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
         <style>
             * {
                 margin: 0;
@@ -412,8 +441,8 @@ data:
             // Initialize Feather icons
             feather.replace();
             
-            // API base URL
-            const API_BASE = '/api';
+            // API base URL - backend service in same namespace
+            const API_BASE = 'http://dashboard-backend-service:5000/api';
             
             // Refresh data function
             async function refreshData() {
