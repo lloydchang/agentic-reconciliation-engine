@@ -18,6 +18,10 @@ print_success() {
     echo -e "${GREEN}✅ $1${NC}"
 }
 
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
 print_header() {
     echo -e "${BLUE}=== $1 ===${NC}"
 }
