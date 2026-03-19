@@ -1,6 +1,6 @@
 # Agentic Reconciliation Engine (ARE)
 
-<img width="180" height="180" alt="ARE Logo" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
+<img width="312" height="180" alt="logo.png" src="https://github.com/user-attachments/assets/36fb6c86-e84a-49c1-bf12-5e25e6fa10ab" />
 
 **ARE** is a sandbox that provides agentic AI memory and reasoning for challenges beyond stateless reconciliation. Combines AGENTS.md, SKILL.md, SQLite, Qwen, llama.cpp, Temporal with Crossplane, Flux, Kubernetes.
 
