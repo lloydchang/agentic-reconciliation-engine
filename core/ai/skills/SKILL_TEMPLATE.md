@@ -1,58 +1,150 @@
 ---
-name: skill-name
-description: Template for creating new skills following agentskills.io specification. Replace this with a specific description of what your skill does and when to use it. Should be 1-1024 characters describing both what the skill does and when to use it.
+name: skill-template
+category: template
+description: Template for creating practical, effective skills following Claude Code best practices. Use when creating new skills that avoid obvious instructions and include gotchas, progressive disclosure, and useful file structures.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
-  category: enterprise
-  risk-level: medium
-  autonomy: conditional
-compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
-allowed-tools: Bash Read Write Grep
+  risk-level: low
+  autonomy: full
 ---
 
-# Skill Template — agentskills.io Specification Compliant
+# Skill Template — Claude Code Best Practices
 
-> **Instructions**: Copy this template to create a new skill directory.
-> 1. Create new directory: `core/ai/skills/your-skill-name/`
-> 2. Copy this file to: [core/ai/skills/your-skill-name/SKILL.md](core/ai/skills/your-skill-name/SKILL.md)
-> 3. Replace `skill-name` with your actual skill name (must match directory name)
-> 4. Update the description to explain what your skill does and when to use it
-> 5. Adjust optional fields as needed
-
-## Purpose
-Template for creating new skills that follow the agentskills.io specification. This template includes all required fields and common optional fields for enterprise multi-cloud automation skills.
+> **Quick Start**: Copy this template to create a new skill directory.
+> 1. Create `core/ai/skills/your-skill-name/`
+> 2. Copy this file as `SKILL.md`
+> 3. Update frontmatter name and description
+> 4. Add gotchas, scripts, and references as needed
 
 ## When to Use
-- **Creating new skills**: Use this as a starting point for any new skill
-- **Ensuring compliance**: This template follows the agentskills.io specification
-- **Best practices**: Includes recommended fields and structure
+Use this template for creating skills that Claude can discover and use effectively. Focus on skills that push beyond Claude's default knowledge and include practical gotchas.
 
-## Template Fields Explained
+## Gotchas
+- **Common Failure Points**: Add specific things Claude gets wrong when using this type of skill
+- **Edge Cases**: Document unusual scenarios or requirements
+- **Platform Differences**: Note variations between environments/tools
 
-### Required Fields (must be present):
-- **name**: Skill identifier (lowercase, numbers, hyphens only, max 64 chars)
-- **description**: What the skill does and when to use it (1-1024 chars)
+## File Structure
+Skills are folders, not just markdown. Use progressive disclosure:
 
-### Optional Fields (recommended):
-- **license**: License for the skill (e.g., Apache-2.0)
-- **metadata**: Additional key-value metadata
-- **compatibility**: Environment requirements (max 500 chars)
-- **allowed-tools**: Space-delimited list of pre-approved tools
+```
+your-skill-name/
+├── SKILL.md          # This file - main instructions
+├── scripts/          # Executable code Claude can run
+├── references/       # API docs, examples, templates
+├── assets/           # Data files, configs, templates
+└── config.json       # Setup data (if needed)
+```
 
-## Next Steps
-Replace the content below with your skill-specific implementation:
+### Progressive Disclosure
+- Tell Claude what files exist and when to read them
+- Split detailed info into `references/api.md`, `references/examples.md`
+- Include templates in `assets/` for Claude to copy and modify
 
----
+## Setup & Configuration
+Some skills need user setup. Store in `config.json`:
 
-# Skill Name — World-class Multi-Cloud Enterprise Automation Platform
+```json
+{
+  "api_key": "ask_user",
+  "environment": "production",
+  "preferences": {}
+}
+```
 
-## Purpose
-Enterprise-grade multi-cloud automation solution that combines AI-powered operations, comprehensive validation, and intelligent workflows across AWS, Azure, GCP, and on-premise environments to maximize operational efficiency while maintaining security and compliance standards.
+If config missing, Claude should ask user for required values.
 
-## When to Use
-- **Multi-cloud operations** and cross-platform optimization
+## Memory & Data Storage
+Skills can remember data between runs:
+- Store in `${CLAUDE_PLUGIN_DATA}/your-skill-name/`
+- Use logs, JSON files, or SQLite databases
+- Example: Track previous executions to provide context
+
+## Scripts & Code Generation
+Give Claude code to work with rather than making it write everything:
+- Include helper libraries in `scripts/`
+- Provide composable functions
+- Let Claude focus on composition, not boilerplate
+
+## Hooks (Optional)
+For skills needing session-specific behavior:
+- Use on-demand hooks that activate when skill is called
+- Examples: `/careful` for production work, `/freeze` for debugging
+
+## Skill Types
+Choose one clear category. Don't try to do multiple things:
+
+### 1. Library & API Reference
+- Internal libraries, CLIs, SDKs
+- Include gotchas and reference code
+- Example: `billing-lib` with edge cases
+
+### 2. Product Verification
+- Test and verify code works
+- Pair with external tools
+- Include scripts for automated verification
+
+### 3. Data Fetching & Analysis
+- Connect to data/monitoring stacks
+- Include credentials, dashboard IDs
+- Common query patterns
+
+### 4. Business Process Automation
+- Repetitive workflows → one command
+- Log previous results for consistency
+- Reference other skills when needed
+
+### 5. Code Scaffolding
+- Framework boilerplate generation
+- Templates with natural language requirements
+- Compose with other skills
+
+### 6. Code Quality & Review
+- Enforce standards and practices
+- Run automatically via hooks
+- Include adversarial review patterns
+
+### 7. CI/CD & Deployment
+- Build, deploy, monitor workflows
+- Reference data collection skills
+- Safety checks and rollback logic
+
+### 8. Runbooks
+- Symptom → investigation → report
+- Multi-tool investigation flows
+- Structured output formats
+
+### 9. Infrastructure Operations
+- Routine maintenance procedures
+- Safety-gated destructive actions
+- Guardrails for critical operations
+
+## Best Practices
+- **Don't state the obvious** - focus on pushing beyond defaults
+- **Build gotchas over time** - update as Claude hits new edge cases
+- **Avoid railroading** - give flexibility, not rigid instructions
+- **Use the file system** - progressive disclosure through folder structure
+- **Store scripts** - let Claude compose rather than create from scratch
+- **Include memory** - track state between executions
+- **Think about setup** - ask users for what you need
+
+## Example Skill Structure
+
+For a data analysis skill:
+- `SKILL.md` - main instructions and gotchas
+- `scripts/fetch_data.py` - helper functions for data access
+- `references/queries.md` - common query patterns
+- `assets/dashboard_ids.json` - configuration data
+- `config.json` - user credentials (asked if missing)
+
+## Implementation Notes
+- Keep descriptions focused on triggering, not summarizing
+- Start simple, add complexity as needed
+- Update gotchas based on real usage
+- Reference other skills by name for composition
+
 - **Compliance validation** across different cloud providers
 - **Performance monitoring** and analysis across environments
 - **Incident response** and recovery procedures in multi-cloud setups

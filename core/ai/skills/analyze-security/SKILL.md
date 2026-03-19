@@ -1,6 +1,6 @@
 ---
 name: analyze-security
-description: Performs comprehensive security analysis across multi-cloud environments for threats and vulnerabilities. Use when conducting security assessments, identifying risks, or implementing security monitoring.
+description: Use when you need to perform security analysis across cloud environments. Scans for vulnerabilities, misconfigurations, compliance issues, and threats. Includes automated remediation suggestions and security posture assessment for AWS, Azure, GCP, and on-premise systems.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
@@ -19,10 +19,45 @@ allowed-tools: Bash Read Write Grep
 Enterprise-grade automation solution for security analysis operations across AWS, Azure, GCP, and on-premise environments to maximize operational efficiency while maintaining security and compliance standards.
 
 ## When to Use
-- **security analysis operations** across multi-cloud environments
-- **Automation and optimization** of security analysis workflows
-- **Monitoring and management** of security analysis resources
-- **Compliance and governance** for security analysis activities
+- **Security Audits**: When conducting regular security assessments across cloud infrastructure
+- **Compliance Checks**: When verifying compliance with standards like SOC2, HIPAA, GDPR, PCI-DSS
+- **Vulnerability Scanning**: When scanning for security vulnerabilities in systems and applications
+- **Incident Investigation**: When analyzing security incidents or potential breaches
+- **New Deployments**: When security-reviewing new infrastructure or application deployments
+- **Risk Assessment**: When evaluating security risks for business decisions
+- **Threat Hunting**: When proactively searching for potential security threats
+
+## Gotchas
+
+### Common Pitfalls
+- **False Positives**: Automated security scans often flag benign configurations as issues
+- **Alert Fatigue**: Too many security alerts can cause real issues to be overlooked
+- **Scope Creep**: Security analysis can expand to include more than originally planned
+- **Credential Exposure**: Security analysis tools may require sensitive credentials
+
+### Edge Cases
+- **Legacy Systems**: Older systems may not meet modern security standards but can't be easily updated
+- **Third-Party Dependencies**: Security issues in external services may be outside your control
+- **Compliance Conflicts**: Different compliance frameworks may have conflicting requirements
+- **Multi-Cloud Complexity**: Security policies may need to be adapted for different cloud providers
+
+### Performance Issues
+- **Scan Duration**: Comprehensive security scans can take hours for large environments
+- **API Rate Limits**: Security scanning APIs often have strict rate limits
+- **Resource Usage**: Security scanning tools can consume significant compute resources
+- **Network Latency**: Cross-region security checks may be slow due to network latency
+
+### Security Considerations
+- **Privilege Escalation**: Security analysis tools require elevated privileges that could be misused
+- **Data Privacy**: Security logs may contain sensitive information requiring protection
+- **Audit Trails**: All security analysis activities must be logged for compliance
+- **Tool Security**: Security analysis tools themselves must be secure and regularly updated
+
+### Troubleshooting
+- **Scan Failures**: Security scans may fail due to network issues or authentication problems
+- **Tool Compatibility**: Different security tools may have conflicting requirements
+- **Access Issues**: Security analysis may fail due to insufficient permissions
+- **Data Corruption**: Security scan results may be corrupted or incomplete
 
 ## Inputs
 - **operation**: Operation type (required)
@@ -82,10 +117,11 @@ security, analysis, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
 - **Dynamic Code Generation**: Agents can modify logic dynamically
 - **Cross-Cloud Orchestration**: Coordinated operations across providers
 
-## Best Practices
-- **Idempotent Operations**: Safe retry mechanisms
-- **Circuit Breaker Patterns**: Resilience against failures
-- **Rate Limiting**: Respect API limits and implement backpressure
-- **Graceful Degradation**: Fallback strategies when providers are unavailable
-- **Comprehensive Testing**: Integration tests and compliance validation
-- **Security First**: Zero-trust architecture and principle of least privilege
+## References
+
+Load these files when needed:
+- `scripts/security-scanner.py` - Core security analysis and vulnerability scanning
+- `scripts/compliance-checker.py` - Compliance validation against standards
+- `references/security-benchmarks.md` - Security best practices and benchmarks
+- `assets/security-policies.yaml` - Security policy definitions and rules
+- `examples/security-reports/` - Sample security analysis reports and formats

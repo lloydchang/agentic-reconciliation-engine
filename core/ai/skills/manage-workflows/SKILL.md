@@ -1,6 +1,6 @@
 ---
 name: manage-workflows
-description: Manages workflows and automation processes across multi-cloud environments. Use when coordinating workflows, managing processes, or implementing workflow automation.
+description: Use when you need to coordinate and manage complex workflows across cloud environments. Orchestrates multi-step processes, handles dependencies, manages state, and provides workflow execution tracking for automation pipelines and business processes.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
@@ -19,10 +19,45 @@ allowed-tools: Bash Read Write Grep
 Enterprise-grade automation solution for workflow management operations across AWS, Azure, GCP, and on-premise environments to maximize operational efficiency while maintaining security and compliance standards.
 
 ## When to Use
-- **workflow management operations** across multi-cloud environments
-- **Automation and optimization** of workflow management workflows
-- **Monitoring and management** of workflow management resources
-- **Compliance and governance** for workflow management activities
+- **Complex Automation**: When coordinating multi-step processes with dependencies
+- **Business Processes**: When automating business workflows like approvals, provisioning, or onboarding
+- **CI/CD Pipelines**: When managing complex deployment pipelines with multiple stages
+- **Data Processing**: When orchestrating data processing workflows and ETL pipelines
+- **Compliance Workflows**: When managing compliance-related processes like audits or certifications
+- **Incident Response**: When coordinating incident response procedures and communication
+- **Resource Orchestration**: When managing complex resource provisioning and configuration workflows
+
+## Gotchas
+
+### Common Pitfalls
+- **Workflow Complexity**: Overly complex workflows are hard to debug and maintain
+- **State Management**: Improper state handling can cause workflow inconsistencies
+- **Error Handling**: Missing error handling can cause silent failures or stuck workflows
+- **Timeout Issues**: Long-running workflows may timeout or be abandoned
+
+### Edge Cases
+- **Concurrent Workflows**: Multiple workflows may compete for the same resources
+- **Rollback Scenarios**: Complex workflows may not have proper rollback mechanisms
+- **External Dependencies**: Workflows depending on external systems may fail unpredictably
+- **Resource Limits**: Workflow execution may be limited by available resources
+
+### Performance Issues
+- **Workflow Scale**: Large numbers of concurrent workflows can overwhelm the system
+- **State Persistence**: Frequent state updates can impact performance
+- **Memory Usage**: Long-running workflows may accumulate memory usage
+- **Database Contention**: Workflow state storage can become a bottleneck
+
+### Security Considerations
+- **Credential Management**: Workflows may need access to sensitive credentials
+- **Data Privacy**: Workflow data may contain sensitive information requiring protection
+- **Access Control**: Workflow management should follow principle of least privilege
+- **Audit Requirements**: All workflow executions must be logged for compliance
+
+### Troubleshooting
+- **Stuck Workflows**: Workflows may get stuck waiting for resources or external events
+- **State Corruption**: Workflow state may become corrupted requiring manual intervention
+- **Dependency Issues**: External dependencies may fail causing workflow failures
+- **Configuration Errors**: Incorrect workflow configuration can cause execution failures
 
 ## Inputs
 - **operation**: Operation type (required)
@@ -83,10 +118,11 @@ workflow, management, automation, enterprise, multi-cloud, aws, azure, gcp, onpr
 - **Dynamic Code Generation**: Agents can modify logic dynamically
 - **Cross-Cloud Orchestration**: Coordinated operations across providers
 
-## Best Practices
-- **Idempotent Operations**: Safe retry mechanisms
-- **Circuit Breaker Patterns**: Resilience against failures
-- **Rate Limiting**: Respect API limits and implement backpressure
-- **Graceful Degradation**: Fallback strategies when providers are unavailable
-- **Comprehensive Testing**: Integration tests and compliance validation
-- **Security First**: Zero-trust architecture and principle of least privilege
+## References
+
+Load these files when needed:
+- `scripts/workflow-engine.py` - Core workflow execution and state management
+- `scripts/dependency-resolver.py` - Workflow dependency analysis and resolution
+- `references/workflow-patterns.md` - Common workflow patterns and best practices
+- `assets/workflow-templates.yaml` - Reusable workflow templates for common processes
+- `examples/workflow-examples/` - Complete workflow examples for different use cases
