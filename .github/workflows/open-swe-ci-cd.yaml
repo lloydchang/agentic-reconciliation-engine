@@ -54,7 +54,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r core/ai/eval/requirements.txt
 
     - name: Run Python tests
       run: |
@@ -156,7 +156,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build and push sandbox operator image
+    - name: Build and push sandbox-operator image
       uses: docker/build-push-action@v5
       with:
         context: ./core/ai/runtime/sandbox
@@ -166,46 +166,32 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build and push reasoning engine image
+    - name: Build and push dashboard image
       uses: docker/build-push-action@v5
       with:
-        context: ./core/ai/runtime
-        file: ./core/ai/runtime/Dockerfile.reasoning
+        context: ./core/ai/runtime/dashboard
         push: true
-        tags: ${{ steps.meta.outputs.tags }}-reasoning-engine
+        tags: ${{ steps.meta.outputs.tags }}-dashboard
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build and push orchestrator image
+    - name: Build and push pi-mono-agent image
       uses: docker/build-push-action@v5
       with:
-        context: ./core/ai/runtime
-        file: ./core/ai/runtime/Dockerfile.orchestrator
+        context: ./core/ai/runtime/pi-mono-agent
         push: true
-        tags: ${{ steps.meta.outputs.tags }}-orchestrator
+        tags: ${{ steps.meta.outputs.tags }}-pi-mono-agent
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build and push workflow engine image
+    - name: Build and push agent-memory-rust image
       uses: docker/build-push-action@v5
       with:
-        context: ./core/ai/runtime
-        file: ./core/ai/runtime/Dockerfile.workflow
+        context: ./core/ai/runtime/backend/agent-memory-rust
         push: true
-        tags: ${{ steps.meta.outputs.tags }}-workflow-engine
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Build and push analytics engine image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./core/ai/runtime
-        file: ./core/ai/runtime/Dockerfile.analytics
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}-analytics-engine
+        tags: ${{ steps.meta.outputs.tags }}-agent-memory-rust
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
@@ -275,4 +261,4 @@ jobs:
         kubectl run test-pod --image=curlimages/curl --rm -i --restart=Never -- curl -f http://open-swe-sandbox-operator.open-swe-production.svc.cluster.local:8080/healthz
 
         # Integration tests
-        ./scripts/integration-test.sh production
+        ./core/tests/qwen-integration-test.sh
