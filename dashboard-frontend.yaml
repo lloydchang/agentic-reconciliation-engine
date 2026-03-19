@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-frontend
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-frontend
+  template:
+    metadata:
+      labels:
+        app: dashboard-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-config
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+      volumes:
+      - name: html-config
+        configMap:
+          name: dashboard-html-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-frontend-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: dashboard-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
