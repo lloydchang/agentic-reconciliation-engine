@@ -241,7 +241,7 @@ policies/                # Governance and compliance
 Comprehensive debugging strategy for distributed AI agent systems running in Kubernetes with Temporal orchestration.
 
 ### Key Components
-- **AI Agents**: Go-based Temporal workers with 72+ skills
+- **AI Agents**: Go-based Temporal workers with 92 skills
 - **Temporal Workflows**: Orchestration layer for agent coordination
 - **Kubernetes Infrastructure**: Distributed deployment environment
 - **Monitoring System**: Built-in metrics collection and alerting

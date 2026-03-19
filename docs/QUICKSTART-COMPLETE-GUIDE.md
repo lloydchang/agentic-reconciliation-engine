@@ -55,7 +55,7 @@ The main entry point for deploying the complete GitOps infrastructure with AI ag
 
 7. **AI Agents Ecosystem**
    - Deploys Temporal orchestration
-   - Installs AI agents with 72+ skills
+   - Installs AI agents with 92 skills
    - Sets up monitoring and dashboard
 
 #### Post-Deployment Access
@@ -147,7 +147,7 @@ Deploys the complete AI agents monitoring and orchestration system.
 - **Memory Agent**: Rust-based memory management
 - **Orchestration Agent**: Go-based workflow coordination
 - **Inference Gateway**: Python-based AI inference
-- **72+ Skills**: Comprehensive automation capabilities
+- **92 Skills**: Comprehensive automation capabilities
 
 ##### 3. Monitoring System
 - **Go Metrics Server**: Real-time metrics collection

@@ -23,10 +23,11 @@ key in each `SKILL.md` frontmatter — it is not part of the agentskills.io stan
 4. Temporal Orchestration Layer
 5. GitOps Control Layer
 6. Skill System
-7. Autonomy, PR Gating, and Risk Levels
-8. Integration Guidelines
-9. Testing, Validation & Troubleshooting
-10. Appendices
+7. Pi-Mono RPC Execution Layer
+8. Autonomy, PR Gating, and Risk Levels
+9. Integration Guidelines
+10. Testing, Validation & Troubleshooting
+11. Appendices
     * A: Skill Index Mapping
     * B: Environment Variables & Configurations
     * C: Human Gate Reference Table
@@ -70,7 +71,7 @@ The `core/ai/skills/` directory contains skill definitions following the
 - `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
 - Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
 - Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
-- 39 skills are currently available
+- 92 skills are currently available
 
 **Example SKILL.md frontmatter (agentskills.io compliant):**
 ```yaml
