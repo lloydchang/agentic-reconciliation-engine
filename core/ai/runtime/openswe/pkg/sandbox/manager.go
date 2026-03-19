@@ -3,6 +3,7 @@ package sandbox
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/agentic-reconciliation-engine/openswe-orchestrator/pkg/config"
@@ -109,6 +110,14 @@ func NewSandboxManager(cfg *config.Config) *SandboxManager {
 	}
 	if cfg.Sandbox.LangSmith.Enabled {
 		sm.providers["langsmith"] = NewLangSmithProvider(cfg.Sandbox.LangSmith)
+	}
+	if cfg.Sandbox.AgentSandbox.Enabled {
+		provider, err := NewAgentSandboxProvider(cfg.Sandbox.AgentSandbox)
+		if err != nil {
+			log.Printf("Failed to initialize Agent Sandbox provider: %v", err)
+		} else {
+			sm.providers["agent-sandbox"] = provider
+		}
 	}
 
 	return sm
