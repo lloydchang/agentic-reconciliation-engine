@@ -74,4 +74,4 @@ Run `core/scripts/automation/quickstart.sh`
 
 ### ⚖️ License
 
-**AGPL-3.0-or-later** — [Full License](LICENSE)
+[AGPL-3.0-or-later](LICENSE)
