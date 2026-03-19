@@ -4,13 +4,13 @@
 
 **ARE** is a sandbox that provides agentic AI memory and reasoning for challenges beyond stateless reconciliation. Combines AGENTS.md, SKILL.md, SQLite, Qwen, llama.cpp, Temporal with Crossplane, Flux, Kubernetes.
 
-Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Temporal](https://temporal.io/) with [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Kubernetes](https://kubernetes.io/).
+Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [SQLite](https://sqlite.org/), [Temporal](https://temporal.io/) with [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Kubernetes](https://kubernetes.io/).
 
 ---
 
 ### 🏗️ Separation of Concerns
 
-* **Agentic AI Layer (A):** [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
+* **Agentic AI Layer (A):** [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [SQLite](https://sqlite.org/), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
 * **Reconciliation Engine (RE):** [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Kubernetes](https://kubernetes.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
@@ -37,38 +37,45 @@ core/scripts/automation/quickstart.sh --validate-only
 
 ---
 
-### ⚙️ Sample Escalation Loop
+### ARE Abstraction Layers
 
-1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
-2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
-3.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
-4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
-5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
+| Layer | Component | Role |
+| :--- | :--- | :--- |
+| 10 | [SKILL.md](https://agentskills.io/) | Instructions, Scripts, and Resources |
+| 9 | [AGENTS.md](https://agents.md/) | Context and Instructions |
+| 8 | [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765) | Reasoning Logic |
+| 7 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | Inference Runtime |
+| 6 | [SQLite](https://sqlite.org/) | Agentic Memory |
+| 5 | [Temporal](https://temporal.io/) | Durable Execution |
+| 4 | [Argo](https://argoproj.github.io/) | Event-based Dependency Management |
+| 3 | [Flux](https://fluxcd.io/) | Continuous and Progressive Delivery |
+| 2 | [Crossplane](https://www.crossplane.io/) | Control Planes |
+| 1 | [Kubernetes](https://kubernetes.io/) | Container Orchestration |
 
 ---
 
-### Sample's Integration Points & Implementation Details
+### The Reconciliation Loop
 
-**Event Flow Requirements:**
-- **Prometheus Configuration:** Alert rules must target controller-specific metrics (reconcile failures, resource drift)
-- **Argo Events Setup:** Sensors need proper RBAC and network access to memory agent endpoints
-- **Memory Agent API:** REST endpoints for event ingestion, context queries, and result storage
-- **Temporal Integration:** Workflow templates for common remediation patterns
+#### The Request Path
+1. **Skill (10):** Defines provision_ha_database via Resource schemas and Scripts.
+2. **Agent (9):** Receives Traffic spike alert; invokes the Skill based on Instruction set.
+3. **Logic & Runtime (8-7):** Qwen (8) plans specs; llama.cpp (7) executes the inference.
+4. **Memory (6):** SQLite persists the intent: Agent initiated HA database upgrade.
+5. **Durable Execution (5):** Temporal manages the long-running commit and retry logic.
+6. **Dependency & Delivery (4-3):** Argo (4) clears event dependencies; Flux (3) syncs YAML to cluster.
+7. **Control Planes (2):** Crossplane reconciles the CompositeDatabase against external APIs.
+8. **Orchestration (1):** Kubernetes hosts the controllers and maintains connection secrets.
 
-**Data Flow Gaps & Solutions:**
-- **Alert Enrichment:** Prometheus rules are configured with custom labels extracting controller context from Kubernetes annotations and resource specs. Alert payloads include resource namespace, kind, name, and failure reason via kube-state-metrics.
-- **Event Correlation:** Argo Events uses sensor grouping and deduplication rules based on resource identifiers (namespace/name) and failure types. Related alerts within a 5-minute window trigger a single correlated event.
-- **State Synchronization:** Memory agents subscribe to controller status via Kubernetes API watch streams, maintaining real-time views through continuous updates from Flux/Crossplane status conditions.
-- **Rollback Handling:** Failed workflows automatically revert changes using GitOps rollback mechanisms (Flux/ArgoCD sync to previous commit). Failed remediations log incidents to SQLite with rollback actions taken.
+#### Self-Healing Loop
+* **Detection:** Layer 2 (Crossplane) identifies drift if the database is manually deleted.
+* **Authority:** Layer 3 (Flux) provides the desired state from Git.
+* **Action:** Layer 2 re-provisions the resource to match the Agent’s (9) original intent.
 
-**Skill Invocation Mechanism:**
-Skills are invoked via Temporal activities that load SKILL.md instructions at runtime. Qwen LLM parses the skill body, generates execution parameters, and Temporal orchestrates the multi-step plan with GitOps validation gates.
+#### Telemetry Feedback Loop
+* **Observation:** Layer 2 (Crossplane) emits an event once the resource reaches a Ready state.
+* **Capture:** Layer 4 (Argo) captures the event and signals the completion of the delivery.
+* **Storage:** Layer 6 (SQLite) updates the entry to Success, providing the Agent (9) with verified history for future reasoning.
 
-**SQLite Memory Population:**
-Initial data comes from historical logs and manual incident records imported via bulk CSV/JSON scripts. Continuous updates occur through workflow completion hooks that store outcomes, patterns, and effectiveness metrics in structured tables.
-
-**Argo Events Communication Protocol:**
-Sensors send HTTP POST requests to memory agent `/api/events` endpoint with JSON payloads containing alert metadata, resource context, and correlation IDs. Responses include workflow initiation confirmations and status updates.
 
 ---
 
