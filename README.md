@@ -17,11 +17,12 @@ Combines [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [
 
 ### ⚙️ Sample Escalation Loop
 
-1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
-2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
-3.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
-4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
-5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
+1.  **Observe:** Stateless controllers (Flux/Crossplane) generate events → Prometheus alerts flag persistent or non-deterministic errors.
+2.  **Bridge:** Argo Events sensors capture alerts/webhooks and trigger escalation workflows.
+3.  **Recall:** ARE queries **SQLite** via the memory agent for historical context and successful interventions.
+4.  **Select:** Qwen summarizes the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
+5.  **Execute:** **Temporal** or Argo Workflows run durable, multi-step workflows to resolve the issue.
+6.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
 
 ---
 
