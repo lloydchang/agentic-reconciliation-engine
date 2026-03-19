@@ -429,7 +429,7 @@ The MCP server exposes standardized tools so local AI assistants (e.g., Claude D
 ## Repository Structure
 
 ```
-gitops-infra-core/operators/
+$TOPDIR/operators/
 ├── AGENTS.md                   # Agent behavior rules
 ├── SKILL.md                    # AI skill definitions
 ├── core/ai/skills/skills/             # Skill definitions (Claude/Codex compatible)
@@ -617,7 +617,7 @@ The name was chosen deliberately, and every word carries meaning.
 
 ## License
 
-[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/gitops-infra-core/operators/blob/main/LICENSE)
+[GNU Affero General Public License v3.0 or later](https://github.com/lloydchang/$TOPDIR/operators/blob/main/LICENSE)
 
 ---
 

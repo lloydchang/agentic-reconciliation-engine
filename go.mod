@@ -1,3 +1,3 @@
-module gitops-infra-control-plane
+module $TOPDIR
 
 go 1.25.5

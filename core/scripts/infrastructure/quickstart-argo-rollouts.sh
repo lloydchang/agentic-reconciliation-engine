@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 NAMESPACE="argo-rollouts"
-K8SGPT_NAMESPACE="gitops-infra"
+K8SGPT_NAMESPACE="$TOPDIR"
 ARGO_ROLLOUTS_VERSION="v1.7.0"
 QWEN_MODEL="qwen2.5-7b-instruct"
 

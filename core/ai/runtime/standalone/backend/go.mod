@@ -1,4 +1,4 @@
-module github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend
+module github.com/lloydchang/$TOPDIR/ai-agents/backend
 
 go 1.25.0
 

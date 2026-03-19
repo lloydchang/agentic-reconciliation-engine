@@ -4,7 +4,7 @@ echo "🚀 Starting AI Infrastructure Services..."
 
 # Start Dashboard API (port 5000)
 echo "📊 Starting Dashboard API on port 5000..."
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/eval
+cd $TOPDIR/core/ai/eval
 python3 api_server.py --port 5000 --host 0.0.0.0 --background &
 sleep 2
 
@@ -15,13 +15,13 @@ sleep 2
 
 # Start Comprehensive API (port 5001)
 echo "📈 Starting Comprehensive API on port 5001..."
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/automation/scripts
+cd $TOPDIR/core/automation/scripts
 python3 real-data-api.py --port 5001 --host 0.0.0.0 &
 sleep 2
 
 # Start Dashboard Flask app (port 5000 alternative)
 echo "🖥️ Starting Dashboard Flask app..."
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/eval/dashboard
+cd $TOPDIR/core/ai/eval/dashboard
 python3 dashboard.py &
 sleep 2
 

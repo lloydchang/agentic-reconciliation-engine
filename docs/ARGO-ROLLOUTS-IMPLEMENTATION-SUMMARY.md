@@ -135,7 +135,7 @@ metrics:
 # Manual verification
 kubectl argo rollouts list
 kubectl get pods -n argo-rollouts
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 ```
 
 ### Deploy Examples
@@ -285,7 +285,7 @@ kubectl set image rollout/example-canary-rollout nginx=nginx:1.22
 ### AI-Powered Analysis
 ```bash
 # Check K8sGPT analysis
-kubectl exec -n gitops-infra deployment/k8sgpt-analyzer -- \
+kubectl exec -n $TOPDIR deployment/k8sgpt-analyzer -- \
   k8sgpt analyze --namespace examples --explain
 
 # View analysis runs

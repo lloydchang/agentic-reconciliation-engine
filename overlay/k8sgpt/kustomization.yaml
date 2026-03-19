@@ -13,7 +13,7 @@ resources:
 - configmaps/
 - services/
 
-namespace: gitops-infra
+namespace: $TOPDIR
 
 commonLabels:
   app.kubernetes.io/name: k8sgpt

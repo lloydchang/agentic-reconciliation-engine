@@ -24,7 +24,7 @@ data:
       - name: langsmith
         priority: 4
         api_key: ${LANGSMITH_SANDBOX_API_KEY}
-        project: gitops-infra-sandbox
+        project: $TOPDIR-sandbox
   SANDBOX_SECURITY: |
     security:
       network_policy: strict

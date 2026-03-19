@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-NAMESPACE="gitops-infra"
+NAMESPACE="$TOPDIR"
 QWEN_MODEL="qwen2.5-7b-instruct"
 QWEN_BASE_URL="http://qwen-server:8000"
 K8SGPT_IMAGE="k8sgpt/k8sgpt:latest"

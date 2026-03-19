@@ -21,9 +21,9 @@ data:
     
     # Repository configurations
     declare -A REPOSITORIES=(
-      ["gitops-infra-primary"]="https://github.com/antigravity/agentic-reconciliation-engine.git"
-      ["gitops-infra-secondary"]="https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
-      ["gitops-infra-tertiary"]="https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
+      ["$TOPDIR-primary"]="https://github.com/lloydchang/agentic-reconciliation-engine.git"
+      ["$TOPDIR-secondary"]="https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+      ["$TOPDIR-tertiary"]="https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
     )
     
     log() {

@@ -319,7 +319,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k8sgpt-analyzer
-  namespace: gitops-infra
+  namespace: $TOPDIR
 spec:
   replicas: 2
   selector:
@@ -359,7 +359,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: k8sgpt-analyzer
-  namespace: gitops-infra
+  namespace: $TOPDIR
 spec:
   selector:
     app: k8sgpt-analyzer
@@ -376,7 +376,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: k8sgpt-config
-  namespace: gitops-infra
+  namespace: $TOPDIR
 data:
   config.yaml: |
     backend: localai
@@ -410,7 +410,7 @@ apiVersion: v1
 kind: ServiceMonitor
 metadata:
   name: k8sgpt-analyzer
-  namespace: gitops-infra
+  namespace: $TOPDIR
 spec:
   selector:
     matchLabels:
@@ -437,7 +437,7 @@ Import the provided Grafana dashboard for K8sGPT metrics:
 # Create secret for Qwen API key
 kubectl create secret generic qwen-secret \
   --from-literal=api-key="your-qwen-api-key" \
-  --namespace=gitops-infra
+  --namespace=$TOPDIR
 
 # Use in deployment
 env:
@@ -474,7 +474,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: k8sgpt-analyzer
-  namespace: gitops-infra
+  namespace: $TOPDIR
 ```
 
 ### Network Policies
@@ -484,7 +484,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: k8sgpt-analyzer
-  namespace: gitops-infra
+  namespace: $TOPDIR
 spec:
   podSelector:
     matchLabels:
@@ -531,17 +531,17 @@ curl -X POST http://localhost:8000/v1/chat/completions \
 
 ```bash
 # Check RBAC permissions
-kubectl auth can-i get pods --as=system:serviceaccount:gitops-infra:k8sgpt-analyzer
+kubectl auth can-i get pods --as=system:serviceaccount:$TOPDIR:k8sgpt-analyzer
 
 # Test cluster access
-kubectl get pods --as=system:serviceaccount:gitops-infra:k8sgpt-analyzer
+kubectl get pods --as=system:serviceaccount:$TOPDIR:k8sgpt-analyzer
 ```
 
 #### Memory Issues
 
 ```bash
 # Check resource usage
-kubectl top pods -n gitops-infra
+kubectl top pods -n $TOPDIR
 
 # Adjust resource limits
 kubectl patch deployment k8sgpt-analyzer -p '{"spec":{"template":{"spec":{"containers":[{"name":"k8sgpt","resources":{"limits":{"memory":"2Gi"}}}]}}}}'
@@ -626,7 +626,7 @@ spec:
     path: overlays/k8sgpt
   destination:
     server: https://kubernetes.default.svc
-    namespace: gitops-infra
+    namespace: $TOPDIR
   syncPolicy:
     automated:
       prune: true

@@ -110,7 +110,7 @@ data:
   otlp-headers: QXV0aG9yaXphdGlvbj1CZWFyZXIgeW91ci1zZWNyZXQta2V5
 ```
 
-#### `/core/config/langfuse-secret-gitops-infra.yaml`
+#### `/core/config/langfuse-secret-$TOPDIR.yaml`
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -137,7 +137,7 @@ data:
 
 ```bash
 # Execute the automated fix
-bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-langfuse-secrets.sh
+bash $TOPDIR/scripts/fix-langfuse-secrets.sh
 ```
 
 ### Manual Deployment

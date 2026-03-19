@@ -24,7 +24,7 @@ for i in range(3):
     draw.ellipse([x-2, y-2, x+2, y+2], fill=(255, 255, 255, 255))
 
 # Save as ICO
-img.save('/Users/lloyd/github/antigravity/gitops-infra-core/operators/dashboard-frontend/public/favicon.ico', 
+img.save('agentic-reconciliation-engine/core/operators/dashboard-frontend/public/favicon.ico', 
          format='ICO', sizes=[(16, 16), (32, 32)])
 
 print("✅ AI-themed favicon created!")

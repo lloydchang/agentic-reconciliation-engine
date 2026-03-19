@@ -1,6 +1,6 @@
-# SOPS Setup Guide for GitOps Infra Control Plane
+# SOPS Setup Guide for $TOPDIR Control Plane
 
-This guide provides comprehensive instructions for setting up and managing encrypted secrets using SOPS (Secrets OPerationS) with Flux in the GitOps Infra Control Plane.
+This guide provides comprehensive instructions for setting up and managing encrypted secrets using SOPS (Secrets OPerationS) with Flux in the $TOPDIR Control Plane.
 
 ## Overview
 
@@ -11,7 +11,7 @@ SOPS allows you to securely store encrypted secrets in Git repositories while ma
 - Kubernetes cluster with Flux installed
 - `kubectl` configured to access your cluster
 - `age` and `sops` CLI tools installed
-- Access to the GitOps Infra Control Plane repository
+- Access to the $TOPDIR Control Plane repository
 
 ### Install Required Tools
 
@@ -287,7 +287,7 @@ kubectl logs -n flux-system deployment/kustomize-controller
 ## File Structure
 
 ```
-gitops-infra-core/operators/
+$TOPDIR-core/operators/
 ├── .sops.yaml                    # SOPS configuration
 ├── .sops.pub.age                 # Public key for team sharing
 ├── scripts/

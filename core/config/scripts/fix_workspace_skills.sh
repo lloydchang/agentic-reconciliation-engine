@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to fix SKILL.md files to match directory names
-cd /Users/lloyd/github/antigravity/gitops-infra-core/operators/core/workspace/repo/.agents
+cd $TOPDIR/operators/core/workspace/repo/.agents
 
 # Mapping of old names to new names
 declare -A name_mapping=(

@@ -79,7 +79,7 @@ ls -la
 
 ### Repository Structure
 ```
-gitops-infra-core/operators/
+$TOPDIR/operators/
 ├── dashboard-frontend/          # React dashboard application
 ├── api-server.py               # Flask API server
 ├── core/scripts/automation/                    # Deployment and utility scripts
@@ -152,7 +152,7 @@ npx tsc --noEmit
 ### API Server (FastAPI)
 ```bash
 # Navigate to repository root
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
+cd $TOPDIR/agentic-reconciliation-engine
 
 # Install Python dependencies
 pip3 install fastapi uvicorn[standard] pydantic
@@ -262,7 +262,7 @@ kubectl get namespaces
 ### Start Complete Development Environment
 ```bash
 # Terminal 1: Start API server
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
+cd $TOPDIR/agentic-reconciliation-engine
 python api-server.py
 
 # Terminal 2: Start frontend

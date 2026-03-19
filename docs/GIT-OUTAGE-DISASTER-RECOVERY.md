@@ -100,7 +100,7 @@ kubectl get all --all-namespaces
 kubectl get kustomizations -n flux-system -o yaml | grep sourceRef
 
 # Manual failover if needed
-kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
 ```
 
 ### Step 3: Notify Stakeholders (15-30 minutes)
@@ -174,7 +174,7 @@ kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-st
 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
 
 # Switch to cached repository
-kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
+kubectl patch gitrepository $TOPDIR-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
 ```
 
 1. **Restore State if Needed**
@@ -209,17 +209,17 @@ kubectl logs -n flux-system deployment/kustomize-controller --tail=50
 
 ```bash
 # Check secondary repository health
-kubectl get gitrepository gitops-infra-secondary -n flux-system -L gitrepo.fluxcd.io/healthy
+kubectl get gitrepository $TOPDIR-secondary -n flux-system -L gitrepo.fluxcd.io/healthy
 
 # Check tertiary repository health
-kubectl get gitrepository gitops-infra-tertiary -n flux-system -L gitrepo.fluxcd.io/healthy
+kubectl get gitrepository $TOPDIR-tertiary -n flux-system -L gitrepo.fluxcd.io/healthy
 ```
 
 1. **Manual Failover**
 
 ```bash
 # Switch to secondary repository
-kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
 
 # Verify failover
 kubectl get kustomizations -n flux-system -o yaml | grep sourceRef
@@ -298,7 +298,7 @@ kubectl exec -n flux-system deployment/git-cache-manager -- ls -la /data/git-cac
 
 ```bash
 # Test all repositories
-git ls-remote https://github.com/antigravity/agentic-reconciliation-engine.git
+git ls-remote https://github.com/lloydchang/agentic-reconciliation-engine.git
 git ls-remote https://gitlab.com/antigravity/agentic-reconciliation-engine.git
 git ls-remote https://gitea.internal/antigravity/agentic-reconciliation-engine.git
 ```
@@ -471,7 +471,7 @@ kubectl get gitrepositories -n flux-system -L gitrepo.fluxcd.io/healthy
 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
 
 # Manual failover to secondary
-kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
 
 # Restore from backup
 kubectl create job --from=cronjob/state-recovery-controller manual-recovery -n flux-system

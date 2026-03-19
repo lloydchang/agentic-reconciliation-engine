@@ -1,4 +1,4 @@
-module github.com/lloydchang/gitops-infra-control-plane
+module github.com/lloydchang/$TOPDIR
 
 go 1.21
 

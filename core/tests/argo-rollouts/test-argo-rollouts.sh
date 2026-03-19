@@ -373,7 +373,7 @@ test_k8sgpt_integration() {
     print_header "Testing K8sGPT Integration"
     
     # Check if K8sGPT is available
-    if ! kubectl get deployment k8sgpt-analyzer -n gitops-infra &> /dev/null; then
+    if ! kubectl get deployment k8sgpt-analyzer -n $TOPDIR &> /dev/null; then
         print_warning "K8sGPT analyzer not found, skipping integration test"
         return 0
     fi

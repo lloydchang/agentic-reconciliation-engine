@@ -89,7 +89,7 @@ def validate_skill_file(skill_path):
 
 def main():
     # Find all SKILL.md files
-    skill_files = glob.glob('/Users/lloyd/github/antigravity/gitops-infra-core/operators/core/ai/skills/*/SKILL.md')
+    skill_files = glob.glob('agentic-reconciliation-engine/core/operators/core/ai/skills/*/SKILL.md')
     
     total_errors = 0
     total_warnings = 0

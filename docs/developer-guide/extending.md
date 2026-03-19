@@ -23,10 +23,10 @@ The AI Agents Sandbox is designed for easy extension and contribution. This guid
 
 ### Skill Directory Structure
 
-Create a new directory under `core/ai/skills/skills/your-skill-name/`:
+Create a new directory under `$TOPDIR/ai/skills/skills/your-skill-name/`:
 
 ```
-core/ai/skills/skills/your-skill-name/
+$TOPDIR/ai/skills/skills/your-skill-name/
 ├── SKILL.md           # Skill definition and documentation
 ├── activities.go      # Go activity implementations (optional)
 ├── workflow.go        # Workflow definitions (optional)
@@ -498,7 +498,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/yourorg/gitops-infra-core/operators/backend/infrastructure"
+    "github.com/yourorg/$TOPDIR-core/operators/backend/infrastructure"
 )
 
 type YourCloudProvider struct{}

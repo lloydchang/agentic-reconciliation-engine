@@ -720,8 +720,8 @@ wscat -c ws://localhost:8081/ws
 
 ### Support
 
-- GitHub Issues: [Create Issue](https://github.com/lloydchang/gitops-infra-core/operators/issues)
-- Community Forum: [Discussions](https://github.com/lloydchang/gitops-infra-core/operators/discussions)
+- GitHub Issues: [Create Issue](https://github.com/lloydchang/$TOPDIR/operators/issues)
+- Community Forum: [Discussions](https://github.com/lloydchang/$TOPDIR/operators/discussions)
 - Email Support: <support@agentic-reconciliation-engine.com>
 
 ### Training

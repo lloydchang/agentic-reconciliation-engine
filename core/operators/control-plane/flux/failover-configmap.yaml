@@ -13,21 +13,21 @@ data:
     
     repositories:
       primary:
-        name: "gitops-infra-primary"
-        url: "https://github.com/antigravity/agentic-reconciliation-engine.git"
+        name: "$TOPDIR-primary"
+        url: "https://github.com/lloydchang/agentic-reconciliation-engine.git"
         priority: 1
         timeout: "60s"
         retry_interval: "2m"
         
       secondary:
-        name: "gitops-infra-secondary"
+        name: "$TOPDIR-secondary"
         url: "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
         priority: 2
         timeout: "60s"
         retry_interval: "2m"
         
       tertiary:
-        name: "gitops-infra-tertiary"
+        name: "$TOPDIR-tertiary"
         url: "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
         priority: 3
         timeout: "60s"
@@ -82,18 +82,18 @@ data:
     }
     
     # Check all repositories
-    check_repository "gitops-infra-primary" "https://github.com/antigravity/agentic-reconciliation-engine.git"
-    check_repository "gitops-infra-secondary" "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
-    check_repository "gitops-infra-tertiary" "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
+    check_repository "$TOPDIR-primary" "https://github.com/lloydchang/agentic-reconciliation-engine.git"
+    check_repository "$TOPDIR-secondary" "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+    check_repository "$TOPDIR-tertiary" "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
     
   failover-script.sh: |
     #!/bin/bash
     
     # Failover script for Git repositories
     
-    PRIMARY_REPO="gitops-infra-primary"
-    SECONDARY_REPO="gitops-infra-secondary"
-    TERTIARY_REPO="gitops-infra-tertiary"
+    PRIMARY_REPO="$TOPDIR-primary"
+    SECONDARY_REPO="$TOPDIR-secondary"
+    TERTIARY_REPO="$TOPDIR-tertiary"
     
     # Get repository health status
     PRIMARY_HEALTHY=$(kubectl get gitrepository $PRIMARY_REPO -n flux-system -l gitrepo.fluxcd.io/healthy=true --no-headers | wc -l)
@@ -116,14 +116,14 @@ data:
       
     elif [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$SECONDARY_REPO" ]]; then
       echo "🔄 Failing over to secondary repository"
-      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
       
     elif [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -eq 0 && $TERTIARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$TERTIARY_REPO" ]]; then
       echo "🔄 Failing over to tertiary repository"
-      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-tertiary"}}}' --type=merge
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-tertiary"}}}' --type=merge
       
     elif [[ $PRIMARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$PRIMARY_REPO" ]]; then
       echo "✅ Primary repository recovered - switching back"
-      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-primary"}}}' --type=merge
+      kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-primary"}}}' --type=merge
       kubectl annotate kustomization infrastructure fluxcd.io/offline-mode- --overwrite -n flux-system
     fi

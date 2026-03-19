@@ -48,7 +48,7 @@ kubectl argo rollouts version
 ./scripts/setup-k8sgpt-qwen.sh
 
 # Or manually configure
-kubectl create namespace gitops-infra
+kubectl create namespace $TOPDIR
 kubectl apply -f overlay/k8sgpt/
 ```
 
@@ -228,14 +228,14 @@ kubectl logs -n argo-rollouts deployment/argo-rollouts
 #### K8sGPT Integration
 ```bash
 # Run K8sGPT analysis
-kubectl exec -n gitops-infra deployment/k8sgpt-analyzer -- \
+kubectl exec -n $TOPDIR deployment/k8sgpt-analyzer -- \
   k8sgpt analyze --namespace default --explain
 
 # Check K8sGPT status
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 
 # View K8sGPT logs
-kubectl logs -n gitops-infra deployment/k8sgpt-analyzer
+kubectl logs -n $TOPDIR deployment/k8sgpt-analyzer
 ```
 
 ### Configuration Files
@@ -352,14 +352,14 @@ kubectl argo rollouts analyze my-app --template <template-name> --dry-run
 **K8sGPT Integration Issues**
 ```bash
 # Check K8sGPT pod
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 
 # Check Qwen configuration
-kubectl get secret qwen-secret -n gitops-infra
-kubectl get configmap qwen-config -n gitops-infra
+kubectl get secret qwen-secret -n $TOPDIR
+kubectl get configmap qwen-config -n $TOPDIR
 
 # Test K8sGPT manually
-kubectl exec -n gitops-infra deployment/k8sgpt-analyzer -- k8sgpt version
+kubectl exec -n $TOPDIR deployment/k8sgpt-analyzer -- k8sgpt version
 ```
 
 ### Best Practices

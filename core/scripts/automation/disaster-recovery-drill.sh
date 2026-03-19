@@ -45,7 +45,7 @@ pre_drill_checks() {
     fi
     
     # Check critical components
-    local components=("gitops-infra-primary" "gitops-infra-secondary" "gitops-infra-tertiary" "git-cache-service")
+    local components=("$TOPDIR-primary" "$TOPDIR-secondary" "$TOPDIR-tertiary" "git-cache-service")
     for component in "${components[@]}"; do
         if kubectl get gitrepository "$component" -n "$NAMESPACE" >/dev/null 2>&1 || \
            kubectl get service "$component" -n "$NAMESPACE" >/dev/null 2>&1; then
@@ -67,13 +67,13 @@ simulate_primary_outage() {
     log "🚨 Simulating primary repository outage..."
     
     # Mark primary repository as unhealthy
-    kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=false --overwrite -n "$NAMESPACE"
-    kubectl annotate gitrepository gitops-infra-primary gitrepo.fluxcd.io/error-message="Simulated outage for drill" --overwrite -n "$NAMESPACE"
+    kubectl label gitrepository $TOPDIR-primary gitrepo.fluxcd.io/healthy=false --overwrite -n "$NAMESPACE"
+    kubectl annotate gitrepository $TOPDIR-primary gitrepo.fluxcd.io/error-message="Simulated outage for drill" --overwrite -n "$NAMESPACE"
     
     # Increment failure count
-    local current_count=$(kubectl get gitrepository gitops-infra-primary -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.gitrepo\.fluxcd\.io/failure-count}' 2>/dev/null || echo "0")
+    local current_count=$(kubectl get gitrepository $TOPDIR-primary -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.gitrepo\.fluxcd\.io/failure-count}' 2>/dev/null || echo "0")
     for i in {1..4}; do
-        kubectl annotate gitrepository gitops-infra-primary gitrepo.fluxcd.io/failure-count="$i" --overwrite -n "$NAMESPACE"
+        kubectl annotate gitrepository $TOPDIR-primary gitrepo.fluxcd.io/failure-count="$i" --overwrite -n "$NAMESPACE"
         sleep 2
     done
     
@@ -86,13 +86,13 @@ simulate_primary_outage() {
     # Check if failover occurred
     local current_source=$(kubectl get kustomization infrastructure -n "$NAMESPACE" -o jsonpath='{.spec.sourceRef.name}' 2>/dev/null || echo "unknown")
     
-    if [[ "$current_source" == "gitops-infra-secondary" || "$current_source" == "gitops-infra-tertiary" ]]; then
+    if [[ "$current_source" == "$TOPDIR-secondary" || "$current_source" == "$TOPDIR-tertiary" ]]; then
         log_success "✅ Automatic failover successful: switched to $current_source"
     else
         log_warning "⚠️ Automatic failover did not occur, attempting manual failover"
         
         # Manual failover
-        kubectl patch kustomization infrastructure -n "$NAMESPACE" -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+        kubectl patch kustomization infrastructure -n "$NAMESPACE" -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
         log_success "✅ Manual failover to secondary completed"
     fi
     
@@ -106,7 +106,7 @@ simulate_complete_outage() {
     log "🚨 Simulating complete Git outage..."
     
     # Mark all repositories as unhealthy
-    local repos=("gitops-infra-primary" "gitops-infra-secondary" "gitops-infra-tertiary")
+    local repos=("$TOPDIR-primary" "$TOPDIR-secondary" "$TOPDIR-tertiary")
     for repo in "${repos[@]}"; do
         kubectl label gitrepository "$repo" gitrepo.fluxcd.io/healthy=false --overwrite -n "$NAMESPACE"
         kubectl annotate gitrepository "$repo" gitrepo.fluxcd.io/failure-count="5" --overwrite -n "$NAMESPACE"
@@ -184,20 +184,20 @@ post_drill_recovery() {
     log "🔄 Running post-drill recovery..."
     
     # Restore primary repository health
-    kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
-    kubectl annotate gitrepository gitops-infra-primary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
-    kubectl annotate gitrepository gitops-infra-primary gitrepo.fluxcd.io/error-message- --overwrite -n "$NAMESPACE"
+    kubectl label gitrepository $TOPDIR-primary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
+    kubectl annotate gitrepository $TOPDIR-primary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
+    kubectl annotate gitrepository $TOPDIR-primary gitrepo.fluxcd.io/error-message- --overwrite -n "$NAMESPACE"
     
     # Restore secondary repository health
-    kubectl label gitrepository gitops-infra-secondary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
-    kubectl annotate gitrepository gitops-infra-secondary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
+    kubectl label gitrepository $TOPDIR-secondary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
+    kubectl annotate gitrepository $TOPDIR-secondary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
     
     # Restore tertiary repository health
-    kubectl label gitrepository gitops-infra-tertiary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
-    kubectl annotate gitrepository gitops-infra-tertiary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
+    kubectl label gitrepository $TOPDIR-tertiary gitrepo.fluxcd.io/healthy=true --overwrite -n "$NAMESPACE"
+    kubectl annotate gitrepository $TOPDIR-tertiary gitrepo.fluxcd.io/failure-count="0" --overwrite -n "$NAMESPACE"
     
     # Switch back to primary repository
-    kubectl patch kustomization infrastructure -n "$NAMESPACE" -p '{"spec":{"sourceRef":{"name":"gitops-infra-primary"}}}' --type=merge
+    kubectl patch kustomization infrastructure -n "$NAMESPACE" -p '{"spec":{"sourceRef":{"name":"$TOPDIR-primary"}}}' --type=merge
     
     # Disable offline mode
     kubectl annotate kustomization infrastructure fluxcd.io/offline-mode- --overwrite -n "$NAMESPACE"
@@ -241,7 +241,7 @@ $(kubectl get gitrepositories -n "$NAMESPACE" -L gitrepo.fluxcd.io/healthy)
 $(kubectl get gitrepositories -n "$NAMESPACE" -L gitrepo.fluxcd.io/healthy)
 
 ### Failover Test Results
-- **Automatic Failover**: $(kubectl get kustomizations -n "$NAMESPACE" -o yaml | grep -q "gitops-infra-secondary\|gitops-infra-tertiary" && echo "✅ PASSED" || echo "❌ FAILED")
+- **Automatic Failover**: $(kubectl get kustomizations -n "$NAMESPACE" -o yaml | grep -q "$TOPDIR-secondary\|$TOPDIR-tertiary" && echo "✅ PASSED" || echo "❌ FAILED")
 - **Offline Mode**: $(kubectl get kustomization infrastructure -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.fluxcd\.io/offline-mode}' 2>/dev/null || echo "false")
 - **State Recovery**: $(kubectl get jobs -n "$NAMESPACE" -l batch.kubernetes.io/job-name=drill-recovery --no-headers | wc -l) recovery jobs executed
 

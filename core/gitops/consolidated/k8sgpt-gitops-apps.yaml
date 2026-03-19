@@ -212,7 +212,7 @@ spec:
     interval: 5m
     namespaces:
       - default
-      - gitops-infra
+      - $TOPDIR
       - production
       - staging
       - development

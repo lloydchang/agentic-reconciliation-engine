@@ -1,4 +1,4 @@
-module github.com/antigravity/gitops-infra-control-plane
+module github.com/lloydchang/$TOPDIR
 
 go 1.25.5
 
@@ -8,7 +8,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
-	github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend v0.0.0-20260311040812-fb4337e02bc1
+	github.com/lloydchang/$TOPDIR/ai-agents/backend v0.0.0-20260311040812-fb4337e02bc1
 	go.temporal.io/sdk v1.40.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1

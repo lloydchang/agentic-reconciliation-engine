@@ -76,7 +76,7 @@ if ! ps aux | grep -v grep | grep 'port-forward.*ai-metrics' >/dev/null; then
     sleep 1
     
     # Set up port-forward
-    export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig
+    export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig
     kubectl config use-context hub >/dev/null 2>&1
     
     echo "Starting port-forward..."

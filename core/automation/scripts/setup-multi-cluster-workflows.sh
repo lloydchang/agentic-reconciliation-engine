@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 HUB_NAMESPACE="flux-system"
 SPOKE_NAMESPACE="default"
 WORKFLOW_DIR="core/operators/multi-cluster"
+TOPDIR=$(dirname $(dirname $(readlink -f $0)))
 GIT_REPO="https://github.com/your-org/agentic-reconciliation-engine.git"
 
 echo -e "${BLUE}🔄 Multi-Cluster GitOps Workflows Setup${NC}"

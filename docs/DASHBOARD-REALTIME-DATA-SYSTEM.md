@@ -209,19 +209,19 @@ func (s *SystemService) GetSystemMetrics(ctx context.Context) (*models.SystemMet
 
 1. **Start Backend**:
 ```bash
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard
+cd $TOPDIR/core/ai/runtime/dashboard
 DATABASE_URL="/tmp/dashboard.db" ./main
 ```
 
 2. **Start Agent Simulator**:
 ```bash
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard
+cd $TOPDIR/core/ai/runtime/dashboard
 ./bin/agent-simulator
 ```
 
 3. **Start Frontend**:
 ```bash
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard/frontend
+cd $TOPDIR/core/ai/runtime/dashboard/frontend
 python3 -m http.server 8080
 ```
 

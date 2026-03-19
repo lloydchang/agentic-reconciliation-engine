@@ -23,9 +23,9 @@ spec:
               #!/bin/bash
               
               # Check primary repository health
-              PRIMARY_REPO="gitops-infra-primary"
-              SECONDARY_REPO="gitops-infra-secondary"
-              TERTIARY_REPO="gitops-infra-tertiary"
+              PRIMARY_REPO="$TOPDIR-primary"
+              SECONDARY_REPO="$TOPDIR-secondary"
+              TERTIARY_REPO="$TOPDIR-tertiary"
               
               # Get repository status
               PRIMARY_STATUS=$(kubectl get gitrepository $PRIMARY_REPO -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
@@ -41,10 +41,10 @@ spec:
                 echo "Primary repository failed, checking secondary..."
                 if [[ "$SECONDARY_STATUS" == "True" ]]; then
                   echo "Switching to secondary repository..."
-                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"gitops-infra-secondary"}}}' --type=merge
+                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"$TOPDIR-secondary"}}}' --type=merge
                 elif [[ "$TERTIARY_STATUS" == "True" ]]; then
                   echo "Switching to tertiary repository..."
-                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"gitops-infra-tertiary"}}}' --type=merge
+                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"$TOPDIR-tertiary"}}}' --type=merge
                 else
                   echo "❌ All repositories failed - entering offline mode"
                   kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite
@@ -55,7 +55,7 @@ spec:
                 CURRENT_SOURCE=$(kubectl get kustomization infrastructure -n flux-system -o jsonpath='{.spec.sourceRef.name}')
                 if [[ "$CURRENT_SOURCE" != "$PRIMARY_REPO" ]]; then
                   echo "Switching back to primary repository..."
-                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"gitops-infra-primary"}}}' --type=merge
+                  kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"kind":"GitRepository","name":"$TOPDIR-primary"}}}' --type=merge
                 fi
                 # Remove offline mode annotation if present
                 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode- --overwrite

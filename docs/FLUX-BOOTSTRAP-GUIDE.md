@@ -850,7 +850,7 @@ flux bootstrap github \
 ### Repository Organization
 
 ```
-gitops-infra-core/operators/
+$TOPDIR/operators/
 ├── clusters/
 │   ├── production/
 │   │   ├── flux-system/

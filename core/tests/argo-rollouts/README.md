@@ -84,7 +84,7 @@ export TEST_TIMEOUT="300s"
 export ROLLOUT_TIMEOUT="600s"
 
 # K8sGPT configuration
-export K8SGPT_NAMESPACE="gitops-infra"
+export K8SGPT_NAMESPACE="$TOPDIR"
 export QWEN_MODEL="qwen2.5-7b-instruct"
 
 # Performance test settings
@@ -119,7 +119,7 @@ rollouts:
 
 k8sgpt:
   enabled: true
-  namespace: "gitops-infra"
+  namespace: "$TOPDIR"
   model: "qwen2.5-7b-instruct"
   
 monitoring:
@@ -176,11 +176,11 @@ kubectl auth can-i create rollouts --as=system:serviceaccount:argo-rollouts:argo
 #### 2. K8sGPT Integration Failed
 ```bash
 # Check K8sGPT deployment
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 
 # Check Qwen configuration
-kubectl get secret qwen-secret -n gitops-infra
-kubectl get configmap qwen-config -n gitops-infra
+kubectl get secret qwen-secret -n $TOPDIR
+kubectl get configmap qwen-config -n $TOPDIR
 ```
 
 #### 3. Performance Test Failed

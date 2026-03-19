@@ -16,10 +16,10 @@ metadata:
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: gitops-infra
+  name: $TOPDIR
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/name: $TOPDIR
     app.kubernetes.io/component: helm-repository
 spec:
   interval: 5m
@@ -43,7 +43,7 @@ spec:
       version: 6.5.0
       sourceRef:
         kind: HelmRepository
-        name: gitops-infra
+        name: $TOPDIR
   values:
     replicaCount: 3
     image:
@@ -71,14 +71,14 @@ spec:
         kubernetes.io/ingress.class: nginx
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - host: gitops-infra.local
+        - host: $TOPDIR.local
           paths:
             - path: /
               pathType: Prefix
       tls:
-        - secretName: gitops-infra-tls
+        - secretName: $TOPDIR-tls
           hosts:
-            - gitops-infra.local
+            - $TOPDIR.local
     monitoring:
       enabled: true
       serviceMonitor:
@@ -94,16 +94,16 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata:
-  name: gitops-infra-policy
+  name: $TOPDIR-policy
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/name: $TOPDIR
     app.kubernetes.io/component: propagation-policy
 spec:
   resourceSelectors:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
-      name: gitops-infra
+      name: $TOPDIR
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
       name: agentic-reconciliation-engine
@@ -123,10 +123,10 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: OverridePolicy
 metadata:
-  name: gitops-infra-production
+  name: $TOPDIR-production
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/name: $TOPDIR
     app.kubernetes.io/component: override-policy
 spec:
   resourceSelectors:
@@ -180,10 +180,10 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: OverridePolicy
 metadata:
-  name: gitops-infra-staging
+  name: $TOPDIR-staging
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/name: $TOPDIR
     app.kubernetes.io/component: override-policy
 spec:
   resourceSelectors:
@@ -220,10 +220,10 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: OverridePolicy
 metadata:
-  name: gitops-infra-development
+  name: $TOPDIR-development
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infra
+    app.kubernetes.io/name: $TOPDIR
     app.kubernetes.io/component: override-policy
 spec:
   resourceSelectors:

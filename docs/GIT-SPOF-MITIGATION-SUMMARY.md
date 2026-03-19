@@ -39,7 +39,7 @@ We implemented a defense-in-depth approach with seven complementary mitigations:
 kubectl get gitrepositories -n flux-system -L gitrepo.fluxcd.io/healthy
 
 # Manual failover
-kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"gitops-infra-secondary"}}}' --type=merge
+kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRef":{"name":"$TOPDIR-secondary"}}}' --type=merge
 ```
 
 ### 2. Git Repository Mirroring ✅ COMPLETED

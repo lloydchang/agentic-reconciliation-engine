@@ -68,7 +68,7 @@ flux install --kubeconfig ~/.kube/members.config --context member3
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: gitops-infra
+  name: $TOPDIR
   namespace: gitops-multi-cluster
 spec:
   interval: 5m
@@ -87,7 +87,7 @@ spec:
       version: 6.5.0
       sourceRef:
         kind: HelmRepository
-        name: gitops-infra
+        name: $TOPDIR
 ```
 
 ### **Propagation Policy**
@@ -96,13 +96,13 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata:
-  name: gitops-infra-policy
+  name: $TOPDIR-policy
   namespace: gitops-multi-cluster
 spec:
   resourceSelectors:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
-      name: gitops-infra
+      name: $TOPDIR
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
       name: agentic-reconciliation-engine
@@ -120,7 +120,7 @@ spec:
 apiVersion: policy.karmada.io/v1alpha1
 kind: OverridePolicy
 metadata:
-  name: gitops-infra-production
+  name: $TOPDIR-production
   namespace: gitops-multi-cluster
 spec:
   resourceSelectors:
@@ -224,7 +224,7 @@ placement:
 ```yaml
 spec:
   dependsOn:
-    - name: gitops-infra-policy
+    - name: $TOPDIR-policy
     - name: monitoring-policy
 ```
 
@@ -324,7 +324,7 @@ done
 
 ```bash
 # Check propagation policy status
-kubectl describe propagationpolicy gitops-infra-policy -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
+kubectl describe propagationpolicy $TOPDIR-policy -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
 
 # Check work status
 kubectl get work -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
@@ -345,7 +345,7 @@ kubectl get events -n flux-system --kubeconfig ~/.kube/members.config --context 
 
 ```bash
 # Check override policy status
-kubectl describe overridepolicy gitops-infra-production -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
+kubectl describe overridepolicy $TOPDIR-production -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
 
 # Verify applied overrides
 kubectl get helmrelease agentic-reconciliation-engine -n gitops-multi-cluster -o yaml --kubeconfig ~/.kube/members.config --context member1

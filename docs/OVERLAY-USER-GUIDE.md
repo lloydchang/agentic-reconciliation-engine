@@ -29,7 +29,7 @@ Before you begin working with overlays, ensure you have:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+   git clone https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/agentic-reconciliation-engine.git
    cd agentic-reconciliation-engine
    ```
 
@@ -710,8 +710,8 @@ Now that you understand overlays, you can:
 - [Planning Document](OVERLAY-PLANNING.md)
 - [Tooling Guide](OVERLAY-TOOLING.md)
 - [GitHub Repository](https://github.com/agentic-reconciliation-engine)
-- [Community Forum](https://github.com/gitops-infra-core/operators/discussions)
-- [Issue Tracker](https://github.com/gitops-infra-core/operators/issues)
+- [Community Forum](https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/discussions)
+- [Issue Tracker](https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/issues)
 
 ---
 

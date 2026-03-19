@@ -64,7 +64,7 @@ def fix_frontmatter(skill_path):
 
 def main():
     # Find all SKILL.md files
-    skill_files = glob.glob('/Users/lloyd/github/antigravity/gitops-infra-core/operators/core/ai/skills/*/SKILL.md')
+    skill_files = glob.glob('agentic-reconciliation-engine/core/operators/core/ai/skills/*/SKILL.md')
     
     for skill_file in skill_files:
         fix_frontmatter(skill_file)

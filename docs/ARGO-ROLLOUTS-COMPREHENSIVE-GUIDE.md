@@ -96,7 +96,7 @@ kubectl get crd rollouts.argoproj.io
 ./scripts/setup-k8sgpt-qwen.sh
 
 # Verify installation
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 ```
 
 ### Your First Rollout
@@ -920,17 +920,17 @@ kubectl argo rollouts analyze <rollout-name> --template <template-name> --dry-ru
 
 ```bash
 # Check K8sGPT pod
-kubectl get pods -n gitops-infra | grep k8sgpt
+kubectl get pods -n $TOPDIR | grep k8sgpt
 
 # Check K8sGPT logs
-kubectl logs -n gitops-infra deployment/k8sgpt-analyzer
+kubectl logs -n $TOPDIR deployment/k8sgpt-analyzer
 
 # Test K8sGPT manually
-kubectl exec -n gitops-infra deployment/k8sgpt-analyzer -- \
+kubectl exec -n $TOPDIR deployment/k8sgpt-analyzer -- \
   k8sgpt analyze --namespace default --explain
 
 # Check Qwen connectivity
-kubectl exec -n gitops-infra deployment/k8sgpt-analyzer -- \
+kubectl exec -n $TOPDIR deployment/k8sgpt-analyzer -- \
   curl -X POST http://qwen-server:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"qwen2.5-7b-instruct","messages":[{"role":"user","content":"test"}]}'

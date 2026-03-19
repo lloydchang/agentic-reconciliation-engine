@@ -12,4 +12,4 @@ data:
   AWS_REGION: "us-east-1"
   ACK_ENABLE_DEVELOPMENT_LOGGING: "true"
   ACK_WATCH_NAMESPACE: ""
-  ACK_RESOURCE_TAGS: "gitops-infra-core/operators/test=true"
+  ACK_RESOURCE_TAGS: "agentic-reconciliation-engine/operators/test=true"

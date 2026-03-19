@@ -83,7 +83,7 @@ Created `/scripts/fix-commonlabels.sh` to systematically fix all affected files:
 
 **Usage:**
 ```bash
-bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-commonlabels.sh
+bash $TOPDIR/scripts/fix-commonlabels.sh
 ```
 
 ## Monitoring Stack Components
@@ -199,14 +199,14 @@ metadata:
 
 ```bash
 # Fix commonLabels deprecation warning
-bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-commonlabels.sh
+bash $TOPDIR/scripts/fix-commonlabels.sh
 ```
 
 ### Step 2: Deploy Monitoring Stack
 
 ```bash
 # Apply monitoring infrastructure
-kubectl apply -k /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/resources/infrastructure/monitoring
+kubectl apply -k $TOPDIR/core/resources/infrastructure/monitoring
 ```
 
 ### Expected Output
@@ -629,7 +629,7 @@ kubectl create secret generic grafana-admin-credentials \
 
 ```bash
 # Deploy Langfuse secrets for AI infrastructure
-kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml
+kubectl apply -f core/config/langfuse-secret-$TOPDIR.yaml
 
 # Langfuse dashboard is automatically deployed as ConfigMap
 kubectl apply -f core/resources/infrastructure/monitoring/langfuse-dashboard.yaml
@@ -1038,7 +1038,7 @@ Connect with AI agents through:
 
 - `core/resources/infrastructure/monitoring/kustomization.yaml` - Main monitoring stack
 - `core/resources/infrastructure/monitoring/langfuse-dashboard.yaml` - Langfuse dashboard
-- `core/config/langfuse-secret-gitops-infra.yaml` - Langfuse secrets
+- `core/config/langfuse-secret-$TOPDIR.yaml` - Langfuse secrets
 - `core/resources/infrastructure/tenants/3-workloads/monitoring/grafana.yaml` - Grafana deployment
 
 ### Scripts and Tools

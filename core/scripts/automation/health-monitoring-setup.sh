@@ -110,7 +110,7 @@ data:
     kubectl get gitrepositories -n flux-system -L gitrepo.fluxcd.io/healthy
     
     # Get detailed health information
-    kubectl get gitrepository gitops-infra-primary -n flux-system -o yaml
+    kubectl get gitrepository $TOPDIR-primary -n flux-system -o yaml
     
     # Check failure counts
     kubectl get gitrepositories -n flux-system -l gitrepo.fluxcd.io/failure-count
@@ -140,7 +140,7 @@ data:
     kubectl create job --from=cronjob/git-health-monitor manual-health-check -n flux-system
     
     # Check repository connectivity manually
-    git ls-remote https://github.com/antigravity/agentic-reconciliation-engine.git
+    git ls-remote https://github.com/lloydchang/agentic-reconciliation-engine.git
     \`\`\`
     
     ## Dashboard Access
