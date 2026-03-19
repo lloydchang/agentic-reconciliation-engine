@@ -17,14 +17,7 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ### 🛠️ Getting Started
 
-**Initialize:** Run `core/scripts/automation/quickstart.sh`
-
-*This single command validates prerequisites and sets up the entire environment.*
-
-**Optional:** Validate prerequisites only:
-```bash
-core/scripts/automation/quickstart.sh --validate-prerequisites
-```
+Run `core/scripts/automation/quickstart.sh`
 
 ---
 
