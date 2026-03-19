@@ -4,6 +4,16 @@
 
 set -euo pipefail
 
+# Source common functions from quickstart.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Source the common quickstart functions
+source "$SCRIPT_DIR/quickstart.sh"
+
+# Docker Desktop specific configuration
+DOCKER_DESKTOP_CONTEXT="docker-desktop"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,33 +39,75 @@ fi
 ERRORS=0
 WARNINGS=0
 
-print_header() {
-    echo -e "${BLUE}=== $1 ===${NC}"
-}
-
-print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}❌ $1${NC}"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
-}
-
-print_info() {
-    echo -e "${YELLOW}ℹ️  $1${NC}"
-}
-
-# Validation functions from prerequisites.sh
-pass() { echo -e "  ${GREEN}✓${RESET} $*"; }
-fail() { echo -e "  ${RED}✗${RESET} $*"; ERRORS=$((ERRORS + 1)); }
-warn() { echo -e "  ${YELLOW}!${RESET} $*"; WARNINGS=$((WARNINGS + 1)); }
-info() { echo -e "  ${CYAN}→${RESET} $*"; }
-
+# Print functions sourced from quickstart.sh
+# Validation functions sourced from quickstart.sh
 # Environment-specific validation for Docker Desktop
+setup_docker_desktop_cluster() {
+    print_header "Setting up Docker Desktop Kubernetes Cluster"
+
+    # Check if docker is running
+    if ! docker info &>/dev/null; then
+        print_error "Docker is not running. Please start Docker Desktop and try again."
+        exit 1
+    fi
+
+    # Check if Docker Desktop has Kubernetes enabled
+    if ! kubectl cluster-info &>/dev/null; then
+        print_error "Docker Desktop Kubernetes is not accessible. Please ensure Kubernetes is enabled in Docker Desktop settings."
+        exit 1
+    fi
+
+    # Check if kubectl context is correct
+    local current_context=$(kubectl config current-context 2>/dev/null)
+    if [[ "$current_context" == "docker-desktop" || "$current_context" == "docker-for-desktop" ]]; then
+        print_success "Using Docker Desktop Kubernetes context: $current_context"
+    else
+        print_warning "Current kubectl context is not Docker Desktop: $current_context"
+        print_info "Attempting to switch to docker-desktop context..."
+        if kubectl config use-context docker-desktop 2>/dev/null; then
+            print_success "Switched to docker-desktop context"
+        elif kubectl config use-context docker-for-desktop 2>/dev/null; then
+            print_success "Switched to docker-for-desktop context"
+        else
+            print_error "Could not switch to Docker Desktop context"
+            exit 1
+        fi
+    fi
+
+    # Verify cluster access
+    if kubectl get nodes &>/dev/null; then
+        print_success "Docker Desktop Kubernetes cluster is accessible"
+    else
+        print_error "Cannot access Docker Desktop Kubernetes cluster"
+        exit 1
+    fi
+}
+
+validate_docker_desktop_prerequisites() {
+    print_header "Validating Docker Desktop Prerequisites"
+
+    # Check docker
+    if command -v docker &>/dev/null; then
+        if docker info &>/dev/null; then
+            pass "Docker is running"
+        else
+            fail "Docker is installed but not running (start Docker Desktop)"
+        fi
+    else
+        fail "Docker not found (install Docker Desktop)"
+    fi
+
+    # Check kubectl
+    check_tool "kubectl" "1.28" "version --client"
+
+    # Check Docker Desktop context
+    if kubectl config get-contexts 2>/dev/null | grep -q "^${DOCKER_DESKTOP_CONTEXT}"; then
+        pass "Docker Desktop kubectl context available"
+    else
+        warn "Docker Desktop kubectl context not found (ensure Kubernetes is enabled)"
+    fi
+}
+
 run_docker_desktop_validation() {
     ERRORS=0
     WARNINGS=0
@@ -69,43 +121,7 @@ run_docker_desktop_validation() {
     # 1. Docker Desktop prerequisites
     echo -e "${BOLD}[1/6] Checking Docker Desktop prerequisites${RESET}"
 
-    # Check Docker Desktop
-    if command -v docker &>/dev/null; then
-        local docker_version=$(docker --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-        pass "Docker available (${docker_version})"
-
-        # Check if Docker Desktop is running
-        if docker system info &>/dev/null; then
-            pass "Docker daemon accessible"
-        else
-            fail "Docker daemon not accessible - start Docker Desktop"
-        fi
-    else
-        fail "Docker not found - install Docker Desktop"
-    fi
-
-    # Check kubectl (comes with Docker Desktop)
-    if command -v kubectl &>/dev/null; then
-        local kube_version=$(kubectl version --client --short 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-        pass "kubectl available (${kube_version})"
-    else
-        fail "kubectl not found - should come with Docker Desktop"
-    fi
-
-    # Check Docker Desktop Kubernetes
-    if kubectl cluster-info &>/dev/null; then
-        pass "Docker Desktop Kubernetes cluster accessible"
-        local context=$(kubectl config current-context 2>/dev/null)
-        if [[ "$context" == "docker-desktop" || "$context" == "docker-for-desktop" ]]; then
-            pass "Using Docker Desktop Kubernetes context: ${context}"
-        else
-            warn "Current kubectl context is not Docker Desktop: ${context}"
-        fi
-    else
-        fail "Docker Desktop Kubernetes cluster not accessible"
-    fi
-
-    echo ""
+    validate_docker_desktop_prerequisites
 
     # 2. Standard CLI tools (same as base validation)
     echo -e "${BOLD}[2/6] Checking required CLI tools${RESET}"
@@ -174,8 +190,15 @@ run_docker_desktop_validation() {
 
     # Check if Kubernetes is enabled in Docker Desktop
     if kubectl cluster-info &>/dev/null; then
-        local node_count=$(kubectl get nodes --no-headers 2>/dev/null | wc -l | tr -d ' ')
-        info "Kubernetes nodes available: ${node_count}"
+        pass "Docker Desktop Kubernetes cluster accessible"
+        local context=$(kubectl config current-context 2>/dev/null)
+        if [[ "$context" == "docker-desktop" || "$context" == "docker-for-desktop" ]]; then
+            pass "Using Docker Desktop Kubernetes context: ${context}"
+        else
+            warn "Current kubectl context is not Docker Desktop: ${context}"
+        fi
+    else
+        fail "Docker Desktop Kubernetes cluster not accessible"
     fi
 
     echo ""
