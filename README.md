@@ -1,136 +1,46 @@
-<img width="180" height="180" alt="Image" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
+# Agentic Reconciliation Engine (ARE)
 
-# GitOps Infra Control Plane (GICP)
+<img width="180" height="180" alt="ARE Logo" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
 
-A Continuous Reconciliation Engine (CRE) that combines [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Temporal](https://temporal.io/) with [AGENTS.md](https://agents.md/) and [SKILL.md](https://agentskills.io/)
+**ARE** is an experimental sandbox that provides a reasoning and execution layer for infrastructure challenges that exceed the scope of stateless reconciliation.
 
-_Experimental Sandbox_
-
-## Quick links
-- [Using This as a Reference Implementation](./docs/REFERENCE-IMPLEMENTATION.md) — You can include this repository in your own project as a `git submodule` — this keeps the commit histories separate, which is important for license clarity.
-- [Quickstart](./docs/QUICKSTART.md) — POSIX shell prerequisites, bootstrap validation, and zero-touch automation steps.
-- [Repository Setup](./core/scripts/automation/quickstart.sh) — Development environment setup and prerequisites.
-- [Overlay Quick Start](./core/scripts/automation/overlay-quickstart.sh) — Overlay approach to quickstart with hooks and extensions.
-- [Overlay Manager](./core/scripts/automation/overlay-manager.sh) — Complete overlay lifecycle management.
-- [Overlay System](./docs/OVERLAY-QUICK-START.md) — complete overlay system with documentation, examples, and automation.
-- [Overview](./docs/OVERVIEW.md) — architecture narrative, operations references, zero-touch automation, and known limitations.
-- [Agent Runtime](./docs/AGENT-RUNTIME.md) — Claude Code, Codex, Antigravity, Windsurf, Cursor, VS Code + Copilot — Locally and Remotely (GitHub Codespaces via Azure), gitops-infra-control-plane
-- [Compound Engineering Integration](./docs/compound-engineering-integration-plan.md) — Comprehensive integration strategy for Every Inc's Compound Engineering Plugin
-- [Compound Engineering Documentation](./docs/compound-engineering-integration-documentation.md) — Complete integration documentation and implementation guide
-- [Dashboard Real-Time Data System](./docs/DASHBOARD-REALTIME-DATA-SYSTEM.md) — Complete implementation guide for the AI Agents Dashboard with real-time autonomous data.
-- [Dashboard Quick Reference](./docs/DASHBOARD-QUICK-REFERENCE.md) — Quick setup guide and common commands for the dashboard.
-- [Dashboard Technical Implementation](./docs/DASHBOARD-TECHNICAL-IMPLEMENTATION.md) — Technical architecture and implementation details.
-- [K8sGPT Consolidation](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) — Single instance per cluster architecture for all GitOps components.
-- [FastAPI Migration](./docs/FLASK-TO-FASTAPI-MIGRATION-PLAN.md) — Migration plan from Flask to FastAPI for dashboard API backend.
-- Compatibility: [Windows](./docs/WINDOWS-COMPATIBILITY.md), [Mac](./docs/MAC-COMPATIBILITY.md), [Linux](./docs/LINUX-COMPATIBILITY.md), [Shell](./docs/SHELL-COMPATIBILITY.md) — start here before running any automation on a new platform.
-- [Critical Safety Rules](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Essential git safety rules, debugging knowledge, and operational best practices.
-- [Agentic AI Skills Guide](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Complete catalog of 70+ AI skills and automation capabilities.
-- [Task Completion Summary](./docs/TASK-COMPLETION-SUMMARY.md) — Comprehensive summary of agentic AI platform implementation.
-- [CONTRIBUTING.md](./CONTRIBUTING.md) — workflow expectations, helper logging, and documentation requirements.
+Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/) with [Temporal](https://temporal.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/).
 
 ---
 
-## Architecture Overview
+### 🏗️ Separation of Concerns
+
+* **Agentic Layer (A):** [Temporal](https://temporal.io/), [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/): Complex recovery, and ambiguous failures that stateless controllers cannot resolve.
+* **Reconciliation Engine (RE):** [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
 
-### Approximate Decomposition and Abstraction Layers
+### ⚙️ The Escalation Loop
 
-**AI Frontend UI/UX:** React | Vite | Node.js | TypeScript / JavaScript
-
-**AI Dashboard Database:** Postgres (OLTP) | SQL
-
-**AI Backend API:** FastAPI | Python
-
-**AI Workflow:** Temporal | Langfuse and ClickHouse (OLAP) | Go
-
-**AI SKILL.md:** https://agentskills.io/ | English | Python
-
-**AI AGENTS.md:** https://agents.md/ | English | Python
-
-**AI Memory Agent:** SQLite (OLTP) | Rust
-
-**AI LLM:** Qwen2.5-0.5B | English / Multilingual
-
-**AI Inference:** LlamaCPP | C++
-
-**GitOps:** Flux | Flagger | Argo CD | Argo Rollout | Argo Workflow | Argo Events | Go
-
-**Infrastructure as Code:** Crossplane Composite Resources Definitions (XRD) | CDK (AWS) | Bicep (Azure) | Terraform Blueprints (GCP) | YAML
-
-**Containers:** Docker | Kubernetes | CAPI | Go
+1.  **Observe:** Stateless controllers (Flux/Crossplane) flag a persistent or non-deterministic error.
+2.  **Recall:** ARE queries **SQLite** for historical context and successful manual or agentic interventions.
+3.  **Select:** Agent evaluates the failure against **AGENTS.md** policies and selects a specialized **SKILL.md**.
+4.  **Execute:** **Temporal** runs a durable, multi-step workflow to resolve the "out-of-bounds" issue.
+5.  **Commit:** Result is logged to SQLite, informing both the Agent and future stateless telemetry.
 
 ---
 
-This GitOps infrastructure control plane implements **advanced agentic AI capabilities** with compound engineering integration:
+### 📂 Quick Links
 
-### Core Infrastructure
-- **Consolidated K8sGPT Architecture**: Single AI analysis service per cluster in `k8sgpt-system` namespace
-- **Multi-Backend Support**: Agent-memory (primary), LocalAI (fallback), OpenAI (optional)
-- **Unified Service Endpoint**: `http://k8sgpt.k8sgpt-system.svc.cluster.local:8080`
-- **Component Integration**: All GitOps tools (ArgoCD, Flux, Argo Workflows, etc.) use the same instance
+* [**Quickstart**](./docs/QUICKSTART.md) — Prerequisites and automation.
+* [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
+* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 70+ autonomous capabilities.
+* [**Safety Rules**](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Operational best practices.
 
-### Agentic AI Enhancements
-- **Compound Engineering Integration**: Every Inc's compound engineering methodology for exponential improvement
-- **25+ Specialized Agents**: Security, performance, architecture, testing, and workflow automation
-- **40+ Enhanced Skills**: Autonomous operations with learning and compounding capabilities
-- **Multi-Platform Support**: Claude Code, Cursor, Windsurf, Pi, Gemini, and 10+ platforms
-- **Parallel Workflow Execution**: Multi-agent coordination for complex tasks
-- **Uber-Inspired Patterns**: Production-tested toil automation and async workflows
-- **MCP Gateway**: Centralized secure proxying with authentication and telemetry
-- **Cost Optimization**: Intelligent model selection and usage tracking
+---
 
-### Latest Deployment (March 2025) ✅
-- **Staging Environment**: Fully deployed and validated
-- **7 Toil Automation Skills**: Certificate rotation, dependency updates, security patching, backup verification, log retention, performance tuning
-- **5 Code Review Skills**: PR risk assessment, automated testing, compliance validation, performance impact, security analysis
-- **Core Services**: MCP gateway, parallel workflow executor, cost tracker, enhanced Pi-Mono RPC
-- **Monitoring**: ServiceMonitors configured for all components
-- **Validation**: All deployments rolled out successfully, integration tests passed
+### 🛠️ Getting Started
 
-### Memory & Learning Systems
-- **Persistent AI State**: Rust/Go/Python memory agents with SQLite persistence
-- **Temporal Orchestration**: Durable workflow execution for multi-skill operations
-- **Knowledge Compounding**: Each iteration makes future work easier
-- **Autonomous Operation**: AI agents can run full development cycles without human intervention
+1.  **Prerequisites:** Run `core/scripts/automation/prerequisites.sh`.
+2.  **Initialize:** Run `core/scripts/automation/run-local-automation.sh`.
 
-**Benefits**: 75% resource reduction, 5x development velocity, 90% bug reduction, simplified management, consistent AI analysis across all components.
+---
 
-See [K8SGPT Consolidation Summary](./docs/K8SGPT-CONSOLIDATION-SUMMARY.md) for complete migration guide and architecture details.
+### ⚖️ License
 
-## Getting started
-1. Open a POSIX shell (Mac Zsh, WSL Bash, Linux Bash via GitHub Codespaces, etc.) before touching the automation scripts.
-2. Run `core/scripts/automation/prerequisites.sh` to validate tools, skill files, and environment variables.
-3. Use `core/scripts/automation/run-local-automation.sh` or `core/scripts/automation/run-emulator-then-cloud.sh` to execute the full workflow; each script now logs whether you are in WSL or a native Windows shell.
-4. Check `logs/local-core/automation/ci-cd/latest-summary.json` and the `.log` files in `logs/local-core/automation/ci-cd/` for details, then iterate on your config or documentation as needed.
-
-### Agentic AI Quick Start
-1. Deploy to staging: `./scripts/deploy-agentic-ai-staging.sh`
-2. Test individual skills: `kubectl exec -n staging deployment/certificate-rotation-skill -- python -c "print('Skill ready')"`
-3. Monitor deployments: `kubectl get pods -n staging -l component=agentic-ai`
-4. Access services: `kubectl port-forward svc/mcp-gateway 8080:8080 -n staging`
-5. View monitoring: `kubectl get servicemonitors -n monitoring | grep agentic`
-6. Check metrics: `kubectl port-forward svc/prometheus-operator 9090:9090 -n monitoring`
-
-### Production Deployment
-1. **Staging Validation**: All components deployed and tested in staging
-2. **Security Review**: Comprehensive safety rules documented in `CRITICAL-SAFETY-RULES-BEST-PRACTICES.md`
-3. **Monitoring Ready**: ServiceMonitors configured for all AI components
-4. **Skills Catalog**: 70+ skills documented in `AGENTIC-AI-SKILLS-GUIDE.md`
-5. **Cost Tracking**: Usage monitoring and optimization framework active
-
-For deeper architecture context, risk signals, and feature walkthrough, open [docs/OVERVIEW.md](docs/OVERVIEW.md).
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onboarding, and documentation expectations.
-
-[Pull Requests](https://github.com/lloydchang/gitops-infra-core/operators/pulls)
-
-## License
-
-`AGPL-3.0-or-later`
-  - GNU Affero General Public License Version 3 or Later
-  - See [LICENSE](LICENSE) file - https://www.gnu.org/licenses/agpl-3.0.html
-
-![logo.svg](core/ai/runtime/agents/dashboard/src/logo.svg)
+**AGPL-3.0-or-later** — [Full License](LICENSE)
