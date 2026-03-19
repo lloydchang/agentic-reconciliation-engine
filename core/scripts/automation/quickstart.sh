@@ -19,6 +19,13 @@ RESET='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
+# Source the deploy_ai_agent_skills function
+if [[ -f "$SCRIPT_DIR/deploy_ai_agent_skills.sh" ]]; then
+    source "$SCRIPT_DIR/deploy_ai_agent_skills.sh"
+else
+    echo "Warning: deploy_ai_agent_skills.sh not found"
+fi
+
 # Global counters for validation
 ERRORS=0
 WARNINGS=0
