@@ -1,8 +1,10 @@
 <img width="180" height="180" alt="Image" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
 
-# GitOps Infra Control Plane - README.md
+# GitOps Infra Control Plane (GICP)
 
-A Continuous Reconciliation Engine (CRE) for multi-cloud infrastructure that combines Flux, Crossplane, and Cluster API to keep your GitOps state enforced 24/7 across EKS, AKS, GKE, and on-prem Kubernetes.
+A Continuous Reconciliation Engine (CRE) that combines [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Temporal](https://temporal.io/) with [AGENTS.md](https://agents.md/) and [SKILL.md](https://agentskills.io/)
+
+_Experimental Sandbox._
 
 ## Quick links
 - [Using This as a Reference Implementation](./docs/REFERENCE-IMPLEMENTATION.md) — You can include this repository in your own project as a `git submodule` — this keeps the commit histories separate, which is important for license clarity.
