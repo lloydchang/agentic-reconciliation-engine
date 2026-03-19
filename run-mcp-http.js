@@ -97,20 +97,31 @@ class MCPHTTPServer {
         });
         
         let responseBuffer = '';
+        let isInitialized = false;
         
         this.serverProcess.stdout.on('data', (data) => {
-            responseBuffer += data.toString();
+            const output = data.toString();
+            console.log(`[${this.serverName}] Raw output:`, output);
+            
+            responseBuffer += output;
+            
+            // Check for initialization message
+            if (output.includes('running on stdio') && !isInitialized) {
+                console.log(`[${this.serverName}] Server initialized successfully`);
+                isInitialized = true;
+                return;
+            }
             
             // Try to parse complete JSON responses
             const lines = responseBuffer.split('\n');
             for (let i = 0; i < lines.length - 1; i++) {
                 const line = lines[i].trim();
-                if (line) {
+                if (line && line.startsWith('{')) {
                     try {
                         const response = JSON.parse(line);
                         this.handleResponse(response);
                     } catch (e) {
-                        // Ignore parsing errors for partial data
+                        console.log(`[${this.serverName}] Failed to parse line: ${line}`);
                     }
                 }
             }
@@ -118,11 +129,22 @@ class MCPHTTPServer {
         });
         
         this.serverProcess.stderr.on('data', (data) => {
-            console.error(`[${this.serverName}] Error:`, data.toString());
+            const error = data.toString();
+            console.error(`[${this.serverName}] Error:`, error);
         });
         
         this.serverProcess.on('close', (code) => {
             console.log(`[${this.serverName}] Process exited with code ${code}`);
+        });
+        
+        // Wait for server to initialize
+        await new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+                if (isInitialized) {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 100);
         });
         
         // Start HTTP server
@@ -135,9 +157,9 @@ class MCPHTTPServer {
             console.log(`   POST http://localhost:${this.port}/mcp - Generic MCP endpoint`);
             console.log(`\n💡 Example usage:`);
             console.log(`   curl http://localhost:${this.port}/tools`);
-            console.log(`   curl -X POST http://localhost:${this.port}/tools/aws_security_hub_analysis \\
-                -H "Content-Type: application/json" \\
-                -d '{"region": "us-east-1", "severity": "HIGH"}'`);
+            console.log(`   curl -X POST http://localhost:${this.port}/tools/aws_security_hub_analysis \\`);
+            console.log(`                -H "Content-Type: application/json" \\`);
+            console.log(`                -d '{"region": "us-east-1", "severity": "HIGH"}'`);
         });
     }
     
@@ -155,6 +177,8 @@ class MCPHTTPServer {
             this.pendingRequests = this.pendingRequests || {};
             this.pendingRequests[requestId] = { resolve, reject };
             
+            console.log(`[${this.serverName}] Sending request:`, JSON.stringify(request, null, 2));
+            
             // Send request to MCP server
             this.serverProcess.stdin.write(JSON.stringify(request) + '\n');
             
@@ -169,6 +193,8 @@ class MCPHTTPServer {
     }
     
     handleResponse(response) {
+        console.log(`[${this.serverName}] Received response:`, JSON.stringify(response, null, 2));
+        
         if (response.id && this.pendingRequests && this.pendingRequests[response.id]) {
             const { resolve, reject } = this.pendingRequests[response.id];
             delete this.pendingRequests[response.id];
