@@ -9,7 +9,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 8082;
+const PORT = 8081;
 
 // In-memory storage (in production, this would be a database)
 const memoryStore = {

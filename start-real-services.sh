@@ -56,7 +56,7 @@ echo "📈 Starting Comprehensive API..."
 start_service "Comprehensive API" "comprehensive-api.js" 5001
 
 echo "🧠 Starting Memory Service..."
-start_service "Memory Service" "memory-service.js" 8082
+start_service "Memory Service" "memory-service.js" 8081
 
 echo
 echo -e "${GREEN}🎉 All services started successfully!${NC}"
