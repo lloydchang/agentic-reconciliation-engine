@@ -72,20 +72,23 @@ The `core/ai/skills/` directory contains skill definitions following the
 - `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
 - Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
 - Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
-- 86 skills are currently available
+- 91 skills are currently available
 
 **Example SKILL.md frontmatter (agentskills.io compliant):**
 ```yaml
 ---
 name: optimize-costs
-description: >
-  Analyses cloud spend and recommends cost reductions. Use when asked to reduce
-  costs, right-size resources, or analyse billing across AWS, Azure, or GCP.
+description: Multi-cloud automation skill for cost optimizer operations. Use when managing cost optimizer across cloud providers.
+license: AGPLv3
 metadata:
+  author: agentic-reconciliation-engine
+  version: "1.0"
+  category: enterprise
   risk_level: medium
   autonomy: conditional
   layer: temporal
-  human_gate: PR approval required for changes > $100/day savings
+compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
+allowed-tools: Bash Read Write Grep
 ---
 ```
 

@@ -31,7 +31,7 @@ Or run steps manually:
 ./core/scripts/automation/setup-gitops-config.sh
 
 # 3. Create bootstrap cluster (recovery anchor)
-./core/scripts/infrastructure/create-bootstrap-cluster.sh
+./core/scripts/automation/create-bootstrap-cluster.sh
 
 # 4. Create hub cluster (GitOps control plane)
 ./core/scripts/automation/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig bootstrap-kubeconfig
