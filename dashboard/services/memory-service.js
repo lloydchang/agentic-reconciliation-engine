@@ -28,7 +28,7 @@ app.use(express.json());
 function loadSkillsFromRepository() {
   const fs = require('fs');
   const path = require('path');
-  const skillsDir = path.join(__dirname, 'core', 'ai', 'skills');
+  const skillsDir = path.join(__dirname, '..', '..', 'core', 'ai', 'skills');
   const skills = [];
   
   try {
