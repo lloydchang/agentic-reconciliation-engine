@@ -8,6 +8,7 @@ metadata:
   category: enterprise
   risk_level: low
   autonomy: conditional
+  layer: temporal
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
 ---

@@ -26,60 +26,60 @@ This guide provides comprehensive documentation for the agentic AI skills and ca
   - Compatibility testing
   - Rollback and recovery procedures
 
-#### Resource Cleanup
-- **Purpose**: Automated resource optimization and cleanup
-- **Location**: `core/ai/skills/resource-cleanup/`
-- **Features**:
-  - Unused resource identification
-  - Cost optimization recommendations
-  - Automated cleanup workflows
-  - Resource tagging and categorization
-
-#### Security Patching
-- **Purpose**: Automated security vulnerability management
-- **Location**: `core/ai/skills/security-patching/`
-- **Features**:
-  - Real-time vulnerability detection
-  - Automated patch application
-  - Security compliance validation
-  - Incident response workflows
-
-#### Backup Verification
+#### Backup Validator
 - **Purpose**: Automated backup integrity and recovery validation
-- **Location**: `core/ai/skills/backup-verification/`
+- **Location**: `core/ai/skills/backup-validator/`
 - **Features**:
   - Backup integrity checks
   - Automated recovery testing
   - Compliance reporting
   - Disaster recovery validation
 
-#### Log Retention
-- **Purpose**: Automated log management and retention policies
-- **Location**: `core/ai/skills/log-retention/`
+#### Optimize Costs
+- **Purpose**: Multi-cloud cost optimization and analysis
+- **Location**: `core/ai/skills/optimize-costs/`
 - **Features**:
-  - Log rotation and archiving
-  - Compliance-based retention
-  - Cost optimization for log storage
-  - Search and analytics integration
+  - Cost analysis across AWS, Azure, GCP
+  - Resource right-sizing recommendations
+  - Savings tracking and reporting
+  - Budget alert integration
 
-#### Performance Tuning
-- **Purpose**: Automated performance optimization and tuning
-- **Location**: `core/ai/skills/performance-tuning/`
+#### Optimize Performance
+- **Purpose**: Performance optimization across cloud infrastructure
+- **Location**: `core/ai/skills/optimize-performance/`
 - **Features**:
   - Performance monitoring and analysis
-  - Automated optimization recommendations
-  - Resource scaling adjustments
+  - Bottleneck identification
+  - Resource scaling recommendations
   - Performance baseline management
+
+#### Optimize Resources
+- **Purpose**: Resource optimization and balancing
+- **Location**: `core/ai/skills/optimize-resources/`
+- **Features**:
+  - Resource utilization analysis
+  - Workload balancing
+  - Capacity planning integration
+  - Cost-performance optimization
+
+#### Classify Logs
+- **Purpose**: Automated log classification and analysis
+- **Location**: `core/ai/skills/classify-logs/`
+- **Features**:
+  - Log categorization and tagging
+  - Pattern recognition
+  - Anomaly detection
+  - Search and analytics integration
 
 ### Code Review Automation Skills
 
-#### PR Risk Assessment
-- **Purpose**: Automated risk assessment for pull requests
-- **Location**: `core/ai/skills/pr-risk-assessment/`
+#### Code Review Automation
+- **Purpose**: Automated code review and quality analysis
+- **Location**: `core/ai/skills/code-review-automation/`
 - **Features**:
-  - Change impact analysis
-  - Risk scoring and categorization
-  - Automated approval workflows
+  - Code quality analysis
+  - Best practices validation
+  - Security vulnerability detection
   - Integration with CI/CD pipelines
 
 #### Automated Testing
@@ -100,23 +100,23 @@ This guide provides comprehensive documentation for the agentic AI skills and ca
   - Compliance reporting and auditing
   - Integration with governance frameworks
 
-#### Performance Impact
-- **Purpose**: Performance impact analysis for changes
-- **Location**: `core/ai/skills/performance-impact/`
+#### Analyze Security
+- **Purpose**: Comprehensive security analysis across multi-cloud environments
+- **Location**: `core/ai/skills/analyze-security/`
 - **Features**:
-  - Performance baseline comparison
-  - Impact prediction and analysis
-  - Bottleneck identification
-  - Performance regression detection
-
-#### Security Analysis
-- **Purpose**: Automated security analysis and vulnerability detection
-- **Location**: `core/ai/skills/security-analysis/`
-- **Features**:
-  - Static code analysis
-  - Dependency vulnerability scanning
+  - Multi-cloud security scanning
+  - Vulnerability detection and assessment
   - Security best practices validation
-  - Threat modeling and assessment
+  - Compliance and audit support
+
+#### Check Cluster Health
+- **Purpose**: Comprehensive cluster health monitoring
+- **Location**: `core/ai/skills/check-cluster-health/`
+- **Features**:
+  - Multi-cluster health monitoring
+  - Real-time health scores
+  - Issue detection and recommendations
+  - Prometheus integration
 
 ## Deployment and Configuration
 

@@ -219,6 +219,22 @@ policies/                # Governance and compliance
 
 ---
 
+### Script Directory Structure
+
+**Current State**: Multiple script directories exist with overlapping content:
+- `core/scripts/automation/` - Primary automation scripts (100+ files)
+- `core/automation/scripts/` - Secondary automation scripts (duplicates)
+- `core/scripts/infrastructure/` - Infrastructure-specific scripts (22 files)
+
+**Canonical Locations**:
+- Use `core/scripts/automation/` for general automation and CI/CD scripts
+- Use `core/scripts/infrastructure/` for infrastructure provisioning scripts
+- The `core/automation/scripts/` directory contains duplicates and should not be used for new scripts
+
+**Note**: When referencing scripts in documentation, use `core/scripts/automation/` as the canonical path.
+
+---
+
 ## 🔍 AI System Debugging Knowledge
 
 ### Overview
@@ -262,11 +278,11 @@ kubectl logs -n temporal deployment/temporal-worker --since=1h | grep ERROR
 - Use structured logging with correlation IDs
 
 ### Critical Files
-- `.agents/ai-system-debugger/SKILL.md` - Debugging skill definition
-- `.agents/ai-system-debugger/scripts/main.py` - Main debugging CLI
-- `.agents/ai-system-debugger/scripts/debug_utils.py` - Debug utilities
-- `.agents/ai-system-debugger/scripts/quick_debug.sh` - Quick bash debugging
-- `ai-agents/backend/monitoring/metrics.go` - Built-in monitoring system
+- `core/ai/skills/debug/SKILL.md` - Debugging skill definition
+- `core/ai/skills/debug/scripts/debug_utils.py` - Debug utilities
+- `core/ai/skills/debug/scripts/quick_debug.sh` - Quick bash debugging
+- `core/ai/skills/debug/scripts/debug-ai-agents-k8s.sh` - Kubernetes debugging
+- `core/ai/runtime/backend/monitoring/metrics.go` - Built-in monitoring system
 
 ---
 

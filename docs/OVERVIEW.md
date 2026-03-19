@@ -199,10 +199,10 @@ the problem you are solving.
 - [Agent Clients & Azure Support](./docs/AGENT-CLIENTS.md) - Azure's Claude Code-first experience, Windows quick-start, and secondary Codex option backed by Azure OpenAI/Foundry
 
 ### Implementation Examples
-- [Complete Hub-Spoke](./overlay/examples/complete-hub-spoke/) - Full deployment with all features
-- [Crossplane Compositions](./overlay/examples/crossplane-compositions/) - XDatabase, XNetwork, XCluster
-- [ESO Per Spoke](./overlay/examples/eso-workload-identity/) - IRSA, Managed Identity, Workload Identity
-- [Variants](./variants/) - Deployment variations for different scenarios
+- [Overlay Examples](./overlay/examples/) - Example configurations and demos
+- [Basic Example](./overlay/examples/basic/) - Basic deployment configuration
+- [Production Environment](./overlay/examples/production-env/) - Production deployment examples
+- [Agent Orchestration Demo](./overlay/examples/agent-orchestration-demo.md) - Multi-agent orchestration demonstration
 
 ### Advanced Topics
 - [AI Integration](./docs/AI-INTEGRATION-ANALYSIS.md) - Experimental automation patterns (research only)

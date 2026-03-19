@@ -70,7 +70,7 @@ The `core/ai/skills/` directory contains skill definitions following the
 - `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
 - Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
 - Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
-- 90+ skills are currently available
+- 39 skills are currently available
 
 **Example SKILL.md frontmatter (agentskills.io compliant):**
 ```yaml

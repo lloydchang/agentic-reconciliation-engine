@@ -8,6 +8,7 @@ metadata:
   category: enterprise
   risk_level: medium
   autonomy: conditional
+  layer: temporal
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
 ---
@@ -61,9 +62,8 @@ Enterprise-grade automation solution for security analysis operations across AWS
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/scripts/automation/security-analysis.py`: Main automation implementation
-- `core/scripts/automation/security-analysis_handler.py`: Cloud-specific operations
-- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `scripts/security-analysis.py`: Main automation implementation
+- `scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 security, analysis, automation, enterprise, multi-cloud, aws, azure, gcp, onprem

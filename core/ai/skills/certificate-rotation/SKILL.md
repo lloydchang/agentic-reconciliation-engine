@@ -112,29 +112,24 @@ certificate_rotation:
 
 2. **Certificate Discovery**
    - Run: `scripts/discover-certificates.sh`
-   - Output: `certificates-inventory.json`
+   - Output: Certificate inventory and expiration analysis
 
-3. **Expiration Analysis**
-   - Run: `scripts/analyze-expiration.sh`
-   - Output: `expiration-report.json`
+3. **Manual Review and Planning**
+   - Review discovered certificates and expiration dates
+   - Plan rotation schedule based on criticality
+   - Prepare new certificates using organization's CA tools
 
-4. **Certificate Generation**
-   - Run: `scripts/generate-certificates.sh`
-   - Output: `new-certificates/`
+4. **Validation and Testing**
+   - Test new certificates in non-production environments
+   - Verify certificate chain and compatibility
+   - Document rollback procedures
 
-5. **Manifest Updates**
-   - Run: `scripts/update-manifests.sh`
-   - Output: Updated GitOps manifests
+5. **PR Creation**
+   - Update GitOps manifests with new certificates
+   - Create pull request following GitOps workflow
+   - Include summary and testing evidence
 
-6. **Validation**
-   - Run: `scripts/validate-certificates.sh`
-   - Output: `validation-report.json`
-
-7. **PR Creation**
-   - Run: `scripts/create-pr.sh`
-   - Output: Pull request with certificate changes
-
-8. **Notification**
+6. **Notification**
    - Send notifications to configured channels
    - Include summary and next steps
 
@@ -195,7 +190,11 @@ certificate_rotation:
 
 Load these files when needed:
 - `scripts/discover-certificates.sh` - Certificate discovery script
-- `scripts/generate-certificates.sh` - Certificate generation script
-- `scripts/validate-certificates.sh` - Certificate validation script
-- `references/certificate-formats.md` - Certificate format specifications
-- `references/security-policies.md` - Security policy requirements
+
+## External Resources
+
+For certificate generation and validation, refer to:
+- **cert-manager documentation**: https://cert-manager.io/docs/
+- **Vault PKI secrets engine**: https://www.vaultproject.io/docs/secrets/pki
+- **OpenSSL documentation**: https://www.openssl.org/docs/
+- Organization-specific CA tools and security policies

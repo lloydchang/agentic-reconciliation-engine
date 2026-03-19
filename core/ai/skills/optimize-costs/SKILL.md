@@ -8,6 +8,7 @@ metadata:
   category: enterprise
   risk_level: medium
   autonomy: conditional
+  layer: temporal
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
 ---
@@ -61,9 +62,9 @@ Enterprise-grade automation solution for cost optimizer operations across AWS, A
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/scripts/automation/cost-optimizer.py`: Main automation implementation
-- `core/scripts/automation/cost-optimizer_handler.py`: Cloud-specific operations
-- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `scripts/cost-optimizer.py`: Main automation implementation
+- `scripts/cost-optimizer_handler.py`: Cloud-specific operations
+- `scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 cost, optimizer, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
