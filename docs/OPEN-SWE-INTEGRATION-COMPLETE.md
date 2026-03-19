@@ -1,7 +1,7 @@
 # Open-SWE Integration - Complete Implementation Guide
 
 ## Overview
-This document provides the complete implementation guide for the Open-SWE integration with the GitOps Infrastructure Control Plane.
+This document provides the complete implementation guide for the Open-SWE integration with the Agentic Reconciliation Engine.
 
 ## Architecture
 - **Multi-platform Integration**: GitHub, Linear, Slack

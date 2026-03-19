@@ -1,4 +1,4 @@
-# Consolidated K8sGPT Deployment for GitOps Infrastructure Control Plane
+# Consolidated K8sGPT Deployment for Agentic Reconciliation Engine
 # Single instance per cluster serving all components and subsystems
 apiVersion: apps/v1
 kind: Deployment

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document documents all fixes applied to resolve issues encountered when running the GitOps Infrastructure Control Plane quickstart script (`./core/scripts/automation/quickstart.sh`).
+This document documents all fixes applied to resolve issues encountered when running the Agentic Reconciliation Engine quickstart script (`./core/scripts/automation/quickstart.sh`).
 
 ## Issues Identified and Fixed
 

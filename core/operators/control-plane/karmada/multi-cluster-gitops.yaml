@@ -12,7 +12,7 @@ metadata:
     managed-by: karmada-flux
 
 ---
-# GitOps Infrastructure Helm Repository
+# Agentic Reconciliation Engine Helm Repository
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -30,10 +30,10 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: gitops-infrastructure
+  name: agentic-reconciliation-engine
   namespace: gitops-multi-cluster
   labels:
-    app.kubernetes.io/name: gitops-infrastructure
+    app.kubernetes.io/name: agentic-reconciliation-engine
     app.kubernetes.io/component: helm-release
 spec:
   interval: 10m
@@ -90,7 +90,7 @@ spec:
       prometheus.io/path: "/metrics"
 
 ---
-# Propagation Policy for GitOps Infrastructure
+# Propagation Policy for Agentic Reconciliation Engine
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata:
@@ -106,7 +106,7 @@ spec:
       name: gitops-infra
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   placement:
     clusterAffinity:
       clusterNames:
@@ -132,7 +132,7 @@ spec:
   resourceSelectors:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   overrideRules:
     - targetCluster:
         clusterNames:
@@ -189,7 +189,7 @@ spec:
   resourceSelectors:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   overrideRules:
     - targetCluster:
         clusterNames:
@@ -229,7 +229,7 @@ spec:
   resourceSelectors:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   overrideRules:
     - targetCluster:
         clusterNames:

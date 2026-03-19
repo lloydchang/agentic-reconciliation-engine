@@ -1192,7 +1192,7 @@ git push origin v1.1.0
 ## License and Support
 
 ### License
-This evaluation framework is part of the GitOps Infrastructure Control Plane project. See the main repository for licensing information.
+This evaluation framework is part of the Agentic Reconciliation Engine project. See the main repository for licensing information.
 
 ### Support Channels
 - **Documentation**: This comprehensive guide

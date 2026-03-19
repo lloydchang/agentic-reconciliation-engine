@@ -1,6 +1,6 @@
 # Comprehensive Testing Suite for GitOps Infra Control Plane
 
-This directory contains all testing scripts and documentation for validating the GitOps infrastructure platform locally and in CI/CD pipelines.
+This directory contains all testing scripts and documentation for validating the Agentic Reconciliation Engine platform locally and in CI/CD pipelines.
 
 ## Test Scripts
 
@@ -173,4 +173,4 @@ Tests are automatically run via GitHub Actions (`.github/workflows/gitops-ci.yml
 DEBUG=1 ./core/automation/testing/test-local-suite.sh
 ```
 
-This testing suite enables comprehensive local validation of the entire GitOps infrastructure platform, ensuring production readiness without cloud costs.
+This testing suite enables comprehensive local validation of the entire Agentic Reconciliation Engine platform, ensuring production readiness without cloud costs.

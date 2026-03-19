@@ -7,7 +7,7 @@ metadata:
   name: gitops-pipeline-alerts
   namespace: flux-system
 spec:
-  summary: "GitOps Infrastructure Pipeline"
+  summary: "Agentic Reconciliation Engine Pipeline"
   eventMetadata:
     env: "production"
     cluster: "gitops-management"

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of a true overlay pattern for the GitOps Infrastructure Control Plane quickstart scripts. The overlay pattern allows `overlay-quickstart.sh` to extend and enhance `quickstart.sh` without duplicating logic, following the same principles as CSS overrides.
+This document describes the implementation of a true overlay pattern for the Agentic Reconciliation Engine quickstart scripts. The overlay pattern allows `overlay-quickstart.sh` to extend and enhance `quickstart.sh` without duplicating logic, following the same principles as CSS overrides.
 
 ## Problem Statement
 
@@ -144,7 +144,7 @@ overlay-quickstart.sh       # True overlay implementation
 - **Result**: Plugin-like architecture
 
 ### 3. Clean Separation
-- **Base Script**: Core GitOps infrastructure setup
+- **Base Script**: Core Agentic Reconciliation Engine setup
 - **Overlay Script**: Additional features, debugging, dashboards
 - **Result**: Clear responsibility boundaries
 

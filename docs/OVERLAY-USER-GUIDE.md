@@ -1,6 +1,6 @@
 # Overlay User Guide
 
-Welcome to the comprehensive user guide for the GitOps Infrastructure Control Plane Overlay System. This guide will help you understand, create, and manage overlays effectively.
+Welcome to the comprehensive user guide for the Agentic Reconciliation Engine Overlay System. This guide will help you understand, create, and manage overlays effectively.
 
 ## Table of Contents
 
@@ -55,7 +55,7 @@ Before you begin working with overlays, ensure you have:
 
 ### What are Overlays?
 
-Overlays are modular extensions that customize and enhance the base GitOps Infrastructure Control Plane without modifying the core components. They follow a layered architecture where:
+Overlays are modular extensions that customize and enhance the base Agentic Reconciliation Engine without modifying the core components. They follow a layered architecture where:
 
 - **Base Layer**: Immutable core components
 - **Overlay Layer**: Customizable extensions

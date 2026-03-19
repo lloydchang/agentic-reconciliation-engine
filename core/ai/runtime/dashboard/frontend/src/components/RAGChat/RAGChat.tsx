@@ -257,7 +257,7 @@ const RAGChat: React.FC = () => {
                 <li>📚 Documentation and procedures</li>
                 <li>🤖 Agent memory and learned patterns</li>
               </ul>
-              <p>Ask me anything about your GitOps infrastructure!</p>
+              <p>Ask me anything about your Agentic Reconciliation Engine!</p>
             </div>
           )}
           
@@ -320,7 +320,7 @@ const RAGChat: React.FC = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={voiceEnabled ? "Speak or type your question..." : "Ask about your GitOps infrastructure..."}
+            placeholder={voiceEnabled ? "Speak or type your question..." : "Ask about your Agentic Reconciliation Engine..."}
             disabled={isLoading}
             className="message-input"
           />

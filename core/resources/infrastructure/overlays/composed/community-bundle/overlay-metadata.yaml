@@ -10,9 +10,9 @@ risk_level: low
 autonomy: fully_auto
 
 maintainer:
-  name: "GitOps Infrastructure Control Plane Community"
+  name: "Agentic Reconciliation Engine Community"
   email: "community@agentic-reconciliation-engine.org"
-  organization: "GitOps Infrastructure Control Plane"
+  organization: "Agentic Reconciliation Engine"
   url: "https://github.com/agentic-reconciliation-engine"
 
 tags:

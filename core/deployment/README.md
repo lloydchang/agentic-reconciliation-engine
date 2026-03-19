@@ -530,4 +530,4 @@ kubectl apply -f backup.yaml
 
 ## 📄 **License**
 
-This evaluation framework is part of the GitOps Infrastructure Control Plane project. See the main repository for licensing information.
+This evaluation framework is part of the Agentic Reconciliation Engine project. See the main repository for licensing information.

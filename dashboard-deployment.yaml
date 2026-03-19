@@ -106,7 +106,7 @@ def get_activity_data():
         {"time": "2 min ago", "type": "success", "icon": "🚀", "message": "AI Agent System initialized successfully"},
         {"time": "5 min ago", "type": "info", "icon": "📊", "message": "Dashboard backend started on port 5000"},
         {"time": "8 min ago", "type": "success", "icon": "✅", "message": "Kubernetes cluster deployed and ready"},
-        {"time": "12 min ago", "type": "info", "icon": "🔧", "message": "GitOps infrastructure components configured"},
+        {"time": "12 min ago", "type": "info", "icon": "🔧", "message": "Agentic Reconciliation Engine components configured"},
         {"time": "15 min ago", "type": "success", "icon": "🎯", "message": "RAG system initialized with knowledge base"}
     ]
 

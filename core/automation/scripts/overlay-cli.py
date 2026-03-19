@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Overlay CLI Tool
-Command-line interface for managing overlays in the GitOps Infrastructure Control Plane
+Command-line interface for managing overlays in the Agentic Reconciliation Engine
 """
 
 import os
@@ -345,7 +345,7 @@ class OverlayCLI:
             # Update catalog
             catalog = {
                 'version': "1.0.0",
-                'description': "GitOps Infrastructure Control Plane Overlay Registry",
+                'description': "Agentic Reconciliation Engine Overlay Registry",
                 'overlays': overlays,
                 'statistics': self._calculate_statistics(overlays)
             }

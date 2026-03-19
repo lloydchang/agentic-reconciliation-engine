@@ -5,7 +5,7 @@
 
 set -euxo pipefail
 
-echo "🚀 Starting GitOps Infrastructure Drift Test (Local Mode)"
+echo "🚀 Starting Agentic Reconciliation Engine Drift Test (Local Mode)"
 echo "======================================================"
 
 # Configuration

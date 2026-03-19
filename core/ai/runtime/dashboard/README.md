@@ -1,6 +1,6 @@
 # AI Agents Dashboard
 
-A comprehensive dashboard for monitoring and managing AI agents in the GitOps infrastructure control plane.
+A comprehensive dashboard for monitoring and managing AI agents in the Agentic Reconciliation Engine.
 
 ## Architecture
 
@@ -204,4 +204,4 @@ The dashboard follows GitOps principles:
 
 ## License
 
-This project is part of the GitOps Infrastructure Control Plane repository.
+This project is part of the Agentic Reconciliation Engine repository.

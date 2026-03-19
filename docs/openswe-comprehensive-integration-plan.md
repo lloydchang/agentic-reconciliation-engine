@@ -1,12 +1,12 @@
-# OpenSWE Integration Plan for GitOps Infrastructure Control Plane
+# OpenSWE Integration Plan for Agentic Reconciliation Engine
 
 ## Executive Summary
 
-This document outlines a comprehensive strategy for integrating OpenSWE (Open-Source Software Engineering) capabilities into the GitOps Infrastructure Control Plane. OpenSWE provides advanced coding agent features that complement our existing infrastructure automation capabilities, enabling a unified platform for both infrastructure operations and software development workflows.
+This document outlines a comprehensive strategy for integrating OpenSWE (Open-Source Software Engineering) capabilities into the Agentic Reconciliation Engine. OpenSWE provides advanced coding agent features that complement our existing infrastructure automation capabilities, enabling a unified platform for both infrastructure operations and software development workflows.
 
 ## Current Architecture Analysis
 
-### GitOps Infrastructure Control Plane Strengths
+### Agentic Reconciliation Engine Strengths
 - **Infrastructure Automation**: 64+ skills for cost optimization, security, deployment, monitoring
 - **Safety-First Approach**: GitOps pipelines, risk assessment, human gates, Kubernetes reconciliation
 - **Multi-Agent Architecture**: Memory Agents, Temporal Orchestration, GitOps Control, Pi-Mono RPC
@@ -476,7 +476,7 @@ data:
 
 ## Conclusion
 
-The integration of OpenSWE with the GitOps Infrastructure Control Plane creates a comprehensive, unified platform that combines infrastructure automation excellence with advanced software development capabilities. This integration provides:
+The integration of OpenSWE with the Agentic Reconciliation Engine creates a comprehensive, unified platform that combines infrastructure automation excellence with advanced software development capabilities. This integration provides:
 
 1. **Enhanced Developer Experience**: Natural language interfaces through Slack, Linear, and GitHub
 2. **Advanced Safety Mechanisms**: Multi-layer validation with sandbox isolation and GitOps gates

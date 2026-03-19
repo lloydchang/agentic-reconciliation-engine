@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Secret Rotation Script for GitOps Infrastructure
+# Secret Rotation Script for Agentic Reconciliation Engine
 # This script automates the rotation of sealed secrets
 
 set -euxo pipefail

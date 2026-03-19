@@ -1,4 +1,4 @@
-description: GitOps Infrastructure Control Plane Overlay Registry
+description: Agentic Reconciliation Engine Overlay Registry
 overlays:
 - autonomy: fully_auto
   base_path: themes

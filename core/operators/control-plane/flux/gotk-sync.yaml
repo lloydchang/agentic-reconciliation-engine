@@ -6,7 +6,7 @@
 # 3. Team skills to implement and maintain GitOps workflows
 # 4. Measurable success criteria and ROI expectations
 
-# CONTEXT: This is foundational GitOps infrastructure - appropriate for most teams
+# CONTEXT: This is foundational Agentic Reconciliation Engine - appropriate for most teams
 # BUT: Consider your scale and complexity before adding advanced features
 # - Small teams (1-5): Start here, add complexity gradually
 # - Medium teams (6-20): This is likely appropriate

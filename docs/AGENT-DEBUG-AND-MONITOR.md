@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive documentation for the AI agents system debugging and monitoring capabilities implemented across the GitOps infrastructure. The system includes automated debugging skills, real-time metrics collection, distributed system monitoring, and comprehensive deployment automation.
+This document provides comprehensive documentation for the AI agents system debugging and monitoring capabilities implemented across the Agentic Reconciliation Engine. The system includes automated debugging skills, real-time metrics collection, distributed system monitoring, and comprehensive deployment automation.
 
 ## Architecture Components
 

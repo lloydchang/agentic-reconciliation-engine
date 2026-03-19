@@ -44,14 +44,14 @@ func main() {
 
 	// Test RAG query
 	log.Println("Testing RAG query...")
-	response, err := ragService.Query(context.Background(), "What is the status of our GitOps infrastructure?")
+	response, err := ragService.Query(context.Background(), "What is the status of our Agentic Reconciliation Engine?")
 	if err != nil {
 		log.Printf("RAG query failed: %v", err)
 		return
 	}
 
 	fmt.Printf("RAG Response:\n")
-	fmt.Printf("Question: What is the status of our GitOps infrastructure?\n")
+	fmt.Printf("Question: What is the status of our Agentic Reconciliation Engine?\n")
 	fmt.Printf("Answer: %s\n", response.Answer)
 	fmt.Printf("Sources: %d\n", len(response.Sources))
 	fmt.Printf("Model: %s\n", response.Model)

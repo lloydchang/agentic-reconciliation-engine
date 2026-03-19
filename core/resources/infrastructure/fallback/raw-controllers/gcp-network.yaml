@@ -8,7 +8,7 @@ metadata:
     dependsOn.fluxcd.io/order: "1"
     dependsOn.fluxcd.io/description: "Foundation VPC network for all GCP resources"
 spec:
-  description: "GitOps infrastructure network"
+  description: "Agentic Reconciliation Engine network"
   routingMode: REGIONAL
   autoCreateSubnetworks: false
 ---

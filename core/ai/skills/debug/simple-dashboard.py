@@ -216,7 +216,7 @@ class SimpleDashboard:
         </div>
         
         <div class="footer">
-            <p>🚀 GitOps Infrastructure Control Plane - Overlay System</p>
+            <p>🚀 Agentic Reconciliation Engine - Overlay System</p>
             <p>Dashboard refreshes automatically every 5 seconds</p>
         </div>
     </div>

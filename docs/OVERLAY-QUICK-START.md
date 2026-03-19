@@ -1,6 +1,6 @@
 # Overlay Quick Start Guide
 
-Complete quick start guide for the GitOps Infrastructure Control Plane Overlay System.
+Complete quick start guide for the Agentic Reconciliation Engine Overlay System.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ Complete quick start guide for the GitOps Infrastructure Control Plane Overlay S
 
 ## What Are Overlays?
 
-Overlays are modular extensions that customize and enhance the base GitOps Infrastructure Control Plane without modifying core components. They provide:
+Overlays are modular extensions that customize and enhance the base Agentic Reconciliation Engine without modifying core components. They provide:
 
 - **Customization**: Add new features and capabilities
 - **Isolation**: Separate concerns from base system

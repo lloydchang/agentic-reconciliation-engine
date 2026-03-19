@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive documentation for the agentic AI skills and capabilities integrated into the GitOps Infrastructure Control Plane. These skills leverage compound engineering methodology to enable autonomous operations, continuous learning, and exponential improvement.
+This guide provides comprehensive documentation for the agentic AI skills and capabilities integrated into the Agentic Reconciliation Engine. These skills leverage compound engineering methodology to enable autonomous operations, continuous learning, and exponential improvement.
 
 ## Available Skills
 
@@ -354,4 +354,4 @@ print(result)
 
 **Last Updated**: March 18, 2026  
 **Version**: 1.0  
-**Maintainers**: GitOps Infrastructure Control Plane Team
+**Maintainers**: Agentic Reconciliation Engine Team

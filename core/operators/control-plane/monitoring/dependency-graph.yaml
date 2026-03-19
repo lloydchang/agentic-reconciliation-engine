@@ -254,7 +254,7 @@ class DependencyGraphGenerator:
                 edge_color='black',
                 width=2)
         
-        plt.title('GitOps Infrastructure Dependency Graph', fontsize=16, fontweight='bold')
+        plt.title('Agentic Reconciliation Engine Dependency Graph', fontsize=16, fontweight='bold')
         plt.tight_layout()
         
         # Save the graph
@@ -360,7 +360,7 @@ class DependencyGraphGenerator:
 </head>
 <body>
     <div class="header">
-        <h1>GitOps Infrastructure Dependency Graph</h1>
+        <h1>Agentic Reconciliation Engine Dependency Graph</h1>
         <p>Generated: {graph_data['generated_at']}</p>
     </div>
     

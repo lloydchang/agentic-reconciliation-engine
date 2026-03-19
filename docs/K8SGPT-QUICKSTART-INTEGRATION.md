@@ -234,7 +234,7 @@ cd agentic-reconciliation-engine
 
 ## 🎉 Summary
 
-The consolidated K8sGPT deployment is now fully integrated into the GitOps Infrastructure Control Plane quickstart experience. Users can now:
+The consolidated K8sGPT deployment is now fully integrated into the Agentic Reconciliation Engine quickstart experience. Users can now:
 
 - **Deploy Automatically**: K8sGPT is deployed as part of standard onboarding
 - **Benefit Immediately**: 75% resource reduction and unified service architecture

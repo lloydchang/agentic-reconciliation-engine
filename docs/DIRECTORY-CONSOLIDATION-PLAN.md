@@ -45,7 +45,7 @@ core/workspace/ (956 items)    → core/core/workspace/
 ## Target Structure
 
 ```
-core/                    # Complete GitOps infrastructure system
+core/                    # Complete Agentic Reconciliation Engine system
 ├── operators/          # core/operators/ → operators/
 ├── resources/          # core/resources/ → resources/
 ├── governance/         # core/governance/ → governance/

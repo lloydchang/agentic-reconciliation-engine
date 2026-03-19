@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Security Audit Script for GitOps Infrastructure
+# Comprehensive Security Audit Script for Agentic Reconciliation Engine
 # This script performs a complete security audit of the infrastructure
 
 set -euo pipefail
@@ -548,7 +548,7 @@ EOF
 
 # Main audit function
 main() {
-    echo -e "${PURPLE}🔍 GitOps Infrastructure Security Audit${NC}"
+    echo -e "${PURPLE}🔍 Agentic Reconciliation Engine Security Audit${NC}"
     echo -e "${PURPLE}======================================${NC}"
     
     init_audit

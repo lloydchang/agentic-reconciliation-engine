@@ -2,7 +2,7 @@
 
 ## Overview
 
-Argo Rollouts is a Kubernetes controller and set of CRDs that provide advanced deployment capabilities such as blue-green, canary, canary analysis, experimentation, and progressive delivery features to Kubernetes. This guide covers the complete integration of Argo Rollouts into the GitOps Infrastructure Control Plane with Qwen-powered K8sGPT analysis.
+Argo Rollouts is a Kubernetes controller and set of CRDs that provide advanced deployment capabilities such as blue-green, canary, canary analysis, experimentation, and progressive delivery features to Kubernetes. This guide covers the complete integration of Argo Rollouts into the Agentic Reconciliation Engine with Qwen-powered K8sGPT analysis.
 
 ## Architecture
 

@@ -705,7 +705,7 @@ data:
     <body>
         <div class="header">
             <h1>GitOps Dependency Status Dashboard</h1>
-            <p>Real-time monitoring of GitOps infrastructure dependencies and controller health</p>
+            <p>Real-time monitoring of Agentic Reconciliation Engine dependencies and controller health</p>
         </div>
         
         <div class="container">

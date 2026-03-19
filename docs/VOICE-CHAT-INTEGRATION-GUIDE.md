@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how to integrate voice chat capabilities throughout the GitOps infrastructure control plane. The voice assistant provides natural language interaction with your infrastructure using speech-to-text and text-to-speech technologies.
+This guide explains how to integrate voice chat capabilities throughout the Agentic Reconciliation Engine. The voice assistant provides natural language interaction with your infrastructure using speech-to-text and text-to-speech technologies.
 
 ## 🚀 Quick Start
 
@@ -419,4 +419,4 @@ func (h *VoiceHandler) HandleVoiceStatus(c *gin.Context)
 
 ---
 
-**This voice chat integration brings natural language interaction to your GitOps infrastructure, making it more accessible and user-friendly for all users.** 🎤🚀
+**This voice chat integration brings natural language interaction to your Agentic Reconciliation Engine, making it more accessible and user-friendly for all users.** 🎤🚀

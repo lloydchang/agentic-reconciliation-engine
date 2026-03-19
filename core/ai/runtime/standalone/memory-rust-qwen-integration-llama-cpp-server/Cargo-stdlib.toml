@@ -2,7 +2,7 @@
 name = "agent-memory-rust"
 version = "1.0.0"
 edition = "2021"
-authors = ["GitOps Infrastructure Team"]
+authors = ["Agentic Reconciliation Engine Team"]
 description = "Memory agent with Qwen LLM integration using llama.cpp"
 
 # No external dependencies - using only stdlib

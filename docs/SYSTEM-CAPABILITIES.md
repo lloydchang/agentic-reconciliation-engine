@@ -186,7 +186,7 @@ Raft Consensus ← Distributed State Management
 
 ```bash
 # Deploy to Kubernetes with Temporal and Flux
-./core/scripts/automation/deploy-gitops-infrastructure.sh
+./core/scripts/automation/deploy-agentic-reconciliation-engine.sh
 
 # Start AI agents with MCP servers
 ./core/scripts/automation/setup-local-ai-agents.sh

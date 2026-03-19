@@ -376,5 +376,5 @@ qwen_api:
 
 **Document Version**: 1.0  
 **Last Updated**: 2025-03-17  
-**Owner**: GitOps Infrastructure Team  
+**Owner**: Agentic Reconciliation Engine Team  
 **Reviewers**: AI Architecture Team, Platform Engineering

@@ -1,6 +1,6 @@
 # Basic Examples
 
-This directory contains basic examples for getting started with the GitOps Infrastructure Control Plane.
+This directory contains basic examples for getting started with the Agentic Reconciliation Engine.
 
 ## Quick Start Examples
 

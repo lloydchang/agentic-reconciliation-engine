@@ -61,7 +61,7 @@ data:
   # Deployment script for Pixie
   deploy-pixie.sh: |
     #!/bin/bash
-    # Pixie eBPF Deployment Script for GitOps Infrastructure
+    # Pixie eBPF Deployment Script for Agentic Reconciliation Engine
     
     set -e
     
@@ -254,7 +254,7 @@ metadata:
 data:
   # Sample Pixie scripts for common GitOps monitoring
   gitops-monitoring-scripts.yaml: |
-    # Pixie scripts for GitOps infrastructure monitoring
+    # Pixie scripts for Agentic Reconciliation Engine monitoring
     
     # Flux deployment monitoring
     flux_deployment_health: |

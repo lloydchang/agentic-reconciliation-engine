@@ -1,7 +1,7 @@
 # Dashboard Debugging and Fix Session
 
 ## Overview
-This document captures the complete debugging and fix session for the GitOps Infrastructure Control Plane dashboard, including compilation errors, database connectivity issues, and voice handler problems.
+This document captures the complete debugging and fix session for the Agentic Reconciliation Engine dashboard, including compilation errors, database connectivity issues, and voice handler problems.
 
 ## Issues Identified and Resolved
 

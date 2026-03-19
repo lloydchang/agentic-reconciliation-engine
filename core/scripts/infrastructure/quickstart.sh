@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Quickstart Script for GitOps Infrastructure Control Plane
+# Quickstart Script for Agentic Reconciliation Engine
 # Sets up the complete development environment
 
 set -euo pipefail
@@ -25,7 +25,7 @@ VERBOSE=false
 # Help function
 show_help() {
     cat << EOF
-GitOps Infrastructure Control Plane Quickstart
+Agentic Reconciliation Engine Quickstart
 
 USAGE:
     $0 [OPTIONS]
@@ -46,7 +46,7 @@ EXAMPLES:
     $0 --kind-config custom-config.yaml  # Custom Kind config
 
 DESCRIPTION:
-    This script sets up the complete GitOps infrastructure control plane
+    This script sets up the complete Agentic Reconciliation Engine
     including dependencies, Docker images, and Kind clusters.
 
 EOF
@@ -395,7 +395,7 @@ show_next_steps() {
     
     cat << EOF
 
-${GREEN}🎉 GitOps Infrastructure Control Plane is ready!${NC}
+${GREEN}🎉 Agentic Reconciliation Engine is ready!${NC}
 
 Next steps:
 1. Set your kubeconfig:
@@ -442,7 +442,7 @@ trap cleanup EXIT
 
 # Main function
 main() {
-    log_info "Starting GitOps Infrastructure Control Plane quickstart..."
+    log_info "Starting Agentic Reconciliation Engine quickstart..."
     
     parse_args "$@"
     check_platform

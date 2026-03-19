@@ -66,7 +66,7 @@ spec:
           providers:
             - name: 'gitops-infra'
               orgId: 1
-              folder: 'GitOps Infrastructure'
+              folder: 'Agentic Reconciliation Engine'
               type: file
               disableDeletion: false
               editable: true

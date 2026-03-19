@@ -45,7 +45,7 @@ data:
         
       - name: "s3-backup"
         type: "s3"
-        bucket: "gitops-infrastructure-backup"
+        bucket: "agentic-reconciliation-engine-backup"
         prefix: "state-backups"
         region: "us-west-2"
         

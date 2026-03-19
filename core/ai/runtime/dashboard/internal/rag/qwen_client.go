@@ -153,7 +153,7 @@ func (q *QwenClient) buildRAGPrompt(question string, context []Document) string 
 		contextStr.WriteString("---\n\n")
 	}
 	
-	prompt := fmt.Sprintf(`You are Qwen, an AI assistant helping with GitOps infrastructure management.
+	prompt := fmt.Sprintf(`You are Qwen, an AI assistant helping with Agentic Reconciliation Engine management.
 
 %sQuestion: %s
 

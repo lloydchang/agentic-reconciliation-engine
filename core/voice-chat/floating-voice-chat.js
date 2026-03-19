@@ -71,7 +71,7 @@ class FloatingVoiceChat {
                     <div class="fvc-empty-state">
                         <div class="fvc-empty-icon">🎤</div>
                         <div class="fvc-empty-title">Voice Assistant Ready</div>
-                        <div class="fvc-empty-text">Click the microphone or type your question about GitOps infrastructure</div>
+                        <div class="fvc-empty-text">Click the microphone or type your question about Agentic Reconciliation Engine</div>
                     </div>
                     <div class="fvc-typing-indicator" id="fvcTypingIndicator" style="display: none;">
                         <div class="fvc-typing-dots">
@@ -117,7 +117,7 @@ class FloatingVoiceChat {
                         </button>
                     </div>
                     <div class="fvc-text-input">
-                        <textarea id="fvcMessageInput" placeholder="Ask about your GitOps infrastructure..." rows="1"></textarea>
+                        <textarea id="fvcMessageInput" placeholder="Ask about your Agentic Reconciliation Engine..." rows="1"></textarea>
                         <button class="fvc-send-btn" id="fvcSendBtn" disabled>
                             📤
                         </button>

@@ -10,9 +10,9 @@ risk_level: medium
 autonomy: conditional
 
 maintainer:
-  name: "GitOps Infrastructure Control Plane"
+  name: "Agentic Reconciliation Engine"
   email: "enterprise@agentic-reconciliation-engine.org"
-  organization: "GitOps Infrastructure Control Plane"
+  organization: "Agentic Reconciliation Engine"
   url: "https://github.com/agentic-reconciliation-engine"
 
 tags:

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Complete End-to-End Test Suite
-# Validates the entire GitOps infrastructure control plane from bootstrap to teardown
+# Validates the entire Agentic Reconciliation Engine from bootstrap to teardown
 
 set -euxo pipefail
 
@@ -100,16 +100,16 @@ test_bootstrap() {
     print_header "Phase 2: Bootstrap Test"
 
     # Run bootstrap script
-    if [[ -f "core/core/automation/ci-cd/scripts/deploy-gitops-infrastructure.sh" ]]; then
-        chmod +x core/core/automation/ci-cd/scripts/deploy-gitops-infrastructure.sh
-        if ./core/core/automation/ci-cd/scripts/deploy-gitops-infrastructure.sh; then
+    if [[ -f "core/core/automation/ci-cd/scripts/deploy-agentic-reconciliation-engine.sh" ]]; then
+        chmod +x core/core/automation/ci-cd/scripts/deploy-agentic-reconciliation-engine.sh
+        if ./core/core/automation/ci-cd/scripts/deploy-agentic-reconciliation-engine.sh; then
             update_test_result "bootstrap" true
         else
             update_test_result "bootstrap" false
             return 1
         fi
     else
-        print_error "deploy-gitops-infrastructure.sh not found"
+        print_error "deploy-agentic-reconciliation-engine.sh not found"
         update_test_result "bootstrap" false
         return 1
     fi

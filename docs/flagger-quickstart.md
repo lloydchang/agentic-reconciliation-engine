@@ -2,7 +2,7 @@
 
 ## Overview
 
-Flagger is a CNCF graduated project that provides progressive delivery capabilities for Kubernetes applications. This guide will help you get started with Flagger in your GitOps infrastructure control plane.
+Flagger is a CNCF graduated project that provides progressive delivery capabilities for Kubernetes applications. This guide will help you get started with Flagger in your Agentic Reconciliation Engine.
 
 ## Prerequisites
 

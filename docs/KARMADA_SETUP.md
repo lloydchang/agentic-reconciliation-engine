@@ -77,7 +77,7 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: gitops-infrastructure
+  name: agentic-reconciliation-engine
   namespace: gitops-multi-cluster
 spec:
   interval: 10m
@@ -105,7 +105,7 @@ spec:
       name: gitops-infra
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   placement:
     clusterAffinity:
       clusterNames:
@@ -126,7 +126,7 @@ spec:
   resourceSelectors:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
-      name: gitops-infrastructure
+      name: agentic-reconciliation-engine
   overrideRules:
     - targetCluster:
         clusterNames:
@@ -348,7 +348,7 @@ kubectl get events -n flux-system --kubeconfig ~/.kube/members.config --context 
 kubectl describe overridepolicy gitops-infra-production -n gitops-multi-cluster --kubeconfig ~/.kube/karmada.config
 
 # Verify applied overrides
-kubectl get helmrelease gitops-infrastructure -n gitops-multi-cluster -o yaml --kubeconfig ~/.kube/members.config --context member1
+kubectl get helmrelease agentic-reconciliation-engine -n gitops-multi-cluster -o yaml --kubeconfig ~/.kube/members.config --context member1
 ```
 
 ---
@@ -392,7 +392,7 @@ kubectl get helmrelease gitops-infrastructure -n gitops-multi-cluster -o yaml --
 
 ### **Kustomization Structure**
 
-The Karmada configuration is now fully integrated into the GitOps infrastructure control plane:
+The Karmada configuration is now fully integrated into the Agentic Reconciliation Engine:
 
 ```yaml
 # Root level kustomization.yaml

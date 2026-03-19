@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 AI Agents Dashboard - GitOps Infrastructure"
+echo "🚀 AI Agents Dashboard - Agentic Reconciliation Engine"
 echo "=============================================="
 echo ""
 echo "📊 Dashboard is now running at: http://localhost:8081"

@@ -488,7 +488,7 @@ kubectl cp ai-core/resources/agent-memory-rust-xxx:/tmp/capture.pcap ./capture.p
 - [ ] Inference backend working
 - [ ] Dashboard accessible
 
-### GitOps Infrastructure
+### Agentic Reconciliation Engine
 
 - [ ] Flux reconciling properly
 - [ ] Crossplane providers healthy

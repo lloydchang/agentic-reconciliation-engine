@@ -505,7 +505,7 @@ generate_validation_report() {
 # Main execution
 main() {
     echo -e "${CYAN}================================================================${NC}"
-    echo -e "${CYAN} GitOps Infrastructure Mitigation Strategies Validation${NC}"
+    echo -e "${CYAN} Agentic Reconciliation Engine Mitigation Strategies Validation${NC}"
     echo -e "${CYAN}================================================================${NC}"
     echo "Namespace: $NAMESPACE"
     echo "Dry Run: $DRY_RUN"
@@ -537,7 +537,7 @@ main() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Mitigation Strategies Validation Script"
+    echo "Agentic Reconciliation Engine Mitigation Strategies Validation Script"
     echo ""
     echo "Usage: $0 [OPTIONS]"
     echo ""

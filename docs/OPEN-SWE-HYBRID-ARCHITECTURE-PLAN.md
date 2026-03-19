@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines a comprehensive integration plan for combining Open SWE's software development automation capabilities with our existing GitOps infrastructure control plane. The hybrid architecture leverages Open SWE's strengths in code automation while maintaining our GitOps safety principles for infrastructure operations.
+This document outlines a comprehensive integration plan for combining Open SWE's software development automation capabilities with our existing Agentic Reconciliation Engine. The hybrid architecture leverages Open SWE's strengths in code automation while maintaining our GitOps safety principles for infrastructure operations.
 
 ## 1. Current State Analysis
 

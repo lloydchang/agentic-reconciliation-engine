@@ -582,7 +582,7 @@ async def voice_chat_page():
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Ask about your GitOps infrastructure:
+                        Ask about your Agentic Reconciliation Engine:
                     </label>
                     <div class="flex gap-2">
                         <input 

@@ -241,7 +241,7 @@ main() {
     echo -e "${BOLD}Overlay Quickstart Complete!${RESET}"
     echo "=========================="
     echo
-    echo "Your GitOps infrastructure includes overlay enhancements:"
+    echo "Your Agentic Reconciliation Engine includes overlay enhancements:"
     echo "  • Enhanced debug dashboard"
     echo "  • Overlay-specific logging"
     echo "  • Hook-based extensibility"
@@ -249,7 +249,7 @@ main() {
     echo "Overlay resources in: $OVERLAY_DIR"
     echo "Overlay logs in: $OVERLAY_LOG_DIR"
     echo
-    echo -e "${GREEN}${BOLD}Overlay-enhanced GitOps infrastructure deployed!${RESET}"
+    echo -e "${GREEN}${BOLD}Overlay-enhanced Agentic Reconciliation Engine deployed!${RESET}"
 }
 
 # Parse arguments and pass through to quickstart.sh

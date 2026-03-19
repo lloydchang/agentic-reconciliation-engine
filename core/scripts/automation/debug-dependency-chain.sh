@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Automated Debugging Script for Distributed Reconciliation Tracking
-# Provides comprehensive debugging for GitOps infrastructure dependency chains
+# Provides comprehensive debugging for Agentic Reconciliation Engine dependency chains
 
 set -euo pipefail
 
@@ -48,7 +48,7 @@ log_debug() {
 # Header function
 print_header() {
     echo -e "${CYAN}================================================================${NC}"
-    echo -e "${CYAN} GitOps Infrastructure Dependency Chain Debugging${NC}"
+    echo -e "${CYAN} Agentic Reconciliation Engine Dependency Chain Debugging${NC}"
     echo -e "${CYAN}================================================================${NC}"
     echo "Namespace: $NAMESPACE"
     echo "Resource: $RESOURCE_NAME"
@@ -419,7 +419,7 @@ main() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Dependency Chain Debugging Script"
+    echo "Agentic Reconciliation Engine Dependency Chain Debugging Script"
     echo ""
     echo "Usage: $0 [RESOURCE_NAME] [RESOURCE_TYPE] [OPTIONS]"
     echo ""

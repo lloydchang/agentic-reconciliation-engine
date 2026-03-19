@@ -142,7 +142,7 @@ spec:
         - name: 'critical-alerts'
           email_configs:
           - to: 'admin@example.com'
-            subject: '[CRITICAL] GitOps Infrastructure Alert'
+            subject: '[CRITICAL] Agentic Reconciliation Engine Alert'
             body: |
               {{ range .Alerts }}
               Alert: {{ .Annotations.summary }}
@@ -152,7 +152,7 @@ spec:
         - name: 'warning-alerts'
           email_configs:
           - to: 'ops@example.com'
-            subject: '[WARNING] GitOps Infrastructure Alert'
+            subject: '[WARNING] Agentic Reconciliation Engine Alert'
             body: |
               {{ range .Alerts }}
               Alert: {{ .Annotations.summary }}

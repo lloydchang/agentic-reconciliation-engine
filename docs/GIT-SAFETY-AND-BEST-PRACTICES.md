@@ -653,7 +653,7 @@ kubectl logs -n temporal deployment/temporal-worker --since=1h | grep ERROR
 
 ## Conclusion
 
-This guide consolidates critical safety rules, best practices, and operational procedures for the GitOps infrastructure control plane. The key principles are:
+This guide consolidates critical safety rules, best practices, and operational procedures for the Agentic Reconciliation Engine. The key principles are:
 
 1. **Safety First**: Never use destructive git commands like `git clean -fd` or `git reset --hard`
 2. **Cross-Platform Consistency**: Use `gsed` for consistent behavior across macOS and Linux

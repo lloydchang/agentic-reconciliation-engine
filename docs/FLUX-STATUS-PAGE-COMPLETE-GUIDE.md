@@ -112,7 +112,7 @@ data:
       
     cluster:
       name: "production"
-      description: "Production GitOps Infrastructure"
+      description: "Production Agentic Reconciliation Engine"
       
     features:
       favorites: true
@@ -1359,7 +1359,7 @@ kubectl get pods -n flux-system -l app.kubernetes.io/name=flux
 
 ## Conclusion
 
-The Flux Status Page provides a comprehensive, secure, and user-friendly interface for monitoring and managing your GitOps infrastructure. With features like real-time visibility, advanced search, SSO integration, and comprehensive RBAC, it offers everything needed for effective GitOps operations.
+The Flux Status Page provides a comprehensive, secure, and user-friendly interface for monitoring and managing your Agentic Reconciliation Engine. With features like real-time visibility, advanced search, SSO integration, and comprehensive RBAC, it offers everything needed for effective GitOps operations.
 
 ### Key Benefits
 

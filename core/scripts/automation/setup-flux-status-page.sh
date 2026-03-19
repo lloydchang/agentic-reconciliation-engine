@@ -105,7 +105,7 @@ data:
     # Cluster configuration
     cluster:
       name: "production"
-      description: "Production GitOps Infrastructure"
+      description: "Production Agentic Reconciliation Engine"
       
     # Feature flags
     features:
