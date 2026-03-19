@@ -32,7 +32,7 @@ This reads naturally as: "agents that [verb] [qualifier]" or "agents that [verb]
 
 1. **Action-Oriented**: Immediately clear what the skill does
 2. **Discoverable**: Verb-first makes it easy to find capabilities by action
-3. **Consistent**: Standardized format across all 72+ skills
+3. **Consistent**: Standardized format across all 92 skills
 4. **Scalable**: Easy to add new skills following the pattern
 
 ## Current Skills by Category

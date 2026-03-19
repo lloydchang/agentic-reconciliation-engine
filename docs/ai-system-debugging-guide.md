@@ -19,7 +19,7 @@ This guide documents comprehensive debugging strategies for distributed AI agent
 
 ### Core Components
 
-- **AI Agents**: Go-based Temporal workers with 72+ skills
+- **AI Agents**: Go-based Temporal workers with 92 skills
 - **Temporal Workflows**: Orchestration layer for agent coordination
 - **Kubernetes Infrastructure**: Distributed deployment environment
 - **Monitoring System**: Built-in metrics collection and alerting

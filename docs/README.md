@@ -12,7 +12,7 @@ This directory contains comprehensive documentation for the AI Agents ecosystem,
 - **[AI-AGENTS-ECOSYSTEM-DEPLOYMENT-SCRIPT.md](AI-AGENTS-ECOSYSTEM-DEPLOYMENT-SCRIPT.md)** - Automated deployment script documentation
 
 ### 📊 Dashboard Documentation
-- **[AI-AGENTS-DASHBOARD-GUIDE.md](AI-AGENTS-DASHBOARD-GUIDE.md)** - Comprehensive dashboard user guide and API reference
+- **[AGENT-DASHBOARD-GUIDE.md](AGENT-DASHBOARD-GUIDE.md)** - Comprehensive dashboard user guide and API reference
 - **[AI-AGENTS-DASHBOARD-FIXES-AND-TROUBLESHOOTING.md](AI-AGENTS-DASHBOARD-FIXES-AND-TROUBLESHOOTING.md)** - Recent fixes and troubleshooting guide
 
 ### 🏗️ Architecture and Design
@@ -51,7 +51,7 @@ This directory contains comprehensive documentation for the AI Agents ecosystem,
 ### 🚀 For New Users
 1. **Start Here**: [AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md](AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md)
 2. **Development Setup**: [AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md](AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md)
-3. **Dashboard Guide**: [AI-AGENTS-DASHBOARD-GUIDE.md](AI-AGENTS-DASHBOARD-GUIDE.md)
+3. **Dashboard Guide**: [AGENT-DASHBOARD-GUIDE.md](AGENT-DASHBOARD-GUIDE.md)
 
 ### 🔧 For Developers
 1. **Architecture**: [AI-AGENTS-ARCHITECTURE.md](AI-AGENTS-ARCHITECTURE.md)

@@ -559,7 +559,7 @@ spec:
 ## Support Resources
 
 ### 📚 Documentation
-- [AI Agents Dashboard Guide](AI-AGENTS-DASHBOARD-GUIDE.md)
+- [AI Agents Dashboard Guide](AGENT-DASHBOARD-GUIDE.md)
 - [Complete Deployment Guide](AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md)
 - [Ecosystem Deployment Script](AI-AGENTS-ECOSYSTEM-DEPLOYMENT-SCRIPT.md)
 

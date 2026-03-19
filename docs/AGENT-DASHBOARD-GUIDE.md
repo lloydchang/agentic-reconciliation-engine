@@ -19,7 +19,7 @@ The AI Agents Dashboard is a comprehensive web-based control center that provide
 - **Agent Controls**: Add, deploy, stop, and restart agents
 
 ### 🛠️ Interactive Skills Grid
-- **16+ Available Skills**: Cost Analysis, Security Audit, Cluster Health, etc.
+- **92 Available Skills**: Cost Analysis, Security Audit, Cluster Health, etc.
 - **Click-to-Execute**: Direct skill execution from dashboard
 - **Visual Categories**: Color-coded skill types
 - **Real-time Updates**: Live skill status and availability

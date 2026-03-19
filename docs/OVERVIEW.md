@@ -196,7 +196,7 @@ the problem you are solving.
 - [macOS Compatibility Guide](./docs/MAC-COMPATIBILITY.md) - Homebrew/Python/Flux install and terminal-based validation
 - [Linux Compatibility Guide](./docs/LINUX-COMPATIBILITY.md) - Reference platform; package installs and validation steps
 - [Shell Compatibility Guide](./docs/SHELL-COMPATIBILITY.md) - Required POSIX/batch features and how Linux/zsh/WSL/Git Bash satisfy them
-- [Agent Clients & Azure Support](./docs/AGENT-CLIENTS.md) - Azure's Claude Code-first experience, Windows quick-start, and secondary Codex option backed by Azure OpenAI/Foundry
+- [Agent Runtime & Clients](./docs/AGENT-RUNTIME.md) - Claude Code, Codex, Windsurf, Cursor, VS Code + Copilot setup and Azure support
 
 ### Implementation Examples
 - [Overlay Examples](./overlay/examples/) - Example configurations and demos
@@ -265,7 +265,7 @@ Before building this architecture, evaluate whether a managed product meets your
 - [AI Agents Complete Deployment Guide](./docs/AI-AGENTS-DEPLOYMENT-GUIDE.md) - Deploy AI agents ecosystem
 - [AI System Debugging and Monitoring](./docs/AI-SYSTEM-DEBUGGING-MONITORING-GUIDE.md) - Debug distributed AI systems
 - [AI Agents Architecture](./docs/AI-AGENTS-ARCHITECTURE.md) - AI agents system design
-- [AI Agents Dashboard Guide](./docs/AI-AGENTS-DASHBOARD-GUIDE.md) - Interactive dashboard usage
+- [AI Agents Dashboard Guide](./docs/AGENT-DASHBOARD-GUIDE.md) - Interactive dashboard usage
 
 ### Core Infrastructure
 - [Flux Architecture Diagrams](./docs/FLUX-ARCHITECTURE-DIAGRAMS.md) - Flux reconciliation patterns

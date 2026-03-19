@@ -924,7 +924,7 @@ This comprehensive deployment guide covers all aspects of deploying the AI Agent
 
 For additional information, refer to the specific component documentation:
 - [Memory Agent Architecture](MEMORY-AGENT-ARCHITECTURE.md)
-- [AI Agents Dashboard Guide](AI-AGENTS-DASHBOARD-GUIDE.md)
+- [AI Agents Dashboard Guide](AGENT-DASHBOARD-GUIDE.md)
 - [AI Agents Monitoring System](AI-AGENTS-MONITORING-SYSTEM.md)
 
 ---
