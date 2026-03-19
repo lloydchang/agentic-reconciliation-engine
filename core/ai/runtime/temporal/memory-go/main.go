@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -17,8 +18,37 @@ import (
 )
 
 type MemoryAgent struct {
-	db     *sql.DB
-	server *http.Server
+	db           *sql.DB
+	server       *http.Server
+	httpClient   *http.Client
+	llamaURL     string
+	qwenModel    string
+}
+
+type InferenceRequest struct {
+	Model    string                 `json:"model"`
+	Messages []ChatMessage          `json:"messages"`
+	MaxTokens int                   `json:"max_tokens,omitempty"`
+	Temperature float64             `json:"temperature,omitempty"`
+	Stream   bool                  `json:"stream"`
+}
+
+type ChatMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type InferenceResponse struct {
+	ID      string    `json:"id"`
+	Model   string    `json:"model"`
+	Choices []Choice  `json:"choices"`
+	Created int64     `json:"created"`
+}
+
+type Choice struct {
+	Index        int         `json:"index"`
+	Message      ChatMessage `json:"message"`
+	FinishReason string      `json:"finish_reason"`
 }
 
 type MemoryType string
@@ -78,7 +108,29 @@ func NewMemoryAgent(dbPath string) (*MemoryAgent, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	agent := &MemoryAgent{db: db}
+	// Initialize HTTP client for AI inference
+	httpClient := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// Get AI configuration from environment
+	llamaURL := os.Getenv("LLAMACPP_URL")
+	if llamaURL == "" {
+		llamaURL = "http://llama-cpp-server:8080"
+	}
+
+	qwenModel := os.Getenv("QWEN_MODEL")
+	if qwenModel == "" {
+		qwenModel = "qwen2.5-coder-7b-instruct.gguf"
+	}
+
+	agent := &MemoryAgent{
+		db:         db,
+		httpClient: httpClient,
+		llamaURL:   llamaURL,
+		qwenModel:  qwenModel,
+	}
+
 	if err := agent.initSchema(); err != nil {
 		return nil, fmt.Errorf("failed to initialize schema: %w", err)
 	}
@@ -287,11 +339,91 @@ func (ma *MemoryAgent) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// AI Inference Methods
+func (ma *MemoryAgent) GenerateInsights(ctx context.Context, query string) (string, error) {
+	request := InferenceRequest{
+		Model: ma.qwenModel,
+		Messages: []ChatMessage{
+			{Role: "system", Content: "You are an AI assistant helping with infrastructure operations and memory analysis."},
+			{Role: "user", Content: fmt.Sprintf("Based on the following query, provide insights and analysis: %s", query)},
+		},
+		MaxTokens:   1024,
+		Temperature: 0.7,
+		Stream:      false,
+	}
+
+	return ma.callInference(ctx, request)
+}
+
+func (ma *MemoryAgent) callInference(ctx context.Context, req InferenceRequest) (string, error) {
+	// Try chat API first (better for Qwen)
+	chatURL := fmt.Sprintf("%s/api/chat", ma.llamaURL)
+	
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", chatURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := ma.httpClient.Do(httpReq)
+	if err != nil {
+		return "", fmt.Errorf("failed to call inference API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("inference API returned status %d", resp.StatusCode)
+	}
+
+	var response InferenceResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return "", fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	if len(response.Choices) == 0 {
+		return "", fmt.Errorf("no choices in response")
+	}
+
+	return response.Choices[0].Message.Content, nil
+}
+
+func (ma *MemoryAgent) handleAIInsights(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Query string `json:"query"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	insights, err := ma.GenerateInsights(r.Context(), req.Query)
+	if err != nil {
+		log.Printf("Failed to generate insights: %v", err)
+		http.Error(w, "Failed to generate insights", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"query":    req.Query,
+		"insights": insights,
+		"timestamp": time.Now().Format(time.RFC3339),
+	})
+}
+
 func (ma *MemoryAgent) Start(port int) error {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/events", ma.handleEvents).Methods("POST")
 	r.HandleFunc("/api/query", ma.handleQuery).Methods("POST")
+	r.HandleFunc("/api/insights", ma.handleAIInsights).Methods("POST")
 	r.HandleFunc("/api/health", ma.handleHealth).Methods("GET")
 
 	ma.server = &http.Server{
