@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboard-html
+  name: dashboard-html-config
   namespace: ai-infrastructure
 data:
   index.html: |
