@@ -6,8 +6,13 @@ This directory contains agent skills following the [Agent Skills Specification](
 
 ```
 core/ai/skills/
-├── shared/                    # Shared models and utilities
+├── shared/                    # Shared models and utilities (not a skill)
 │   └── models.py             # Pydantic models for type safety
+├── references/               # Reference documentation (not a skill)
+├── workflows/                # Workflow templates (not a skill)
+├── skills/                   # Nested skill definitions (organizational)
+├── mcp-servers/              # MCP server configurations (not a skill)
+├── communication/            # Communication utilities (not a skill)
 ├── infrastructure-provisioning/  # Infrastructure provisioning skill
 │   ├── SKILL.md              # Skill definition (agentskills.io compliant)
 │   └── scripts/
@@ -26,6 +31,8 @@ core/ai/skills/
 └── examples/                  # Example configurations
     └── config.json           # Multi-cloud configuration example
 ```
+
+**Note**: Directories without SKILL.md files (`shared/`, `references/`, `workflows/`, `skills/`, `mcp-servers/`, `communication/`) are supporting infrastructure, not standalone skills. The 86 operational skills each have their own SKILL.md file.
 
 ## 🚀 Quick Start
 

@@ -50,14 +50,15 @@ agentic-reconciliation-engine/
 │   └── runtime/                           # Agent runtime implementation
 │       ├── backend/                       # Go Temporal workflows and activities
 │       ├── dashboard/                     # React dashboard and backend API
-│       ├── cli/                           # Command-line interface
-│       ├── tools/                         # Tool permissions and configurations
+│       ├── agents/cli/                    # Command-line interface
+│       ├── agents/tools/                  # Tool permissions and configurations
 │       └── pi-mono-agent/                 # Pi-Mono containerized agent
 │           ├── Dockerfile                 # Container definition
 │           ├── config/                    # Pi-mono configuration
 │           ├── skills/                    # GitOps-specific skills
 │           └── k8s/                       # Kubernetes deployment manifests
-├── core/scripts/automation/               # Utility scripts for validation and fixes
+├── core/scripts/automation/               # Canonical utility scripts for validation and fixes
+├── core/automation/scripts/              # Legacy script location (deprecated, use above)
 ├── docs/                                  # Architecture documentation
 └── core/gitops/                           # GitOps/Control-Plane manifests (Flux/ArgoCD)
 ```
@@ -71,12 +72,12 @@ The `core/ai/skills/` directory contains skill definitions following the
 - `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
 - Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
 - Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
-- 92 skills are currently available
+- 86 skills are currently available
 
 **Example SKILL.md frontmatter (agentskills.io compliant):**
 ```yaml
 ---
-name: cost-optimizer
+name: optimize-costs
 description: >
   Analyses cloud spend and recommends cost reductions. Use when asked to reduce
   costs, right-size resources, or analyse billing across AWS, Azure, or GCP.
