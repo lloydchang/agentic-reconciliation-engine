@@ -48,11 +48,11 @@ agentic-reconciliation-engine/
 │   │       ├── references/               # Optional: documentation
 │   │       └── assets/                    # Optional: templates/resources
 │   └── runtime/                           # Agent runtime implementation
-│       ├── backend/                       # Go Temporal workflows and activities
-│       ├── dashboard/                     # React dashboard and backend API
-│       ├── agents/cli/                    # Command-line interface
-│       ├── agents/tools/                  # Tool permissions and configurations
-│       └── pi-mono-agent/                 # Pi-Mono containerized agent
+│   ├── orchestration/                 # Go Temporal workflows and activities
+│   ├── dashboard/                     # React dashboard and backend API
+│   ├── implementations/cli/           # Command-line interface
+│   ├── implementations/tools/         # Tool permissions and configurations
+│   └── pi-mono-agent/                 # Pi-Mono containerized agent
 │           ├── Dockerfile                 # Container definition
 │           ├── config/                    # Pi-mono configuration
 │           ├── skills/                    # GitOps-specific skills

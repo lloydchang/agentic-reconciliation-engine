@@ -31,6 +31,7 @@ pub struct InferenceConfig {
     pub max_tokens: usize,
     pub temperature: f32,
     pub ollama_url: Option<String>,
+    pub llamacpp_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,6 +87,7 @@ impl Config {
                 .unwrap_or_else(|_| "0.7".to_string())
                 .parse()?,
             ollama_url: env::var("OLLAMA_URL").ok(),
+            llamacpp_url: env::var("LLAMACPP_URL").ok(),
         };
 
         let auth = AuthConfig {

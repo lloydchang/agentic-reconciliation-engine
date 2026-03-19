@@ -21,9 +21,9 @@ impl InferenceService {
     }
 
     pub async fn initialize(&mut self) -> Result<()> {
-        // For llama.cpp backend, we might need to load the model
+        // For llama.cpp backend, check model status
         if let Some(llama_backend) = self.backend.as_any_mut().downcast_mut::<crate::llama_integration::LlamaCppBackend>() {
-            llama_backend.load_model().await?;
+            llama_backend.check_model_status().await?;
         }
         Ok(())
     }
