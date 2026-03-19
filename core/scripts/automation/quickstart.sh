@@ -659,9 +659,9 @@ main() {
     
     # If there are warnings, prompt user to continue
     if [[ $WARNINGS -gt 0 ]]; then
-        echo -e "${YELLOW}⚠️  Found $WARNINGS warning(s). Continue with deployment? (y/N)${NC}"
+        echo -e "${YELLOW}⚠️  Found $WARNINGS warning(s). Continue with deployment? (Y/n)${NC}"
         read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+        if [[ "$response" =~ ^[Nn]$ ]]; then
             print_info "Deployment cancelled by user."
             exit 0
         fi
