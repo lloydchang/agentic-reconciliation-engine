@@ -877,7 +877,7 @@ show_help() {
     echo ""
     echo "OPTIONS:"
     echo "  -h, --help         Show this help message"
-    echo "  --validate-only    Run prerequisites validation only (no deployment)"
+    echo "  --validate-prerequisites    Run prerequisites validation only (no deployment)"
     echo "  --cleanup          Clean up all background port-forwards"
     echo "  --start-pf         Start all port-forwards (if not already running)"
     echo ""
@@ -898,7 +898,7 @@ show_help() {
     echo ""
     echo "EXAMPLES:"
     echo "  $0                    # Standard repository setup with AI agents dashboard"
-    echo "  $0 --validate-only    # Validate prerequisites only"
+    echo "  $0 --validate-prerequisites    # Validate prerequisites only"
     echo "  OVERLAY_MODE=true $0   # Setup with overlay extensions and AI agents dashboard"
     echo ""
     echo "  # With overlay-quickstart.sh (recommended for overlay workflows)"
@@ -914,7 +914,7 @@ show_help() {
     echo "  The hooks will be automatically sourced and executed."
     echo ""
     echo "BACKWARD COMPATIBILITY:"
-    echo "  When called as 'prerequisites.sh', this script automatically runs in --validate-only mode."
+    echo "  When called as 'prerequisites.sh', this script automatically runs in --validate-prerequisites mode."
 }
 
 # Parse command line arguments
@@ -930,7 +930,7 @@ case "${1:-}" in
         show_help
         exit 0
         ;;
-    --validate-only)
+    --validate-prerequisites)
         run_comprehensive_validation
         exit $?
         ;;

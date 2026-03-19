@@ -23,7 +23,7 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 **Optional:** Validate prerequisites only:
 ```bash
-core/scripts/automation/quickstart.sh --validate-only
+core/scripts/automation/quickstart.sh --validate-prerequisites
 ```
 
 ---
