@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "MCP server for contextual reasoning and knowledge retrieval",
   "main": "index.js",
-  "type": "module",
-  "scripts": {
+    "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
     "test": "jest",
