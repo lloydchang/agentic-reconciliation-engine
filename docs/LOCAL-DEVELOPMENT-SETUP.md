@@ -6,7 +6,7 @@ After cloning the repository, run a single command to get a fully functional aut
 
 ```bash
 # One-command setup - installs everything and opens dashboard
-./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh
+./core/scripts/automation/setup-local-ai-agents.sh
 ```
 
 This script automatically detects your operating system and installs all prerequisites:
@@ -87,7 +87,7 @@ brew install docker kubectl helm minikube
 minikube start -p ai-agents-local --memory=4096 --cpus=2
 
 # Deploy ecosystem
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 ## Usage Examples
@@ -119,10 +119,10 @@ minikube dashboard -p ai-agents-local
 
 ```bash
 # Stop local setup (keeps cluster)
-./core/core/automation/ci-cd/scripts/stop-local-setup.sh
+./core/scripts/automation/stop-local-setup.sh
 
 # Restart
-./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh
+./core/scripts/automation/setup-local-ai-agents.sh
 ```
 
 ## Agent Activities Dashboard
@@ -156,7 +156,7 @@ The dashboard shows real-time insights into agent behavior:
 ```bash
 # Reset cluster
 minikube delete -p ai-agents-local
-./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh
+./core/scripts/automation/setup-local-ai-agents.sh
 ```
 
 ### Docker Issues
@@ -177,7 +177,7 @@ lsof -i :8080
 lsof -i :8081
 
 # Kill conflicting processes
-./core/core/automation/ci-cd/scripts/stop-local-setup.sh
+./core/scripts/automation/stop-local-setup.sh
 ```
 
 ## Resource Requirements

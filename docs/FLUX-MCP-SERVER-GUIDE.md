@@ -21,7 +21,7 @@ The Flux MCP Server provides a bridge between AI assistants and Flux CD, enablin
 brew install controlplaneio-fluxcd/tap/flux-operator-mcp
 
 # Run installation script
-./core/core/automation/ci-cd/scripts/install-flux-mcp-server.sh
+./core/scripts/automation/install-flux-mcp-server.sh
 ```
 
 ### Manual Installation

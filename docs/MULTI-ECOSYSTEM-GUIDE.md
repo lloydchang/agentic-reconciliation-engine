@@ -238,14 +238,14 @@ core/resources/tenants/3-workloads/shell/
 │   ├── kustomization.yaml
 │   ├── cronjob.yaml
 │   └── backup-script.sh
-├── bash-core/core/automation/ci-cd/scripts/
+├── bash-scripts/
 │   ├── kustomization.yaml
 │   ├── script-runner.yaml
-│   └── automation-core/core/automation/ci-cd/scripts/
+│   └── automation-scripts/
 └── system-core/automation/ci-cd/
     ├── kustomization.yaml
     ├── maintenance-job.yaml
-    └── system-core/core/automation/ci-cd/scripts/
+    └── system-scripts/
 ```
 
 ## Ecosystem Swapping
@@ -420,5 +420,5 @@ kubectl exec -it $(kubectl get pod -l ecosystem=typescript -o name | head -1) --
 Generate ecosystem-specific DAG:
 
 ```bash
-./core/core/automation/ci-cd/scripts/generate-dag-visualization.sh | grep -A 50 "Ecosystem"
+./core/scripts/automation/generate-dag-visualization.sh | grep -A 50 "Ecosystem"
 ```

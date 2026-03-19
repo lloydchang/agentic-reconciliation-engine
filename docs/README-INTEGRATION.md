@@ -14,11 +14,11 @@ This guide provides the fastest path to integrating with the Continuous Reconcil
 
 ```bash
 # Use provided setup scripts
-./core/core/automation/ci-cd/scripts/hub-clusters/setup-aws-hub-eks.sh
+./core/scripts/automation/hub-clusters/setup-aws-hub-eks.sh
 # OR
-./core/core/automation/ci-cd/scripts/hub-clusters/setup-azure-hub-aks.sh
+./core/scripts/automation/hub-clusters/setup-azure-hub-aks.sh
 # OR
-./core/core/automation/ci-cd/scripts/hub-clusters/setup-gcp-hub-gke.sh
+./core/scripts/automation/hub-clusters/setup-gcp-hub-gke.sh
 ```
 
 ### Apply Core Infrastructure
@@ -145,5 +145,5 @@ your-platform/
 ## Support
 
 - Documentation: `/docs/` directory
-- Scripts: `/core/core/automation/ci-cd/scripts/` directory
+- Scripts: `/core/scripts/automation/` directory
 - Examples: See implementation guides

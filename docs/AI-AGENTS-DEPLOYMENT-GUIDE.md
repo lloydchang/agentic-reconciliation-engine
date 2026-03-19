@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying the Cloud AI Agents ecosystem in various environments, from local development to production clusters. The deployment is automated via the `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh` script which creates a complete AI agent infrastructure with Temporal orchestration, monitoring, and debugging capabilities.
+This guide provides comprehensive instructions for deploying the Cloud AI Agents ecosystem in various environments, from local development to production clusters. The deployment is automated via the `core/scripts/automation/deploy-ai-agents-ecosystem.sh` script which creates a complete AI agent infrastructure with Temporal orchestration, monitoring, and debugging capabilities.
 
 ## Architecture Overview
 
@@ -66,7 +66,7 @@ cd agentic-reconciliation-engine
 ### 2. Deploy AI Agents Ecosystem
 ```bash
 # Deploy the complete ecosystem
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 
 # Expected output:
 🎉 Cloud AI Agents Ecosystem Deployed Successfully!
@@ -159,10 +159,10 @@ KUBECTL_CMD="kubectl"         # kubectl command
 ### Custom Deployment
 ```bash
 # Deploy to custom namespace
-NAMESPACE=my-namespace ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+NAMESPACE=my-namespace ./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 
 # Custom model
-OLLAMA_MODEL="llama2:7b" ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+OLLAMA_MODEL="llama2:7b" ./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 ## Integration with Debugging System
@@ -170,7 +170,7 @@ OLLAMA_MODEL="llama2:7b" ./core/core/automation/ci-cd/scripts/deploy-ai-agents-e
 ### Post-Deployment Debugging
 ```bash
 # Use AI Agent Debugger skill
-./core/ai/skills/debug/core/core/automation/ci-cd/scripts/distributed-debug-runner.sh \
+./core/ai/skills/debug/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
   --agent-type agent-memory \
   --debug-level detailed
@@ -205,7 +205,7 @@ kubectl cluster-info --context=kind-gitops-hub
 kubectl config current-context
 
 # Solution: Bootstrap hub cluster
-./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig
+./core/scripts/automation/create-hub-cluster.sh --provider kind --bootstrap-kubeconfig
 ```
 
 #### Resource Constraints
@@ -235,7 +235,7 @@ kubectl exec -n ai-infrastructure deployment/agent-memory-rust -- curl dashboard
 ### Debug Commands
 ```bash
 # Full system debug
-python3 core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug.py '{
+python3 core/ai/skills/debug/scripts/debug.py '{
   "targetComponent": "kubernetes",
   "debugLevel": "deep",
   "namespace": "ai-infrastructure"
@@ -349,7 +349,7 @@ kubectl get secrets -n ai-infrastructure -o yaml > secrets-backup.yaml
 ### Disaster Recovery
 ```bash
 # Full redeploy
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 
 # Restore data
 kubectl cp ./backup.tar.gz ai-core/resources/agent-memory-rust-pod:/tmp/backup.tar.gz
@@ -398,10 +398,10 @@ tctl wf query --ns ai-infrastructure -w <workflow-id> -q my-query
 - `core/ai/skills/debug/documentation/`: Detailed guides
 
 ### Scripts and Tools
-- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`: Main deployment script
-- `core/ai/skills/debug/core/core/automation/ci-cd/scripts/`: Debugging utilities
-- `core/core/automation/ci-cd/scripts/debug-ai-agents-k8s.sh`: Kubernetes debugging
-- `core/core/automation/ci-cd/scripts/llm-debug-automation.sh`: LLM-assisted debugging
+- `core/scripts/automation/deploy-ai-agents-ecosystem.sh`: Main deployment script
+- `core/ai/skills/debug/scripts/`: Debugging utilities
+- `core/scripts/automation/debug-ai-agents-k8s.sh`: Kubernetes debugging
+- `core/scripts/automation/llm-debug-automation.sh`: LLM-assisted debugging
 
 ### Troubleshooting
 - Check logs: `kubectl logs -n ai-infrastructure -l component=agent-memory`
@@ -579,7 +579,7 @@ PersistentVolumeClaim:
 ```bash
 # Deploy to hub cluster
 kubectl config use-context hub-cluster
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 #### Spoke Cluster Setup
@@ -587,7 +587,7 @@ kubectl config use-context hub-cluster
 # Deploy to spoke clusters
 for cluster in spoke1 spoke2 spoke3; do
   kubectl config use-context $cluster
-  ./core/core/automation/ci-cd/scripts/deploy-ai-agents-spoke.sh
+  ./core/scripts/automation/deploy-ai-agents-spoke.sh
 done
 ```
 

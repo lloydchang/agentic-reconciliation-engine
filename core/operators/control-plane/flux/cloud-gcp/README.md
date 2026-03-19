@@ -10,4 +10,4 @@ This overlay pulls in the tenant-level GCP network, cluster, and workload direct
 ## Customizing
 1. Update the patch files to match your project, region, and subnet naming conventions.
 2. Validate with `kustomize build core/operators/flux/cloud-gcp`.
-3. Enable via `core/core/automation/ci-cd/scripts/enable-cloud.sh gcp` and reconcile (`flux reconcile kustomization control-plane --with-source`).
+3. Enable via `core/scripts/automation/enable-cloud.sh gcp` and reconcile (`flux reconcile kustomization control-plane --with-source`).

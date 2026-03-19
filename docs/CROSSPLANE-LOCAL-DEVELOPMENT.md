@@ -39,7 +39,7 @@ The enhanced quickstart automatically configures Crossplane for local developmen
 
 ```bash
 # One-command setup with Crossplane local provider
-./core/core/automation/ci-cd/scripts/quickstart.sh
+./core/scripts/automation/quickstart.sh
 ```
 
 This installs:
@@ -347,7 +347,7 @@ kubectl delete provider provider-kubernetes -n crossplane-system
 
 # Reset cluster state
 kind delete cluster gitops-hub
-./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind
+./core/scripts/automation/create-hub-cluster.sh --provider kind
 ```
 
 ### Common Errors

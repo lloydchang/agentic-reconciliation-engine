@@ -546,7 +546,7 @@ evolved_solution:
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
-  - manual-compliance-core/core/automation/ci-cd/scripts/
+  - manual-compliance-core/scripts/automation/
   - team_time: "20 hours/week"
 
 # Evolved problem: Automated compliance with AI
@@ -679,7 +679,7 @@ evolved_solution:
 ```yaml
 # Original problem: Manual compliance checking
 initial_solution:
-  - manual-compliance-core/core/automation/ci-cd/scripts/
+  - manual-compliance-core/scripts/automation/
   - team_time: "20 hours/week"
 
 # Evolved problem: Automated compliance with AI

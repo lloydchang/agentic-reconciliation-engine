@@ -69,7 +69,7 @@ This document records the complete resolution of all repository structure issues
 │   │   └── operator/    # Flux operator manifests
 │   └── core/deployment/overlays/        # Kustomize overlays
 ├── core/governance/       # Governance policies
-├── core/core/automation/ci-cd/scripts/        # Utility scripts
+├── core/scripts/automation/        # Utility scripts
 └── core/automation/testing/          # Test suites
 ```
 

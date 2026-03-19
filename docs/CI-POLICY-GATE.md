@@ -73,7 +73,7 @@ deny[msg] if {
 
 ```bash
 #!/bin/bash
-# core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
+# core/operators/ci/scripts/check-deletions.sh
 set -euo pipefail
 
 STATEFUL_KINDS="Database|XDatabase|Volume|XVolume|Queue|XQueue|XCluster"
@@ -110,7 +110,7 @@ Validates all manifests against current CRD schemas. Catches typos, wrong types,
 fields before they reach the reconciliation loop.
 
 ```bash
-# core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
+# core/operators/ci/scripts/validate-schemas.sh
 set -euo pipefail
 
 SCHEMA_LOCATION='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
@@ -213,8 +213,8 @@ Before opening a PR, run the full gate locally:
 brew install kubeconform conftest
 
 # Run all checks
-./core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
-./core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
+./core/operators/ci/scripts/check-deletions.sh
+./core/operators/ci/scripts/validate-schemas.sh
 conftest test core/resources/ --policy core/operators/ci/core/governance/
 
 echo "All local checks passed"
@@ -242,7 +242,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Deletion guard
-        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh
+        run: ./core/operators/ci/scripts/check-deletions.sh
 
   schema-validation:
     runs-on: ubuntu-latest
@@ -253,7 +253,7 @@ jobs:
           curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
             | tar xz && sudo mv kubeconform /usr/local/bin/
       - name: Validate schemas
-        run: ./core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh
+        run: ./core/operators/ci/scripts/validate-schemas.sh
 
   opa-policies:
     runs-on: ubuntu-latest

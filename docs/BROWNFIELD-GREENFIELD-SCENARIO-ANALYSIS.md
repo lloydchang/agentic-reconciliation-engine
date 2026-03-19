@@ -381,7 +381,7 @@ hybrid_phase3:
 ```yaml
 hybrid_local:
   tools:
-    - "core/core/automation/ci-cd/scripts/setup-local-development.sh"
+    - "core/scripts/automation/setup-local-development.sh"
     - "overlay/examples/complete-hub-spoke/agent-workflows/" # Local agent workflows
   configurations:
     - "Docker Compose for local stack"
@@ -522,7 +522,7 @@ scenario_specific:
     
   hybrid_only:
     - "overlay/examples/complete-hub-spoke/ai-gateway/" # API management for local/cloud
-    - "core/core/automation/ci-cd/scripts/setup-local-development.sh" # Local dev automation
+    - "core/scripts/automation/setup-local-development.sh" # Local dev automation
     - "overlay/examples/complete-hub-spoke/agent-workflows/" # Development workflows
 ```
 

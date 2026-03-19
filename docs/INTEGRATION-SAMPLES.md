@@ -5,7 +5,7 @@ This directory contains integration examples demonstrating how to integrate with
 ## Directory Structure
 
 ```
-core/core/automation/ci-cd/scripts/
+core/scripts/automation/
 ├── integration-overlay/examples/
 │   ├── python-api-client/
 │   ├── go-webhook-handler/
@@ -1109,7 +1109,7 @@ pipeline {
 2. **Run Python example**
 
    ```bash
-   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/python-api-client
+   cd core/scripts/automation/integration-overlay/examples/python-api-client
    pip install -r requirements.txt
    python infrastructure_client.py
    ```
@@ -1117,7 +1117,7 @@ pipeline {
 3. **Run Go webhook handler**
 
    ```bash
-   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/go-webhook-handler
+   cd core/scripts/automation/integration-overlay/examples/go-webhook-handler
    go mod tidy
    go run webhook_handler.go
    ```
@@ -1125,7 +1125,7 @@ pipeline {
 4. **Test Terraform wrapper**
 
    ```bash
-   cd core/core/automation/ci-cd/scripts/integration-overlay/examples/terraform-wrapper
+   cd core/scripts/automation/integration-overlay/examples/terraform-wrapper
    terraform init
    terraform plan -var="cre_git_repo=https://github.com/your-org/repo"
    ```

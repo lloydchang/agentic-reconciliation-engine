@@ -40,7 +40,7 @@ Skills → AI Gateway → Memory Agents (Qwen2.5 + Persistent Storage)
 ## Deployment
 
 ```bash
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 ## Key Benefits

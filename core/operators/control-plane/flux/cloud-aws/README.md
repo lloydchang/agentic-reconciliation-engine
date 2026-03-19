@@ -12,4 +12,4 @@ This overlay groups the AWS-specific network, cluster, and workload manifests th
 ## Customizing
 1. Update the patch files to match your AWS account IDs, CIDRs, and IAM roles.
 2. Build the overlay locally (`kustomize build core/operators/flux/cloud-aws`) to verify the generated resources.
-3. Run `core/core/automation/ci-cd/scripts/enable-cloud.sh aws` and `flux reconcile kustomization control-plane --with-source` to apply it.
+3. Run `core/scripts/automation/enable-cloud.sh aws` and `flux reconcile kustomization control-plane --with-source` to apply it.

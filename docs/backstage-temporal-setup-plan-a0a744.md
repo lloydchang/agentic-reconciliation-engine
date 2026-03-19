@@ -5,7 +5,7 @@ This plan will fully scaffold a private GitHub repository integrating Backstage 
 ## Phase 1: Repository Setup & Structure
 
 - **Repository Initialization**: Create GitHub repo, add README, .gitignore, LICENSE
-- Create directory structure: backend/, frontend/, core/core/automation/ci-cd/scripts/, docs/
+- Create directory structure: backend/, frontend/, scripts/, docs/
 - Set up initial git commit and push
 
 ## Phase 2: Temporal Worker Setup
@@ -38,8 +38,8 @@ This plan will fully scaffold a private GitHub repository integrating Backstage 
 ## Phase 5: Development Tooling & Scripts
 
 - **Scripts**: Create dev.sh and build.sh for local development and building
-- Create /core/core/automation/ci-cd/scripts/dev.sh for starting Temporal server and Backstage dev server
-- Create /core/core/automation/ci-cd/scripts/build.sh for building Docker images
+- Create /scripts/dev.sh for starting Temporal server and Backstage dev server
+- Create /scripts/build.sh for building Docker images
 - Add comprehensive documentation in README.md and /docs/
 
 ## Phase 6: Documentation & Extensions

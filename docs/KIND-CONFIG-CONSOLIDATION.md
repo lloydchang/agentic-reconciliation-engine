@@ -20,7 +20,7 @@ The repository contained multiple `kind-config.yaml` files in different location
 **Documentation & Scripts (DO use root config):**
 - [docs/NETWORK-CONNECTIVITY-TROUBLESHOOTING.md](docs/NETWORK-CONNECTIVITY-TROUBLESHOOTING.md) - References root file for troubleshooting
 - [docs/AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md](docs/AI-AGENTS-DEVELOPMENT-SETUP-GUIDE.md) - References root file for development setup
-- `core/core/automation/ci-cd/scripts/recreate-clusters-with-fix.sh` - Uses root file for cluster recreation
+- `core/scripts/automation/recreate-clusters-with-fix.sh` - Uses root file for cluster recreation
 - Multiple `test-e2e-local-agent-orchestration-demo.sh` files - Use root file for local demos
 
 ### Root Cause

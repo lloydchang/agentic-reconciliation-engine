@@ -41,7 +41,7 @@ cd agentic-reconciliation-engine
 ./prerequisites.sh
 
 # Start everything at once
-./core/core/automation/ci-cd/scripts/dev.sh
+./core/scripts/automation/dev.sh
 ```
 
 ### Option 2: Manual Setup

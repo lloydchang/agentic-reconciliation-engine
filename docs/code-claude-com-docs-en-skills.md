@@ -114,7 +114,7 @@ my-skill/
 ├── template.md        # Template for Claude to fill in
 ├── overlay/examples/
 │   └── sample.md      # Example output showing expected format
-└── core/core/automation/ci-cd/scripts/
+└── scripts/
     └── validate.sh    # Script Claude can execute
 ```
 
@@ -236,7 +236,7 @@ my-skill/
 ├── SKILL.md (required - overview and navigation)
 ├── reference.md (detailed API docs - loaded when needed)
 ├── examples.md (usage examples - loaded when needed)
-└── core/core/automation/ci-cd/scripts/
+└── scripts/
     └── helper.py (utility script - executed, not loaded)
 ```
 
@@ -503,7 +503,7 @@ Generate an interactive HTML tree view that shows your project's file structure 
 Run the visualization script from your project root:
 
 ```bash
-python ~/.claude/skills/codebase-visualizer/core/core/automation/ci-cd/scripts/visualize.py .
+python ~/.claude/skills/codebase-visualizer/scripts/visualize.py .
 ```text
 
 This creates `codebase-map.html` in the current directory and opens it in your default browser.
@@ -516,7 +516,7 @@ This creates `codebase-map.html` in the current directory and opens it in your d
 - **Directory totals**: Shows aggregate size of each folder
 ````
 
-Create `~/.claude/skills/codebase-visualizer/core/core/automation/ci-cd/scripts/visualize.py`. This script scans a directory tree and generates a self-contained HTML file with:
+Create `~/.claude/skills/codebase-visualizer/scripts/visualize.py`. This script scans a directory tree and generates a self-contained HTML file with:
 
 * A **summary sidebar** showing file count, directory count, total size, and number of file types
 * A **bar chart** breaking down the codebase by file type (top 8 by size)

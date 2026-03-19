@@ -28,7 +28,7 @@ core/operators/ (166 items) → core/operators/
 docs/ (224 items)         → KEEP (Documentation)
 overlay/editions/ (8 items)       → overlay/overlay/editions/
 overlay/examples/ (92 items)      → overlay/overlay/examples/
-fix_workspace_skills.sh (3929 bytes) → core/config/core/core/automation/ci-cd/scripts/
+fix_workspace_skills.sh (3929 bytes) → core/config/core/scripts/automation/
 core/config/go.mod (103 bytes)        → KEEP (Go module)
 hub-kubeconfig (5639 bytes) → core/config/kubeconfigs/
 core/resources/ (365 items) → core/resources/
@@ -36,7 +36,7 @@ kind-config.yaml (689 bytes) → core/config/kind/
 logs/ (0 items)           → DELETE (Ephemeral logs)
 core/deployment/overlays/ (0 items)       → core/deployment/core/deployment/overlays/
 core/governance/ (6 items)       → core/governance/
-core/core/automation/ci-cd/scripts/ (135 items)      → core/core/automation/ci-cd/core/core/automation/ci-cd/scripts/
+core/scripts/automation/ (135 items)      → core/core/automation/ci-cd/core/scripts/automation/
 core/automation/testing/ (22 items)         → core/core/automation/ci-cd/testing/
 tmp/ (0 items)            → DELETE (Temporary files)
 core/workspace/ (956 items)    → core/core/workspace/
@@ -49,9 +49,9 @@ core/                    # Complete GitOps infrastructure system
 ├── operators/          # core/operators/ → operators/
 ├── resources/          # core/resources/ → resources/
 ├── governance/         # core/governance/ → governance/
-├── core/automation/ci-cd/         # core/core/automation/ci-cd/scripts/ + core/automation/ci-cd/ → core/automation/ci-cd/
+├── core/automation/ci-cd/         # core/scripts/automation/ + core/automation/ci-cd/ → core/automation/ci-cd/
 │   ├── ci-cd/         # core/automation/ci-cd/ (Jenkins, Azure Pipelines)
-│   ├── core/core/automation/ci-cd/scripts/       # core/core/automation/ci-cd/scripts/ (135+ automation scripts)
+│   ├── core/scripts/automation/       # core/scripts/automation/ (135+ automation scripts)
 │   └── testing/       # core/automation/testing/ (test suites)
 ├── ai/                # core/ai/skills/ + core/ai/runtime/ → ai/
 │   ├── skills/       # core/ai/skills/ (72+ AI skills)
@@ -62,7 +62,7 @@ core/                    # Complete GitOps infrastructure system
 │   ├── sops/         # .sops.pub.age + .sops.yaml
 │   ├── kubeconfigs/  # bootstrap-kubeconfig + hub-kubeconfig
 │   ├── kind/         # kind-config.yaml
-│   └── core/core/automation/ci-cd/scripts/      # fix_workspace_skills.sh
+│   └── core/scripts/automation/      # fix_workspace_skills.sh
 └── core/workspace/         # core/workspace/ (working environment)
 
 overlay/                 # Variants and configurations
@@ -107,7 +107,7 @@ mv control-plane core/operators/
 mv infrastructure core/resources/
 mv policies core/governance/
 mv automation core/core/automation/ci-cd/ci-cd/
-mv scripts core/core/automation/ci-cd/core/core/automation/ci-cd/scripts/
+mv scripts core/core/automation/ci-cd/core/scripts/automation/
 mv tests core/core/automation/ci-cd/testing/
 mv .agents core/ai/skills/
 mv agents core/ai/runtime/
@@ -122,7 +122,7 @@ mv .sops.yaml core/config/sops/
 mv bootstrap-kubeconfig core/config/kubeconfigs/
 mv hub-kubeconfig core/config/kubeconfigs/
 mv kind-config.yaml core/config/kind/
-mv fix_workspace_skills.sh core/config/core/core/automation/ci-cd/scripts/
+mv fix_workspace_skills.sh core/config/core/scripts/automation/
 ```
 
 ### Phase 2: Update References

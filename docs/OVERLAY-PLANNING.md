@@ -462,7 +462,7 @@ jobs:
       
       - name: Validate overlay structure
         run: |
-          python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/
+          python core/scripts/automation/validate-overlays.py core/deployment/overlays/
       
       - name: Test overlay composition
         run: |
@@ -472,7 +472,7 @@ jobs:
       
       - name: Validate metadata
         run: |
-          python core/core/automation/ci-cd/scripts/validate-metadata.py core/deployment/overlays/registry/schema.yaml core/deployment/overlays/
+          python core/scripts/automation/validate-metadata.py core/deployment/overlays/registry/schema.yaml core/deployment/overlays/
 ```
 
 ## Resource Requirements

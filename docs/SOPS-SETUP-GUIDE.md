@@ -39,10 +39,10 @@ Run the setup script to generate age keys and create the Kubernetes secret:
 
 ```bash
 # Make the script executable
-chmod +x core/core/automation/ci-cd/scripts/setup-sops-keys.sh
+chmod +x core/scripts/automation/setup-sops-keys.sh
 
 # Run the setup
-./core/core/automation/ci-cd/scripts/setup-sops-keys.sh
+./core/scripts/automation/setup-sops-keys.sh
 ```
 
 This will:
@@ -68,13 +68,13 @@ Encrypt the provided example secrets:
 
 ```bash
 # Make the script executable
-chmod +x core/core/automation/ci-cd/scripts/encrypt-secrets.sh
+chmod +x core/scripts/automation/encrypt-secrets.sh
 
 # Set your age key (from setup script output)
 export AGE_KEY="age1your-actual-public-key-here"
 
 # Encrypt all secrets
-./core/core/automation/ci-cd/scripts/encrypt-secrets.sh
+./core/scripts/automation/encrypt-secrets.sh
 ```
 
 ### 4. Deploy to Cluster
@@ -97,10 +97,10 @@ New team members can set up their local environment using the team setup script:
 
 ```bash
 # Make the script executable
-chmod +x core/core/automation/ci-cd/scripts/setup-team-member.sh
+chmod +x core/scripts/automation/setup-team-member.sh
 
 # Run the setup
-./core/core/automation/ci-cd/scripts/setup-team-member.sh
+./core/scripts/automation/setup-team-member.sh
 ```
 
 This will:
@@ -290,7 +290,7 @@ kubectl logs -n flux-system deployment/kustomize-controller
 gitops-infra-core/operators/
 ├── .sops.yaml                    # SOPS configuration
 ├── .sops.pub.age                 # Public key for team sharing
-├── core/core/automation/ci-cd/scripts/
+├── scripts/
 │   ├── setup-sops-keys.sh        # Initial setup script
 │   ├── encrypt-secrets.sh        # Bulk encryption script
 │   └── setup-team-member.sh      # Team member onboarding

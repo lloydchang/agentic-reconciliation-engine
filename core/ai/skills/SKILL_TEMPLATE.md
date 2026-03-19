@@ -99,12 +99,12 @@ Enterprise-grade multi-cloud automation solution that combines AI-powered operat
 - **Multi-Cloud Libraries**: terraform-python, ansible-python, crossplane
 
 ## Scripts
-- `core/core/automation/ci-cd/scripts/skill-name.py`: Main multi-cloud automation with enterprise integration
-- `core/core/automation/ci-cd/scripts/aws_handler.py`: AWS-specific operations and optimizations
-- `core/core/automation/ci-cd/scripts/azure_handler.py`: Azure-specific operations and optimizations
-- `core/core/automation/ci-cd/scripts/gcp_handler.py`: GCP-specific operations and optimizations
-- `core/core/automation/ci-cd/scripts/onprem_handler.py`: On-premise specific operations and optimizations
-- `core/core/automation/ci-cd/scripts/multi_cloud_orchestrator.py`: Cross-provider coordination and orchestration
+- `core/scripts/automation/skill-name.py`: Main multi-cloud automation with enterprise integration
+- `core/scripts/automation/aws_handler.py`: AWS-specific operations and optimizations
+- `core/scripts/automation/azure_handler.py`: Azure-specific operations and optimizations
+- `core/scripts/automation/gcp_handler.py`: GCP-specific operations and optimizations
+- `core/scripts/automation/onprem_handler.py`: On-premise specific operations and optimizations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination and orchestration
 
 ## Trigger Keywords
 automation, enterprise, operations, compliance, monitoring, security, multi-cloud, aws, azure, gcp, onprem
@@ -461,7 +461,7 @@ fi
 // Go activity that executes multi-cloud Python skill-name
 func (a *SkillExecutionActivities) ExecuteSkillName(ctx context.Context, params map[string]interface{}) (interface{}, error) {
     paramsJSON, _ := json.Marshal(params)
-    cmd := exec.CommandContext(ctx, "python3", "core/core/automation/ci-cd/scripts/skill-name.py", string(paramsJSON))
+    cmd := exec.CommandContext(ctx, "python3", "core/scripts/automation/skill-name.py", string(paramsJSON))
     output, err := cmd.CombinedOutput()
     
     if err != nil {

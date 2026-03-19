@@ -10,7 +10,7 @@ This runbook shows how to migrate an existing single-cloud Amazon EKS + Argo CD 
 4. **Register workload clusters & cut over apps**
 5. **Add additional clouds / Crossplane resources**
 
-Each phase includes checks and commands you can script (see `core/core/automation/ci-cd/scripts/enable-cloud.sh`), making the transition repeatable and reversible.
+Each phase includes checks and commands you can script (see `core/scripts/automation/enable-cloud.sh`), making the transition repeatable and reversible.
 
 ## 1. Audit & export existing state
 
@@ -49,7 +49,7 @@ Each phase includes checks and commands you can script (see `core/core/automatio
 2. Run the helper that edits the parent kustomization and starts reconciliation:
 
    ```bash
-   core/core/automation/ci-cd/scripts/enable-cloud.sh aws
+   core/scripts/automation/enable-cloud.sh aws
    flux reconcile kustomization control-plane --with-source
    ```
 
@@ -70,7 +70,7 @@ Each phase includes checks and commands you can script (see `core/core/automatio
 3. Update Application/ApplicationSet specs to include the new cluster (`clusters:` selectors or `destinations`). Optionally, script this:
 
    ```bash
-   core/core/automation/ci-cd/scripts/migrate-app.sh <app-name> <new-cluster-context>
+   core/scripts/automation/migrate-app.sh <app-name> <new-cluster-context>
    argocd app sync <app-name>
    argocd app wait <app-name> --health
    ```
@@ -79,7 +79,7 @@ Each phase includes checks and commands you can script (see `core/core/automatio
 
 ## 5. Add additional clouds / Crossplane resources
 
-1. Repeat Phase 3 with `core/core/automation/ci-cd/scripts/enable-cloud.sh <azure|gcp>` to bring up Azure or GCP overlays; Flux will provision their manifests while the hub keeps running.
+1. Repeat Phase 3 with `core/scripts/automation/enable-cloud.sh <azure|gcp>` to bring up Azure or GCP overlays; Flux will provision their manifests while the hub keeps running.
 2. Use `core/operators/crossplane/compositions/` to instantiate managed resources (databases, buckets). Only enable the compositions your workloads need, keeping Crossplane optional until you wish to manage infra via compositions.
 3. Whenever you add a new cloud overlay, rerun `flux reconcile kustomization control-plane --with-source` and re-check `flux get kustomization control-plane`.
 
@@ -93,13 +93,13 @@ Each phase includes checks and commands you can script (see `core/core/automatio
 Run the migration wizard automation helper as part of this playbook to ensure the overlay ordering, emulator toggles, and CI gate execute in one shot. Example:
 
 ```bash
-./core/core/automation/ci-cd/scripts/migration_wizard.py \
+./core/scripts/automation/migration_wizard.py \
   --repo-url git@github.com:your-org/agentic-reconciliation-engine.git \
   --branch migration-eks \
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-aws \
-  --helper-script ./core/core/automation/ci-cd/scripts/enable-cloud.sh \
-  --ci-gate ./core/core/automation/ci-cd/scripts/prerequisites.sh
+  --helper-script ./core/scripts/automation/enable-cloud.sh \
+  --ci-gate ./core/scripts/automation/prerequisites.sh
 ```
 
 Adjust `--connector` to match your Git host (`azure-devops`, `github-enterprise-server`, `bitbucket-cloud`, etc.), and add `--emulator=enable`/`disable` when you want the local emulator stacked. The wizard handles overlay ordering, toggles the emulator, runs the helper scripts listed in the command, executes the CI gate, and pushes the branch for an automated migration flow.

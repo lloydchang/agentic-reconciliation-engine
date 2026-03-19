@@ -328,7 +328,7 @@ cd backend && go test -tags=integration ./...
 cd frontend && yarn test
 
 # End-to-end validation
-./core/core/automation/ci-cd/scripts/validate.sh
+./core/scripts/automation/validate.sh
 ```
 
 ## Skills System Architecture
@@ -472,14 +472,14 @@ func (l *Logger) LogActivityExecution(activityName string, input interface{}, ou
 
 ```bash
 # Local development setup
-./core/core/automation/ci-cd/scripts/dev.sh  # Starts all services locally
+./core/scripts/automation/dev.sh  # Starts all services locally
 ```
 
 ### Production Deployment
 
 ```bash
 # Build production images
-./core/core/automation/ci-cd/scripts/build.sh
+./core/scripts/automation/build.sh
 
 # Deploy to Kubernetes
 kubectl apply -f k8s/

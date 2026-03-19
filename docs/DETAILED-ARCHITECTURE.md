@@ -118,10 +118,10 @@ Level 5: Enhanced services (AI, auth, certificates)
 
 ```bash
 # Generate dependency graph
-python3 core/core/automation/ci-cd/scripts/dag-visualizer.py . --format mermaid --output docs/diagrams/current-dag.md
+python3 core/scripts/automation/dag-visualizer.py . --format mermaid --output docs/diagrams/current-dag.md
 
 # Check for circular dependencies
-python3 core/core/automation/ci-cd/scripts/dag-visualizer.py . --format report
+python3 core/scripts/automation/dag-visualizer.py . --format report
 ```
 
 ## Strategic Architecture: Flux + Temporal + Consensus Hybrid
@@ -156,7 +156,7 @@ kubectl apply -f overlay/examples/complete-hub-spoke/ai-cronjobs/
 
 ```bash
 # Local development with cloud integration
-./core/core/automation/ci-cd/scripts/variant-swapper.sh local-cloud
+./core/scripts/automation/variant-swapper.sh local-cloud
 kubectl apply -f variants/local-cloud/
 ```
 
@@ -165,33 +165,33 @@ kubectl apply -f variants/local-cloud/
 ### Open Source Deployment
 
 ```bash
-./core/core/automation/ci-cd/scripts/variant-swapper.sh opensource
+./core/scripts/automation/variant-swapper.sh opensource
 ```
 
 ### Enterprise Deployment
 
 ```bash
-./core/core/automation/ci-cd/scripts/variant-swapper.sh enterprise
+./core/scripts/automation/variant-swapper.sh enterprise
 ```
 
 ### Language Ecosystem Variants
 
 ```bash
 # Python/ML Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages python
+./core/scripts/automation/variant-swapper.sh languages python
 
 # Go/Cloud Native Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages go
+./core/scripts/automation/variant-swapper.sh languages go
 
 # Rust/WasmCloud Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages rust
+./core/scripts/automation/variant-swapper.sh languages rust
 
 # TypeScript/Node.js Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages typescript
+./core/scripts/automation/variant-swapper.sh languages typescript
 
 # C#/.NET Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages csharp
+./core/scripts/automation/variant-swapper.sh languages csharp
 
 # Java/JVM Stack
-./core/core/automation/ci-cd/scripts/variant-swapper.sh languages java
+./core/scripts/automation/variant-swapper.sh languages java
 ```

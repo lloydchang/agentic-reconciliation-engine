@@ -43,7 +43,7 @@ Customize the overlay by modifying:
 - `kustomization.yaml`: Kustomize configuration
 - `overlay-metadata.yaml`: Overlay metadata and schema
 - `enhanced-features.yaml`: Feature patches
-- `core/core/automation/ci-cd/scripts/`: Additional Python scripts
+- `scripts/`: Additional Python scripts
 
 ## Usage Examples
 
@@ -72,7 +72,7 @@ hello-world/
 ├── overlay-metadata.yaml       # Overlay metadata
 ├── README.md                   # This file
 ├── enhanced-features.yaml      # Feature patches
-├── core/core/automation/ci-cd/scripts/                    # Additional scripts
+├── scripts/                    # Additional scripts
 │   ├── enhanced_handler.py     # Enhanced logic
 │   └── utils.py               # Utility functions
 └── core/automation/testing/                      # Test files
@@ -82,7 +82,7 @@ hello-world/
 ### Adding New Features
 
 1. **Update kustomization.yaml**: Add new ConfigMaps, Secrets, or patches
-2. **Implement logic**: Add Python scripts in `core/core/automation/ci-cd/scripts/`
+2. **Implement logic**: Add Python scripts in `scripts/`
 3. **Update metadata**: Modify `overlay-metadata.yaml` with new inputs/outputs
 4. **Add tests**: Create test files in `core/automation/testing/`
 5. **Update documentation**: Modify this README.md
@@ -94,7 +94,7 @@ hello-world/
 python core/automation/testing/test_overlay.py
 
 # Validate overlay structure
-python ../../core/core/automation/ci-cd/scripts/validate-overlays.py .
+python ../../core/scripts/automation/validate-overlays.py .
 
 # Test composition
 kustomize build . | kubectl apply --dry-run=client -f -

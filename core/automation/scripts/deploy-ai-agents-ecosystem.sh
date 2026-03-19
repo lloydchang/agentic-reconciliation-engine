@@ -333,7 +333,7 @@ update_fastapi_for_independent_agents() {
 deploy_skills_framework() {
     log_info "Deploying operational skills framework..."
 
-    # This would deploy the 64 operational skills as Temporal workflows
+    # This would deploy the 91 operational skills as Temporal workflows
     # For now, create a placeholder deployment
 
     cat <<EOF | $KUBECTL_CMD apply -f -
@@ -1500,7 +1500,7 @@ print_access_info() {
     echo ""
     echo "Features:"
     echo "  ✅ AI Memory Agents (Rust/Go/Python) with persistent storage"
-    echo "  ✅ 64 Operational Skills via Temporal orchestration"
+    echo "  ✅ 91 Operational Skills via Temporal orchestration"
     echo "  ✅ Llama.cpp backend integrated in memory agents"
     echo "  ✅ 24/7 autonomous operation"
     echo "  ✅ Real-time dashboard monitoring"

@@ -23,7 +23,7 @@ Eliminates single point of failure through geographic distribution and automatic
 #### Files Created
 
 - `core/operators/karmada/multi-hub-architecture.yaml` - Karmada configuration for multi-hub setup
-- `core/core/automation/ci-cd/scripts/setup-multi-hub.sh` - Automated multi-hub deployment script
+- `core/scripts/automation/setup-multi-hub.sh` - Automated multi-hub deployment script
 
 #### Key Features
 
@@ -36,7 +36,7 @@ Eliminates single point of failure through geographic distribution and automatic
 
 ```bash
 # Test multi-hub setup
-./core/core/automation/ci-cd/scripts/setup-multi-hub.sh
+./core/scripts/automation/setup-multi-hub.sh
 
 # Validate Karmada integration
 kubectl get clusters
@@ -61,7 +61,7 @@ Simplifies complex setup through automated controller deployment and configurati
 #### Files Created
 
 - `core/operators/controllers/unified-controller-installer.yaml` - Helm-based unified installer
-- `core/core/automation/ci-cd/scripts/generate-controller-config.sh` - Automated configuration generator
+- `core/scripts/automation/generate-controller-config.sh` - Automated configuration generator
 
 #### Key Features
 
@@ -74,9 +74,9 @@ Simplifies complex setup through automated controller deployment and configurati
 
 ```bash
 # Generate controller configurations
-./core/core/automation/ci-cd/scripts/generate-controller-config.sh aws all
-./core/core/automation/ci-cd/scripts/generate-controller-config.sh azure all
-./core/core/automation/ci-cd/scripts/generate-controller-config.sh gcp all
+./core/scripts/automation/generate-controller-config.sh aws all
+./core/scripts/automation/generate-controller-config.sh azure all
+./core/scripts/automation/generate-controller-config.sh gcp all
 
 # Deploy unified controllers
 kubectl apply -k core/operators/controllers/generated-configs/
@@ -209,8 +209,8 @@ Automates troubleshooting of distributed reconciliation issues.
 
 #### Files Created
 
-- `core/core/automation/ci-cd/scripts/debug-dependency-chain.sh` - Comprehensive debugging script
-- `core/core/automation/ci-cd/scripts/validate-dependencies.sh` - Validation and testing script
+- `core/scripts/automation/debug-dependency-chain.sh` - Comprehensive debugging script
+- `core/scripts/automation/validate-dependencies.sh` - Validation and testing script
 
 #### Key Features
 
@@ -223,13 +223,13 @@ Automates troubleshooting of distributed reconciliation issues.
 
 ```bash
 # Debug specific resource
-./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh network-infrastructure kustomization
+./core/scripts/automation/debug-dependency-chain.sh network-infrastructure kustomization
 
 # Validate entire system
-./core/core/automation/ci-cd/scripts/validate-dependencies.sh
+./core/scripts/automation/validate-dependencies.sh
 
 # Generate debugging report
-./core/core/automation/ci-cd/scripts/debug-dependency-chain.sh OUTPUT_FORMAT=json
+./core/scripts/automation/debug-dependency-chain.sh OUTPUT_FORMAT=json
 ```
 
 #### Practical Soundness: ✅ **EXCELLENT**

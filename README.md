@@ -2,7 +2,7 @@
 
 <img width="180" height="180" alt="ARE Logo" src="https://github.com/user-attachments/assets/122d93a7-60d4-4ada-9b2e-e29bdd5e4202" />
 
-**ARE** is an experimental sandbox that provides a reasoning and execution layer for infrastructure challenges that exceed the scope of stateless reconciliation.
+**ARE** is an experimental sandbox that provides an agentic reasoning and execution layer for infrastructure challenges that exceed the scope of stateless reconciliation.
 
 Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/) with [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [Temporal](https://temporal.io/).
 
@@ -10,7 +10,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 
 ### 🏗️ Separation of Concerns
 
-* **Agentic Layer (A):** [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
+* **Agentic AI Layer (A):** [SQLite](https://sqlite.org/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [AGENTS.md](https://agents.md/), [SKILL.md](https://agentskills.io/), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
 * **Reconciliation Engine (RE):** [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crossplane.io/), [Flux](https://fluxcd.io/): Standard resource lifecycle, cross-provider orchestration, drift detection, and mechanical synchronization.
 
 ---
@@ -29,7 +29,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 
 * [**Quickstart**](./docs/QUICKSTART.md) — Prerequisites and automation.
 * [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
-* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 86 autonomous capabilities.
+* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 91 autonomous capabilities.
 * [**Safety Rules**](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Operational best practices.
 
 ---

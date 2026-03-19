@@ -55,7 +55,7 @@ The main entry point for deploying the complete GitOps infrastructure with AI ag
 
 7. **AI Agents Ecosystem**
    - Deploys Temporal orchestration
-   - Installs AI agents with 86 skills
+   - Installs AI agents with 91 skills
    - Sets up monitoring and dashboard
 
 #### Post-Deployment Access
@@ -121,18 +121,18 @@ spec:
 #### Usage Examples
 ```bash
 # Install all cloud providers
-./core/core/automation/ci-cd/scripts/install-crossplane.sh
+./core/scripts/automation/install-crossplane.sh
 
 # Install specific providers
-./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers azure,aws
+./core/scripts/automation/install-crossplane.sh --providers azure,aws
 
 # Install Kubernetes provider for local development
-./core/core/automation/ci-cd/scripts/install-crossplane.sh --providers local
+./core/scripts/automation/install-crossplane.sh --providers local
 ```
 
 ## AI Agents Ecosystem Deployment
 
-### `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
+### `core/scripts/automation/deploy-ai-agents-ecosystem.sh`
 
 Deploys the complete AI agents monitoring and orchestration system.
 
@@ -147,7 +147,7 @@ Deploys the complete AI agents monitoring and orchestration system.
 - **Memory Agent**: Rust-based memory management
 - **Orchestration Agent**: Go-based workflow coordination
 - **Inference Gateway**: Python-based AI inference
-- **92 Skills**: Comprehensive automation capabilities
+- **91 Skills**: Comprehensive automation capabilities
 
 ##### 3. Monitoring System
 - **Go Metrics Server**: Real-time metrics collection

@@ -47,7 +47,7 @@ This naming confusion created significant cognitive load for developers trying t
   - `naming.rego`: Naming convention enforcement
   - `required-labels.rego`: Mandatory labeling requirements
 
-- **core/core/automation/ci-cd/scripts/**: Validation utilities:
+- **scripts/**: Validation utilities:
   - `check-deletions.sh`: Validates deletion operations against policies
   - `validate-schemas.sh`: Schema validation for control-plane manifests
 
@@ -118,7 +118,7 @@ core/governance/                # Governance and compliance
     │   ├── deletion-guard.rego
     │   ├── naming.rego
     │   └── required-labels.rego
-    └── core/core/automation/ci-cd/scripts/
+    └── scripts/
         ├── check-deletions.sh
         └── validate-schemas.sh
 ```
@@ -135,8 +135,8 @@ core/governance/                # Governance and compliance
 | `core/operators/ci/core/governance/deletion-guard.rego` | `core/governance/core/operators/core/governance/deletion-guard.rego` |
 | `core/operators/ci/core/governance/naming.rego` | `core/governance/core/operators/core/governance/naming.rego` |
 | `core/operators/ci/core/governance/required-labels.rego` | `core/governance/core/operators/core/governance/required-labels.rego` |
-| `core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/check-deletions.sh` |
-| `core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/validate-schemas.sh` |
+| `core/operators/ci/scripts/check-deletions.sh` | `core/governance/scripts/check-deletions.sh` |
+| `core/operators/ci/scripts/validate-schemas.sh` | `core/governance/scripts/validate-schemas.sh` |
 
 ## Documentation and References Updated
 

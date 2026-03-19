@@ -214,6 +214,6 @@ workload-infra/
 workload-infra/
 ├── shell/
 │   ├── cron-jobs/
-│   ├── bash-core/core/automation/ci-cd/scripts/
+│   ├── bash-scripts/
 │   └── system-core/automation/ci-cd/
 ```

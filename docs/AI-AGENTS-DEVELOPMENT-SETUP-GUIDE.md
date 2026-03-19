@@ -50,7 +50,7 @@ chmod +x kind
 sudo mv kind /usr/local/bin/
 
 # Helm
-curl https://raw.githubusercontent.com/helm/helm/main/core/core/automation/ci-cd/scripts/get-helm-3 | bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
 
 #### Optional Development Tools
@@ -82,7 +82,7 @@ ls -la
 gitops-infra-core/operators/
 ├── dashboard-frontend/          # React dashboard application
 ├── api-server.py               # Flask API server
-├── core/core/automation/ci-cd/scripts/                    # Deployment and utility scripts
+├── core/scripts/automation/                    # Deployment and utility scripts
 ├── docs/                       # Documentation
 ├── core/ai/skills/                    # Agent skill definitions
 ├── ai-core/ai/runtime/                  # Backend agent implementations

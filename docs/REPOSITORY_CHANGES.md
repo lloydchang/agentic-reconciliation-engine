@@ -69,7 +69,7 @@ This document outlines the comprehensive repository reorganization completed to 
   - Binaries: `ai-agent` → `tools/`
   - Go modules: `core/config/go.mod`, `go.sum` → `core/resources/`
   - Kubernetes manifests: `*.yaml` → `core/resources/`
-  - Shell scripts: `*.sh`, `*.js` → `core/core/automation/ci-cd/scripts/`
+  - Shell scripts: `*.sh`, `*.js` → `core/scripts/automation/`
   - Documentation: `LICENSE`, [README.md](README.md), diagrams → `docs/`
   - Sample data: `agent-data.json` → `overlay/examples/`
 
@@ -82,7 +82,7 @@ This document outlines the comprehensive repository reorganization completed to 
 **Reasoning:**
 
 - Improves discoverability and reduces clutter
-- Follows standard project layouts (tools/, core/core/automation/ci-cd/scripts/, docs/, overlay/examples/)
+- Follows standard project layouts (tools/, scripts/, docs/, overlay/examples/)
 - Maintains tool compatibility (Git, SOPS, AI assistants)
 
 ### 4. Cross-Reference Documentation

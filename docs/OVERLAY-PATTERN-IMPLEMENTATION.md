@@ -157,7 +157,7 @@ overlay-quickstart.sh       # True overlay implementation
 
 ### Quickstart Script
 ```
-core/core/automation/ci-cd/scripts/
+core/scripts/automation/
 ├── quickstart.sh              # Base script with hook support
 ├── overlay-quickstart.sh      # Overlay implementation
 └── core/hooks/                    # Created dynamically by overlay
@@ -286,15 +286,15 @@ The implementation provides a solid foundation for future extensibility while ma
 ## Files Modified
 
 ### Core Changes
-- `core/core/automation/ci-cd/scripts/quickstart.sh`: Added 2 hook calls (lines 77-78, 149-150)
-- `core/core/automation/ci-cd/scripts/overlay-quickstart.sh`: Complete rewrite implementing true overlay pattern
+- `core/scripts/automation/quickstart.sh`: Added 2 hook calls (lines 77-78, 149-150)
+- `core/scripts/automation/overlay-quickstart.sh`: Complete rewrite implementing true overlay pattern
 
 ### Files Removed
-- `core/core/automation/ci-cd/scripts/overlays-quickstart.sh` (duplicate)
-- `core/core/automation/ci-cd/scripts/overlay-quickstart-current.sh` (outdated)
-- `core/core/automation/ci-cd/scripts/overlays-quickstart-old.sh` (outdated)
+- `core/scripts/automation/overlays-quickstart.sh` (duplicate)
+- `core/scripts/automation/overlay-quickstart-current.sh` (outdated)
+- `core/scripts/automation/overlays-quickstart-old.sh` (outdated)
 
 ### Files Created
-- `core/core/automation/ci-cd/scripts/overlay-quickstart.sh.backup` (backup of original)
+- `core/scripts/automation/overlay-quickstart.sh.backup` (backup of original)
 
 This implementation establishes a maintainable, extensible architecture that follows established design patterns while solving the practical problems of code duplication and inconsistency.

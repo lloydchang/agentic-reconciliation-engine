@@ -92,7 +92,7 @@ Include README.md and metadata for each overlay.
 
 ```bash
 # Validate overlay structure
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/
 
 # Test overlay composition
 kustomize build core/deployment/overlays/core/ai/skills/my-overlay
