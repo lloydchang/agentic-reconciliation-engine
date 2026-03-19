@@ -6,7 +6,7 @@ metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
-  risk-level: medium
+  risk_level: medium
   autonomy: conditional
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
@@ -61,9 +61,9 @@ Enterprise-grade automation solution for orchestrator operations across AWS, Azu
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/core/automation/ci-cd/scripts/orchestrator.py`: Main automation implementation
-- `core/core/automation/ci-cd/scripts/orchestrator_handler.py`: Cloud-specific operations
-- `core/core/automation/ci-cd/scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/orchestrator.py`: Main automation implementation
+- `core/scripts/automation/orchestrator_handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 orchestrator, automation, enterprise, multi-cloud, aws, azure, gcp, onprem

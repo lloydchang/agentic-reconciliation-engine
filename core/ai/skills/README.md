@@ -10,20 +10,20 @@ core/ai/skills/
 │   └── models.py             # Pydantic models for type safety
 ├── infrastructure-provisioning/  # Infrastructure provisioning skill
 │   ├── SKILL.md              # Skill definition (agentskills.io compliant)
-│   └── core/core/automation/ci-cd/scripts/
+│   └── scripts/
 │       ├── main.py          # CLI entry point with PEP 723 deps
 │       ├── multi_cloud_orchestrator.py  # Core orchestration logic
 │       └── infrastructure_provisioning_handler.py  # Provider handlers
 ├── cluster-health-check/     # Cluster health monitoring skill
 │   ├── SKILL.md              # Skill definition
-│   └── core/core/automation/ci-cd/scripts/
+│   └── scripts/
 │       ├── main.py          # CLI entry point with PEP 723 deps
 │       ├── multi_cloud_orchestrator.py  # Health check orchestration
 │       └── cluster_health_check_handler.py  # Health check handlers
 ├── resource-optimizer/        # Resource optimization skill
 │   ├── SKILL.md              # Skill definition
-│   └── core/core/automation/ci-cd/scripts/              # Implementation scripts
-└── overlay/examples/                  # Example configurations
+│   └── scripts/              # Implementation scripts
+└── examples/                  # Example configurations
     └── config.json           # Multi-cloud configuration example
 ```
 

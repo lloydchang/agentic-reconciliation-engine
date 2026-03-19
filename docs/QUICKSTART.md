@@ -62,7 +62,7 @@ Or run steps manually:
 ✅ **Hub Cluster** - Runs Flux, Crossplane with Kubernetes Provider, Cluster API  
 ✅ **Spoke Cluster** - Local kind cluster for workloads  
 ✅ **GitOps Workflow** - Full continuous reconciliation  
-✅ **AI Agents Ecosystem** - 64+ operational skills with Temporal orchestration  
+✅ **AI Agents Ecosystem** - 90+ operational skills with Temporal orchestration  
 ✅ **Interactive Dashboard** - Real-time monitoring and control with FastAPI backend  
 ✅ **Auto API Documentation** - Interactive docs at `/docs` endpoint  
 ✅ **Zero Cloud Costs** - Everything runs locally with full functionality  
@@ -95,10 +95,10 @@ open http://localhost:5000/docs
 ## Next Steps
 
 - **Learn Crossplane Local Development**: See [docs/CROSSPLANE-LOCAL-DEVELOPMENT.md](docs/CROSSPLANE-LOCAL-DEVELOPMENT.md)
-- **Add Real Cloud**: `./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh --providers azure`
-- **Multi-Cloud**: `./core/core/automation/ci-cd/scripts/create-spoke-clusters.sh --providers azure,aws,gcp`
+- **Add Real Cloud**: `./core/scripts/automation/create-spoke-clusters.sh --providers azure`
+- **Multi-Cloud**: `./core/scripts/automation/create-spoke-clusters.sh --providers azure,aws,gcp`
 - **Production**: Use real cloud providers for hub cluster
-- **AI Agents Guide**: See [docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md](docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md)
+- **AI Agents Guide**: See [docs/AI-AGENTS-DEPLOYMENT-GUIDE.md](docs/AI-AGENTS-DEPLOYMENT-GUIDE.md)
 
 ## Architecture
 

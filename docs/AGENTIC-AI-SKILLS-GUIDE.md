@@ -134,8 +134,8 @@ kubectl logs -f deployment/certificate-rotation-skill -n staging
 
 ### Individual Skill Deployment
 ```bash
-# Deploy specific skill
-kubectl apply -f core/ai/skills/certificate-rotation/deployment.yaml -n staging
+# Deploy specific skill via GitOps
+kubectl apply -f core/ai/skills/certificate-rotation/SKILL.md -n staging
 
 # Test skill functionality
 kubectl exec -n staging deployment/certificate-rotation-skill -- python -c "import skill; skill.run_test()"
@@ -227,10 +227,10 @@ temporal workflow execute --task-queue agentic-ai --workflow-type CertificateRot
 ### End-to-End Testing
 ```bash
 # Run comprehensive e2e tests
-./scripts/test-agentic-ai-e2e.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh --test
 
 # Validate compound learning capabilities
-./scripts/test-compound-learning.sh
+./core/scripts/automation/run_evals.py
 ```
 
 ## Troubleshooting and Debugging

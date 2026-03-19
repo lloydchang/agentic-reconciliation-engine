@@ -56,9 +56,9 @@ agentic-reconciliation-engine/
 │           ├── config/                    # Pi-mono configuration
 │           ├── skills/                    # GitOps-specific skills
 │           └── k8s/                       # Kubernetes deployment manifests
-├── core/automation/ci-cd/scripts/         # Utility scripts for validation and fixes
+├── core/scripts/automation/               # Utility scripts for validation and fixes
 ├── docs/                                  # Architecture documentation
-└── core/gitops/                                # GitOps/Control-Plane manifests (Flux/ArgoCD)
+└── core/gitops/                           # GitOps/Control-Plane manifests (Flux/ArgoCD)
 ```
 
 ### Skills Directory
@@ -70,7 +70,7 @@ The `core/ai/skills/` directory contains skill definitions following the
 - `name` must be lowercase, hyphen-separated, max 64 characters, matching the directory name
 - Project-specific fields (`risk_level`, `autonomy`, `layer`, `human_gate`) live under `metadata:`
 - Skills are validated with `skills-ref validate ./core/ai/skills/` in CI
-- 64+ skills are currently available
+- 90+ skills are currently available
 
 **Example SKILL.md frontmatter (agentskills.io compliant):**
 ```yaml

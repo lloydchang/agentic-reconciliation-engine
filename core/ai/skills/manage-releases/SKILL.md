@@ -6,7 +6,7 @@ metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
-  risk-level: medium
+  risk_level: medium
   autonomy: conditional
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
@@ -61,9 +61,9 @@ Enterprise-grade automation solution for release manager operations across AWS, 
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/core/automation/ci-cd/scripts/release-manager.py`: Main automation implementation
-- `core/core/automation/ci-cd/scripts/release-manager_handler.py`: Cloud-specific operations
-- `core/core/automation/ci-cd/scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/release-manager.py`: Main automation implementation
+- `core/scripts/automation/release-manager_handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 release, manager, automation, enterprise, multi-cloud, aws, azure, gcp, onprem

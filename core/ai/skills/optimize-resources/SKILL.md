@@ -6,7 +6,7 @@ metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
-  risk-level: low
+  risk_level: low
   autonomy: conditional
 compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CLI, gcloud), and access to multi-cloud monitoring systems
 allowed-tools: Bash Read Write Grep
@@ -63,9 +63,9 @@ Enterprise-grade automation solution for resource optimization operations across
 - **Kubernetes**: kubernetes client for cluster operations
 
 ## Scripts
-- `core/core/automation/ci-cd/scripts/resource_optimizer.py`: Main optimization implementation
-- `core/core/automation/ci-cd/scripts/resource_optimizer_handler.py`: Cloud-specific operations
-- `core/core/automation/ci-cd/scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/resource_optimizer.py`: Main optimization implementation
+- `core/scripts/automation/resource_optimizer_handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 resource, optimization, cost, efficiency, savings, right-size, performance, multi-cloud, aws, azure, gcp, onprem
