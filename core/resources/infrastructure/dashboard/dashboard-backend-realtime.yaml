@@ -15,6 +15,7 @@ data:
     import json
     import time
     import re
+    import subprocess
     from datetime import datetime, timedelta
     from flask import Flask, jsonify, request
     from flask_cors import CORS
@@ -51,6 +52,14 @@ data:
         'metrics': {'data': None, 'timestamp': 0}
     }
     CACHE_TTL = 5  # seconds
+    
+    def run_kubectl(command):
+        try:
+            result = subprocess.run(['kubectl'] + command.split(), capture_output=True, text=True, timeout=30)
+            return result.stdout.strip(), result.returncode == 0
+        except Exception as e:
+            print(f"Error running kubectl: {e}")
+            return "", False
     
     def get_real_agents():
         """Get real agent data from Kubernetes using Python client"""
@@ -177,6 +186,24 @@ data:
             deployments = k8s_apps.list_namespaced_deployment(namespace=NAMESPACE)
             metrics['deployments'] = len(deployments.items)
             
+            # Resource usage
+            output, success = run_kubectl("top nodes --no-headers 2>/dev/null")
+            if success and output:
+                total_cpu = 0
+                total_mem = 0
+                for line in output.strip().split('\n'):
+                    if line.strip():
+                        parts = re.split(r'\s+', line.strip())
+                        if len(parts) >= 4:
+                            # Parse percentage
+                            cpu_pct = int(parts[2].replace('%', ''))
+                            mem_pct = int(parts[4].replace('%', ''))
+                            total_cpu += cpu_pct
+                            total_mem += mem_pct
+                if metrics['nodes'] > 0:
+                    metrics['cpu_total'] = f"{total_cpu // metrics['nodes']}%"
+                    metrics['memory_total'] = f"{total_mem // metrics['nodes']}%"
+            
             # Health score based on pod phases
             running = sum(1 for p in pods.items if p.status.phase == 'Running')
             total = len(pods.items)
@@ -206,7 +233,7 @@ data:
                 activity_type = 'info'
                 if event_type == 'Warning':
                     activity_type = 'warning'
-                elif 'Error' in (event.reason or ''):
+                elif 'Error' in event.get('reason', ''):
                     activity_type = 'error'
                 elif event_type == 'Normal':
                     activity_type = 'success'
@@ -230,184 +257,6 @@ data:
                 })
         except Exception as e:
             print(f"Error getting activities: {e}")
-        
-        return activities
-    
-    # API Routes
-    @app.route('/api/agents')
-    def agents():
-        """Get all agents"""
-        now = time.time()
-        if cache['agents']['data'] and (now - cache['agents']['timestamp']) < CACHE_TTL:
-            return jsonify(cache['agents']['data'])
-        
-        data = {'agents': get_real_agents(), 'timestamp': datetime.now().isoformat()}
-        cache['agents'] = {'data': data, 'timestamp': now}
-        return jsonify(data)
-    
-    @app.route('/api/skills')
-    def skills():
-        """Get all skills"""
-        now = time.time()
-        if cache['skills']['data'] and (now - cache['skills']['timestamp']) < CACHE_TTL:
-            return jsonify(cache['skills']['data'])
-        
-        data = {'skills': get_real_skills(), 'timestamp': datetime.now().isoformat()}
-        cache['skills'] = {'data': data, 'timestamp': now}
-        return jsonify(data)
-    
-    @app.route('/api/activities')
-    def activities():
-        """Get recent activities"""
-        now = time.time()
-        if cache['activities']['data'] and (now - cache['activities']['timestamp']) < CACHE_TTL:
-            return jsonify(cache['activities']['data'])
-        
-        data = {'activities': get_recent_activities(), 'timestamp': datetime.now().isoformat()}
-        cache['activities'] = {'data': data, 'timestamp': now}
-        return jsonify(data)
-    
-    @app.route('/api/metrics')
-    def metrics():
-        """Get cluster metrics"""
-        now = time.time()
-        if cache['metrics']['data'] and (now - cache['metrics']['timestamp']) < CACHE_TTL:
-            return jsonify(cache['metrics']['data'])
-        
-        data = {'metrics': get_cluster_metrics(), 'timestamp': datetime.now().isoformat()}
-        cache['metrics'] = {'data': data, 'timestamp': now}
-        return jsonify(data)
-    
-    @app.route('/api/health')
-    def health():
-        """Health check endpoint"""
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'version': '1.0.0'
-        })
-    
-    @app.route('/api/summary')
-    def summary():
-        """Get summary dashboard data"""
-        return jsonify({
-            'agents': get_real_agents(),
-            'skills': get_real_skills(),
-            'metrics': get_cluster_metrics(),
-            'activities': get_recent_activities()[:5],
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    if __name__ == '__main__':
-        print(f"Starting Dashboard Backend...")
-        print(f"Namespace: {NAMESPACE}")
-        print(f"Temporal Host: {TEMPORAL_HOST}")
-        print(f"Memory DB: {MEMORY_DB_PATH}")
-        app.run(host='0.0.0.0', port=5000, debug=False)
-        output, success = run_kubectl(f"get pods -n {NAMESPACE} --no-headers")
-        if success and output:
-            metrics['pods'] = len([l for l in output.strip().split('\n') if l.strip()])
-        
-        # Service count
-        output, success = run_kubectl(f"get services -n {NAMESPACE} --no-headers")
-        if success and output:
-            metrics['services'] = len([l for l in output.strip().split('\n') if l.strip()])
-        
-        # Deployment count
-        output, success = run_kubectl(f"get deployments -n {NAMESPACE} --no-headers")
-        if success and output:
-            metrics['deployments'] = len([l for l in output.strip().split('\n') if l.strip()])
-        
-        # Resource usage
-        output, success = run_kubectl("top nodes --no-headers 2>/dev/null")
-        if success and output:
-            total_cpu = 0
-            total_mem = 0
-            for line in output.strip().split('\n'):
-                if line.strip():
-                    parts = re.split(r'\s+', line.strip())
-                    if len(parts) >= 4:
-                        # Parse percentage
-                        cpu_pct = int(parts[2].replace('%', ''))
-                        mem_pct = int(parts[4].replace('%', ''))
-                        total_cpu += cpu_pct
-                        total_mem += mem_pct
-            if metrics['nodes'] > 0:
-                metrics['cpu_total'] = f"{total_cpu // metrics['nodes']}%"
-                metrics['memory_total'] = f"{total_mem // metrics['nodes']}%"
-        
-        # Health score based on pod status
-        output, success = run_kubectl(f"get pods -n {NAMESPACE} -o jsonpath='{{.items[*].status.phase}}'")
-        if success and output:
-            phases = output.split()
-            if phases:
-                running = phases.count('Running')
-                total = len(phases)
-                metrics['health_score'] = int((running / total) * 100) if total > 0 else 100
-        
-        return metrics
-    
-    def get_recent_activities():
-        """Get recent activities from events and logs"""
-        activities = []
-        
-        # Get recent events
-        output, success = run_kubectl(f"get events -n {NAMESPACE} --sort-by='.lastTimestamp' --limit=10 -o json")
-        if success and output:
-            try:
-                events_data = json.loads(output)
-                for event in events_data.get('items', [])[:10]:
-                    msg = event.get('message', event.get('reason', 'Unknown event'))
-                    event_type = event.get('type', 'Normal')
-                    timestamp = event.get('lastTimestamp', '')
-                    
-                    # Map event type to activity type
-                    activity_type = 'info'
-                    if event_type == 'Warning':
-                        activity_type = 'warning'
-                    elif 'Error' in event.get('reason', ''):
-                        activity_type = 'error'
-                    elif 'Normal' in event_type:
-                        activity_type = 'success'
-                    
-                    # Format time
-                    time_str = 'Unknown'
-                    if timestamp:
-                        try:
-                            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                            delta = datetime.now(dt.tzinfo) - dt
-                            if delta.seconds < 60:
-                                time_str = f"{delta.seconds}s ago"
-                            elif delta.seconds < 3600:
-                                time_str = f"{delta.seconds // 60}m ago"
-                            else:
-                                time_str = f"{delta.seconds // 3600}h ago"
-                        except:
-                            time_str = timestamp
-                    
-                    activities.append({
-                        'time': time_str,
-                        'type': activity_type,
-                        'message': msg[:100],  # Truncate long messages
-                        'source': event.get('source', {}).get('component', 'unknown')
-                    })
-            except json.JSONDecodeError:
-                pass
-        
-        # If no events, generate from pod status
-        if not activities:
-            output, success = run_kubectl(f"get pods -n {NAMESPACE} --no-headers")
-            if success and output:
-                for line in output.strip().split('\n')[:5]:
-                    if line.strip():
-                        parts = re.split(r'\s+', line.strip())
-                        if len(parts) >= 3:
-                            activities.append({
-                                'time': 'Live',
-                                'type': 'success' if parts[2] == 'Running' else 'warning',
-                                'message': f"Pod {parts[0]} is {parts[2]}",
-                                'source': 'kubernetes'
-                            })
         
         return activities
     
