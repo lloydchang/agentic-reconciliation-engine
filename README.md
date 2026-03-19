@@ -8,7 +8,7 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ---
 
-### 🏗️ Separation of Concerns
+### Separation of Concerns
 
 * **Agentic AI Layer (A):** [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [SQLite](https://sqlite.org/), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
 * **Reconciliation Engine (RE):** [Argo](https://argoproj.github.io/), [Flux](https://fluxcd.io/), [Crossplane](https://www.crossplane.io/), [Kubernetes](https://kubernetes.io/): Standard resource lifecycle, drift detection, cross-provider orchestration, and mechanical synchronization.
