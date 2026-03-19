@@ -9,15 +9,15 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.io/offline-mode: "false"
-    fluxcd.io/primary-source: "gitops-infra-primary"
-    fluxcd.io/backup-sources: "gitops-infra-secondary,gitops-infra-tertiary"
+    fluxcd.io/primary-source: "$TOPDIR-primary"
+    fluxcd.io/backup-sources: "$TOPDIR-secondary,$TOPDIR-tertiary"
 spec:
   interval: 5m
   retryInterval: 2m
   timeout: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-primary  # Will be automatically updated by failover controller
+    name: $TOPDIR-primary  # Will be automatically updated by failover controller
   path: "./core/resources/tenants"
   prune: true
   wait: true
@@ -28,11 +28,11 @@ spec:
   # Health checks with failover awareness
   healthChecks:
   - kind: GitRepository
-    name: gitops-infra-primary
+    name: $TOPDIR-primary
   - kind: GitRepository
-    name: gitops-infra-secondary
+    name: $TOPDIR-secondary
   - kind: GitRepository
-    name: gitops-infra-tertiary
+    name: $TOPDIR-tertiary
   # Post-build hooks for failover notification
   postBuild:
     substitute:
@@ -45,21 +45,21 @@ spec:
   patches:
   - target:
       kind: GitRepository
-      name: gitops-infra-primary
+      name: $TOPDIR-primary
     patch: |
       - op: add
         path: /metadata/labels/fluxcd.io~1failover-priority
         value: "1"
   - target:
       kind: GitRepository
-      name: gitops-infra-secondary
+      name: $TOPDIR-secondary
     patch: |
       - op: add
         path: /metadata/labels/fluxcd.io~1failover-priority
         value: "2"
   - target:
       kind: GitRepository
-      name: gitops-infra-tertiary
+      name: $TOPDIR-tertiary
     patch: |
       - op: add
         path: /metadata/labels/fluxcd.io~1failover-priority
@@ -80,13 +80,13 @@ spec:
   timeout: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-primary
+    name: $TOPDIR-primary
   path: "./control-plane"
   prune: false  # Critical components, don't prune during failover
   wait: true
   healthChecks:
   - kind: GitRepository
-    name: gitops-infra-primary
+    name: $TOPDIR-primary
   # Enhanced validation for failover scenarios
   validation: client
   # Post-build hooks for failover state management

@@ -175,9 +175,9 @@ data:
         <script>
             // Mock data for demonstration - in production, this would fetch from API
             const repositories = [
-                { name: 'gitops-infra-primary', url: 'GitHub', status: 'healthy', responseTime: 0.45, lastCheck: '2024-03-12T14:30:00Z' },
-                { name: 'gitops-infra-secondary', url: 'GitLab', status: 'healthy', responseTime: 0.62, lastCheck: '2024-03-12T14:30:00Z' },
-                { name: 'gitops-infra-tertiary', url: 'Gitea', status: 'warning', responseTime: 2.1, lastCheck: '2024-03-12T14:30:00Z' }
+                { name: '$TOPDIR-primary', url: 'GitHub', status: 'healthy', responseTime: 0.45, lastCheck: '2024-03-12T14:30:00Z' },
+                { name: '$TOPDIR-secondary', url: 'GitLab', status: 'healthy', responseTime: 0.62, lastCheck: '2024-03-12T14:30:00Z' },
+                { name: '$TOPDIR-tertiary', url: 'Gitea', status: 'warning', responseTime: 2.1, lastCheck: '2024-03-12T14:30:00Z' }
             ];
             
             function createStatusCard(repo) {

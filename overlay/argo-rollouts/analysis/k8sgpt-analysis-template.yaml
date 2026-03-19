@@ -48,7 +48,7 @@ spec:
                       key: api-key
                   optional: true
                 - name: QWEN_BASE_URL
-                  value: "http://qwen-server.gitops-infra.svc.cluster.local:8000"
+                  value: "http://qwen-server.$TOPDIR.svc.cluster.local:8000"
                 - name: QWEN_MODEL
                   value: "qwen2.5-7b-instruct"
                 volumeMounts:

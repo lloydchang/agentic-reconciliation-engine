@@ -61,7 +61,7 @@ commonLabels:
 commonAnnotations:
   config.kubernetes.io/origin: agentic-reconciliation-engine
   config.kubernetes.io/version: v3.0
-  config.kubernetes.io/documentation: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke-consensus
+  config.kubernetes.io/documentation: https://github.com/lloydchang/$TOPDIR-core/operators/tree/main/overlay/examples/complete-hub-spoke-consensus
 # Patches for strategic configurations
 patches:
 - target:

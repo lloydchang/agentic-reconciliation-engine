@@ -744,7 +744,7 @@ spec:
           name: dashboard-api-script
       - name: skills-volume
         hostPath:
-          path: /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/skills
+          path: $TOPDIR/core/ai/skills
           type: DirectoryOrCreate
 ---
 apiVersion: v1

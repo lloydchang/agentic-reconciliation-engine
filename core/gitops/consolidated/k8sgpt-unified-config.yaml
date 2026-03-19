@@ -52,7 +52,7 @@ data:
       namespaces:
         include:
           - "default"
-          - "gitops-infra"
+          - "$TOPDIR"
           - "production"
           - "staging"
           - "development"

@@ -41,13 +41,13 @@ setup_hub() {
             --components-extra=image-reflector-controller,image-automation-controller
         
         # Configure secondary hub to sync from same Git repo
-        flux create source git gitops-infra \
+        flux create source git $TOPDIR \
             --url=$GIT_REPO \
             --branch=$BRANCH \
             --namespace=$NAMESPACE
             
         flux create kustomization control-plane \
-            --source=gitops-infra \
+            --source=$TOPDIR \
             --path=./control-plane \
             --prune=true \
             --interval=5m \

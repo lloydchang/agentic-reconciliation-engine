@@ -104,7 +104,7 @@ core/automation/scripts/
 
 core/config/
 ├── langfuse-secret.yaml                  # Secrets for control-plane
-└── langfuse-secret-gitops-infra.yaml     # Secrets for ai-infrastructure
+└── langfuse-secret-$TOPDIR.yaml     # Secrets for ai-infrastructure
 
 core/resources/infrastructure/monitoring/
 ├── kustomization.yaml                    # Updated with langfuse-dashboard.yaml

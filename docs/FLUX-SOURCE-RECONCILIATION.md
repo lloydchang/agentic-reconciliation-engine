@@ -286,7 +286,7 @@ status:
   artifact:
     checksum: sha256:abc123...
     lastUpdateTime: "2023-01-01T00:00:00Z"
-    path: gitops-infra-core/operators/sha256:abc123.tar.gz
+    path: $TOPDIR/operators/sha256:abc123.tar.gz
     revision: main/sha256:abc123
     size: 1234567
   observedGeneration: 1

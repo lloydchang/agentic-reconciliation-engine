@@ -99,7 +99,7 @@ resourceLimits:
       memory: "1Gi"
 
 commonLabels:
-  app.kubernetes.io/name: gitops-infra
+  app.kubernetes.io/name: $TOPDIR
   app.kubernetes.io/component: production
   app.kubernetes.io/managed-by: kustomize
   environment: production

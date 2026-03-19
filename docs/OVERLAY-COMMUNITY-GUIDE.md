@@ -67,7 +67,7 @@ The overlays community is dedicated to:
 #### Quick Setup
 ```bash
 # Clone repository
-git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+git clone https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/agentic-reconciliation-engine.git
 cd agentic-reconciliation-engine
 
 # Set up development environment
@@ -511,7 +511,7 @@ We're excited to have you join the Agentic Reconciliation Engine Overlays Commun
 
 **Your journey starts now! 🚀**
 
-For questions or help getting started, reach out through our [community channels](https://github.com/gitops-infra-core/operators/discussions).
+For questions or help getting started, reach out through our [community channels](https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/discussions).
 
 ---
 

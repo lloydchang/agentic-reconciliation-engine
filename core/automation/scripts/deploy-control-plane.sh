@@ -40,7 +40,7 @@ import (
 	"log"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"github.com/lloydchang/gitops-infra-core/operators/ai-core/ai/runtime/internal/workflow"
+	"github.com/lloydchang/$TOPDIR/operators/ai-core/ai/runtime/internal/workflow"
 )
 func main() {
 	c, _ := client.Dial(client.Options{})

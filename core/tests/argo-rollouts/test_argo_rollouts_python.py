@@ -318,7 +318,7 @@ class ArgoRolloutsTestSuite(unittest.TestCase):
             # Check if K8sGPT is available
             self.run_kubectl([
                 "get", "deployment", "k8sgpt-analyzer",
-                "-n", "gitops-infra"
+                "-n", "$TOPDIR"
             ])
         except subprocess.CalledProcessError:
             self.skipTest("K8sGPT analyzer not found")

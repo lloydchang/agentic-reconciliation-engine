@@ -25,9 +25,9 @@ spec:
               set -e
               
               # Check if all Git repositories are unhealthy
-              PRIMARY_STATUS=$(kubectl get gitrepository gitops-infra-primary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
-              SECONDARY_STATUS=$(kubectl get gitrepository gitops-infra-secondary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
-              TERTIARY_STATUS=$(kubectl get gitrepository gitops-infra-tertiary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              PRIMARY_STATUS=$(kubectl get gitrepository $TOPDIR-primary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              SECONDARY_STATUS=$(kubectl get gitrepository $TOPDIR-secondary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+              TERTIARY_STATUS=$(kubectl get gitrepository $TOPDIR-tertiary -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
               
               echo "Repository Status - Primary: $PRIMARY_STATUS, Secondary: $SECONDARY_STATUS, Tertiary: $TERTIARY_STATUS"
               
@@ -36,7 +36,7 @@ spec:
                 echo "🚨 All Git repositories failed - enabling offline mode"
                 
                 # Enable offline mode by switching to local Git repository
-                kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
+                kubectl patch gitrepository $TOPDIR-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
                 
                 # Annotate kustomizations for offline mode
                 kubectl annotate kustomization --all fluxcd.io/offline-mode=true -n flux-system --overwrite
@@ -44,13 +44,13 @@ spec:
                 echo "✅ Offline mode enabled"
               else
                 # Check if we're in offline mode and repositories are healthy
-                CURRENT_URL=$(kubectl get gitrepository gitops-infra-primary -n flux-system -o jsonpath='{.spec.url}' 2>/dev/null || echo "")
+                CURRENT_URL=$(kubectl get gitrepository $TOPDIR-primary -n flux-system -o jsonpath='{.spec.url}' 2>/dev/null || echo "")
                 
                 if [[ "$CURRENT_URL" == *"git-cache-service"* && "$PRIMARY_STATUS" == "True" ]]; then
                   echo "🔄 Repositories healthy - disabling offline mode"
                   
                   # Restore original Git repository URL
-                  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"https://github.com/antigravity/agentic-reconciliation-engine.git"}}' --type=merge
+                  kubectl patch gitrepository $TOPDIR-primary -n flux-system -p '{"spec":{"url":"https://github.com/lloydchang/agentic-reconciliation-engine.git"}}' --type=merge
                   
                   # Remove offline mode annotations
                   kubectl annotate kustomization --all fluxcd.io/offline-mode- -n flux-system --overwrite

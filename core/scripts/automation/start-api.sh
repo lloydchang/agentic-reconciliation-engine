@@ -10,7 +10,7 @@ pkill -f "python.*5002" 2>/dev/null || true
 sleep 2
 
 # Start the API in background
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
+cd $TOPDIR/agentic-reconciliation-engine
 python3 enhanced-api-working.py > /dev/null 2>&1 &
 
 # Wait for startup

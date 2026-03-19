@@ -41,7 +41,7 @@ spec:
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
 metadata:
-  name: gitops-infra-jenkins-updates
+  name: $TOPDIR-jenkins-updates
   namespace: flux-system
 spec:
   interval: 10m

@@ -5,11 +5,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: gitops-infra-primary
+  name: $TOPDIR-primary
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/antigravity/agentic-reconciliation-engine.git
+  url: https://github.com/lloydchang/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -20,7 +20,7 @@ spec:
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: gitops-infra-secondary
+  name: $TOPDIR-secondary
   namespace: flux-system
 spec:
   interval: 5m
@@ -35,7 +35,7 @@ spec:
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: gitops-infra-tertiary
+  name: $TOPDIR-tertiary
   namespace: flux-system
 spec:
   interval: 5m
@@ -59,7 +59,7 @@ data:
     # Health check script for Git repositories
     
     REPOSITORIES=(
-      "https://github.com/antigravity/agentic-reconciliation-engine.git"
+      "https://github.com/lloydchang/agentic-reconciliation-engine.git"
       "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
       "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
     )
@@ -67,9 +67,9 @@ data:
     for repo in "${REPOSITORIES[@]}"; do
       if git ls-remote "$repo" &>/dev/null; then
         echo "✅ $repo - HEALTHY"
-        kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=true --overwrite
+        kubectl label gitrepository $TOPDIR-primary gitrepo.fluxcd.io/healthy=true --overwrite
       else
         echo "❌ $repo - UNHEALTHY"
-        kubectl label gitrepository gitops-infra-primary gitrepo.fluxcd.io/healthy=false --overwrite
+        kubectl label gitrepository $TOPDIR-primary gitrepo.fluxcd.io/healthy=false --overwrite
       fi
     done

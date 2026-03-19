@@ -898,7 +898,7 @@ This document researches each provided URL, evaluates its applicability to the A
 
 **Integration Approach**: Adapt sandbox concepts to core/resources/tenants/3-workloads/ for AI-assisted ops.
 
-## 11. https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills
+## 11. https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills
 
 **Content Summary**: Skills directory with markdown files for temporal-workflow, analyze-backstage-catalog, ai-agent-orchestration, etc.
 
@@ -2181,7 +2181,7 @@ spec:
 
 ## Local File References
 
-## 96. https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/agent-orchestration-demo.md
+## 96. https://github.com/lloydchang/agentic-reconciliation-engine/operators/blob/main/overlay/examples/complete-hub-spoke/agent-orchestration-demo.md
 
 **Content Summary**: Local markdown file demonstrating agent orchestration in the complete hub-spoke example.
 
@@ -2191,7 +2191,7 @@ spec:
 
 **Integration Approach**: Reference in docs as implementation example for agent orchestration.
 
-## 97. https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-cronjobs
+## 97. https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/overlay/examples/complete-hub-spoke/ai-cronjobs
 
 **Content Summary**: Directory containing AI-powered cronjob examples.
 
@@ -2201,7 +2201,7 @@ spec:
 
 **Integration Approach**: Use as template for deploying AI cronjobs in core/resources/tenants/3-workloads/.
 
-## 98. https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml
+## 98. https://github.com/lloydchang/agentic-reconciliation-engine/operators/blob/main/overlay/examples/complete-hub-spoke/ai-cronjobs/cronjobs.yaml
 
 **Content Summary**: YAML manifest for AI cronjobs.
 
@@ -2211,7 +2211,7 @@ spec:
 
 **Integration Approach**: Apply via Flux in the control plane.
 
-## 99. https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-gateway
+## 99. https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/overlay/examples/complete-hub-spoke/ai-gateway
 
 **Content Summary**: Directory with AI gateway examples.
 
@@ -2221,7 +2221,7 @@ spec:
 
 **Integration Approach**: Use for deploying AI gateways in core/resources/tenants/.
 
-## 100. https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-gateway/gateway.yaml
+## 100. https://github.com/lloydchang/agentic-reconciliation-engine/operators/blob/main/overlay/examples/complete-hub-spoke/ai-gateway/gateway.yaml
 
 **Content Summary**: YAML manifest for AI gateway.
 
@@ -2231,7 +2231,7 @@ spec:
 
 **Integration Approach**: Deploy via Flux with dependsOn from network/cluster resources.
 
-## 101. https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke/ai-validation
+## 101. https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/overlay/examples/complete-hub-spoke/ai-validation
 
 **Content Summary**: Directory with AI validation examples.
 
@@ -2241,7 +2241,7 @@ spec:
 
 **Integration Approach**: Integrate into CI/CD for AI-generated manifest validation.
 
-## 102. https://github.com/lloydchang/gitops-infra-core/operators/blob/main/overlay/examples/complete-hub-spoke/ai-validation/validation.yaml
+## 102. https://github.com/lloydchang/agentic-reconciliation-engine/operators/blob/main/overlay/examples/complete-hub-spoke/ai-validation/validation.yaml
 
 **Content Summary**: YAML manifest for AI validation.
 
@@ -2271,7 +2271,7 @@ spec:
 
 **Integration Approach**: Consider as an advanced architecture for AI agent orchestration. Migrate from MCP tool registries to Agent Skills libraries for infrastructure management, security compliance, cost optimization, and disaster recovery. Skills can be developed, versioned, and deployed through the same GitOps pipeline used for infrastructure.
 
-## 105. https://github.com/lloydchang/gitops-infra-core/operators/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md
+## 105. https://github.com/lloydchang/agentic-reconciliation-engine/operators/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md
 
 **Content Summary**: Comprehensive documentation analyzing the evolution from MCP (Model Context Protocol) to Agent Skills as the next level of AI agent orchestration for Agentic Reconciliation Engines. Includes architectural implications, migration strategy, skill library design, and complete implementation examples.
 
@@ -2331,7 +2331,7 @@ The following URLs were provided for inclusion in this analysis. Many of these r
 - https://github.com/Clause-Logic/exoclaw
 - https://github.com/Clause-Logic/exoclaw-temporal
 - https://github.com/Clause-Logic/exoclaw-github
-- https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills
+- https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills
 
 ## Detailed Analysis of Additional Resources
 
@@ -2669,7 +2669,7 @@ data:
 **Integration Approach**: Use for GitHub-based agent automation.
 
 #### AI Agents Sandbox Skills
-**Source**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills
+**Source**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills
 
 **Content Summary**: Specialized skills for infrastructure and DevOps automation.
 
@@ -2995,7 +2995,7 @@ spec:
 - Human-in-the-loop approval workflows
 - Comprehensive audit trails
 
-**Skills Repository**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills
+**Skills Repository**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills
 
 **Key Infrastructure Skills**:
 - Infrastructure discovery and inventory
@@ -4827,7 +4827,7 @@ spec:
     spec:
       containers:
       - name: ai-worker
-        image: gitops-infra/temporal-ai-worker:latest
+        image: $TOPDIR/temporal-ai-worker:latest
         env:
         - name: TEMPORAL_ADDRESS
           value: "temporal.control-plane.svc:7233"
@@ -5690,11 +5690,11 @@ This section analyzes all URLs referenced in the [Awesome Consensus](https://git
 
 ## 37. AI Agents Sandbox Skills Tree Analysis
 
-This section analyzes the complete skills tree from [gitops-infra-core/operators/core/ai/skills/skills](https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
+This section analyzes the complete skills tree from [agentic-reconciliation-engine/operators/core/ai/skills/skills](https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills), providing detailed analysis of each skill directory, its SKILL.md description, and configuration files.
 
 ### temporal-workflow
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/temporal-workflow
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/temporal-workflow
 
 **SKILL.md Content**: Create, manage, and monitor Temporal workflows with AI agent orchestration. Use when developing workflow definitions, monitoring execution, or troubleshooting workflow issues.
 
@@ -5708,7 +5708,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### analyze-backstage-catalog
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/analyze-backstage-catalog
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/analyze-backstage-catalog
 
 **SKILL.md Content**: Manage Backstage software catalog, components, and API documentation. Use when creating catalog entities, managing component metadata, or organizing software inventory.
 
@@ -5722,7 +5722,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### ai-agent-orchestration
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/ai-agent-orchestration
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/ai-agent-orchestration
 
 **SKILL.md Content**: Orchestrate and coordinate multiple AI agents for complex workflows. Use when managing agent interactions, coordinating multi-agent tasks, or implementing agent communication patterns.
 
@@ -5736,7 +5736,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### compliance-check
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/compliance-check
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/compliance-check
 
 **SKILL.md Content**: Start and monitor compliance checks for SOC2, GDPR, HIPAA standards. Use when verifying infrastructure compliance, preparing for audits, or ensuring regulatory requirements are met.
 
@@ -5750,7 +5750,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### cost-optimization
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/cost-optimization
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/cost-optimization
 
 **SKILL.md Content**: Analyze and optimize cloud infrastructure costs using specialized subagent. Use when reviewing spending, identifying savings opportunities, or planning cost reduction strategies.
 
@@ -5764,7 +5764,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### analyze-security
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/analyze-security
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/analyze-security
 
 **SKILL.md Content**: Perform comprehensive security analysis with dynamic context injection. Use when scanning for vulnerabilities, analyzing security posture, or responding to security incidents.
 
@@ -5778,7 +5778,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### workflow-management
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/workflow-management
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/workflow-management
 
 **SKILL.md Content**: Orchestrate and monitor Temporal AI Agent workflows. Use when managing multiple concurrent workflows, checking status, or coordinating complex multi-agent operations.
 
@@ -5792,7 +5792,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### infrastructure-discovery
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/infrastructure-discovery
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/infrastructure-discovery
 
 **SKILL.md Content**: Discover and visualize infrastructure resources with interactive HTML output. Use when exploring new environments, understanding resource relationships, or creating infrastructure documentation.
 
@@ -5806,7 +5806,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ### enable-self-service
 
-**Location**: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/core/ai/skills/skills/enable-self-service
+**Location**: https://github.com/lloydchang/agentic-reconciliation-engine/operators/tree/main/core/ai/skills/skills/enable-self-service
 
 **SKILL.md Content**: Use this skill to implement and operate an Internal Developer Portal (IDP) and self-service catalog for platform capabilities. Triggers: any request to set up or manage a Backstage developer portal, create a self-service template for a new service or environment, onboard a developer team to the platform, build a service catalog, automate the golden-path service scaffolding, or reduce toil for engineering teams that need platform resources.
 

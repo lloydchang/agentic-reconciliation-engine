@@ -5,15 +5,15 @@
 ### 1. Start All Services
 ```bash
 # Terminal 1: Start Backend
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard
+cd $TOPDIR/core/ai/runtime/dashboard
 DATABASE_URL="/tmp/dashboard.db" ./main
 
 # Terminal 2: Start Agent Simulator (for real-time data)
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard
+cd $TOPDIR/core/ai/runtime/dashboard
 ./bin/agent-simulator
 
 # Terminal 3: Start Frontend
-cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/runtime/dashboard/frontend
+cd $TOPDIR/core/ai/runtime/dashboard/frontend
 python3 -m http.server 8080
 ```
 

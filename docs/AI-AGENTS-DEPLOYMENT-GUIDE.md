@@ -599,14 +599,14 @@ done
 flux install --namespace flux-system
 
 # Create GitRepository
-flux create source git gitops-infra \
+flux create source git $TOPDIR \
   --url=https://github.com/your-org/agentic-reconciliation-engine \
   --branch=main \
   --interval=1m
 
 # Create Kustomization
 flux create kustomization ai-agents \
-  --source=gitops-infra \
+  --source=$TOPDIR \
   --path=./core/resources/ai-inference \
   --prune=true \
   --interval=5m

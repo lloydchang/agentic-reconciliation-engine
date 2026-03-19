@@ -72,9 +72,9 @@ echo ""
 echo "☸️  Step 4: Kubernetes Infrastructure"
 echo "===================================="
 
-test_step "Kubeconfig Access" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl config use-context hub" "Should access cluster"
-test_step "Metrics Pod Running" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl get pods -n ai-infrastructure | grep ai-metrics-server | grep Running" "Pod should be running"
-test_step "Metrics Service Exists" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl get svc -n ai-infrastructure | grep ai-metrics-service" "Service should exist"
+test_step "Kubeconfig Access" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl config use-context hub" "Should access cluster"
+test_step "Metrics Pod Running" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl get pods -n ai-infrastructure | grep ai-metrics-server | grep Running" "Pod should be running"
+test_step "Metrics Service Exists" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl get svc -n ai-infrastructure | grep ai-metrics-service" "Service should exist"
 
 echo ""
 echo "🧪 Step 5: Data Flow Analysis"

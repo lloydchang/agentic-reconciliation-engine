@@ -1,4 +1,4 @@
-module github.com/lloydchang/gitops-infra-control-plane/ai-agents/swarm-coordinator
+module github.com/lloydchang/$TOPDIR/ai-agents/swarm-coordinator
 
 go 1.21
 

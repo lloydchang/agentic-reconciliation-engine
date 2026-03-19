@@ -272,7 +272,7 @@ class LangfuseAutomator {
       return {
         publicKey,
         secretKey,
-        projectId: 'gitops-infra-control-plane' // Default project ID
+        projectId: '$TOPDIR' // Default project ID
       };
       
     } catch (error) {

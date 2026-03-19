@@ -36,7 +36,7 @@ kubectl get namespaces | grep -E "(control|langfuse|ai)"
 Two secret files existed with different namespace targets:
 
 1. **`core/config/langfuse-secret.yaml`** - Target: `control-plane` (non-existent)
-2. **`core/config/langfuse-secret-gitops-infra.yaml`** - Target: `ai-infrastructure` (exists)
+2. **`core/config/langfuse-secret-$TOPDIR.yaml`** - Target: `ai-infrastructure` (exists)
 
 ---
 
@@ -45,7 +45,7 @@ Two secret files existed with different namespace targets:
 ### Fix Implementation
 Updated the namespace in the primary secret configuration file:
 
-**File**: `/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/config/langfuse-secret.yaml`
+**File**: `$TOPDIR/core/config/langfuse-secret.yaml`
 
 **Change Made**:
 ```yaml
@@ -213,7 +213,7 @@ data:
 
 ### Configuration Files
 - `core/config/langfuse-secret.yaml` - Main secret configuration (fixed)
-- `core/config/langfuse-secret-gitops-infra.yaml` - Alternative configuration
+- `core/config/langfuse-secret-$TOPDIR.yaml` - Alternative configuration
 
 ### Documentation
 - `docs/COMPREHENSIVE-LANGFUSE-TEMPORAL-INTEGRATION-GUIDE.md`

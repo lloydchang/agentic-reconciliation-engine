@@ -24,7 +24,7 @@ spec:
               
               set -e
               
-              PRIMARY_REPO="https://github.com/antigravity/agentic-reconciliation-engine.git"
+              PRIMARY_REPO="https://github.com/lloydchang/agentic-reconciliation-engine.git"
               SECONDARY_REPO="https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
               TERTIARY_REPO="https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
               MIRROR_DIR="/tmp/git-mirror"

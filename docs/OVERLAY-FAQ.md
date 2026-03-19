@@ -58,7 +58,7 @@ Frequently asked questions about the Agentic Reconciliation Engine Overlay Syste
 **A**: 
 ```bash
 # Clone the repository
-git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+git clone https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/agentic-reconciliation-engine.git
 cd agentic-reconciliation-engine
 
 # Make CLI tools executable
@@ -559,7 +559,7 @@ If you don't find your answer here, check out:
 - **[Community Guide](OVERLAY-COMMUNITY-GUIDE.md)**: Community resources
 - **[Examples](OVERLAY-EXAMPLES.md)**: Real-world examples
 
-Or reach out through our [community channels](https://github.com/gitops-infra-core/operators/discussions).
+Or reach out through our [community channels](https://github.com/lloydchang/agentic-reconciliation-engine/core/operators/discussions).
 
 ---
 

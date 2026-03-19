@@ -80,7 +80,7 @@ main() {
     print_info "Searching for kustomization files with commonLabels..."
     
     # Use find with grep to locate files
-    mapfile -t files < <(find /Users/lloyd/github/antigravity/agentic-reconciliation-engine -name "kustomization.yaml" -exec grep -l "commonLabels" {} \; 2>/dev/null || true)
+    mapfile -t files < <(find $TOPDIR/agentic-reconciliation-engine -name "kustomization.yaml" -exec grep -l "commonLabels" {} \; 2>/dev/null || true)
     
     if [[ ${#files[@]} -eq 0 ]]; then
         print_success "No files with commonLabels found"

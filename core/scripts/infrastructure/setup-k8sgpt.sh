@@ -312,9 +312,9 @@ deploy_kubernetes() {
     log_info "Deploying K8sGPT to Kubernetes..."
     
     # Check if namespace exists
-    if ! kubectl get namespace gitops-infra &> /dev/null; then
-        log_info "Creating gitops-infra namespace..."
-        kubectl create namespace gitops-infra
+    if ! kubectl get namespace $TOPDIR &> /dev/null; then
+        log_info "Creating $TOPDIR namespace..."
+        kubectl create namespace $TOPDIR
     fi
     
     # Apply RBAC
@@ -343,8 +343,8 @@ deploy_kubernetes() {
     
     # Wait for deployments
     log_info "Waiting for deployments to be ready..."
-    kubectl wait --for=condition=available --timeout=300s deployment/k8sgpt-analyzer -n gitops-infra
-    kubectl wait --for=condition=available --timeout=600s deployment/qwen-server -n gitops-infra
+    kubectl wait --for=condition=available --timeout=300s deployment/k8sgpt-analyzer -n $TOPDIR
+    kubectl wait --for=condition=available --timeout=600s deployment/qwen-server -n $TOPDIR
     
     log_success "K8sGPT deployed to Kubernetes"
 }
@@ -379,11 +379,11 @@ test_integration() {
     fi
     
     # Test Kubernetes deployment
-    if kubectl get pods -n gitops-infra -l app.kubernetes.io/name=k8sgpt &> /dev/null; then
+    if kubectl get pods -n $TOPDIR -l app.kubernetes.io/name=k8sgpt &> /dev/null; then
         log_info "Testing Kubernetes deployment..."
         
         # Check if pods are running
-        POD_COUNT=$(kubectl get pods -n gitops-infra -l app.kubernetes.io/name=k8sgpt --no-headers | wc -l)
+        POD_COUNT=$(kubectl get pods -n $TOPDIR -l app.kubernetes.io/name=k8sgpt --no-headers | wc -l)
         if [ "$POD_COUNT" -gt 0 ]; then
             log_success "Kubernetes deployment test passed ($POD_COUNT pods running)"
         else
@@ -391,7 +391,7 @@ test_integration() {
         fi
         
         # Check if services are accessible
-        if kubectl get svc k8sgpt-analyzer -n gitops-infra &> /dev/null; then
+        if kubectl get svc k8sgpt-analyzer -n $TOPDIR &> /dev/null; then
             log_success "Kubernetes services test passed"
         else
             log_error "Kubernetes services test failed"
@@ -523,8 +523,8 @@ main() {
     echo ""
     if [ "$SKIP_KUBERNETES" = false ]; then
         echo "☸️  Kubernetes:"
-        echo "  kubectl get pods -n gitops-infra -l app.kubernetes.io/name=k8sgpt"
-        echo "  kubectl logs -n gitops-infra deployment/k8sgpt-analyzer"
+        echo "  kubectl get pods -n $TOPDIR -l app.kubernetes.io/name=k8sgpt"
+        echo "  kubectl logs -n $TOPDIR deployment/k8sgpt-analyzer"
     fi
 }
 

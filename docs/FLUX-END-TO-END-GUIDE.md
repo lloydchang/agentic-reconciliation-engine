@@ -768,7 +768,7 @@ spec:
 ### Repository Structure
 
 ```
-gitops-infra-core/operators/
+$TOPDIR/operators/
 ├── clusters/
 │   ├── production/
 │   │   ├── kustomization.yaml

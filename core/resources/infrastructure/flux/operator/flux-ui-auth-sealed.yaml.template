@@ -9,7 +9,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: $TOPDIR
 spec:
   encryptedData:
     auth: [GENERATE_WITH_KUBESEAL_COMMAND]
@@ -20,5 +20,5 @@ spec:
       labels:
         app.kubernetes.io/name: flux-operator
         app.kubernetes.io/component: ui
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: $TOPDIR
     type: Opaque

@@ -4,7 +4,7 @@
 // Configuration - adjust these values for your environment
 dockerRepoHost = 'ghcr.io'
 dockerRepoUser = '${{ github.repository_owner }}'
-dockerRepoProj = 'gitops-infra-control-plane'
+dockerRepoProj = '$TOPDIR'
 
 // Jenkins secret ID for Docker registry credentials
 jenkinsDockerSecret = 'ghcr-registry-account'

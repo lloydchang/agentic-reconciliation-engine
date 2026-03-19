@@ -25,8 +25,8 @@ if command -v kubectl &> /dev/null; then
             fi
         fi
         
-        if [[ -f "core/config/langfuse-secret-gitops-infra.yaml" ]]; then
-            if kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml; then
+        if [[ -f "core/config/langfuse-secret-$TOPDIR.yaml" ]]; then
+            if kubectl apply -f core/config/langfuse-secret-$TOPDIR.yaml; then
                 echo "✅ Langfuse secrets deployed to ai-infrastructure namespace"
             else
                 echo "⚠️  Failed to deploy Langfuse secrets to ai-infrastructure namespace"

@@ -19,7 +19,7 @@ Error from server (BadRequest): error when creating "core/config/langfuse-secret
 
 **Files Fixed**:
 - `core/config/langfuse-secret.yaml`
-- `core/config/langfuse-secret-gitops-infra.yaml`
+- `core/config/langfuse-secret-$TOPDIR.yaml`
 
 **Fix Applied**:
 ```yaml
@@ -172,7 +172,7 @@ Expected behavior:
 1. **Langfuse Secrets**:
 ```bash
 kubectl apply -f core/config/langfuse-secret.yaml
-kubectl apply -f core/config/langfuse-secret-gitops-infra.yaml
+kubectl apply -f core/config/langfuse-secret-$TOPDIR.yaml
 ```
 
 2. **Monitoring Infrastructure**:
@@ -215,7 +215,7 @@ kubectl apply -k core/resources/infrastructure/monitoring
 | File | Change Type | Description |
 |------|-------------|-------------|
 | `core/config/langfuse-secret.yaml` | Fixed | Corrected base64 encoding |
-| `core/config/langfuse-secret-gitops-infra.yaml` | Fixed | Corrected base64 encoding |
+| `core/config/langfuse-secret-$TOPDIR.yaml` | Fixed | Corrected base64 encoding |
 | `core/resources/infrastructure/monitoring/namespace.yaml` | Created | Added monitoring namespace |
 | `core/resources/infrastructure/monitoring/kustomization.yaml` | Updated | Added namespace to resources |
 | `core/resources/infrastructure/dashboard/agent-dashboard-configmap.yaml` | Created | External dashboard ConfigMap |

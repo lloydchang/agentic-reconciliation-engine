@@ -6,7 +6,7 @@ echo "🔗 Setting up real connection to Go metrics server..."
 pkill -f "kubectl port-forward.*ai-metrics" 2>/dev/null || true
 
 # Set up port-forward
-export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig
+export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig
 kubectl config use-context hub
 
 echo "📡 Establishing port-forward to ai-metrics-service..."

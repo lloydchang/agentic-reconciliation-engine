@@ -2,7 +2,7 @@
   "mcpServers": {
     "cloud-compliance": {
       "command": "node",
-      "args": ["/Users/lloyd/github/antigravity/agentic-reconciliation-engine/.claude/mcp-servers/cloud-compliance/index.js"],
+      "args": ["$TOPDIR/.claude/mcp-servers/cloud-compliance/index.js"],
       "env": {
         "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
         "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
@@ -18,7 +18,7 @@
     },
     "incident-triage": {
       "command": "node",
-      "args": ["/Users/lloyd/github/antigravity/agentic-reconciliation-engine/.claude/mcp-servers/incident-triage/index.js"],
+      "args": ["$TOPDIR/.claude/mcp-servers/incident-triage/index.js"],
       "env": {
         "PROMETHEUS_URL": "${PROMETHEUS_URL}",
         "DATADOG_API_KEY": "${DATADOG_API_KEY}",
@@ -36,7 +36,7 @@
     },
     "iac-validator": {
       "command": "node",
-      "args": ["/Users/lloyd/github/antigravity/agentic-reconciliation-engine/.claude/mcp-servers/iac-validator/index.js"],
+      "args": ["$TOPDIR/.claude/mcp-servers/iac-validator/index.js"],
       "env": {
         "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
         "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
@@ -53,7 +53,7 @@
     },
     "knowledge-base": {
       "command": "node",
-      "args": ["/Users/lloyd/github/antigravity/agentic-reconciliation-engine/.claude/mcp-servers/knowledge-base/index.js"],
+      "args": ["$TOPDIR/.claude/mcp-servers/knowledge-base/index.js"],
       "env": {
         "VECTOR_DB_URL": "${VECTOR_DB_URL}",
         "VECTOR_DB_API_KEY": "${VECTOR_DB_API_KEY}",
@@ -75,7 +75,7 @@
     },
     "engagement-sync": {
       "command": "node",
-      "args": ["/Users/lloyd/github/antigravity/agentic-reconciliation-engine/.claude/mcp-servers/engagement-sync/index.js"],
+      "args": ["$TOPDIR/.claude/mcp-servers/engagement-sync/index.js"],
       "env": {
         "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
         "SLACK_SIGNING_SECRET": "${SLACK_SIGNING_SECRET}",

@@ -64,22 +64,22 @@ spec:
         dashboardproviders.yaml:
           apiVersion: 1
           providers:
-            - name: 'gitops-infra'
+            - name: '$TOPDIR'
               orgId: 1
               folder: 'Agentic Reconciliation Engine'
               type: file
               disableDeletion: false
               editable: true
               options:
-                path: /var/lib/grafana/dashboards/gitops-infra
+                path: /var/lib/grafana/dashboards/$TOPDIR
       dashboards:
-        gitops-infra:
+        $TOPDIR:
           gitops-dependency-graph:
-            url: https://raw.githubusercontent.com/gitops-infra/dashboards/main/dependency-graph.json
+            url: https://raw.githubusercontent.com/$TOPDIR/dashboards/main/dependency-graph.json
           gitops-reconciliation-status:
-            url: https://raw.githubusercontent.com/gitops-infra/dashboards/main/reconciliation-status.json
+            url: https://raw.githubusercontent.com/$TOPDIR/dashboards/main/reconciliation-status.json
           gitops-controller-metrics:
-            url: https://raw.githubusercontent.com/gitops-infra/dashboards/main/controller-metrics.json
+            url: https://raw.githubusercontent.com/$TOPDIR/dashboards/main/controller-metrics.json
     
     # AlertManager Configuration
     alertmanager:

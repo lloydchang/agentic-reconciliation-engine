@@ -13,7 +13,7 @@ spec:
   enableDnsSupport: true
   tags:
     - key: Name
-      value: gitops-infra-vpc
+      value: $TOPDIR-vpc
     - key: Environment
       value: production
     - key: ManagedBy
@@ -33,6 +33,6 @@ spec:
     name: gitops-vpc
   tags:
     - key: Name
-      value: gitops-infra-igw
+      value: $TOPDIR-igw
     - key: ManagedBy
       value: gitops-flux

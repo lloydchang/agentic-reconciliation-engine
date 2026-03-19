@@ -30,7 +30,7 @@ The implementation provides:
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
 metadata:
-  name: gitops-infra-updates
+  name: $TOPDIR-updates
   namespace: flux-system
 spec:
   interval: 5m

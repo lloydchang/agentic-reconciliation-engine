@@ -84,7 +84,7 @@ log_memory "PHASE 1: Pre-Test System Validation"
 run_test "API Process Running" "ps aux | grep -v grep | grep 'real-data-api.py'" "true"
 run_test "Python Available" "python3 --version" "true"
 run_test "Kubectl Available" "kubectl version --client" "true"
-run_test "Kubeconfig Access" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl config use-context hub" "true"
+run_test "Kubeconfig Access" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl config use-context hub" "true"
 
 echo -e "\n${PURPLE}📊 PHASE 2: API Endpoint Testing${NC}"
 echo "==================================="
@@ -110,8 +110,8 @@ echo "=========================================="
 log_memory "PHASE 4: Kubernetes Infrastructure Testing"
 
 # Kubernetes tests
-run_test "Metrics Pod Running" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl get pods -n ai-infrastructure | grep ai-metrics-server | grep Running" "true"
-run_test "Metrics Service Exists" "export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl get svc -n ai-infrastructure | grep ai-metrics-service" "true"
+run_test "Metrics Pod Running" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl get pods -n ai-infrastructure | grep ai-metrics-server | grep Running" "true"
+run_test "Metrics Service Exists" "export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl get svc -n ai-infrastructure | grep ai-metrics-service" "true"
 run_test "Port-Forward Running" "ps aux | grep -v grep | grep 'port-forward.*ai-metrics'" "true"
 
 echo -e "\n${PURPLE}📊 PHASE 5: Data Flow Integration Testing${NC}"
@@ -132,7 +132,7 @@ if [ $FAILED_TESTS -gt 0 ]; then
     
     # Fix 1: Port-forward
     if ! ps aux | grep -v grep | grep 'port-forward.*ai-metrics' >/dev/null; then
-        apply_fix "Establish Port-Forward" "pkill -f 'port-forward.*ai-metrics' 2>/dev/null; sleep 1; export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig && kubectl config use-context hub >/dev/null 2>&1 && kubectl port-forward svc/ai-metrics-service 8080:8080 -n ai-infrastructure &"
+        apply_fix "Establish Port-Forward" "pkill -f 'port-forward.*ai-metrics' 2>/dev/null; sleep 1; export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig && kubectl config use-context hub >/dev/null 2>&1 && kubectl port-forward svc/ai-metrics-service 8080:8080 -n ai-infrastructure &"
     fi
     
     # Fix 2: Restart API if needed

@@ -11,7 +11,7 @@ pkill -f "real-data-api" 2>/dev/null || true
 sleep 2
 
 # Set up kubeconfig
-export KUBECONFIG=/Users/lloyd/github/antigravity/gitops-infra-core/operators/hub-kubeconfig
+export KUBECONFIG=agentic-reconciliation-engine/core/operators/hub-kubeconfig
 kubectl config use-context hub
 
 echo "📡 Establishing port-forward to ai-metrics-service..."
