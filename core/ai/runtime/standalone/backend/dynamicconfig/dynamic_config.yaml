@@ -1,0 +1,22 @@
+# Temporal dynamic configuration
+# This file configures the Temporal server behavior
+
+# Enable namespace operations
+frontend.enableUpdateNamespace:
+  - value: true
+    constraints: {}
+
+# Enable persistence
+history.enableRead:
+  - value: true
+    constraints: {}
+
+# Enable workflow execution
+matching.enableRead:
+  - value: true
+    constraints: {}
+
+# Enable task queue processing
+matching.enableWrite:
+  - value: true
+    constraints: {}
