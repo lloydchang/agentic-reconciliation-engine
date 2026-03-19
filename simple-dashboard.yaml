@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-dashboard
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-dashboard
+  template:
+    metadata:
+      labels:
+        app: simple-dashboard
+    spec:
+      containers:
+      - name: dashboard
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-dashboard-service
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: simple-dashboard
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
