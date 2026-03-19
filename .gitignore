@@ -624,3 +624,10 @@ azure/
 gcp/
 logs/
 overlay-backup-*/
+
+# Generated screenshots and local assets
+localhost-*.png
+localhost-*.svg
+
+# Runtime PID files
+*.pid
