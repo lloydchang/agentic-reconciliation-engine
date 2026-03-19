@@ -4,6 +4,7 @@ description: Comprehensive debugging skill for agents, Temporal workflows, and K
 version: 1.0.0
 risk_level: low
 autonomy: fully_auto
+layer: temporal
 action_name: debug_system
 
 input_schema:
