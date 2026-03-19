@@ -3,7 +3,7 @@ name: generate-compliance-report
 description: Generates compliance reports and audits for security standards across multi-cloud environments. Use when ensuring regulatory compliance, conducting security audits, or preparing for certifications.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

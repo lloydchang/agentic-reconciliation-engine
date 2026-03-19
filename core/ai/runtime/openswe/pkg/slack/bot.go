@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gitops-infra-control-plane/openswe-orchestrator/pkg/config"
-	"github.com/gitops-infra-control-plane/openswe-orchestrator/pkg/orchestrator"
+	"github.com/agentic-reconciliation-engine/openswe-orchestrator/pkg/config"
+	"github.com/agentic-reconciliation-engine/openswe-orchestrator/pkg/orchestrator"
 )
 
 // SlackBot handles Slack integration for OpenSWE

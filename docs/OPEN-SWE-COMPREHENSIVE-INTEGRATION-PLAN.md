@@ -152,7 +152,7 @@ func (so *SandboxOperator) CreateSandbox(ctx context.Context, taskID string) (*S
             Containers: []corev1.Container{
                 {
                     Name:    "agent-sandbox",
-                    Image:   "gitops-infra-control-plane/agent-sandbox:latest",
+                    Image:   "agentic-reconciliation-engine/agent-sandbox:latest",
                     Resources: sm.baseResources.ToKubernetesResources(),
                     SecurityContext: &corev1.SecurityContext{
                         RunAsNonRoot:   boolPtr(true),

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
 )
 
 // WebhookHandler handles Linear webhook events

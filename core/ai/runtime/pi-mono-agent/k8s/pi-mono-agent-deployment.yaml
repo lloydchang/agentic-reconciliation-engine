@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: pi-mono-agent
-        image: gitops-infra-control-plane/pi-mono-agent:latest
+        image: agentic-reconciliation-engine/pi-mono-agent:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

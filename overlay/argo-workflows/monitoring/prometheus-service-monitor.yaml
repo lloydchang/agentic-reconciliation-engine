@@ -9,7 +9,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     release: prometheus
 spec:
   selector:
@@ -70,7 +70,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     grafana_dashboard: "1"
 data:
   argo-workflows-dashboard.json: |
@@ -171,7 +171,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     prometheus_rule: "1"
 data:
   argo-workflows.yml: |

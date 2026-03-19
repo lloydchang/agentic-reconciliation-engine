@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -60,7 +60,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   secretName: flux-ui-tls
   issuerRef:

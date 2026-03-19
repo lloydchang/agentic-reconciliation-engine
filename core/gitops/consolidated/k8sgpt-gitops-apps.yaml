@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt-unified
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     argocd.argoproj.io/sync-options: Prune=false
     argocd.argoproj.io/compare-options: IgnoreExtraneous
@@ -15,7 +15,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     targetRevision: main
     path: core/gitops/consolidated
   destination:
@@ -59,14 +59,14 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt-unified
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   interval: 5m
   retryInterval: 1m
   timeout: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
     namespace: flux-system
   path: ./core/gitops/consolidated
   prune: false
@@ -112,7 +112,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt-unified
     app.kubernetes.io/component: ai-analysis
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     app.kubernetes.io/managed-by: gitops
 spec:

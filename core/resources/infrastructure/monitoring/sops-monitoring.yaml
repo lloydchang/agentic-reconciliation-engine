@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: sops-monitoring
     app.kubernetes.io/component: monitoring
-    gitops-infra-control-plane.io/managed-by: "flux"
+    agentic-reconciliation-engine.io/managed-by: "flux"
 data:
   # Prometheus monitoring rules for SOPS operations
   sops-rules.yaml: |
@@ -182,7 +182,7 @@ metadata:
   labels:
     app.kubernetes.io/name: sops-monitoring
     app.kubernetes.io/component: monitoring
-    gitops-infra-control-plane.io/managed-by: "flux"
+    agentic-reconciliation-engine.io/managed-by: "flux"
 spec:
   groups:
   - name: sops.rules
@@ -231,7 +231,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-metrics
     app.kubernetes.io/component: sops
-    gitops-infra-control-plane.io/managed-by: "flux"
+    agentic-reconciliation-engine.io/managed-by: "flux"
 spec:
   selector:
     matchLabels:

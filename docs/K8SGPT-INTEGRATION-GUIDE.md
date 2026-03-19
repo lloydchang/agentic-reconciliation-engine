@@ -622,7 +622,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     path: overlays/k8sgpt
   destination:
     server: https://kubernetes.default.svc
@@ -720,8 +720,8 @@ A: Yes, with local Qwen deployment, K8sGPT can operate entirely offline.
 
 ```bash
 # Setup development environment
-git clone https://github.com/your-org/gitops-infra-control-plane
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine
+cd agentic-reconciliation-engine
 
 # Install dependencies
 pip install -r requirements.txt

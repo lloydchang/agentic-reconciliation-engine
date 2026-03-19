@@ -29,8 +29,8 @@ Before you begin working with overlays, ensure you have:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
-   cd gitops-infra-control-plane
+   git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+   cd agentic-reconciliation-engine
    ```
 
 2. **Set Up Tools**:
@@ -709,7 +709,7 @@ Now that you understand overlays, you can:
 - [Architecture Documentation](OVERLAY-ARCHITECTURE.md)
 - [Planning Document](OVERLAY-PLANNING.md)
 - [Tooling Guide](OVERLAY-TOOLING.md)
-- [GitHub Repository](https://github.com/gitops-infra-control-plane)
+- [GitHub Repository](https://github.com/agentic-reconciliation-engine)
 - [Community Forum](https://github.com/gitops-infra-core/operators/discussions)
 - [Issue Tracker](https://github.com/gitops-infra-core/operators/issues)
 

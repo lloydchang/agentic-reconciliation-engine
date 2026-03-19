@@ -3,7 +3,7 @@ name: optimize-costs
 description: Multi-cloud automation skill for cost optimizer operations. Use when managing cost optimizer across cloud providers.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

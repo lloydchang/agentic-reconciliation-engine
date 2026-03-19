@@ -3,7 +3,7 @@ name: manage-kubernetes-cluster
 description: Manages Kubernetes cluster operations including provisioning, scaling, and maintenance across cloud providers. Use when administering clusters, managing node pools, or implementing cluster automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -5,9 +5,9 @@ import (
 	"log"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/workflow"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/workflow"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/activities"
 )
 
 func main() {

@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-MIRROR_DIR="/tmp/git-mirror/gitops-infra-control-plane.git"
+MIRROR_DIR="/tmp/git-mirror/agentic-reconciliation-engine.git"
 CONFLICT_LOG="/var/log/git-conflicts.log"
 
 log() {

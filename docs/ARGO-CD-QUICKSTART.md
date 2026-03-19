@@ -42,7 +42,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 ```bash
 # Add your Git repository to Argo CD
-argocd repo add https://github.com/lloydchang/gitops-infra-control-plane.git --type git
+argocd repo add https://github.com/lloydchang/agentic-reconciliation-engine.git --type git
 
 # Or use the pre-configured repository in our setup
 ```
@@ -101,7 +101,7 @@ helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
   --set server.service.type=LoadBalancer \
-  --set configs.repository.urls="https://github.com/lloydchang/gitops-infra-control-plane.git"
+  --set configs.repository.urls="https://github.com/lloydchang/agentic-reconciliation-engine.git"
 ```
 
 ### K8sGPT with Qwen LLM Setup
@@ -303,7 +303,7 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: https://github.com/lloydchang/gitops-infra-control-plane.git
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine.git
     targetRevision: main
     path: overlays/production
   destination:

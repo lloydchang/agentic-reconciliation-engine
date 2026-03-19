@@ -3,7 +3,7 @@ name: route-alerts
 description: Routes alerts to appropriate teams and systems based on content, severity, and business impact. Use when implementing intelligent alert distribution, team-based alert routing, or automated escalation workflows.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

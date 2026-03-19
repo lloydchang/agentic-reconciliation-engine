@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/workflow"
-	"gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
+	"agentic-reconciliation-engine/core/ai/workers/temporal/internal/activities"
 )
 
 // TestIntegrationWorkflow executes a comprehensive test of Langfuse tracing integration

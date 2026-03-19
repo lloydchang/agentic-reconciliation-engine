@@ -14,21 +14,21 @@ data:
     repositories:
       primary:
         name: "gitops-infra-primary"
-        url: "https://github.com/antigravity/gitops-infra-control-plane.git"
+        url: "https://github.com/antigravity/agentic-reconciliation-engine.git"
         priority: 1
         timeout: "60s"
         retry_interval: "2m"
         
       secondary:
         name: "gitops-infra-secondary"
-        url: "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
+        url: "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
         priority: 2
         timeout: "60s"
         retry_interval: "2m"
         
       tertiary:
         name: "gitops-infra-tertiary"
-        url: "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+        url: "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
         priority: 3
         timeout: "60s"
         retry_interval: "2m"
@@ -43,7 +43,7 @@ data:
       # Offline mode configuration
       offline:
         enabled: true
-        cache_url: "http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"
+        cache_url: "http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"
         max_offline_duration: "24h"
         queue_changes: true
         
@@ -82,9 +82,9 @@ data:
     }
     
     # Check all repositories
-    check_repository "gitops-infra-primary" "https://github.com/antigravity/gitops-infra-control-plane.git"
-    check_repository "gitops-infra-secondary" "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
-    check_repository "gitops-infra-tertiary" "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+    check_repository "gitops-infra-primary" "https://github.com/antigravity/agentic-reconciliation-engine.git"
+    check_repository "gitops-infra-secondary" "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+    check_repository "gitops-infra-tertiary" "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
     
   failover-script.sh: |
     #!/bin/bash
@@ -111,7 +111,7 @@ data:
     # Failover logic
     if [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -eq 0 && $TERTIARY_HEALTHY -eq 0 ]]; then
       echo "🚨 All repositories failed - enabling offline mode"
-      kubectl patch gitrepository $PRIMARY_REPO -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
+      kubectl patch gitrepository $PRIMARY_REPO -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
       kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
       
     elif [[ $PRIMARY_HEALTHY -eq 0 && $SECONDARY_HEALTHY -gt 0 && "$CURRENT_SOURCE" != "$SECONDARY_REPO" ]]; then

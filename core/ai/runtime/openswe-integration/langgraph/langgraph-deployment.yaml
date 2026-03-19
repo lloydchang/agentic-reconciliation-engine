@@ -19,7 +19,7 @@ data:
   GITHUB_APP_WEBHOOK_URL: "/api/webhooks/github"
   LINEAR_WEBHOOK_URL: "/api/webhooks/linear"
   SLACK_WEBHOOK_URL: "/api/webhooks/slack"
-  LANGSMITH_PROJECT: "gitops-infra-control-plane"
+  LANGSMITH_PROJECT: "agentic-reconciliation-engine"
 ---
 apiVersion: v1
 kind: Secret
@@ -108,7 +108,7 @@ spec:
               name: open-swe-secrets
               key: linear-api-key
         - name: LANGGRAPH_PROJECT
-          value: "gitops-infra-control-plane"
+          value: "agentic-reconciliation-engine"
         - name: LOG_LEVEL
           value: "INFO"
         livenessProbe:

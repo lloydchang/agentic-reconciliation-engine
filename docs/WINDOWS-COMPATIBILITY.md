@@ -37,7 +37,7 @@ Once the prerequisites above are satisfied, you can run the zero-touch automatio
 
 ```bash
 # from your bash-compatible shell (WSL/Git Bash)
-cd /path/to/gitops-infra-control-plane
+cd /path/to/agentic-reconciliation-engine
 core/core/automation/ci-cd/scripts/run-local-automation.sh
 ```
 

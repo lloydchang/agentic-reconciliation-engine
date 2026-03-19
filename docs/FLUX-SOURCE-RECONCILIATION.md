@@ -14,11 +14,11 @@ The most common source type for Git-based configuration.
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/your-org/gitops-infra-control-plane
+  url: https://github.com/your-org/agentic-reconciliation-engine
   ref:
     branch: main
   ignore: |
@@ -116,11 +116,11 @@ spec:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: ssh://git@github.com/your-org/gitops-infra-control-plane.git
+  url: ssh://git@github.com/your-org/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -146,11 +146,11 @@ stringData:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/your-org/gitops-infra-control-plane.git
+  url: https://github.com/your-org/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -172,7 +172,7 @@ stringData:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
@@ -208,11 +208,11 @@ Flux sources can be reconciled through multiple triggers:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m  # Reconcile every 5 minutes
-  url: https://github.com/your-org/gitops-infra-control-plane.git
+  url: https://github.com/your-org/agentic-reconciliation-engine.git
   ref:
     branch: main
 ```
@@ -232,7 +232,7 @@ spec:
     - "pull_request"
   resources:
     - kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
       namespace: flux-system
   secretRef:
     name: github-webhook-token
@@ -251,13 +251,13 @@ stringData:
 
 ```bash
 # Reconcile a specific GitRepository
-flux reconcile source git gitops-infra-control-plane
+flux reconcile source git agentic-reconciliation-engine
 
 # Reconcile all sources
 flux reconcile source all
 
 # Reconcile with force flag
-flux reconcile source git gitops-infra-control-plane --with-source
+flux reconcile source git agentic-reconciliation-engine --with-source
 ```
 
 ### Reconciliation Status and Conditions
@@ -267,7 +267,7 @@ flux reconcile source git gitops-infra-control-plane --with-source
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 status:
   conditions:
@@ -306,7 +306,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/1-network
   prune: true
   wait: true
@@ -328,7 +328,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -357,7 +357,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -391,7 +391,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -664,7 +664,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/1-network
   prune: true
   wait: true
@@ -680,7 +680,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/2-clusters
   prune: true
   wait: true
@@ -698,7 +698,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -720,7 +720,7 @@ spec:
   interval: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./apps/frontend
   prune: true
   wait: true
@@ -735,7 +735,7 @@ spec:
   interval: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./apps/backend
   prune: true
   wait: true
@@ -750,7 +750,7 @@ spec:
   interval: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./monitoring
   prune: true
   wait: true
@@ -769,7 +769,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./workloads/production
   prune: true
   wait: true
@@ -802,7 +802,7 @@ spec:
   interval: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./apps/critical
   prune: true
   wait: true
@@ -845,7 +845,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./workloads/validated
   prune: true
   wait: true
@@ -869,13 +869,13 @@ spec:
 
 ```bash
 # Check GitRepository status
-kubectl get gitrepository gitops-infra-control-plane -n flux-system -o yaml
+kubectl get gitrepository agentic-reconciliation-engine -n flux-system -o yaml
 
 # Check secret references
 kubectl get secret git-credentials -n flux-system -o yaml
 
 # Test connectivity
-flux reconcile source git gitops-infra-control-plane --with-source
+flux reconcile source git agentic-reconciliation-engine --with-source
 ```
 
 #### 2. Network Connectivity
@@ -885,7 +885,7 @@ flux reconcile source git gitops-infra-control-plane --with-source
 kubectl logs -n flux-system deployment/source-controller
 
 # Test repository access
-curl -I https://github.com/your-org/gitops-infra-control-plane
+curl -I https://github.com/your-org/agentic-reconciliation-engine
 
 # Check webhook configuration
 kubectl get receiver github-receiver -n flux-system -o yaml
@@ -898,7 +898,7 @@ kubectl get receiver github-receiver -n flux-system -o yaml
 flux get artifacts
 
 # Force artifact recreation
-flux reconcile source git gitops-infra-control-plane
+flux reconcile source git agentic-reconciliation-engine
 
 # Check artifact storage
 kubectl get artifacts.source.toolkit.fluxcd.io -n flux-system
@@ -953,11 +953,11 @@ kubectl get ingress -n production
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 10m  # Longer interval for stability
-  url: https://github.com/your-org/gitops-infra-control-plane
+  url: https://github.com/your-org/agentic-reconciliation-engine
   ref:
     branch: main
   ignore: |
@@ -987,7 +987,7 @@ spec:
   interval: 15m  # Longer interval for complex workloads
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: false  # Disable waiting for faster reconciliation

@@ -168,7 +168,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: https://github.com/lloydchang/gitops-infra-control-plane
+  url: https://github.com/lloydchang/agentic-reconciliation-engine
   ref:
     branch: main
 EOF

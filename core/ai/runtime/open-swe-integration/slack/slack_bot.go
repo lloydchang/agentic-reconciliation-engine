@@ -11,7 +11,7 @@ import (
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
 )
 
 // SlackBot handles Slack bot interactions

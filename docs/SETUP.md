@@ -43,15 +43,15 @@ This guide provides step-by-step instructions to set up the complete GitOps Infr
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 ```
 
 ### 2. Install Flux on Hub Cluster
 
 ```bash
 flux bootstrap git \
-  --url=ssh://git@github.com/lloydchang/gitops-infra-control-plane \
+  --url=ssh://git@github.com/lloydchang/agentic-reconciliation-engine \
   --branch=main \
   --path=core/operators/flux \
   --private-key-file=~/.ssh/id_rsa

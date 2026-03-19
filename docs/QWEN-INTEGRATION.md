@@ -294,7 +294,7 @@ spec:
               name: webhook-secret
               key: token
         - name: GIT_REPO_URL
-          value: "https://github.com/your-org/gitops-infra-control-plane"
+          value: "https://github.com/your-org/agentic-reconciliation-engine"
         - name: GIT_BRANCH
           value: "main"
         - name: AUTO_FIX_ENABLED

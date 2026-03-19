@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
 )
 
 // GenerateReActThoughtActivity generates a thought for the ReAct agent

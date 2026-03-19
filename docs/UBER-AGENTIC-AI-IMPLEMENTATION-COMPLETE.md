@@ -132,7 +132,7 @@ metadata:
 ## Directory Structure
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/ai/
 │   ├── AGENTS.md                          # Agent architecture documentation
 │   ├── skills/                            # 18+ specialized skills

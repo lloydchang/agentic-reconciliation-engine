@@ -70,8 +70,8 @@ EOF
 
 ```bash
 # Clone repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Deploy complete ecosystem
 chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
@@ -900,7 +900,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/lloydchang/gitops-infra-control-plane.git
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine.git
     targetRevision: HEAD
     path: manifests/ai-agents
   destination:

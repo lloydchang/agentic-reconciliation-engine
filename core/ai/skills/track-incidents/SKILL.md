@@ -3,7 +3,7 @@ name: track-incidents
 description: Maintains and analyzes incident history across cloud environments for pattern identification and learning. Use when tracking incidents, analyzing patterns, or implementing incident learning.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

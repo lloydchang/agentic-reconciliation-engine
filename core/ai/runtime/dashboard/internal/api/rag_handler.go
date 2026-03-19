@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/rag"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/rag"
 )
 
 // RAGHandler handles RAG API requests

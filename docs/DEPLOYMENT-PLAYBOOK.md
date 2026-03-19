@@ -10,7 +10,7 @@ This playbook provides the exact sequence of commands to deploy the AI Agent Das
 - [ ] kubectl configured and connected
 - [ ] Docker installed and running
 - [ ] Repository cloned locally
-- [ ] Current directory: `/Users/lloyd/github/antigravity/gitops-infra-control-plane`
+- [ ] Current directory: `/Users/lloyd/github/antigravity/agentic-reconciliation-engine`
 
 ## Step 1: Build Dashboard Image
 

@@ -60,7 +60,7 @@ kubectl get pods -n flux-operator-system  # Operator (optional)
 ```bash
 # 1. Bootstrap Core Flux CD
 flux bootstrap git \
-  --url=https://github.com/lloydchang/gitops-infra-control-plane \
+  --url=https://github.com/lloydchang/agentic-reconciliation-engine \
   --path=core/resources/flux/core \
   --components=source-controller,kustomize-controller,helm-controller
 

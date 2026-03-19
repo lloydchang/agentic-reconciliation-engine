@@ -58,7 +58,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9080"
@@ -92,7 +92,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   config.yaml: |
     # Flux Status Page Configuration
@@ -121,7 +121,7 @@ data:
         include: ["flux-system", "production", "staging", "network-system", "cluster-system"]
         exclude: ["kube-system", "kube-public"]
       labels:
-        include: ["app.kubernetes.io/part-of=gitops-infra-control-plane"]
+        include: ["app.kubernetes.io/part-of=agentic-reconciliation-engine"]
         
     # Dashboard configuration
     dashboards:
@@ -225,7 +225,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -245,7 +245,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: flux-ui
@@ -294,7 +294,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -303,7 +303,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Flux resources
 - apiGroups: ["fluxcd.controlplane.io"]
@@ -347,7 +347,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Include viewer permissions
 - apiGroups: ["fluxcd.controlplane.io"]
@@ -391,7 +391,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -408,7 +408,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -434,7 +434,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   podSelector:
     matchLabels:

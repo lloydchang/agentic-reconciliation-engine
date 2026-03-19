@@ -5,8 +5,8 @@
 ### Root Level Dependencies
 
 ```
-gitops-infra-control-plane-root
-├── core/operators/ (gitops-infra-control-plane)
+agentic-reconciliation-engine-root
+├── core/operators/ (agentic-reconciliation-engine)
 │   ├── flux/ (flux-system) [ROOT]
 │   ├── controllers/ [dependsOn: flux]
 │   ├── karmada/ [dependsOn: flux]
@@ -32,7 +32,7 @@ cluster-infra (2-clusters/)
     ↓ dependsOn
 workload-infra (3-workloads/)
     ↓ dependsOn
-gitops-infra-control-plane
+agentic-reconciliation-engine
     ↓ dependsOn
 karmada-infra (karmada/)
 ```
@@ -42,7 +42,7 @@ karmada-infra (karmada/)
 ```
 complete-hub-spoke-with-consensus-ai
     ↓ dependsOn
-gitops-infra-control-plane
+agentic-reconciliation-engine
     ↓ dependsOn
 flux-system
 

@@ -3,7 +3,7 @@
 set -euo pipefail
 set -x   # optional, only if you want debug output
 
-REPO_URL=git@github.com:lloydchang/gitops-infra-control-plane.git
+REPO_URL=git@github.com:lloydchang/agentic-reconciliation-engine.git
 WORKDIR=$(mktemp -d -t gitops-infra-clean-XXXX)
 SOPS_KEY_DIR=.sops-keys
 AGE_KEY_FILE=$SOPS_KEY_DIR/age.agekey

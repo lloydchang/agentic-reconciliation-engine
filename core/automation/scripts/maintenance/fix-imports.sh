@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-MOD="github.com/lloydchang/gitops-infra-control-plane"
+MOD="github.com/lloydchang/agentic-reconciliation-engine"
 
 echo "🔧 Normalizing import paths for internal packages..."
 

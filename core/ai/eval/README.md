@@ -32,8 +32,8 @@ This framework provides automated evaluation of AI agent performance and behavio
 
 ```bash
 # Clone repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane/agent-tracing-evaluation
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine/agent-tracing-evaluation
 
 # Install dependencies
 pip install -r requirements.txt

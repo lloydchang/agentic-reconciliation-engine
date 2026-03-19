@@ -3,7 +3,7 @@ name: manage-feature-flags
 description: Manages feature flags across applications and environments with controlled rollouts and A/B testing capabilities. Use when implementing feature toggles, managing releases, or conducting controlled experiments.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

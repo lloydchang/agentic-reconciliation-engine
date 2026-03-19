@@ -36,7 +36,7 @@ spec:
                 echo "🚨 All Git repositories failed - enabling offline mode"
                 
                 # Enable offline mode by switching to local Git repository
-                kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
+                kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
                 
                 # Annotate kustomizations for offline mode
                 kubectl annotate kustomization --all fluxcd.io/offline-mode=true -n flux-system --overwrite
@@ -50,7 +50,7 @@ spec:
                   echo "🔄 Repositories healthy - disabling offline mode"
                   
                   # Restore original Git repository URL
-                  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"https://github.com/antigravity/gitops-infra-control-plane.git"}}' --type=merge
+                  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"https://github.com/antigravity/agentic-reconciliation-engine.git"}}' --type=merge
                   
                   # Remove offline mode annotations
                   kubectl annotate kustomization --all fluxcd.io/offline-mode- -n flux-system --overwrite

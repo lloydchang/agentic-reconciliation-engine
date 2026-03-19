@@ -174,7 +174,7 @@ kubectl get configmaps -n flux-system -l backup.fluxcd.io/type=infrastructure-st
 kubectl annotate kustomization infrastructure fluxcd.io/offline-mode=true --overwrite -n flux-system
 
 # Switch to cached repository
-kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"}}' --type=merge
+kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{"spec":{"url":"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"}}' --type=merge
 ```
 
 1. **Restore State if Needed**
@@ -298,9 +298,9 @@ kubectl exec -n flux-system deployment/git-cache-manager -- ls -la /data/git-cac
 
 ```bash
 # Test all repositories
-git ls-remote https://github.com/antigravity/gitops-infra-control-plane.git
-git ls-remote https://gitlab.com/antigravity/gitops-infra-control-plane.git
-git ls-remote https://gitea.internal/antigravity/gitops-infra-control-plane.git
+git ls-remote https://github.com/antigravity/agentic-reconciliation-engine.git
+git ls-remote https://gitlab.com/antigravity/agentic-reconciliation-engine.git
+git ls-remote https://gitea.internal/antigravity/agentic-reconciliation-engine.git
 ```
 
 1. **Flux Operations**

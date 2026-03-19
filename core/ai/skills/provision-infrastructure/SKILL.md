@@ -3,7 +3,7 @@ name: provision-infrastructure
 description: Provisions infrastructure resources across multi-cloud environments with automation and best practices. Use when creating resources, implementing IaC, or managing provisioning.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

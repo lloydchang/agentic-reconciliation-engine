@@ -12,4 +12,4 @@ resources:
   - pairs:
       component: multi-cluster-gitops
   - pairs:
-      platform: gitops-infra-control-plane
+      platform: agentic-reconciliation-engine

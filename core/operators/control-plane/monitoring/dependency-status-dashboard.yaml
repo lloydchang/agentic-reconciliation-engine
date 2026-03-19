@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
   labels:
     app.kubernetes.io/name: dependency-status-dashboard
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
 spec:
   replicas: 2
   selector:
@@ -221,7 +221,7 @@ data:
             try:
                 deployments = k8s_apps.list_namespaced_deployment(
                     namespace=NAMESPACE,
-                    label_selector='app.kubernetes.io/part-of=gitops-infra-control-plane'
+                    label_selector='app.kubernetes.io/part-of=agentic-reconciliation-engine'
                 )
                 result = deployments.items
                 self._set_cache(cache_key, result)
@@ -399,7 +399,7 @@ data:
                                    limit: int = 100) -> Dict:
             try:
                 # Build Loki query
-                query_parts = ['{app.kubernetes.io/part-of="gitops-infra-control-plane"}']
+                query_parts = ['{app.kubernetes.io/part-of="agentic-reconciliation-engine"}']
                 
                 if correlation_id:
                     query_parts.append(f'correlation_id="{correlation_id}"')

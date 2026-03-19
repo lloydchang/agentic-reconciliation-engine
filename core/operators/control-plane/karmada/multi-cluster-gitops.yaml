@@ -47,7 +47,7 @@ spec:
   values:
     replicaCount: 3
     image:
-      repository: ghcr.io/lloydchang/gitops-infra-control-plane
+      repository: ghcr.io/lloydchang/agentic-reconciliation-engine
       tag: latest
     service:
       type: ClusterIP

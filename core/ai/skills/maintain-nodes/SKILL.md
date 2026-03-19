@@ -3,7 +3,7 @@ name: maintain-nodes
 description: Performs Kubernetes node maintenance including draining, updates, and health checks across clusters. Use when maintaining nodes, performing updates, or implementing node automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

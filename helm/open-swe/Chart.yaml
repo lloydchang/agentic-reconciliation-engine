@@ -10,9 +10,9 @@ keywords:
   - temporal
   - gitops
   - openswe
-home: https://github.com/lloydchang/gitops-infra-control-plane
+home: https://github.com/lloydchang/agentic-reconciliation-engine
 sources:
-  - https://github.com/lloydchang/gitops-infra-control-plane
+  - https://github.com/lloydchang/agentic-reconciliation-engine
 maintainers:
   - name: Lloyd Chang
     email: lloyd.chang@example.com

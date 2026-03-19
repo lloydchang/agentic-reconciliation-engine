@@ -3,7 +3,7 @@ name: manage-releases
 description: Manages software release processes across environments with automated deployments and rollbacks. Use when coordinating releases, managing versions, or implementing release automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

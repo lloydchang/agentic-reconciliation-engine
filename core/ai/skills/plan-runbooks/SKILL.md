@@ -3,7 +3,7 @@ name: plan-runbooks
 description: Creates and manages automated runbooks for common operational tasks and incident response procedures. Use when documenting procedures, automating operations, or implementing runbook systems.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -3,7 +3,7 @@ name: assist-rollback
 description: Provides intelligent rollback capabilities for failed deployments and configuration changes across multi-cloud environments. Use when recovering from failed deployments, undoing changes, or implementing disaster recovery procedures.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

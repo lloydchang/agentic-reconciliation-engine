@@ -15,7 +15,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   distribution:
     version: "2.x"
@@ -48,7 +48,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     environment: production
 spec:
   distribution:
@@ -141,7 +141,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     environment: development
 spec:
   distribution:
@@ -196,7 +196,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   distribution:
     version: "2.x"
@@ -277,7 +277,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     availability: high
 spec:
   distribution:
@@ -370,7 +370,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     deployment: edge
 spec:
   distribution:
@@ -452,7 +452,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   distribution:
     version: "2.x"

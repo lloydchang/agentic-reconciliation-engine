@@ -3,7 +3,7 @@ name: generate-docs
 description: Generates technical documentation for infrastructure, applications, and processes across cloud environments. Use when creating docs, documenting systems, or implementing knowledge sharing.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

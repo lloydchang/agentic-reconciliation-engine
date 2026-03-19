@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/monitoring"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/monitoring"
 )
 
 func main() {

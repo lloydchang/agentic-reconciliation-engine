@@ -435,7 +435,7 @@ spec:
 
 #### AI Agents Sandbox (lloydchang)
 
-**Source**: <https://github.com/lloydchang/gitops-infra-control-plane>
+**Source**: <https://github.com/lloydchang/agentic-reconciliation-engine>
 
 **Key Features**:
 
@@ -966,7 +966,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 **Integration Approach**: Recommend in docs/ for contributors using macOS, for testing control plane locally.
 
-## 10. <https://github.com/lloydchang/gitops-infra-control-plane>
+## 10. <https://github.com/lloydchang/agentic-reconciliation-engine>
 
 **Content Summary**: Playground for multiple AI agents in local garden, with skills, workflows, infrastructure emulator.
 
@@ -1295,7 +1295,7 @@ This document researches each provided URL, evaluates its applicability to the G
 
 ### Introduction: Beyond Centralized Orchestration
 
-The analysis of gitops-infra-control-plane and related distributed systems research reveals a critical insight: **the future of AI agent orchestration lies not in top-down control, but in bottom-up consensus systems**. Traditional centralized orchestration (like Kubernetes controllers) creates bottlenecks and single points of failure. Instead, we can apply distributed consensus algorithms to create self-organizing agent swarms that achieve tight feedback loops through local decision-making.
+The analysis of agentic-reconciliation-engine and related distributed systems research reveals a critical insight: **the future of AI agent orchestration lies not in top-down control, but in bottom-up consensus systems**. Traditional centralized orchestration (like Kubernetes controllers) creates bottlenecks and single points of failure. Instead, we can apply distributed consensus algorithms to create self-organizing agent swarms that achieve tight feedback loops through local decision-making.
 
 ### Key Insights from Distributed Systems Research
 
@@ -1667,11 +1667,11 @@ The key insight is that **the tightest feedback loops happen at the local level*
 
 ## Advanced Re-Review: Deep Analysis of Consensus-Based Agent Orchestration
 
-### Key Findings from gitops-infra-control-plane Repository
+### Key Findings from agentic-reconciliation-engine Repository
 
 #### Enhanced Agent Skills Architecture
 
-The gitops-infra-control-plane repository demonstrates **production-ready multi-agent orchestration** with sophisticated consensus-based patterns:
+The agentic-reconciliation-engine repository demonstrates **production-ready multi-agent orchestration** with sophisticated consensus-based patterns:
 **Applicability**: Medium - community insights on AI-K8s integration challenges.
 
 **Safety Assessment**: Safe - community observations.
@@ -2379,7 +2379,7 @@ spec:
 
 **Integration Approach**: Use as the primary reference for implementing Agent Skills in the GitOps control plane. Follow the 3-phase migration strategy (Skill Development → Hybrid Integration → Complete Migration) to transition from MCP to Agent Skills while maintaining system reliability and operational continuity.
 
-## 106. <https://github.com/lloydchang/gitops-infra-control-plane>
+## 106. <https://github.com/lloydchang/agentic-reconciliation-engine>
 
 **Content Summary**: AI Agents Sandbox is a comprehensive playground for multiple AI agents featuring consensus-based orchestration, tight feedback loops, and self-organizing agent swarms. It implements a bottom-up orchestration model using distributed consensus algorithms (Raft-inspired) rather than top-down control, with 30 specialized skills including temporal workflows, compliance checking, cost optimization, security analysis, and infrastructure discovery.
 
@@ -2407,7 +2407,7 @@ Key architectural patterns to adopt:
 
 The following URLs were provided for inclusion in this analysis. Many of these resources have already been analyzed in the document above, but they are listed here for reference:
 
-- <https://github.com/lloydchang/gitops-infra-control-plane>
+- <https://github.com/lloydchang/agentic-reconciliation-engine>
 - <https://github.com/backstage/backstage>
 - <https://backstage.io/>
 - <https://backstage.spotify.com/>
@@ -2622,7 +2622,7 @@ data:
         account: "${ACCOUNT_ALIAS}"
     repositories:
     - owner: "${GITHUB_ORG}"
-      name: "gitops-infra-control-plane"
+      name: "agentic-reconciliation-engine"
       filter:
         tags: ["infrastructure", "flux", "gitops"]
 ```
@@ -3164,7 +3164,7 @@ spec:
 
 #### AI Agents Sandbox (Extended Repository)
 
-**Source**: <https://github.com/lloydchang/gitops-infra-control-plane>
+**Source**: <https://github.com/lloydchang/agentic-reconciliation-engine>
 
 **Enhanced Features**:
 
@@ -4370,7 +4370,7 @@ This analysis confirms that **Raft remains the optimal choice for most consensus
 ### Enhanced Phase 1: Foundation (Immediate)
 
 1. **Deploy AI Agents Sandbox**
-   - Integrate lloydchang/gitops-infra-control-plane skills
+   - Integrate lloydchang/agentic-reconciliation-engine skills
    - Configure infrastructure discovery agents
    - Set up human approval workflows
 
@@ -4531,9 +4531,9 @@ The key is to maintain the GitOps-first principles while selectively integrating
 
 ### Architecture: From Centralized Control to Distributed Consensus
 
-The **gitops-infra-control-plane** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and coordinated behavior.
+The **agentic-reconciliation-engine** repository demonstrates an evolution in AI agent orchestration, moving beyond traditional centralized coordination to **distributed consensus systems** that achieve autonomous infrastructure management through fast feedback loops and coordinated behavior.
 
-#### Key Architectural Insights from gitops-infra-control-plane
+#### Key Architectural Insights from agentic-reconciliation-engine
 
 **Distributed Consensus Framework**:
 
@@ -6512,7 +6512,7 @@ This section analyzes the complete skills tree from [gitops-infra-core/operators
 
 ## 38. Temporal AI Agents System Analysis
 
-This section analyzes the comprehensive Temporal AI Agents system imported from the [gitops-infra-control-plane](https://github.com/lloydchang/gitops-infra-control-plane) repository in commit `98a895bfffcdbc3a7302f2809cc98e8f70233c35`. The system provides a complete agent operating platform with 64 specialized skills for enterprise cloud AI.
+This section analyzes the comprehensive Temporal AI Agents system imported from the [agentic-reconciliation-engine](https://github.com/lloydchang/agentic-reconciliation-engine) repository in commit `98a895bfffcdbc3a7302f2809cc98e8f70233c35`. The system provides a complete agent operating platform with 64 specialized skills for enterprise cloud AI.
 
 ### Overview of Temporal AI Agents System
 

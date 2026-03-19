@@ -3,7 +3,7 @@ name: aggregate-observability
 description: Aggregates observability data from multiple sources across cloud environments for unified monitoring. Use when consolidating metrics, centralizing logs, or implementing observability platforms.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

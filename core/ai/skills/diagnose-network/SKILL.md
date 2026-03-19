@@ -3,7 +3,7 @@ name: diagnose-network
 description: Diagnoses and troubleshoots network issues across multi-cloud environments with intelligent analysis. Use when solving network problems, optimizing connectivity, or implementing network troubleshooting.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

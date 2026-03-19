@@ -6,4 +6,4 @@ metadata:
   labels:
     app.kubernetes.io/name: karpenter
     app.kubernetes.io/component: core
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine

@@ -26,7 +26,7 @@ resources:
       - ../../core/operators/
       - kagent-core
 dependsOn:
-  - gitops-infra-control-plane
+  - agentic-reconciliation-engine
 labels:
   - pairs:
       managed-by: flux

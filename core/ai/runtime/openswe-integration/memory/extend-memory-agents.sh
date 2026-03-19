@@ -67,7 +67,7 @@ data:
 
   langsmith-integration: |
     enabled: true
-    project: "gitops-infra-control-plane"
+    project: "agentic-reconciliation-engine"
     trace-retention: 30d
     metrics-export: true
 EOF

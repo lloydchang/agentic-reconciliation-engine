@@ -6,7 +6,7 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   replicas: 2
   selector:
@@ -90,7 +90,7 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   selector:
     app: wordpress
@@ -111,7 +111,7 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -129,7 +129,7 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 data:
   # WordPress configuration
   wp-config.php: |

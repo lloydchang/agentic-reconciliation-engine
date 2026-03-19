@@ -14,7 +14,7 @@ resources:
 commonLabels:
   app.kubernetes.io/name: flagger
   app.kubernetes.io/component: progressive-delivery
-  app.kubernetes.io/part-of: gitops-infra-control-plane
+  app.kubernetes.io/part-of: agentic-reconciliation-engine
 
 commonAnnotations:
   docs.flagger.app/overview: "Progressive delivery automation with Flagger"

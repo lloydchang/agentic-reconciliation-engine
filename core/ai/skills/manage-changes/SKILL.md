@@ -3,7 +3,7 @@ name: manage-changes
 description: Manages infrastructure changes with approval workflows, rollback capabilities, and compliance tracking across cloud environments. Use when implementing controlled deployments, managing configuration changes, or ensuring change governance.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

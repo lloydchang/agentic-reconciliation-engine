@@ -3,7 +3,7 @@ name: migrate-workload
 description: Manages workload migration between cloud providers and environments with minimal downtime. Use when migrating workloads, changing providers, or implementing cloud migration.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

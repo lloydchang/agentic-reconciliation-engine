@@ -137,7 +137,7 @@ data:
 
 ```bash
 # Execute the automated fix
-bash /Users/lloyd/github/antigravity/gitops-infra-control-plane/scripts/fix-langfuse-secrets.sh
+bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-langfuse-secrets.sh
 ```
 
 ### Manual Deployment

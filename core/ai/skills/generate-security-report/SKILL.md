@@ -3,7 +3,7 @@ name: generate-security-report
 description: Scans infrastructure and applications for security vulnerabilities and compliance issues, generating comprehensive security reports. Use when identifying security risks, ensuring compliance, or implementing security best practices.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

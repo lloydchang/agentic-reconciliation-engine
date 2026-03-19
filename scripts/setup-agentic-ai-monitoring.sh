@@ -65,7 +65,7 @@ metadata:
   labels:
     app.kubernetes.io/name: certificate-rotation-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -84,7 +84,7 @@ metadata:
   labels:
     app.kubernetes.io/name: dependency-updates-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -103,7 +103,7 @@ metadata:
   labels:
     app.kubernetes.io/name: resource-cleanup-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -122,7 +122,7 @@ metadata:
   labels:
     app.kubernetes.io/name: security-patching-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -141,7 +141,7 @@ metadata:
   labels:
     app.kubernetes.io/name: backup-verification-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -160,7 +160,7 @@ metadata:
   labels:
     app.kubernetes.io/name: log-retention-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -179,7 +179,7 @@ metadata:
   labels:
     app.kubernetes.io/name: performance-tuning-skill
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -199,7 +199,7 @@ metadata:
   labels:
     app.kubernetes.io/name: pr-risk-assessment-skill
     app.kubernetes.io/component: code-review-automation
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -218,7 +218,7 @@ metadata:
   labels:
     app.kubernetes.io/name: automated-testing-skill
     app.kubernetes.io/component: code-review-automation
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -237,7 +237,7 @@ metadata:
   labels:
     app.kubernetes.io/name: compliance-validation-skill
     app.kubernetes.io/component: code-review-automation
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -256,7 +256,7 @@ metadata:
   labels:
     app.kubernetes.io/name: performance-impact-skill
     app.kubernetes.io/component: code-review-automation
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -275,7 +275,7 @@ metadata:
   labels:
     app.kubernetes.io/name: security-analysis-skill
     app.kubernetes.io/component: code-review-automation
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -295,7 +295,7 @@ metadata:
   labels:
     app.kubernetes.io/name: mcp-gateway
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -314,7 +314,7 @@ metadata:
   labels:
     app.kubernetes.io/name: parallel-workflow-executor
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -333,7 +333,7 @@ metadata:
   labels:
     app.kubernetes.io/name: cost-tracker
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -352,7 +352,7 @@ metadata:
   labels:
     app.kubernetes.io/name: pi-mono-rpc-enhanced
     app.kubernetes.io/component: agentic-ai
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -382,7 +382,7 @@ metadata:
   labels:
     app.kubernetes.io/name: agentic-ai-skills
     app.kubernetes.io/component: alerting
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: agentic-ai-skills
@@ -553,7 +553,7 @@ metadata:
   labels:
     app.kubernetes.io/name: agentic-ai-performance
     app.kubernetes.io/component: alerting
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: agentic-ai-performance
@@ -620,7 +620,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: agentic-ai-skills
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   agentic-ai-skills.json: |
     {
@@ -746,7 +746,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: compound-engineering
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   compound-engineering.json: |
     {
@@ -869,7 +869,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: mcp-gateway
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   mcp-gateway.json: |
     {

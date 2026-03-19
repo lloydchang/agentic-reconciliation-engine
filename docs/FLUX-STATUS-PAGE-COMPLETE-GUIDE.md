@@ -126,7 +126,7 @@ data:
         include: ["flux-system", "production", "staging"]
         exclude: ["kube-system", "kube-public"]
       labels:
-        include: ["app.kubernetes.io/part-of=gitops-infra-control-plane"]
+        include: ["app.kubernetes.io/part-of=agentic-reconciliation-engine"]
         
     dashboards:
       cluster:
@@ -1227,7 +1227,7 @@ data:
         config:
           token: "${GITHUB_TOKEN}"
           owner: "your-org"
-          repo: "gitops-infra-control-plane"
+          repo: "agentic-reconciliation-engine"
           autoCreateIssues: true
           autoCreatePRs: false
       

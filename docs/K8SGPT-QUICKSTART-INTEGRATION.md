@@ -158,8 +158,8 @@ fi
 ### New User Onboarding
 ```bash
 # Clone repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Run quickstart (includes K8sGPT deployment)
 ./core/scripts/automation/quickstart.sh

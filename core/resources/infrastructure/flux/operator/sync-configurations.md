@@ -46,7 +46,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -88,7 +88,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "ssh://git@github.com/your-org/gitops-infra-control-plane.git"
+    url: "ssh://git@github.com/your-org/agentic-reconciliation-engine.git"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -134,7 +134,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -161,7 +161,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/staging"
     path: "core/resources/tenants/staging"
     interval: "3m"
@@ -450,7 +450,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -494,7 +494,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"

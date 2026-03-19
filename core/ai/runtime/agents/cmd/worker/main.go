@@ -3,7 +3,7 @@ import (
 	"log"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/internal/workflow"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/internal/workflow"
 )
 func main() {
 	c, _ := client.Dial(client.Options{})

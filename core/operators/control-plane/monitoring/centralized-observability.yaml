@@ -22,15 +22,15 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelector:
           matchLabels:
-            app.kubernetes.io/part-of: gitops-infra-control-plane
+            app.kubernetes.io/part-of: agentic-reconciliation-engine
         podMonitorSelectorNilUsesHelmValues: false
         podMonitorSelector:
           matchLabels:
-            app.kubernetes.io/part-of: gitops-infra-control-plane
+            app.kubernetes.io/part-of: agentic-reconciliation-engine
         ruleSelectorNilUsesHelmValues: false
         ruleSelector:
           matchLabels:
-            app.kubernetes.io/part-of: gitops-infra-control-plane
+            app.kubernetes.io/part-of: agentic-reconciliation-engine
         retention: 30d
         storageSpec:
           volumeClaimTemplate:
@@ -103,7 +103,7 @@ metadata:
   namespace: flux-system
   labels:
     app.kubernetes.io/name: jaeger
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -170,7 +170,7 @@ metadata:
   namespace: flux-system
   labels:
     app.kubernetes.io/name: loki
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -290,7 +290,7 @@ metadata:
   namespace: flux-system
   labels:
     app.kubernetes.io/name: promtail
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -364,7 +364,7 @@ data:
           - localhost
         labels:
           job: containerlogs
-          __path__: /var/log/containers/*gitops-infra-control-plane*.log
+          __path__: /var/log/containers/*agentic-reconciliation-engine*.log
           
       pipeline_stages:
       - json:
@@ -444,7 +444,7 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: correlation-id-injector
 webhooks:
-- name: correlation-id-injector.gitops-infra-control-plane.svc
+- name: correlation-id-injector.agentic-reconciliation-engine.svc
   clientConfig:
     service:
       name: correlation-id-injector
@@ -551,13 +551,13 @@ data:
     }
     
     has_gitops_labels(labels) {
-        object.get(labels, "app.kubernetes.io/part-of", "") == "gitops-infra-control-plane"
+        object.get(labels, "app.kubernetes.io/part-of", "") == "agentic-reconciliation-engine"
     }
     
     generate_correlation_id_patch(obj) = patch {
         patch := {
             "op": "add",
-            "path": "/metadata/annotations/gitops-infra-control-plane.io~1correlation-id",
+            "path": "/metadata/annotations/agentic-reconciliation-engine.io~1correlation-id",
             "value": generate_uuid()
         }
     }

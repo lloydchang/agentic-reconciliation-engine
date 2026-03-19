@@ -4,7 +4,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: gitops-infra-control-plane-enterprise-variant
+  name: agentic-reconciliation-engine-enterprise-variant
   namespace: flux-system
   annotations:
     config.kubernetes.io/local-config: "true"

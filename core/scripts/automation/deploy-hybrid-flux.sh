@@ -7,7 +7,7 @@ set -euxo pipefail
 echo "🚀 Bootstrapping Hybrid Flux Architecture..."
 
 # Configuration
-REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"
+REPO_URL="https://github.com/lloydchang/agentic-reconciliation-engine"
 BRANCH="main"
 FLUX_PATH="core/resources/flux/core"
 

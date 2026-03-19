@@ -513,7 +513,7 @@ spec:
 
 ### Analysis of AI Agents Sandbox Architecture
 
-The **gitops-infra-control-plane** repository demonstrates consensus-based agent orchestration that achieves feedback loops through distributed decision-making.
+The **agentic-reconciliation-engine** repository demonstrates consensus-based agent orchestration that achieves feedback loops through distributed decision-making.
 
 #### Key Architectural Approach
 

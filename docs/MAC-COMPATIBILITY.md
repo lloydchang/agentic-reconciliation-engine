@@ -22,7 +22,7 @@ This repository’s automation is fully compatible with macOS as long as you use
 ## 3. Running zero-touch automation
 
 ```bash
-cd /path/to/gitops-infra-control-plane
+cd /path/to/agentic-reconciliation-engine
 core/core/automation/ci-cd/scripts/run-local-automation.sh
 ```
 

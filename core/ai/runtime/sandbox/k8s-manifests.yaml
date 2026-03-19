@@ -81,7 +81,7 @@ spec:
       serviceAccountName: sandbox-operator
       containers:
       - name: operator
-        image: gitops-infra-control-plane/sandbox-operator:latest
+        image: agentic-reconciliation-engine/sandbox-operator:latest
         ports:
         - containerPort: 8080
           name: http

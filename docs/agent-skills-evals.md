@@ -1,6 +1,6 @@
 # Agent Skills Evaluation Framework
 
-This document adapts the OpenAI Codex evaluation methodology to the gitops-infra-control-plane skills system, providing systematic testing and improvement tracking for AI agent skills.
+This document adapts the OpenAI Codex evaluation methodology to the agentic-reconciliation-engine skills system, providing systematic testing and improvement tracking for AI agent skills.
 
 **Source**: [Testing Agent Skills Systematically with Evals](https://developers.openai.com/blog/eval-skills) (OpenAI, Jan 22, 2026)
 

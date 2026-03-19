@@ -55,7 +55,7 @@ metadata:
   labels:
     app.kubernetes.io/name: example
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/encryption: age
+    agentic-reconciliation-engine.io/encryption: age
 type: Opaque
 stringData:
   username: admin
@@ -89,7 +89,7 @@ metadata:
   labels:
     app.kubernetes.io/name: example
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/encryption: gpg
+    agentic-reconciliation-engine.io/encryption: gpg
 type: Opaque
 stringData:
   username: admin
@@ -118,7 +118,7 @@ metadata:
   labels:
     app.kubernetes.io/name: example
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/encryption: aws-kms
+    agentic-reconciliation-engine.io/encryption: aws-kms
 type: Opaque
 stringData:
   username: admin
@@ -137,7 +137,7 @@ metadata:
   labels:
     app.kubernetes.io/name: example
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/encryption: gcp-kms
+    agentic-reconciliation-engine.io/encryption: gcp-kms
 type: Opaque
 stringData:
   username: admin
@@ -156,7 +156,7 @@ metadata:
   labels:
     app.kubernetes.io/name: example
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/encryption: azure-kv
+    agentic-reconciliation-engine.io/encryption: azure-kv
 type: Opaque
 stringData:
   username: admin

@@ -3,7 +3,7 @@ name: monitor-ci-cd-pipelines
 description: Monitors CI/CD pipeline health, performance, and success rates with intelligent alerting and optimization. Use when ensuring deployment reliability, tracking pipeline metrics, or optimizing build processes.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

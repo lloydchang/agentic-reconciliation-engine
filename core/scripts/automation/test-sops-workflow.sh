@@ -52,7 +52,7 @@ metadata:
   labels:
     app.kubernetes.io/name: workflow-test
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/managed-by: "sops-test"
+    agentic-reconciliation-engine.io/managed-by: "sops-test"
 type: Opaque
 data:
   # Test data - base64 encoded
@@ -205,7 +205,7 @@ metadata:
   labels:
     app.kubernetes.io/name: workflow-test
     app.kubernetes.io/component: secret
-    gitops-infra-control-plane.io/managed-by: "sops-test"
+    agentic-reconciliation-engine.io/managed-by: "sops-test"
 type: Opaque
 data:
   # Updated test data

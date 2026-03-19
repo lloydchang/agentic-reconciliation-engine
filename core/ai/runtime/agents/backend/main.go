@@ -19,21 +19,21 @@ import (
 	"net/url"
 	
 	// Import our custom packages
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/bedrock"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/config"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/emulators"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/humanloop"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/mcp"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/monitoring"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/multimodel"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/performance"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/ragai"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/security"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/skills"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/websocket"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/workflows"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/bedrock"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/config"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/emulators"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/humanloop"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/monitoring"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/multimodel"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/performance"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/ragai"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/security"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/skills"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/websocket"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/workflows"
 )
 
 // CORS middleware
@@ -1472,7 +1472,7 @@ func main() {
 				"apiVersion": "backstage.io/v1alpha1",
 				"kind":       "Component",
 				"metadata": map[string]interface{}{
-					"name":        "gitops-infra-control-plane-backend",
+					"name":        "agentic-reconciliation-engine-backend",
 					"description": "Temporal AI Agents Backend",
 					"annotations": map[string]string{
 						"backstage.io/managed-by-location": "url:http://localhost:8081/catalog-info.yaml",
@@ -1488,7 +1488,7 @@ func main() {
 				"apiVersion": "backstage.io/v1alpha1",
 				"kind":       "Component",
 				"metadata": map[string]interface{}{
-					"name":        "gitops-infra-control-plane-frontend",
+					"name":        "agentic-reconciliation-engine-frontend",
 					"description": "Temporal AI Agents Frontend",
 				},
 				"spec": map[string]interface{}{

@@ -3,7 +3,7 @@ name: tune-load-balancer
 description: Optimizes load balancer configurations and performance across multi-cloud environments. Use when tuning load balancers, optimizing traffic distribution, or implementing performance optimization.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

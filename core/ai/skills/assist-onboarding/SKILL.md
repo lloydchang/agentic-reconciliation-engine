@@ -3,7 +3,7 @@ name: assist-onboarding
 description: Automates user and service onboarding processes across multi-cloud environments with access management and resource provisioning. Use when adding new users, setting up services, or implementing onboarding workflows.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -24,7 +24,7 @@ This comprehensive guide covers the complete integration of Argo CD with K8sGPT 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Git Repository                        │
-│  https://github.com/lloydchang/gitops-infra-control-plane    │
+│  https://github.com/lloydchang/agentic-reconciliation-engine    │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼

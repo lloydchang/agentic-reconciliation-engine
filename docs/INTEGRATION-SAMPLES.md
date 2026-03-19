@@ -1102,8 +1102,8 @@ pipeline {
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-   cd gitops-infra-control-plane
+   git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+   cd agentic-reconciliation-engine
    ```
 
 2. **Run Python example**

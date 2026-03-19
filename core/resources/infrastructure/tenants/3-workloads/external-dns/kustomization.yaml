@@ -35,7 +35,7 @@ spec:
     domainFilters:
     - your-domain.com
     policy: sync
-    txtOwnerId: gitops-infra-control-plane
+    txtOwnerId: agentic-reconciliation-engine
     serviceAccount:
       create: true
       annotations:

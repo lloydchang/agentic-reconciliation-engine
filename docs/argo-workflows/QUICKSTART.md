@@ -19,8 +19,8 @@ Before you begin, ensure you have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Make the quickstart script executable
 chmod +x scripts/quickstart-argo-workflows.sh
@@ -477,7 +477,7 @@ pkill -f "kubectl port-forward"
 ### Community
 
 - [Argo Workflows Slack](https://argoproj.github.io/community/join-slack/)
-- [GitHub Issues](https://github.com/your-org/gitops-infra-control-plane/issues)
+- [GitHub Issues](https://github.com/your-org/agentic-reconciliation-engine/issues)
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/argo-workflows)
 
 ---

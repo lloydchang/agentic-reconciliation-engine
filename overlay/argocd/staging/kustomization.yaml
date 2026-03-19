@@ -23,8 +23,8 @@ configMapGenerator:
   - application.resourceTrackingMethod=tree
   - repositories=- |
       type: git
-      url: https://github.com/lloydchang/gitops-infra-control-plane.git
-      name: gitops-infra-control-plane
+      url: https://github.com/lloydchang/agentic-reconciliation-engine.git
+      name: agentic-reconciliation-engine
 
 secretGenerator:
 - name: argocd-secret

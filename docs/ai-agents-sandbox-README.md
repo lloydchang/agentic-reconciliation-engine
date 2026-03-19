@@ -6,7 +6,7 @@
 
 ## What is AI Agents Sandbox?
 
-`gitops-infra-control-plane` is a place that serves as both a **playground for multiple AI agents** and a **local garden** for experimentation. It provides:
+`agentic-reconciliation-engine` is a place that serves as both a **playground for multiple AI agents** and a **local garden** for experimentation. It provides:
 
 - **30 Specialized Skills** - Infrastructure provisioning, compliance scanning, cost optimization, and more
 - **Multi-Agent Orchestration** - Coordinate complex workflows
@@ -26,8 +26,8 @@
 
 ```bash
 # Clone and setup
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Start everything
 ./core/core/automation/ci-cd/scripts/dev.sh
@@ -588,7 +588,7 @@ This sandbox is built for safe, bleeding-edge experimentation. Contributions are
 
 ## Why This Name?
 
-**Why `gitops-infra-control-plane`?**
+**Why `agentic-reconciliation-engine`?**
 
 The name was chosen deliberately, and every word carries meaning.
 
@@ -605,13 +605,13 @@ The name was chosen deliberately, and every word carries meaning.
 - `ai-agent-platform` — Oversells stability and completeness
 - `lab` / `edge` / `experimental` — Overused, too vague, or implies instability rather than intentional exploration
 
-`gitops-infra-control-plane` is clean, searchable, accurate, and carries no branding conflicts.
+`agentic-reconciliation-engine` is clean, searchable, accurate, and carries no branding conflicts.
 
 ---
 
 ## Open-source software
 
-<https://github.com/lloydchang/gitops-infra-control-plane>
+<https://github.com/lloydchang/agentic-reconciliation-engine>
 
 ---
 

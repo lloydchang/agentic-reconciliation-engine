@@ -3,7 +3,7 @@ name: network-multi-cloud
 description: Manages networking configurations across multi-cloud environments with VPC peering, load balancing, and security rules. Use when setting up cloud networks, managing connectivity, or implementing network security.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

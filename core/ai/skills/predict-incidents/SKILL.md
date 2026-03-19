@@ -3,7 +3,7 @@ name: predict-incidents
 description: Predicts potential incidents based on system metrics, patterns, and historical data across cloud environments. Use when preventing incidents, identifying risks, or implementing predictive monitoring.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

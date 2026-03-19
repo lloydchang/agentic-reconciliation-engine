@@ -3,7 +3,7 @@ name: prioritize-alerts
 description: Prioritizes and categorizes alerts from monitoring systems across multi-cloud environments, applies intelligent filtering and escalation rules, and provides actionable alert summaries. Use when managing alert floods, improving incident response times, or implementing alert management strategies.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

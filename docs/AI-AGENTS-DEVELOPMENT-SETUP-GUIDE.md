@@ -70,8 +70,8 @@ code --version
 ### Clone Repository
 ```bash
 # Clone the repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Verify structure
 ls -la
@@ -152,7 +152,7 @@ npx tsc --noEmit
 ### API Server (FastAPI)
 ```bash
 # Navigate to repository root
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
 
 # Install Python dependencies
 pip3 install fastapi uvicorn[standard] pydantic
@@ -262,7 +262,7 @@ kubectl get namespaces
 ### Start Complete Development Environment
 ```bash
 # Terminal 1: Start API server
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
 python api-server.py
 
 # Terminal 2: Start frontend

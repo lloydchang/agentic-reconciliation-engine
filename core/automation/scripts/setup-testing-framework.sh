@@ -66,8 +66,8 @@ test_flux_controllers() {
 test_git_repository() {
     echo "Testing GitRepository connectivity..."
     
-    if kubectl get gitrepository gitops-infra-control-plane -n flux-system &> /dev/null; then
-        status=$(kubectl get gitrepository gitops-infra-control-plane -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+    if kubectl get gitrepository agentic-reconciliation-engine -n flux-system &> /dev/null; then
+        status=$(kubectl get gitrepository agentic-reconciliation-engine -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
         if [[ $status == "True" ]]; then
             echo "✅ GitRepository is ready"
             return 0
@@ -304,7 +304,7 @@ test_complete_pipeline() {
     
     # 1. Test Git repository sync
     echo "1. Testing Git repository sync..."
-    git_status=$(kubectl get gitrepository gitops-infra-control-plane -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+    git_status=$(kubectl get gitrepository agentic-reconciliation-engine -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
     if [[ $git_status == "True" ]]; then
         echo "✅ Git repository sync working"
     else
@@ -846,7 +846,7 @@ metadata:
   labels:
     app.kubernetes.io/name: gitops-tests
     app.kubernetes.io/component: testing
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   test-timeout: "600s"
   test-retries: "3"
@@ -860,7 +860,7 @@ metadata:
   labels:
     app.kubernetes.io/name: gitops-tests
     app.kubernetes.io/component: testing
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   template:
     spec:

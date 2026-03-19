@@ -1,20 +1,20 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
-  image: ghcr.io/${{ github.repository_owner }}/gitops-infra-control-plane
+  image: ghcr.io/${{ github.repository_owner }}/agentic-reconciliation-engine
   interval: 5m
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
-  name: gitops-infra-control-plane-latest
+  name: agentic-reconciliation-engine-latest
   namespace: flux-system
 spec:
   imageRepositoryRef:
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   policy:
     alphabetical:
       order: asc

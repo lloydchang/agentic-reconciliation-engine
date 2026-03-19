@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 HUB_NAMESPACE="flux-system"
 SPOKE_NAMESPACE="default"
 WORKFLOW_DIR="core/operators/multi-cluster"
-GIT_REPO="https://github.com/your-org/gitops-infra-control-plane.git"
+GIT_REPO="https://github.com/your-org/agentic-reconciliation-engine.git"
 
 echo -e "${BLUE}🔄 Multi-Cluster GitOps Workflows Setup${NC}"
 echo "========================================="
@@ -62,7 +62,7 @@ metadata:
   labels:
     app.kubernetes.io/name: spoke-cluster
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     cluster.example.com/name: "spoke-cluster"
     cluster.example.com/environment: "production"
     cluster.example.com/region: "us-west-2"
@@ -108,7 +108,7 @@ metadata:
   labels:
     app.kubernetes.io/name: spoke-cluster
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     cluster.example.com/name: "spoke-cluster"
 spec:
   resources:
@@ -116,7 +116,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/resources/tenants/3-workloads/monitoring"
     prune: true
     wait: true
@@ -126,7 +126,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/resources/tenants/3-workloads/logging"
     prune: true
     wait: true
@@ -136,7 +136,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/resources/tenants/3-workloads/security"
     prune: true
     wait: true
@@ -155,14 +155,14 @@ metadata:
   labels:
     app.kubernetes.io/name: application-workflow
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: namespace-setup
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/namespaces"
     prune: true
     wait: true
@@ -172,7 +172,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/rbac"
     prune: true
     wait: true
@@ -183,7 +183,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/configmaps"
     prune: true
     wait: true
@@ -194,7 +194,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/secrets"
     prune: true
     wait: true
@@ -205,7 +205,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/frontend"
     prune: true
     wait: true
@@ -217,7 +217,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/backend"
     prune: true
     wait: true
@@ -229,7 +229,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/database"
     prune: true
     wait: true
@@ -240,7 +240,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/ingress"
     prune: true
     wait: true
@@ -261,14 +261,14 @@ metadata:
   labels:
     app.kubernetes.io/name: progressive-deployment
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: canary-preparation
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/canary/preparation"
     prune: false
     wait: true
@@ -278,7 +278,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/canary/deployment"
     prune: false
     wait: true
@@ -289,7 +289,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/canary/analysis"
     prune: false
     wait: true
@@ -300,7 +300,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/blue-green/preparation"
     prune: false
     wait: true
@@ -310,7 +310,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/blue-green/deployment"
     prune: false
     wait: true
@@ -321,7 +321,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "applications/blue-green/cutover"
     prune: false
     wait: true
@@ -341,14 +341,14 @@ metadata:
   labels:
     app.kubernetes.io/name: disaster-recovery
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: backup-configuration
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "disaster-recovery/backup-config"
     prune: true
     wait: true
@@ -358,7 +358,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "disaster-recovery/etcd-backup"
     prune: true
     wait: true
@@ -369,7 +369,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "disaster-recovery/pv-backup"
     prune: true
     wait: true
@@ -380,7 +380,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "disaster-recovery/state-backup"
     prune: true
     wait: true
@@ -392,7 +392,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "disaster-recovery/restore"
     prune: false
     wait: true
@@ -411,14 +411,14 @@ metadata:
   labels:
     app.kubernetes.io/name: multi-environment
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: development-env
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "environments/development"
     prune: true
     wait: true
@@ -428,7 +428,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "environments/staging"
     prune: true
     wait: true
@@ -439,7 +439,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "environments/production"
     prune: true
     wait: true
@@ -450,7 +450,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "environments/disaster-recovery"
     prune: true
     wait: true
@@ -470,14 +470,14 @@ metadata:
   labels:
     app.kubernetes.io/name: policy-enforcement
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: security-policies
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/governance/security"
     prune: true
     wait: true
@@ -487,7 +487,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/governance/compliance"
     prune: true
     wait: true
@@ -498,7 +498,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/governance/cost"
     prune: true
     wait: true
@@ -509,7 +509,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: "core/governance/governance"
     prune: true
     wait: true
@@ -531,7 +531,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-system
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -568,7 +568,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
     app.kubernetes.io/component: application
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     environment: {{ .Values.environment }}
 ---
 apiVersion: apps/v1
@@ -579,7 +579,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
     app.kubernetes.io/component: application
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: {{ .Values.replicas }}
   selector:
@@ -613,7 +613,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
     app.kubernetes.io/component: application
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     app.kubernetes.io/name: {{ .Values.name }}
@@ -755,7 +755,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-workflow
     app.kubernetes.io/component: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -774,7 +774,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-workflow
     app.kubernetes.io/component: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: workflow

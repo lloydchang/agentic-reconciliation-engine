@@ -3,7 +3,7 @@ name: manage-infrastructure
 description: Manages infrastructure resources across multi-cloud environments with provisioning, monitoring, and optimization. Use when managing cloud resources, optimizing infrastructure, or implementing IaC automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

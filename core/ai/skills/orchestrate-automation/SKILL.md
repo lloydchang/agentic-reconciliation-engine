@@ -3,7 +3,7 @@ name: orchestrate-automation
 description: Orchestrates AI agents across multi-cloud environments, coordinates workflows, manages agent lifecycles, and provides intelligent task distribution and monitoring. Use when managing AI agent fleets, coordinating complex workflows, or optimizing agent performance across cloud providers.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

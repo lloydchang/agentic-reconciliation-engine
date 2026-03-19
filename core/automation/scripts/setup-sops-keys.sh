@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 KEY_DIR="${KEY_DIR:-$(pwd)/.sops-keys}"
-CLUSTER_NAME="${CLUSTER_NAME:-gitops-infra-control-plane}"
+CLUSTER_NAME="${CLUSTER_NAME:-agentic-reconciliation-engine}"
 NAMESPACE="${NAMESPACE:-flux-system}"
 SECRET_NAME="${SECRET_NAME:-sops-age-key}"
 

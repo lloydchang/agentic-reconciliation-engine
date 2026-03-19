@@ -167,7 +167,7 @@ Full procedure is in [BOOTSTRAP-CLUSTER.md](./BOOTSTRAP-CLUSTER.md). Summary:
 3. Operator installs Flux on the replacement hub, pointing at the Git repository
    $ flux bootstrap github \
        --owner=org \
-       --repository=gitops-infra-control-plane \
+       --repository=agentic-reconciliation-engine \
        --branch=main \
        --path=core/operators/flux
 

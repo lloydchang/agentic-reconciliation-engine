@@ -555,11 +555,11 @@ The variable `${BOOTSTRAP_CLUSTER_NAME}` expands to `gitops-bootstrap`, but the 
 
 ```bash
 # Replace hardcoded filename with variable expansion
-sed -i ''s|/tmp/gitops-bootstrap-kind-config.yaml|/tmp/${BOOTSTRAP_CLUSTER_NAME}-kind-config.yaml|g' /Users/lloyd/github/antigravity/gitops-infra-control-plane/scripts/create-bootstrap-cluster.sh
+sed -i ''s|/tmp/gitops-bootstrap-kind-config.yaml|/tmp/${BOOTSTRAP_CLUSTER_NAME}-kind-config.yaml|g' /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/create-bootstrap-cluster.sh
 ```
 
 #### Files Affected
-- `/Users/lloyd/github/antigravity/gitops-infra-control-plane/scripts/create-bootstrap-cluster.sh`
+- `/Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/create-bootstrap-cluster.sh`
 - Function: `create_kind_cluster()`
 
 #### Verification

@@ -33,7 +33,7 @@ data:
           "modal": {
             "enabled": true,
             "api_url": "https://api.modal.com",
-            "workspace": "gitops-infra-control-plane"
+            "workspace": "agentic-reconciliation-engine"
           },
           "daytona": {
             "enabled": true,
@@ -71,7 +71,7 @@ data:
       "middleware": {
         "gitops_safety": {
           "enabled": true,
-          "gitops_url": "https://github.com/lloydchang/gitops-infra-control-plane",
+          "gitops_url": "https://github.com/lloydchang/agentic-reconciliation-engine",
           "branch_protection": true
         },
         "security_validation": {

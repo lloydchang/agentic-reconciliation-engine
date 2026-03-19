@@ -34,8 +34,8 @@ The easiest way to get started is using the automated setup script:
 
 ```bash
 # Clone the repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Run the automated setup
 ./prerequisites.sh

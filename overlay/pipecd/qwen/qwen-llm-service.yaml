@@ -15,7 +15,7 @@ metadata:
   labels:
     app.kubernetes.io/name: qwen-llm-service
     app.kubernetes.io/component: inference
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -27,7 +27,7 @@ spec:
       labels:
         app.kubernetes.io/name: qwen-llm-service
         app.kubernetes.io/component: inference
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       containers:
       - name: qwen-llm
@@ -111,7 +111,7 @@ metadata:
   labels:
     app.kubernetes.io/name: qwen-llm-service
     app.kubernetes.io/component: inference
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     app.kubernetes.io/name: qwen-llm-service

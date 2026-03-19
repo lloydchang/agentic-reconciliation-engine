@@ -14,7 +14,7 @@ description: >
   World-class multi-cloud enterprise automation skill that provides intelligent operations across AWS, Azure, GCP, and on-premise environments with comprehensive validation and compliance workflows.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

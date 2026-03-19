@@ -3,7 +3,7 @@ name: scale-resources
 description: Provides intelligent autoscaling recommendations and automation for cloud resources across providers. Use when optimizing resource utilization, reducing costs, or implementing scaling strategies.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

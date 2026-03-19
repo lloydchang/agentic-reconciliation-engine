@@ -12,7 +12,7 @@ The overlay system has a structural mismatch:
 
 **Current Reality:**
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/                           # Base components
 │   ├── ai/
 │   ├── automation/
@@ -31,7 +31,7 @@ gitops-infra-control-plane/
 
 **Documented Architecture:**
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/                           # Base components
 │   ├── ai/
 │   ├── automation/

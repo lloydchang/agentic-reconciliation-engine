@@ -41,7 +41,7 @@ func InitTracer(ctx context.Context) (*trace.TracerProvider, error) {
 		resource.WithAttributes(
 			semconv.ServiceNameKey.String(getServiceName()),
 			semconv.ServiceVersionKey.String("1.0.0"),
-			semconv.ServiceNamespaceKey.String("gitops-infra-control-plane"),
+			semconv.ServiceNamespaceKey.String("agentic-reconciliation-engine"),
 			attribute.String("service.environment", getEnvironment()),
 		),
 	)

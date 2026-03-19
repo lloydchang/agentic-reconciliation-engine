@@ -157,7 +157,7 @@ data:
     3. **Force Re-bootstrap (if needed)**
        ```bash
        flux bootstrap git --force \
-         --url=https://github.com/lloydchang/gitops-infra-control-plane \
+         --url=https://github.com/lloydchang/agentic-reconciliation-engine \
          --path=core/resources/flux/core
        ```
     

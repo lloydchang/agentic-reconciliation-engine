@@ -34,7 +34,7 @@ Each phase includes checks and commands you can script (see `core/core/automatio
    ```bash
    flux bootstrap github \
      --owner=<org> \
-     --repository=gitops-infra-control-plane \
+     --repository=agentic-reconciliation-engine \
      --branch=main \
      --path=core/operators/flux \
      --personal
@@ -94,7 +94,7 @@ Run the migration wizard automation helper as part of this playbook to ensure th
 
 ```bash
 ./core/core/automation/ci-cd/scripts/migration_wizard.py \
-  --repo-url git@github.com:your-org/gitops-infra-control-plane.git \
+  --repo-url git@github.com:your-org/agentic-reconciliation-engine.git \
   --branch migration-eks \
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-aws \

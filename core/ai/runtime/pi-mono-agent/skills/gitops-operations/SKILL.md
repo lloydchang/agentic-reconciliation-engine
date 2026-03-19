@@ -31,7 +31,7 @@ Use this skill when the user asks about:
 ### 1. Analyze Request
 ```bash
 # Understand what needs to be deployed
-read /workspace/gitops-infra-control-plane/README.md
+read /workspace/agentic-reconciliation-engine/README.md
 ```
 
 ### 2. Check Current State
@@ -117,7 +117,7 @@ curl -X POST "$MEMORY_AGENT_URL/api/query" \
 # User: "Deploy the new payment service to staging"
 
 # 1. Check manifests
-ls /workspace/gitops-infra-control-plane/core/gitops/staging/payment-service/
+ls /workspace/agentic-reconciliation-engine/core/gitops/staging/payment-service/
 
 # 2. Validate
 kubectl apply --dry-run=client -f core/gitops/staging/payment-service/

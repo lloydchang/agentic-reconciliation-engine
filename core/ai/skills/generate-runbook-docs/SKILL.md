@@ -3,7 +3,7 @@ name: generate-runbook-docs
 description: Generates comprehensive runbook documentation from operational procedures and best practices. Use when creating documentation, standardizing procedures, or implementing knowledge management.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

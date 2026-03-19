@@ -16,7 +16,7 @@ Successfully built and loaded the cost-optimizer-agent Docker image for deployme
 ### Build Details
 ```bash
 # Build command executed
-docker build -t cost-optimizer-agent:latest /Users/lloyd/github/antigravity/gitops-infra-control-plane/core/ai/agents/cost-optimizer
+docker build -t cost-optimizer-agent:latest /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/agents/cost-optimizer
 
 # Multi-stage build completed successfully
 # Stage 1: Rust builder with dependencies

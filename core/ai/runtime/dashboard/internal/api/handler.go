@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/ws"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/services"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/ws"
 	"go.uber.org/zap"
 )
 

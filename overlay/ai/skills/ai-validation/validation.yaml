@@ -44,7 +44,7 @@ metadata:
     app: ai-validation
     component: ai-integration
 spec:
-  url: https://github.com/lloydchang/gitops-infra-control-plane
+  url: https://github.com/lloydchang/agentic-reconciliation-engine
   ref:
     branch: main
   interval: 5m

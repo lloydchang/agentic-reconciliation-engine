@@ -924,8 +924,8 @@ spec:
 #### Development Environment
 ```bash
 # Clone repository
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Setup kind cluster
 kind create cluster --name ai-agents-dev --config config/kind-dev.yaml

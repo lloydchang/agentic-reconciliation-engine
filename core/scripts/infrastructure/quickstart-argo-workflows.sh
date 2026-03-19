@@ -153,7 +153,7 @@ create_namespace() {
         kubectl label namespace "$NAMESPACE" \
             app.kubernetes.io/name=argo-workflows \
             app.kubernetes.io/component=workflows \
-            app.kubernetes.io/part-of=gitops-infra-control-plane
+            app.kubernetes.io/part-of=agentic-reconciliation-engine
         log_success "Namespace $NAMESPACE created"
     fi
 }

@@ -111,11 +111,11 @@ The complete lifecycle of a change from Git commit to cluster deployment:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/your-org/gitops-infra-control-plane
+  url: https://github.com/your-org/agentic-reconciliation-engine
   ref:
     branch: main
   ignore: |
@@ -173,7 +173,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/1-network
   prune: true
   wait: true
@@ -270,7 +270,7 @@ spec:
     - "pull_request"
   resources:
     - kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
       namespace: flux-system
   secretRef:
     name: github-webhook-token
@@ -359,7 +359,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   git:
     checkout:
       ref:
@@ -404,21 +404,21 @@ Bootstrapping is the process of installing Flux so that Flux manages itself. Thi
 # Bootstrap with GitHub (SSH)
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --personal
 
 # Bootstrap with Git (generic)
 flux bootstrap git \
-  --url=ssh://git@github.com/your-org/gitops-infra-control-plane.git \
+  --url=ssh://git@github.com/your-org/agentic-reconciliation-engine.git \
   --branch=main \
   --path=./clusters/production \
   --private-key-file=~/.ssh/id_rsa
 
 # Bootstrap with existing repository
 flux bootstrap git \
-  --url=https://github.com/your-org/gitops-infra-control-plane.git \
+  --url=https://github.com/your-org/agentic-reconciliation-engine.git \
   --branch=main \
   --path=./clusters/production \
   --token-auth
@@ -537,7 +537,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads/production
   kubeConfig:
     secretRef:
@@ -553,7 +553,7 @@ spec:
   interval: 5m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads/staging
   kubeConfig:
     secretRef:
@@ -670,7 +670,7 @@ spec:
 
    ```bash
    kubectl get gitrepositories -A
-   kubectl describe gitrepository gitops-infra-control-plane -n flux-system
+   kubectl describe gitrepository agentic-reconciliation-engine -n flux-system
    ```
 
 2. **Kustomization Build Errors**
@@ -700,7 +700,7 @@ kubectl logs -n flux-system deployment/source-controller
 kubectl logs -n flux-system deployment/kustomize-controller
 
 # Force reconciliation
-flux reconcile source git gitops-infra-control-plane
+flux reconcile source git agentic-reconciliation-engine
 flux reconcile kustomization infrastructure-networks
 
 # Export resources for debugging

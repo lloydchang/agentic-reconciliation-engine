@@ -442,7 +442,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
 EOF
 
     # Spoke Cluster Infrastructure (depends on network)
@@ -460,7 +460,7 @@ spec:
     - name: spoke-network-infrastructure
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
 EOF
 
     # Spoke Workload Infrastructure (depends on clusters)
@@ -478,7 +478,7 @@ spec:
     - name: spoke-cluster-infrastructure
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
 EOF
 
     print_status "✅ Flux dependency chains configured"

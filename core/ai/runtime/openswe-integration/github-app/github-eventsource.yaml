@@ -44,7 +44,7 @@ spec:
       - deployment
       - deployment_status
       owner: "your-org"  # Replace with your GitHub org/user
-      repository: "gitops-infra-control-plane"
+      repository: "agentic-reconciliation-engine"
       apiToken:
         name: open-swe-secrets
         key: github-token

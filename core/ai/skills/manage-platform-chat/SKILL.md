@@ -3,7 +3,7 @@ name: manage-platform-chat
 description: Provides intelligent chat interface for platform operations and management across cloud environments. Use when implementing chatops, managing platforms, or enabling conversational automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

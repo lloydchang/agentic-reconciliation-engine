@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   distribution:
     version: "2.x"
@@ -103,8 +103,8 @@ spec:
             name: helm-controller
             namespace: flux-system
             labels:
-              gitops-infra-control-plane.io/managed-by: "flux-operator"
-              gitops-infra-control-plane.io/tier: "control-plane"
+              agentic-reconciliation-engine.io/managed-by: "flux-operator"
+              agentic-reconciliation-engine.io/tier: "control-plane"
         target:
           kind: Kustomization
           name: flux-components

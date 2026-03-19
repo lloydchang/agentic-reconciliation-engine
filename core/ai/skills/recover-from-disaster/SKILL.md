@@ -3,7 +3,7 @@ name: recover-from-disaster
 description: Implements disaster recovery procedures and failover testing across multi-cloud environments. Use when planning disaster recovery, testing failover, or ensuring business continuity.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

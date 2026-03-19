@@ -6,11 +6,11 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-rollouts
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/service: metrics
   annotations:
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gitops-infra-control-plane
+    app.kubernetes.io/created-by: agentic-reconciliation-engine
     prometheus.io/scrape: "true"
     prometheus.io/port: "8090"
     prometheus.io/path: "/metrics"

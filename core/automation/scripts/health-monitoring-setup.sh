@@ -140,7 +140,7 @@ data:
     kubectl create job --from=cronjob/git-health-monitor manual-health-check -n flux-system
     
     # Check repository connectivity manually
-    git ls-remote https://github.com/antigravity/gitops-infra-control-plane.git
+    git ls-remote https://github.com/antigravity/agentic-reconciliation-engine.git
     \`\`\`
     
     ## Dashboard Access

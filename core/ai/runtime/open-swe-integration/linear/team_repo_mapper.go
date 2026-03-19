@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
 )
 
 // TeamRepoMapper manages the mapping between Linear teams and GitHub repositories

@@ -153,7 +153,7 @@ eksctl create cluster \
 ```bash
 flux bootstrap github \
   --owner=org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=core/operators/bootstrap \
   --personal
@@ -226,7 +226,7 @@ export KUBECONFIG=$HOME/.kube/new-hub-kubeconfig
 
 flux bootstrap github \
   --owner=org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=core/operators/flux
 ```

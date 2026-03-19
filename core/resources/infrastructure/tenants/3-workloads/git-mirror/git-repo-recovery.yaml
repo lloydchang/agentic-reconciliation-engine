@@ -31,8 +31,8 @@ spec:
           export AWS_DEFAULT_REGION=us-east-1
 
           # Repository configuration
-          PRIMARY_REPO="https://github.com/lloydchang/gitops-infra-control-plane.git"
-          BACKUP_REPO="https://gitlab.example.com/lloydchang/gitops-infra-control-plane.git"
+          PRIMARY_REPO="https://github.com/lloydchang/agentic-reconciliation-engine.git"
+          BACKUP_REPO="https://gitlab.example.com/lloydchang/agentic-reconciliation-engine.git"
           BACKUP_BUCKET="gitops-repo-backups"
           BACKUP_PREFIX="daily"
           TEMP_DIR="/tmp/recovery"
@@ -69,8 +69,8 @@ spec:
           # Extract backup
           echo "🗜️ Extracting backup..."
           tar -xzf backup.tar.gz
-          mv repo.git "$RECOVERY_DIR/gitops-infra-control-plane.git"
-          cd "$RECOVERY_DIR/gitops-infra-control-plane.git"
+          mv repo.git "$RECOVERY_DIR/agentic-reconciliation-engine.git"
+          cd "$RECOVERY_DIR/agentic-reconciliation-engine.git"
 
           # Add backup remote if not exists
           git remote add backup "$BACKUP_REPO" 2>/dev/null || true

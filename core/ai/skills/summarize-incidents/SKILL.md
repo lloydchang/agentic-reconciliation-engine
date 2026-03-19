@@ -3,7 +3,7 @@ name: summarize-incidents
 description: Generates incident summaries and post-mortem reports with analysis and recommendations. Use when documenting incidents, learning from failures, or implementing incident management.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

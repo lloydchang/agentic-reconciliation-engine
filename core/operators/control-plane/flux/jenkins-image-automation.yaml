@@ -1,21 +1,21 @@
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
-  image: ghcr.io/${{ github.repository_owner }}/gitops-infra-control-plane
+  image: ghcr.io/${{ github.repository_owner }}/agentic-reconciliation-engine
   interval: 5m
   timeout: 1m
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
-  name: gitops-infra-control-plane-production
+  name: agentic-reconciliation-engine-production
   namespace: flux-system
 spec:
   imageRepositoryRef:
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   policy:
     semver:
       range: '>=1.0.0'
@@ -26,11 +26,11 @@ spec:
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
-  name: gitops-infra-control-plane-development
+  name: agentic-reconciliation-engine-development
   namespace: flux-system
 spec:
   imageRepositoryRef:
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   policy:
     alphabetical:
       order: asc
