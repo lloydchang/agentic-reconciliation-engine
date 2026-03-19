@@ -3,7 +3,7 @@ name: flagger-automation
 description: Progressive delivery automation using Flagger for canary, A/B testing, and blue/green deployments. Use when implementing progressive delivery strategies, automating releases, managing traffic shifting, or setting up deployment analysis with Kubernetes service mesh or ingress controllers.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

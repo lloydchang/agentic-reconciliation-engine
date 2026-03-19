@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: sops-example
     app.kubernetes.io/component: example
-    gitops-infra-control-plane.io/managed-by: "flux"
+    agentic-reconciliation-engine.io/managed-by: "flux"
 resources:
   # Database components (must be deployed first)
   - name: database-deployment.yaml
@@ -32,7 +32,7 @@ postBuild:
   substitute:
     # Environment-specific values
     ENVIRONMENT: "example"
-    CLUSTER_NAME: "gitops-infra-control-plane"
+    CLUSTER_NAME: "agentic-reconciliation-engine"
     NAMESPACE: "default"
   
   substituteFrom:
@@ -48,13 +48,13 @@ postBuild:
 commonLabels:
   app.kubernetes.io/part-of: sops-example
   app.kubernetes.io/managed-by: flux
-  gitops-infra-control-plane.io/example: "true"
+  agentic-reconciliation-engine.io/example: "true"
 
 # Common annotations for all resources
 commonAnnotations:
-  gitops-infra-control-plane.io/description: "SOPS encrypted secrets example deployment"
-  gitops-infra-control-plane.io/created-by: "gitops-infra-control-plane"
-  gitops-infra-control-plane.io/encryption: "age-sops"
+  agentic-reconciliation-engine.io/description: "SOPS encrypted secrets example deployment"
+  agentic-reconciliation-engine.io/created-by: "agentic-reconciliation-engine"
+  agentic-reconciliation-engine.io/encryption: "age-sops"
 
 # Patches for configuration
 patches:

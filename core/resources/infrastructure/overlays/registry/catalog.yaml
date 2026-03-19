@@ -30,7 +30,7 @@ overlays:
         base_version: "1.0.0"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: low
         autonomy: fully_auto
@@ -65,7 +65,7 @@ overlays:
         base_version: "1.0.0"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: medium
         autonomy: conditional
@@ -99,7 +99,7 @@ overlays:
         base_version: "0.1.0"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "MIT"
         risk_level: low
         autonomy: fully_auto
@@ -126,7 +126,7 @@ overlays:
         base_version: "0.1.0"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: low
         autonomy: fully_auto
@@ -158,7 +158,7 @@ overlays:
         base_version: "2.2.3"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: low
         autonomy: fully_auto
@@ -190,7 +190,7 @@ overlays:
         base_version: "main"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: medium
         autonomy: conditional
@@ -234,7 +234,7 @@ overlays:
         base_version: "main"
         maintainer:
           name: "Community"
-          organization: "gitops-infra-control-plane"
+          organization: "agentic-reconciliation-engine"
         license: "AGPLv3"
         risk_level: low
         autonomy: fully_auto

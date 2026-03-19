@@ -15,7 +15,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -45,7 +45,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -80,7 +80,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   secretName: flux-ui-tls
   issuerRef:
@@ -101,7 +101,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/auth-type: basic
@@ -162,7 +162,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/auth-url: "https://oauth.example.com/oauth2/auth"
@@ -203,7 +203,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -239,7 +239,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
@@ -270,7 +270,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     istio: ingressgateway
@@ -299,7 +299,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   hosts:
   - flux-ui.example.com
@@ -327,7 +327,7 @@ metadata:
   name: ingress-nginx
   labels:
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -336,7 +336,7 @@ metadata:
   namespace: ingress-nginx
   labels:
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   repo: https://kubernetes.github.io/ingress-nginx
   chart: ingress-nginx
@@ -385,7 +385,7 @@ metadata:
   name: cert-manager
   labels:
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -394,7 +394,7 @@ metadata:
   namespace: cert-manager
   labels:
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   repo: https://charts.jetstack.io
   chart: cert-manager
@@ -422,7 +422,7 @@ metadata:
   name: letsencrypt-prod
   labels:
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
@@ -440,7 +440,7 @@ metadata:
   name: letsencrypt-staging
   labels:
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -466,7 +466,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -517,7 +517,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
@@ -554,7 +554,7 @@ metadata:
   namespace: ingress-nginx
   labels:
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -572,7 +572,7 @@ metadata:
   namespace: ingress-nginx
   labels:
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: nginx-ingress

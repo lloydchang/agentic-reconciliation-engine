@@ -68,7 +68,7 @@ curl -sSL https://raw.githubusercontent.com/fluxcd/flux2/main/install.sh | sudo 
 # Full automation with Qwen integration
 ./scripts/flux-auto-setup.sh \
   --provider=github \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --owner=your-org \
   --branch=main \
   --path=./clusters/production \
@@ -84,7 +84,7 @@ curl -sSL https://raw.githubusercontent.com/fluxcd/flux2/main/install.sh | sudo 
 # GitHub bootstrap
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --personal \
@@ -92,7 +92,7 @@ flux bootstrap github \
 
 # Generic Git bootstrap
 flux bootstrap git \
-  --url=ssh://git@github.com/your-org/gitops-infra-control-plane.git \
+  --url=ssh://git@github.com/your-org/agentic-reconciliation-engine.git \
   --branch=main \
   --path=./clusters/production \
   --private-key-file=~/.ssh/id_rsa
@@ -210,7 +210,7 @@ spec:
 ## 📁 Repository Structure
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── clusters/
 │   ├── production/
 │   │   ├── flux-system/

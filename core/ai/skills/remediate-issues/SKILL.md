@@ -3,7 +3,7 @@ name: remediate-issues
 description: Automatically remediates common infrastructure issues and security vulnerabilities across cloud environments. Use when fixing issues, implementing automation, or ensuring system health.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

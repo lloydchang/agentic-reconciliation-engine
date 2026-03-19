@@ -4,7 +4,7 @@
 
 ```
 Development: http://localhost:8081
-Production: https://api.gitops-infra-control-plane.com
+Production: https://api.agentic-reconciliation-engine.com
 ```
 
 ## 📋 Authentication

@@ -415,11 +415,11 @@ stringData:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: ssh://git@github.com/your-org/gitops-infra-control-plane.git
+  url: ssh://git@github.com/your-org/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -448,11 +448,11 @@ stringData:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/your-org/gitops-infra-control-plane.git
+  url: https://github.com/your-org/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -550,7 +550,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads/production
   prune: true
   wait: true
@@ -1069,7 +1069,7 @@ kubectl get secrets -n flux-system
 kubectl describe secret git-credentials -n flux-system
 
 # Test Git access
-flux reconcile source git gitops-infra-control-plane --with-source
+flux reconcile source git agentic-reconciliation-engine --with-source
 
 # Check controller logs
 kubectl logs -n flux-system deployment/source-controller | grep -i auth
@@ -1131,7 +1131,7 @@ kubectl auth can-i --list --as=system:anonymous
 kubectl create secret generic new-credentials --from-literal=token=new-token
 
 # Update resource references
-kubectl patch gitrepository gitops-infra-control-plane -p '{"spec":{"secretRef":{"name":"new-credentials"}}}'
+kubectl patch gitrepository agentic-reconciliation-engine -p '{"spec":{"secretRef":{"name":"new-credentials"}}}'
 
 # Restore operations
 kubectl scale deployment -n flux-system --replicas=1

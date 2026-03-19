@@ -338,7 +338,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     path: overlays/argo-rollouts
     targetRevision: HEAD
   destination:
@@ -1176,8 +1176,8 @@ spec:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/gitops-infra-control-plane
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine
+cd agentic-reconciliation-engine
 
 # Setup development environment
 make dev-setup

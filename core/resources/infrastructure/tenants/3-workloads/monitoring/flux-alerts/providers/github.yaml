@@ -14,6 +14,6 @@ metadata:
   namespace: flux-system
 spec:
   type: github
-  address: https://github.com/lloydchang/gitops-infra-control-plane
+  address: https://github.com/lloydchang/agentic-reconciliation-engine
   secretRef:
     name: github-token

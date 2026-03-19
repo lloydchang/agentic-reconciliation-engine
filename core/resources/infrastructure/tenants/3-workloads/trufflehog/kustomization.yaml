@@ -19,7 +19,7 @@ spec:
       volumes:
       - name: repo
         gitRepo:
-          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          repository: "https://github.com/lloydchang/agentic-reconciliation-engine.git"
           revision: "main"
       restartPolicy: Never
 ---
@@ -53,5 +53,5 @@ spec:
       volumes:
       - name: repo
         gitRepo:
-          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          repository: "https://github.com/lloydchang/agentic-reconciliation-engine.git"
           revision: "main"

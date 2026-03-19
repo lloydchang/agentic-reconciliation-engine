@@ -15,8 +15,8 @@
 #### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 ```
 
 #### 2. Backend Setup
@@ -119,7 +119,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 
 ```json
 {
-  "family": "gitops-infra-control-plane",
+  "family": "agentic-reconciliation-engine",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
@@ -149,7 +149,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/gitops-infra-control-plane",
+          "awslogs-group": "/ecs/agentic-reconciliation-engine",
           "awslogs-region": "us-west-2",
           "awslogs-stream-prefix": "ecs"
         }
@@ -168,7 +168,7 @@ docker push your-account.dkr.ecr.region.amazonaws.com/ai-agents-frontend:latest
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
 
 ---
 # k8s/configmap.yaml
@@ -176,7 +176,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ai-agents-config
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 data:
   TEMPORAL_HOST: "temporal.namespace.id.tmprl.cloud:7233"
   AWS_REGION: "us-west-2"
@@ -191,7 +191,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-agents-backend
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 spec:
   replicas: 3
   selector:
@@ -235,7 +235,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-agents-backend-service
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 spec:
   selector:
     app: ai-agents-backend
@@ -254,7 +254,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-agents-frontend
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 spec:
   replicas: 2
   selector:
@@ -283,7 +283,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-agents-frontend-service
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 spec:
   selector:
     app: ai-agents-frontend
@@ -302,7 +302,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ai-agents-ingress
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -512,7 +512,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: ai-agents-network-policy
-  namespace: gitops-infra-control-plane
+  namespace: agentic-reconciliation-engine
 spec:
   podSelector: {}
   policyTypes:
@@ -722,7 +722,7 @@ wscat -c ws://localhost:8081/ws
 
 - GitHub Issues: [Create Issue](https://github.com/lloydchang/gitops-infra-core/operators/issues)
 - Community Forum: [Discussions](https://github.com/lloydchang/gitops-infra-core/operators/discussions)
-- Email Support: <support@gitops-infra-control-plane.com>
+- Email Support: <support@agentic-reconciliation-engine.com>
 
 ### Training
 

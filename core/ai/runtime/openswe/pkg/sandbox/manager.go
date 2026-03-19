@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gitops-infra-control-plane/openswe-orchestrator/pkg/config"
+	"github.com/agentic-reconciliation-engine/openswe-orchestrator/pkg/config"
 )
 
 // SandboxProvider defines the interface for different sandbox providers

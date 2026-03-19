@@ -9,7 +9,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -20,7 +20,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Core workflow permissions
 - apiGroups: ["argoproj.io"]
@@ -60,7 +60,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -140,7 +140,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   podSelector:
     matchLabels:
@@ -261,7 +261,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   privileged: false
   allowPrivilegeEscalation: false
@@ -290,7 +290,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: security
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 type: Opaque
 data:
   # Base64 encoded webhook secret (replace with actual value)

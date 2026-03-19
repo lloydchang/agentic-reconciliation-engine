@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/api"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/config"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/database"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/rag"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/ws"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/pkg/metrics"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/api"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/config"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/database"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/rag"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/services"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/ws"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/pkg/metrics"
 	"go.uber.org/zap"
 )
 

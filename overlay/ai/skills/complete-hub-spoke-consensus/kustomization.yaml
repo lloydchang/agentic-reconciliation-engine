@@ -9,7 +9,7 @@ resources:
 # Consensus Layer
 - name: consensus-layer/
   dependsOn:
-    - gitops-infra-control-plane
+    - agentic-reconciliation-engine
 # Agent Swarm
 - name: agent-swarm/
   dependsOn:
@@ -31,7 +31,7 @@ resources:
     - agent-swarm
     - consensus-taskspawners
 dependsOn:
-  - gitops-infra-control-plane
+  - agentic-reconciliation-engine
 # Common configurations
 configurations:
 - name: consensus-config
@@ -59,7 +59,7 @@ commonLabels:
   app.kubernetes.io/created-by: gitops-control-plane
 # Common annotations
 commonAnnotations:
-  config.kubernetes.io/origin: gitops-infra-control-plane
+  config.kubernetes.io/origin: agentic-reconciliation-engine
   config.kubernetes.io/version: v3.0
   config.kubernetes.io/documentation: https://github.com/lloydchang/gitops-infra-core/operators/tree/main/overlay/examples/complete-hub-spoke-consensus
 # Patches for strategic configurations

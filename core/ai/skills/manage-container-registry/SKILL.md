@@ -3,7 +3,7 @@ name: manage-container-registry
 description: Manages container image repositories across multi-cloud environments with security scanning and optimization. Use when managing container images, ensuring image security, or optimizing registry performance.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -67,8 +67,8 @@ The overlays community is dedicated to:
 #### Quick Setup
 ```bash
 # Clone repository
-git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Set up development environment
 python -m venv venv

@@ -10,8 +10,8 @@ resources:
 commonLabels:
   component: job-orchestration
   managed-by: flux
-  platform: gitops-infra-control-plane
+  platform: agentic-reconciliation-engine
 commonAnnotations:
-  config.kubernetes.io/origin: gitops-infra-control-plane
+  config.kubernetes.io/origin: agentic-reconciliation-engine
   config.kubernetes.io/version: v1.0.0
   config.kubernetes.io/component: job-orchestration

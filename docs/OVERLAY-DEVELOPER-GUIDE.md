@@ -28,8 +28,8 @@ This guide is for developers who want to contribute to the overlay system, creat
 
 1. **Clone Repository**:
    ```bash
-   git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
-   cd gitops-infra-control-plane
+   git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+   cd agentic-reconciliation-engine
    ```
 
 2. **Set Up Python Environment**:

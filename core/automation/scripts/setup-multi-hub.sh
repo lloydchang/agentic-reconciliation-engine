@@ -9,7 +9,7 @@ set -euo pipefail
 PRIMARY_HUB="hub-us-east-1"
 SECONDARY_HUBS=("hub-us-west-2" "hub-eu-west-1")
 NAMESPACE="flux-system"
-GIT_REPO="${GIT_REPO:-https://github.com/your-org/gitops-infra-control-plane}"
+GIT_REPO="${GIT_REPO:-https://github.com/your-org/agentic-reconciliation-engine}"
 BRANCH="${BRANCH:-main}"
 
 echo "🚀 Setting up Multi-Hub Architecture for GitOps Infra Control Plane"

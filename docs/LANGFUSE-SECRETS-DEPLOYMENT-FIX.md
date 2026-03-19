@@ -45,7 +45,7 @@ Two secret files existed with different namespace targets:
 ### Fix Implementation
 Updated the namespace in the primary secret configuration file:
 
-**File**: `/Users/lloyd/github/antigravity/gitops-infra-control-plane/core/config/langfuse-secret.yaml`
+**File**: `/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/config/langfuse-secret.yaml`
 
 **Change Made**:
 ```yaml

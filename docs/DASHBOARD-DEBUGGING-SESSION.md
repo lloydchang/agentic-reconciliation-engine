@@ -46,7 +46,7 @@ payload := QwenRequest{
 ```
 internal/api/voice_handler.go:6:2: "strconv" imported and not used
 internal/api/voice_handler.go:7:2: "time" imported and not used
-internal/api/voice_handler.go:10:2: "github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/services" imported and not used
+internal/api/voice_handler.go:10:2: "github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/services" imported and not used
 internal/api/voice_handler.go:11:2: "go.uber.org/zap" imported and not used
 cmd/server/main.go:154:6: undefined: voiceHandler
 cmd/server/main.go:155:4: undefined: voiceHandler

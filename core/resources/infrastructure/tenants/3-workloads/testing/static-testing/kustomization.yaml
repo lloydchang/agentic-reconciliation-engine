@@ -70,7 +70,7 @@ spec:
       volumes:
       - name: workspace
         gitRepo:
-          repository: "https://github.com/lloydchang/gitops-infra-control-plane.git"
+          repository: "https://github.com/lloydchang/agentic-reconciliation-engine.git"
           revision: "main"
       - name: output
         emptyDir: {}

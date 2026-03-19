@@ -4,9 +4,9 @@
   "description": "Pi-Mono containerized agent for GitOps Control Plane - Third agent execution method",
   "main": "index.js",
   "scripts": {
-    "build": "docker build -t gitops-infra-control-plane/pi-mono-agent:latest .",
-    "run": "docker run -p 8080:8080 --env-file .env gitops-infra-control-plane/pi-mono-agent:latest",
-    "test": "docker run --rm gitops-infra-control-plane/pi-mono-agent:latest pi --version",
+    "build": "docker build -t agentic-reconciliation-engine/pi-mono-agent:latest .",
+    "run": "docker run -p 8080:8080 --env-file .env agentic-reconciliation-engine/pi-mono-agent:latest",
+    "test": "docker run --rm agentic-reconciliation-engine/pi-mono-agent:latest pi --version",
     "k8s:deploy": "kubectl apply -f k8s/",
     "k8s:delete": "kubectl delete -f k8s/",
     "k8s:logs": "kubectl logs -f deployment/pi-mono-agent -n ai-infrastructure",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lloydchang/gitops-infra-control-plane"
+    "url": "https://github.com/lloydchang/agentic-reconciliation-engine"
   },
   "engines": {
     "node": ">=18.0.0"

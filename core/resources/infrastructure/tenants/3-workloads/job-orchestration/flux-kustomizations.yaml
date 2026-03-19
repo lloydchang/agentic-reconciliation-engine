@@ -16,7 +16,7 @@ spec:
     - name: infrastructure-controllers
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: "./core/resources/tenants/3-workloads/job-orchestration/pre-deploy"
   interval: 60m
   timeout: 15m
@@ -47,7 +47,7 @@ spec:
     - name: pre-deploy-jobs
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: "./core/resources/tenants/3-workloads/sample-apps"
   interval: 60m
   timeout: 10m
@@ -77,7 +77,7 @@ spec:
     - name: application-deployment
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: "./core/resources/tenants/3-workloads/job-orchestration/post-deploy"
   interval: 60m
   timeout: 15m
@@ -108,7 +108,7 @@ spec:
     - name: post-deploy-jobs
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: "./core/resources/tenants/3-workloads/monitoring"
   interval: 60m
   timeout: 5m

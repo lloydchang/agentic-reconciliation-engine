@@ -49,8 +49,8 @@ This implementation guide provides detailed instructions for integrating the AI 
 #### Deployment Steps
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # 2. Navigate to debugger scripts
 cd core/ai/skills/debug/scripts

@@ -204,7 +204,7 @@ resources:
       - ../../operators/control-plane/ai-cronjobs
       - ../../ai/skills/ai-validation
 dependsOn:
-  - gitops-infra-control-plane
+  - agentic-reconciliation-engine
 labels:
   - pairs:
       managed-by: flux

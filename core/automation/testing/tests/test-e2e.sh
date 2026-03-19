@@ -5,7 +5,7 @@
 set -euxo pipefail
 
 # Configuration
-REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"
+REPO_URL="https://github.com/lloydchang/agentic-reconciliation-engine"
 BRANCH="main"
 TEST_TIMEOUT=3600  # 1 hour for full E2E test
 CLEANUP_ON_SUCCESS=${CLEANUP_ON_SUCCESS:-false}

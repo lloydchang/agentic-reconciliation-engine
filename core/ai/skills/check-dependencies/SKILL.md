@@ -3,7 +3,7 @@ name: check-dependencies
 description: Analyzes and validates software dependencies for security vulnerabilities and compatibility. Use when managing dependencies, ensuring security, or preventing supply chain issues.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

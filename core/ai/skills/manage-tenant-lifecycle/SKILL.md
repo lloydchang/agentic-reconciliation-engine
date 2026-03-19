@@ -3,7 +3,7 @@ name: manage-tenant-lifecycle
 description: Manages complete tenant lifecycle from onboarding to offboarding with automated resource provisioning and access management. Use when managing multi-tenant environments, handling tenant transitions, or implementing tenant automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

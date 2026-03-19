@@ -34,7 +34,7 @@ spec:
               export AWS_DEFAULT_REGION=us-east-1
 
               # Repository configuration
-              REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane.git"
+              REPO_URL="https://github.com/lloydchang/agentic-reconciliation-engine.git"
               BACKUP_BUCKET="gitops-repo-backups"
               BACKUP_PREFIX="daily/$(date +%Y/%m/%d)"
               TEMP_DIR="/tmp/backup"
@@ -46,7 +46,7 @@ spec:
               git clone --mirror "$REPO_URL" repo.git
 
               # Create backup archive
-              BACKUP_FILE="gitops-infra-control-plane-$(date +%Y%m%d-%H%M%S).tar.gz"
+              BACKUP_FILE="agentic-reconciliation-engine-$(date +%Y%m%d-%H%M%S).tar.gz"
               echo "🗜️ Creating backup archive..."
               tar -czf "$BACKUP_FILE" repo.git/
 

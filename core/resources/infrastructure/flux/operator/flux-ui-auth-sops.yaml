@@ -11,7 +11,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 type: Opaque
 stringData:
   # Generate with: echo "admin:$(openssl passwd -apr1 your-secure-password)"

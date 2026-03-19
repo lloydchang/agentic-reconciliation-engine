@@ -30,7 +30,7 @@ Linux is the default development environment for this repo, and every script was
 ## 3. Zero-touch local run
 
 ```bash
-cd /path/to/gitops-infra-control-plane
+cd /path/to/agentic-reconciliation-engine
 core/core/automation/ci-cd/scripts/run-local-automation.sh
 ```
 

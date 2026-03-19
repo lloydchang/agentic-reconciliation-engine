@@ -3,7 +3,7 @@ name: draft-stakeholder-comms
 description: Drafts stakeholder communications for incidents, deployments, and system changes across cloud operations. Use when communicating with stakeholders, managing expectations, or implementing comms automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -21,7 +21,7 @@ spec:
       serviceAccountName: openswe-service-account
       containers:
       - name: orchestrator
-        image: gitops-infra-control-plane/openswe-orchestrator:latest
+        image: agentic-reconciliation-engine/openswe-orchestrator:latest
         ports:
         - containerPort: 8080
           name: http

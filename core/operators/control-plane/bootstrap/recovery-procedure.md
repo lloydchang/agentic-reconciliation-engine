@@ -5,7 +5,7 @@ even when the hub is unavailable.
 
 1. Provision replacement hub cluster using `hub-cluster-config.yaml`
 2. Bootstrap Flux on the replacement hub:
-   `flux bootstrap github --owner=org --repository=gitops-infra-control-plane --branch=main --path=core/operators/flux`
+   `flux bootstrap github --owner=org --repository=agentic-reconciliation-engine --branch=main --path=core/operators/flux`
 3. Wait for Crossplane and CAPI providers to become Healthy
 4. Verify managed resource reconciliation:
    `kubectl get managed -A`

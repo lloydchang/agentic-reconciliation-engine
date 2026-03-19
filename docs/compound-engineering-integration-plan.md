@@ -32,7 +32,7 @@ The Compound Engineering Plugin provides:
 
 ### Current Repository Architecture
 
-The gitops-infra-control-plane repository implements a GitOps-controlled agent architecture with:
+The agentic-reconciliation-engine repository implements a GitOps-controlled agent architecture with:
 
 - **Memory Agents**: Persistent AI state with Rust/Go/Python implementations using local inference
 - **Temporal Orchestration**: Durable workflow execution for multi-skill operations  
@@ -481,10 +481,10 @@ class CompoundEngineeringTests:
 
 ## Conclusion
 
-The integration of the Compound Engineering Plugin represents a significant enhancement to the gitops-infra-control-plane repository's capabilities. By following this phased approach, we can systematically incorporate advanced engineering workflow patterns while maintaining system stability and compatibility.
+The integration of the Compound Engineering Plugin represents a significant enhancement to the agentic-reconciliation-engine repository's capabilities. By following this phased approach, we can systematically incorporate advanced engineering workflow patterns while maintaining system stability and compatibility.
 
 The integration will provide developers with powerful tools for ideation, planning, execution, review, and knowledge compounding, ultimately leading to more efficient and effective engineering processes.
 
 ---
 
-*This integration plan was created on March 17, 2026, based on analysis of the compound-engineering-plugin repository v2.42.0 and the current gitops-infra-control-plane architecture.*
+*This integration plan was created on March 17, 2026, based on analysis of the compound-engineering-plugin repository v2.42.0 and the current agentic-reconciliation-engine architecture.*

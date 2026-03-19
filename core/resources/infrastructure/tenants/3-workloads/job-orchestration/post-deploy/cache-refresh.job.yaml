@@ -20,7 +20,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: cache-refresh
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command:
           - sh
           - -c

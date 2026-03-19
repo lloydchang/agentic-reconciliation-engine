@@ -9,9 +9,9 @@ import (
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
-	"gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
-	"gitops-infra-control-plane/core/ai/workers/temporal/workflow"
+	"agentic-reconciliation-engine/core/ai/workers/temporal/internal/activities"
+	"agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
+	"agentic-reconciliation-engine/core/ai/workers/temporal/workflow"
 )
 
 func main() {

@@ -115,17 +115,17 @@ done
 echo -e "${YELLOW}📚 Validating Git Sources...${NC}"
 
 # Check GitRepository
-if kubectl get gitrepository gitops-infra-control-plane -n $HUB_NAMESPACE &> /dev/null; then
-    git_status=$(kubectl get gitrepository gitops-infra-control-plane -n $HUB_NAMESPACE -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+if kubectl get gitrepository agentic-reconciliation-engine -n $HUB_NAMESPACE &> /dev/null; then
+    git_status=$(kubectl get gitrepository agentic-reconciliation-engine -n $HUB_NAMESPACE -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
     if [[ $git_status == "True" ]]; then
-        echo -e "${GREEN}  ✅ GitRepository gitops-infra-control-plane${NC}"
-        last_sync=$(kubectl get gitrepository gitops-infra-control-plane -n $HUB_NAMESPACE -o jsonpath='{.status.lastHandledReconcileAt}')
+        echo -e "${GREEN}  ✅ GitRepository agentic-reconciliation-engine${NC}"
+        last_sync=$(kubectl get gitrepository agentic-reconciliation-engine -n $HUB_NAMESPACE -o jsonpath='{.status.lastHandledReconcileAt}')
         echo -e "${BLUE}    🔄 Last sync: $last_sync${NC}"
     else
-        echo -e "${RED}  ❌ GitRepository gitops-infra-control-plane (not ready)${NC}"
+        echo -e "${RED}  ❌ GitRepository agentic-reconciliation-engine (not ready)${NC}"
     fi
 else
-    echo -e "${RED}  ❌ GitRepository gitops-infra-control-plane not found${NC}"
+    echo -e "${RED}  ❌ GitRepository agentic-reconciliation-engine not found${NC}"
 fi
 
 # Validate Kustomizations

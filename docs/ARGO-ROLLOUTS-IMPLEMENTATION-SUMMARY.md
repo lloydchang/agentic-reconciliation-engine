@@ -311,7 +311,7 @@ metadata:
   name: argo-rollouts
 spec:
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     path: overlay/argo-rollouts
   destination:
     server: https://kubernetes.default.svc

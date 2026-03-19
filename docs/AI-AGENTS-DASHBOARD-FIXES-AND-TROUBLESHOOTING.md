@@ -59,7 +59,7 @@ ERROR: Dashboard fetch error: AxiosError: Network Error
 
 **Solution**: Started Flask API server
 ```bash
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
 pip install flask flask-cors
 python api-server.py
 ```
@@ -152,7 +152,7 @@ import { Grid } from '@mui/material'; // Correct for v5
 **Solutions**:
 ```bash
 # 1. Start API server
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
 python api-server.py
 
 # 2. Install dependencies if needed
@@ -296,7 +296,7 @@ setInterval(() => {
 #### Local Development Setup
 ```bash
 # 1. Start API backend
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine
 python api-server.py &
 
 # 2. Start frontend dev server

@@ -199,7 +199,7 @@ gh pr create --title "Infrastructure Update"
 docker run -p 8080:8080 \
   -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
   -v $(pwd)/skills:/home/pi/.pi/agent/skills \
-  gitops-infra-control-plane/pi-mono-agent:latest
+  agentic-reconciliation-engine/pi-mono-agent:latest
 
 # Test RPC
 echo '{"type":"ping"}' | nc localhost 8080

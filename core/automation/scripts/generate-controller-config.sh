@@ -38,7 +38,7 @@ metadata:
   namespace: $NAMESPACE
   labels:
     app.kubernetes.io/name: aws-${service}-controller
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
     cloud: aws
     service: $service
     managed-by: unified-installer
@@ -57,7 +57,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
-        gitops-infra-control-plane.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
+        agentic-reconciliation-engine.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
     spec:
       serviceAccountName: aws-${service}-controller
       securityContext:
@@ -80,7 +80,7 @@ spec:
         - name: CORRELATION_ID
           valueFrom:
             fieldRef:
-              fieldPath: metadata.annotations['gitops-infra-control-plane.io/correlation-id']
+              fieldPath: metadata.annotations['agentic-reconciliation-engine.io/correlation-id']
         - name: LOG_LEVEL
           value: "$LOG_LEVEL"
         - name: ENABLE_TRACING
@@ -204,7 +204,7 @@ metadata:
   namespace: $NAMESPACE
   labels:
     app.kubernetes.io/name: azure-${service}-controller
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
     cloud: azure
     service: $service
     managed-by: unified-installer
@@ -223,7 +223,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
-        gitops-infra-control-plane.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
+        agentic-reconciliation-engine.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
     spec:
       serviceAccountName: azure-${service}-controller
       containers:
@@ -254,7 +254,7 @@ spec:
         - name: CORRELATION_ID
           valueFrom:
             fieldRef:
-              fieldPath: metadata.annotations['gitops-infra-control-plane.io/correlation-id']
+              fieldPath: metadata.annotations['agentic-reconciliation-engine.io/correlation-id']
         - name: LOG_LEVEL
           value: "$LOG_LEVEL"
         resources:
@@ -313,7 +313,7 @@ metadata:
   namespace: $NAMESPACE
   labels:
     app.kubernetes.io/name: gcp-${service}-controller
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
     cloud: gcp
     service: $service
     managed-by: unified-installer
@@ -332,7 +332,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
-        gitops-infra-control-plane.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
+        agentic-reconciliation-engine.io/correlation-id: "\$(cat /proc/sys/kernel/random/uuid)"
     spec:
       serviceAccountName: gcp-${service}-controller
       containers:
@@ -355,7 +355,7 @@ spec:
         - name: CORRELATION_ID
           valueFrom:
             fieldRef:
-              fieldPath: metadata.annotations['gitops-infra-control-plane.io/correlation-id']
+              fieldPath: metadata.annotations['agentic-reconciliation-engine.io/correlation-id']
         - name: LOG_LEVEL
           value: "$LOG_LEVEL"
         resources:
@@ -446,10 +446,10 @@ $(find "$CONFIG_DIR" -name "*.yaml" -not -name "kustomization.yaml" | sed 's/^/ 
 commonLabels:
   managed-by: unified-installer
   component: cloud-controllers
-  platform: gitops-infra-control-plane
+  platform: agentic-reconciliation-engine
 commonAnnotations:
-    gitops-infra-control-plane.io/generated-by: "controller-config-generator"
-    gitops-infra-control-plane.io/generated-at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    agentic-reconciliation-engine.io/generated-by: "controller-config-generator"
+    agentic-reconciliation-engine.io/generated-at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 patchesStrategicMerge:
   - resource-requests-patch.yaml
 EOF

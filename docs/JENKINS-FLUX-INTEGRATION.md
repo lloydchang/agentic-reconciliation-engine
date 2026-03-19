@@ -155,7 +155,7 @@ spec:
   interval: 5m
   ref:
     branch: main
-  url: https://github.com/your-org/gitops-infra-control-plane
+  url: https://github.com/your-org/agentic-reconciliation-engine
 ```
 
 ### 4. Enable Auto PR (Optional)
@@ -202,7 +202,7 @@ Customize the pipeline by modifying these variables in `Jenkinsfile`:
 ```groovy
 dockerRepoHost = 'ghcr.io'                    // Container registry
 dockerRepoUser = '${{ github.repository_owner }}'  // Registry username
-dockerRepoProj = 'gitops-infra-control-plane' // Repository name
+dockerRepoProj = 'agentic-reconciliation-engine' // Repository name
 jenkinsDockerSecret = 'ghcr-registry-account' // Jenkins credential ID
 ```
 
@@ -302,7 +302,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
 
    ```bash
    # Check image repository status
-   kubectl get imagerepository gitops-infra-control-plane -n flux-system -o yaml
+   kubectl get imagerepository agentic-reconciliation-engine -n flux-system -o yaml
    
    # Check logs
    kubectl logs -n flux-system deployment/image-reflector-controller
@@ -312,7 +312,7 @@ Modify `jenkins/docker-pod.yaml` for different build requirements:
 
    ```bash
    # Check available tags
-   kubectl get image gitops-infra-control-plane -n flux-system -o yaml
+   kubectl get image agentic-reconciliation-engine -n flux-system -o yaml
    
    # Verify tag patterns
    # Update filterTags in imagepolicy.yaml

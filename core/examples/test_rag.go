@@ -8,7 +8,7 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"gitops-infra-control-plane/core/ai/runtime/dashboard/internal/rag"
+	"agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/rag"
 )
 
 func main() {

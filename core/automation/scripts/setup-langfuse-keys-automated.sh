@@ -172,7 +172,7 @@ create_api_keys() {
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
         -d '{
-            "name":"gitops-infra-control-plane",
+            "name":"agentic-reconciliation-engine",
             "description":"GitOps Infrastructure Control Plane Observability"
         }')
     
@@ -339,7 +339,7 @@ main() {
         echo ""
         echo "📋 Summary:"
         echo "- Admin account: $DEFAULT_EMAIL"
-        echo "- Project: gitops-infra-control-plane"
+        echo "- Project: agentic-reconciliation-engine"
         echo "- Secrets created in namespace: $OBSERVABILITY_NAMESPACE"
         echo "- Applications configured for self-hosted Langfuse"
         echo ""

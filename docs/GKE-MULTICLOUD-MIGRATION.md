@@ -38,7 +38,7 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
    ```bash
    flux bootstrap github \
      --owner=<org> \
-     --repository=gitops-infra-control-plane \
+     --repository=agentic-reconciliation-engine \
      --branch=main \
      --path=core/operators/flux \
      --personal
@@ -91,7 +91,7 @@ Use `core/core/automation/ci-cd/scripts/migration_wizard.py` to automate overlay
 
 ```bash
 ./core/core/automation/ci-cd/scripts/migration_wizard.py \
-  --repo-url https://github.com/your-org/gitops-infra-control-plane.git \
+  --repo-url https://github.com/your-org/agentic-reconciliation-engine.git \
   --branch migration-gcp \
   --connector github-enterprise-cloud \
   --overlay-order ./bootstrap ./hub ./cloud-gcp \

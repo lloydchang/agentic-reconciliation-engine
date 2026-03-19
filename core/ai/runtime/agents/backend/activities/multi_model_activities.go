@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/multimodel"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/multimodel"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
 )
 
 // MultiModelActivities provides activities for multi-model AI operations

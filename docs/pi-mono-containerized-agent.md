@@ -182,7 +182,7 @@ core/ai/runtime/pi-mono-agent/
 
 ```bash
 cd core/ai/runtime/pi-mono-agent
-docker build -t gitops-infra-control-plane/pi-mono-agent:latest .
+docker build -t agentic-reconciliation-engine/pi-mono-agent:latest .
 ```
 
 #### 2. Create Secrets
@@ -741,8 +741,8 @@ We welcome contributions for:
 
 ### Community
 - [Discord Server](https://discord.com/invite/3cU7Bz4UPx)
-- [GitHub Discussions](https://github.com/lloydchang/gitops-infra-control-plane/discussions)
-- [Issue Tracker](https://github.com/lloydchang/gitops-infra-control-plane/issues)
+- [GitHub Discussions](https://github.com/lloydchang/agentic-reconciliation-engine/discussions)
+- [Issue Tracker](https://github.com/lloydchang/agentic-reconciliation-engine/issues)
 
 ---
 

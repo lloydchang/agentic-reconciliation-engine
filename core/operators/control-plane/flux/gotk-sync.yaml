@@ -29,7 +29,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -42,7 +42,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   dependsOn:
     - name: network-infra
 ---
@@ -57,7 +57,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   dependsOn:
     - name: cluster-infra
 ---
@@ -72,6 +72,6 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   dependsOn:
     - name: workload-infra

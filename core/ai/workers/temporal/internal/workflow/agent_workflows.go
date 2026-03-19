@@ -5,7 +5,7 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/agents/internal/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/agents/internal/activities"
 )
 
 // AgentWorkflows defines the workflow orchestrations for agent activities

@@ -3,7 +3,7 @@ name: scale-nodes
 description: Assists with Kubernetes node scaling operations including cluster autoscaling and node pool management. Use when scaling clusters, managing nodes, or optimizing resource allocation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

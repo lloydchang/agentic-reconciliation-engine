@@ -1,4 +1,4 @@
-# Using gitops-infra-control-plane as a Building Block
+# Using agentic-reconciliation-engine as a Building Block
 
 This repository contains the **Continuous Reconciliation Engine for Multi-Cloud Infra** (AGPL-3.0 licensed) that serves as a foundational "engine" for infrastructure management platforms. This guide explains how to use this engine as a building block for building proprietary layers above it.
 

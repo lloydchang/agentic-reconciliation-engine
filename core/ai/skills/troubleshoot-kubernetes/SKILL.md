@@ -3,7 +3,7 @@ name: troubleshoot-kubernetes
 description: Provides intelligent troubleshooting guidance for Kubernetes issues across clusters and environments. Use when diagnosing K8s problems, resolving cluster issues, or implementing troubleshooting automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

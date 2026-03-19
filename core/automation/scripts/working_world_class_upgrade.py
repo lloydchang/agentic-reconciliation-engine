@@ -16,7 +16,7 @@ description: >
   World-class enterprise automation skill that provides intelligent operations, comprehensive validation, and compliance workflows for optimized business processes.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

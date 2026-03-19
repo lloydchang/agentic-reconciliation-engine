@@ -10,7 +10,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -20,7 +20,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 - apiGroups:
   - ""
@@ -92,7 +92,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -111,7 +111,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   containerRuntimeExecutor: "pns"
   namespace: "argo-workflows"
@@ -142,7 +142,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: server
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   type: ClusterIP
   ports:
@@ -161,7 +161,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -173,7 +173,7 @@ spec:
         app: argo-workflows-controller
         app.kubernetes.io/name: argo-workflows
         app.kubernetes.io/component: controller
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       serviceAccountName: argo-workflows
       containers:
@@ -253,7 +253,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: server
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -265,7 +265,7 @@ spec:
         app: argo-workflows-server
         app.kubernetes.io/name: argo-workflows
         app.kubernetes.io/component: server
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       serviceAccountName: argo-workflows
       containers:

@@ -262,8 +262,8 @@ rules:
 ### Initial Setup
 ```bash
 # 1. Clone repository
-git clone https://github.com/organization/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/organization/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # 2. Build agent images
 docker build -t cost-optimizer-agent:latest ./core/ai/agents/cost-optimizer

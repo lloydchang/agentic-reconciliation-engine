@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/dispatcher"
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/linear"
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/slack"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/dispatcher"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/linear"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/slack"
 )
 
 // TestUnifiedDispatcherIntegration tests the unified event dispatcher

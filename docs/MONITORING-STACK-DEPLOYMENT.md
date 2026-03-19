@@ -83,7 +83,7 @@ Created `/scripts/fix-commonlabels.sh` to systematically fix all affected files:
 
 **Usage:**
 ```bash
-bash /Users/lloyd/github/antigravity/gitops-infra-control-plane/scripts/fix-commonlabels.sh
+bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-commonlabels.sh
 ```
 
 ## Monitoring Stack Components
@@ -199,14 +199,14 @@ metadata:
 
 ```bash
 # Fix commonLabels deprecation warning
-bash /Users/lloyd/github/antigravity/gitops-infra-control-plane/scripts/fix-commonlabels.sh
+bash /Users/lloyd/github/antigravity/agentic-reconciliation-engine/scripts/fix-commonlabels.sh
 ```
 
 ### Step 2: Deploy Monitoring Stack
 
 ```bash
 # Apply monitoring infrastructure
-kubectl apply -k /Users/lloyd/github/antigravity/gitops-infra-control-plane/core/resources/infrastructure/monitoring
+kubectl apply -k /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/resources/infrastructure/monitoring
 ```
 
 ### Expected Output

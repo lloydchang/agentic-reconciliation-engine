@@ -3,7 +3,7 @@ name: integrate-ci-cd
 description: Integrates CI/CD pipelines across multi-cloud environments with automated testing, deployment, and monitoring. Use when streamlining deployment processes, ensuring code quality, or implementing DevOps workflows.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

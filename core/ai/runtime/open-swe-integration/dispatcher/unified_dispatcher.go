@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
 )
 
 // UnifiedDispatcher routes events from all platforms to appropriate handlers

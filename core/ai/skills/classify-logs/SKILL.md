@@ -3,7 +3,7 @@ name: classify-logs
 description: Classifies and analyzes logs from various sources across multi-cloud environments to identify patterns, anomalies, and issues. Use when troubleshooting problems, analyzing system behavior, or implementing log-based monitoring.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

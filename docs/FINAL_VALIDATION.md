@@ -152,6 +152,6 @@ The GitOps Infra Control Plane successfully implements a complete, enterprise-gr
 
 ---
 
-*Repository: `lloydchang/gitops-infra-control-plane`*  
+*Repository: `lloydchang/agentic-reconciliation-engine`*  
 *Status: Production Ready*  
 *Next Step: Add cloud credentials and deploy infrastructure*

@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 data:
   # Qwen LLM Configuration
@@ -214,7 +214,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 type: Opaque
 data:

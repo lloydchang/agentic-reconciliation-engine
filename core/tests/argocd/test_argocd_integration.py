@@ -362,7 +362,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/lloydchang/gitops-infra-control-plane.git
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine.git
     targetRevision: HEAD
     path: tests/argocd/test-resources
   destination:

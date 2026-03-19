@@ -24,9 +24,9 @@ spec:
               
               set -e
               
-              PRIMARY_REPO="https://github.com/antigravity/gitops-infra-control-plane.git"
-              SECONDARY_REPO="https://gitlab.com/antigravity/gitops-infra-control-plane.git"
-              TERTIARY_REPO="https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+              PRIMARY_REPO="https://github.com/antigravity/agentic-reconciliation-engine.git"
+              SECONDARY_REPO="https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+              TERTIARY_REPO="https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
               MIRROR_DIR="/tmp/git-mirror"
               
               # Setup credentials from secrets
@@ -40,12 +40,12 @@ spec:
               cd "$MIRROR_DIR"
               
               # Initialize or update mirror
-              if [ ! -d "gitops-infra-control-plane.git" ]; then
+              if [ ! -d "agentic-reconciliation-engine.git" ]; then
                 echo "📥 Cloning primary repository..."
                 git clone --mirror "$PRIMARY_REPO"
               fi
               
-              cd gitops-infra-control-plane.git
+              cd agentic-reconciliation-engine.git
               
               # Add remotes if they don't exist
               git remote add secondary "$SECONDARY_REPO" 2>/dev/null || true

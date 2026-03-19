@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
   labels:
     app.kubernetes.io/name: dependency-graph-visualizer
-    app.kubernetes.io/component: gitops-infra-control-plane
+    app.kubernetes.io/component: agentic-reconciliation-engine
 spec:
   replicas: 2
   selector:

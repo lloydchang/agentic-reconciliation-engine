@@ -238,5 +238,5 @@ For questions or issues related to the Qwen consolidation:
 3. **Monitoring**: Access Grafana dashboards for agent-memory metrics
 4. **Troubleshooting**: Use the troubleshooting guide above
 
-**Repository**: https://github.com/lloydchang/gitops-infra-control-plane  
+**Repository**: https://github.com/lloydchang/agentic-reconciliation-engine  
 **Team**: GitOps Infrastructure Team

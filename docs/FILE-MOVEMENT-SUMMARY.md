@@ -32,7 +32,7 @@ The following files have been successfully moved from the root directory to appr
 ## Directory Structure Created
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── deployments/
 │   └── dashboard/
 │       ├── dashboard-deployment.yaml

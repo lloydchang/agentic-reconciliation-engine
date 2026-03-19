@@ -3,7 +3,7 @@ name: k8sgpt-analyzer
 description: Provides AI-powered Kubernetes cluster analysis and troubleshooting using K8sGPT with Qwen LLM. Use when diagnosing cluster issues, analyzing problems, or getting intelligent insights about Kubernetes resources and configurations.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

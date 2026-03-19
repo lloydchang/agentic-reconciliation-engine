@@ -50,7 +50,7 @@ This document describes three deployment options for running AI Agent Evaluators
 ```bash
 # Clone repository
 git clone <repository-url>
-cd gitops-infra-control-plane
+cd agentic-reconciliation-engine
 
 # Deploy everything
 ./core/deployment/deploy-evaluation-framework.sh deploy

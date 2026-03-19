@@ -11,9 +11,9 @@ autonomy: fully_auto
 
 maintainer:
   name: "GitOps Infrastructure Control Plane Community"
-  email: "community@gitops-infra-control-plane.org"
+  email: "community@agentic-reconciliation-engine.org"
   organization: "GitOps Infrastructure Control Plane"
-  url: "https://github.com/gitops-infra-control-plane"
+  url: "https://github.com/agentic-reconciliation-engine"
 
 tags:
   - community

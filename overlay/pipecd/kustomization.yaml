@@ -12,10 +12,10 @@ resources:
 
 commonLabels:
   app.kubernetes.io/name: pipecd
-  app.kubernetes.io/part-of: gitops-infra-control-plane
+  app.kubernetes.io/part-of: agentic-reconciliation-engine
 
 commonAnnotations:
-  gitops-infra-control-plane/managed: "true"
+  agentic-reconciliation-engine/managed: "true"
   pipecd.dev/version: "v0.47.0"
 
 patchesStrategicMerge:

@@ -18,8 +18,8 @@ Quick reference for common overlay operations and commands.
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Setup tools
 chmod +x core/core/automation/ci-cd/scripts/*.py

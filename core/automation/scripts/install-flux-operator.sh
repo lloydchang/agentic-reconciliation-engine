@@ -73,7 +73,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   distribution:
     version: "2.x"
@@ -262,14 +262,14 @@ metadata:
   labels:
     app.kubernetes.io/name: infrastructure
     app.kubernetes.io/component: gitops
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   resources:
   - name: network-infrastructure
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/1-network
     prune: true
     wait: true
@@ -278,7 +278,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/2-clusters
     prune: true
     wait: true
@@ -289,7 +289,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/3-workloads
     prune: true
     wait: true

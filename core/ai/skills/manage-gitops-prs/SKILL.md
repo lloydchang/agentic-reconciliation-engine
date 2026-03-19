@@ -3,7 +3,7 @@ name: manage-gitops-prs
 description: Manages GitOps pull requests and automated validation for infrastructure changes. Use when implementing GitOps, managing changes, or ensuring code quality.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

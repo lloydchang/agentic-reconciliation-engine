@@ -186,7 +186,7 @@ data:
       namespace: {{ .Namespace }}
       labels:
         app.kubernetes.io/name: aws-{{ .Service }}-controller
-        app.kubernetes.io/component: gitops-infra-control-plane
+        app.kubernetes.io/component: agentic-reconciliation-engine
         cloud: aws
         service: {{ .Service }}
     spec:
@@ -250,7 +250,7 @@ data:
       namespace: {{ .Namespace }}
       labels:
         app.kubernetes.io/name: azure-{{ .Service }}-controller
-        app.kubernetes.io/component: gitops-infra-control-plane
+        app.kubernetes.io/component: agentic-reconciliation-engine
         cloud: azure
         service: {{ .Service }}
     spec:
@@ -306,7 +306,7 @@ data:
       namespace: {{ .Namespace }}
       labels:
         app.kubernetes.io/name: gcp-{{ .Service }}-controller
-        app.kubernetes.io/component: gitops-infra-control-plane
+        app.kubernetes.io/component: agentic-reconciliation-engine
         cloud: gcp
         service: {{ .Service }}
     spec:

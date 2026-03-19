@@ -161,7 +161,7 @@ create_namespace() {
         echo "kubectl create namespace $NAMESPACE \\"
         echo "  --label=app.kubernetes.io/name=k8sgpt \\"
         echo "  --label=app.kubernetes.io/component=namespace \\"
-        echo "  --label=app.kubernetes.io/part-of=gitops-infra-control-plane \\"
+        echo "  --label=app.kubernetes.io/part-of=agentic-reconciliation-engine \\"
         echo "  --label=name=$NAMESPACE"
         return
     fi
@@ -174,7 +174,7 @@ create_namespace() {
     kubectl create namespace "$NAMESPACE" \
         --label=app.kubernetes.io/name=k8sgpt \
         --label=app.kubernetes.io/component=namespace \
-        --label=app.kubernetes.io/part-of=gitops-infra-control-plane \
+        --label=app.kubernetes.io/part-of=agentic-reconciliation-engine \
         --label=name="$NAMESPACE"
     
     log_success "Namespace $NAMESPACE created"

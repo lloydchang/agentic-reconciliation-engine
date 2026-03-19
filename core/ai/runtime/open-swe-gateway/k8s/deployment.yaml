@@ -21,7 +21,7 @@ spec:
       serviceAccountName: open-swe-gateway-sa
       containers:
       - name: gateway
-        image: gitops-infra-control-plane/open-swe-gateway:latest
+        image: agentic-reconciliation-engine/open-swe-gateway:latest
         ports:
         - containerPort: 8080
           name: http

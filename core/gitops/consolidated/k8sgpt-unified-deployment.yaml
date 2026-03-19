@@ -8,7 +8,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: ai-analysis
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/version: v0.3.40
   annotations:
     app.kubernetes.io/managed-by: gitops
@@ -24,7 +24,7 @@ spec:
       labels:
         app.kubernetes.io/name: k8sgpt
         app.kubernetes.io/component: ai-analysis
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
         app.kubernetes.io/version: v0.3.40
       annotations:
         prometheus.io/scrape: "true"
@@ -180,7 +180,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: ai-analysis
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9090"
@@ -208,7 +208,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: ai-analysis
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -217,7 +217,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Core Kubernetes resources for analysis
 - apiGroups: [""]
@@ -317,7 +317,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -335,7 +335,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: storage
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   accessModes:
     - ReadWriteOnce

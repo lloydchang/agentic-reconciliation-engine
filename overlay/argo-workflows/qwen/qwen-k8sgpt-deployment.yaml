@@ -10,7 +10,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 spec:
   replicas: 1
@@ -23,7 +23,7 @@ spec:
         app: qwen-k8sgpt
         app.kubernetes.io/name: argo-workflows
         app.kubernetes.io/component: qwen-k8sgpt
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
         app.kubernetes.io/llm: qwen
     spec:
       serviceAccountName: qwen-k8sgpt-sa
@@ -162,7 +162,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 
 ---
@@ -173,7 +173,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 rules:
 # Core Kubernetes resources for analysis
@@ -208,7 +208,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: qwen-k8sgpt
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/llm: qwen
 roleRef:
   apiGroup: rbac.authorization.k8s.io

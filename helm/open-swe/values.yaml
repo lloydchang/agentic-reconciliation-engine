@@ -25,7 +25,7 @@ gateway:
   replicas: 2
 
   image:
-    repository: gitops-infra-control-plane/gateway
+    repository: agentic-reconciliation-engine/gateway
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -60,7 +60,7 @@ sandboxOperator:
   replicas: 1
 
   image:
-    repository: gitops-infra-control-plane/sandbox-operator
+    repository: agentic-reconciliation-engine/sandbox-operator
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -104,7 +104,7 @@ reasoningEngine:
   replicas: 1
 
   image:
-    repository: gitops-infra-control-plane/reasoning-engine
+    repository: agentic-reconciliation-engine/reasoning-engine
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -127,7 +127,7 @@ orchestrator:
   replicas: 1
 
   image:
-    repository: gitops-infra-control-plane/orchestrator
+    repository: agentic-reconciliation-engine/orchestrator
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -149,7 +149,7 @@ workflowEngine:
   replicas: 1
 
   image:
-    repository: gitops-infra-control-plane/workflow-engine
+    repository: agentic-reconciliation-engine/workflow-engine
     pullPolicy: IfNotPresent
     tag: ""
 
@@ -170,7 +170,7 @@ analyticsEngine:
   replicas: 1
 
   image:
-    repository: gitops-infra-control-plane/analytics-engine
+    repository: agentic-reconciliation-engine/analytics-engine
     pullPolicy: IfNotPresent
     tag: ""
 

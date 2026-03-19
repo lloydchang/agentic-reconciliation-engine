@@ -9,7 +9,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://github.com/antigravity/gitops-infra-control-plane.git
+  url: https://github.com/antigravity/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -24,7 +24,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://gitlab.com/antigravity/gitops-infra-control-plane.git
+  url: https://gitlab.com/antigravity/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -39,7 +39,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  url: https://gitea.internal/antigravity/gitops-infra-control-plane.git
+  url: https://gitea.internal/antigravity/agentic-reconciliation-engine.git
   ref:
     branch: main
   secretRef:
@@ -59,9 +59,9 @@ data:
     # Health check script for Git repositories
     
     REPOSITORIES=(
-      "https://github.com/antigravity/gitops-infra-control-plane.git"
-      "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
-      "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+      "https://github.com/antigravity/agentic-reconciliation-engine.git"
+      "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+      "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
     )
     
     for repo in "${REPOSITORIES[@]}"; do

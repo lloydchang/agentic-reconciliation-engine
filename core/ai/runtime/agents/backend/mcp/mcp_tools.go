@@ -7,7 +7,7 @@ import (
 
 	"go.temporal.io/sdk/client"
 
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
 )
 
 // registerDefaultTools registers the default MCP tools

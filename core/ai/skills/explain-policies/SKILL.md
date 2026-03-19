@@ -3,7 +3,7 @@ name: explain-policies
 description: Explains and documents infrastructure policies and their impact across cloud environments in natural language. Use when understanding policies, documenting governance, or explaining compliance requirements.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

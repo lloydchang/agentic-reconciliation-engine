@@ -403,7 +403,7 @@ resources:
 labels:
   - pairs:
       managed-by: flux
-      component: gitops-infra-control-plane
+      component: agentic-reconciliation-engine
       platform: multi-cluster-gitops
 
 # core/operators/kustomization.yaml

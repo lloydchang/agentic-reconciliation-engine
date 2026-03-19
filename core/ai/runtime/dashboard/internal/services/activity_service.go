@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard/internal/models"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard/internal/models"
 	"go.uber.org/zap"
 )
 

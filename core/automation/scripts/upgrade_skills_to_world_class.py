@@ -101,7 +101,7 @@ description: >
   World-class cost optimization automation that provides intelligent analysis, forecasting, and recommendations for enterprise cloud spend management with comprehensive compliance validation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium
@@ -445,7 +445,7 @@ description: >
   World-class Kubernetes operations automation that provides intelligent cluster management, security validation, and compliance workflows for enterprise container orchestration.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: high
@@ -809,7 +809,7 @@ description: >
   World-class enterprise automation skill that provides intelligent operations, comprehensive validation, and compliance workflows for optimized business processes.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

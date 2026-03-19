@@ -55,7 +55,7 @@ metadata:
   name: $DEX_NAMESPACE
   labels:
     app.kubernetes.io/name: dex
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -64,7 +64,7 @@ metadata:
   namespace: $DEX_NAMESPACE
   labels:
     app.kubernetes.io/name: dex
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   repo: https://charts.dexidp.io
   chart: dex
@@ -165,7 +165,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 type: Opaque
 stringData:
   OIDC_ISSUER_URL: "https://dex.$DEX_NAMESPACE.svc.cluster.local:5556/dex"
@@ -182,7 +182,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   oidc-config.yaml: |
     # OIDC Configuration for Flux Status Page
@@ -241,7 +241,7 @@ metadata:
   namespace: $DEX_NAMESPACE
   labels:
     app.kubernetes.io/name: dex
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -272,7 +272,7 @@ metadata:
   namespace: $DEX_NAMESPACE
   labels:
     app.kubernetes.io/name: dex
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   secretName: dex-tls
   issuerRef:
@@ -295,7 +295,7 @@ metadata:
   name: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: v1
 kind: Secret
@@ -304,7 +304,7 @@ metadata:
   namespace: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 type: Opaque
 stringData:
   cookie-secret: "OQnA5jJbR9l3wG2X8pZ4qV7sY1cT6nU0iK3mF8hE2dW5rY7zA1bC4vN6xQ9sP2t"
@@ -318,7 +318,7 @@ metadata:
   namespace: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 2
   selector:
@@ -328,7 +328,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: oauth2-proxy
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       containers:
       - name: oauth2-proxy
@@ -403,7 +403,7 @@ metadata:
   namespace: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     app.kubernetes.io/name: oauth2-proxy
@@ -421,7 +421,7 @@ metadata:
   namespace: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -477,7 +477,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   users.yaml: |
     # User management configuration for Flux Status Page
@@ -572,7 +572,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Flux resources
 - apiGroups: ["fluxcd.controlplane.io"]
@@ -612,7 +612,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Flux resources
 - apiGroups: ["fluxcd.controlplane.io"]
@@ -648,7 +648,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 rules:
 # Flux resources
 - apiGroups: ["fluxcd.controlplane.io"]
@@ -684,7 +684,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -701,7 +701,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -718,7 +718,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -743,7 +743,7 @@ metadata:
   namespace: $DEX_NAMESPACE
   labels:
     app.kubernetes.io/name: dex
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -760,7 +760,7 @@ metadata:
   namespace: oauth2-proxy
   labels:
     app.kubernetes.io/name: oauth2-proxy
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -778,7 +778,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: sso

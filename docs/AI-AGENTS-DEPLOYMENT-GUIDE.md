@@ -59,8 +59,8 @@ kubectl cluster-info --context=kind-gitops-hub
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 ```
 
 ### 2. Deploy AI Agents Ecosystem
@@ -600,7 +600,7 @@ flux install --namespace flux-system
 
 # Create GitRepository
 flux create source git gitops-infra \
-  --url=https://github.com/your-org/gitops-infra-control-plane \
+  --url=https://github.com/your-org/agentic-reconciliation-engine \
   --branch=main \
   --interval=1m
 
@@ -628,7 +628,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     targetRevision: HEAD
     path: core/resources/ai-inference
   destination:

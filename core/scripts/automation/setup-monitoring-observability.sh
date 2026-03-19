@@ -53,7 +53,7 @@ metadata:
   name: $MONITORING_NAMESPACE
   labels:
     app.kubernetes.io/name: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -62,7 +62,7 @@ metadata:
   namespace: $MONITORING_NAMESPACE
   labels:
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   repo: https://prometheus-community.github.io/helm-charts
   chart: kube-prometheus-stack
@@ -170,7 +170,7 @@ spec:
       config:
         global:
           smtp_smarthost: $ALERTMANAGER_SMTP
-          smtp_from: alerts@gitops-infra-control-plane.local
+          smtp_from: alerts@agentic-reconciliation-engine.local
         route:
           group_by: ['alertname', 'cluster', 'service']
           group_wait: 10s
@@ -263,7 +263,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: source-controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -282,7 +282,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: kustomize-controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -301,7 +301,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: helm-controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -320,7 +320,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: notification-controller
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -340,7 +340,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux-operator
     app.kubernetes.io/component: ui
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -360,7 +360,7 @@ metadata:
   namespace: $FLUX_NAMESPACE
   labels:
     app.kubernetes.io/name: aws-ack
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -378,7 +378,7 @@ metadata:
   namespace: $FLUX_NAMESPACE
   labels:
     app.kubernetes.io/name: azure-aso
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -396,7 +396,7 @@ metadata:
   namespace: $FLUX_NAMESPACE
   labels:
     app.kubernetes.io/name: gcp-kcc
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   selector:
     matchLabels:
@@ -424,7 +424,7 @@ metadata:
   labels:
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: alerting
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: flux-system
@@ -579,7 +579,7 @@ metadata:
   labels:
     app.kubernetes.io/name: cloud-controllers
     app.kubernetes.io/component: alerting
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: cloud-controllers
@@ -623,7 +623,7 @@ metadata:
   labels:
     app.kubernetes.io/name: gitops-infrastructure
     app.kubernetes.io/component: alerting
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
   - name: gitops-infrastructure
@@ -634,7 +634,7 @@ spec:
           kube_resource_status{status="Failed"} == 1
         ) and on (namespace, resource)
         (
-          kube_namespace_labels{label_gitops_infrastructure_control_plane_part_of="gitops-infra-control-plane"}
+          kube_namespace_labels{label_gitops_infrastructure_control_plane_part_of="agentic-reconciliation-engine"}
         )
       for: 5m
       labels:
@@ -698,7 +698,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: flux
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   flux-overview.json: |
     {
@@ -818,7 +818,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: cloud-controllers
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   cloud-controllers.json: |
     {
@@ -902,7 +902,7 @@ metadata:
     grafana_dashboard: "1"
     app.kubernetes.io/name: gitops-infrastructure
     app.kubernetes.io/component: dashboards
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   gitops-infrastructure.json: |
     {
@@ -1019,7 +1019,7 @@ metadata:
   labels:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/component: ingress
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -1052,7 +1052,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/component: ingress
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -1085,7 +1085,7 @@ metadata:
   labels:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/component: ingress
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"

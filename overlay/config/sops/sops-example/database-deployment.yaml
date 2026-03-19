@@ -6,7 +6,7 @@ metadata:
   labels:
     app: mysql
     tier: database
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   replicas: 1
   selector:
@@ -99,7 +99,7 @@ metadata:
   labels:
     app: mysql
     tier: database
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   selector:
     app: mysql
@@ -120,7 +120,7 @@ metadata:
   labels:
     app: mysql
     tier: database
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -138,7 +138,7 @@ metadata:
   labels:
     app: mysql
     tier: database
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 data:
   # MySQL configuration
   my.cnf: |
@@ -182,7 +182,7 @@ metadata:
   labels:
     app: wordpress
     tier: database
-    gitops-infra-control-plane.io/managed-by: "sops-example"
+    agentic-reconciliation-engine.io/managed-by: "sops-example"
 spec:
   template:
     metadata:

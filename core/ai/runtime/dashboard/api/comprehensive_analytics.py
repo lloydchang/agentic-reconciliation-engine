@@ -171,7 +171,7 @@ class MetricsCollector:
         skills = []
         timestamp = datetime.now().isoformat()
         
-        skills_dir = Path("/Users/lloyd/github/antigravity/gitops-infra-control-plane/core/ai/skills")
+        skills_dir = Path("/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/skills")
         
         for skill_path in skills_dir.iterdir():
             if skill_path.is_dir() and (skill_path / "SKILL.md").exists():

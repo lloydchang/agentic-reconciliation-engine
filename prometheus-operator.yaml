@@ -4,7 +4,7 @@ metadata:
   name: monitoring
   labels:
     app.kubernetes.io/name: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -13,7 +13,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   repo: https://prometheus-community.github.io/helm-charts
   chart: kube-prometheus-stack
@@ -121,7 +121,7 @@ spec:
       config:
         global:
           smtp_smarthost: smtp.example.com
-          smtp_from: alerts@gitops-infra-control-plane.local
+          smtp_from: alerts@agentic-reconciliation-engine.local
         route:
           group_by: ['alertname', 'cluster', 'service']
           group_wait: 10s

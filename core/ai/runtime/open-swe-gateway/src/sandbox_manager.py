@@ -211,7 +211,7 @@ class SandboxManager:
             "spec": {
                 "containers": [{
                     "name": "agent-sandbox",
-                    "image": "gitops-infra-control-plane/agent-sandbox:latest",
+                    "image": "agentic-reconciliation-engine/agent-sandbox:latest",
                     "resources": resources,
                     "securityContext": {
                         "runAsNonRoot": True,

@@ -188,12 +188,12 @@ data:
           description: "Manually failover to tertiary Git repository"
           
         - name: "Use cached repository"
-          command: "kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane\"}}' --type=merge"
+          command: "kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine\"}}' --type=merge"
           description: "Switch to locally cached Git repository"
           
       recovery_actions:
         - name: "Restore primary repository"
-          command: "kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"https://github.com/antigravity/gitops-infra-control-plane.git\"}}' --type=merge"
+          command: "kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"https://github.com/antigravity/agentic-reconciliation-engine.git\"}}' --type=merge"
           description: "Restore primary Git repository URL"
           
         - name: "Disable offline mode"
@@ -218,7 +218,7 @@ data:
           description: "Verify all resources are running properly"
           
         - name: "Test repository connectivity"
-          command: "git ls-remote https://github.com/antigravity/gitops-infra-control-plane.git"
+          command: "git ls-remote https://github.com/antigravity/agentic-reconciliation-engine.git"
           description: "Test connectivity to primary repository"
           
         - name: "View health dashboard"

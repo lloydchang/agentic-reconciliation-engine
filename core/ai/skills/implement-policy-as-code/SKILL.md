@@ -3,7 +3,7 @@ name: implement-policy-as-code
 description: Implements and manages policy-as-code solutions across multi-cloud environments with validation and enforcement. Use when defining infrastructure policies, ensuring compliance, or implementing governance automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

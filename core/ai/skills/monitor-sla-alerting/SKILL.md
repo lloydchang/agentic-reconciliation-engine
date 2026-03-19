@@ -3,7 +3,7 @@ name: monitor-sla-alerting
 description: Monitors SLA compliance and generates alerts for violations across multi-cloud services and applications. Use when tracking service levels, ensuring performance guarantees, or implementing SLA monitoring.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

@@ -3,7 +3,7 @@ name: incident-triage-runbook
 description: Automates incident triage processes and executes runbooks based on incident type and severity across cloud environments. Use when handling incidents, coordinating response teams, or implementing incident automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

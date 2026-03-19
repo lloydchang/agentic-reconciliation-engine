@@ -3,7 +3,7 @@ name: backup-validator
 description: Validates backup integrity, schedules automated backups, and manages disaster recovery across multi-cloud environments. Use when ensuring data protection, testing backup procedures, or implementing disaster recovery.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

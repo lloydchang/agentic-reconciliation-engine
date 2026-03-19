@@ -41,7 +41,7 @@ vim core/gitops/consolidated/k8sgpt-secrets.yaml
 kubectl create namespace k8sgpt-system \
   --label=app.kubernetes.io/name=k8sgpt \
   --label=app.kubernetes.io/component=namespace \
-  --label=app.kubernetes.io/part-of=gitops-infra-control-plane \
+  --label=app.kubernetes.io/part-of=agentic-reconciliation-engine \
   --label=name=k8sgpt-system
 ```
 

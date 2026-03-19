@@ -1,4 +1,4 @@
-# GitOps Infra Agents
+# Agentic Reconciliation Engine Agents
 
 ## Preface
 
@@ -37,7 +37,7 @@ key in each `SKILL.md` frontmatter — it is not part of the agentskills.io stan
 ## Repository Structure
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/ai/
 │   ├── AGENTS.md                          # This file
 │   ├── skills/                            # agentskills.io-compliant skill definitions
@@ -313,7 +313,7 @@ curl -X POST "$MEMORY_AGENT_URL/api/query" \
 ```bash
 # Build and deploy pi-mono agent
 cd core/ai/runtime/pi-mono-agent
-docker build -t gitops-infra-control-plane/pi-mono-agent:latest .
+docker build -t agentic-reconciliation-engine/pi-mono-agent:latest .
 kubectl apply -f k8s/
 
 # Verify deployment
@@ -489,7 +489,7 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 
 # GitOps Endpoints
 ARGO_CD_SERVER=https://argocd.example.com
-FLUX_GIT_REPO=git@example.com:lloydchang/gitops-infra-control-plane.git
+FLUX_GIT_REPO=git@example.com:lloydchang/agentic-reconciliation-engine.git
 
 # GitOps Configuration
 GITOPS_TOOL=flux                   # or argo_cd

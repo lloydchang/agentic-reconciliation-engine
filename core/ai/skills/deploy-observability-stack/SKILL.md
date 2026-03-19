@@ -3,7 +3,7 @@ name: deploy-observability-stack
 description: Deploys and manages observability stacks including monitoring, logging, and tracing across cloud environments. Use when setting up monitoring, implementing observability, or managing telemetry data.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

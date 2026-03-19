@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"gitops-infra-control-plane/core/ai/runtime/open-swe-integration/shared"
+	"agentic-reconciliation-engine/core/ai/runtime/open-swe-integration/shared"
 )
 
 // LinearClient handles Linear API interactions

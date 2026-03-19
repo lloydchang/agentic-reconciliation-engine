@@ -293,7 +293,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "https://github.com/your-org/gitops-infra-control-plane"
+    url: "https://github.com/your-org/agentic-reconciliation-engine"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -322,7 +322,7 @@ metadata:
 spec:
   sync:
     kind: GitRepository
-    url: "ssh://git@github.com/your-org/gitops-infra-control-plane.git"
+    url: "ssh://git@github.com/your-org/agentic-reconciliation-engine.git"
     ref: "refs/heads/main"
     path: "core/resources/tenants"
     interval: "5m"
@@ -674,7 +674,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/1-network
     prune: true
     wait: true
@@ -684,7 +684,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/2-clusters
     prune: true
     wait: true
@@ -695,7 +695,7 @@ spec:
     kind: Kustomization
     sourceRef:
       kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
     path: core/resources/tenants/3-workloads
     prune: true
     wait: true
@@ -916,7 +916,7 @@ kubectl logs -n flux-system deployment/helm-controller
    spec:
      sync:
        kind: GitRepository
-       url: "https://github.com/your-org/gitops-infra-control-plane"
+       url: "https://github.com/your-org/agentic-reconciliation-engine"
        ref: "refs/heads/main"
        path: "core/resources/tenants"
      distribution:
@@ -993,7 +993,7 @@ kubectl logs -n flux-system deployment/helm-controller
    spec:
      sync:
        kind: GitRepository
-       url: "https://github.com/your-org/gitops-infra-control-plane"
+       url: "https://github.com/your-org/agentic-reconciliation-engine"
        ref: "refs/heads/main"
        path: "core/resources/tenants"
      distribution:

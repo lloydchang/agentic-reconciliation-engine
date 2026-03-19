@@ -4,5 +4,5 @@ metadata:
   name: monitoring
   labels:
     app.kubernetes.io/name: monitoring
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
     app.kubernetes.io/managed-by: flux

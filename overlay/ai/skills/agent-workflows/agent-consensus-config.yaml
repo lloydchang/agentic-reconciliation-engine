@@ -1,6 +1,6 @@
 ---
 # Agent Consensus Configuration for Distributed Orchestration
-# Based on gitops-infra-control-plane and distributed consensus research
+# Based on agentic-reconciliation-engine and distributed consensus research
 apiVersion: consensus.gitops.io/v1alpha1
 kind: AgentConsensusConfig
 metadata:

@@ -3,7 +3,7 @@ name: optimize-resources
 description: Optimizes cloud resource utilization and costs across multi-cloud environments with intelligent analysis and automated recommendations. Use when reducing costs, improving efficiency, or right-sizing resources.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: low

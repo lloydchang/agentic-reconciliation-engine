@@ -38,9 +38,9 @@ data:
     
     offline:
       enabled: true
-      cache_url: "http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"
+      cache_url: "http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"
       fallback_urls:
-        - "http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane"
+        - "http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine"
       
     synchronization:
       queue_changes: true
@@ -81,4 +81,4 @@ echo "🔧 Offline mode controller: offline-mode-controller"
 echo "📊 Monitor with: kubectl get cronjobs -n flux-system"
 echo ""
 echo "📖 For manual failover:"
-echo "  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"http://git-cache-service.flux-system.svc.cluster.local:8080/gitops-infra-control-plane\"}}' --type=merge"
+echo "  kubectl patch gitrepository gitops-infra-primary -n flux-system -p '{\"spec\":{\"url\":\"http://git-cache-service.flux-system.svc.cluster.local:8080/agentic-reconciliation-engine\"}}' --type=merge"

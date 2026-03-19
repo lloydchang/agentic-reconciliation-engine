@@ -27,14 +27,14 @@ cannot find package "go.opentelemetry.io/otel/trace"
 import (
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/trace"
-    "github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/observability"
 )
 
 // After (fixed):
 import (
     // "go.opentelemetry.io/otel"
     // "go.opentelemetry.io/otel/trace"
-    // "github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/observability"
+    // "github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/observability"
 )
 ```
 
@@ -202,7 +202,7 @@ func (mmm *MultiModelManager) processWithLlamaCpp(model, prompt string) (string,
 $ cd core/ai/runtime/agents/backend && go build
 # ./main.go:21:2: cannot find package "go.opentelemetry.io/otel"
 # ./main.go:22:2: cannot find package "go.opentelemetry.io/otel/trace"
-# ./main.go:41:2: cannot find package "github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/observability"
+# ./main.go:41:2: cannot find package "github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/observability"
 # ... multiple compilation errors
 ```
 
@@ -289,7 +289,7 @@ func InitTracer(ctx context.Context) (*trace.TracerProvider, error) {
 import (
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/trace"
-    "github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/observability"
 )
 
 // Uncomment tracer initialization

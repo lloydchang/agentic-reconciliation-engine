@@ -170,7 +170,7 @@ spec:
     podLabels:
       app.kubernetes.io/name: traefik
       app.kubernetes.io/component: ingress-controller
-      app.kubernetes.io/part-of: gitops-infra-control-plane
+      app.kubernetes.io/part-of: agentic-reconciliation-engine
     
     # Additional arguments
     additionalArguments:

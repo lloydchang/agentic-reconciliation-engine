@@ -49,8 +49,8 @@ Use the automated setup script:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Run automated setup
 ./core/ai/skills/manage-pipecd/scripts/setup-pipecd.sh

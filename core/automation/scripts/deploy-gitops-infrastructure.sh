@@ -336,7 +336,7 @@ generate_deployment_report() {
 $(kubectl get pods -n flux-system -l app.kubernetes.io/name=flux -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,READY:.status.readyReplicas --no-headers | sed 's/^/- /')
 
 #### Cloud Controllers
-$(kubectl get pods -n flux-system -l app.kubernetes.io/part-of=gitops-infra-control-plane -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,READY:.status.readyReplicas --no-headers | sed 's/^/- /')
+$(kubectl get pods -n flux-system -l app.kubernetes.io/part-of=agentic-reconciliation-engine -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,READY:.status.readyReplicas --no-headers | sed 's/^/- /')
 
 #### Monitoring Stack
 $(kubectl get pods -n monitoring -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,READY:.status.readyReplicas --no-headers | sed 's/^/- /')

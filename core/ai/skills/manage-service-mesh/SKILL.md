@@ -3,7 +3,7 @@ name: manage-service-mesh
 description: Manages service mesh configurations and operations across multi-cloud Kubernetes environments. Use when implementing microservices, managing service communication, or ensuring observability.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

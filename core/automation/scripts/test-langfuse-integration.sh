@@ -22,7 +22,7 @@ fi
 
 # Build the test worker
 echo "🔨 Building test worker..."
-cd /Users/lloyd/github/antigravity/gitops-infra-control-plane/core/ai/workers/temporal
+cd /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/ai/workers/temporal
 go mod tidy
 go build -o bin/test-worker ./cmd/test
 

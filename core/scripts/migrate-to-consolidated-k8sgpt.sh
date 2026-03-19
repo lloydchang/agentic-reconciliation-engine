@@ -124,7 +124,7 @@ create_namespace() {
     kubectl label namespace "$NAMESPACE" \
         app.kubernetes.io/name=k8sgpt \
         app.kubernetes.io/component=namespace \
-        app.kubernetes.io/part-of=gitops-infra-control-plane \
+        app.kubernetes.io/part-of=agentic-reconciliation-engine \
         name="$NAMESPACE"
     
     log_success "Created namespace: $NAMESPACE"

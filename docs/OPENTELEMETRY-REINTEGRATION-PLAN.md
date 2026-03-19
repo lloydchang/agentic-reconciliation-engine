@@ -354,8 +354,8 @@ import (
     "time"
 
     "github.com/gorilla/mux"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/agents/backend/observability"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/agents/backend/skills"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/agents/backend/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/agents/backend/skills"
     "go.opentelemetry.io/otel"
 )
 

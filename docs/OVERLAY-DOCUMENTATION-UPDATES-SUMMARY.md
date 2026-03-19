@@ -87,7 +87,7 @@ The search revealed that **83 files** contain the incorrect `core/core/automatio
 The documentation now correctly reflects this structure:
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/                           # Base components
 │   ├── ai/skills/
 │   ├── ai/runtime/

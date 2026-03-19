@@ -6,9 +6,9 @@
 set -euo pipefail
 
 # Configuration
-PRIMARY_REPO="git@github.com:antigravity/gitops-infra-control-plane.git"
-SECONDARY_REPO="git@gitlab.com:antigravity/gitops-infra-control-plane.git"
-TERTIARY_REPO="git@gitea.internal:antigravity/gitops-infra-control-plane.git"
+PRIMARY_REPO="git@github.com:antigravity/agentic-reconciliation-engine.git"
+SECONDARY_REPO="git@gitlab.com:antigravity/agentic-reconciliation-engine.git"
+TERTIARY_REPO="git@gitea.internal:antigravity/agentic-reconciliation-engine.git"
 MIRROR_DIR="/tmp/git-mirror"
 
 echo "🔄 Setting up Git Repository Mirroring..."
@@ -18,12 +18,12 @@ mkdir -p "$MIRROR_DIR"
 cd "$MIRROR_DIR"
 
 # Clone primary repository as bare mirror
-if [ ! -d "gitops-infra-control-plane.git" ]; then
+if [ ! -d "agentic-reconciliation-engine.git" ]; then
     echo "📥 Cloning primary repository as bare mirror..."
     git clone --mirror "$PRIMARY_REPO"
 fi
 
-cd gitops-infra-control-plane.git
+cd agentic-reconciliation-engine.git
 
 # Add remote repositories
 echo "🔗 Adding remote repositories..."
@@ -45,7 +45,7 @@ cat > /usr/local/bin/git-sync.sh << 'EOF'
 
 set -euo pipefail
 
-MIRROR_DIR="/tmp/git-mirror/gitops-infra-control-plane.git"
+MIRROR_DIR="/tmp/git-mirror/agentic-reconciliation-engine.git"
 LOG_FILE="/var/log/git-sync.log"
 
 log() {

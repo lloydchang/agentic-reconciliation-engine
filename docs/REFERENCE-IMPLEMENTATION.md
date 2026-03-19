@@ -10,7 +10,7 @@ You can include this repository in your own project as a `git submodule` — thi
 
 ```bash
 git init
-git submodule add https://github.com/lloydchang/gitops-infra-control-plane
+git submodule add https://github.com/lloydchang/agentic-reconciliation-engine
 git commit -m "first commit"
 git branch -M main
 git remote add origin git@github.com:[your-github-username]/[repository-name].git

@@ -155,7 +155,7 @@ import (
     "go.opentelemetry.io/otel/codes"
     "go.opentelemetry.io/otel/trace"
     "go.temporal.io/sdk/workflow"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
 )
 
 // CostOptimizationWorkflow with Langfuse tracing
@@ -221,7 +221,7 @@ import (
     "go.opentelemetry.io/otel/codes"
     "go.opentelemetry.io/otel/trace"
     "go.temporal.io/sdk/activity"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
 )
 
 // CostOptimizerActivity with comprehensive tracing
@@ -317,7 +317,7 @@ import (
     "go.opentelemetry.io/otel/attribute"
     "go.opentelemetry.io/otel/codes"
     "go.opentelemetry.io/otel/trace"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
 )
 
 type MemoryClient struct {
@@ -428,9 +428,9 @@ import (
 
     "go.temporal.io/sdk/client"
     "go.temporal.io/sdk/worker"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/observability"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/workflow"
-    "github.com/lloydchang/gitops-infra-control-plane/core/ai/workers/temporal/internal/activities"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/observability"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/workflow"
+    "github.com/lloydchang/agentic-reconciliation-engine/core/ai/workers/temporal/internal/activities"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/bedrock"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/bedrock"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
 )
 
 // BedrockActivities provides activities for AWS Bedrock integration

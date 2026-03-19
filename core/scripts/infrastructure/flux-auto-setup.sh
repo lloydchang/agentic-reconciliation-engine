@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Default configuration
 DEFAULT_PROVIDER="github"
-DEFAULT_REPOSITORY="gitops-infra-control-plane"
+DEFAULT_REPOSITORY="agentic-reconciliation-engine"
 DEFAULT_OWNER="lloydchang"
 DEFAULT_BRANCH="main"
 DEFAULT_PATH="./clusters/production"
@@ -80,7 +80,7 @@ Usage: $0 [OPTIONS]
 
 OPTIONS:
     --provider PROVIDER        Git provider (github, gitlab, bitbucket) [default: github]
-    --repository REPO          Repository name [default: gitops-infra-control-plane]
+    --repository REPO          Repository name [default: agentic-reconciliation-engine]
     --owner OWNER              Repository owner/organization [default: lloydchang]
     --branch BRANCH            Git branch [default: main]
     --path PATH                Path in repository for Flux manifests [default: ./clusters/production]

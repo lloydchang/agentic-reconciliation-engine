@@ -86,7 +86,7 @@ core/ai/runtime/
 
 ```bash
 cd core/ai/runtime/dashboard
-go mod init github.com/lloydchang/gitops-infra-control-plane/core/ai/runtime/dashboard
+go mod init github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard
 ```
 
 ### 1.2 Core API Endpoints

@@ -582,8 +582,8 @@ Qwen LLM backend integration.
 ### Contributing
 ```bash
 # Fork and clone
-git clone https://github.com/your-org/gitops-infra-control-plane
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine
+cd agentic-reconciliation-engine
 
 # Create feature branch
 git checkout -b feature/k8sgpt-enhancement

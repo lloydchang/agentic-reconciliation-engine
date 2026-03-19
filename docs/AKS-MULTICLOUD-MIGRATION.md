@@ -38,7 +38,7 @@ This runbook adapts the EKS migration flow for teams starting from Azure AKS + A
    ```bash
    flux bootstrap github \
      --owner=<org> \
-     --repository=gitops-infra-control-plane \
+     --repository=agentic-reconciliation-engine \
      --branch=main \
      --path=core/operators/flux \
      --personal
@@ -88,7 +88,7 @@ Invoke `core/core/automation/ci-cd/scripts/migration_wizard.py` during this runb
 
 ```bash
 ./core/core/automation/ci-cd/scripts/migration_wizard.py \
-  --repo-url git@gitlab.example.com:org/gitops-infra-control-plane.git \
+  --repo-url git@gitlab.example.com:org/agentic-reconciliation-engine.git \
   --branch migration-aks \
   --connector gitlab \
   --overlay-order ./bootstrap ./hub ./cloud-azure \

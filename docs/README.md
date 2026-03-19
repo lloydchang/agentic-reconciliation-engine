@@ -118,8 +118,8 @@ This directory contains comprehensive documentation for the AI Agents ecosystem,
 ### 🚀 Quick Start
 ```bash
 # 1. Clone repository
-git clone https://github.com/lloydchang/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # 2. Deploy complete ecosystem
 chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh

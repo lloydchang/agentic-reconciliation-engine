@@ -151,7 +151,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/lloydchang/gitops-infra-control-plane
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine
     path: core/platform/konstruct/overlays/production
   destination:
     server: https://kubernetes.default.svc

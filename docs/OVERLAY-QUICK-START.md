@@ -42,8 +42,8 @@ python3 --version  # >= 3.8
 git --version  # For version control
 
 # Clone repository
-git clone https://github.com/gitops-infra-core/operators/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Setup Python environment
 python3 -m venv venv

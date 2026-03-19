@@ -6,7 +6,7 @@ metadata:
   labels:
     purpose: ai-agent-platform
     security-level: high
-    integration: gitops-infra-control-plane
+    integration: agentic-reconciliation-engine
 ---
 apiVersion: v1
 kind: ConfigMap

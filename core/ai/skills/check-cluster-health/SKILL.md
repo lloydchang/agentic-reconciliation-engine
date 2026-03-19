@@ -3,7 +3,7 @@ name: check-cluster-health
 description: Performs comprehensive health checks on Kubernetes clusters across multi-cloud environments. Use when monitoring cluster status, troubleshooting issues, or ensuring cluster reliability.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

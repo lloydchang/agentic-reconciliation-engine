@@ -148,7 +148,7 @@ data:
         loop
         reload
         loadbalance
-        flux-hub gitops-infra-control-plane.local {
+        flux-hub agentic-reconciliation-engine.local {
           endpoints hub-us-east-1.flux-system.svc.cluster.local:443
           endpoints hub-us-west-2.flux-system.svc.cluster.local:443
           endpoints hub-eu-west-1.flux-system.svc.cluster.local:443

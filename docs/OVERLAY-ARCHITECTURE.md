@@ -30,7 +30,7 @@ Instead of modifying base files, overlays compose new configurations using:
 ## Directory Structure
 
 ```
-gitops-infra-control-plane/
+agentic-reconciliation-engine/
 ├── core/                           # Base components (upstream)
 │   ├── ai/skills/                  # Base skills
 │   ├── ai/runtime/                 # Base dashboard

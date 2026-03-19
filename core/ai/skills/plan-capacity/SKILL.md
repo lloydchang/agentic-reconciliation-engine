@@ -3,7 +3,7 @@ name: plan-capacity
 description: Analyzes resource usage patterns and provides capacity planning recommendations across cloud providers. Use when forecasting resource needs, optimizing infrastructure costs, or planning scaling activities.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

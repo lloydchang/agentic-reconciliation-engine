@@ -23,7 +23,7 @@ commonLabels:
 
 # Common annotations
 commonAnnotations:
-  config.kubernetes.io/origin: gitops-infra-control-plane
+  config.kubernetes.io/origin: agentic-reconciliation-engine
   security.audit: required
 
 # Namespace configuration

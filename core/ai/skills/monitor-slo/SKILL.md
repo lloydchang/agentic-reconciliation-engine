@@ -3,7 +3,7 @@ name: monitor-slo
 description: Monitors Service Level Objectives and generates alerts for violations across cloud services. Use when tracking SLOs, ensuring service quality, or implementing reliability monitoring.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

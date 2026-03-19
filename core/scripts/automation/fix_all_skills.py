@@ -95,7 +95,7 @@ def fix_skill_file(skill_path):
         'description': get_skill_description(skill_name),
         'license': 'Apache-2.0',
         'metadata': {
-            'author': 'gitops-infra-control-plane',
+            'author': 'agentic-reconciliation-engine',
             'version': '1.0',
             'category': 'enterprise',
             'risk-level': 'medium',

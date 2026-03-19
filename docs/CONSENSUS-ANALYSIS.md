@@ -16,7 +16,7 @@ This file analyzes consensus approaches for the consensus layer of our hybrid ar
 
 ## Executive Summary
 
-This document provides a comprehensive analysis of the consensus-based agent orchestration architecture discovered through analysis of the gitops-infra-control-plane repository and distributed systems research. The findings represent an approach from centralized control to autonomous, self-organizing agent swarms that achieve levels of automation, intelligence, and efficiency.
+This document provides a comprehensive analysis of the consensus-based agent orchestration architecture discovered through analysis of the agentic-reconciliation-engine repository and distributed systems research. The findings represent an approach from centralized control to autonomous, self-organizing agent swarms that achieve levels of automation, intelligence, and efficiency.
 
 ## Key Discoveries
 

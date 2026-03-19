@@ -35,8 +35,8 @@ Create a repository structure:
 
 ```bash
 # Clone or create repository
-git clone https://github.com/your-org/gitops-infra-control-plane.git
-cd gitops-infra-control-plane
+git clone https://github.com/your-org/agentic-reconciliation-engine.git
+cd agentic-reconciliation-engine
 
 # Create initial structure
 mkdir -p clusters/production/flux-system
@@ -53,7 +53,7 @@ mkdir -p core/operators/{flux,karmada,controllers}
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --personal \
@@ -69,7 +69,7 @@ export GITHUB_TOKEN=your-github-token
 
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --token-auth \
@@ -81,7 +81,7 @@ flux bootstrap github \
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --team=team-name \
@@ -94,7 +94,7 @@ flux bootstrap github \
 
 ```bash
 flux bootstrap git \
-  --url=ssh://git@github.com/your-org/gitops-infra-control-plane.git \
+  --url=ssh://git@github.com/your-org/agentic-reconciliation-engine.git \
   --branch=main \
   --path=./clusters/production \
   --private-key-file=~/.ssh/id_rsa \
@@ -106,7 +106,7 @@ flux bootstrap git \
 
 ```bash
 flux bootstrap git \
-  --url=https://github.com/your-org/gitops-infra-control-plane.git \
+  --url=https://github.com/your-org/agentic-reconciliation-engine.git \
   --branch=main \
   --path=./clusters/production \
   --token-auth \
@@ -119,7 +119,7 @@ flux bootstrap git \
 ```bash
 flux bootstrap gitlab \
   --owner=your-group \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --token-auth \
@@ -131,7 +131,7 @@ flux bootstrap gitlab \
 ```bash
 flux bootstrap bitbucket \
   --owner=your-workspace \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --ssh-key-algorithm=ed25519
@@ -144,7 +144,7 @@ flux bootstrap bitbucket \
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --namespace=gitops-system
@@ -155,7 +155,7 @@ flux bootstrap github \
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --components=source-controller,kustomize-controller,helm-controller,notification-controller
@@ -166,7 +166,7 @@ flux bootstrap github \
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --version=v2.2.0 \
@@ -178,7 +178,7 @@ flux bootstrap github \
 ```bash
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production \
   --registry=ghcr.io/fluxcd \
@@ -276,7 +276,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/1-network
   prune: true
   wait: true
@@ -296,7 +296,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/2-clusters
   prune: true
   wait: true
@@ -314,7 +314,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -380,7 +380,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads/production
   kubeConfig:
     secretRef:
@@ -496,7 +496,7 @@ spec:
     - "pull_request"
   resources:
     - kind: GitRepository
-      name: gitops-infra-control-plane
+      name: agentic-reconciliation-engine
       namespace: flux-system
   secretRef:
     name: github-webhook-token
@@ -558,7 +558,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   git:
     checkout:
       ref:
@@ -722,7 +722,7 @@ spec:
   interval: 10m
   sourceRef:
     kind: GitRepository
-    name: gitops-infra-control-plane
+    name: agentic-reconciliation-engine
   path: ./core/resources/tenants/3-workloads
   prune: true
   wait: true
@@ -771,7 +771,7 @@ kubectl get clusterrole flux-system-controller -o yaml
 
 ```bash
 # Test connectivity to Git repository
-curl -I https://github.com/your-org/gitops-infra-control-plane
+curl -I https://github.com/your-org/agentic-reconciliation-engine
 
 # Check DNS resolution
 nslookup github.com
@@ -809,11 +809,11 @@ kubectl logs -n flux-system deployment/source-controller
 kubectl logs -n flux-system deployment/kustomize-controller
 
 # Force reconciliation
-flux reconcile source git gitops-infra-control-plane
+flux reconcile source git agentic-reconciliation-engine
 flux reconcile kustomization infrastructure-networks
 
 # Export manifests for debugging
-flux export source git gitops-infra-control-plane
+flux export source git agentic-reconciliation-engine
 flux export kustomization infrastructure-networks
 ```
 
@@ -840,7 +840,7 @@ kubectl delete namespace flux-system --ignore-not-found=true
 # Re-bootstrap
 flux bootstrap github \
   --owner=your-org \
-  --repository=gitops-infra-control-plane \
+  --repository=agentic-reconciliation-engine \
   --branch=main \
   --path=./clusters/production
 ```

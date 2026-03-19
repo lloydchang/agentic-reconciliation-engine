@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: config
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
   config.yaml: |
     ai:
@@ -137,7 +137,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: analyzer
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 2
   selector:
@@ -149,7 +149,7 @@ spec:
       labels:
         app.kubernetes.io/name: k8sgpt
         app.kubernetes.io/component: analyzer
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       containers:
       - name: k8sgpt
@@ -224,7 +224,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sgpt
     app.kubernetes.io/component: webhook
-    app.kubernetes.io/part-of: gitops-infra-control-plane
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   replicas: 1
   selector:
@@ -236,7 +236,7 @@ spec:
       labels:
         app.kubernetes.io/name: k8sgpt
         app.kubernetes.io/component: webhook
-        app.kubernetes.io/part-of: gitops-infra-control-plane
+        app.kubernetes.io/part-of: agentic-reconciliation-engine
     spec:
       containers:
       - name: webhook

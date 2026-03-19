@@ -50,7 +50,7 @@ kubectl create secret generic github-token \
 
 The GitHub provider is already configured in `core/operators/monitoring/alerts/github-provider.yaml`:
 
-- **Repository**: `lloydchang/gitops-infra-control-plane`
+- **Repository**: `lloydchang/agentic-reconciliation-engine`
 - **Namespace**: `flux-system`
 - **Auto-deployed**: Via monitoring kustomization
 

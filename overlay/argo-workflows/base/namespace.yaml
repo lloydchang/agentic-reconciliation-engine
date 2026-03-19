@@ -6,9 +6,9 @@ metadata:
     name: argo-workflows
     app.kubernetes.io/name: argo-workflows
     app.kubernetes.io/component: workflows
-    app.kubernetes.io/part-of: gitops-infra-control-plane
-    security.gitops-infra-control-plane/isolation: "workflows"
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
+    security.agentic-reconciliation-engine/isolation: "workflows"
   annotations:
     argo-workflows/version: "v3.5.0"
-    gitops-infra-control-plane/managed: "true"
+    agentic-reconciliation-engine/managed: "true"
     qwen-llm/integrated: "true"

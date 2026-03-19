@@ -352,7 +352,7 @@ class EvaluationWorkflow:
 #### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd gitops-infra-control-plane
+cd agentic-reconciliation-engine
 ```
 
 #### 2. Deploy Everything

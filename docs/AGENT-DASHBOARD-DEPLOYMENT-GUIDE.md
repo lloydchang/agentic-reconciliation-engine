@@ -11,7 +11,7 @@ This guide documents the complete deployment process for the AI Agent Dashboard,
 - Docker installed and running
 - Go 1.24+ (for building the dashboard)
 - Node.js 18+ (for frontend build)
-- Access to the gitops-infra-control-plane repository
+- Access to the agentic-reconciliation-engine repository
 
 ## Architecture
 
@@ -339,7 +339,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-infra-control-plane
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
     targetRevision: main
     path: core/ai/runtime/dashboard/deployment/kubernetes
   destination:

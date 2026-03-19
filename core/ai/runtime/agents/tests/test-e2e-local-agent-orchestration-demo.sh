@@ -6,7 +6,7 @@
 set -euxo pipefail
 
 # Configuration
-REPO_URL="https://github.com/lloydchang/gitops-infra-control-plane"
+REPO_URL="https://github.com/lloydchang/agentic-reconciliation-engine"
 BRANCH="main"
 DEMO_TIMEOUT=1800  # 30 minutes for demo
 CLEANUP_ON_SUCCESS=${CLEANUP_ON_SUCCESS:-false}
@@ -602,7 +602,7 @@ demo_infrastructure() {
     print_info "Bootstrapping Flux with GitHub integration..."
     if ! flux bootstrap github \
         --owner=lloydchang \
-        --repository=gitops-infra-control-plane \
+        --repository=agentic-reconciliation-engine \
         --branch=main \
         --path=control-plane \
         --personal \

@@ -3,7 +3,7 @@ name: discover-infrastructure
 description: Discovers and maps infrastructure resources across multi-cloud environments for visibility and management. Use when inventorying resources, mapping dependencies, or implementing discovery automation.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

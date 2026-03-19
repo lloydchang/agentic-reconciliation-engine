@@ -3,7 +3,7 @@ name: validate-deployment
 description: Validates deployments before and after release with automated testing and health checks across environments. Use when ensuring deployment quality, preventing issues, or implementing validation pipelines.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

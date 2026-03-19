@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive implementation of Flux v2's `dependsOn` feature across the gitops-infra-control-plane repository. The `dependsOn` feature ensures proper deployment ordering and prevents race conditions by establishing explicit dependencies between Flux resources.
+This document outlines the comprehensive implementation of Flux v2's `dependsOn` feature across the agentic-reconciliation-engine repository. The `dependsOn` feature ensures proper deployment ordering and prevents race conditions by establishing explicit dependencies between Flux resources.
 
 ## Background
 

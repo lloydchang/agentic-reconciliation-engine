@@ -118,7 +118,7 @@ spec:
     spec:
       containers:
       - name: orchestrator
-        image: gitops-infra-control-plane/openswe-orchestrator:latest
+        image: agentic-reconciliation-engine/openswe-orchestrator:latest
         env:
         - name: TEMPORAL_ADDRESS
           value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"

@@ -3,7 +3,7 @@ name: deploy-strategy
 description: Implements and manages various deployment strategies including canary, blue-green, and rolling updates. Use when planning deployments, minimizing downtime, or implementing release strategies.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

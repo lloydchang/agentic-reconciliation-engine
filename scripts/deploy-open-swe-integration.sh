@@ -84,7 +84,7 @@ check_prerequisites() {
 build_and_push_image() {
     log_step "Building and pushing Docker image..."
 
-    local image_name="gitops-infra-control-plane/open-swe-gateway"
+    local image_name="agentic-reconciliation-engine/open-swe-gateway"
     local image_tag="latest"
 
     # Build the image

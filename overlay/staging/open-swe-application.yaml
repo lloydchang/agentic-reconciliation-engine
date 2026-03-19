@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/lloydchang/gitops-infra-control-plane
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine
     path: helm/open-swe
     targetRevision: HEAD
     helm:

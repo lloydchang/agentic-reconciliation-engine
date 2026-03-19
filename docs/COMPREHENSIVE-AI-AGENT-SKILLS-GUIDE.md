@@ -603,8 +603,8 @@ async def get_registry_status():
       "command": "python3",
       "args": ["-m", "skills.mcp_server"],
       "env": {
-        "PYTHONPATH": "/Users/user/projects/gitops-infra-control-plane/core/ai/skills",
-        "SKILL_REGISTRY_PATH": "/Users/user/projects/gitops-infra-control-plane/core/ai/skills/skill-registry.json"
+        "PYTHONPATH": "/Users/user/projects/agentic-reconciliation-engine/core/ai/skills",
+        "SKILL_REGISTRY_PATH": "/Users/user/projects/agentic-reconciliation-engine/core/ai/skills/skill-registry.json"
       }
     }
   }

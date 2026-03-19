@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
-  name: gitops-infra-control-plane
+  name: agentic-reconciliation-engine
   namespace: flux-system
 resources:
   - flux/
@@ -16,5 +16,5 @@ dependsOn:
 labels:
   - pairs:
       managed-by: flux
-      component: gitops-infra-control-plane
+      component: agentic-reconciliation-engine
       platform: multi-cluster-gitops

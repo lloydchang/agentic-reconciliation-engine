@@ -3,7 +3,7 @@ name: generate-kpi-reports
 description: Generates KPI reports and dashboards for infrastructure and application performance across cloud environments. Use when tracking performance metrics, generating reports, or implementing KPI monitoring.
 license: AGPLv3
 metadata:
-  author: gitops-infra-control-plane
+  author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
   risk-level: medium

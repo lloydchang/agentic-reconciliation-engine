@@ -43,9 +43,9 @@ spec:
           
           CACHE_DIR="/data/git-cache"
           REPOSITORIES=(
-            "https://github.com/antigravity/gitops-infra-control-plane.git"
-            "https://gitlab.com/antigravity/gitops-infra-control-plane.git"
-            "https://gitea.internal/antigravity/gitops-infra-control-plane.git"
+            "https://github.com/antigravity/agentic-reconciliation-engine.git"
+            "https://gitlab.com/antigravity/agentic-reconciliation-engine.git"
+            "https://gitea.internal/antigravity/agentic-reconciliation-engine.git"
           )
           
           # Initialize cache directory

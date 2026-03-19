@@ -133,7 +133,7 @@ check_controller_logs() {
     log_info "Checking controller logs..."
     
     local controllers
-    controllers=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/part-of=gitops-infra-control-plane -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+    controllers=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/part-of=agentic-reconciliation-engine -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
     
     if [[ -z "$controllers" ]]; then
         log_warning "No GitOps controllers found in namespace $NAMESPACE"
@@ -367,7 +367,7 @@ generate_report() {
     
     # Add controller logs (truncated)
     local controllers
-    controllers=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/part-of=gitops-infra-control-plane -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+    controllers=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/part-of=agentic-reconciliation-engine -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
     
     local logs_obj="{}"
     for controller in $controllers; do

@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: migration
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command: ["/core/core/automation/ci-cd/scripts/migrate.sh"]
         env:
         - name: DATABASE_URL
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: backup
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command: ["sh", "-c", "create_backup.sh"]
         volumeMounts:
         - name: backup-storage
@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
       - name: cache-refresh
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command: ["/core/core/automation/ci-cd/scripts/refresh_cache.sh"]
 ```
 
@@ -115,7 +115,7 @@ spec:
     spec:
       containers:
       - name: health-check
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command: ["/core/core/automation/ci-cd/scripts/health_check.sh"]
 ```
 
@@ -432,7 +432,7 @@ spec:
     spec:
       containers:
       - name: rollback
-        image: ghcr.io/lloydchang/gitops-infra-control-plane:latest
+        image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
         command: ["/core/core/automation/ci-cd/scripts/rollback.sh"]
 ```
 

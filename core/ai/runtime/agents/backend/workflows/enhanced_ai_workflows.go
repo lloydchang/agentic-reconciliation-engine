@@ -6,8 +6,8 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/activities"
-	"github.com/lloydchang/gitops-infra-control-plane/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
 )
 
 // Enhanced AI Orchestration Workflow with improved error handling and monitoring

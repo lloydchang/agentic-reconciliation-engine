@@ -7,7 +7,7 @@ set -e
 # Configuration
 PRIMARY_CLUSTER="hub-primary"
 SECONDARY_CLUSTER="hub-secondary"
-GIT_REPO="https://github.com/antigravity/gitops-infra-control-plane"
+GIT_REPO="https://github.com/antigravity/agentic-reconciliation-engine"
 BRANCH="main"
 
 # Function to deploy Flux to a cluster

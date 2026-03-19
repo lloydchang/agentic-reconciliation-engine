@@ -11,9 +11,9 @@ autonomy: conditional
 
 maintainer:
   name: "GitOps Infrastructure Control Plane"
-  email: "enterprise@gitops-infra-control-plane.org"
+  email: "enterprise@agentic-reconciliation-engine.org"
   organization: "GitOps Infrastructure Control Plane"
-  url: "https://github.com/gitops-infra-control-plane"
+  url: "https://github.com/agentic-reconciliation-engine"
 
 tags:
   - enterprise

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/gitops-infra-control-plane/openswe-orchestrator/pkg/config"
+	"github.com/agentic-reconciliation-engine/openswe-orchestrator/pkg/config"
 )
 
 // DaytonaProvider implements sandbox operations for Daytona
