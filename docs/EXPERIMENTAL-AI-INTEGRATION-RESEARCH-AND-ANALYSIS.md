@@ -6673,7 +6673,7 @@ Human Gates: [when human approval is required]
 **Configuration Files**:
 
 - `core/ai/runtime/openai.yaml`: OpenAI integration configuration
-- `core/core/automation/ci-cd/scripts/`: Implementation scripts (Python/shell)
+- `core/scripts/automation/`: Implementation scripts (Python/shell)
 - `templates/`: Report and configuration templates
 - `overlay/examples/`: Code samples and usage patterns
 

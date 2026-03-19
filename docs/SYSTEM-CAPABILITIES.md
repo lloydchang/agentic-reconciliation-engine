@@ -186,10 +186,10 @@ Raft Consensus ← Distributed State Management
 
 ```bash
 # Deploy to Kubernetes with Temporal and Flux
-./core/core/automation/ci-cd/scripts/deploy-gitops-infrastructure.sh
+./core/scripts/automation/deploy-gitops-infrastructure.sh
 
 # Start AI agents with MCP servers
-./core/core/automation/ci-cd/scripts/setup-local-ai-agents.sh
+./core/scripts/automation/setup-local-ai-agents.sh
 ```
 
 ### Key Configuration Files

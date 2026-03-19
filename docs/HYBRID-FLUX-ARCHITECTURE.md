@@ -48,7 +48,7 @@ core/resources/
 
 ```bash
 # Deploy hybrid architecture
-./core/core/automation/ci-cd/scripts/deploy-hybrid-flux.sh
+./core/scripts/automation/deploy-hybrid-flux.sh
 
 # Check status
 kubectl get pods -n flux-system      # Core Flux (critical)

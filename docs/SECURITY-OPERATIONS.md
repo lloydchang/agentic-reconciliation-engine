@@ -75,7 +75,7 @@ kubectl logs -n flux-system -l app=helm-controller
 
 ```bash
 # Run security audit
-./core/core/automation/ci-cd/scripts/security-audit.sh
+./core/scripts/automation/security-audit.sh
 
 # Check for active alerts
 kubectl get prometheusrules -n monitoring
@@ -86,13 +86,13 @@ kubectl get alerts -n monitoring
 
 ```bash
 # Use incident response automation
-./core/core/automation/ci-cd/scripts/incident-response.sh secret-exposure <secret_name> <namespace> <severity>
+./core/scripts/automation/incident-response.sh secret-exposure <secret_name> <namespace> <severity>
 
 # For unauthorized access
-./core/core/automation/ci-cd/scripts/incident-response.sh unauthorized-access <user> <resource> <action> <severity>
+./core/scripts/automation/incident-response.sh unauthorized-access <user> <resource> <action> <severity>
 
 # For pod security issues
-./core/core/automation/ci-cd/scripts/incident-response.sh pod-security <pod_name> <namespace> <issue> <severity>
+./core/scripts/automation/incident-response.sh pod-security <pod_name> <namespace> <issue> <severity>
 ```
 
 #### 3. Containment
@@ -122,10 +122,10 @@ kubectl get alerts -n monitoring
 
 ```bash
 # Immediate response
-./core/core/automation/ci-cd/scripts/incident-response.sh secret-exposure grafana-credentials monitoring CRITICAL
+./core/scripts/automation/incident-response.sh secret-exposure grafana-credentials monitoring CRITICAL
 
 # Follow-up actions
-./core/core/automation/ci-cd/scripts/rotate-secrets.sh --push
+./core/scripts/automation/rotate-secrets.sh --push
 kubectl get events -n monitoring --field-selector involvedObject.name=grafana-credentials
 ```
 
@@ -133,7 +133,7 @@ kubectl get events -n monitoring --field-selector involvedObject.name=grafana-cr
 
 ```bash
 # Investigate unauthorized access
-./core/core/automation/ci-cd/scripts/incident-response.sh unauthorized-access unknown-user pods create HIGH
+./core/scripts/automation/incident-response.sh unauthorized-access unknown-user pods create HIGH
 
 # Review user permissions
 kubectl get rolebindings,clusterrolebindings --all-namespaces | grep <user>
@@ -143,7 +143,7 @@ kubectl get rolebindings,clusterrolebindings --all-namespaces | grep <user>
 
 ```bash
 # Handle privileged pods
-./core/core/automation/ci-cd/scripts/incident-response.sh pod-security privileged-pod default privileged CRITICAL
+./core/scripts/automation/incident-response.sh pod-security privileged-pod default privileged CRITICAL
 
 # Review security contexts
 kubectl get pods --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext}{"\n"}{end}'
@@ -157,10 +157,10 @@ kubectl get pods --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}
 
 ```bash
 # Run quick security scan
-./core/core/automation/ci-cd/scripts/security-audit.sh
+./core/scripts/automation/security-audit.sh
 
 # Check for new incidents
-./core/core/automation/ci-cd/scripts/incident-response.sh list
+./core/scripts/automation/incident-response.sh list
 
 # Review overnight alerts
 kubectl get alerts -n monitoring -l severity="critical"
@@ -170,7 +170,7 @@ kubectl get alerts -n monitoring -l severity="critical"
 
 ```bash
 # Generate daily security report
-./core/core/automation/ci-cd/scripts/security-audit.sh > audit-reports/daily-$(date +%Y%m%d).log
+./core/scripts/automation/security-audit.sh > audit-reports/daily-$(date +%Y%m%d).log
 
 # Check secret ages
 find . -name "*secrets.yaml" -exec stat -c "%Y %n" {} \; | sort -n
@@ -185,7 +185,7 @@ git log --since="1 day ago" --oneline --grep="security\|secret\|password"
 
 ```bash
 # Comprehensive security audit
-./core/core/automation/ci-cd/scripts/security-audit.sh
+./core/scripts/automation/security-audit.sh
 
 # Review incident reports
 ls -la incident-reports/ | tail -5
@@ -225,7 +225,7 @@ done
 
 ```bash
 # Full infrastructure security audit
-./core/core/automation/ci-cd/scripts/security-audit.sh
+./core/scripts/automation/security-audit.sh
 
 # Penetration testing coordination
 # (External team coordination)
@@ -238,7 +238,7 @@ done
 
 ```bash
 # Compliance audit
-./core/core/automation/ci-cd/scripts/security-audit.sh --compliance
+./core/scripts/automation/security-audit.sh --compliance
 
 # Policy compliance verification
 kubectl get networkpolicies --all-namespaces -o yaml | yq eval '.items[].spec' -
@@ -265,7 +265,7 @@ kubectl get networkpolicies --all-namespaces -o yaml | yq eval '.items[].spec' -
 find . -name "*secrets.yaml" -mtime +90
 
 # Rotate secrets
-./core/core/automation/ci-cd/scripts/rotate-secrets.sh --push
+./core/scripts/automation/rotate-secrets.sh --push
 
 # Verify rotation success
 kubectl get secrets --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.creationTimestamp}{"\n"}{end}'
@@ -354,25 +354,25 @@ kubectl get clusterroles,clusterrolebindings
 
 **Available Scripts**:
 
-- `core/core/automation/ci-cd/scripts/security-audit.sh` - Comprehensive security audit
-- `core/core/automation/ci-cd/scripts/rotate-secrets.sh` - Automated secret rotation
-- `core/core/automation/ci-cd/scripts/incident-response.sh` - Incident response automation
-- `core/core/automation/ci-cd/scripts/test-secret-deployment.sh` - Secret deployment testing
+- `core/scripts/automation/security-audit.sh` - Comprehensive security audit
+- `core/scripts/automation/rotate-secrets.sh` - Automated secret rotation
+- `core/scripts/automation/incident-response.sh` - Incident response automation
+- `core/scripts/automation/test-secret-deployment.sh` - Secret deployment testing
 
 **Usage Examples**:
 
 ```bash
 # Full security audit
-./core/core/automation/ci-cd/scripts/security-audit.sh
+./core/scripts/automation/security-audit.sh
 
 # Rotate all secrets
-./core/core/automation/ci-cd/scripts/rotate-secrets.sh --push
+./core/scripts/automation/rotate-secrets.sh --push
 
 # Respond to incident
-./core/core/automation/ci-cd/scripts/incident-response.sh secret-exposure grafana-credentials monitoring CRITICAL
+./core/scripts/automation/incident-response.sh secret-exposure grafana-credentials monitoring CRITICAL
 
 # Test secret deployment
-./core/core/automation/ci-cd/scripts/test-secret-deployment.sh
+./core/scripts/automation/test-secret-deployment.sh
 ```
 
 ### Monitoring Tools

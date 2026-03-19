@@ -15,23 +15,23 @@ This document describes the automated systems and processes in place to maintain
 
 ### 1. Primary Tool: `ensure-agent-naming-standards.sh`
 
-**Location**: `core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh`
+**Location**: `core/scripts/automation/ensure-agent-naming-standards.sh`
 
 **Purpose**: Comprehensive agent naming validation and fixing
 
 **Usage**:
 ```bash
 # Validate all agents
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate
+./core/scripts/automation/ensure-agent-naming-standards.sh validate
 
 # Fix naming issues
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh fix
+./core/scripts/automation/ensure-agent-naming-standards.sh fix
 
 # Check SKILL.md compliance
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh compliance
+./core/scripts/automation/ensure-agent-naming-standards.sh compliance
 
 # Help
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh --help
+./core/scripts/automation/ensure-agent-naming-standards.sh --help
 ```
 
 **Features**:
@@ -44,14 +44,14 @@ This document describes the automated systems and processes in place to maintain
 
 ### 2. Pre-commit Hook: `pre-commit-agent-naming.sh`
 
-**Location**: `core/core/automation/ci-cd/scripts/pre-commit-agent-naming.sh`
+**Location**: `core/scripts/automation/pre-commit-agent-naming.sh`
 
 **Purpose**: Git pre-commit hook to automatically validate agent naming
 
 **Installation**:
 ```bash
 # Install pre-commit hook
-cp core/core/automation/ci-cd/scripts/pre-commit-agent-naming.sh .git/hooks/pre-commit
+cp core/scripts/automation/pre-commit-agent-naming.sh .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
 
@@ -102,22 +102,22 @@ The automation includes these standard conversions:
 ### Daily Development
 ```bash
 # Quick validation check
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate
+./core/scripts/automation/ensure-agent-naming-standards.sh validate
 
 # Fix any issues found
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh fix
+./core/scripts/automation/ensure-agent-naming-standards.sh fix
 
 # Check compliance before committing
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh compliance
+./core/scripts/automation/ensure-agent-naming-standards.sh compliance
 ```
 
 ### Before Adding New Agents
 ```bash
 # Validate your new agent follows the pattern
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate path/to/new-agent
+./core/scripts/automation/ensure-agent-naming-standards.sh validate path/to/new-agent
 
 # Ensure SKILL.md compliance
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh compliance path/to/new-agent
+./core/scripts/automation/ensure-agent-naming-standards.sh compliance path/to/new-agent
 ```
 
 ### Troubleshooting
@@ -130,10 +130,10 @@ The automation includes these standard conversions:
 #### Recovery Commands
 ```bash
 # Re-validate all agents after changes
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate
+./core/scripts/automation/ensure-agent-naming-standards.sh validate
 
 # Force fix all issues
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh fix --force
+./core/scripts/automation/ensure-agent-naming-standards.sh fix --force
 ```
 
 ## Integration with Development Workflow
@@ -141,10 +141,10 @@ The automation includes these standard conversions:
 ### 1. Pre-commit Validation
 ```bash
 # Add to your shell profile
-echo 'source /path/to/repo/core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh' >> ~/.bashrc
+echo 'source /path/to/repo/core/scripts/automation/ensure-agent-naming-standards.sh' >> ~/.bashrc
 
 # Manual pre-commit check
-./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh validate
+./core/scripts/automation/ensure-agent-naming-standards.sh validate
 git add .
 git commit -m "Validate agent naming compliance"
 ```
@@ -177,7 +177,7 @@ The automation integrates with CI/CD to prevent regressions:
 
 For questions or issues with the agent naming automation:
 1. Check this documentation
-2. Review the script help: `./core/core/automation/ci-cd/scripts/ensure-agent-naming-standards.sh --help`
+2. Review the script help: `./core/scripts/automation/ensure-agent-naming-standards.sh --help`
 3. Examine existing validation results
 4. Contact the repository maintainers
 

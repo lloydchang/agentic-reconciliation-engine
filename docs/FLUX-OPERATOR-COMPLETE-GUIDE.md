@@ -33,7 +33,7 @@ Flux Operator is a Kubernetes operator that simplifies the installation and mana
 brew install controlplaneio-fluxcd/tap/flux-operator
 
 # Install Flux Operator with basic configuration
-./core/core/automation/ci-cd/scripts/install-flux-operator.sh
+./core/scripts/automation/install-flux-operator.sh
 ```
 
 ### Manual Installation
@@ -419,7 +419,7 @@ stringData:
 brew install controlplaneio-fluxcd/tap/flux-operator-mcp
 
 # Install MCP server
-./core/core/automation/ci-cd/scripts/install-flux-mcp-server.sh
+./core/scripts/automation/install-flux-mcp-server.sh
 ```
 
 ### Configuration
@@ -902,7 +902,7 @@ kubectl logs -n flux-system deployment/helm-controller
 2. **Install Flux Operator**
 
    ```bash
-   ./core/core/automation/ci-cd/scripts/install-flux-operator.sh
+   ./core/scripts/automation/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**
@@ -979,7 +979,7 @@ kubectl logs -n flux-system deployment/helm-controller
 2. **Install Flux Operator**
 
    ```bash
-   ./core/core/automation/ci-cd/scripts/install-flux-operator.sh
+   ./core/scripts/automation/install-flux-operator.sh
    ```
 
 3. **Create FluxInstance**

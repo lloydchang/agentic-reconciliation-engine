@@ -51,7 +51,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Make tools executable
-chmod +x core/core/automation/ci-cd/scripts/*.py
+chmod +x core/scripts/automation/*.py
 export PATH="$PWD/scripts:$PATH"
 ```
 
@@ -111,11 +111,11 @@ examples:
 EOF
 
 # Test overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
 
 # Apply overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply . --dry-run
+python core/scripts/automation/overlay-cli.py apply . --dry-run
 ```
 
 ### 2. Configuration Override Overlay
@@ -124,7 +124,7 @@ Add custom configuration to existing skills:
 
 ```bash
 # Create configuration overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create custom-config skills debug --template skill-overlay
+python core/scripts/automation/overlay-cli.py create custom-config skills debug --template skill-overlay
 
 # Add configuration patches
 cat > patches/custom-config.yaml << EOF
@@ -159,8 +159,8 @@ configMapGenerator:
 EOF
 
 # Test and apply
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply . --dry-run
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/overlay-cli.py apply . --dry-run
 ```
 
 ### 3. Dashboard Theme Overlay
@@ -169,7 +169,7 @@ Create a custom dashboard theme:
 
 ```bash
 # Create theme overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
+python core/scripts/automation/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
 
 # Add theme files
 mkdir -p theme/css
@@ -228,8 +228,8 @@ configMapGenerator:
 EOF
 
 # Test theme
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/overlay-cli.py build . --output my-theme.yaml
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/overlay-cli.py build . --output my-theme.yaml
 ```
 
 ### 4. Infrastructure Enhancement Overlay
@@ -238,7 +238,7 @@ Add monitoring and security to infrastructure:
 
 ```bash
 # Create infrastructure overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create enhanced-infra infrastructure flux --template infra-overlay
+python core/scripts/automation/overlay-cli.py create enhanced-infra infrastructure flux --template infra-overlay
 
 # Add monitoring configuration
 cat > config/monitoring.yaml << EOF
@@ -318,8 +318,8 @@ configMapGenerator:
 EOF
 
 # Test infrastructure overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/test-overlays.py .
 ```
 
 ## Common Use Cases
@@ -330,7 +330,7 @@ Set up a lightweight development environment:
 
 ```bash
 # Create development overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create dev-env composed ""
+python core/scripts/automation/overlay-cli.py create dev-env composed ""
 
 # Add base components
 cat > kustomization.yaml << EOF
@@ -377,8 +377,8 @@ patchesJson6902:
 EOF
 
 # Deploy development environment
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply .
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/overlay-cli.py apply .
 ```
 
 ### 2. Production Environment
@@ -387,7 +387,7 @@ Set up a production-ready environment:
 
 ```bash
 # Create production overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create prod-env composed ""
+python core/scripts/automation/overlay-cli.py create prod-env composed ""
 
 # Add production components
 cat > kustomization.yaml << EOF
@@ -437,8 +437,8 @@ patchesJson6902:
 EOF
 
 # Deploy production environment
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply .
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/overlay-cli.py apply .
 ```
 
 ### 3. Multi-Environment Setup
@@ -448,7 +448,7 @@ Manage multiple environments:
 ```bash
 # Create environment-specific overlays
 for env in development staging production; do
-  python core/core/automation/ci-cd/scripts/overlay-cli.py create $env-env composed ""
+  python core/scripts/automation/overlay-cli.py create $env-env composed ""
   
   cat > core/deployment/overlays/composed/$env-env/kustomization.yaml << EOF
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -513,11 +513,11 @@ EOF
   fi
   
   # Validate environment overlay
-  python core/core/automation/ci-cd/scripts/overlay-cli.py validate core/deployment/overlays/composed/$env-env
+  python core/scripts/automation/overlay-cli.py validate core/deployment/overlays/composed/$env-env
 done
 
 # Deploy specific environment
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/composed/production-env
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/composed/production-env
 ```
 
 ## Advanced Examples
@@ -528,7 +528,7 @@ Add machine learning capabilities to debugging:
 
 ```bash
 # Create ML debugging overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create ml-debug skills debug --template skill-overlay
+python core/scripts/automation/overlay-cli.py create ml-debug skills debug --template skill-overlay
 
 # Add ML configuration
 cat > config/ml-config.yaml << EOF
@@ -655,9 +655,9 @@ configMapGenerator:
 EOF
 
 # Test ML overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
-python core/core/automation/ci-cd/scripts/overlay-cli.py build . --output ml-debug.yaml
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/test-overlays.py .
+python core/scripts/automation/overlay-cli.py build . --output ml-debug.yaml
 ```
 
 ### 2. Multi-Cloud Infrastructure Overlay
@@ -666,7 +666,7 @@ Deploy across multiple cloud providers:
 
 ```bash
 # Create multi-cloud overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create multi-cloud infrastructure flux --template infra-overlay
+python core/scripts/automation/overlay-cli.py create multi-cloud infrastructure flux --template infra-overlay
 
 # Add cloud-specific configurations
 mkdir -p configs/{aws,azure,gcp}
@@ -823,8 +823,8 @@ EOF
 # Test multi-cloud overlays
 for cloud in aws azure gcp; do
   echo "Testing $cloud configuration..."
-  CLOUD_PROVIDER=$cloud python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-  CLOUD_PROVIDER=$cloud python core/core/automation/ci-cd/scripts/overlay-cli.py build . --output multi-cloud-$cloud.yaml
+  CLOUD_PROVIDER=$cloud python core/scripts/automation/overlay-cli.py validate .
+  CLOUD_PROVIDER=$cloud python core/scripts/automation/overlay-cli.py build . --output multi-cloud-$cloud.yaml
 done
 ```
 
@@ -834,7 +834,7 @@ Add comprehensive security policies:
 
 ```bash
 # Create security overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create security-hardened infrastructure flux --template infra-overlay
+python core/scripts/automation/overlay-cli.py create security-hardened infrastructure flux --template infra-overlay
 
 # Add security policies
 mkdir -p security/{policies,rbac,network}
@@ -991,9 +991,9 @@ configMapGenerator:
 EOF
 
 # Test security overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
-python core/core/automation/ci-cd/scripts/overlay-cli.py build . --output security-hardened.yaml
+python core/scripts/automation/overlay-cli.py validate .
+python core/scripts/automation/test-overlays.py .
+python core/scripts/automation/overlay-cli.py build . --output security-hardened.yaml
 ```
 
 ## Troubleshooting
@@ -1088,19 +1088,19 @@ kubectl auth can-i create configmap --namespace=flux-system
 
 ```bash
 # Comprehensive overlay validation
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --verbose --report validation-report.json
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/ --verbose --report validation-report.json
 
 # Test overlay functionality
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/ --verbose --coverage
+python core/scripts/automation/test-overlays.py core/deployment/overlays/ --verbose --coverage
 
 # Build with debugging
 kustomize build core/deployment/overlays/core/ai/skills/debug/enhanced --enable-alpha-plugins --v 6
 
 # Check overlay composition
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/enterprise-suite --test-composition
+python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/enterprise-suite --test-composition
 
 # Verify overlay registry
-python core/core/automation/ci-cd/scripts/overlay-registry.py validate --verbose
+python core/scripts/automation/overlay-registry.py validate --verbose
 ```
 
 ## Next Steps
@@ -1109,48 +1109,48 @@ python core/core/automation/ci-cd/scripts/overlay-registry.py validate --verbose
 
 ```bash
 # List all available overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # Search by category
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category dashboard
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category infrastructure
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category composed
+python core/scripts/automation/overlay-cli.py list --category skills
+python core/scripts/automation/overlay-cli.py list --category dashboard
+python core/scripts/automation/overlay-cli.py list --category infrastructure
+python core/scripts/automation/overlay-cli.py list --category composed
 
 # Search by keyword
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "debugging"
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "monitoring"
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "security"
+python core/scripts/automation/overlay-cli.py search "debugging"
+python core/scripts/automation/overlay-cli.py search "monitoring"
+python core/scripts/automation/overlay-cli.py search "security"
 ```
 
 ### 2. Create Custom Overlays
 
 ```bash
 # Use templates for quick start
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills debug --template skill-overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-infra infrastructure flux --template infra-overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-bundle composed ""
+python core/scripts/automation/overlay-cli.py create my-overlay skills debug --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-theme dashboard themes --template dashboard-overlay
+python core/scripts/automation/overlay-cli.py create my-infra infrastructure flux --template infra-overlay
+python core/scripts/automation/overlay-cli.py create my-bundle composed ""
 
 # Customize overlay templates
 cd core/deployment/overlays/core/ai/skills/my-overlay
 # Edit files as needed
 # Test and validate
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
 ```
 
 ### 3. Deploy to Production
 
 ```bash
 # Validate production overlays
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/composed/production-suite
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/composed/production-suite
 
 # Test in staging first
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/composed/production-suite --dry-run -n staging
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/composed/production-suite --dry-run -n staging
 
 # Deploy to production
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/composed/production-suite -n production
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/composed/production-suite -n production
 
 # Monitor deployment
 kubectl get pods -n production
@@ -1161,7 +1161,7 @@ kubectl logs -n production -l overlay=production-suite
 
 ```bash
 # Register your overlay in the catalog
-python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
 
 # Contribute to community
 git checkout -b feature/my-overlay
@@ -1177,28 +1177,28 @@ git push origin feature/my-overlay
 
 ```bash
 # List overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # Create overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create name category base --template template
+python core/scripts/automation/overlay-cli.py create name category base --template template
 
 # Validate overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate overlay-path
+python core/scripts/automation/overlay-cli.py validate overlay-path
 
 # Test overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py test overlay-path
+python core/scripts/automation/overlay-cli.py test overlay-path
 
 # Build overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build overlay-path --output manifest.yaml
+python core/scripts/automation/overlay-cli.py build overlay-path --output manifest.yaml
 
 # Apply overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply overlay-path --dry-run
+python core/scripts/automation/overlay-cli.py apply overlay-path --dry-run
 
 # Search overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py search keyword
+python core/scripts/automation/overlay-cli.py search keyword
 
 # Update catalog
-python core/core/automation/ci-cd/scripts/overlay-cli.py update-catalog
+python core/scripts/automation/overlay-cli.py update-catalog
 ```
 
 ### Directory Structure

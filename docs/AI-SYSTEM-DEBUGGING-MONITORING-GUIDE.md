@@ -6,7 +6,7 @@ This guide provides comprehensive debugging strategies for distributed AI agent 
 
 ## Key Components
 
-- **AI Agents**: Go-based Temporal workers with 92 skills
+- **AI Agents**: Go-based Temporal workers with 91 skills
 - **Temporal Workflows**: Orchestration layer for agent coordination  
 - **Kubernetes Infrastructure**: Distributed deployment environment
 - **Monitoring System**: Built-in metrics collection and alerting
@@ -18,10 +18,10 @@ This guide provides comprehensive debugging strategies for distributed AI agent 
 
 ```bash
 # Fast agent debugging
-./core/core/automation/ci-cd/scripts/quick_debug.sh agents errors true
+./core/scripts/automation/quick_debug.sh agents errors true
 
 # Full system analysis
-python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py debug --target-component all --issue-type performance --time-range 2h --auto-fix
+python core/ai/skills/ai-system-debugger/scripts/main.py debug --target-component all --issue-type performance --time-range 2h --auto-fix
 
 # Infrastructure health check
 kubectl get pods -n temporal -l app=temporal-worker
@@ -202,16 +202,16 @@ The system includes automatic recovery mechanisms:
 
 ```bash
 # Restart failing pods
-python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=pods --condition=failing
+python core/ai/skills/ai-system-debugger/scripts/main.py auto-fix --target=pods --condition=failing
 
 # Clear stuck workflows
-python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=workflows --condition=stuck
+python core/ai/skills/ai-system-debugger/scripts/main.py auto-fix --target=workflows --condition=stuck
 
 # Adjust resource limits
-python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=resources --condition=exhausted
+python core/ai/skills/ai-system-debugger/scripts/main.py auto-fix --target=resources --condition=exhausted
 
 # Restart unhealthy agents
-python core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py auto-fix --target=agents --condition=unhealthy
+python core/ai/skills/ai-system-debugger/scripts/main.py auto-fix --target=agents --condition=unhealthy
 ```
 
 ### Kubernetes Self-Healing
@@ -290,9 +290,9 @@ kubectl logs -n ai-infrastructure deployment/agent-memory-rust -f | jq '.correla
 ### AI System Debugger
 
 - [core/ai/skills/ai-system-debugger/SKILL.md](core/ai/skills/ai-system-debugger/SKILL.md) - Debugging skill definition
-- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/main.py` - Main debugging CLI
-- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/debug_utils.py` - Debug utilities
-- `core/ai/skills/ai-system-debugger/core/core/automation/ci-cd/scripts/quick_debug.sh` - Quick bash debugging
+- `core/ai/skills/ai-system-debugger/scripts/main.py` - Main debugging CLI
+- `core/ai/skills/ai-system-debugger/scripts/debug_utils.py` - Debug utilities
+- `core/ai/skills/ai-system-debugger/scripts/quick_debug.sh` - Quick bash debugging
 
 ### Monitoring System
 
@@ -302,9 +302,9 @@ kubectl logs -n ai-infrastructure deployment/agent-memory-rust -f | jq '.correla
 
 ### Deployment Scripts
 
-- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh` - Main deployment script
-- `core/core/automation/ci-cd/scripts/quick_debug.sh` - Quick debugging utility
-- `core/core/automation/ci-cd/scripts/health-check.sh` - System health validation
+- `core/scripts/automation/deploy-ai-agents-ecosystem.sh` - Main deployment script
+- `core/scripts/automation/quick_debug.sh` - Quick debugging utility
+- `core/scripts/automation/health-check.sh` - System health validation
 
 ## Integration Points
 
@@ -530,10 +530,10 @@ kubectl apply -f backups/ai-agents-backup.yaml
 
 # Recreate cluster
 kind delete cluster gitops-hub
-./core/core/automation/ci-cd/scripts/create-hub-cluster.sh --provider kind
+./core/scripts/automation/create-hub-cluster.sh --provider kind
 
 # Redeploy everything
-./core/core/automation/ci-cd/scripts/quickstart.sh
+./core/scripts/automation/quickstart.sh
 ```
 
 ## Conclusion

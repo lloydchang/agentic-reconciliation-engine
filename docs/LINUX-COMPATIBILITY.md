@@ -24,22 +24,22 @@ Linux is the default development environment for this repo, and every script was
 ## 2. Environment configuration
 
 - Clone the repo into your preferred directory and `cd` into it.
-- Export the env vars referenced in `core/core/automation/ci-cd/scripts/prerequisites.sh` (Azure, Git tokens, bucket names, etc.).  
+- Export the env vars referenced in `core/scripts/automation/prerequisites.sh` (Azure, Git tokens, bucket names, etc.).  
 - Confirm `core.autocrlf` is set to `input` or `false` so Git keeps LF endings (common defaults on Linux).
 
 ## 3. Zero-touch local run
 
 ```bash
 cd /path/to/agentic-reconciliation-engine
-core/core/automation/ci-cd/scripts/run-local-automation.sh
+./core/scripts/automation/run-local-automation.sh
 ```
 
 All required commands (`bash`, `mkdir`, `tee`, `python`, `conftest`, `kubeconform`, etc.) are standard on Linux, so no compatibility layer is required. The zero-touch script logs to `logs/local-core/automation/ci-cd/` for full traceability.
 
 ## 4. Verification checklist
 
-1. `core/core/automation/ci-cd/scripts/prerequisites.sh` passes (tooling, skills, CLI access).  
-2. `core/core/automation/ci-cd/scripts/run-local-automation.sh` completes and produces matching logs with the expected overlay order (bootstrap → hub → emulator → spoke).  
+1. `core/scripts/automation/prerequisites.sh` passes (tooling, skills, CLI access).
+2. `core/scripts/automation/run-local-automation.sh` completes and produces matching logs with the expected overlay order (bootstrap → hub → emulator → spoke).  
 3. CI gate command inside the wrapper (`conftest test` and `kubeconform`) returns success status with no policy violations.  
 
 Linux is therefore the reference platform for this repository’s automation; follow the same commands when you move to macOS or Windows.

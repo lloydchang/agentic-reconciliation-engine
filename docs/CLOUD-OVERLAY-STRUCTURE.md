@@ -56,7 +56,7 @@ The `resources` block is the only place that changes when you onboard a new clou
 ## Enabling an overlay
 
 1. Copy or extend the template overlay (e.g., `core/operators/flux/cloud-aws/kustomization.yaml`) and customize network/cluster values for your environment by editing the `patches/` overrides in the same directory.
-2. Run `core/core/automation/ci-cd/scripts/enable-cloud.sh <provider>` (or manually add `./cloud-<provider>` to `core/operators/flux/kustomization.yaml`) so Flux includes that overlay. To toggle the Azure emulator overlay, add `--emulator=enable` or `--emulator=disable` when calling `core/core/automation/ci-cd/scripts/enable-cloud.sh azure`; the script now updates `core/operators/flux/cloud-azure/kustomization.yaml` accordingly.
+2. Run `core/scripts/automation/enable-cloud.sh <provider>` (or manually add `./cloud-<provider>` to `core/operators/flux/kustomization.yaml`) so Flux includes that overlay. To toggle the Azure emulator overlay, add `--emulator=enable` or `--emulator=disable` when calling `core/scripts/automation/enable-cloud.sh azure`; the script now updates `core/operators/flux/cloud-azure/kustomization.yaml` accordingly.
 3. Run `flux reconcile kustomization control-plane --with-source` to force a sync and validate the overlay resources reach `Ready`. Inspect Crossplane `Composition` and `Managed` resources as the overlay provisions infra.
 4. Register any new clusters created by Crossplane with Argo CD (`argocd cluster add ...`), so application workloads can be graduated to the new target.
 5. Monitor Flux/Argo CD health; you can remove the overlay entry later if you need to roll back (Flux will cascade-delete the overlay resources).
@@ -67,15 +67,15 @@ Crossplane remains optional until you want multi-cloud workloads. Start with a m
 
 ## Automation/Script patterns
 
-These helper scripts can be placed under `core/core/automation/ci-cd/scripts/` or `core/operators/core/core/automation/ci-cd/scripts/`:
+These helper scripts can be placed under `core/scripts/automation/`:
 
 | Script | Purpose |
 | --- | --- |
-| `core/core/automation/ci-cd/scripts/bootstrap-hub.sh` | Install Flux on the bootstrap cluster and wait for `core/operators/flux/core` to sync. |
-| `core/core/automation/ci-cd/scripts/enable-cloud.sh <provider>` | Patches `core/operators/flux/kustomization.yaml` to add `cloud-<provider>` and waits for the overlay to reach `Ready`. |
-| `core/core/automation/ci-cd/scripts/export-argocd-state.sh` | Dumps Argo CD Applications, ApplicationSets, and cluster registrations so the migration runbook can reference the manifest state. |
-| `core/core/automation/ci-cd/scripts/migrate-app.sh <app-name> <target-context> [namespace]` | Adjusts an Argo CD application’s destination to the cluster referenced by the kubeconfig context, syncs it, and waits for healthy reconciliation. |
-| `core/core/automation/ci-cd/scripts/export-argocd-state.sh` | Dumps Argo CD Applications, ApplicationSets, and clusters into `/tmp/argocd-export-*` so the migration runbooks can reference the exact state before switching overlays. |
+| `bootstrap-hub.sh` | Install Flux on the bootstrap cluster and wait for `core/operators/flux/core` to sync. |
+| `enable-cloud.sh <provider>` | Patches `core/operators/flux/kustomization.yaml` to add `cloud-<provider>` and waits for the overlay to reach `Ready`. |
+| `export-argocd-state.sh` | Dumps Argo CD Applications, ApplicationSets, and cluster registrations so the migration runbook can reference the manifest state. |
+| `migrate-app.sh <app-name> <target-context> [namespace]` | Adjusts an Argo CD application's destination to the cluster referenced by the kubeconfig context, syncs it, and waits for healthy reconciliation. |
+| `export-argocd-state.sh` | Dumps Argo CD Applications, ApplicationSets, and clusters into `/tmp/argocd-export-*` so the migration runbooks can reference the exact state before switching overlays. |
 
 Automating these patterns turns the overlay model into an executable migration pipeline: bootstrap the hub, turn on one overlay for your source cloud, then flip on the next overlay when you are ready for the following cloud.
 

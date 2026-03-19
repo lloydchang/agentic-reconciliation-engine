@@ -93,7 +93,7 @@ def optimize_strategy(metrics: Dict[str, float]) -> str:
 ```
 core/ai/skills/[skill]/
 ├── SKILL.md                    # Skill definition (agentskills.io compliant)
-├── core/core/automation/ci-cd/scripts/
+├── scripts/
 │   ├── main.py                # Primary Python implementation
 │   ├── handlers.py            # Cloud-specific logic
 │   └── orchestrator.py        # Multi-cloud coordination
@@ -179,7 +179,7 @@ Based on research of the broader Agent Skills ecosystem, our Python-first approa
 
 **Anthropic's Implementation:**
 - All built-in Claude skills (PDF, DOCX, XLSX, PPTX) use Python scripts
-- Skills like `xlsx/recalc.py`, `pdf/core/core/automation/ci-cd/scripts/extract_form_field_info.py` are Python
+- Skills like `xlsx/recalc.py`, `pdf/scripts/extract_form_field_info.py` are Python
 - Official skill validation tool `quick_validate.py` is written in Python
 
 **Real-World Usage Patterns:**

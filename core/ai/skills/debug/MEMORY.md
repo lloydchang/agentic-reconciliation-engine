@@ -331,7 +331,7 @@ kubectl rollout restart deployment/temporal-worker -n ai-infrastructure
 # 4. Verify recovery
 sleep 30
 kubectl get pods -n ai-infrastructure
-./core/core/automation/ci-cd/scripts/debug-ai-agents-k8s.sh all DEBUG_LEVEL=basic
+./core/scripts/automation/debug-ai-agents-k8s.sh all DEBUG_LEVEL=basic
 ```
 
 ### Data Recovery Procedures

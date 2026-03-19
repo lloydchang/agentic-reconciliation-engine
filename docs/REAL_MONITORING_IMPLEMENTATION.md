@@ -269,13 +269,13 @@ def agents_detailed():
 - `ai-core/ai/runtime/backend/monitoring/aggregator.go`
 - `ai-core/ai/runtime/backend/temporal/monitoring.go`
 - `ai-core/ai/runtime/backend/k8s/monitoring.go`
-- `core/core/automation/ci-cd/scripts/monitoring-setup.sh` (for Prometheus setup)
+- `core/scripts/automation/monitoring-setup.sh` (for Prometheus setup)
 
 ### Modified Files
 - `ai-core/ai/runtime/backend/monitoring/metrics.go` (enhance existing)
 - `dashboard-api-deployment.yaml` (update Flask code)
 - `dashboard-frontend/src/App.tsx` (add real-time updates)
-- `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh` (add monitoring components)
+- `core/scripts/automation/deploy-ai-agents-ecosystem.sh` (add monitoring components)
 
 ## Monitoring Checklist
 

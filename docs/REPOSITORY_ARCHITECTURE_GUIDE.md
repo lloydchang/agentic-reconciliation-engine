@@ -23,7 +23,7 @@ The repository follows a clear separation of concerns with three main layers:
 core/ai/skills/
 ├── [skill_name]/
 │   ├── SKILL.md          # Skill definition with YAML frontmatter
-│   ├── core/core/automation/ci-cd/scripts/          # Optional executable code
+│   ├── scripts/          # Optional executable code
 │   ├── references/       # Documentation
 │   └── assets/           # Templates/resources
 └── README.md             # Skills framework overview
@@ -76,9 +76,9 @@ docs/
 └── [various guides].md  # Topic-specific documentation
 ```
 
-#### `core/core/automation/ci-cd/scripts/` - Automation
+#### `core/scripts/automation/` - Automation
 ```
-core/core/automation/ci-cd/scripts/
+core/scripts/automation/
 ├── debug/               # Debugging utilities
 ├── helpers/             # Helper functions
 ├── hub-clusters/        # Cluster setup scripts

@@ -273,10 +273,10 @@ kubectl exec -n ai-infrastructure <pod> -- curl temporal-frontend:7233
 go test ./ai-core/ai/runtime/backend/...
 
 # Integration tests
-./core/core/automation/ci-cd/scripts/run-integration-tests.sh
+./core/scripts/automation/run-integration-tests.sh
 
 # Chaos engineering
-./core/core/automation/ci-cd/scripts/chaos-testing.sh --duration=30m
+./core/scripts/automation/chaos-testing.sh --duration=30m
 ```
 
 #### Configuration Management
@@ -314,15 +314,15 @@ resource_planning:
 #### Specialized Scripts
 ```bash
 # Quick debug runner
-./core/ai/skills/debug/core/core/automation/ci-cd/scripts/distributed-debug-runner.sh \
+./core/ai/skills/debug/scripts/distributed-debug-runner.sh \
   --namespace ai-infrastructure \
   --debug-level detailed
 
 # LLM-assisted debugging
-./core/core/automation/ci-cd/scripts/llm-debug-automation.sh memory-agent
+./core/scripts/automation/llm-debug-automation.sh memory-agent
 
 # System validation
-./core/core/automation/ci-cd/scripts/validate-deployment.sh --comprehensive
+./core/scripts/automation/validate-deployment.sh --comprehensive
 ```
 
 #### Integration Points

@@ -62,13 +62,13 @@ git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-
 cd agentic-reconciliation-engine
 
 # Make CLI tools executable
-chmod +x core/core/automation/ci-cd/scripts/*.py
+chmod +x core/scripts/automation/*.py
 
 # Add to PATH (optional)
 export PATH="$PWD/scripts:$PATH"
 
 # Verify installation
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 ```
 
 ### Q: How do I see what overlays are available?
@@ -76,16 +76,16 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py list
 **A**: 
 ```bash
 # List all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # List by category
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
+python core/scripts/automation/overlay-cli.py list --category skills
 
 # Search overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "debugging"
+python core/scripts/automation/overlay-cli.py search "debugging"
 
 # Get detailed information
-python core/core/automation/ci-cd/scripts/overlay-registry.py get overlay-name
+python core/scripts/automation/overlay-registry.py get overlay-name
 ```
 
 ### Q: How do I use an existing overlay?
@@ -93,16 +93,16 @@ python core/core/automation/ci-cd/scripts/overlay-registry.py get overlay-name
 **A**: 
 ```bash
 # Validate overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate core/deployment/overlays/core/ai/skills/debug/enhanced
+python core/scripts/automation/overlay-cli.py validate core/deployment/overlays/core/ai/skills/debug/enhanced
 
 # Build overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/debug/enhanced --output enhanced.yaml
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/debug/enhanced --output enhanced.yaml
 
 # Apply overlay (dry run)
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced --dry-run
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced --dry-run
 
 # Apply to cluster
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/core/ai/skills/debug/enhanced
 ```
 
 ### Q: How do I create my first overlay?
@@ -110,15 +110,15 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/o
 **A**: 
 ```bash
 # Create from template
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Customize the overlay
 cd core/deployment/overlays/core/ai/skills/my-skill
 # Edit files as needed
 
 # Test your overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
 ```
 
 ## Overlay Development
@@ -233,16 +233,16 @@ Update version when:
 **A**: 
 ```bash
 # Validate structure and metadata
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Test functionality
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Build to verify
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay
 
 # Test composition
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-bundle
+python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/my-bundle
 ```
 
 ### Q: How do I register my overlay in the catalog?
@@ -250,13 +250,13 @@ python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overl
 **A**: 
 ```bash
 # Register overlay
-python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-overlay
 
 # Update catalog
-python core/core/automation/ci-cd/scripts/overlay-registry.py update-catalog
+python core/scripts/automation/overlay-registry.py update-catalog
 
 # Verify registration
-python core/core/automation/ci-cd/scripts/overlay-registry.py get my-overlay
+python core/scripts/automation/overlay-registry.py get my-overlay
 ```
 
 ## Troubleshooting
@@ -273,7 +273,7 @@ touch core/deployment/overlays/core/ai/skills/my-overlay/kustomization.yaml
 touch core/deployment/overlays/core/ai/skills/my-overlay/overlay-metadata.yaml
 
 # Use template for correct structure
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 ```
 
 ### Q: Build failed with "Resource not found"
@@ -311,7 +311,7 @@ yamllint core/deployment/overlays/core/ai/skills/my-overlay/*.yaml
 **A**: Check for conflicts:
 ```bash
 # Test composition
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-bundle
+python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/my-bundle
 
 # Look for resource name conflicts
 grep -r "name:" core/deployment/overlays/core/ai/skills/my-overlay/
@@ -366,7 +366,7 @@ kubectl describe deployment overlay-name -n flux-system
 **A**: 
 ```bash
 # Create composed overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-bundle composed ""
+python core/scripts/automation/overlay-cli.py create my-bundle composed ""
 
 # Edit kustomization.yaml to include other overlays
 apiVersion: kustomize.config.k8s.io/v1beta1

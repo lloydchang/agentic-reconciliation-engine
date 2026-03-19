@@ -10,7 +10,7 @@ For the fastest deployment experience, use the enhanced quickstart that includes
 
 ```bash
 # One-command deployment including AI agents and dashboard
-./core/core/automation/ci-cd/scripts/quickstart.sh
+./core/scripts/automation/quickstart.sh
 ```
 
 This automatically deploys:
@@ -38,7 +38,7 @@ chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 
 # Install helm
-curl https://raw.githubusercontent.com/helm/helm/main/core/core/automation/ci-cd/scripts/get-helm-3 | bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # Install kind (for local development)
 brew install kind
@@ -74,8 +74,8 @@ git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
 cd agentic-reconciliation-engine
 
 # Deploy complete ecosystem
-chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+chmod +x core/scripts/automation/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 ### Expected Output
@@ -886,7 +886,7 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
-        ./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+        ./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 #### ArgoCD Integration

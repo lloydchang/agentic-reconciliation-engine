@@ -48,9 +48,9 @@ kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRe
 
 **Files Created**:
 
-- `core/core/automation/ci-cd/scripts/git-mirroring-setup.sh`
+- `core/scripts/automation/git-mirroring-setup.sh`
 - `core/operators/flux/git-mirroring-controller.yaml`
-- `core/core/automation/ci-cd/scripts/conflict-resolution.sh`
+- `core/scripts/automation/conflict-resolution.sh`
 
 **Benefits**:
 
@@ -61,7 +61,7 @@ kubectl patch kustomization infrastructure -n flux-system -p '{"spec":{"sourceRe
 **Setup**:
 
 ```bash
-./core/core/automation/ci-cd/scripts/git-mirroring-setup.sh
+./core/scripts/automation/git-mirroring-setup.sh
 kubectl apply -f core/operators/flux/git-mirroring-controller.yaml
 ```
 
@@ -73,7 +73,7 @@ kubectl apply -f core/operators/flux/git-mirroring-controller.yaml
 
 - `core/operators/flux/local-git-cache.yaml`
 - `core/operators/flux/offline-mode-controller.yaml`
-- `core/core/automation/ci-cd/scripts/setup-offline-mode.sh`
+- `core/scripts/automation/setup-offline-mode.sh`
 
 **Benefits**:
 
@@ -84,7 +84,7 @@ kubectl apply -f core/operators/flux/git-mirroring-controller.yaml
 **Setup**:
 
 ```bash
-./core/core/automation/ci-cd/scripts/setup-offline-mode.sh
+./core/scripts/automation/setup-offline-mode.sh
 kubectl apply -f core/operators/flux/local-git-cache.yaml
 ```
 
@@ -118,7 +118,7 @@ kubectl apply -f core/operators/flux/local-git-cache.yaml
 
 - `core/operators/flux/state-persistence.yaml`
 - `core/operators/flux/state-backup-controller.yaml`
-- `core/core/automation/ci-cd/scripts/state-persistence-setup.sh`
+- `core/scripts/automation/state-persistence-setup.sh`
 
 **Benefits**:
 
@@ -129,7 +129,7 @@ kubectl apply -f core/operators/flux/local-git-cache.yaml
 **Setup**:
 
 ```bash
-./core/core/automation/ci-cd/scripts/state-persistence-setup.sh
+./core/scripts/automation/state-persistence-setup.sh
 kubectl apply -f core/operators/flux/state-backup-controller.yaml
 ```
 
@@ -141,7 +141,7 @@ kubectl apply -f core/operators/flux/state-backup-controller.yaml
 
 - `core/operators/flux/git-health-monitoring.yaml`
 - `core/operators/flux/health-monitoring-controller.yaml`
-- `core/core/automation/ci-cd/scripts/health-monitoring-setup.sh`
+- `core/scripts/automation/health-monitoring-setup.sh`
 
 **Benefits**:
 
@@ -154,7 +154,7 @@ kubectl apply -f core/operators/flux/state-backup-controller.yaml
 **Setup**:
 
 ```bash
-./core/core/automation/ci-cd/scripts/health-monitoring-setup.sh
+./core/scripts/automation/health-monitoring-setup.sh
 kubectl apply -f core/operators/flux/health-monitoring-controller.yaml
 ```
 
@@ -165,8 +165,8 @@ kubectl apply -f core/operators/flux/health-monitoring-controller.yaml
 **Files Created**:
 
 - [docs/GIT-OUTAGE-DISASTER-RECOVERY.md](docs/GIT-OUTAGE-DISASTER-RECOVERY.md)
-- `core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh`
-- `core/core/automation/ci-cd/scripts/setup-disaster-recovery.sh`
+- `core/scripts/automation/disaster-recovery-drill.sh`
+- `core/scripts/automation/setup-disaster-recovery.sh`
 
 **Benefits**:
 
@@ -177,8 +177,8 @@ kubectl apply -f core/operators/flux/health-monitoring-controller.yaml
 **Setup**:
 
 ```bash
-./core/core/automation/ci-cd/scripts/setup-disaster-recovery.sh
-./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh primary-outage
+./core/scripts/automation/setup-disaster-recovery.sh
+./core/scripts/automation/disaster-recovery-drill.sh primary-outage
 ```
 
 ## Architecture Overview
@@ -224,11 +224,11 @@ kubectl apply -f core/operators/flux/multi-git-repositories.yaml
 kubectl apply -f core/operators/flux/git-repository-failover.yaml
 
 # 2. Git Mirroring
-./core/core/automation/ci-cd/scripts/git-mirroring-setup.sh
+./core/scripts/automation/git-mirroring-setup.sh
 kubectl apply -f core/operators/flux/git-mirroring-controller.yaml
 
 # 3. Local Cache and Offline Mode
-./core/core/automation/ci-cd/scripts/setup-offline-mode.sh
+./core/scripts/automation/setup-offline-mode.sh
 kubectl apply -f core/operators/flux/local-git-cache.yaml
 
 # 4. Enhanced Flux Configuration
@@ -236,15 +236,15 @@ kubectl apply -f core/operators/flux/enhanced-kustomization.yaml
 kubectl apply -f core/operators/flux/failover-configmap.yaml
 
 # 5. State Persistence
-./core/core/automation/ci-cd/scripts/state-persistence-setup.sh
+./core/scripts/automation/state-persistence-setup.sh
 kubectl apply -f core/operators/flux/state-backup-controller.yaml
 
 # 6. Health Monitoring
-./core/core/automation/ci-cd/scripts/health-monitoring-setup.sh
+./core/scripts/automation/health-monitoring-setup.sh
 kubectl apply -f core/operators/flux/health-monitoring-controller.yaml
 
 # 7. Disaster Recovery
-./core/core/automation/ci-cd/scripts/setup-disaster-recovery.sh
+./core/scripts/automation/setup-disaster-recovery.sh
 ```
 
 ### 3. Configuration Required
@@ -272,13 +272,13 @@ kubectl get kustomizations -n flux-system
 
 ```bash
 # Primary outage drill
-./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh primary-outage
+./core/scripts/automation/disaster-recovery-drill.sh primary-outage
 
 # Complete outage drill
-./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh complete-outage
+./core/scripts/automation/disaster-recovery-drill.sh complete-outage
 
 # Cache failure drill
-./core/core/automation/ci-cd/scripts/disaster-recovery-drill.sh cache-failure
+./core/scripts/automation/disaster-recovery-drill.sh cache-failure
 ```
 
 ### Dashboard Access

@@ -122,8 +122,8 @@ git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
 cd agentic-reconciliation-engine
 
 # 2. Deploy complete ecosystem
-chmod +x core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+chmod +x core/scripts/automation/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 
 # 3. Access dashboard
 kubectl port-forward svc/agent-dashboard-service 8080:80 -n ai-infrastructure
@@ -212,7 +212,7 @@ npm start
 
 ### 🚀 One-Command Deployment
 ```bash
-./core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh
+./core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```
 
 ### 🔧 Development Environment

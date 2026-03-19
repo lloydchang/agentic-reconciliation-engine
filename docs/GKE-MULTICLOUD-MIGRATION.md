@@ -53,7 +53,7 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
 2. Run the overlay helper:
 
    ```bash
-   core/core/automation/ci-cd/scripts/enable-cloud.sh gcp
+   core/scripts/automation/enable-cloud.sh gcp
    flux reconcile kustomization control-plane --with-source
    ```
 
@@ -71,12 +71,12 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
    ```
 
 2. Adjust ApplicationSets/destinations to target the new contexts.
-3. Use `core/core/automation/ci-cd/scripts/migrate-app.sh` (or manual edits) to update workloads, then `argocd app sync` + `argocd app wait`.
+3. Use `core/scripts/automation/migrate-app.sh` (or manual edits) to update workloads, then `argocd app sync` + `argocd app wait`.
 4. After verifying health, decommission the old sync targets or leave them for rollback until confident.
 
 ## 5. Add other clouds / Crossplane resources
 
-1. Flip on `core/core/automation/ci-cd/scripts/enable-cloud.sh aws|azure` when ready to bring additional providers online.
+1. Flip on `core/scripts/automation/enable-cloud.sh aws|azure` when ready to bring additional providers online.
 2. Enable Crossplane compositions selectively from `core/operators/crossplane/compositions/`.
 3. Always run `flux reconcile kustomization control-plane --with-source` after overlay changes and confirm `flux get kustomization control-plane` is healthy.
 
@@ -87,19 +87,19 @@ This runbook adapts the multi-cloud migration to teams starting from Google Clou
 
 ## Automation via migration wizard
 
-Use `core/core/automation/ci-cd/scripts/migration_wizard.py` to automate overlay ordering and CI validation while applying this runbook. Example:
+Use `core/scripts/automation/migration_wizard.py` to automate overlay ordering and CI validation while applying this runbook. Example:
 
 ```bash
-./core/core/automation/ci-cd/scripts/migration_wizard.py \
+./core/scripts/automation/migration_wizard.py \
   --repo-url https://github.com/your-org/agentic-reconciliation-engine.git \
   --branch migration-gcp \
   --connector github-enterprise-cloud \
   --overlay-order ./bootstrap ./hub ./cloud-gcp \
-  --helper-script ./core/core/automation/ci-cd/scripts/enable-cloud.sh \
-  --ci-gate ./core/core/automation/ci-cd/scripts/prerequisites.sh
+  --helper-script ./core/scripts/automation/enable-cloud.sh \
+  --ci-gate ./core/scripts/automation/prerequisites.sh
 ```
 
-Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `core/core/automation/ci-cd/scripts/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.
+Swap `--connector` for the Git host running your repo, add `--emulator=enable|disable` as needed, and the wizard will reorder overlays, run `core/scripts/automation/enable-cloud.sh`, execute the CI gate, and push the migration branch up for review.
 
 ## Validation checklist
 

@@ -21,7 +21,7 @@ This analysis examines the placement and organization of all directories at the 
 ├── core/resources/ # Infrastructure manifests (appropriate)
 ├── core/deployment/overlays/       # Kustomize overlays (MISPLACED)
 ├── core/governance/       # Governance policies (newly organized)
-├── core/core/automation/ci-cd/scripts/        # Utility scripts (appropriate)
+├── scripts/        # Utility scripts (appropriate)
 ├── core/automation/testing/          # Test suites (appropriate)
 └── variants/       # Product variants (poor naming)
 ```
@@ -60,7 +60,7 @@ This analysis examines the placement and organization of all directories at the 
 - **Placement**: Appropriate for infrastructure-as-code
 - **Recommendation**: Keep as-is
 
-**`core/core/automation/ci-cd/scripts/`** - Utility and automation scripts
+**`core/scripts/automation/`** - Utility and automation scripts
 - **Purpose**: Setup, deployment, maintenance scripts
 - **Placement**: Standard for script organization
 - **Recommendation**: Keep as-is

@@ -39,8 +39,8 @@ This naming confusion created significant cognitive load for developers.
 | `core/operators/ci/core/governance/deletion-guard.rego` | `core/governance/core/operators/core/governance/deletion-guard.rego` | Resource deletion controls |
 | `core/operators/ci/core/governance/naming.rego` | `core/governance/core/operators/core/governance/naming.rego` | Naming convention enforcement |
 | `core/operators/ci/core/governance/required-labels.rego` | `core/governance/core/operators/core/governance/required-labels.rego` | Labeling requirements |
-| `core/operators/ci/core/core/automation/ci-cd/scripts/check-deletions.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/check-deletions.sh` | Deletion validation |
-| `core/operators/ci/core/core/automation/ci-cd/scripts/validate-schemas.sh` | `core/governance/core/operators/core/core/automation/ci-cd/scripts/validate-schemas.sh` | Schema validation |
+| `core/operators/ci/core/scripts/automation/check-deletions.sh` | `core/governance/core/operators/core/scripts/automation/check-deletions.sh` | Deletion validation |
+| `core/operators/ci/core/scripts/automation/validate-schemas.sh` | `core/governance/core/operators/core/scripts/automation/validate-schemas.sh` | Schema validation |
 
 ### New Structure
 
@@ -59,7 +59,7 @@ core/governance/                # Governance and compliance
     │   ├── deletion-guard.rego
     │   ├── naming.rego
     │   └── required-labels.rego
-    └── core/core/automation/ci-cd/scripts/
+    └── core/scripts/automation/
         ├── check-deletions.sh
         └── validate-schemas.sh
 ```
@@ -82,7 +82,7 @@ core/governance/                # Governance and compliance
 ├── core/resources/ # Infrastructure manifests (appropriate)
 ├── core/deployment/overlays/       # Kustomize overlays (MISPLACED)
 ├── core/governance/       # Governance policies (newly organized)
-├── core/core/automation/ci-cd/scripts/        # Utility scripts (appropriate)
+├── core/scripts/automation/        # Utility scripts (appropriate)
 ├── core/automation/testing/          # Test suites (appropriate)
 └── variants/       # Product variants (poor naming)
 ```
@@ -90,7 +90,7 @@ core/governance/                # Governance and compliance
 ### Directory Assessment
 
 #### ✅ Well-Organized (8 directories)
-- `.git/`, `.github/`, `core/ai/runtime/`, `core/operators/`, `docs/`, `core/resources/`, `core/core/automation/ci-cd/scripts/`, `core/automation/testing/`
+- `.git/`, `.github/`, `core/ai/runtime/`, `core/operators/`, `docs/`, `core/resources/`, `core/scripts/automation/`, `core/automation/testing/`
 
 #### ⚠️ Questionable Placement (1 directory)
 - `overlay/examples/` - Could move to `docs/overlay/examples/`

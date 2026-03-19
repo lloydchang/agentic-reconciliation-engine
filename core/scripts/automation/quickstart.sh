@@ -190,7 +190,7 @@ deploy_ai_agents_dashboard() {
         echo ""
         echo "Dashboard features:"
         echo "  ✅ Real-time AI agents monitoring"
-        echo "  ✅ 64 operational skills visualization"
+        echo "  ✅ 91 operational skills visualization"
         echo "  ✅ Performance metrics and charts"
         echo "  ✅ Activity feed and system controls"
         echo "  ✅ Temporal workflow orchestration UI"

@@ -14,7 +14,7 @@ This is **not just infrastructure** - it's a **complete AI-powered GitOps platfo
 - **core/ai/runtime/**: Go/Temporal runtime + React dashboard (the "nervous system")
 
 ### **Development & Operations**
-- **core/core/automation/ci-cd/scripts/**: 135+ automation scripts (the "muscles")
+- **core/scripts/automation/**: 135+ automation scripts (the "muscles")
 - **core/automation/ci-cd/**: CI/CD pipelines (the "heartbeat")
 - **overlay/examples/**: Reference implementations (the "patterns")
 - **docs/**: Comprehensive documentation (the "knowledge")
@@ -76,7 +76,7 @@ ai-ecosystem/               # AI agents and skills
     └── workflows/
 
 development/                 # Development and operations
-├── core/core/automation/ci-cd/scripts/               # Current core/core/automation/ci-cd/scripts/
+├── scripts/               # Current scripts/
 ├── core/automation/ci-cd/            # Current core/automation/ci-cd/
 ├── overlay/examples/              # Current overlay/examples/
 └── testing/               # Current core/automation/testing/
@@ -133,7 +133,7 @@ core/ai/skills/               → ai-ecosystem/skills/
 core/ai/runtime/                → ai-ecosystem/runtime/
 
 # Development
-core/core/automation/ci-cd/scripts/               → development/core/core/automation/ci-cd/scripts/
+core/scripts/automation/               → development/scripts/
 core/automation/ci-cd/            → development/core/automation/ci-cd/
 overlay/examples/              → development/overlay/examples/
 core/automation/testing/                 → development/testing/

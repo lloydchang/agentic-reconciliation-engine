@@ -30,7 +30,7 @@ core/ai/skills/skills/your-skill-name/
 ├── SKILL.md           # Skill definition and documentation
 ├── activities.go      # Go activity implementations (optional)
 ├── workflow.go        # Workflow definitions (optional)
-├── core/core/automation/ci-cd/scripts/           # Helper scripts (optional)
+├── scripts/           # Helper scripts (optional)
 │   └── validate.sh
 └── templates/         # Output templates (optional)
     └── report.md
@@ -716,7 +716,7 @@ go test ./backend/workflows/... -run TestYourWorkflow
 go test ./backend/api/... -run TestYourSkillAPI
 
 # Full integration test
-./core/core/automation/ci-cd/scripts/validate.sh
+./core/scripts/automation/validate.sh
 ```
 
 ## Documentation Updates

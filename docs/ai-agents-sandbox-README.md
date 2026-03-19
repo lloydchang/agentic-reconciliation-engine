@@ -30,7 +30,7 @@ git clone https://github.com/lloydchang/agentic-reconciliation-engine.git
 cd agentic-reconciliation-engine
 
 # Start everything
-./core/core/automation/ci-cd/scripts/dev.sh
+./core/scripts/automation/dev.sh
 
 # Access interfaces
 # Frontend: http://localhost:3000
@@ -44,20 +44,20 @@ For comprehensive development and testing, run these validation steps:
 
 ```bash
 # 1. Validate environment and skill suite integrity
-./core/core/automation/ci-cd/scripts/prerequisites.sh
+./core/scripts/automation/prerequisites.sh
 
 # 2. Run skill evaluations and tests
-python3 core/core/automation/ci-cd/scripts/run_evals.py
+python3 core/scripts/automation/run_evals.py
 
 # 3. Start development environment
-./core/core/automation/ci-cd/scripts/dev.sh
+./core/scripts/automation/dev.sh
 ```
 
 **What these do:**
 
 - **`prerequisites.sh`** - Validates prerequisites, checks skills exist, ensures environment readiness
 - **`run_evals.py`** - Tests skill definitions, validates SKILL.md formats, checks trigger phrases
-- **`./core/core/automation/ci-cd/scripts/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
+- **`./core/scripts/automation/dev.sh`** - Starts all services (Temporal, PostgreSQL, backend, frontend)
 
 ### Try It Out
 
@@ -288,7 +288,7 @@ Backstage with AI agent dashboard at `http://localhost:3000`.
 Alternatively, start everything at once:
 
 ```bash
-./core/core/automation/ci-cd/scripts/dev.sh
+./core/scripts/automation/dev.sh
 ```
 
 ### 4. Try It
@@ -459,7 +459,7 @@ gitops-infra-core/operators/
 │   ├── skills-system-guide.md
 │   ├── comprehensive-interfaces-guide.md
 │   └── claude-and-codex-skills.txt
-└── core/core/automation/ci-cd/scripts/                    # dev.sh, build.sh, validate.sh
+└── core/scripts/automation/                    # dev.sh, build.sh, validate.sh
 ```
 
 ---
@@ -489,9 +489,9 @@ gitops-infra-core/operators/
 ## Development Scripts
 
 ```bash
-./core/core/automation/ci-cd/scripts/dev.sh       # Start infrastructure + frontend
-./core/core/automation/ci-cd/scripts/build.sh     # Build Docker images for all components
-./core/core/automation/ci-cd/scripts/validate.sh  # Comprehensive environment validation
+./core/scripts/automation/dev.sh       # Start infrastructure + frontend
+./core/scripts/automation/build.sh     # Build Docker images for all components
+./core/scripts/automation/validate.sh  # Comprehensive environment validation
 ```
 
 ---
@@ -503,7 +503,7 @@ cd backend  && go test ./...
 cd backend  && go test -tags=integration ./...
 cd cli      && go test ./...
 cd frontend && yarn test
-./core/core/automation/ci-cd/scripts/validate.sh   # Full-stack integration tests
+./core/scripts/automation/validate.sh   # Full-stack integration tests
 ```
 
 ---

@@ -347,7 +347,7 @@ cd frontend && yarn start
 
 ```bash
 # Run comprehensive validation
-./core/core/automation/ci-cd/scripts/validate.sh
+./core/scripts/automation/validate.sh
 
 # Check all prerequisites
 ./prerequisites.sh

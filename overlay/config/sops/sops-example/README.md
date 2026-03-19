@@ -65,7 +65,7 @@ This example shows:
 
 ```bash
 # Generate age keys and create Kubernetes secret
-./core/core/automation/ci-cd/scripts/setup-sops-keys.sh
+./core/scripts/automation/setup-sops-keys.sh
 
 # Update .sops.yaml with the generated public key
 # (Script will output the key to use)
@@ -76,7 +76,7 @@ This example shows:
 ```bash
 # Encrypt all example secrets
 export AGE_KEY="age1your-public-key-here"
-./core/core/automation/ci-cd/scripts/encrypt-secrets.sh
+./core/scripts/automation/encrypt-secrets.sh
 
 # Or encrypt manually
 sops --encrypt --in-place database-credentials.secret.yaml
@@ -212,7 +212,7 @@ spec:
 2. **SOPS encryption fails locally:**
    ```bash
    # Validate SOPS configuration
-   ./core/core/automation/ci-cd/scripts/validate-sops-config.sh
+   ./core/scripts/automation/validate-sops-config.sh
    
    # Check age key
    age-keygen -y .sops-keys/age.agekey
@@ -231,13 +231,13 @@ spec:
 
 ```bash
 # Test SOPS workflow
-./core/core/automation/ci-cd/scripts/test-sops-workflow.sh
+./core/scripts/automation/test-sops-workflow.sh
 
 # Health check
-./core/core/automation/ci-cd/scripts/sops-health-check.sh
+./core/scripts/automation/sops-health-check.sh
 
 # Validate configuration
-./core/core/automation/ci-cd/scripts/validate-sops-config.sh
+./core/scripts/automation/validate-sops-config.sh
 ```
 
 ## Monitoring

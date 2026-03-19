@@ -339,7 +339,7 @@ polaris audit --audit-path core/resources/
 ```
 infrastructure-manager/
 ├── SKILL.md                    # Main skill definition
-├── core/core/automation/ci-cd/scripts/
+├── scripts/
 │   ├── deploy.sh              # Deployment automation
 │   ├── drift-detect.sh        # Drift detection
 │   ├── compliance-check.sh    # Security validation
@@ -1117,17 +1117,17 @@ kustomize build core/resources/ > desired-state.yaml
 diff current-state.yaml desired-state.yaml > drift-report.txt
 
 # Step 4: Analyze drift impact
-python core/core/automation/ci-cd/scripts/analyze-drift.py drift-report.txt
+python scripts/analyze-drift.py drift-report.txt
 ```
 
 #### Remediate Drift
 
 ```bash
 # Step 1: Classify drift severity
-python core/core/automation/ci-cd/scripts/classify-drift.py drift-report.txt
+python scripts/classify-drift.py drift-report.txt
 
 # Step 2: Generate remediation plan
-python core/core/automation/ci-cd/scripts/generate-remediation.py drift-report.txt
+python scripts/generate-remediation.py drift-report.txt
 
 # Step 3: Apply remediation (if safe)
 if [ "$DRIFT_SEVERITY" = "low" ]; then
@@ -1150,7 +1150,7 @@ kubectl get roles,rolebindings -A -o wide
 
 # Step 2: Network Policy Check
 kubectl get networkpolicies -A
-python core/core/automation/ci-cd/scripts/validate-network-policies.py
+python scripts/validate-network-policies.py
 
 # Step 3: Pod Security Validation
 kubectl get pods -A -o json | jq '.items[].spec.securityContext'
@@ -1158,7 +1158,7 @@ polaris audit --audit-path core/resources/
 
 # Step 4: Secret Management Check
 kubectl get secrets -A --field-selector type=kubernetes.io/tls
-python core/core/automation/ci-cd/scripts/validate-secrets.py
+python scripts/validate-secrets.py
 ```
 
 #### Compliance Reporting
@@ -1168,10 +1168,10 @@ python core/core/automation/ci-cd/scripts/validate-secrets.py
 kube-bench --json > cis-report.json
 
 # Step 2: Custom Policy Validation
-python core/core/automation/ci-cd/scripts/validate-custom-policies.py core/resources/
+python scripts/validate-custom-policies.py core/resources/
 
 # Step 3: Generate Compliance Report
-python core/core/automation/ci-cd/scripts/generate-compliance-report.py \
+python scripts/generate-compliance-report.py \
   --cis-report cis-report.json \
   --custom-policy-report policy-report.json \
   --output compliance-report.html
@@ -1187,10 +1187,10 @@ kubectl top pods -A --no-headers | awk '{print $2, $3}' > cpu-mem-usage.txt
 kubectl top nodes --no-headers | awk '{print $2, $3}' > node-usage.txt
 
 # Step 2: Analyze utilization
-python core/core/automation/ci-cd/scripts/analyze-utilization.py cpu-mem-usage.txt node-usage.txt
+python scripts/analyze-utilization.py cpu-mem-usage.txt node-usage.txt
 
 # Step 3: Generate optimization recommendations
-python core/core/automation/ci-cd/scripts/generate-optimization.py utilization-report.json
+python scripts/generate-optimization.py utilization-report.json
 ```
 
 #### Right-Sizing Recommendations
@@ -1201,11 +1201,11 @@ prometheus_query 'rate(container_cpu_usage_seconds_total[7d])' > cpu-history.jso
 prometheus_query 'container_memory_working_set_bytes' > mem-history.json
 
 # Step 2: Generate recommendations
-python core/core/automation/ci-cd/scripts/right-size.py cpu-history.json mem-history.json
+python scripts/right-size.py cpu-history.json mem-history.json
 
 # Step 3: Apply recommendations (with approval)
 if [ "$APPLY_RECOMMENDATIONS" = "true" ]; then
-  python core/core/automation/ci-cd/scripts/apply-right-sizing.py recommendations.json
+  python scripts/apply-right-sizing.py recommendations.json
 fi
 ```
 

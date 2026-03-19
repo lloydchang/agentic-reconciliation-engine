@@ -437,7 +437,7 @@ cli/
 │   ├── client/              # API client
 │   ├── formatter/           # Output formatting
 │   └── config/             # Configuration management
-└── core/core/automation/ci-cd/scripts/
+└── scripts/
     ├── install.sh           # Installation script
     └── completion.sh        # Shell completion
 ```

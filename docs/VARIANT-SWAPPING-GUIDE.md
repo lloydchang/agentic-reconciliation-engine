@@ -245,7 +245,7 @@ variant-specific-components
 Use the DAG validation script to ensure proper dependencies:
 
 ```bash
-./core/core/automation/ci-cd/scripts/generate-dag-visualization.sh | grep -A 20 "Validation"
+./core/scripts/automation/generate-dag-visualization.sh | grep -A 20 "Validation"
 ```
 
 Check variant-specific labels:

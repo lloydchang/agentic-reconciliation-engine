@@ -157,7 +157,7 @@ func GetMetricsActivity(ctx context.Context) (map[string]interface{}, error)
 
 ### 3. AI Agents Ecosystem Deployment
 
-**Location**: `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
+**Location**: `core/scripts/automation/deploy-ai-agents-ecosystem.sh`
 **Purpose**: Complete deployment automation for the AI agents infrastructure
 
 #### Deployment Components
@@ -381,7 +381,7 @@ Solution: Check database performance and optimize queries
 ### Key Files and Locations
 - **Skill Definition**: [core/ai/skills/debug/SKILL.md](core/ai/skills/debug/SKILL.md)
 - **Metrics System**: `ai-core/ai/runtime/backend/monitoring/metrics.go`
-- **Deployment Script**: `core/core/automation/ci-cd/scripts/deploy-ai-agents-ecosystem.sh`
+- **Deployment Script**: `core/scripts/automation/deploy-ai-agents-ecosystem.sh`
 - **Monitoring Plan**: [docs/REAL_MONITORING_IMPLEMENTATION.md](docs/REAL_MONITORING_IMPLEMENTATION.md)
 
 ### Important Endpoints

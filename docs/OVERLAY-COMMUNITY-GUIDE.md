@@ -76,7 +76,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Verify setup
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 ```
 
 ### 3. Explore Existing Overlays
@@ -84,13 +84,13 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py list
 #### Browse the Registry
 ```bash
 # List all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # Search by category
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
+python core/scripts/automation/overlay-cli.py list --category skills
 
 # Search by keyword
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "monitoring"
+python core/scripts/automation/overlay-cli.py search "monitoring"
 ```
 
 #### Study Examples
@@ -108,15 +108,15 @@ Create new overlays that extend system capabilities:
 
 ```bash
 # Create new skill overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Develop your overlay
 cd core/deployment/overlays/core/ai/skills/my-skill
 # ... make changes ...
 
 # Test and validate
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
 
 # Submit contribution
 git add .

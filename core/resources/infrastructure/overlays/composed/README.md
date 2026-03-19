@@ -55,10 +55,10 @@ kustomize build core/deployment/overlays/composed/community-bundle | kubectl app
 kustomize build core/deployment/overlays/composed/enterprise-suite | kubectl apply --dry-run=client -f -
 
 # Validate composition
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/composed/enterprise-suite
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/composed/enterprise-suite
 
 # Test composition
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/enterprise-suite
+python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/enterprise-suite
 ```
 
 ## Migration from Variants
@@ -111,8 +111,8 @@ The following variants have been migrated to composed overlays:
 
 4. **Test and Validate**:
    ```bash
-   python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/composed/my-composed-overlay
-   python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-composed-overlay
+   python core/scripts/automation/validate-overlays.py core/deployment/overlays/composed/my-composed-overlay
+   python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/my-composed-overlay
    ```
 
 ## Best Practices
@@ -160,10 +160,10 @@ The following variants have been migrated to composed overlays:
 
 ```bash
 # Validate composed overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/composed/my-overlay
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/composed/my-overlay
 
 # Test composition
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/composed/my-overlay
+python core/scripts/automation/test-overlays.py core/deployment/overlays/composed/my-overlay
 
 # Check build output
 kustomize build core/deployment/overlays/composed/my-overlay

@@ -20,7 +20,7 @@ A skill is a directory with a [SKILL.md](SKILL.md) file plus optional scripts an
           comment: "Required: instructions + metadata",
         },
         {
-          name: "core/core/automation/ci-cd/scripts/",
+          name: "scripts/",
           comment: "Optional: executable code",
         },
         {

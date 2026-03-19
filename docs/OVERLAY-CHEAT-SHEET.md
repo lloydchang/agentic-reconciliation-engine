@@ -22,26 +22,26 @@ git clone https://github.com/gitops-infra-core/operators/agentic-reconciliation-
 cd agentic-reconciliation-engine
 
 # Setup tools
-chmod +x core/core/automation/ci-cd/scripts/*.py
+chmod +x core/scripts/automation/*.py
 export PATH="$PWD/scripts:$PATH"
 
 # Verify installation
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 ```
 
 ### Create First Overlay
 ```bash
 # Create skill overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Test overlay
 cd core/deployment/overlays/core/ai/skills/my-skill
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
 
 # Build and apply
-python core/core/automation/ci-cd/scripts/overlay-cli.py build . --output my-skill.yaml
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply . --dry-run
+python core/scripts/automation/overlay-cli.py build . --output my-skill.yaml
+python core/scripts/automation/overlay-cli.py apply . --dry-run
 ```
 
 ## CLI Commands
@@ -49,102 +49,102 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py apply . --dry-run
 ### List Overlays
 ```bash
 # List all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # List by category
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category skills
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category dashboard
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category infrastructure
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --category composed
+python core/scripts/automation/overlay-cli.py list --category skills
+python core/scripts/automation/overlay-cli.py list --category dashboard
+python core/scripts/automation/overlay-cli.py list --category infrastructure
+python core/scripts/automation/overlay-cli.py list --category composed
 
 # Different output formats
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --format table
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --format json
-python core/core/automation/ci-cd/scripts/overlay-cli.py list --format yaml
+python core/scripts/automation/overlay-cli.py list --format table
+python core/scripts/automation/overlay-cli.py list --format json
+python core/scripts/automation/overlay-cli.py list --format yaml
 ```
 
 ### Create Overlays
 ```bash
 # Skill overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 
 # Dashboard theme
-python core/core/automation/ci-cd/scripts/overlay-cli.py create dark-theme dashboard themes --template dashboard-overlay
+python core/scripts/automation/overlay-cli.py create dark-theme dashboard themes --template dashboard-overlay
 
 # Infrastructure overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create enhanced-infra infrastructure flux --template infra-overlay
+python core/scripts/automation/overlay-cli.py create enhanced-infra infrastructure flux --template infra-overlay
 
 # Composed overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-bundle composed ""
+python core/scripts/automation/overlay-cli.py create my-bundle composed ""
 ```
 
 ### Validate Overlays
 ```bash
 # Validate specific overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/overlay-cli.py validate core/deployment/overlays/core/ai/skills/my-skill
 
 # Validate all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py validate core/deployment/overlays/
+python core/scripts/automation/overlay-cli.py validate core/deployment/overlays/
 
 # Verbose validation
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
 ```
 
 ### Test Overlays
 ```bash
 # Test specific overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py test core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/overlay-cli.py test core/deployment/overlays/core/ai/skills/my-skill
 
 # Test all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py test core/deployment/overlays/
+python core/scripts/automation/overlay-cli.py test core/deployment/overlays/
 
 # Verbose testing
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
 ```
 
 ### Build Overlays
 ```bash
 # Build overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-skill
 
 # Save to file
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-skill --output my-skill.yaml
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-skill --output my-skill.yaml
 
 # Build composed overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/composed/my-bundle
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/composed/my-bundle
 ```
 
 ### Apply Overlays
 ```bash
 # Apply overlay (dry run)
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-skill --dry-run
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-skill --dry-run
 
 # Apply to cluster
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-skill
 
 # Apply composed overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/composed/my-bundle
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/composed/my-bundle
 ```
 
 ### Search Overlays
 ```bash
 # Search by name or description
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "debugging"
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "ml"
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "monitoring"
+python core/scripts/automation/overlay-cli.py search "debugging"
+python core/scripts/automation/overlay-cli.py search "ml"
+python core/scripts/automation/overlay-cli.py search "monitoring"
 
 # Search by tags
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "enhanced" --tags machine-learning
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "security" --tags compliance audit
+python core/scripts/automation/overlay-cli.py search "enhanced" --tags machine-learning
+python core/scripts/automation/overlay-cli.py search "security" --tags compliance audit
 
 # Search with filters
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "enterprise" --category composed
+python core/scripts/automation/overlay-cli.py search "enterprise" --category composed
 ```
 
 ### Update Catalog
 ```bash
 # Update overlay catalog
-python core/core/automation/ci-cd/scripts/overlay-cli.py update-catalog
+python core/scripts/automation/overlay-cli.py update-catalog
 ```
 
 ## Registry Commands
@@ -152,69 +152,69 @@ python core/core/automation/ci-cd/scripts/overlay-cli.py update-catalog
 ### Initialize Registry
 ```bash
 # Create new registry
-python core/core/automation/ci-cd/scripts/overlay-registry.py init
+python core/scripts/automation/overlay-registry.py init
 
 # Custom registry location
-python core/core/automation/ci-cd/scripts/overlay-registry.py init --registry-dir /path/to/registry
+python core/scripts/automation/overlay-registry.py init --registry-dir /path/to/registry
 ```
 
 ### Register Overlays
 ```bash
 # Register overlay
-python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-skill
 
 # Register with custom metadata
-python core/core/automation/ci-cd/scripts/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-skill --metadata custom-metadata.yaml
+python core/scripts/automation/overlay-registry.py register core/deployment/overlays/core/ai/skills/my-skill --metadata custom-metadata.yaml
 ```
 
 ### Search Registry
 ```bash
 # Search overlays
-python core/core/automation/ci-cd/scripts/overlay-registry.py search "debugging"
+python core/scripts/automation/overlay-registry.py search "debugging"
 
 # Filter by category
-python core/core/automation/ci-cd/scripts/overlay-registry.py search "enhanced" --category skills
+python core/scripts/automation/overlay-registry.py search "enhanced" --category skills
 
 # Filter by risk level
-python core/core/automation/ci-cd/scripts/overlay-registry.py search "enterprise" --risk-level medium
+python core/scripts/automation/overlay-registry.py search "enterprise" --risk-level medium
 ```
 
 ### List Overlays
 ```bash
 # List all overlays
-python core/core/automation/ci-cd/scripts/overlay-registry.py list
+python core/scripts/automation/overlay-registry.py list
 
 # Filter by category
-python core/core/automation/ci-cd/scripts/overlay-registry.py list --category skills
+python core/scripts/automation/overlay-registry.py list --category skills
 
 # Sort by version
-python core/core/automation/ci-cd/scripts/overlay-registry.py list --sort version
+python core/scripts/automation/overlay-registry.py list --sort version
 ```
 
 ### Get Overlay Details
 ```bash
 # Get overlay metadata
-python core/core/automation/ci-cd/scripts/overlay-registry.py get my-skill
-python core/core/automation/ci-cd/scripts/overlay-registry.py get debug-enhanced
+python core/scripts/automation/overlay-registry.py get my-skill
+python core/scripts/automation/overlay-registry.py get debug-enhanced
 ```
 
 ### Validate Registry
 ```bash
 # Validate registry integrity
-python core/core/automation/ci-cd/scripts/overlay-registry.py validate
+python core/scripts/automation/overlay-registry.py validate
 ```
 
 ### Export/Import Registry
 ```bash
 # Export registry
-python core/core/automation/ci-cd/scripts/overlay-registry.py export registry-backup.yaml
-python core/core/automation/ci-cd/scripts/overlay-registry.py export registry-backup.json --format json
+python core/scripts/automation/overlay-registry.py export registry-backup.yaml
+python core/scripts/automation/overlay-registry.py export registry-backup.json --format json
 
 # Import registry (merge)
-python core/core/automation/ci-cd/scripts/overlay-registry.py import registry-backup.yaml
+python core/scripts/automation/overlay-registry.py import registry-backup.yaml
 
 # Import registry (replace)
-python core/core/automation/ci-cd/scripts/overlay-registry.py import registry-backup.yaml --replace
+python core/scripts/automation/overlay-registry.py import registry-backup.yaml --replace
 ```
 
 ## Validation Commands
@@ -222,31 +222,31 @@ python core/core/automation/ci-cd/scripts/overlay-registry.py import registry-ba
 ### Basic Validation
 ```bash
 # Validate single overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill
 
 # Validate all overlays
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/
 
 # Verbose output
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --verbose
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/ --verbose
 ```
 
 ### Generate Reports
 ```bash
 # Generate validation report
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --report validation-report.json
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/ --report validation-report.json
 
 # Generate HTML report
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/ --report validation-report.html
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/ --report validation-report.html
 ```
 
 ### Schema Validation
 ```bash
 # Validate against schema only
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --schema-only
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --schema-only
 
 # Validate agentskills.io compliance only
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --agentskills-only
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --agentskills-only
 ```
 
 ## Testing Commands
@@ -254,34 +254,34 @@ python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/o
 ### Basic Testing
 ```bash
 # Test single overlay
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill
 
 # Test all overlays
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/
+python core/scripts/automation/test-overlays.py core/deployment/overlays/
 
 # Verbose output
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/ --verbose
+python core/scripts/automation/test-overlays.py core/deployment/overlays/ --verbose
 ```
 
 ### Specific Test Types
 ```bash
 # Test structure only
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-structure
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-structure
 
 # Test composition only
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-composition
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-composition
 
 # Test dependencies only
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-dependencies
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-dependencies
 ```
 
 ### Test Reports
 ```bash
 # Generate test report
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/ --report test-report.json
+python core/scripts/automation/test-overlays.py core/deployment/overlays/ --report test-report.json
 
 # Generate coverage report
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/ --coverage
+python core/scripts/automation/test-overlays.py core/deployment/overlays/ --coverage
 ```
 
 ## Common Patterns
@@ -408,13 +408,13 @@ find core/deployment/overlays/core/ai/skills/my-skill -name "*.yaml"
 kustomize build core/deployment/overlays/core/ai/skills/my-skill --enable-alpha-plugins
 
 # Check dependencies
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-dependencies
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-skill --test-dependencies
 ```
 
 ### Debug Commands
 ```bash
 # Verbose validation
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-skill --verbose
 
 # Debug build
 kustomize build core/deployment/overlays/core/ai/skills/my-skill --enable-alpha-plugins --v 6
@@ -436,7 +436,7 @@ git checkout core/deployment/overlays/core/ai/skills/my-skill/kustomization.yaml
 rm -rf core/deployment/overlays/core/ai/skills/my-skill
 
 # Re-create from template
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-skill skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-skill skills base-skill --template skill-overlay
 ```
 
 ## File Templates
@@ -568,49 +568,49 @@ How to get help and report issues.
 ### One-Liners
 ```bash
 # List all overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py list
+python core/scripts/automation/overlay-cli.py list
 
 # Create new overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 
 # Validate overlay
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Test overlay
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
 
 # Build overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay --output overlay.yaml
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay --output overlay.yaml
 
 # Apply overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-overlay --dry-run
+python core/scripts/automation/overlay-cli.py apply core/deployment/overlays/core/ai/skills/my-overlay --dry-run
 
 # Search overlays
-python core/core/automation/ci-cd/scripts/overlay-cli.py search "keyword"
+python core/scripts/automation/overlay-cli.py search "keyword"
 
 # Update catalog
-python core/core/automation/ci-cd/scripts/overlay-registry.py update-catalog
+python core/scripts/automation/overlay-registry.py update-catalog
 ```
 
 ### Common Commands
 ```bash
 # Development workflow
-python core/core/automation/ci-cd/scripts/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
+python core/scripts/automation/overlay-cli.py create my-overlay skills base-skill --template skill-overlay
 cd core/deployment/overlays/core/ai/skills/my-overlay
 # ... make changes ...
-python core/core/automation/ci-cd/scripts/validate-overlays.py .
-python core/core/automation/ci-cd/scripts/test-overlays.py .
-python core/core/automation/ci-cd/scripts/overlay-registry.py register .
+python core/scripts/automation/validate-overlays.py .
+python core/scripts/automation/test-overlays.py .
+python core/scripts/automation/overlay-registry.py register .
 
 # Production deployment
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
-python core/core/automation/ci-cd/scripts/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay --output production.yaml
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay
+python core/scripts/automation/overlay-cli.py build core/deployment/overlays/core/ai/skills/my-overlay --output production.yaml
 kubectl apply -f production.yaml
 
 # Troubleshooting
-python core/core/automation/ci-cd/scripts/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay --verbose
-python core/core/automation/ci-cd/scripts/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay --verbose
+python core/scripts/automation/validate-overlays.py core/deployment/overlays/core/ai/skills/my-overlay --verbose
+python core/scripts/automation/test-overlays.py core/deployment/overlays/core/ai/skills/my-overlay --verbose
 kustomize build core/deployment/overlays/core/ai/skills/my-overlay --enable-alpha-plugins
 ```
 

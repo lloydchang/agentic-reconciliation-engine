@@ -36,7 +36,7 @@ core/ai/skills/skills/
 │   ├── template.md       # Optional: Template for structured output
 │   ├── examples.md       # Optional: Usage examples
 │   ├── reference.md      # Optional: Detailed reference material
-│   ├── core/core/automation/ci-cd/scripts/          # Optional: Executable scripts
+│   ├── scripts/          # Optional: Executable scripts
 │   └── assets/           # Optional: Static resources
 │   └── core/ai/runtime/
 │       └── openai.yaml   # Optional: UI metadata and dependencies
@@ -254,7 +254,7 @@ Add supporting files in the skill directory:
 - [template.md](template.md): Structured output templates
 - [examples.md](examples.md): Usage examples and patterns
 - [reference.md](reference.md): Detailed API documentation
-- `core/core/automation/ci-cd/scripts/helper.py`: Utility scripts
+- `scripts/helper.py`: Utility scripts
 
 #### Agent Metadata
 

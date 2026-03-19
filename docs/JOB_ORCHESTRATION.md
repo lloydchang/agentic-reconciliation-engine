@@ -43,7 +43,7 @@ spec:
       containers:
       - name: migration
         image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
-        command: ["/core/core/automation/ci-cd/scripts/migrate.sh"]
+        command: ["/scripts/migrate.sh"]
         env:
         - name: DATABASE_URL
           valueFrom:
@@ -100,7 +100,7 @@ spec:
       containers:
       - name: cache-refresh
         image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
-        command: ["/core/core/automation/ci-cd/scripts/refresh_cache.sh"]
+        command: ["/scripts/refresh_cache.sh"]
 ```
 
 #### **Health Check Job**
@@ -116,7 +116,7 @@ spec:
       containers:
       - name: health-check
         image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
-        command: ["/core/core/automation/ci-cd/scripts/health_check.sh"]
+        command: ["/scripts/health_check.sh"]
 ```
 
 ---
@@ -320,7 +320,7 @@ data:
   migrate.sh: |
     #!/bin/bash
     echo "🔄 Starting database migration..."
-    psql "$DATABASE_URL" -f /core/core/automation/ci-cd/scripts/migrations/001_initial_schema.sql
+    psql "$DATABASE_URL" -f /scripts/migrations/001_initial_schema.sql
     echo "✅ Migration completed!"
 ```
 
@@ -433,7 +433,7 @@ spec:
       containers:
       - name: rollback
         image: ghcr.io/lloydchang/agentic-reconciliation-engine:latest
-        command: ["/core/core/automation/ci-cd/scripts/rollback.sh"]
+        command: ["/scripts/rollback.sh"]
 ```
 
 ### **Canary Deployments**

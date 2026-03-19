@@ -15,17 +15,17 @@ This guide provides comprehensive debugging strategies and tools for distributed
 - **Autonomy**: Fully automated for read-only, conditional for fixes
 
 #### Python Debugging CLI
-- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/main.py`
+- **Location**: `core/ai/skills/debug/scripts/main.py`
 - **Purpose**: Comprehensive debugging with rich output and auto-fix
 - **Features**: Real-time monitoring, structured reports, automated fixes
 
 #### Bash Debugging Scripts
-- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/quick_debug.sh`
+- **Location**: `core/ai/skills/debug/scripts/quick_debug.sh`
 - **Purpose**: Fast troubleshooting for common issues
 - **Features**: Immediate feedback, auto-fix capabilities
 
 #### Debug Utilities
-- **Location**: `core/ai/skills/debug/core/core/automation/ci-cd/scripts/debug_utils.py`
+- **Location**: `core/ai/skills/debug/scripts/debug_utils.py`
 - **Purpose**: Async system metrics collection and analysis
 - **Features**: Kubernetes API integration, log pattern analysis
 
@@ -395,7 +395,7 @@ spec:
           containers:
           - name: debug-monitor
             image: python:3.9
-            command: ["python", "/core/core/automation/ci-cd/scripts/main.py"]
+            command: ["python", "/scripts/main.py"]
             args: ["debug", "--target-component", "all", "--auto-fix"]
             volumeMounts:
             - name: debug-scripts
