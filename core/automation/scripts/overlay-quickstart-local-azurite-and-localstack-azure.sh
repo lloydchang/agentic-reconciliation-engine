@@ -73,7 +73,47 @@ show_help() {
 
 # Complete overlay quick start
 complete_overlay_quickstart() {
-    common_overlay_main "Azurite Azure"
+    print_header "Complete Overlay Quick Start - Azurite Azure"
+    
+    # Setup overlay environment
+    setup_overlay_environment || return 1
+    
+    # Create overlay hooks
+    create_overlay_hooks || return 1
+    
+    # Run base quickstart with overlay extensions
+    run_overlay_quickstart || return 1
+    
+    # Create overlay examples
+    create_overlay_examples || return 1
+    
+    # Test overlay system
+    test_overlay_system || return 1
+    
+    # Deploy example overlay
+    deploy_example_overlay || return 1
+    
+    # Deploy AI Agent Skills and MCP servers
+    deploy_ai_agent_skills || return 1
+    
+    print_success "Overlay quick start completed successfully!"
+    echo ""
+    echo -e "${BLUE}🎉 Overlay system is ready on Azurite Azure!${NC}"
+    echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
+    echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
+    echo ""
+    echo -e "${BLUE}Next steps:${NC}"
+    echo "1. Use overlay-manager.sh to manage overlays"
+    echo "2. Create custom overlays with overlay-cli.py"
+    echo "3. Deploy overlays to your cluster"
+    echo "4. Monitor overlay status and logs"
+    echo "5. Access your AI agents dashboard at http://localhost:8080"
+    echo "6. Configure Claude Desktop with AI Agent Skills (auto-configured)"
+    echo ""
+    echo -e "${GREEN}🎉 Overlay system and AI agents are ready on Azurite Azure!${NC}"
+    echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
+    echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
+    echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
 }
 
 # Parse command line arguments

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Agentic Reconciliation Engine - Common Overlay Quick Start Functions
-# Shared functions for all environment-specific overlay-quickstart scripts
+# Shared functions for all environment-specific overlay quickstart scripts
 
 set -euo pipefail
 
@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Script information
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 print_header() {
     echo -e "${BLUE}=== $1 ===${NC}"
@@ -68,7 +68,7 @@ create_overlay_hooks() {
 echo "🔧 Overlay pre-quickstart hook executing..."
 
 # Set overlay-specific defaults
-export OVERLAY_DIR="overlays"
+export OVERLAY_DIR="overlay"
 export OVERLAY_REGISTRY_ENABLED="true"
 export OVERLAY_TEMPLATES_ENABLED="true"
 
@@ -174,59 +174,19 @@ EOF
 
 # Run overlay quickstart
 run_overlay_quickstart() {
-    local environment="$1"
-    local quickstart_script="quickstart"
+    print_header "Running Overlay Quick Start"
     
-    # Determine the appropriate quickstart script based on environment
-    case "$environment" in
-        "Kind")
-            quickstart_script="quickstart-local-kind.sh"
-            ;;
-        "Docker Desktop")
-            quickstart_script="quickstart-local-docker-desktop.sh"
-            ;;
-        "Minikube")
-            quickstart_script="quickstart-local-minikube.sh"
-            ;;
-        "LocalStack AWS")
-            quickstart_script="quickstart-local-localstack-aws.sh"
-            ;;
-        "Azurite Azure")
-            quickstart_script="quickstart-local-azurite-and-localstack-azure.sh"
-            ;;
-        "Google Cloud Emulator")
-            quickstart_script="quickstart-local-gcloud-emulator.sh"
-            ;;
-        "AWS")
-            quickstart_script="quickstart-remote-aws.sh"
-            ;;
-        "Azure")
-            quickstart_script="quickstart-remote-azure.sh"
-            ;;
-        "GCP")
-            quickstart_script="quickstart-remote-gcp.sh"
-            ;;
-        "On-Premises")
-            quickstart_script="quickstart-remote-on-prem.sh"
-            ;;
-        *)
-            quickstart_script="quickstart.sh"
-            ;;
-    esac
-    
-    print_header "Running Overlay Quick Start - $environment"
-    
-    # Check if quickstart script exists
-    if [[ ! -f "$SCRIPT_DIR/$quickstart_script" ]]; then
-        print_error "Quickstart script not found: $SCRIPT_DIR/$quickstart_script"
+    # Check if quickstart.sh exists
+    if [[ ! -f "$SCRIPT_DIR/quickstart.sh" ]]; then
+        print_error "Base quickstart.sh not found: $SCRIPT_DIR/quickstart.sh"
         return 1
     fi
     
     print_info "Executing base quickstart with overlay extensions..."
     
     # Source and run base quickstart
-    # The hooks will be automatically picked up by quickstart script
-    source "$SCRIPT_DIR/$quickstart_script"
+    # The hooks will be automatically picked up by quickstart.sh
+    source "$SCRIPT_DIR/quickstart.sh"
     
     local exit_code=$?
     
@@ -409,20 +369,11 @@ deploy_ai_agent_skills() {
     fi
 }
 
-# Common overlay quick start function
-common_overlay_main() {
+# Complete overlay quick start
+complete_overlay_quickstart() {
     local environment="$1"
     
-    print_header "Agentic Reconciliation Engine Overlay Quick Start - $environment"
-    
-    echo -e "${BLUE}Welcome to Agentic Reconciliation Engine Overlay System!${NC}"
-    echo ""
-    
-    # Check if we're in the right directory
-    if [[ ! -f "$REPO_ROOT/README.md" ]]; then
-        print_error "Not in repository root. Please run from repository root."
-        exit 1
-    fi
+    print_header "Complete Overlay Quick Start - $environment"
     
     # Setup overlay environment
     setup_overlay_environment || return 1
@@ -431,7 +382,7 @@ common_overlay_main() {
     create_overlay_hooks || return 1
     
     # Run base quickstart with overlay extensions
-    run_overlay_quickstart "$environment" || return 1
+    run_overlay_quickstart || return 1
     
     # Create overlay examples
     create_overlay_examples || return 1
@@ -447,26 +398,58 @@ common_overlay_main() {
     
     print_success "Overlay quick start completed successfully!"
     echo ""
-    echo -e "${BLUE}🎉 Overlay system is ready!${NC}"
+    echo -e "${BLUE}🎉 Overlay system is ready on $environment!${NC}"
     echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
     echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
     echo "1. Use overlay-manager.sh to manage overlays"
     echo "2. Create custom overlays with overlay-cli.py"
-    echo "3. Deploy overlays to your $environment cluster"
+    echo "3. Deploy overlays to your cluster"
     echo "4. Monitor overlay status and logs"
     echo "5. Access your AI agents dashboard at http://localhost:8080"
     echo "6. Configure Claude Desktop with AI Agent Skills (auto-configured)"
     echo ""
-    echo -e "${GREEN}🎉 Overlay system is ready!${NC}"
+    echo -e "${GREEN}🎉 Overlay system and AI agents are ready on $environment!${NC}"
     echo -e "${YELLOW}📊 Your enhanced debug dashboard is running!${NC}"
     echo -e "${GREEN}🚀 Access it at: http://localhost:8080/dashboard${NC}"
     echo -e "${YELLOW}✨ AI Agent Skills are fully operational and ready for use!${NC}"
+}
+
+# Help function
+show_overlay_help() {
+    echo "Agentic Reconciliation Engine - Common Overlay Quick Start Functions"
+    echo ""
+    echo "USAGE: source overlay-quickstart-common.sh"
+    echo ""
+    echo "DESCRIPTION:"
+    echo "  Provides shared functions for all environment-specific overlay quickstart scripts."
+    echo "  This includes overlay environment setup, hook creation, example generation,"
+    echo "  system testing, and deployment orchestration."
+    echo ""
+    echo "CORE FUNCTIONS:"
+    echo "  setup_overlay_environment()           - Configure overlay environment variables"
+    echo "  create_overlay_hooks()                - Create overlay extension hooks"
+    echo "  run_overlay_quickstart()             - Execute base quickstart with overlays"
+    echo "  create_overlay_examples()             - Generate example overlays"
+    echo "  test_overlay_system()                 - Test overlay system components"
+    echo "  deploy_example_overlay()             - Deploy example overlay to cluster"
+    echo "  deploy_ai_agent_skills()             - Deploy AI skills and MCP servers"
+    echo "  complete_overlay_quickstart()         - Full overlay quickstart orchestration"
+    echo ""
+    echo "UTILITY FUNCTIONS:"
+    echo "  print_header(), print_success(), print_error()"
+    echo "  print_warning(), print_info()"
+    echo ""
+    echo "ENVIRONMENT VARIABLES:"
+    echo "  OVERLAY_MODE=true                     - Enable overlay mode"
+    echo "  OVERLAY_QUICKSTART=true               - Mark as overlay quickstart"
+    echo "  QUICKSTART_SKIP_EXAMPLES=true         - Skip basic example creation"
+    echo "  QUICKSTART_ENABLE_OVERLAYS=true       - Enable overlay features"
 }
 
 # Export functions for use in other scripts
 export -f print_header print_success print_error print_warning print_info
 export -f setup_overlay_environment create_overlay_hooks run_overlay_quickstart
 export -f create_overlay_examples test_overlay_system deploy_example_overlay
-export -f deploy_ai_agent_skills common_overlay_main
+export -f deploy_ai_agent_skills complete_overlay_quickstart show_overlay_help
