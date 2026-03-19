@@ -9,7 +9,7 @@ metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
-  risk-level: medium
+  risk_level: medium
   autonomy: conditional
   layer: temporal
   human_gate: PR approval required for production deployment changes

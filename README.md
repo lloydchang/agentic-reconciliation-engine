@@ -29,7 +29,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 
 * [**Quickstart**](./docs/QUICKSTART.md) — Prerequisites and automation.
 * [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
-* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 70+ autonomous capabilities.
+* [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 90+ autonomous capabilities.
 * [**Safety Rules**](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Operational best practices.
 
 ---
@@ -37,7 +37,7 @@ Combines [Kubernetes](https://kubernetes.io/), [Crossplane](https://www.crosspla
 ### 🛠️ Getting Started
 
 1.  **Prerequisites:** Run `core/scripts/automation/prerequisites.sh`.
-2.  **Initialize:** Run `core/scripts/automation/run-local-automation.sh`.
+2.  **Initialize:** Run `core/scripts/automation/quickstart.sh`.
 
 ---
 

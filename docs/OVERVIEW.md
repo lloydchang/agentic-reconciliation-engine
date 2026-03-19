@@ -217,21 +217,21 @@ the problem you are solving.
   - [Bitbucket Cloud Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Supplies `BITBUCKET_USER` + `BITBUCKET_TOKEN`; uses the Bitbucket Cloud PR API
   - [AWS CodeCommit Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the standard HTTPS git helper; PRs must be opened via the AWS console
   - [GCP Secure Source Manager Connector](./docs/MIGRATION-WIZARD-ARCHITECTURE.md#core-components) - Uses the gcloud git credential helper; PRs opened through the Cloud Console
-- [Open Console PR Helper](./core/core/automation/ci-cd/scripts/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL for manual PR creation
-- [Apply Overlay Order Helper](./core/core/automation/ci-cd/scripts/apply-overlay-order.sh) - Reorders `core/operators/flux/kustomization.yaml` per `core/operators/flux/overlay-order.txt`
-- [Overlay Logician](./core/core/automation/ci-cd/scripts/overlay-logician.py) - Validates that every ordered overlay exists before running the migration wizard
-- [Emulator Follow-On Runner](./core/core/automation/ci-cd/scripts/run-emulator-then-cloud.sh) - Runs `core/core/automation/ci-cd/scripts/migration_wizard.py` twice: first with `--emulator=enable`, then `--emulator=disable`
-- [Zero-Touch Azure Emulator Run](./core/core/automation/ci-cd/scripts/run-local-automation.sh) - Executes `core/core/automation/ci-cd/scripts/bootstrap.sh` then `core/core/automation/ci-cd/scripts/migration_wizard.py` with `--connector=github`, `--overlay-order=bootstrap hub emulator-azure spoke-local`, and `--emulator=azure`
+- [Open Console PR Helper](./core/scripts/automation/open-gh-console-pr.sh) - Prints the AWS CodeCommit or GCP Secure Source Manager console URL for manual PR creation
+- [Apply Overlay Order Helper](./core/scripts/automation/apply-overlay-order.sh) - Reorders `core/operators/flux/kustomization.yaml` per `core/operators/flux/overlay-order.txt`
+- [Overlay Logician](./core/scripts/automation/overlay-logician.py) - Validates that every ordered overlay exists before running the migration wizard
+- [Emulator Follow-On Runner](./core/scripts/automation/run-emulator-then-cloud.sh) - Runs `core/scripts/automation/migration_wizard.py` twice: first with `--emulator=enable`, then `--emulator=disable`
+- [Zero-Touch Azure Emulator Run](./core/scripts/automation/quickstart.sh) - Executes `core/scripts/automation/prerequisites.sh` then `core/scripts/automation/migration_wizard.py` with `--connector=github`, `--overlay-order=bootstrap hub emulator-azure spoke-local`, and `--emulator=azure`
 
 ## Zero-Touch Automation
 
-- `core/core/automation/ci-cd/scripts/run-local-automation.sh [--connector CONNECTOR] [--emulator-action enable|disable] [--overlay-order overlay-1,overlay-2,...]` executes bootstrap checks, migration wizard, and CI gate without interactive steps. Defaults target GitHub with the Azure emulator overlay order (`./bootstrap`, `./hub`, `./emulator-azure`, `./spoke-local`) and uses `core/core/automation/ci-cd/scripts/local-ci-gate.sh` to run `conftest` + `kubeconform`.
+- `core/scripts/automation/quickstart.sh [--connector CONNECTOR] [--emulator-action enable|disable] [--overlay-order overlay-1,overlay-2,...]` executes bootstrap checks, migration wizard, and CI gate without interactive steps. Defaults target GitHub with the Azure emulator overlay order (`./bootstrap`, `./hub`, `./emulator-azure`, `./spoke-local`) and uses `core/scripts/automation/local-ci-gate.sh` to run `conftest` + `kubeconform`.
 - The script writes logs under `logs/local-core/automation/ci-cd/` and produces a JSON report (`summary-*.json`) capturing start/end times, connector, emulator action, overlay order, helper scripts, CI gate command, and log paths.
 - Override defaults to exercise other connectors/emulators (e.g., `--connector=azure-devops --overlay-order ./bootstrap,./hub,./cloud-aks,./spoke-local`).
 - Use `.github/workflows/run-local-automation.yml` to trigger the wrapper via GitHub Actions (runs on `ubuntu-latest`, installs `conftest`/`kubeconform`, uploads logs/summary as artifacts). Supply `connector`, `overlay_order`, and `emulator_action` inputs to target GitHub Enterprise Cloud/Server, Azure DevOps, or other hosts on demand. – [GitHub Action file](./.github/workflows/run-local-automation.yml)
 - Use `azure-pipelines-zero-touch.yml` for Azure Pipelines; it installs the same policy tooling, runs the wrapper with pipeline parameters, and publishes `logs/local-core/automation/ci-cd/` as an artifact. – [Azure Pipelines template](./azure-pipelines-zero-touch.yml)
-- Both pipelines call `core/core/automation/ci-cd/scripts/publish-summary.sh` after automation completes. Set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post `latest-summary.json` to a dashboard/archive service; set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`.
-- `core/core/automation/ci-cd/scripts/publish-summary.sh` also generates [logs/local-core/automation/ci-cd/latest-summary.md](logs/local-core/automation/ci-cd/latest-summary.md) — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
+- Both pipelines call `core/scripts/automation/publish-summary.sh` after automation completes. Set `SUMMARY_ENDPOINT` (and optional `SUMMARY_TOKEN`) to post `latest-summary.json` to a dashboard/archive service; set `NOTIFY_WEBHOOK` to receive alerts when the CI gate status equals `failure`.
+- `core/scripts/automation/publish-summary.sh` also generates [logs/local-core/automation/ci-cd/latest-summary.md](logs/local-core/automation/ci-cd/latest-summary.md) — a Markdown mirror of the JSON summary listing connector, overlay order, emulator action, helper scripts, CI gate command, and log locations.
 
 ## Comparison with Managed Alternatives
 
@@ -262,7 +262,7 @@ Before building this architecture, evaluate whether a managed product meets your
 - [Local Development Setup](./docs/LOCAL-DEVELOPMENT-SETUP.md) - Development environment configuration
 
 ### AI Agents and Automation
-- [AI Agents Complete Deployment Guide](./docs/AI-AGENTS-COMPLETE-DEPLOYMENT-GUIDE.md) - Deploy AI agents ecosystem
+- [AI Agents Complete Deployment Guide](./docs/AI-AGENTS-DEPLOYMENT-GUIDE.md) - Deploy AI agents ecosystem
 - [AI System Debugging and Monitoring](./docs/AI-SYSTEM-DEBUGGING-MONITORING-GUIDE.md) - Debug distributed AI systems
 - [AI Agents Architecture](./docs/AI-AGENTS-ARCHITECTURE.md) - AI agents system design
 - [AI Agents Dashboard Guide](./docs/AI-AGENTS-DASHBOARD-GUIDE.md) - Interactive dashboard usage
@@ -282,7 +282,7 @@ Before building this architecture, evaluate whether a managed product meets your
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow guidance, Windows/WSL onboarding, and documentation expectations.
 
-[Pull Requests](https://github.com/lloydchang/gitops-infra-core/operators/pulls)
+[Pull Requests](https://github.com/lloydchang/agentic-reconciliation-engine/pulls)
 
 ## License
 

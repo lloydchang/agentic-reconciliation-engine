@@ -6,7 +6,7 @@ metadata:
   author: agentic-reconciliation-engine
   version: "1.0"
   category: enterprise
-  risk-level: medium
+  risk_level: medium
   autonomy: conditional
   layer: temporal
   human_gate: PR approval required for production infrastructure changes
@@ -76,9 +76,9 @@ Enterprise-grade automation solution for infrastructure provisioning operations 
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/core/automation/ci-cd/scripts/infrastructure-provisioning.py`: Main automation implementation
-- `core/core/automation/ci-cd/scripts/infrastructure-provisioning_handler.py`: Cloud-specific operations
-- `core/core/automation/ci-cd/scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/infrastructure-provisioning.py`: Main automation implementation
+- `core/scripts/automation/infrastructure-provisioning_handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
 infrastructure, provisioning, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
