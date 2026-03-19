@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Infrastructure Control Plane - Overlay Quick Start
+# Agentic Reconciliation Engine - Overlay Quick Start
 # Overlay approach to quickstart - extends quickstart.sh without modifying it
 
 set -euo pipefail
@@ -417,7 +417,7 @@ complete_overlay_quickstart() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Control Plane - Overlay Quick Start"
+    echo "Agentic Reconciliation Engine - Overlay Quick Start"
     echo ""
     echo "Overlay approach to quickstart - extends quickstart.sh without modifying it"
     echo ""
@@ -456,7 +456,7 @@ show_help() {
     echo "  OVERLAY_DIR=custom-overlays $0 --all"
     echo ""
     echo "DESCRIPTION:"
-    echo "  Overlay quick start for GitOps Infrastructure Control Plane."
+    echo "  Overlay quick start for Agentic Reconciliation Engine."
     echo "  Demonstrates overlay pattern where base script (quickstart.sh) is"
     echo "  extended without modification through environment variables and hooks."
     echo ""

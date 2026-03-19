@@ -173,7 +173,7 @@ create_api_keys() {
         -H "Content-Type: application/json" \
         -d '{
             "name":"agentic-reconciliation-engine",
-            "description":"GitOps Infrastructure Control Plane Observability"
+            "description":"Agentic Reconciliation Engine Observability"
         }')
     
     local project_id=$(echo "$project_response" | jq -r '.id // empty')

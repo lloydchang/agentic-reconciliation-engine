@@ -22,7 +22,7 @@ The original `agent-memory-rust` service was experiencing `ImagePullBackOff` err
 name = "agent-memory-rust"
 version = "1.0.0"
 edition = "2021"
-authors = ["GitOps Infrastructure Team"]
+authors = ["Agentic Reconciliation Engine Team"]
 description = "Memory agent with Qwen LLM integration using llama.cpp"
 
 # No external dependencies - using only stdlib
@@ -374,4 +374,4 @@ kubectl get events -n ai-infrastructure --sort-by='.lastTimestamp'
 
 **Last Updated**: 2026-03-18  
 **Version**: 1.0  
-**Maintainer**: GitOps Infrastructure Team
+**Maintainer**: Agentic Reconciliation Engine Team

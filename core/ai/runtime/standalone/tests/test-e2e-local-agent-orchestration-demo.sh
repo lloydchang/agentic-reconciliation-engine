@@ -577,7 +577,7 @@ EOF
 
 # Phase 3: Infrastructure deployment
 demo_infrastructure() {
-    print_header "Phase 3: GitOps Infrastructure Deployment"
+    print_header "Phase 3: Agentic Reconciliation Engine Deployment"
 
     print_info "Installing Flux and core GitOps components..."
 

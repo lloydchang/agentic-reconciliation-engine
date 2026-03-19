@@ -44,7 +44,7 @@ class OverlayRegistry:
             if not self.catalog_file.exists():
                 catalog = {
                     'version': "1.0.0",
-                    'description': "GitOps Infrastructure Control Plane Overlay Registry",
+                    'description': "Agentic Reconciliation Engine Overlay Registry",
                     'overlays': [],
                     'statistics': {
                         'total_overlays': 0,

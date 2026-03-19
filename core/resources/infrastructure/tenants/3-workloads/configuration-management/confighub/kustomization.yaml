@@ -33,7 +33,7 @@ spec:
               name: confighub-secret
               key: token
         - name: APPLICATION_NAME
-          value: "gitops-infrastructure"
+          value: "agentic-reconciliation-engine"
 ---
 apiVersion: v1
 kind: Secret

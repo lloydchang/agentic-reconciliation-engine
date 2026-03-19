@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive documentation for the complete Langfuse + Temporal integration implementation in the GitOps Infrastructure Control Plane. This enterprise-grade solution provides full observability, performance optimization, and automated evaluation for AI agent workflows.
+This document provides comprehensive documentation for the complete Langfuse + Temporal integration implementation in the Agentic Reconciliation Engine. This enterprise-grade solution provides full observability, performance optimization, and automated evaluation for AI agent workflows.
 
 ## Table of Contents
 

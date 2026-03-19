@@ -239,7 +239,7 @@ class RAGChatbot:
             
             # Build enhanced prompt
             prompt_parts = [
-                "You are a helpful GitOps infrastructure assistant.",
+                "You are a helpful Agentic Reconciliation Engine assistant.",
                 "Here is the current cluster status:",
                 json.dumps(cluster_data, indent=2),
             ]

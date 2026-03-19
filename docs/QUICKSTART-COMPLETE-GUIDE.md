@@ -1,14 +1,14 @@
-# Quickstart Guide - GitOps Infrastructure with AI Agents
+# Quickstart Guide - Agentic Reconciliation Engine with AI Agents
 
 ## Overview
 
-The quickstart script provides a one-command deployment of the complete GitOps infrastructure control plane with AI agents ecosystem. This streamlined approach eliminates configuration complexity while providing a production-ready environment.
+The quickstart script provides a one-command deployment of the complete Agentic Reconciliation Engine with AI agents ecosystem. This streamlined approach eliminates configuration complexity while providing a production-ready environment.
 
 ## Quickstart Script
 
 ### `core/scripts/automation/quickstart.sh`
 
-The main entry point for deploying the complete GitOps infrastructure with AI agents.
+The main entry point for deploying the complete Agentic Reconciliation Engine with AI agents.
 
 #### Usage
 ```bash
@@ -356,4 +356,4 @@ kubectl get pvc -A -o yaml > pvc-backup.yaml
 3. **Training**: Regular team training and knowledge sharing
 4. **Communication**: Maintain clear communication channels
 
-This quickstart guide provides a comprehensive foundation for deploying and managing the GitOps infrastructure with AI agents, ensuring production-ready deployments with proper monitoring, security, and operational excellence.
+This quickstart guide provides a comprehensive foundation for deploying and managing the Agentic Reconciliation Engine with AI agents, ensuring production-ready deployments with proper monitoring, security, and operational excellence.

@@ -872,7 +872,7 @@ The research suggests that **local decision-making** can achieve tighter feedbac
 
 # Research Documentation: AI and Kubernetes Resources for GitOps Infra Control Plane
 
-This document researches each provided URL, evaluates its applicability to the GitOps infrastructure control plane repository (which manages multi-cloud infrastructure using Flux, Crossplane, and CAPI for continuous reconciliation), assesses safety, and outlines potential integration approaches. The repository emphasizes hub-and-spoke model, Flux dependsOn for DAG orchestration, no state files, and official controllers.
+This document researches each provided URL, evaluates its applicability to the Agentic Reconciliation Engine repository (which manages multi-cloud infrastructure using Flux, Crossplane, and CAPI for continuous reconciliation), assesses safety, and outlines potential integration approaches. The repository emphasizes hub-and-spoke model, Flux dependsOn for DAG orchestration, no state files, and official controllers.
 
 ## 1. <https://agentgateway.dev/docs/kubernetes/latest/tutorials/claude-code-proxy/>
 
@@ -2353,7 +2353,7 @@ spec:
 
 **Content Summary**: Squad is a collaborative AI platform that enables teams to work together with AI agents in a shared workspace, providing features like real-time collaboration, agent orchestration, and project management capabilities.
 
-**Applicability**: Could enhance team collaboration for GitOps infrastructure management by providing a unified interface for human-AI interaction on infrastructure tasks, change management, and operational workflows.
+**Applicability**: Could enhance team collaboration for Agentic Reconciliation Engine management by providing a unified interface for human-AI interaction on infrastructure tasks, change management, and operational workflows.
 
 **Safety Assessment**: Safe - collaboration platform with proper access controls and audit trails.
 
@@ -2371,7 +2371,7 @@ spec:
 
 ## 105. <https://github.com/lloydchang/gitops-infra-core/operators/blob/main/docs/AGENT-SKILLS-NEXT-LEVEL.md>
 
-**Content Summary**: Comprehensive documentation analyzing the evolution from MCP (Model Context Protocol) to Agent Skills as the next level of AI agent orchestration for GitOps infrastructure control planes. Includes architectural implications, migration strategy, skill library design, and complete implementation examples.
+**Content Summary**: Comprehensive documentation analyzing the evolution from MCP (Model Context Protocol) to Agent Skills as the next level of AI agent orchestration for Agentic Reconciliation Engines. Includes architectural implications, migration strategy, skill library design, and complete implementation examples.
 
 **Applicability**: High - Provides detailed roadmap for transitioning from tool-based orchestration to skill-based AI agent management. Documents the benefits of Agent Skills including enhanced flexibility, better maintainability, improved reliability, and greater scalability for infrastructure automation.
 
@@ -2453,7 +2453,7 @@ The following URLs were provided for inclusion in this analysis. Many of these r
 - **RBAC**: Role-based access control for governance
 
 **Applicability to GitOps Control Plane**:
-High - Backstage provides the "developer portal" layer that would integrate with the GitOps infrastructure control plane. It could serve as the user interface for:
+High - Backstage provides the "developer portal" layer that would integrate with the Agentic Reconciliation Engine. It could serve as the user interface for:
 
 - Service catalog of infrastructure components across multi-cloud
 - Documentation portal for Flux manifests and policies
@@ -5124,7 +5124,7 @@ Before implementing any component of this control plane, teams must clearly defi
 
 **Safety Assessment**: ✅ **HIGHLY SAFE** - Temporal provides enterprise-grade reliability with automatic error handling, state persistence, and comprehensive audit trails. The separation of API credentials from client servers enhances security posture.
 
-**Applicability**: **HIGH** - Directly applicable to GitOps infrastructure control plane for:
+**Applicability**: **HIGH** - Directly applicable to Agentic Reconciliation Engine for:
 
 - **Durable Infrastructure Agents**: AI agents that can survive cluster failures and resume operations
 - **Multi-Cloud Analysis**: Scatter/gather across different cloud providers' APIs simultaneously

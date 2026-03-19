@@ -113,7 +113,7 @@ See [docs/EXECUTION-CHECKLIST.md](docs/EXECUTION-CHECKLIST.md) for the apply/val
 
 ```bash
 git add .
-git commit -m "Initial GitOps infrastructure setup"
+git commit -m "Initial Agentic Reconciliation Engine setup"
 git push origin main
 ```
 

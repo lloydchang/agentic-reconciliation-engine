@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Infrastructure Control Plane - Overlay Manager
+# Agentic Reconciliation Engine - Overlay Manager
 # Complete overlay lifecycle management: create, test, deploy, remove, uninstall
 
 set -euo pipefail
@@ -240,7 +240,7 @@ EOF
     cat > "$target_dir/README.md" << EOF
 # $overlay_name Overlay
 
-$overlay_type overlay for GitOps Infrastructure Control Plane.
+$overlay_type overlay for Agentic Reconciliation Engine.
 
 ## Overview
 
@@ -582,9 +582,9 @@ restore_overlay() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Control Plane - Overlay Manager"
+    echo "Agentic Reconciliation Engine - Overlay Manager"
     echo ""
-    echo "Complete overlay lifecycle management for GitOps Infrastructure Control Plane."
+    echo "Complete overlay lifecycle management for Agentic Reconciliation Engine."
     echo ""
     echo "USAGE: $0 [COMMAND] [OPTIONS]"
     echo ""

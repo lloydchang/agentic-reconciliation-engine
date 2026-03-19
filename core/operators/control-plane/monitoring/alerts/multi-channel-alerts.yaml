@@ -7,7 +7,7 @@ metadata:
   name: gitops-multi-channel-alerts
   namespace: flux-system
 spec:
-  summary: "GitOps Infrastructure Pipeline - Multi-Channel"
+  summary: "Agentic Reconciliation Engine Pipeline - Multi-Channel"
   eventMetadata:
     env: "production"
     cluster: "gitops-management"
@@ -27,7 +27,7 @@ metadata:
   name: gitops-googlechat-alerts
   namespace: flux-system
 spec:
-  summary: "GitOps Infrastructure Pipeline - Google Chat"
+  summary: "Agentic Reconciliation Engine Pipeline - Google Chat"
   eventMetadata:
     env: "production"
     cluster: "gitops-management"
@@ -47,7 +47,7 @@ metadata:
   name: gitops-email-alerts
   namespace: flux-system
 spec:
-  summary: "GitOps Infrastructure Pipeline - Email"
+  summary: "Agentic Reconciliation Engine Pipeline - Email"
   eventMetadata:
     env: "production"
     cluster: "gitops-management"

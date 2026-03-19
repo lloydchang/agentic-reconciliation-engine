@@ -2,7 +2,7 @@
 
 **Consolidated from multiple documents on 2026-03-17**
 
-This document represents the consolidated implementation plan for agentic AI enhancements to the GitOps infrastructure control plane, based on insights from Uber's production agentic AI platform.
+This document represents the consolidated implementation plan for agentic AI enhancements to the Agentic Reconciliation Engine, based on insights from Uber's production agentic AI platform.
 
 ## Executive Summary
 

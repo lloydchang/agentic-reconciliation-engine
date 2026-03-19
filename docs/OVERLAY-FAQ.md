@@ -1,6 +1,6 @@
 # Overlay FAQ
 
-Frequently asked questions about the GitOps Infrastructure Control Plane Overlay System.
+Frequently asked questions about the Agentic Reconciliation Engine Overlay System.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Frequently asked questions about the GitOps Infrastructure Control Plane Overlay
 
 ### Q: What are overlays?
 
-**A**: Overlays are modular extensions that customize and enhance the base GitOps Infrastructure Control Plane without modifying the core components. They follow a layered architecture where overlays sit on top of immutable base components, providing customization, new features, and integrations.
+**A**: Overlays are modular extensions that customize and enhance the base Agentic Reconciliation Engine without modifying the core components. They follow a layered architecture where overlays sit on top of immutable base components, providing customization, new features, and integrations.
 
 ### Q: Why use overlays instead of modifying the base?
 

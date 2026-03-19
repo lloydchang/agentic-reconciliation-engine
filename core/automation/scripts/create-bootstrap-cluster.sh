@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
       cat <<EOF
 Usage: $0 [options]
 
-Create a lightweight bootstrap cluster for GitOps infrastructure recovery.
+Create a lightweight bootstrap cluster for Agentic Reconciliation Engine recovery.
 
 Options:
   --name <name>        Cluster name (default: gitops-bootstrap)

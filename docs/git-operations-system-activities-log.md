@@ -1,7 +1,7 @@
 # Git Operations and System Activities Log
 
 ## Overview
-This document captures recent git operations, system activities, issues encountered, and resolutions performed on the GitOps Infrastructure Control Plane repository.
+This document captures recent git operations, system activities, issues encountered, and resolutions performed on the Agentic Reconciliation Engine repository.
 
 ## Recent Activities Summary
 

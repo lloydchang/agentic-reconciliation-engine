@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Development Environment Setup Script
-# Sets up local development environment for GitOps Infrastructure Control Plane
+# Sets up local development environment for Agentic Reconciliation Engine
 
 set -euo pipefail
 

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines a comprehensive integration strategy for incorporating OpenSWE (Open-Source Software Engineering) capabilities into the GitOps Infrastructure Control Plane. OpenSWE brings advanced coding agent features that complement our existing infrastructure automation capabilities, creating a unified platform for both infrastructure and software development operations.
+This document outlines a comprehensive integration strategy for incorporating OpenSWE (Open-Source Software Engineering) capabilities into the Agentic Reconciliation Engine. OpenSWE brings advanced coding agent features that complement our existing infrastructure automation capabilities, creating a unified platform for both infrastructure and software development operations.
 
 ## Current State Analysis
 
@@ -499,7 +499,7 @@ spec:
 
 ## Conclusion
 
-The integration of OpenSWE with our GitOps Infrastructure Control Plane creates a comprehensive platform that combines infrastructure automation with advanced software development capabilities. This integration provides:
+The integration of OpenSWE with our Agentic Reconciliation Engine creates a comprehensive platform that combines infrastructure automation with advanced software development capabilities. This integration provides:
 
 1. **Unified Platform**: Single system for infrastructure and development operations
 2. **Enhanced Developer Experience**: Natural language interfaces through Slack/Linear/GitHub

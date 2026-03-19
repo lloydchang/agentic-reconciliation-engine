@@ -211,7 +211,7 @@ func (q *QwenClient) buildRAGPrompt(question string, context []Document) string 
         contextStr.WriteString("\n")
     }
     
-    return fmt.Sprintf(`You are Qwen, an AI assistant for GitOps infrastructure management.
+    return fmt.Sprintf(`You are Qwen, an AI assistant for Agentic Reconciliation Engine management.
 
 %sQuestion: %s
 
@@ -456,7 +456,7 @@ const QwenRAGChat: React.FC = () => {
       <div className="message-input">
         <input
           type="text"
-          placeholder="Ask about your GitOps infrastructure..."
+          placeholder="Ask about your Agentic Reconciliation Engine..."
           onKeyPress={(e) => {
             if (e.key === 'Enter' && !isLoading) {
               sendMessage(e.currentTarget.value);

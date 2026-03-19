@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document analyzes the integration opportunities between Open-SWE (Open Software Engineering Agent) and the existing GitOps Infrastructure Control Plane. Open-SWE brings proven patterns from production AI agent systems, while the GitOps repository provides robust infrastructure automation capabilities.
+This document analyzes the integration opportunities between Open-SWE (Open Software Engineering Agent) and the existing Agentic Reconciliation Engine. Open-SWE brings proven patterns from production AI agent systems, while the GitOps repository provides robust infrastructure automation capabilities.
 
 ## Current Repository Capabilities
 
@@ -232,7 +232,7 @@ This document analyzes the integration opportunities between Open-SWE (Open Soft
 
 ## Conclusion
 
-The integration of Open-SWE with the GitOps Infrastructure Control Plane offers significant value by combining proven software engineering automation patterns with robust infrastructure management capabilities.
+The integration of Open-SWE with the Agentic Reconciliation Engine offers significant value by combining proven software engineering automation patterns with robust infrastructure management capabilities.
 
 **Key Advantages:**
 - Maintains existing safety and compliance standards

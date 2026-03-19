@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers Crossplane local development using Kind clusters, enabling you to test GitOps infrastructure management without cloud costs or credentials.
+This guide covers Crossplane local development using Kind clusters, enabling you to test Agentic Reconciliation Engine management without cloud costs or credentials.
 
 ## What Crossplane Supports for Local Development
 

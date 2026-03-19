@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive documentation for the AI agents ecosystem deployed by the GitOps Infrastructure Control Plane quickstart, including detailed information about the RAG chatbot with voice support, agent capabilities, and system architecture.
+This guide provides comprehensive documentation for the AI agents ecosystem deployed by the Agentic Reconciliation Engine quickstart, including detailed information about the RAG chatbot with voice support, agent capabilities, and system architecture.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ This guide provides comprehensive documentation for the AI agents ecosystem depl
 
 ### What Gets Deployed
 
-The quickstart script (`./core/scripts/automation/quickstart.sh`) deploys a complete AI-powered GitOps infrastructure:
+The quickstart script (`./core/scripts/automation/quickstart.sh`) deploys a complete AI-powered Agentic Reconciliation Engine:
 
 ```bash
 # One-command MVP setup with AI agents and dashboard

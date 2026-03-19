@@ -1,5 +1,5 @@
 # Consolidated K8sGPT Configuration
-# Unified configuration for all GitOps infrastructure components
+# Unified configuration for all Agentic Reconciliation Engine components
 apiVersion: v1
 kind: ConfigMap
 metadata:

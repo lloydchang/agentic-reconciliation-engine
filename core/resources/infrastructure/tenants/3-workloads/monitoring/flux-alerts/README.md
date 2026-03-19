@@ -1,6 +1,6 @@
 # Flux Monitoring & Alerts Implementation
 
-This directory contains Flux monitoring and alerting configurations for the GitOps infrastructure control plane.
+This directory contains Flux monitoring and alerting configurations for the Agentic Reconciliation Engine.
 
 ## Files
 

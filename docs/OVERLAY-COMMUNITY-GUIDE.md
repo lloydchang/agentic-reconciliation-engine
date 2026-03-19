@@ -1,6 +1,6 @@
 # Overlay Community Guide
 
-Welcome to the GitOps Infrastructure Control Plane Overlays Community! This guide will help you get involved, contribute overlays, and engage with the community.
+Welcome to the Agentic Reconciliation Engine Overlays Community! This guide will help you get involved, contribute overlays, and engage with the community.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Welcome to the GitOps Infrastructure Control Plane Overlays Community! This guid
 
 The overlays community is dedicated to:
 
-- **Enabling Customization**: Making it easy for users to customize their GitOps infrastructure
+- **Enabling Customization**: Making it easy for users to customize their Agentic Reconciliation Engine
 - **Sharing Knowledge**: Creating a repository of shared overlays and best practices
 - **Fostering Innovation**: Encouraging new ideas and approaches to infrastructure management
 - **Building Community**: Creating a welcoming space for collaboration and learning
@@ -54,7 +54,7 @@ The overlays community is dedicated to:
 
 #### Social Media
 - **Twitter**: @GitOpsOverlays
-- **LinkedIn**: GitOps Infrastructure Control Plane
+- **LinkedIn**: Agentic Reconciliation Engine
 - **Blog**: Regular community updates and tutorials
 
 ### 2. Set Up Your Environment
@@ -507,7 +507,7 @@ mkdir -p core/deployment/overlays/templates/my-type-overlay
 
 ## Welcome to the Community!
 
-We're excited to have you join the GitOps Infrastructure Control Plane Overlays Community. Whether you're here to learn, contribute, or collaborate, we're here to help you succeed.
+We're excited to have you join the Agentic Reconciliation Engine Overlays Community. Whether you're here to learn, contribute, or collaborate, we're here to help you succeed.
 
 **Your journey starts now! 🚀**
 

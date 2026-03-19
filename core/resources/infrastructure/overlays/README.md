@@ -1,6 +1,6 @@
 # Overlays System
 
-This directory contains overlay extensions for the GitOps Infrastructure Control Plane. Overlays allow forks and contributors to customize and extend the platform while maintaining upstream compatibility.
+This directory contains overlay extensions for the Agentic Reconciliation Engine. Overlays allow forks and contributors to customize and extend the platform while maintaining upstream compatibility.
 
 ## Quick Start
 

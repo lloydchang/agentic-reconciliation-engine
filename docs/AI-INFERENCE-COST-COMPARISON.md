@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-For GitOps infrastructure control plane operations, **local quantized Llama in Kubernetes** is dramatically cheaper than cloud AI platforms - typically $0.001-$0.04 per million tokens vs $0.05-$2.50+ for cloud APIs. The hybrid approach (90% local, 10% cloud) provides the best economics for AI workloads.
+For Agentic Reconciliation Engine operations, **local quantized Llama in Kubernetes** is dramatically cheaper than cloud AI platforms - typically $0.001-$0.04 per million tokens vs $0.05-$2.50+ for cloud APIs. The hybrid approach (90% local, 10% cloud) provides the best economics for AI workloads.
 
 ## 2026 Model Landscape Update
 
@@ -326,7 +326,7 @@ spec:
 
 ## Conclusion
 
-For GitOps infrastructure control plane operations, local quantized models provide the best economics for 90% of use cases. The hybrid architecture combines the cost efficiency of local inference with the power of cloud models when needed.
+For Agentic Reconciliation Engine operations, local quantized models provide the best economics for 90% of use cases. The hybrid architecture combines the cost efficiency of local inference with the power of cloud models when needed.
 
 **Key takeaway**: A small local model (7B-13B) can handle most AI tasks for under $10/month, while equivalent cloud services cost $200-2000/month.
 

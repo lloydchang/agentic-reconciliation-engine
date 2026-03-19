@@ -191,7 +191,7 @@ spec:
         - name: 'critical-alerts'
           email_configs:
           - to: 'admin@example.com'
-            subject: '[CRITICAL] GitOps Infrastructure Alert'
+            subject: '[CRITICAL] Agentic Reconciliation Engine Alert'
             body: |
               {{ range .Alerts }}
               Alert: {{ .Annotations.summary }}
@@ -201,7 +201,7 @@ spec:
         - name: 'warning-alerts'
           email_configs:
           - to: 'ops@example.com'
-            subject: '[WARNING] GitOps Infrastructure Alert'
+            subject: '[WARNING] Agentic Reconciliation Engine Alert'
             body: |
               {{ range .Alerts }}
               Alert: {{ .Annotations.summary }}
@@ -614,19 +614,19 @@ spec:
         summary: "Cloud controller high latency"
         description: "Cloud controller {{ $labels.job }} 95th percentile latency is {{ $value }}s"
 ---
-# GitOps Infrastructure Alerts
+# Agentic Reconciliation Engine Alerts
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: gitops-infrastructure-alerts
+  name: agentic-reconciliation-engine-alerts
   namespace: $MONITORING_NAMESPACE
   labels:
-    app.kubernetes.io/name: gitops-infrastructure
+    app.kubernetes.io/name: agentic-reconciliation-engine
     app.kubernetes.io/component: alerting
     app.kubernetes.io/part-of: agentic-reconciliation-engine
 spec:
   groups:
-  - name: gitops-infrastructure
+  - name: agentic-reconciliation-engine
     rules:
     - alert: InfrastructureResourceFailure
       expr: |
@@ -892,23 +892,23 @@ data:
       }
     }
 ---
-# GitOps Infrastructure Dashboard
+# Agentic Reconciliation Engine Dashboard
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: gitops-infrastructure-dashboard
+  name: agentic-reconciliation-engine-dashboard
   namespace: $MONITORING_NAMESPACE
   labels:
     grafana_dashboard: "1"
-    app.kubernetes.io/name: gitops-infrastructure
+    app.kubernetes.io/name: agentic-reconciliation-engine
     app.kubernetes.io/component: dashboards
     app.kubernetes.io/part-of: agentic-reconciliation-engine
 data:
-  gitops-infrastructure.json: |
+  agentic-reconciliation-engine.json: |
     {
       "dashboard": {
         "id": null,
-        "title": "GitOps Infrastructure",
+        "title": "Agentic Reconciliation Engine",
         "tags": ["gitops", "infrastructure"],
         "timezone": "browser",
         "panels": [
@@ -1170,7 +1170,7 @@ echo ""
 echo -e "${BLUE}📊 Dashboards:${NC}"
 echo "  Flux Overview: GitOps status and performance"
 echo "  Cloud Controllers: Multi-cloud controller metrics"
-echo "  GitOps Infrastructure: Cluster and resource overview"
+echo "  Agentic Reconciliation Engine: Cluster and resource overview"
 echo ""
 echo -e "${BLUE}🚨 Alerts:${NC}"
 echo "  Flux controller failures and performance issues"

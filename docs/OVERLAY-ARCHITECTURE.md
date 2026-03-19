@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Overlays Architecture provides a layered system for extending and customizing the GitOps Infrastructure Control Plane while maintaining compatibility with upstream updates. This architecture enables forks to add custom functionality, themes, integrations, and entirely new components without modifying the base repository.
+The Overlays Architecture provides a layered system for extending and customizing the Agentic Reconciliation Engine while maintaining compatibility with upstream updates. This architecture enables forks to add custom functionality, themes, integrations, and entirely new components without modifying the base repository.
 
 ## Architecture Principles
 
@@ -401,6 +401,6 @@ Forks can share overlays through:
 
 ## Conclusion
 
-The Overlays Architecture provides a powerful, flexible system for extending the GitOps Infrastructure Control Plane while maintaining upstream compatibility. This approach enables forks to customize every aspect of the system - from AI skills to dashboard themes to infrastructure components - while preserving the ability to merge upstream improvements and participate in the community ecosystem.
+The Overlays Architecture provides a powerful, flexible system for extending the Agentic Reconciliation Engine while maintaining upstream compatibility. This approach enables forks to customize every aspect of the system - from AI skills to dashboard themes to infrastructure components - while preserving the ability to merge upstream improvements and participate in the community ecosystem.
 
 The mirror structure ensures intuitive mapping between base and overlay components, while Kustomize-based composition provides robust, declarative overlay application. This architecture scales from simple customizations to complex enterprise solutions, making it suitable for individual developers, organizations, and the broader community.

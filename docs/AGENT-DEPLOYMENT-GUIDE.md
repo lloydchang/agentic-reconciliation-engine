@@ -14,7 +14,7 @@ For the fastest deployment experience, use the enhanced quickstart that includes
 ```
 
 This automatically deploys:
-- GitOps infrastructure (Flux, Crossplane with Kubernetes provider)
+- Agentic Reconciliation Engine (Flux, Crossplane with Kubernetes provider)
 - AI agents ecosystem with Temporal orchestration
 - Interactive dashboard for monitoring and control
 - 64+ operational skills for cloud automation

@@ -7,7 +7,7 @@ This repository is built around a POSIX automation stack. To get started quickly
 3. **Clone and configure.** Clone the repo inside your POSIX shell's filesystem (WSL `/home`, Git Bash home, or Linux workspace). Source `core/scripts/automation/prerequisites.sh` if you want to reuse its env variable checks.
 4. **Run the configuration setup.**
    - `core/scripts/automation/setup-gitops-config.sh` runs the local configuration workflow (`bootstrap` → migration wizard → CI gate) and stores logs in `logs/local-automation/`.
-5. **Create the GitOps infrastructure.**
+5. **Create the Agentic Reconciliation Engine.**
    - `core/scripts/automation/create-bootstrap-cluster.sh` creates the lightweight bootstrap cluster for recovery
    - `core/scripts/automation/create-hub-cluster.sh` provisions the HA hub cluster (EKS/AKS/GKE)
    - `core/scripts/automation/install-crossplane.sh` installs Crossplane and cloud providers on the hub

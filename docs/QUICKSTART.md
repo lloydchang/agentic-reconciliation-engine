@@ -1,4 +1,4 @@
-# Quickstart - MVP GitOps Infrastructure
+# Quickstart - MVP Agentic Reconciliation Engine
 
 Get a working GitOps control plane running locally in minutes.
 

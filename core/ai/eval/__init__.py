@@ -2,7 +2,7 @@
 GitOps Agent Tracing and Evaluation
 
 This module provides comprehensive tracing and evaluation capabilities
-for GitOps infrastructure agents using Langfuse integration.
+for Agentic Reconciliation Engine agents using Langfuse integration.
 """
 
 from .evaluators.skill_invocation_evaluator import GitOpsSkillEvaluator

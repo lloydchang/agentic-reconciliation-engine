@@ -1,6 +1,6 @@
 # GitOps Infra Control Plane - Critical Safety Rules & Best Practices
 
-This document consolidates critical safety rules, best practices, and technical knowledge accumulated during the development of the agentic AI platform for the GitOps infrastructure control plane.
+This document consolidates critical safety rules, best practices, and technical knowledge accumulated during the development of the agentic AI platform for the Agentic Reconciliation Engine.
 
 ## 🚨 Critical Safety Rules
 
@@ -401,4 +401,4 @@ Closes #123
 6. **Security & Compliance**: Built-in audit trails and access controls
 7. **Continuous Learning**: Regular evaluation and improvement of processes
 
-This document serves as the definitive reference for safe, effective development practices in the GitOps infrastructure control plane project. All team members should familiarize themselves with these critical rules and best practices to ensure reliable, secure development workflows.
+This document serves as the definitive reference for safe, effective development practices in the Agentic Reconciliation Engine project. All team members should familiarize themselves with these critical rules and best practices to ensure reliable, secure development workflows.

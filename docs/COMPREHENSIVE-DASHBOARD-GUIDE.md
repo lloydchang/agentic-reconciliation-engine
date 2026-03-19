@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Comprehensive AI Agents Analytics Dashboard provides real-time monitoring, detailed analytics, and failure analysis for the GitOps Infrastructure Control Plane's AI agents ecosystem. This dashboard replaces the previous static, hardcoded metrics system with dynamic, real-time data collection and visualization.
+The Comprehensive AI Agents Analytics Dashboard provides real-time monitoring, detailed analytics, and failure analysis for the Agentic Reconciliation Engine's AI agents ecosystem. This dashboard replaces the previous static, hardcoded metrics system with dynamic, real-time data collection and visualization.
 
 ## 🎯 Problem Statement
 
@@ -538,7 +538,7 @@ kubectl exec deployment/comprehensive-dashboard-api -n ai-infrastructure \
 
 ## 📝 License
 
-This comprehensive dashboard is part of the GitOps Infrastructure Control Plane project and follows the same licensing terms.
+This comprehensive dashboard is part of the Agentic Reconciliation Engine project and follows the same licensing terms.
 
 ## 🤝 Contributing
 

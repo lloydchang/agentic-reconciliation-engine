@@ -1,7 +1,7 @@
 # Dashboard Fixing Report
 
 ## Overview
-This document captures the comprehensive debugging and fixing process for the AI Agents Dashboard and API connectivity issues in the GitOps Infrastructure Control Plane.
+This document captures the comprehensive debugging and fixing process for the AI Agents Dashboard and API connectivity issues in the Agentic Reconciliation Engine.
 
 ## Initial Issues Identified
 

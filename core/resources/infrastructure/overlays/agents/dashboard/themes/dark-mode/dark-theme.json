@@ -3,7 +3,7 @@
     "name": "dark-theme",
     "version": "1.2.0",
     "mode": "dark",
-    "description": "Dark theme for the GitOps Infrastructure Control Plane dashboard"
+    "description": "Dark theme for the Agentic Reconciliation Engine dashboard"
   },
   "colors": {
     "primary": {
@@ -140,6 +140,6 @@
       "dark": "/assets/logo-dark.svg"
     },
     "favicon": "/assets/favicon-dark.ico",
-    "title": "GitOps Infrastructure Control Plane"
+    "title": "Agentic Reconciliation Engine"
   }
 }

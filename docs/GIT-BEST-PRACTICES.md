@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide establishes git best practices for the GitOps Infrastructure Control Plane project, based on real incidents and lessons learned. It serves as the authoritative reference for safe git operations.
+This guide establishes git best practices for the Agentic Reconciliation Engine project, based on real incidents and lessons learned. It serves as the authoritative reference for safe git operations.
 
 ## 🎯 Core Principles
 

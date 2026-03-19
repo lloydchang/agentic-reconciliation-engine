@@ -147,7 +147,7 @@ spec:
         # Web configuration
         web:
           externalUrl: "http://prometheus.monitoring.svc.cluster.local:9090"
-          pageTitle: "Prometheus - GitOps Infrastructure"
+          pageTitle: "Prometheus - Agentic Reconciliation Engine"
           
           # Enable admin API
           enableAdminAPI: false

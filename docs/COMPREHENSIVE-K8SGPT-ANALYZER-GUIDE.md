@@ -1,7 +1,7 @@
 # Comprehensive K8sGPT Analyzer Integration Guide
 
 ## Overview
-This document provides comprehensive documentation for the K8sGPT Analyzer skill integration into the GitOps Infrastructure Control Plane. The K8sGPT Analyzer enables AI-powered Kubernetes cluster analysis and troubleshooting using K8sGPT with Qwen LLM integration.
+This document provides comprehensive documentation for the K8sGPT Analyzer skill integration into the Agentic Reconciliation Engine. The K8sGPT Analyzer enables AI-powered Kubernetes cluster analysis and troubleshooting using K8sGPT with Qwen LLM integration.
 
 ## Architecture Integration
 

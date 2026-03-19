@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-This document provides a detailed roadmap for integrating Open SWE (Open-Source Software Engineering Agent) capabilities into the GitOps Infrastructure Control Plane. Open SWE brings advanced agent orchestration patterns, real-time communication triggers, and sophisticated tool curation that complement the repository's existing GitOps safety guarantees and agentskills.io compliance.
+This document provides a detailed roadmap for integrating Open SWE (Open-Source Software Engineering Agent) capabilities into the Agentic Reconciliation Engine. Open SWE brings advanced agent orchestration patterns, real-time communication triggers, and sophisticated tool curation that complement the repository's existing GitOps safety guarantees and agentskills.io compliance.
 
 ## Current Repository Architecture Analysis
 
-### Strengths of GitOps Infrastructure Control Plane
+### Strengths of Agentic Reconciliation Engine
 - **GitOps Safety First**: All infrastructure changes flow through PR-tracked pipelines with human gates
 - **Structured Skill System**: agentskills.io compliant skills with metadata-driven autonomy (low/medium/high risk levels)
 - **Multi-Agent Architecture**: Memory agents (Rust/Go/Python), Temporal orchestration, GitOps control, and Pi-Mono RPC
@@ -357,4 +357,4 @@ class RealTimeMessenger:
 
 ## Conclusion
 
-The integration of Open SWE capabilities represents a significant enhancement to the GitOps Infrastructure Control Plane, adding interactive agent experience, enhanced automation, and preserved safety guarantees. The phased implementation approach ensures minimal disruption while delivering incremental value.
+The integration of Open SWE capabilities represents a significant enhancement to the Agentic Reconciliation Engine, adding interactive agent experience, enhanced automation, and preserved safety guarantees. The phased implementation approach ensures minimal disruption while delivering incremental value.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Langfuse is an open-source LLM engineering platform for tracing, evaluation, and prompt management. This guide covers the configuration and deployment of Langfuse in the GitOps infrastructure.
+Langfuse is an open-source LLM engineering platform for tracing, evaluation, and prompt management. This guide covers the configuration and deployment of Langfuse in the Agentic Reconciliation Engine.
 
 ## Secret Configuration
 

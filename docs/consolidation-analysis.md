@@ -51,7 +51,7 @@ This is **not just infrastructure** - it's a **complete AI-powered GitOps platfo
 Given the full context, **single umbrella won't work** - this is too complex and diverse. Instead, create **domain-specific umbrellas**:
 
 ```
-gitops-platform/              # Core GitOps infrastructure
+gitops-platform/              # Core Agentic Reconciliation Engine
 ├── operators/               # Current core/operators/
 │   ├── flux/
 │   ├── crossplane/
@@ -172,7 +172,7 @@ overlay/editions/              → platform-overlay/editions/
 ## Conclusion
 
 The **single umbrella approach fails** because this repository is actually **multiple products**:
-1. GitOps infrastructure platform
+1. Agentic Reconciliation Engine platform
 2. AI agent ecosystem  
 3. Development toolchain
 4. Platform editions

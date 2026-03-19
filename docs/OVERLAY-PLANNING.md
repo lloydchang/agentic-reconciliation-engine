@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the implementation plan for the Overlays Architecture in the GitOps Infrastructure Control Plane. The overlay system will enable forks and contributors to extend and customize the platform while maintaining upstream compatibility.
+This document outlines the implementation plan for the Overlays Architecture in the Agentic Reconciliation Engine. The overlay system will enable forks and contributors to extend and customize the platform while maintaining upstream compatibility.
 
 ## Implementation Phases
 
@@ -318,7 +318,7 @@ from pathlib import Path
 
 @click.group()
 def cli():
-    """Overlays CLI - Manage GitOps Infrastructure Control Plane overlays"""
+    """Overlays CLI - Manage Agentic Reconciliation Engine overlays"""
     pass
 
 @cli.command()

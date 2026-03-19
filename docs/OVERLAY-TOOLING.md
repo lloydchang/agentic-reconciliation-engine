@@ -1,6 +1,6 @@
 # Overlay Tooling Guide
 
-This document describes the comprehensive tooling ecosystem for managing overlays in the GitOps Infrastructure Control Plane.
+This document describes the comprehensive tooling ecosystem for managing overlays in the Agentic Reconciliation Engine.
 
 ## Overview
 

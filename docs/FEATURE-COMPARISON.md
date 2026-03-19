@@ -57,7 +57,7 @@
 
 This repository serves as a **reference implementation** for:
 
-- GitOps infrastructure management
+- Agentic Reconciliation Engine management
 - Consensus-based agent orchestration
 - Multi-language runtime support
 - Security and compliance patterns

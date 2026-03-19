@@ -196,7 +196,7 @@ npm start
 - **Temporal Documentation**: https://docs.temporal.io/
 
 ### 🔗 Related Projects
-- **GitOps Infrastructure**: Main control plane repository
+- **Agentic Reconciliation Engine**: Main control plane repository
 - **Agent Skills**: Skill definitions and implementations
 - **Monitoring Stack**: Prometheus and Grafana configurations
 - **CI/CD Pipelines**: GitHub Actions and ArgoCD workflows

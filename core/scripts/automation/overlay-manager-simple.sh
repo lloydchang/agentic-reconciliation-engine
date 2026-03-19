@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Infrastructure Control Plane - Simple Overlay Manager
+# Agentic Reconciliation Engine - Simple Overlay Manager
 # Complete overlay lifecycle: create, deploy, remove, uninstall
 
 set -euo pipefail
@@ -250,9 +250,9 @@ show_logs() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Control Plane - Simple Overlay Manager"
+    echo "Agentic Reconciliation Engine - Simple Overlay Manager"
     echo ""
-    echo "Complete overlay lifecycle management for GitOps Infrastructure Control Plane."
+    echo "Complete overlay lifecycle management for Agentic Reconciliation Engine."
     echo ""
     echo "USAGE: $0 [COMMAND] [OPTIONS]"
     echo ""

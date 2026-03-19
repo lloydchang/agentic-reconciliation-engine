@@ -1,6 +1,6 @@
 #!/bin/bash
 # K8sGPT with Qwen LLM Setup Script
-# Automatically sets up K8sGPT integration in the GitOps Infrastructure Control Plane
+# Automatically sets up K8sGPT integration in the Agentic Reconciliation Engine
 
 set -euo pipefail
 

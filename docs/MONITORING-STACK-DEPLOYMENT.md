@@ -1051,4 +1051,4 @@ Connect with AI agents through:
 
 **Last Updated**: March 18, 2026  
 **Version**: 1.0  
-**Maintainer**: GitOps Infrastructure Team
+**Maintainer**: Agentic Reconciliation Engine Team

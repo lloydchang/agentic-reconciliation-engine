@@ -2,7 +2,7 @@
 
 ## Incident Summary
 
-On March 17, 2026, a critical git incident occurred when `git clean -fd` was accidentally executed, permanently deleting important untracked files and directories from the GitOps Infrastructure Control Plane repository.
+On March 17, 2026, a critical git incident occurred when `git clean -fd` was accidentally executed, permanently deleting important untracked files and directories from the Agentic Reconciliation Engine repository.
 
 ### Root Cause
 - Command: `git clean -fd` executed during repository cleanup

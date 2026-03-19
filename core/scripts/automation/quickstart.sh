@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Infrastructure Control Plane - Quick Start Script
+# Agentic Reconciliation Engine - Quick Start Script
 # Repository setup and initial onboarding - supports overlay extensions
 # Includes comprehensive prerequisites validation
 
@@ -631,9 +631,9 @@ start_all_port_forwards() {
 
 # Main quick start function
 main() {
-    print_header "GitOps Infrastructure Quick Start"
+    print_header "Agentic Reconciliation Engine Quick Start"
     
-    echo -e "${BLUE}Welcome to GitOps Infrastructure Control Plane!${NC}"
+    echo -e "${BLUE}Welcome to Agentic Reconciliation Engine!${NC}"
     echo ""
     
     # Check if we're in overlay mode
@@ -693,7 +693,7 @@ main() {
         cat > overlay/examples/basic/README.md << 'EOF'
 # Basic Examples
 
-This directory contains basic examples for getting started with the GitOps Infrastructure Control Plane.
+This directory contains basic examples for getting started with the Agentic Reconciliation Engine.
 
 ## Quick Start Examples
 
@@ -871,7 +871,7 @@ cleanup_port_forwards() {
 
 # Help function
 show_help() {
-    echo "GitOps Infrastructure Control Plane - Quick Start"
+    echo "Agentic Reconciliation Engine - Quick Start"
     echo ""
     echo "USAGE: $0 [OPTIONS]"
     echo ""
@@ -882,7 +882,7 @@ show_help() {
     echo "  --start-pf         Start all port-forwards (if not already running)"
     echo ""
     echo "DESCRIPTION:"
-    echo "  Sets up development environment for GitOps Infrastructure Control Plane."
+    echo "  Sets up development environment for Agentic Reconciliation Engine."
     echo "  This includes comprehensive prerequisites validation, directory setup,"
     echo "  basic configuration, and deployment of AI agents dashboard with running agents."
     echo ""

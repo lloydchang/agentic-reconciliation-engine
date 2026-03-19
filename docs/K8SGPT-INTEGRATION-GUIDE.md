@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive documentation for integrating K8sGPT with Qwen LLM in the GitOps Infrastructure Control Plane. K8sGPT provides AI-powered Kubernetes cluster analysis and troubleshooting capabilities, while Qwen offers a powerful, open-source large language model for intelligent insights.
+This guide provides comprehensive documentation for integrating K8sGPT with Qwen LLM in the Agentic Reconciliation Engine. K8sGPT provides AI-powered Kubernetes cluster analysis and troubleshooting capabilities, while Qwen offers a powerful, open-source large language model for intelligent insights.
 
 ## Architecture
 

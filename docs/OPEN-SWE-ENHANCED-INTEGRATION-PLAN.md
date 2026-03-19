@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Open SWE (Open Source Software Engineering Agent) is LangChain's open-source framework for building internal coding agents. Based on Deep Agents and LangGraph, it provides cloud sandboxes, Slack/Linear invocation, subagent orchestration, and automatic PR creation. This document analyzes integration opportunities with our GitOps Infrastructure Control Plane and proposes a comprehensive integration strategy.
+Open SWE (Open Source Software Engineering Agent) is LangChain's open-source framework for building internal coding agents. Based on Deep Agents and LangGraph, it provides cloud sandboxes, Slack/Linear invocation, subagent orchestration, and automatic PR creation. This document analyzes integration opportunities with our Agentic Reconciliation Engine and proposes a comprehensive integration strategy.
 
 ## Current State Analysis
 
@@ -299,7 +299,7 @@ metadata:
 ### Enhanced AGENTS.md
 
 ```markdown
-# GitOps Infrastructure Control Plane + Open SWE Integration
+# Agentic Reconciliation Engine + Open SWE Integration
 
 ## Infrastructure Safety Rules
 - All infrastructure changes flow through GitOps pipelines
@@ -454,7 +454,7 @@ gantt
 
 ## Conclusion
 
-The integration of Open SWE with our GitOps Infrastructure Control Plane represents a significant opportunity to enhance our capabilities while maintaining our core strengths in infrastructure safety and automation. By following this phased approach, we can:
+The integration of Open SWE with our Agentic Reconciliation Engine represents a significant opportunity to enhance our capabilities while maintaining our core strengths in infrastructure safety and automation. By following this phased approach, we can:
 
 1. **Maintain Safety**: Preserve our GitOps safety constraints while adding new capabilities
 2. **Enhance Experience**: Provide better developer experience through native platform integration

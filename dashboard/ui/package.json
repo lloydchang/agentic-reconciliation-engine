@@ -15,6 +15,6 @@
     "nodemon": "^3.0.1"
   },
   "keywords": ["ai", "agents", "dashboard", "rag", "chatbot"],
-  "author": "GitOps Infrastructure Team",
+  "author": "Agentic Reconciliation Engine Team",
   "license": "MIT"
 }

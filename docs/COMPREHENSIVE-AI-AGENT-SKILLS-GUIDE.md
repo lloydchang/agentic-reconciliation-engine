@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive documentation for the AI Agent Skills automation system implemented in the GitOps Infrastructure Control Plane. This system enables automated deployment, validation, and management of AI agent skills following the agentskills.io specification.
+This document provides comprehensive documentation for the AI Agent Skills automation system implemented in the Agentic Reconciliation Engine. This system enables automated deployment, validation, and management of AI agent skills following the agentskills.io specification.
 
 ## Table of Contents
 
