@@ -15,7 +15,7 @@ This created confusion and poor user experience where users could fail halfway t
 1. **Enhanced quickstart.sh**
    - Added comprehensive validation function from prerequisites.sh
    - Integrated validation into main deployment flow
-   - Added `--validate-only` flag for validation-only mode
+   - Added `--validate-prerequisites` flag for validation-only mode
    - Added user prompt on warnings (continue y/N)
 
 2. **Backward Compatibility**
@@ -25,7 +25,7 @@ This created confusion and poor user experience where users could fail halfway t
 
 3. **Updated Documentation**
    - Simplified README.md to single command: `./quickstart.sh`
-   - Added optional `--validate-only` usage
+   - Added optional `--validate-prerequisites` usage
    - Updated help text with new options
 
 ### New User Experience
@@ -37,7 +37,7 @@ This created confusion and poor user experience where users could fail halfway t
 
 **Validation Only:**
 ```bash
-./core/scripts/automation/quickstart.sh --validate-only
+./core/scripts/automation/quickstart.sh --validate-prerequisites
 ```
 
 **Backward Compatible:**
@@ -84,7 +84,7 @@ This created confusion and poor user experience where users could fail halfway t
 ## Testing Verified
 
 ✅ `./quickstart.sh --help` - Shows new options
-✅ `./quickstart.sh --validate-only` - Validation only mode
+✅ `./quickstart.sh --validate-prerequisites` - Validation only mode
 ✅ `./prerequisites.sh` - Backward compatibility works
 ✅ Comprehensive validation runs as expected
 
