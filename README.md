@@ -56,7 +56,7 @@ core/scripts/automation/quickstart.sh --validate-only
 
 ### Example
 
-#### The Request Path
+#### Request Path
 1. **Skill (10):** Defines `provision_ha_database` via Resource schemas and Scripts.
 2. **Agent (9):** Receives _Traffic Spike_ alert; invokes the Skill (10) based on Instruction set.
 3. **Logic & Runtime (8-7):** Qwen (8) reasons; llama.cpp (7) inferences.
