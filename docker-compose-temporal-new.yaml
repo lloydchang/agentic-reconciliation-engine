@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: temporal
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    image: temporalio/auto-setup:1.21.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+    environment:
+      DB: postgres
+      DB_PORT: 5432
+      DB_HOST: postgres
+      DBNAME: temporal
+      DB_USER: temporal
+      DB_PASSWORD: temporal
+      LOG_LEVEL: info
+      POSTGRES_SEEDS: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "tctl --address 127.0.0.1:7233 cluster health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  temporal-ui:
+    image: temporalio/ui:2.21.0
+    depends_on:
+      temporal:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_UI_PORT: 8080
+
+volumes:
+  postgres_data:
