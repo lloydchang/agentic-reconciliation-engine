@@ -1,0 +1,22 @@
+log-level: info
+persistence:
+  default:
+    driver: postgres
+    postgres:
+      host: temporal-postgres
+      port: 5432
+      user: temporal
+      password: temporal
+      database: temporal
+      maxConn: 20
+      maxIdleConn: 10
+  visibility:
+    driver: postgres
+    postgres:
+      host: temporal-postgres
+      port: 5432
+      user: temporal
+      password: temporal
+      database: temporal
+      maxConn: 20
+      maxIdleConn: 10
