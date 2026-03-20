@@ -1,0 +1,201 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: ai-infrastructure
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+        use epoll;
+        multi_accept on;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log /var/log/nginx/access.log main;
+        error_log /var/log/nginx/error.log;
+
+        sendfile        on;
+        tcp_nopush      on;
+        tcp_nodelay     on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        client_max_body_size 16M;
+
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_types
+            text/plain
+            text/css
+            text/xml
+            text/javascript
+            application/javascript
+            application/xml+rss
+            application/json;
+
+        limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=dashboard:10m rate=30r/s;
+
+        upstream api_backend {
+            least_conn;
+            server ai-infrastructure-portal-0.ai-infrastructure-portal-api.ai-infrastructure.svc.cluster.local:5001 max_fails=3 fail_timeout=30s;
+            server ai-infrastructure-portal-1.ai-infrastructure-portal-api.ai-infrastructure.svc.cluster.local:5001 max_fails=3 fail_timeout=30s;
+            server ai-infrastructure-portal-2.ai-infrastructure-portal-api.ai-infrastructure.svc.cluster.local:5001 max_fails=3 fail_timeout=30s;
+            keepalive 32;
+        }
+
+        upstream dashboard_backend {
+            ip_hash;
+            server ai-infrastructure-portal-dashboard-0.ai-infrastructure-portal-dashboard.ai-infrastructure.svc.cluster.local:8081 max_fails=3 fail_timeout=30s;
+            server ai-infrastructure-portal-dashboard-1.ai-infrastructure-portal-dashboard.ai-infrastructure.svc.cluster.local:8081 max_fails=3 fail_timeout=30s;
+            server ai-infrastructure-portal-dashboard-2.ai-infrastructure-portal-dashboard.ai-infrastructure.svc.cluster.local:8081 max_fails=3 fail_timeout=30s;
+            keepalive 32;
+        }
+
+        server {
+            listen 8080;
+            server_name _;
+
+            limit_req zone=dashboard burst=50 nodelay;
+
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                proxy_pass http://dashboard_backend;
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+
+            location / {
+                proxy_pass http://dashboard_backend;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_cache_bypass $http_upgrade;
+
+                proxy_buffering off;
+                proxy_cache off;
+
+                proxy_connect_timeout 30s;
+                proxy_send_timeout 30s;
+                proxy_read_timeout 86400s;
+            }
+        }
+
+        server {
+            listen 8081;
+            server_name _;
+
+            limit_req zone=api burst=20 nodelay;
+
+            location / {
+                proxy_pass http://api_backend;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_cache_bypass $http_upgrade;
+
+                proxy_connect_timeout 30s;
+                proxy_send_timeout 30s;
+                proxy_read_timeout 30s;
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-load-balancer
+  namespace: ai-infrastructure
+  labels:
+    app: nginx-load-balancer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-load-balancer
+  template:
+    metadata:
+      labels:
+        app: nginx-load-balancer
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 8080
+          name: dashboard
+        - containerPort: 8081
+          name: api
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-load-balancer
+  namespace: ai-infrastructure
+  labels:
+    app: nginx-load-balancer
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: dashboard
+  - port: 81
+    targetPort: 8081
+    protocol: TCP
+    name: api
+  selector:
+    app: nginx-load-balancer
