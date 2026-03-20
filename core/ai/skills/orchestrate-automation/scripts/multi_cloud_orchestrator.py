@@ -63,6 +63,7 @@ class MultiCloudOrchestrator:
         self.running_tasks = {}
         self.config = self._load_config(config_file)
         self.executor = ThreadPoolExecutor(max_workers=10)
+        self.crossplane_orchestrator = CrossplaneOrchestrator()
         
     def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
         """Load orchestration configuration"""

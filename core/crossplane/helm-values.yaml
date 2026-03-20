@@ -1,21 +1,12 @@
-replicas: 2
-
+replicas: 1
 image:
   pullPolicy: IfNotPresent
-
-provider:
-  packages: []
-
-args:
-  - --dangerous-disable-forward-rotation
 
 rbac:
   enable: true
 
 metrics:
   enable: true
-  serviceMonitor:
-    enabled: true
 
 resources:
   requests:
@@ -24,11 +15,3 @@ resources:
   limits:
     cpu: "500m"
     memory: "512Mi"
-
-networkPolicy:
-  enabled: true
-  egress:
-    - to: []
-      ports:
-        - protocol: TCP
-          port: 443

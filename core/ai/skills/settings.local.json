@@ -84,7 +84,8 @@
       "Bash(chmod:*)",
       "Bash(core/crossplane/helm-values.yaml:*)",
       "Bash(/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
-      "Bash(break)"
+      "Bash(break)",
+      "Bash(/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)"
     ]
   }
 }
