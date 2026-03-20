@@ -12,7 +12,10 @@
       "Bash(ls:*)",
       "Bash(ls -la core/scripts/automation/*.sh)",
       "Bash(./core/scripts/automation/deploy-ai-agents-ecosystem.sh 2>&1)",
-      "Bash(tee /tmp/quickstart.log)"
+      "Bash(tee /tmp/quickstart.log)",
+      "Bash(kubectl patch:*)",
+      "Bash(yes Y)",
+      "Bash(docker ps:*)"
     ]
   }
 }
