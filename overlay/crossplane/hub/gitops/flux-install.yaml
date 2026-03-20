@@ -1,0 +1,25 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: crossplane-config
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://github.com/agentic-reconciliation-engine/crossplane-config
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: crossplane-hub
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-config
+  path: ./hub
+  prune: true
+  wait: true
+  timeout: 5m

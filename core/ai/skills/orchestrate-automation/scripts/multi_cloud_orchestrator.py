@@ -517,6 +517,42 @@ class MultiCloudOrchestrator:
         
         return rollback_results
     
+    def _convert_to_crossplane_request(self, task: OrchestrationTask) -> Optional[ResourceRequest]:
+        """Convert orchestration task to Crossplane resource request"""
+        try:
+            resource_type_map = {
+                'network': ResourceType.NETWORK,
+                'compute': ResourceType.COMPUTE,
+                'storage': ResourceType.STORAGE
+            }
+            
+            provider_map = {
+                'aws': CloudProvider.AWS,
+                'azure': CloudProvider.AZURE,
+                'gcp': CloudProvider.GCP
+            }
+            
+            resource_type = task.config.get('resource_type')
+            provider_name = task.config.get('provider', task.provider)
+            
+            if resource_type not in resource_type_map:
+                return None
+            
+            if provider_name not in provider_map:
+                return None
+            
+            return ResourceRequest(
+                name=task.config.get('name', task.id),
+                resource_type=resource_type_map[resource_type],
+                provider=provider_map[provider_name],
+                region=task.config.get('region', 'us-west-2'),
+                config=task.config,
+                tags=task.config.get('tags', {})
+            )
+        except Exception as e:
+            logger.error(f"Failed to convert task to Crossplane request: {e}")
+            return None
+    
     def cleanup(self):
         """Cleanup resources"""
         self.executor.shutdown(wait=True)

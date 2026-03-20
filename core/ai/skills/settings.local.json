@@ -87,7 +87,12 @@
       "Bash(break)",
       "Bash(/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
       "Bash(core/operators/control-plane/crossplane/xrds/xredis.yaml:*)",
-      "Bash(core/operators/control-plane/crossplane/compositions/redis-aws.yaml:*)"
+      "Bash(core/operators/control-plane/crossplane/compositions/redis-aws.yaml:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/lloyd/github/antigravity/agentic-reconciliation-engine/**)",
+      "Bash(kubectl api-resources:*)",
+      "Bash(core/operators/control-plane/crossplane/xrds/xstoragebucket.yaml:*)"
     ]
   }
 }
