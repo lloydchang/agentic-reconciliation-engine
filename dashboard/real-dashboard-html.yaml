@@ -173,7 +173,7 @@ data:
                             { name: "Agent Dashboard", url: "http://localhost:8080", status: "running", port: 8080 },
                             { name: "Dashboard API", url: "http://localhost:5001", status: "running", port: 5001 },
                             { name: "Infrastructure Portal", url: "http://localhost:9000", status: "running", port: 9000 },
-                            { name: "Temporal UI", url: "http://localhost:7233", status: "running", port: 7233 },
+                            { name: "Temporal UI", url: "http://localhost:8233", status: "running", port: 8233 },
                             { name: "Memory Service", url: "http://localhost:8081", status: "partial", port: 8081 }
                         ],
                         activity: [

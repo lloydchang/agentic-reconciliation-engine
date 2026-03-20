@@ -24,7 +24,7 @@ print_info() {
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MCP_SERVERS_DIR="$REPO_ROOT/.claude/mcp-servers"
 
 # Check if .env file exists

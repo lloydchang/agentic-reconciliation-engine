@@ -269,12 +269,12 @@ data:
                     <div class="service-icon">⏰</div>
                     <div class="service-name">
                         Temporal UI
-                        <span class="status checking" id="status-7233">Checking...</span>
+                        <span class="status checking" id="status-8233">Checking...</span>
                     </div>
                     <div class="service-description">
                         Workflow orchestration interface for monitoring and managing Temporal workflows and activities
                     </div>
-                    <a href="http://localhost:7233" target="_blank" class="service-url">
+                    <a href="http://localhost:8233" target="_blank" class="service-url">
                         Open Temporal →
                     </a>
                 </div>
@@ -294,7 +294,7 @@ data:
                 { port: 5001, name: 'Comprehensive API' },
                 { port: 8082, name: 'Comprehensive Dashboard' },
                 { port: 8081, name: 'Memory Service' },
-                { port: 7233, name: 'Temporal UI' }
+                { port: 8233, name: 'Temporal UI' }
             ];
             
             async function checkService(port) {
