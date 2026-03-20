@@ -1,0 +1,51 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: [aws, azure, gcp, auto]
+                default: auto
+              region:
+                type: string
+                default: us-west-2
+              cidrBlock:
+                type: string
+                default: "10.0.0.0/16"
+              subnetCount:
+                type: integer
+                default: 3
+            required:
+              - region
+          status:
+            type: object
+            properties:
+              networkId:
+                type: string
+              subnetIds:
+                type: array
+                items:
+                  type: string
+              provider:
+                type: string
+              region:
+                type: string

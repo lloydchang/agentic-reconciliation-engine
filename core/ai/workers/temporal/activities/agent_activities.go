@@ -15,6 +15,28 @@ type AgentActivities interface {
 	SecurityScanActivity(ctx context.Context, input SecurityScanInput) (string, error)
 	ClusterMonitorActivity(ctx context.Context, input ClusterMonitorInput) (string, error)
 	DeploymentManagerActivity(ctx context.Context, input DeploymentManagerInput) (string, error)
+	DeliverAgentMessage(ctx context.Context, message AgentMessage) (string, error)
+	WaitForAgentResponse(ctx context.Context, waiter ResponseWaiter) (string, error)
+}
+
+// AgentMessage represents a message between agents
+type AgentMessage struct {
+	ID          string                 `json:"id"`
+	FromAgent   string                 `json:"from_agent"`
+	ToAgent     string                 `json:"to_agent"`
+	Message     string                 `json:"message"`
+	MessageType string                 `json:"message_type"`
+	Priority    string                 `json:"priority"`
+	Metadata    map[string]interface{} `json:"metadata"`
+	Timestamp   time.Time              `json:"timestamp"`
+}
+
+// ResponseWaiter waits for agent responses
+type ResponseWaiter struct {
+	MessageID string `json:"message_id"`
+	FromAgent string `json:"from_agent"`
+	ToAgent   string `json:"to_agent"`
+	Timeout   time.Duration `json:"timeout"`
 }
 
 // Input types for activities

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Multi-Cloud Orchestrator
+Multi-Cloud Orchestrator - Crossplane Version
 
-Cross-provider coordination and orchestration for AI agent management using Crossplane XRDs and Compositions.
+Cross-provider coordination and orchestration for AI agent management across multiple cloud environments using Crossplane.
 """
 
 import json
@@ -16,7 +16,6 @@ from enum import Enum
 
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
-from crossplane_orchestrator import CrossplaneOrchestrator, ResourceRequest, ResourceType, CloudProvider
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +37,7 @@ class OrchestrationTask:
     name: str
     provider: str
     operation: str
+    resource_type: str
     config: Dict[str, Any]
     dependencies: List[str]
     retry_count: int = 0
@@ -54,11 +54,177 @@ class OrchestrationResult:
     timestamp: datetime
     execution_time: float
 
-class MultiCloudOrchestrator:
-    """Multi-cloud orchestration engine"""
+class CrossplaneResourceOrchestrator:
+    """Crossplane resource management for multi-cloud operations"""
     
     def __init__(self, config_file: Optional[str] = None):
-        self.crossplane_orchestrator = CrossplaneOrchestrator(config_file)
+        self.config = self._load_config(config_file)
+        self._initialize_kubernetes()
+        
+    def _initialize_kubernetes(self):
+        """Initialize Kubernetes client for Crossplane operations"""
+        try:
+            config.load_kube_config()
+            self.api_client = client.ApiClient()
+            self.custom_api = client.CustomObjectsApi()
+            self.core_api = client.CoreV1Api()
+            logger.info("Kubernetes client initialized for Crossplane")
+        except Exception as e:
+            logger.error(f"Failed to initialize Kubernetes client: {e}")
+            raise
+    
+    def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
+        """Load orchestration configuration"""
+        default_config = {
+            'default_timeout': 300,
+            'max_parallel_tasks': 5,
+            'health_check_interval': 60,
+            'retry_delay': 30,
+            'providers': {
+                'aws': {'region': 'us-west-2', 'enabled': True},
+                'azure': {'region': 'eastus', 'enabled': True},
+                'gcp': {'region': 'us-central1', 'enabled': True}
+            },
+            'crossplane': {
+                'namespace': 'default',
+                'api_group': 'platform.example.com',
+                'api_version': 'v1alpha1'
+            }
+        }
+        
+        if config_file:
+            try:
+                with open(config_file, 'r') as f:
+                    user_config = json.load(f)
+                default_config.update(user_config)
+            except Exception as e:
+                logger.warning(f"Failed to load config file {config_file}: {e}")
+        
+        return default_config
+    
+    def create_network(self, network_spec: Dict[str, Any]) -> Dict[str, Any]:
+        """Create network using Crossplane XNetwork resource"""
+        try:
+            resource = {
+                "apiVersion": f"{self.config['crossplane']['api_group']}/{self.config['crossplane']['api_version']}",
+                "kind": "XNetwork",
+                "metadata": {
+                    "name": network_spec["name"],
+                    "labels": {
+                        "managed-by": "crossplane-orchestrator",
+                        "provider": network_spec["provider"]
+                    }
+                },
+                "spec": network_spec
+            }
+            
+            result = self.custom_api.create_namespaced_custom_object(
+                group=self.config['crossplane']['api_group'],
+                version=self.config['crossplane']['api_version'],
+                namespace=self.config['crossplane']['namespace'],
+                plural="xnetworks",
+                body=resource
+            )
+            
+            return {
+                'status': 'success',
+                'provider': network_spec['provider'],
+                'resource_id': result['metadata']['name'],
+                'operation': 'create_network',
+                'details': f"Network {network_spec['name']} creation initiated"
+            }
+            
+        except ApiException as e:
+            logger.error(f"Failed to create network {network_spec['name']}: {e}")
+            return {
+                'status': 'error',
+                'provider': network_spec['provider'],
+                'error': str(e),
+                'operation': 'create_network'
+            }
+    
+    def create_compute(self, compute_spec: Dict[str, Any]) -> Dict[str, Any]:
+        """Create compute instance using Crossplane XCompute resource"""
+        try:
+            resource = {
+                "apiVersion": f"{self.config['crossplane']['api_group']}/{self.config['crossplane']['api_version']}",
+                "kind": "XCompute",
+                "metadata": {
+                    "name": compute_spec["name"],
+                    "labels": {
+                        "managed-by": "crossplane-orchestrator",
+                        "provider": compute_spec["provider"]
+                    }
+                },
+                "spec": compute_spec
+            }
+            
+            result = self.custom_api.create_namespaced_custom_object(
+                group=self.config['crossplane']['api_group'],
+                version=self.config['crossplane']['api_version'],
+                namespace=self.config['crossplane']['namespace'],
+                plural="xcomputes",
+                body=resource
+            )
+            
+            return {
+                'status': 'success',
+                'provider': compute_spec['provider'],
+                'resource_id': result['metadata']['name'],
+                'operation': 'create_compute',
+                'details': f"Compute {compute_spec['name']} creation initiated"
+            }
+            
+        except ApiException as e:
+            logger.error(f"Failed to create compute {compute_spec['name']}: {e}")
+            return {
+                'status': 'error',
+                'provider': compute_spec['provider'],
+                'error': str(e),
+                'operation': 'create_compute'
+            }
+    
+    def get_resource_status(self, resource_type: str, resource_name: str) -> Dict[str, Any]:
+        """Get status of Crossplane resource"""
+        try:
+            plural_map = {
+                'network': 'xnetworks',
+                'compute': 'xcomputes',
+                'storage': 'xstorages',
+                'database': 'xdatabases'
+            }
+            
+            result = self.custom_api.get_namespaced_custom_object(
+                group=self.config['crossplane']['api_group'],
+                version=self.config['crossplane']['api_version'],
+                namespace=self.config['crossplane']['namespace'],
+                plural=plural_map.get(resource_type, f"x{resource_type}s"),
+                name=resource_name
+            )
+            
+            status = result.get('status', {})
+            return {
+                'status': 'success',
+                'resource_type': resource_type,
+                'resource_name': resource_name,
+                'ready': status.get('ready', False),
+                'provider_status': status.get('providerStatus', 'Unknown'),
+                'details': status
+            }
+            
+        except ApiException as e:
+            return {
+                'status': 'error',
+                'resource_type': resource_type,
+                'resource_name': resource_name,
+                'error': str(e)
+            }
+
+class MultiCloudOrchestrator:
+    """Multi-cloud orchestration engine using Crossplane"""
+    
+    def __init__(self, config_file: Optional[str] = None):
+        self.crossplane_orchestrator = CrossplaneResourceOrchestrator(config_file)
         self.tasks = []
         self.results = []
         self.running_tasks = {}
@@ -91,7 +257,7 @@ class MultiCloudOrchestrator:
         return default_config
     
     def initialize_providers(self, providers: List[str]) -> Dict[str, bool]:
-        """Validate Crossplane provider availability"""
+        """Initialize cloud provider handlers using Crossplane"""
         results = {}
         
         for provider in providers:
@@ -106,37 +272,21 @@ class MultiCloudOrchestrator:
                     results[provider] = False
                     continue
                 
-                # Check if Crossplane ProviderConfig exists
-                provider_config_name = f"provider-{provider}"
-                if self.crossplane_orchestrator.check_provider_config(provider_config_name):
-                    results[provider] = True
-                    logger.info(f"Crossplane provider {provider} initialized successfully")
-                else:
-                    results[provider] = False
-                    logger.error(f"Crossplane ProviderConfig not found for {provider}")
+                # Crossplane doesn't require explicit provider initialization like SDKs
+                # Providers are managed through Kubernetes custom resources
+                results[provider] = True
+                logger.info(f"Provider {provider} available through Crossplane")
                     
             except Exception as e:
-                logger.error(f"Error validating provider {provider}: {e}")
+                logger.error(f"Error initializing provider {provider}: {e}")
                 results[provider] = False
         
         return results
     
     def create_deployment_plan(self, 
-                            agents: List[Dict[str, Any]], 
+                            resources: List[Dict[str, Any]], 
                             strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationTask]:
-        """Create deployment plan based on strategy (backwards compatibility)"""
-        # Map legacy agent format to Crossplane resource format
-        resources = []
-        for agent in agents:
-            resource = self._convert_agent_to_resource(agent)
-            resources.append(resource)
-        
-        return self._create_resource_deployment_plan(resources, strategy)
-    
-    def _create_resource_deployment_plan(self, 
-                                       resources: List[Dict[str, Any]], 
-                                       strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationTask]:
-        """Create deployment plan for Crossplane resources"""
+        """Create deployment plan based on strategy"""
         tasks = []
         
         for i, resource in enumerate(resources):
@@ -145,6 +295,7 @@ class MultiCloudOrchestrator:
                 name=f"Deploy {resource['name']}",
                 provider=resource['provider'],
                 operation="deploy",
+                resource_type=resource.get('type', 'compute'),
                 config=resource,
                 dependencies=[]
             )
@@ -166,58 +317,6 @@ class MultiCloudOrchestrator:
             tasks.append(task)
         
         return tasks
-    
-    def _convert_agent_to_resource(self, agent: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert legacy agent format to Crossplane resource format"""
-        # Map agent properties to resource properties
-        resource_type = self._infer_resource_type_from_agent(agent)
-        
-        resource = {
-            'name': agent['name'],
-            'provider': agent.get('provider', 'aws'),
-            'resource_type': resource_type,
-            'region': agent.get('region', 'us-west-2'),
-            'tags': {
-                'environment': agent.get('environment', 'production'),
-                'managed-by': 'crossplane-orchestrator'
-            }
-        }
-        
-        # Map agent-specific properties based on resource type
-        if resource_type == 'compute':
-            resource.update({
-                'instance_type': agent.get('instance_type', 't3.medium'),
-                'os_image': agent.get('image', 'ami-12345678'),
-                'cpu_cores': agent.get('cpu_cores', 2),
-                'memory_mb': agent.get('memory_mb', 2048),
-                'replicas': agent.get('replicas', 1)
-            })
-        elif resource_type == 'network':
-            resource.update({
-                'network_type': 'vpc',
-                'cidr_block': agent.get('cidr_block', '10.0.0.0/16'),
-                'subnets': agent.get('subnets', [])
-            })
-        elif resource_type == 'storage':
-            resource.update({
-                'storage_class': agent.get('storage_class', 'STANDARD'),
-                'size_gb': agent.get('size_gb', 100),
-                'backup_enabled': agent.get('backup_enabled', True)
-            })
-        
-        return resource
-    
-    def _infer_resource_type_from_agent(self, agent: Dict[str, Any]) -> str:
-        """Infer resource type from agent configuration"""
-        if 'instance_type' in agent or 'cpu_cores' in agent or 'memory_mb' in agent:
-            return 'compute'
-        elif 'cidr_block' in agent or 'subnets' in agent:
-            return 'network'
-        elif 'storage_class' in agent or 'size_gb' in agent:
-            return 'storage'
-        else:
-            # Default to compute for backwards compatibility
-            return 'compute'
     
     def execute_tasks(self, tasks: List[OrchestrationTask], strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationResult]:
         """Execute orchestration tasks"""
@@ -341,43 +440,17 @@ class MultiCloudOrchestrator:
         start_time = datetime.utcnow()
         
         try:
-            # Convert task to Crossplane resource request
-            resource_request = self._convert_to_crossplane_request(task)
-            if not resource_request:
-                return OrchestrationResult(
-                    task_id=task.id,
-                    provider=task.provider,
-                    status="error",
-                    message="Failed to convert task to Crossplane resource request",
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                )
-            
-            # Execute Crossplane operation
+            # Use Crossplane orchestrator instead of direct cloud handlers
             if task.operation == "deploy":
-                if task.config.get('resource_type') == 'network':
-                    result_data = self.crossplane_orchestrator.create_network(resource_request)
-                elif task.config.get('resource_type') == 'compute':
-                    result_data = self.crossplane_orchestrator.create_compute(resource_request)
-                elif task.config.get('resource_type') == 'storage':
-                    result_data = self.crossplane_orchestrator.create_storage(resource_request)
+                if task.resource_type == "network":
+                    result_data = self.crossplane_orchestrator.create_network(task.config)
+                elif task.resource_type == "compute":
+                    result_data = self.crossplane_orchestrator.create_compute(task.config)
                 else:
                     result_data = {
                         'status': 'error',
-                        'message': f'Unknown resource type: {task.config.get("resource_type")}'
+                        'message': f'Unknown resource type: {task.resource_type}'
                     }
-            elif task.operation == "scale":
-                result_data = self.crossplane_orchestrator.scale_resource(
-                    resource_request.name,
-                    task.config.get('replicas', 1)
-                )
-            elif task.operation == "stop":
-                result_data = self.crossplane_orchestrator.delete_resource(resource_request.name)
-            elif task.operation == "start":
-                result_data = self.crossplane_orchestrator.start_resource(resource_request.name)
-            elif task.operation == "status":
-                result_data = self.crossplane_orchestrator.get_resource_status(resource_request.name)
             else:
                 result_data = {
                     'status': 'error',
@@ -457,160 +530,67 @@ class MultiCloudOrchestrator:
             'degraded_resources': 0
         }
         
-        for provider_name in self.handlers.keys():
+        resource_types = ['xnetworks', 'xcomputes', 'xstorages', 'xdatabases']
+        
+        for resource_type in resource_types:
             try:
-                # Query Crossplane resources for this provider
-                resources = self.crossplane_orchestrator.list_resources_by_provider(provider_name)
-                provider_status = {
-                    'status': 'connected',
-                    'resource_count': len(resources),
-                    'resources': []
-                }
+                resources = self.crossplane_orchestrator.custom_api.list_namespaced_custom_object(
+                    group=self.crossplane_orchestrator.config['crossplane']['api_group'],
+                    version=self.crossplane_orchestrator.config['crossplane']['api_version'],
+                    namespace=self.crossplane_orchestrator.config['crossplane']['namespace'],
+                    plural=resource_type
+                )
                 
-                for resource in resources:
-                    resource_details = self.crossplane_orchestrator.get_resource_status(resource.name)
-                    health = self._assess_resource_health(resource_details)
+                for resource in resources.get('items', []):
+                    provider = resource['metadata']['labels'].get('provider', 'unknown')
+                    resource_status = resource.get('status', {})
                     
+                    if provider not in status['providers']:
+                        status['providers'][provider] = {
+                            'resources': [],
+                            'healthy': 0,
+                            'unhealthy': 0,
+                            'degraded': 0
+                        }
+                    
+                    health = self._assess_resource_health(resource_status)
                     resource_info = {
-                        'id': resource.name,
-                        'name': resource.name,
-                        'type': resource.resource_type.value,
-                        'status': resource_details.get('status', 'unknown'),
+                        'name': resource['metadata']['name'],
+                        'type': resource_type[:-1], # Remove 's' from plural
+                        'provider': provider,
                         'health': health.value,
-                        'provider': provider_name,
-                        'region': resource.region,
-                        'details': resource_details
+                        'status': resource_status
                     }
                     
-                    provider_status['resources'].append(resource_info)
-                    
-                    # Update global counts
+                    status['providers'][provider]['resources'].append(resource_info)
+                    status['providers'][provider][health.value] += 1
                     status['total_resources'] += 1
+                    
                     if health == HealthStatus.HEALTHY:
                         status['healthy_resources'] += 1
                     elif health == HealthStatus.UNHEALTHY:
                         status['unhealthy_resources'] += 1
                     elif health == HealthStatus.DEGRADED:
                         status['degraded_resources'] += 1
-                
-                status['providers'][provider_name] = provider_status
-                
-            except Exception as e:
-                logger.error(f"Failed to get status for provider {provider_name}: {e}")
-                status['providers'][provider_name] = {
-                    'status': 'error',
-                    'error': str(e),
-                    'resource_count': 0,
-                    'resources': []
-                }
+                        
+            except ApiException as e:
+                logger.error(f"Failed to list {resource_type}: {e}")
         
         return status
     
-    def _assess_agent_health(self, agent_details: Dict[str, Any]) -> HealthStatus:
-        """Assess agent health based on details"""
-        if agent_details.get('status') != 'success':
-            return HealthStatus.UNKNOWN
-        
-        data = agent_details.get('data', {})
-        
-        # Check for common health indicators
-        if 'running_count' in data and 'desired_count' in data:
-            if data['running_count'] == data['desired_count']:
-                return HealthStatus.HEALTHY
-            elif data['running_count'] > 0:
-                return HealthStatus.DEGRADED
-            else:
-                return HealthStatus.UNHEALTHY
-        
-        if 'status' in data:
-            status = data['status'].lower()
-            if status in ['running', 'healthy', 'active']:
-                return HealthStatus.HEALTHY
-            elif status in ['pending', 'starting', 'degraded']:
-                return HealthStatus.DEGRADED
-            elif status in ['failed', 'error', 'stopped']:
-                return HealthStatus.UNHEALTHY
-        
+    def _assess_resource_health(self, resource_status: Dict[str, Any]) -> HealthStatus:
+        """Assess resource health based on Crossplane status"""
+        if resource_status.get('ready'):
+            return HealthStatus.HEALTHY
+        elif 'conditions' in resource_status:
+            # Check conditions for more detailed health assessment
+            for condition in resource_status['conditions']:
+                if condition['type'] == 'Ready' and condition['status'] == 'False':
+                    if 'degraded' in condition.get('reason', '').lower():
+                        return HealthStatus.DEGRADED
+                    else:
+                        return HealthStatus.UNHEALTHY
         return HealthStatus.UNKNOWN
-    
-    def rollback_deployment(self, deployment_results: List[OrchestrationResult]) -> List[OrchestrationResult]:
-        """Rollback a deployment by deleting Crossplane resources"""
-        rollback_results = []
-        
-        # Process in reverse order (LIFO)
-        for result in reversed(deployment_results):
-            if result.status != "success":
-                continue
-            
-            try:
-                # Extract resource name from result data
-                resource_name = result.data.get('resource_name') or result.data.get('name')
-                if not resource_name:
-                    logger.warning(f"No resource name found for rollback of {result.task_id}")
-                    continue
-                
-                # Delete the Crossplane resource
-                rollback_result = self.crossplane_orchestrator.delete_resource(resource_name)
-                
-                rollback_results.append(OrchestrationResult(
-                    task_id=f"rollback-{result.task_id}",
-                    provider=result.provider,
-                    status=rollback_result.get('status', 'unknown'),
-                    message=rollback_result.get('message', f"Rolled back {resource_name}"),
-                    data=rollback_result,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                ))
-                
-            except Exception as e:
-                logger.error(f"Failed to rollback {result.task_id}: {e}")
-                rollback_results.append(OrchestrationResult(
-                    task_id=f"rollback-{result.task_id}",
-                    provider=result.provider,
-                    status="error",
-                    message=str(e),
-                    data=None,
-                    timestamp=datetime.utcnow(),
-                    execution_time=0.0
-                ))
-        
-        return rollback_results
-    
-    def _convert_to_crossplane_request(self, task: OrchestrationTask) -> Optional[ResourceRequest]:
-        """Convert orchestration task to Crossplane resource request"""
-        try:
-            resource_type_map = {
-                'network': ResourceType.NETWORK,
-                'compute': ResourceType.COMPUTE,
-                'storage': ResourceType.STORAGE
-            }
-            
-            provider_map = {
-                'aws': CloudProvider.AWS,
-                'azure': CloudProvider.AZURE,
-                'gcp': CloudProvider.GCP
-            }
-            
-            resource_type = task.config.get('resource_type')
-            provider_name = task.config.get('provider', task.provider)
-            
-            if resource_type not in resource_type_map:
-                return None
-            
-            if provider_name not in provider_map:
-                return None
-            
-            return ResourceRequest(
-                name=task.config.get('name', task.id),
-                resource_type=resource_type_map[resource_type],
-                provider=provider_map[provider_name],
-                region=task.config.get('region', 'us-west-2'),
-                config=task.config,
-                tags=task.config.get('tags', {})
-            )
-        except Exception as e:
-            logger.error(f"Failed to convert task to Crossplane request: {e}")
-            return None
     
     def cleanup(self):
         """Cleanup resources"""
@@ -620,7 +600,7 @@ def main():
     """Example usage"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Multi-Cloud Orchestrator")
+    parser = argparse.ArgumentParser(description="Multi-Cloud Orchestrator - Crossplane Version")
     parser.add_argument("--config", help="Configuration file")
     parser.add_argument("--strategy", choices=[s.value for s in OrchestrationStrategy],
                        default=OrchestrationStrategy.PARALLEL.value, help="Orchestration strategy")
@@ -644,22 +624,21 @@ def main():
     # Example deployment
     resources = [
         {
-            'name': 'multi-cloud-compute-1',
+            'name': 'production-network-aws',
+            'type': 'network',
             'provider': 'aws',
-            'resource_type': 'compute',
             'region': 'us-west-2',
-            'instance_type': 't3.medium',
-            'os_image': 'ami-12345678',
-            'tags': {'environment': 'production', 'team': 'platform'}
+            'cidrBlock': '10.1.0.0/16',
+            'environment': 'production'
         },
         {
-            'name': 'multi-cloud-storage-1',
-            'provider': 'gcp',
-            'resource_type': 'storage',
-            'region': 'us-central1',
-            'storage_class': 'STANDARD',
-            'size_gb': 100,
-            'tags': {'environment': 'production', 'team': 'data'}
+            'name': 'app-compute-aws',
+            'type': 'compute',
+            'provider': 'aws',
+            'region': 'us-west-2',
+            'instanceType': 't3.medium',
+            'image': 'ami-0c02fb55956c7d316',
+            'environment': 'production'
         }
     ]
     

@@ -1,0 +1,46 @@
+# Crossplane Installation Manifests
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-system
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: crossplane
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://charts.crossplane.io/stable
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: crossplane
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: crossplane
+      version: "1.15.0"
+      sourceRef:
+        kind: HelmRepository
+        name: crossplane
+  targetNamespace: crossplane-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    rbac:
+      manager:
+        create: true
+      node:
+        create: true
+    securityContext:
+      runAsUser: 2000
+      runAsGroup: 2000
+      fsGroup: 2000

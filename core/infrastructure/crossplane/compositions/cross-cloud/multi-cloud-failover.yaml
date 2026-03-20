@@ -1,0 +1,84 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-failover.platform.example.com
+  labels:
+    crossplane.io/claim-name: failover
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: aws-network
+    base:
+      apiVersion: platform.example.com/v1alpha1
+      kind: Network
+      spec:
+        provider: aws
+        region: us-west-2
+        cidrBlock: "10.1.0.0/16"
+        subnetCount: 3
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "status.networkId"
+      toFieldPath: "metadata.annotations[awsNetworkId]"
+  - name: azure-network
+    base:
+      apiVersion: platform.example.com/v1alpha1
+      kind: Network
+      spec:
+        provider: azure
+        region: eastus
+        cidrBlock: "10.2.0.0/16"
+        subnetCount: 3
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "status.networkId"
+      toFieldPath: "metadata.annotations[azureNetworkId]"
+  - name: gcp-network
+    base:
+      apiVersion: platform.example.com/v1alpha1
+      kind: Network
+      spec:
+        provider: gcp
+        region: us-central1
+        cidrBlock: "10.3.0.0/16"
+        subnetCount: 3
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "status.networkId"
+      toFieldPath: "metadata.annotations[gcpNetworkId]"
+  - name: vpn-connection-aws-azure
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPNGateway
+      spec:
+        forProvider:
+          region: us-west-2
+          amazonSideAsn: 65001
+          customerGatewayId: cgw-selector
+          staticRoutesOnly: false
+          tags:
+            Name: aws-azure-vpn
+            ManagedBy: crossplane
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.annotations[azureNetworkId]"
+      toFieldPath: "spec.forProvider.customerGatewayId"
+  - name: vpn-connection-aws-gcp
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPNGateway
+      spec:
+        forProvider:
+          region: us-west-2
+          amazonSideAsn: 65001
+          customerGatewayId: cgw-selector
+          staticRoutesOnly: false
+          tags:
+            Name: aws-gcp-vpn
+            ManagedBy: crossplane
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.annotations[gcpNetworkId]"
+      toFieldPath: "spec.forProvider.customerGatewayId"

@@ -1,0 +1,56 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xvms.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XVM
+    plural: xvms
+  claimNames:
+    kind: VM
+    plural: vms
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: [aws, azure, gcp, auto]
+                default: auto
+              region:
+                type: string
+                default: us-west-2
+              instanceType:
+                type: string
+                default: medium
+              image:
+                type: string
+                default: ubuntu-latest
+              subnetId:
+                type: string
+            required:
+              - region
+              - instanceType
+          status:
+            type: object
+            properties:
+              instanceId:
+                type: string
+              publicIP:
+                type: string
+              privateIP:
+                type: string
+              provider:
+                type: string
+              region:
+                type: string
+              status:
+                type: string

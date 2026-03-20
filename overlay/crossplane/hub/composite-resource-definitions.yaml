@@ -1,0 +1,347 @@
+# Composite Resource Definition for Multi-Cloud Networks
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.platform.example.com
+  annotations:
+    crossplane.io/xrd: "composite-network"
+    crossplane.io/documentation: "https://docs.crossplane.io/v1.14/composition"
+spec:
+  group: platform.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider to use"
+              region:
+                type: string
+                description: "Cloud region"
+              cidrBlock:
+                type: string
+                default: "10.0.0.0/16"
+                description: "CIDR block for the network"
+              subnetCount:
+                type: integer
+                default: 3
+                description: "Number of subnets to create"
+              enableDnsSupport:
+                type: boolean
+                default: true
+                description: "Enable DNS support"
+              enableDnsHostnames:
+                type: boolean
+                default: true
+                description: "Enable DNS hostnames"
+            required:
+              - provider
+              - region
+          status:
+            type: object
+            properties:
+              networkId:
+                type: string
+                description: "Network resource ID"
+              subnetIds:
+                type: array
+                items:
+                  type: string
+                description: "List of subnet IDs"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+---
+# Composite Resource Definition for Multi-Cloud Kubernetes Clusters
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xkubernetes.platform.example.com
+  annotations:
+    crossplane.io/xrd: "composite-kubernetes"
+    crossplane.io/documentation: "https://docs.crossplane.io/v1.14/composition"
+spec:
+  group: platform.example.com
+  names:
+    kind: XKubernetes
+    plural: xkubernetes
+  claimNames:
+    kind: Kubernetes
+    plural: kubernetes
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider to use"
+              region:
+                type: string
+                description: "Cloud region"
+              networkId:
+                type: string
+                description: "Network ID to attach to"
+              nodeCount:
+                type: integer
+                default: 3
+                description: "Number of worker nodes"
+              nodeInstanceType:
+                type: string
+                default: "t3.medium"
+                description: "Instance type for worker nodes"
+              version:
+                type: string
+                default: "1.28"
+                description: "Kubernetes version"
+              enableAutoscaling:
+                type: boolean
+                default: true
+                description: "Enable cluster autoscaling"
+              minNodes:
+                type: integer
+                default: 1
+                description: "Minimum number of nodes"
+              maxNodes:
+                type: integer
+                default: 10
+                description: "Maximum number of nodes"
+            required:
+              - provider
+              - region
+              - networkId
+          status:
+            type: object
+            properties:
+              clusterName:
+                type: string
+                description: "Cluster name"
+              endpoint:
+                type: string
+                description: "Cluster API endpoint"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+---
+# Composite Resource Definition for Multi-Cloud Databases
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdatabase.platform.example.com
+  annotations:
+    crossplane.io/xrd: "composite-database"
+    crossplane.io/documentation: "https://docs.crossplane.io/v1.14/composition"
+spec:
+  group: platform.example.com
+  names:
+    kind: XDatabase
+    plural: xdatabase
+  claimNames:
+    kind: Database
+    plural: databases
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider to use"
+              region:
+                type: string
+                description: "Cloud region"
+              networkId:
+                type: string
+                description: "Network ID to deploy in"
+              engine:
+                type: string
+                enum: ["postgresql", "mysql", "mongodb"]
+                default: "postgresql"
+                description: "Database engine"
+              version:
+                type: string
+                default: "15"
+                description: "Database version"
+              instanceClass:
+                type: string
+                default: "db.t3.micro"
+                description: "Database instance class"
+              allocatedStorage:
+                type: integer
+                default: 20
+                description: "Allocated storage in GB"
+              username:
+                type: string
+                default: "admin"
+                description: "Database username"
+              passwordSecretRef:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                  key:
+                    type: string
+                description: "Reference to password secret"
+              enableBackup:
+                type: boolean
+                default: true
+                description: "Enable automated backups"
+              enableMultiAZ:
+                type: boolean
+                default: false
+                description: "Enable multi-AZ deployment"
+            required:
+              - provider
+              - region
+              - networkId
+              - passwordSecretRef
+          status:
+            type: object
+            properties:
+              endpoint:
+                type: string
+                description: "Database connection endpoint"
+              databaseName:
+                type: string
+                description: "Database name"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+---
+# Composite Resource Definition for Multi-Cloud Storage
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xstorage.platform.example.com
+  annotations:
+    crossplane.io/xrd: "composite-storage"
+    crossplane.io/documentation: "https://docs.crossplane.io/v1.14/composition"
+spec:
+  group: platform.example.com
+  names:
+    kind: XStorage
+    plural: xstorage
+  claimNames:
+    kind: Storage
+    plural: storage
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider to use"
+              region:
+                type: string
+                description: "Cloud region"
+              bucketName:
+                type: string
+                description: "Bucket name"
+              storageClass:
+                type: string
+                enum: ["STANDARD", "REDUCED_REDUNDANCY", "GLACIER"]
+                default: "STANDARD"
+                description: "Storage class"
+              enableVersioning:
+                type: boolean
+                default: true
+                description: "Enable bucket versioning"
+              enableEncryption:
+                type: boolean
+                default: true
+                description: "Enable server-side encryption"
+              lifecycleRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    status:
+                      type: string
+                      enum: ["Enabled", "Disabled"]
+                    expiration:
+                      type: object
+                      properties:
+                        days:
+                          type: integer
+                    transitions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          days:
+                            type: integer
+                          storageClass:
+                            type: string
+                description: "Lifecycle rules for objects"
+            required:
+              - provider
+              - region
+              - bucketName
+          status:
+            type: object
+            properties:
+              bucketName:
+                type: string
+                description: "Actual bucket name"
+              bucketArn:
+                type: string
+                description: "Bucket ARN"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
