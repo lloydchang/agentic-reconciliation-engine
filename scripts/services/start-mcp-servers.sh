@@ -58,4 +58,4 @@ for server_dir in "$MCP_SERVERS_DIR"/*; do
 done
 
 print_info "All MCP servers started. Check logs in $REPO_ROOT/logs/"
-print_info "To stop servers, run: $REPO_ROOT/scripts/stop-mcp-servers.sh"
+print_info "To stop servers, run: $REPO_ROOT/scripts/services/stop-mcp-servers.sh"
