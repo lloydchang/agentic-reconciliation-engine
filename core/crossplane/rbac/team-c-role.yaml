@@ -1,0 +1,92 @@
+---
+# Team C: Multi-cloud access (can provision across AWS, Azure, GCP)
+# Full access to all providers for multi-cloud topologies
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-c-crossplane-role
+  namespace: team-c
+spec:
+  # Crossplane claim management
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords/status"]
+    verbs: ["get", "update", "patch"]
+
+  # AWS resources
+  - apiGroups: ["eks.aws.crossplane.io"]
+    resources: ["clusters", "clusters/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["rds.aws.crossplane.io"]
+    resources: ["instances", "instances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["elasticachereplicationgroups.cache.aws.crossplane.io"]
+    resources: ["elasticachereplicationgroups", "elasticachereplicationgroups/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["s3.aws.crossplane.io"]
+    resources: ["buckets", "buckets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["vpcs.networking.aws.crossplane.io"]
+    resources: ["vpcs", "vpcs/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["subnets.networking.aws.crossplane.io"]
+    resources: ["subnets", "subnets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["loadbalancers.elb.aws.crossplane.io"]
+    resources: ["loadbalancers", "loadbalancers/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["securitygroups.networking.aws.crossplane.io"]
+    resources: ["securitygroups", "securitygroups/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+
+  # Azure resources
+  - apiGroups: ["platform.azure.upbound.io"]
+    resources: ["kubernetesclusters", "kubernetesclusters/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["database.azure.upbound.io"]
+    resources: ["postgresqlinstances", "postgresqlinstances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["cache.azure.upbound.io"]
+    resources: ["rediscaches", "rediscaches/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["storage.azure.upbound.io"]
+    resources: ["storageaccounts", "storageaccounts/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.azure.upbound.io"]
+    resources: ["virtualnetworks", "virtualnetworks/status", "subnets", "subnets/status", "applicationgateways", "applicationgateways/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+
+  # GCP resources
+  - apiGroups: ["platform.gcp.upbound.io"]
+    resources: ["clusters", "clusters/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["database.gcp.upbound.io"]
+    resources: ["postgresqlinstances", "postgresqlinstances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["cache.gcp.upbound.io"]
+    resources: ["redisinstances", "redisinstances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["storage.gcp.upbound.io"]
+    resources: ["buckets", "buckets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.gcp.upbound.io"]
+    resources: ["globaladdresses", "globaladdresses/status", "forwardingrules", "forwardingrules/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-c-crossplane-binding
+  namespace: team-c
+subjects:
+- kind: ServiceAccount
+  name: team-c-sa
+  namespace: team-c
+roleRef:
+  kind: Role
+  name: team-c-crossplane-role
+  apiGroup: rbac.authorization.k8s.io

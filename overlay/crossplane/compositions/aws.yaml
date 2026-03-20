@@ -1,0 +1,384 @@
+# AWS Provider Compositions
+# AWS Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-aws
+  labels:
+    provider: aws
+    resource: network
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: vpc
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: VPC
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          cidrBlock: "10.0.0.0/16"
+          enableDnsSupport: true
+          enableDnsHostnames: true
+          tags:
+            Name: "agentic-reconciliation-network"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.cidrBlock"
+      toFieldPath: "spec.forProvider.cidrBlock"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+  - name: internetGateway
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: InternetGateway
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            Name: "agentic-reconciliation-igw"
+            ManagedBy: "Crossplane"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-igw"
+  - name: publicSubnet1
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          cidrBlock: "10.0.1.0/24"
+          availabilityZone: "us-west-2a"
+          vpcIdSelector:
+            matchControllerRef: true
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: "agentic-reconciliation-public-1"
+            Type: "Public"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-public-1"
+  - name: publicSubnet2
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          cidrBlock: "10.0.2.0/24"
+          availabilityZone: "us-west-2b"
+          vpcIdSelector:
+            matchControllerRef: true
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: "agentic-reconciliation-public-2"
+            Type: "Public"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-public-2"
+  - name: privateSubnet1
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          cidrBlock: "10.0.10.0/24"
+          availabilityZone: "us-west-2a"
+          vpcIdSelector:
+            matchControllerRef: true
+          mapPublicIpOnLaunch: false
+          tags:
+            Name: "agentic-reconciliation-private-1"
+            Type: "Private"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-private-1"
+  - name: privateSubnet2
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          cidrBlock: "10.0.20.0/24"
+          availabilityZone: "us-west-2b"
+          vpcIdSelector:
+            matchControllerRef: true
+          mapPublicIpOnLaunch: false
+          tags:
+            Name: "agentic-reconciliation-private-2"
+            Type: "Private"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-private-2"
+  - name: routeTablePublic
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: RouteTable
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          vpcIdSelector:
+            matchControllerRef: true
+          routes:
+          - destinationCidrBlock: "0.0.0.0/0"
+            gatewayIdSelector:
+              matchControllerRef: true
+          tags:
+            Name: "agentic-reconciliation-public-rt"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-public-rt"
+---
+# AWS Compute Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcompute-aws
+  labels:
+    provider: aws
+    resource: compute
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: instance
+    base:
+      apiVersion: ec2.aws.crossplane.io/v1beta1
+      kind: Instance
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          instanceType: "t3.medium"
+          ami: "ami-0c02fb55956c7d316" # Amazon Linux 2
+          subnetIdSelector:
+            matchControllerRef: false
+          iamInstanceProfile: ""
+          tags:
+            Name: "agentic-reconciliation-instance"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.instanceType"
+    - fromFieldPath: "spec.image"
+      toFieldPath: "spec.forProvider.ami"
+    - fromFieldPath: "spec.subnetId"
+      toFieldPath: "spec.forProvider.subnetIdSelector.matchLabels[app.kubernetes.io/name]"
+    - fromFieldPath: "spec.sshKey"
+      toFieldPath: "spec.forProvider.keyName"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "spec.tags"
+      toFieldPath: "spec.forProvider.tags"
+    connectionDetails:
+    - name: instanceId
+      fromConnectionSecretKey: instanceId
+    - name: publicIp
+      fromConnectionSecretKey: publicIp
+    - name: privateIp
+      fromConnectionSecretKey: privateIp
+---
+# AWS Storage Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xstorage-aws
+  labels:
+    provider: aws
+    resource: storage
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: bucket
+    base:
+      apiVersion: s3.aws.crossplane.io/v1beta1
+      kind: Bucket
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          tags:
+            Name: "agentic-reconciliation-bucket"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.bucket"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - fromFieldPath: "spec.encryption"
+      toFieldPath: "spec.forProvider.serverSideEncryptionConfiguration[0].serverSideEncryptionByDefault.sseAlgorithm"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "true": "AES256"
+            "false": ""
+    - fromFieldPath: "spec.versioning"
+      toFieldPath: "spec.forProvider.versioningConfiguration.status"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "true": "Enabled"
+            "false": "Suspended"
+    connectionDetails:
+    - name: bucketName
+      fromConnectionSecretKey: bucketName
+    - name: endpoint
+      fromConnectionSecretKey: endpoint
+---
+# AWS Database Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-aws
+  labels:
+    provider: aws
+    resource: database
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  resources:
+  - name: database
+    base:
+      apiVersion: rds.aws.crossplane.io/v1beta1
+      kind: Instance
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          dbInstanceClass: "db.t3.micro"
+          allocatedStorage: 20
+          engine: "postgres"
+          engineVersion: "13.7"
+          masterUsername: "postgres"
+          storageType: "gp2"
+          storageEncrypted: true
+          backupRetentionPeriod: 7
+          skipFinalSnapshot: false
+          tags:
+            Name: "agentic-reconciliation-db"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.instanceClass"
+      toFieldPath: "spec.forProvider.dbInstanceClass"
+    - fromFieldPath: "spec.storageSize"
+      toFieldPath: "spec.forProvider.allocatedStorage"
+    - fromFieldPath: "spec.engine"
+      toFieldPath: "spec.forProvider.engine"
+    - fromFieldPath: "spec.version"
+      toFieldPath: "spec.forProvider.engineVersion"
+    - fromFieldPath: "spec.backupRetention"
+      toFieldPath: "spec.forProvider.backupRetentionPeriod"
+    - fromFieldPath: "spec.encryption"
+      toFieldPath: "spec.forProvider.storageEncrypted"
+    - fromFieldPath: "spec.highAvailability"
+      toFieldPath: "spec.forProvider.multiAz"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.dbInstanceIdentifier"
+    connectionDetails:
+    - name: databaseId
+      fromConnectionSecretKey: dbInstanceIdentifier
+    - name: endpoint
+      fromConnectionSecretKey: endpoint
+    - name: port
+      fromConnectionSecretKey: port

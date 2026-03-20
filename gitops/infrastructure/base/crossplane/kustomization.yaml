@@ -1,0 +1,32 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: crossplane-system
+
+# Provider Configs - define credentials and RBAC isolation
+resources:
+  - providerconfigs/aws-providerconfig.yaml
+  - providerconfigs/gcp-providerconfig.yaml
+  - providerconfigs/azure-providerconfig.yaml
+
+# Compositions will be added as they are created
+# - compositions/eks-cluster/composition.yaml
+# - compositions/postgresql/composition.yaml
+# etc.
+
+# Claims for specific environments
+# - claims/production/database-claim.yaml
+# - claims/staging/database-claim.yaml
+
+# Labels for identification
+labels:
+  - includeSelectors: true
+    includeTemplates: true
+    pairs:
+      app: crossplane
+      managed-by: gitops
+      environment: base
+
+# Common patches if needed
+# patches:
+#   - path: providerconfig-patch.yaml

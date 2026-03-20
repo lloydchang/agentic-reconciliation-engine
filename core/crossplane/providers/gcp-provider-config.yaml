@@ -1,0 +1,49 @@
+apiVersion: gcp.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: gcp-provider
+  labels:
+    provider: gcp
+    environment: production
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: gcp-creds
+      key: key
+  # Optional: Project ID can be specified here or in resources
+  # projectID: "your-gcp-project-id"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-creds
+  namespace: crossplane-system
+  labels:
+    provider: gcp
+type: Opaque
+stringData:
+  # GCP service account key JSON
+  # key: |
+  #   {
+  #     "type": "service_account",
+  #     "project_id": "your-project-id",
+  #     "private_key_id": "KEY_ID",
+  #     "private_key": "-----BEGIN PRIVATE KEY-----...",
+  #     "client_email": "service-account@project.iam.gserviceaccount.com",
+  #     "client_id": "CLIENT_ID",
+  #     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  #     "token_uri": "https://oauth2.googleapis.com/token",
+  #     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  #     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/..."
+  #   }
+  key: ""
+---
+apiVersion: gcp.crossplane.io/v1beta1
+kind: ProviderConfigUsage
+metadata:
+  name: gcp-provider-usage
+spec:
+  providerConfigRef:
+    name: gcp-provider

@@ -1,0 +1,50 @@
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: aws-provider
+  labels:
+    provider: aws
+    environment: production
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: aws-creds
+      key: key
+  # Optional: Assume IAM role for additional security
+  # assumeRoleARN: arn:aws:iam::ACCOUNT_ID:role/CrossplaneRole
+  # supportedUsageMetrics:
+  #   - GetCostAndUsage
+  #   - GetReservationUtilization
+  #   - GetCoverage
+  #   - GetSavingsPlansUtilization
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-creds
+  namespace: crossplane-system
+  labels:
+    provider: aws
+type: Opaque
+stringData:
+  # Replace with actual AWS credentials or use external secret management
+  # key: |
+  #   [default]
+  #   aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+  #   aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  key: ""
+---
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfigUsage
+metadata:
+  name: aws-provider-usage
+spec:
+  providerConfigRef:
+    name: aws-provider
+  # Define which namespaces can use this provider config (optional)
+  # If not specified, all namespaces can use it (with RBAC restrictions)
+  # serviceAccountSelector:
+  #   matchLabels:
+  #     provider: aws

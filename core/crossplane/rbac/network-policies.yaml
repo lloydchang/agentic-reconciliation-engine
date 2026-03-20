@@ -1,0 +1,142 @@
+---
+# Network Policies to restrict Crossplane network access
+# Ensures Crossplane can only talk to cloud provider APIs and Kubernetes API server
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crossplane-isolation
+  namespace: crossplane-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  # Ingress: Only allow from within crossplane-system and from API server
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: crossplane-system
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: crossplane
+    # Allow from API server (kube-apiserver)
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: default
+      podSelector:
+        matchLabels:
+          component: kube-apiserver
+          tier: control-plane
+  # Egress: Only allow to cloud provider API endpoints
+  egress:
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: TCP
+      port: 53
+  # Allow egress to cloud provider APIs
+  # AWS
+  - to:
+    - ipBlock:
+        cidr: 169.254.170.2/32  # AWS VPC endpoint (if using)
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - ipBlock:
+        cidr: 52.94.0.0/15  # AWS API ranges (partial, adjust as needed)
+    ports:
+    - protocol: TCP
+      port: 443
+  # Azure
+  - to:
+    - ipBlock:
+        cidr: 20.36.0.0/14  # Azure API range
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - ipBlock:
+        cidr: 40.112.0.0/14  # Azure API range
+    ports:
+    - protocol: TCP
+      port: 443
+  # GCP
+  - to:
+    - ipBlock:
+        cidr: 199.36.153.4/30  # GCP API (googleapis.com)
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - ipBlock:
+        cidr: 34.0.0.0/8  # GCP API range
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow egress to Kubernetes API server
+  - to:
+    - ipBlock:
+        cidr: 10.96.0.0/12  # Kubernetes service CIDR (adjust to your cluster)
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/8  # Pod network CIDR (if using)
+    ports:
+    - protocol: TCP
+      port: 443
+  # Default deny all other egress (implicit, but explicit deny for clarity)
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports: []
+    # This egress rule is blocked by default because we don't specify ports
+---
+# Network policy for managed resources (resources created by Crossplane)
+# These pods typically don't exist, but if you have sidecars or agents, restrict them
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crossplane-managed-resource-isolation
+  namespace: crossplane-system
+spec:
+  podSelector:
+    matchLabels:
+      crossplane.io/resource: "managed"
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: crossplane-system
+  egress:
+  # Allow managed resource pods to talk to cloud provider APIs (via Crossplane)
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: crossplane-system
+    ports:
+    - protocol: TCP
+      port: 443

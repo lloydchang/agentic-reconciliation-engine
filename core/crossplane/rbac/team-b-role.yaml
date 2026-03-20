@@ -1,0 +1,58 @@
+---
+# Team B: Azure-only access
+# Can provision AKS, PostgreSQL Flexible, Redis Cache, Storage, VNet, Application Gateway
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-b-crossplane-role
+  namespace: team-b
+spec:
+  # Crossplane claim management
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords"]
+    verbs: ["create", "get", "list", "watch"]
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords/status"]
+    verbs: ["get", "update", "patch"]
+  # Azure managed resources
+  - apiGroups: ["platform.azure.upbound.io"]
+    resources: ["kubernetesclusters", "kubernetesclusters/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["database.azure.upbound.io"]
+    resources: ["postgresqlinstances", "postgresqlinstances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["cache.azure.upbound.io"]
+    resources: ["rediscaches", "rediscaches/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["storage.azure.upbound.io"]
+    resources: ["storageaccounts", "storageaccounts/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.azure.upbound.io"]
+    resources: ["virtualnetworks", "virtualnetworks/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.azure.upbound.io"]
+    resources: ["subnets", "subnets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.azure.upbound.io"]
+    resources: ["applicationgateways", "applicationgateways/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  # Read access for visibility
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-b-crossplane-binding
+  namespace: team-b
+subjects:
+- kind: ServiceAccount
+  name: team-b-sa
+  namespace: team-b
+roleRef:
+  kind: Role
+  name: team-b-crossplane-role
+  apiGroup: rbac.authorization.k8s.io

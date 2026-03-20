@@ -1,0 +1,81 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: azure-compute
+  labels:
+    provider: azure
+    resource: compute
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: azure-vm
+    base:
+      apiVersion: compute.azure.upbound.io/v1beta1
+      kind: VirtualMachine
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          networkInterfaceIdsSelector:
+            matchControllerRef: true
+          vmSize: Standard_B2s
+          storageProfile:
+            osDisk:
+              createOption: FromImage
+              managedDisk:
+                storageAccountType: Premium_LRS
+              caching: ReadWrite
+              diskSizeGb: 30
+            imageReference:
+              publisher: Canonical
+              offer: UbuntuServer
+              sku: 20_04-lts-gen2
+              version: latest
+          osProfile:
+            computerName: multicloud-vm
+            adminUsername: adminuser
+            customData: |
+              #!/bin/bash
+              apt-get update
+              apt-get install -y nginx
+              systemctl start nginx
+              systemctl enable nginx
+    patches:
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.vmSize"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.osProfile.computerName"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloud-vm-%s"
+  - name: azure-nic
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: NetworkInterface
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          ipConfigurations:
+            - name: ipconfig1
+              privateIPAllocationMethod: Dynamic
+              publicIPAddress:
+                name: multicloud-pip
+                sku: Basic
+                allocationMethod: Static
+              subnetIdSelector:
+                matchControllerRef: true
+          tags:
+            Name: multicloud-nic
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  writeConnectionSecretsToNamespace: crossplane-system

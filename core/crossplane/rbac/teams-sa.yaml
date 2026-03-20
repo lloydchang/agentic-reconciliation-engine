@@ -1,0 +1,40 @@
+---
+# Team ServiceAccounts
+# These service accounts are used by CI/CD pipelines, operators, and development teams
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-a-sa
+  namespace: team-a
+  labels:
+    team: "a"
+    purpose: "crossplane-operator"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-b-sa
+  namespace: team-b
+  labels:
+    team: "b"
+    purpose: "crossplane-operator"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-c-sa
+  namespace: team-c
+  labels:
+    team: "c"
+    purpose: "crossplane-operator"
+---
+# Platform team service account (admin privileges)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-admin-sa
+  namespace: crossplane-system
+  labels:
+    team: "platform"
+    role: "admin"

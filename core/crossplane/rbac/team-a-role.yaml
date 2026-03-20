@@ -1,0 +1,61 @@
+---
+# Team A: AWS-only access
+# Can provision EKS, RDS, ElastiCache, S3, VPC, Load Balancers in AWS
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-a-crossplane-role
+  namespace: team-a
+spec:
+  # Crossplane claim management
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords"]
+    verbs: ["create", "get", "list", "watch"]
+  - apiGroups: ["crossplane.io"]
+    resources: ["claimrecords/status"]
+    verbs: ["get", "update", "patch"]
+  # AWS managed resources
+  - apiGroups: ["eks.aws.crossplane.io"]
+    resources: ["clusters", "clusters/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["rds.aws.crossplane.io"]
+    resources: ["instances", "instances/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["elasticachereplicationgroups.cache.aws.crossplane.io"]
+    resources: ["elasticachereplicationgroups", "elasticachereplicationgroups/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["s3.aws.crossplane.io"]
+    resources: ["buckets", "buckets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["vpcs.networking.aws.crossplane.io"]
+    resources: ["vpcs", "vpcs/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["subnets.networking.aws.crossplane.io"]
+    resources: ["subnets", "subnets/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["loadbalancers.elb.aws.crossplane.io"]
+    resources: ["loadbalancers", "loadbalancers/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["securitygroups.networking.aws.crossplane.io"]
+    resources: ["securitygroups", "securitygroups/status"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  # Read access to other resources for visibility
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-crossplane-binding
+  namespace: team-a
+subjects:
+- kind: ServiceAccount
+  name: team-a-sa
+  namespace: team-a
+roleRef:
+  kind: Role
+  name: team-a-crossplane-role
+  apiGroup: rbac.authorization.k8s.io

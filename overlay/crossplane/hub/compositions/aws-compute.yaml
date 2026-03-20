@@ -1,0 +1,93 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-compute
+  labels:
+    provider: aws
+    resource: compute
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: aws-instance
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: us-west-2
+          instanceType: t3.medium
+          ami: ami-0abcdef1234567890
+          subnetIdSelector:
+            matchControllerRef: true
+          associatePublicIpAddress: true
+          rootBlockDevice:
+            - volumeSize: 30
+              volumeType: gp3
+              deleteOnTermination: true
+          tags:
+            Name: multicloud-instance
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.instanceType"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.subnetId"
+      toFieldPath: "spec.forProvider.subnetIdSelector.matchLabels"
+      type: FromCompositeFieldPath
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloud-instance-%s"
+  - name: aws-eip
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: EIP
+      spec:
+        forProvider:
+          region: us-west-2
+          instanceIdSelector:
+            matchControllerRef: true
+          tags:
+            Name: multicloud-eip
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-security-group
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          region: us-west-2
+          description: "Multi-cloud security group"
+          vpcIdSelector:
+            matchControllerRef: true
+          ingress:
+            - fromPort: 22
+              toPort: 22
+              ipProtocol: tcp
+              cidrBlocks: ["0.0.0.0/0"]
+              description: "Allow SSH"
+            - fromPort: 80
+              toPort: 80
+              ipProtocol: tcp
+              cidrBlocks: ["0.0.0.0/0"]
+              description: "Allow HTTP"
+            - fromPort: 443
+              toPort: 443
+              ipProtocol: tcp
+              cidrBlocks: ["0.0.0.0/0"]
+              description: "Allow HTTPS"
+          tags:
+            Name: multicloud-sg
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system
