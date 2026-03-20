@@ -473,6 +473,109 @@ async def report_failure(
         logger.error(f"Error reporting failure: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/performance/metrics")
+async def get_performance_metrics():
+    """Get performance metrics as expected by dashboard (combines agents, system, skills)"""
+    try:
+        agents = metrics_collector.collect_agent_metrics()
+        skills = metrics_collector.collect_skill_metrics()
+
+        # Calculate aggregated metrics
+        total_agents = len(agents)
+        running_agents = len([a for a in agents if a["status"] == "running"])
+        successful_requests = sum(a.get("success_count", 0) for a in agents)
+        total_requests = sum(a.get("execution_count", 0) for a in agents if a.get("execution_count"))
+        failed_requests = sum(a.get("error_count", 0) for a in agents)
+        avg_response_time = sum(a.get("avg_execution_time", 0) for a in agents) / len(agents) if agents else 0
+
+        # Skills stats
+        total_skills = len(skills)
+        skills_executed = sum(s.get("execution_count", 0) for s in skills)
+        skills_successful = sum(s.get("success_count", 0) for s in skills)
+        avg_skill_time = sum(s.get("avg_execution_time", 0) for s in skills) / len(skills) if skills else 0
+
+        # System metrics (placeholder - would come from actual monitoring)
+        cpu_percent = 45.2
+        memory_percent = 63.8
+
+        return {
+            "agents": {
+                "total": total_agents,
+                "running": running_agents,
+                "failed": total_agents - running_agents
+            },
+            "system": {
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory_percent,
+                "successfulRequests": successful_requests,
+                "totalRequests": total_requests,
+                "failedRequests": failed_requests,
+                "avgResponseTime": avg_response_time
+            },
+            "skills": {
+                "total": total_skills,
+                "executed": skills_executed,
+                "successful": skills_successful,
+                "avg_execution_time": avg_skill_time
+            },
+            "temporal": {
+                "workflows_running": 0,
+                "activities_executed": 0,
+                "average_execution_time": 0
+            },
+            "errors": {
+                "total_errors": failed_requests,
+                "warnings": 0,
+                "critical": 0
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting performance metrics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/skills/analysis")
+async def get_skills_analysis():
+    """Get skills analysis summary for dashboard"""
+    try:
+        skills = metrics_collector.collect_skill_metrics()
+
+        total = len(skills)
+        by_risk = {}
+        by_autonomy = {}
+        total_executions = 0
+        total_successes = 0
+        total_time = 0
+
+        for skill in skills:
+            risk = skill.get("risk_level") or "unknown"
+            autonomy = skill.get("autonomy_level") or "unknown"
+            exec_count = skill.get("execution_count", 0)
+            success_count = skill.get("success_count", 0)
+            avg_time = skill.get("avg_execution_time", 0)
+
+            by_risk[risk] = by_risk.get(risk, 0) + 1
+            by_autonomy[autonomy] = by_autonomy.get(autonomy, 0) + 1
+            total_executions += exec_count
+            total_successes += success_count
+            total_time += avg_time
+
+        success_rate = (total_successes / total_executions * 100) if total_executions > 0 else 0
+        avg_execution_time = total_time / total if total > 0 else 0
+
+        return {
+            "total": total,
+            "by_risk_level": by_risk,
+            "by_autonomy_level": by_autonomy,
+            "execution_count": total_executions,
+            "success_rate": round(success_rate, 2),
+            "avg_execution_time": round(avg_execution_time, 3),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting skills analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=5001)

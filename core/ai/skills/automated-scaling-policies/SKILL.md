@@ -1,6 +1,6 @@
 ---
-name: manage-kubernetes-cluster
-description: AI-powered Kubernetes cluster management skill with intelligent resource optimization, predictive scaling, and automated cluster operations. Use when administering clusters with advanced AI capabilities for proactive cluster management and resource optimization.
+name: automated-scaling-policies
+description: AI-powered automated scaling policies skill with intelligent resource optimization, predictive scaling decisions, and adaptive policy management. Use when implementing automated scaling with advanced AI capabilities for proactive resource management and cost optimization.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
@@ -13,19 +13,19 @@ compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CL
 allowed-tools: Bash Read Write Grep
 ---
 
-# Kubernetes Cluster Manager — AI-Powered Multi-Cloud Enterprise Automation
+# Automated Scaling Policies — AI-Powered Multi-Cloud Enterprise Automation
 
 ## Purpose
-Enterprise-grade automation solution for kubernetes cluster manager operations across AWS, Azure, GCP, and on-premise environments with advanced AI capabilities including intelligent resource optimization, predictive scaling, and automated cluster management to maximize operational efficiency while maintaining security and compliance standards.
+Enterprise-grade automation solution for automated scaling policies across AWS, Azure, GCP, and on-premise environments with advanced AI capabilities including intelligent resource optimization, predictive scaling decisions, and adaptive policy management to maximize operational efficiency while maintaining security and compliance standards.
 
 ## When to Use
-- **AI-powered Kubernetes cluster management** across multi-cloud environments
-- **Predictive resource optimization** and intelligent scaling decisions
-- **Automated cluster operations** using ML and predictive analytics
-- **Proactive cluster monitoring** with anomaly detection
-- **Resource optimization** through AI-driven cluster management
-- **Cluster automation** with intelligent decision-making
-- **Compliance and governance** for kubernetes cluster manager activities
+- **AI-powered automated scaling** across multi-cloud environments
+- **Predictive scaling decisions** and intelligent resource optimization
+- **Adaptive policy management** using ML and predictive analytics
+- **Proactive scaling monitoring** with anomaly detection
+- **Resource optimization** through AI-driven scaling policies
+- **Scaling automation** with intelligent decision-making
+- **Compliance and governance** for automated scaling activities
 
 ## Inputs
 - **operation**: Operation type (required)
@@ -39,21 +39,21 @@ Enterprise-grade automation solution for kubernetes cluster manager operations a
 ## Process
 1. **Cloud Provider Detection**: Identify target cloud providers and environments
 2. **Input Validation**: Comprehensive parameter validation and security checks
-3. **AI-Powered Analysis**: Apply ML algorithms for intelligent cluster analysis
-4. **Predictive Planning**: Generate optimized execution plan with AI insights
+3. **AI-Powered Analysis**: Apply ML algorithms for intelligent scaling analysis
+4. **Predictive Planning**: Generate optimized scaling plan with AI insights
 5. **Risk Assessment**: AI-enhanced risk analysis and impact evaluation
-6. **Intelligent Execution**: Perform operations with AI monitoring and validation
+6. **Intelligent Execution**: Perform scaling operations with AI monitoring and validation
 7. **Results Analysis**: Process results and generate AI-enhanced reports
 8. **Learning Integration**: Update AI models with operational outcomes
 
 ## Outputs
-- **AI-Enhanced Operation Results**: Detailed execution results with AI insights
-- **Predictive Analytics**: Cluster performance predictions and forecasts
+- **AI-Enhanced Scaling Results**: Detailed execution results with AI insights
+- **Predictive Analytics**: Scaling performance predictions and forecasts
 - **Intelligent Recommendations**: AI-generated optimization suggestions
-- **Anomaly Detection**: Cluster anomalies and potential issues
-- **Resource Optimization**: AI-powered resource analysis and optimization opportunities
+- **Anomaly Detection**: Scaling anomalies and potential issues
+- **Resource Optimization**: AI-powered scaling analysis and optimization opportunities
 - **Compliance Reports**: Validation and compliance status with AI insights
-- **Audit Trail**: Complete operation history for compliance across all providers
+- **Audit Trail**: Complete scaling history for compliance across all providers
 
 ## Environment
 - **AWS**: EKS, EC2, Lambda, CloudWatch, IAM, S3, Auto Scaling, CloudWatch Container Insights
@@ -71,30 +71,30 @@ Enterprise-grade automation solution for kubernetes cluster manager operations a
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `core/scripts/automation/kubernetes-cluster-manager.py`: AI-powered automation implementation
-- `core/scripts/automation/kubernetes-cluster-manager_handler.py`: Cloud-specific operations
-- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/automated-scaling-policies.py`: AI-powered automation implementation
+- `core/scripts/automation/scaling-policy-handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_scaler.py`: Cross-provider coordination
 
 ## Trigger Keywords
-kubernetes, cluster, manager, ai, ml, predictive, scaling, optimization, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
+scaling, policies, automation, ai, ml, predictive, optimization, resource, enterprise, multi-cloud, aws, azure, gcp, onprem
 
 ## Human Gate Requirements
 - **Production changes**: Production environment operations require approval
-- **High-impact operations**: Critical operations require review
+- **High-impact operations**: Critical scaling operations require review
 - **Security changes**: Security modifications need validation
 - **AI Model Updates**: Changes to AI models require approval
-- **Cluster Scaling**: Major scaling operations need human oversight
+- **Major Scaling**: Large-scale scaling operations need human oversight
 
 ## Enterprise Features
-- **Multi-tenant Support**: Isolated operations per tenant
+- **Multi-tenant Support**: Isolated scaling operations per tenant
 - **Role-based Access Control**: Enterprise IAM integration
 - **Audit Logging**: Complete audit trail for compliance
 - **Performance Monitoring**: SLA tracking and metrics
 - **Security Hardening**: Encryption and compliance standards
 - **Dynamic Code Generation**: Agents can modify logic dynamically
-- **Cross-Cloud Orchestration**: Coordinated operations across providers
+- **Cross-Cloud Orchestration**: Coordinated scaling operations across providers
 - **AI-Powered Insights**: Advanced analytics and predictive capabilities
-- **Automated Learning**: Continuous improvement from cluster patterns
+- **Automated Learning**: Continuous improvement from scaling patterns
 
 ## Best Practices
 - **Idempotent Operations**: Safe retry mechanisms with AI validation
@@ -104,4 +104,4 @@ kubernetes, cluster, manager, ai, ml, predictive, scaling, optimization, automat
 - **Comprehensive Testing**: Integration tests and compliance validation
 - **Security First**: Zero-trust architecture and principle of least privilege
 - **AI Model Validation**: Regular validation of ML models and prediction accuracy
-- **Data Privacy**: Ensure cluster data handling complies with privacy regulations
+- **Data Privacy**: Ensure scaling data handling complies with privacy regulations

@@ -1,10 +1,10 @@
 ---
 name: optimize-costs
-description: Use when cloud costs spike unexpectedly or when you need to optimize resource allocation across providers. Analyzes usage patterns, identifies waste, and recommends cost-saving measures for AWS, Azure, GCP, and on-premise environments.
+description: AI-powered multi-cloud cost optimization skill with ML-based recommendations, predictive spending analysis, and automated cost-saving measures. Use when cloud costs spike unexpectedly or when you need to optimize resource allocation across providers with advanced AI capabilities.
 license: AGPLv3
 metadata:
   author: agentic-reconciliation-engine
-  version: "1.0"
+  version: "2.0"
   category: enterprise
   risk_level: medium
   autonomy: conditional
@@ -13,19 +13,20 @@ compatibility: Requires Python 3.8+, cloud provider CLI tools (AWS CLI, Azure CL
 allowed-tools: Bash Read Write Grep
 ---
 
-# Cost Optimizer — Multi-Cloud Enterprise Automation
+# Cost Optimizer — Multi-Cloud Enterprise Automation with AI
 
 ## Purpose
-Enterprise-grade automation solution for cost optimizer operations across AWS, Azure, GCP, and on-premise environments to maximize operational efficiency while maintaining security and compliance standards.
+Enterprise-grade automation solution for cost optimizer operations across AWS, Azure, GCP, and on-premise environments with advanced AI capabilities including ML-based cost optimization, predictive spending analysis, and automated cost-saving measures to maximize operational efficiency while maintaining security and compliance standards.
 
 ## When to Use
 - **Cost Spikes**: When monthly cloud bills increase unexpectedly (>20% month-over-month)
 - **Resource Waste**: When you suspect unused or underutilized resources (idle instances, abandoned storage)
-- **Budget Planning**: For quarterly budget reviews and cost forecasting
+- **Budget Planning**: For quarterly budget reviews and cost forecasting with AI predictions
 - **Provider Comparison**: When evaluating which cloud provider offers better pricing for specific workloads
 - **Rightsizing**: When VMs or containers appear over-provisioned for actual usage
 - **Storage Optimization**: When storage costs grow faster than data usage patterns
 - **Network Costs**: When data transfer egress charges become significant
+- **AI-Powered Analysis**: For ML-based cost optimization and predictive spending insights
 
 ## Gotchas
 
@@ -63,51 +64,62 @@ Enterprise-grade automation solution for cost optimizer operations across AWS, A
 - **operation**: Operation type (required)
 - **targetResource**: Target resource identifier (required)
 - **cloudProvider**: Cloud provider - `aws|azure|gcp|onprem|all` (optional, default: `all`)
-- **parameters**: Operation-specific parameters (optional)
+- **parameters**: Operation-specific parameters including AI model configurations (optional)
 - **environment**: Target environment (optional, default: `production`)
 - **dryRun**: Dry run mode (optional, default: `true`)
+- **historicalData**: Include historical cost data for predictive analysis (optional, default: `false`)
+- **optimizationType**: Type of optimization - `rightsizing|scheduling|storage|networking|licenses|reservations` (optional)
 
 ## Process
 1. **Cloud Provider Detection**: Identify target cloud providers and environments
 2. **Input Validation**: Comprehensive parameter validation and security checks
 3. **Multi-Cloud Context Analysis**: Analyze current state across all providers
-4. **Operation Planning**: Generate optimized execution plan
-5. **Safety Assessment**: Risk analysis and impact evaluation across providers
-6. **Execution**: Perform operations with monitoring and validation
-7. **Results Analysis**: Process results and generate reports
+4. **AI-Powered Cost Analysis**: Apply ML-based cost optimization, predictive spending analysis, and anomaly detection
+5. **Optimization Planning**: Generate AI-enhanced optimization recommendations with risk assessment
+6. **Safety Assessment**: Risk analysis and impact evaluation across providers
+7. **Execution**: Perform optimizations with monitoring and validation
+8. **Results Analysis**: Process results and generate AI-enhanced cost reports
 
 ## Outputs
 - **Operation Results**: Detailed execution results and status per provider
+- **AI-Enhanced Recommendations**: ML-generated cost optimization recommendations with predictive insights
+- **Cost Analysis**: Comprehensive cost metrics and waste identification
+- **Predictive Forecasts**: Future spending predictions and budget planning insights
 - **Compliance Reports**: Validation and compliance status across environments
 - **Performance Metrics**: Operation performance and efficiency metrics by provider
-- **Recommendations**: Optimization suggestions and next steps
+- **Cost Optimization Results**: Before/after cost comparisons and ROI analysis
 - **Audit Trail**: Complete operation history for compliance across all providers
 
 ## Environment
-- **AWS**: EKS, EC2, Lambda, CloudWatch, IAM, S3
-- **Azure**: AKS, VMs, Functions, Monitor, Azure AD
-- **GCP**: GKE, Compute Engine, Cloud Functions, Cloud Monitoring
-- **On-Premise**: Kubernetes clusters, VMware, OpenStack, Prometheus
-- **Multi-Cloud Tools**: Terraform, Ansible, Crossplane, Cluster API
+- **AWS**: EKS, EC2, Lambda, CloudWatch, IAM, S3, Cost Explorer
+- **Azure**: AKS, VMs, Functions, Monitor, Azure AD, Cost Management
+- **GCP**: GKE, Compute Engine, Cloud Functions, Cloud Monitoring, Cloud Billing
+- **On-Premise**: Kubernetes clusters, VMware, OpenStack, Prometheus, Cost Analysis Tools
 
 ## Dependencies
 - **Python 3.8+**: Core execution environment
+- **AI/ML Libraries**: scikit-learn, pandas, numpy, statsmodels, tensorflow/keras
 - **Cloud SDKs**: boto3, azure-sdk, google-cloud
+- **Cost Analysis Tools**: Cloud provider cost APIs, billing exports
+- **Optimization Libraries**: scipy, cvxopt for advanced optimization
+- **Time Series Libraries**: prophet, pmdarima for predictive analysis
 - **Kubernetes**: kubernetes client for cluster operations
 - **Multi-Cloud Libraries**: terraform-python, ansible-python
 
 ## Scripts
-- `scripts/cost-optimizer.py`: Main automation implementation
-- `scripts/cost-optimizer_handler.py`: Cloud-specific operations
-- `scripts/multi_cloud_orchestrator.py`: Cross-provider coordination
+- `core/scripts/automation/cost-optimizer.py`: Main AI-powered optimization implementation
+- `core/scripts/automation/cost-optimizer_handler.py`: Cloud-specific operations
+- `core/scripts/automation/multi_cloud_orchestrator.py`: Cross-provider coordination
 
 ## Trigger Keywords
-cost, optimizer, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
+cost, optimizer, automation, enterprise, multi-cloud, ai, ml, predictive, aws, azure, gcp, onprem
 
 ## Human Gate Requirements
 - **Production changes**: Production environment operations require approval
 - **High-impact operations**: Critical operations require review
 - **Security changes**: Security modifications need validation
+- **AI Model Updates**: Changes to AI models require approval
+- **Resource Scaling**: Major scaling operations need human oversight
 
 ## Enterprise Features
 - **Multi-tenant Support**: Isolated operations per tenant
@@ -116,12 +128,14 @@ cost, optimizer, automation, enterprise, multi-cloud, aws, azure, gcp, onprem
 - **Performance Monitoring**: SLA tracking and metrics
 - **Security Hardening**: Encryption and compliance standards
 - **Dynamic Code Generation**: Agents can modify logic dynamically
-- **Cross-Cloud Orchestration**: Coordinated operations across providers
+- **Cross-Cloud Orchestration**: Coordinated optimizations across providers
+- **AI-Powered Insights**: Advanced analytics and predictive capabilities
+- **Automated Learning**: Continuous improvement from cost patterns
 
 ## References
 
 Load these files when needed:
-- `scripts/cost-analyzer.py` - Core cost analysis algorithms
+- `scripts/cost-analyzer.py` - Core cost analysis algorithms with AI
 - `scripts/provider-handlers/` - Cloud provider specific cost APIs
 - `references/cost-optimization-patterns.md` - Proven optimization strategies
 - `assets/instance-type-mapping.csv` - Cross-provider instance comparisons

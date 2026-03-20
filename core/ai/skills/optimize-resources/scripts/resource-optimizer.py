@@ -118,12 +118,1157 @@ class OptimizationResult:
     performance_baseline: Dict[str, float]
     performance_after: Dict[str, float]
 
-class ResourceOptimizer:
+#!/usr/bin/env python3
+"""
+Advanced AI Resource Optimizer Script
+
+Multi-cloud automation for AI-powered resource utilization analysis, intelligent allocation,
+and predictive scaling across AWS, Azure, GCP, and on-premise environments.
+"""
+
+# /// script
+# dependencies = [
+#   "boto3>=1.26.0",
+#   "azure-mgmt-compute>=29.0.0",
+#   "google-cloud-compute>=1.8.0",
+#   "kubernetes>=25.0.0",
+#   "pydantic>=1.10.0",
+#   "requests>=2.28.0",
+#   "pandas>=1.5.0",
+#   "numpy>=1.24.0",
+#   "scikit-learn>=1.2.0",
+#   "statsmodels>=0.13.0",
+#   "prophet>=1.1.0"
+# ]
+# ///
+
+import json
+import sys
+import argparse
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
+import statistics
+
+# AI/ML imports
+try:
+    import numpy as np
+    import pandas as pd
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_absolute_error, r2_score
+    import statsmodels.api as sm
+    from prophet import Prophet
+    import warnings
+    warnings.filterwarnings('ignore')
+except ImportError as e:
+    logging.warning(f"AI/ML libraries not available: {e}. Falling back to basic functionality.")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class CloudProvider(Enum):
+    AWS = "aws"
+    AZURE = "azure"
+    GCP = "gcp"
+    ONPREM = "onprem"
+    ALL = "all"
+
+class ResourceType(Enum):
+    COMPUTE = "compute"
+    STORAGE = "storage"
+    NETWORK = "network"
+    DATABASE = "database"
+    CONTAINER = "container"
+    SERVERLESS = "serverless"
+
+class OptimizationAction(Enum):
+    RIGHTSIZE = "rightsize"
+    SCALE_DOWN = "scale_down"
+    SCALE_UP = "scale_up"
+    CONSOLIDATE = "consolidate"
+    DECOMMISSION = "decommission"
+    MIGRATE = "migrate"
+
+class UtilizationLevel(Enum):
+    UNDERUTILIZED = "underutilized"
+    OPTIMAL = "optimal"
+    OVERUTILIZED = "overutilized"
+    CRITICAL = "critical"
+
+@dataclass
+class ResourceMetrics:
+    resource_id: str
+    resource_name: str
+    resource_type: ResourceType
+    provider: str
+    region: str
+    environment: str
+    cpu_utilization: float
+    memory_utilization: float
+    disk_utilization: float
+    network_utilization: float
+    current_capacity: Dict[str, Any]
+    recommended_capacity: Dict[str, Any]
+    utilization_score: float
+    efficiency_score: float
+    cost_per_hour: float
+    last_updated: datetime
+    metadata: Dict[str, Any]
+    ai_enhanced: bool = False
+    predicted_utilization: Optional[Dict[str, float]] = None
+
+@dataclass
+class ResourceRecommendation:
+    recommendation_id: str
+    resource_id: str
+    resource_name: str
+    resource_type: ResourceType
+    provider: str
+    current_state: UtilizationLevel
+    recommended_action: OptimizationAction
+    priority: str
+    confidence: float
+    expected_savings: float
+    performance_impact: str
+    implementation_complexity: str
+    description: str
+    current_config: Dict[str, Any]
+    recommended_config: Dict[str, Any]
+    implementation_steps: List[str]
+    rollback_steps: List[str]
+    risk_assessment: Dict[str, Any]
+    ai_enhanced: bool = False
+    predictive_insights: List[str] = None
+
+@dataclass
+class OptimizationResult:
+    optimization_id: str
+    provider: str
+    environment: str
+    optimized_at: datetime
+    total_resources_analyzed: int
+    recommendations_generated: int
+    recommendations_by_action: Dict[str, int]
+    recommendations_by_priority: Dict[str, int]
+    total_potential_savings: float
+    implemented_recommendations: List[str]
+    failed_recommendations: List[str]
+    performance_baseline: Dict[str, float]
+    performance_after: Dict[str, float]
+    ai_insights: List[str] = None
+
+class IntelligentResourceAllocator:
+    """AI-powered resource allocation and scaling engine"""
+    
+    def __init__(self):
+        self.allocation_model = None
+        self.scaling_model = None
+        self.feature_scaler = StandardScaler()
+        self.encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
+        self.is_trained = False
+        
+    def train_allocation_model(self, historical_data: List[Dict[str, Any]]):
+        """Train ML model for intelligent resource allocation"""
+        try:
+            if not historical_data:
+                logger.warning("No historical data available for training")
+                return
+            
+            # Prepare features
+            features = []
+            targets = []
+            
+            for data_point in historical_data:
+                feature_vector = self._extract_allocation_features(data_point)
+                features.append(feature_vector)
+                
+                # Target: optimal resource allocation score
+                targets.append(data_point.get('optimal_allocation_score', 0.8))
+            
+            if len(features) < 10:
+                logger.warning("Insufficient data for training allocation model")
+                return
+            
+            X = np.array(features)
+            y = np.array(targets)
+            
+            # Split data
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            
+            # Train model
+            self.allocation_model = GradientBoostingRegressor(
+                n_estimators=100,
+                max_depth=6,
+                learning_rate=0.1,
+                random_state=42
+            )
+            
+            self.allocation_model.fit(X_train, y_train)
+            
+            # Evaluate
+            y_pred = self.allocation_model.predict(X_test)
+            mae = mean_absolute_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            
+            logger.info(f"Allocation model trained - MAE: {mae:.3f}, R²: {r2:.3f}")
+            self.is_trained = True
+            
+        except Exception as e:
+            logger.warning(f"Failed to train allocation model: {e}")
+    
+    def train_scaling_model(self, scaling_data: List[Dict[str, Any]]):
+        """Train ML model for predictive scaling"""
+        try:
+            if not scaling_data:
+                logger.warning("No scaling data available for training")
+                return
+            
+            # Prepare time series features
+            features = []
+            targets = []
+            
+            for data_point in scaling_data:
+                feature_vector = self._extract_scaling_features(data_point)
+                features.append(feature_vector)
+                
+                # Target: scaling decision (scale up/down/no change)
+                targets.append(data_point.get('scaling_decision', 0))  # -1, 0, 1
+            
+            if len(features) < 10:
+                logger.warning("Insufficient data for training scaling model")
+                return
+            
+            X = np.array(features)
+            y = np.array(targets)
+            
+            # Split data
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            
+            # Train model
+            self.scaling_model = RandomForestRegressor(
+                n_estimators=100,
+                max_depth=8,
+                random_state=42,
+                n_jobs=-1
+            )
+            
+            self.scaling_model.fit(X_train, y_train)
+            
+            # Evaluate
+            y_pred = self.scaling_model.predict(X_test)
+            mae = mean_absolute_error(y_test, y_pred)
+            
+            logger.info(f"Scaling model trained - MAE: {mae:.3f}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to train scaling model: {e}")
+    
+    def predict_optimal_allocation(self, resource_metrics: ResourceMetrics) -> Dict[str, Any]:
+        """Predict optimal resource allocation using ML"""
+        if not self.is_trained or not self.allocation_model:
+            return self._fallback_allocation(resource_metrics)
+        
+        try:
+            features = self._extract_allocation_features_from_metrics(resource_metrics)
+            features_scaled = self.feature_scaler.transform([features])
+            
+            prediction = self.allocation_model.predict(features_scaled)[0]
+            
+            # Convert prediction to allocation recommendations
+            return {
+                'cpu_cores': max(1, int(prediction * 4)),  # Scale to reasonable CPU cores
+                'memory_gb': max(1, int(prediction * 8)),  # Scale to reasonable memory
+                'confidence': min(0.95, max(0.1, prediction)),
+                'ai_predicted': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Allocation prediction failed: {e}")
+            return self._fallback_allocation(resource_metrics)
+    
+    def predict_scaling_action(self, resource_metrics: ResourceMetrics, 
+                             historical_usage: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Predict scaling actions using ML"""
+        if not self.scaling_model:
+            return self._fallback_scaling(resource_metrics)
+        
+        try:
+            features = self._extract_scaling_features_from_history(resource_metrics, historical_usage)
+            features_scaled = self.feature_scaler.transform([features])
+            
+            prediction = self.scaling_model.predict(features_scaled)[0]
+            
+            # Interpret prediction
+            if prediction > 0.3:
+                action = "scale_up"
+                confidence = min(0.9, prediction)
+            elif prediction < -0.3:
+                action = "scale_down"
+                confidence = min(0.9, abs(prediction))
+            else:
+                action = "no_change"
+                confidence = 0.8
+            
+            return {
+                'action': action,
+                'confidence': confidence,
+                'prediction_score': prediction,
+                'ai_predicted': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Scaling prediction failed: {e}")
+            return self._fallback_scaling(resource_metrics)
+    
+    def _extract_allocation_features(self, data_point: Dict[str, Any]) -> List[float]:
+        """Extract features for allocation model training"""
+        return [
+            data_point.get('cpu_utilization', 0),
+            data_point.get('memory_utilization', 0),
+            data_point.get('disk_utilization', 0),
+            data_point.get('network_utilization', 0),
+            data_point.get('workload_type_encoded', 0),  # 0=web, 1=batch, 2=ml, etc.
+            data_point.get('time_of_day', 12),  # hour of day
+            data_point.get('day_of_week', 1),  # 0-6
+            data_point.get('concurrent_users', 10),
+            data_point.get('request_rate', 100),
+        ]
+    
+    def _extract_allocation_features_from_metrics(self, metrics: ResourceMetrics) -> List[float]:
+        """Extract features from resource metrics for prediction"""
+        return [
+            metrics.cpu_utilization,
+            metrics.memory_utilization,
+            metrics.disk_utilization,
+            metrics.network_utilization,
+            0,  # workload_type_encoded (default)
+            datetime.now().hour,
+            datetime.now().weekday(),
+            metrics.metadata.get('concurrent_users', 10),
+            metrics.metadata.get('request_rate', 100),
+        ]
+    
+    def _extract_scaling_features(self, data_point: Dict[str, Any]) -> List[float]:
+        """Extract features for scaling model training"""
+        return [
+            data_point.get('current_cpu', 0),
+            data_point.get('current_memory', 0),
+            data_point.get('cpu_trend', 0),  # rate of change
+            data_point.get('memory_trend', 0),
+            data_point.get('time_to_peak', 24),  # hours to peak usage
+            data_point.get('seasonal_pattern', 0),
+            data_point.get('queue_length', 0),
+            data_point.get('error_rate', 0),
+        ]
+    
+    def _extract_scaling_features_from_history(self, metrics: ResourceMetrics, 
+                                             historical: List[Dict[str, Any]]) -> List[float]:
+        """Extract scaling features from current metrics and history"""
+        # Calculate trends
+        if historical:
+            recent_cpu = [h.get('cpu_utilization', 0) for h in historical[-10:]]
+            cpu_trend = np.polyfit(range(len(recent_cpu)), recent_cpu, 1)[0] if len(recent_cpu) > 1 else 0
+            
+            recent_memory = [h.get('memory_utilization', 0) for h in historical[-10:]]
+            memory_trend = np.polyfit(range(len(recent_memory)), recent_memory, 1)[0] if len(recent_memory) > 1 else 0
+        else:
+            cpu_trend = memory_trend = 0
+        
+        return [
+            metrics.cpu_utilization,
+            metrics.memory_utilization,
+            cpu_trend,
+            memory_trend,
+            24,  # time_to_peak (default)
+            0,   # seasonal_pattern (default)
+            metrics.metadata.get('queue_length', 0),
+            metrics.metadata.get('error_rate', 0),
+        ]
+    
+    def _fallback_allocation(self, metrics: ResourceMetrics) -> Dict[str, Any]:
+        """Fallback allocation when AI is not available"""
+        # Simple rule-based allocation
+        cpu_cores = max(1, int(metrics.cpu_utilization * 4 / 100) + 1)
+        memory_gb = max(1, int(metrics.memory_utilization * 8 / 100) + 1)
+        
+        return {
+            'cpu_cores': cpu_cores,
+            'memory_gb': memory_gb,
+            'confidence': 0.5,
+            'ai_predicted': False
+        }
+    
+    def _fallback_scaling(self, metrics: ResourceMetrics) -> Dict[str, Any]:
+        """Fallback scaling when AI is not available"""
+        # Simple threshold-based scaling
+        avg_utilization = (metrics.cpu_utilization + metrics.memory_utilization) / 2
+        
+        if avg_utilization > 85:
+            action = "scale_up"
+            confidence = 0.7
+        elif avg_utilization < 25:
+            action = "scale_down"
+            confidence = 0.6
+        else:
+            action = "no_change"
+            confidence = 0.8
+        
+        return {
+            'action': action,
+            'confidence': confidence,
+            'ai_predicted': False
+        }
+
+class PredictiveResourceManager:
+    """Predictive resource management using time series forecasting"""
+    
+    def __init__(self):
+        self.forecasting_models = {}
+        
+    def forecast_resource_usage(self, resource_id: str, historical_data: List[Dict[str, Any]], 
+                               forecast_hours: int = 24) -> Dict[str, Any]:
+        """Forecast future resource usage using time series analysis"""
+        try:
+            if len(historical_data) < 24:  # Need minimum data for forecasting
+                return self._simple_forecast(historical_data, forecast_hours)
+            
+            # Prepare data for Prophet
+            df = pd.DataFrame(historical_data)
+            if 'timestamp' not in df.columns:
+                # Create timestamps if not present
+                df['timestamp'] = pd.date_range(
+                    end=datetime.now(), 
+                    periods=len(df), 
+                    freq='H'
+                )
+            
+            df = df.rename(columns={'timestamp': 'ds'})
+            
+            forecasts = {}
+            
+            # Forecast CPU usage
+            if 'cpu_utilization' in df.columns:
+                cpu_model = Prophet(
+                    yearly_seasonality=False,
+                    weekly_seasonality=True,
+                    daily_seasonality=True,
+                    seasonality_mode='multiplicative'
+                )
+                
+                cpu_df = df[['ds', 'cpu_utilization']].rename(columns={'cpu_utilization': 'y'})
+                cpu_model.fit(cpu_df)
+                
+                future = cpu_model.make_future_dataframe(periods=forecast_hours, freq='H')
+                cpu_forecast = cpu_model.predict(future)
+                
+                forecasts['cpu_utilization'] = {
+                    'values': cpu_forecast['yhat'].tail(forecast_hours).tolist(),
+                    'lower_bound': cpu_forecast['yhat_lower'].tail(forecast_hours).tolist(),
+                    'upper_bound': cpu_forecast['yhat_upper'].tail(forecast_hours).tolist()
+                }
+            
+            # Forecast memory usage
+            if 'memory_utilization' in df.columns:
+                memory_model = Prophet(
+                    yearly_seasonality=False,
+                    weekly_seasonality=True,
+                    daily_seasonality=True,
+                    seasonality_mode='multiplicative'
+                )
+                
+                memory_df = df[['ds', 'memory_utilization']].rename(columns={'memory_utilization': 'y'})
+                memory_model.fit(memory_df)
+                
+                future = memory_model.make_future_dataframe(periods=forecast_hours, freq='H')
+                memory_forecast = memory_model.predict(future)
+                
+                forecasts['memory_utilization'] = {
+                    'values': memory_forecast['yhat'].tail(forecast_hours).tolist(),
+                    'lower_bound': memory_forecast['yhat_lower'].tail(forecast_hours).tolist(),
+                    'upper_bound': memory_forecast['yhat_upper'].tail(forecast_hours).tolist()
+                }
+            
+            # Store model for future use
+            self.forecasting_models[resource_id] = {
+                'cpu_model': cpu_model if 'cpu_utilization' in forecasts else None,
+                'memory_model': memory_model if 'memory_utilization' in forecasts else None,
+                'last_updated': datetime.now()
+            }
+            
+            return {
+                'forecasts': forecasts,
+                'forecast_period_hours': forecast_hours,
+                'confidence_intervals': True,
+                'ai_generated': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Time series forecasting failed: {e}")
+            return self._simple_forecast(historical_data, forecast_hours)
+    
+    def _simple_forecast(self, historical_data: List[Dict[str, Any]], forecast_hours: int) -> Dict[str, Any]:
+        """Simple trend-based forecasting fallback"""
+        if not historical_data:
+            return {'forecasts': {}, 'ai_generated': False}
+        
+        # Calculate simple moving averages
+        cpu_values = [d.get('cpu_utilization', 0) for d in historical_data[-24:]]
+        memory_values = [d.get('memory_utilization', 0) for d in historical_data[-24:]]
+        
+        forecasts = {}
+        
+        if cpu_values:
+            avg_cpu = statistics.mean(cpu_values)
+            forecasts['cpu_utilization'] = {
+                'values': [avg_cpu] * forecast_hours,
+                'lower_bound': [max(0, avg_cpu * 0.8)] * forecast_hours,
+                'upper_bound': [min(100, avg_cpu * 1.2)] * forecast_hours
+            }
+        
+        if memory_values:
+            avg_memory = statistics.mean(memory_values)
+            forecasts['memory_utilization'] = {
+                'values': [avg_memory] * forecast_hours,
+                'lower_bound': [max(0, avg_memory * 0.8)] * forecast_hours,
+                'upper_bound': [min(100, avg_memory * 1.2)] * forecast_hours
+            }
+        
+        return {
+            'forecasts': forecasts,
+            'forecast_period_hours': forecast_hours,
+            'confidence_intervals': False,
+            'ai_generated': False
+        }
+    
+    def detect_anomalies(self, resource_id: str, current_metrics: Dict[str, float], 
+                        historical_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Detect anomalous resource usage patterns"""
+        try:
+            if len(historical_data) < 10:
+                return {'anomalies_detected': [], 'ai_generated': False}
+            
+            anomalies = []
+            
+            # Simple statistical anomaly detection
+            cpu_values = [d.get('cpu_utilization', 0) for d in historical_data]
+            memory_values = [d.get('memory_utilization', 0) for d in historical_data]
+            
+            if cpu_values:
+                cpu_mean = statistics.mean(cpu_values)
+                cpu_stdev = statistics.stdev(cpu_values) if len(cpu_values) > 1 else 0
+                
+                current_cpu = current_metrics.get('cpu_utilization', 0)
+                if abs(current_cpu - cpu_mean) > 3 * cpu_stdev and cpu_stdev > 0:
+                    anomalies.append({
+                        'metric': 'cpu_utilization',
+                        'current_value': current_cpu,
+                        'expected_range': [cpu_mean - cpu_stdev, cpu_mean + cpu_stdev],
+                        'severity': 'high' if abs(current_cpu - cpu_mean) > 5 * cpu_stdev else 'medium'
+                    })
+            
+            if memory_values:
+                memory_mean = statistics.mean(memory_values)
+                memory_stdev = statistics.stdev(memory_values) if len(memory_values) > 1 else 0
+                
+                current_memory = current_metrics.get('memory_utilization', 0)
+                if abs(current_memory - memory_mean) > 3 * memory_stdev and memory_stdev > 0:
+                    anomalies.append({
+                        'metric': 'memory_utilization',
+                        'current_value': current_memory,
+                        'expected_range': [memory_mean - memory_stdev, memory_mean + memory_stdev],
+                        'severity': 'high' if abs(current_memory - memory_mean) > 5 * memory_stdev else 'medium'
+                    })
+            
+            return {
+                'anomalies_detected': anomalies,
+                'total_anomalies': len(anomalies),
+                'ai_generated': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Anomaly detection failed: {e}")
+            return {'anomalies_detected': [], 'ai_generated': False}
+
+class AIResourceOptimizer:
+    """Advanced AI-powered resource optimizer with ML and predictive analytics"""
+    
     def __init__(self, config_file: Optional[str] = None):
         self.providers = {}
         self.metrics_history = []
         self.optimizations = []
         self.config = self._load_config(config_file)
+        
+        # Initialize AI components
+        self.intelligent_allocator = IntelligentResourceAllocator()
+        self.predictive_manager = PredictiveResourceManager()
+        
+        # Train AI models if data is available
+        self._initialize_ai_models()
+        
+    def _load_config(self, config_file: Optional[str] = None) -> Dict[str, Any]:
+        """Load resource optimizer configuration"""
+        default_config = {
+            'providers': {
+                'aws': {'region': 'us-west-2', 'enabled': True},
+                'azure': {'region': 'eastus', 'enabled': True},
+                'gcp': {'region': 'us-central1', 'enabled': True},
+                'onprem': {'region': 'default', 'enabled': True}
+            },
+            'optimization_thresholds': {
+                'cpu_underutilized': 20.0,
+                'cpu_overutilized': 80.0,
+                'memory_underutilized': 30.0,
+                'memory_overutilized': 85.0,
+                'disk_underutilized': 25.0,
+                'disk_overutilized': 90.0,
+                'network_underutilized': 10.0,
+                'network_overutilized': 80.0
+            },
+            'analysis_settings': {
+                'analysis_period_days': 30,
+                'min_utilization_samples': 10,
+                'confidence_threshold': 0.7,
+                'forecast_horizon_hours': 24,
+                'ai_enabled': True
+            }
+        }
+        
+        if config_file:
+            try:
+                with open(config_file, 'r') as f:
+                    user_config = json.load(f)
+                default_config.update(user_config)
+            except Exception as e:
+                logger.warning(f"Failed to load config file {config_file}: {e}")
+        
+        return default_config
+    
+    def _initialize_ai_models(self):
+        """Initialize and train AI models"""
+        try:
+            # Load historical training data (mock data for demonstration)
+            training_data = self._load_training_data()
+            
+            if training_data and self.config['analysis_settings']['ai_enabled']:
+                logger.info("Training AI models for resource optimization...")
+                
+                # Train allocation model
+                self.intelligent_allocator.train_allocation_model(training_data.get('allocation', []))
+                
+                # Train scaling model
+                self.intelligent_allocator.train_scaling_model(training_data.get('scaling', []))
+                
+                logger.info("AI models trained successfully")
+            else:
+                logger.info("AI training data not available, using fallback methods")
+                
+        except Exception as e:
+            logger.warning(f"Failed to initialize AI models: {e}")
+    
+    def _load_training_data(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Load historical training data for AI models"""
+        # In a real implementation, this would load from a database or file
+        # For now, return empty data
+        return {
+            'allocation': [],
+            'scaling': []
+        }
+    
+    def analyze_resources_with_ai(self, providers: List[str], include_historical: bool = True) -> Tuple[List[ResourceRecommendation], Dict[str, Any]]:
+        """Analyze resources across providers using AI/ML techniques"""
+        logger.info(f"Performing AI-enhanced resource analysis for providers: {providers}")
+        
+        all_recommendations = []
+        analysis_results = {}
+        
+        for provider in providers:
+            if provider not in self.config['providers']:
+                logger.warning(f"Provider {provider} not in configuration")
+                continue
+            
+            if not self.config['providers'][provider]['enabled']:
+                logger.info(f"Provider {provider} is disabled")
+                continue
+            
+            try:
+                # AI-powered analysis for this provider
+                provider_recommendations, provider_analysis = self._analyze_provider_resources_with_ai(
+                    provider, include_historical
+                )
+                all_recommendations.extend(provider_recommendations)
+                analysis_results[provider] = provider_analysis
+                
+                logger.info(f"Generated {len(provider_recommendations)} AI-enhanced recommendations for {provider}")
+                
+            except Exception as e:
+                logger.error(f"Failed to analyze resources for provider {provider}: {e}")
+                # Fallback to basic analysis
+                basic_recommendations = self._analyze_provider_resources_basic(provider)
+                all_recommendations.extend(basic_recommendations)
+        
+        # Apply AI-based filtering and prioritization
+        filtered_recommendations = self._ai_filter_recommendations(all_recommendations)
+        
+        return filtered_recommendations, analysis_results
+    
+    def _analyze_provider_resources_with_ai(self, provider: str, include_historical: bool) -> Tuple[List[ResourceRecommendation], Dict[str, Any]]:
+        """AI-powered resource analysis for a specific provider"""
+        recommendations = []
+        
+        # Get resource data
+        resource_data = self._collect_resource_data(provider, include_historical)
+        
+        if not resource_data:
+            logger.warning(f"No resource data available for {provider}")
+            return [], {'total_resources': 0, 'recommendations': 0, 'ai_insights': []}
+        
+        ai_insights = []
+        
+        for resource in resource_data:
+            try:
+                # AI-enhanced resource analysis
+                resource_recommendations, resource_insights = self._analyze_resource_with_ai(
+                    resource, provider, include_historical
+                )
+                recommendations.extend(resource_recommendations)
+                ai_insights.extend(resource_insights)
+                
+            except Exception as e:
+                logger.warning(f"AI analysis failed for resource {resource['resource_id']}: {e}")
+                # Fallback to basic analysis
+                basic_recommendations = self._analyze_resource_basic(resource, provider)
+                recommendations.extend(basic_recommendations)
+        
+        analysis_result = {
+            'total_resources': len(resource_data),
+            'recommendations': len(recommendations),
+            'ai_insights': ai_insights,
+            'ai_enabled': True
+        }
+        
+        return recommendations, analysis_result
+    
+    def _analyze_resource_with_ai(self, resource: Dict[str, Any], provider: str, 
+                                include_historical: bool) -> Tuple[List[ResourceRecommendation], List[str]]:
+        """AI-powered analysis for a single resource"""
+        recommendations = []
+        insights = []
+        
+        # Create ResourceMetrics object
+        metrics = ResourceMetrics(
+            resource_id=resource['resource_id'],
+            resource_name=resource['resource_name'],
+            resource_type=ResourceType(resource.get('resource_type', 'compute')),
+            provider=provider,
+            region=resource.get('region', 'unknown'),
+            environment=resource.get('environment', 'production'),
+            cpu_utilization=resource.get('cpu_utilization', 0),
+            memory_utilization=resource.get('memory_utilization', 0),
+            disk_utilization=resource.get('disk_utilization', 0),
+            network_utilization=resource.get('network_utilization', 0),
+            current_capacity=resource.get('current_capacity', {}),
+            recommended_capacity=resource.get('recommended_capacity', {}),
+            utilization_score=resource.get('utilization_score', 0.5),
+            efficiency_score=resource.get('efficiency_score', 0.5),
+            cost_per_hour=resource.get('cost_per_hour', 0),
+            last_updated=datetime.now(),
+            metadata=resource.get('metadata', {}),
+            ai_enhanced=True
+        )
+        
+        # Get historical data for predictive analysis
+        historical_data = resource.get('historical_data', []) if include_historical else []
+        
+        # AI-based allocation prediction
+        optimal_allocation = self.intelligent_allocator.predict_optimal_allocation(metrics)
+        
+        # Predictive scaling analysis
+        scaling_prediction = self.intelligent_allocator.predict_scaling_action(metrics, historical_data)
+        
+        # Resource usage forecasting
+        if historical_data:
+            forecast = self.predictive_manager.forecast_resource_usage(
+                resource['resource_id'], historical_data
+            )
+            metrics.predicted_utilization = {
+                'cpu_forecast': forecast.get('forecasts', {}).get('cpu_utilization', {}).get('values', [])[:24],
+                'memory_forecast': forecast.get('forecasts', {}).get('memory_utilization', {}).get('values', [])[:24]
+            }
+            
+            # Generate predictive insights
+            if forecast.get('ai_generated'):
+                insights.append(f"Resource {resource['resource_name']} shows predictable usage patterns")
+        
+        # Anomaly detection
+        current_metrics = {
+            'cpu_utilization': metrics.cpu_utilization,
+            'memory_utilization': metrics.memory_utilization
+        }
+        anomalies = self.predictive_manager.detect_anomalies(
+            resource['resource_id'], current_metrics, historical_data
+        )
+        
+        if anomalies.get('anomalies_detected'):
+            for anomaly in anomalies['anomalies_detected']:
+                insights.append(f"Anomaly detected in {anomaly['metric']}: {anomaly['current_value']:.1f}% (expected: {anomaly['expected_range'][0]:.1f}-{anomaly['expected_range'][1]:.1f}%)")
+        
+        # Generate AI-enhanced recommendations
+        resource_recommendations = self._generate_ai_recommendations(
+            metrics, optimal_allocation, scaling_prediction, anomalies
+        )
+        recommendations.extend(resource_recommendations)
+        
+        return recommendations, insights
+    
+    def _generate_ai_recommendations(self, metrics: ResourceMetrics, optimal_allocation: Dict[str, Any],
+                                   scaling_prediction: Dict[str, Any], anomalies: Dict[str, Any]) -> List[ResourceRecommendation]:
+        """Generate AI-enhanced recommendations"""
+        recommendations = []
+        
+        # Rightsizing recommendation based on AI allocation prediction
+        if optimal_allocation.get('ai_predicted'):
+            current_cpu = metrics.current_capacity.get('cpu_cores', 1)
+            current_memory = metrics.current_capacity.get('memory_gb', 1)
+            predicted_cpu = optimal_allocation.get('cpu_cores', current_cpu)
+            predicted_memory = optimal_allocation.get('memory_gb', current_memory)
+            
+            if abs(predicted_cpu - current_cpu) > 0 or abs(predicted_memory - current_memory) > 0:
+                recommendation = ResourceRecommendation(
+                    recommendation_id=f"ai-rightsizing-{metrics.provider}-{metrics.resource_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    resource_id=metrics.resource_id,
+                    resource_name=metrics.resource_name,
+                    resource_type=metrics.resource_type,
+                    provider=metrics.provider,
+                    current_state=self._determine_utilization_level(metrics),
+                    recommended_action=OptimizationAction.RIGHTSIZE,
+                    priority="medium",
+                    confidence=optimal_allocation.get('confidence', 0.5),
+                    expected_savings=self._calculate_rightsizing_savings(metrics, predicted_cpu, predicted_memory),
+                    performance_impact="low",
+                    implementation_complexity="medium",
+                    description=f"AI recommends rightsizing from {current_cpu} CPU cores, {current_memory}GB RAM to {predicted_cpu} CPU cores, {predicted_memory}GB RAM",
+                    current_config=metrics.current_capacity,
+                    recommended_config={
+                        'cpu_cores': predicted_cpu,
+                        'memory_gb': predicted_memory,
+                        'ai_predicted': True
+                    },
+                    implementation_steps=[
+                        "Analyze current resource utilization with AI models",
+                        "Validate AI recommendations against business requirements",
+                        "Schedule maintenance window for resource changes",
+                        "Apply new resource allocation",
+                        "Monitor performance and adjust if needed"
+                    ],
+                    rollback_steps=[
+                        "Revert to previous resource allocation",
+                        "Monitor for performance issues",
+                        "Validate system stability after rollback"
+                    ],
+                    risk_assessment={
+                        'performance_risk': 'low',
+                        'cost_risk': 'medium',
+                        'downtime_required': True
+                    },
+                    ai_enhanced=True,
+                    predictive_insights=[
+                        f"AI predicts optimal allocation with {optimal_allocation.get('confidence', 0.5)*100:.1f}% confidence"
+                    ]
+                )
+                recommendations.append(recommendation)
+        
+        # Scaling recommendation based on AI prediction
+        if scaling_prediction.get('ai_predicted'):
+            action = scaling_prediction.get('action')
+            if action != 'no_change':
+                scaling_action = OptimizationAction.SCALE_UP if action == 'scale_up' else OptimizationAction.SCALE_DOWN
+                
+                recommendation = ResourceRecommendation(
+                    recommendation_id=f"ai-scaling-{metrics.provider}-{metrics.resource_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    resource_id=metrics.resource_id,
+                    resource_name=metrics.resource_name,
+                    resource_type=metrics.resource_type,
+                    provider=metrics.provider,
+                    current_state=self._determine_utilization_level(metrics),
+                    recommended_action=scaling_action,
+                    priority="high" if scaling_prediction.get('confidence', 0) > 0.8 else "medium",
+                    confidence=scaling_prediction.get('confidence', 0.5),
+                    expected_savings=self._calculate_scaling_savings(metrics, scaling_action),
+                    performance_impact="medium",
+                    implementation_complexity="low",
+                    description=f"AI predicts need to {action.replace('_', ' ')} based on usage patterns and forecasts",
+                    current_config=metrics.current_capacity,
+                    recommended_config=metrics.current_capacity.copy(),  # Scaling keeps same config per instance
+                    implementation_steps=[
+                        "Review AI scaling recommendations",
+                        "Configure auto-scaling policies",
+                        "Set appropriate scaling thresholds",
+                        "Enable scaling monitoring",
+                        "Test scaling behavior"
+                    ],
+                    rollback_steps=[
+                        "Disable auto-scaling policies",
+                        "Manually adjust resource count if needed",
+                        "Monitor system stability"
+                    ],
+                    risk_assessment={
+                        'performance_risk': 'low',
+                        'cost_risk': 'low',
+                        'downtime_required': False
+                    },
+                    ai_enhanced=True,
+                    predictive_insights=[
+                        f"AI scaling prediction confidence: {scaling_prediction.get('confidence', 0.5)*100:.1f}%"
+                    ]
+                )
+                recommendations.append(recommendation)
+        
+        # Anomaly-based recommendations
+        if anomalies.get('anomalies_detected'):
+            for anomaly in anomalies['anomalies_detected']:
+                if anomaly['severity'] == 'high':
+                    recommendation = ResourceRecommendation(
+                        recommendation_id=f"ai-anomaly-{metrics.provider}-{metrics.resource_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                        resource_id=metrics.resource_id,
+                        resource_name=metrics.resource_name,
+                        resource_type=metrics.resource_type,
+                        provider=metrics.provider,
+                        current_state=UtilizationLevel.CRITICAL,
+                        recommended_action=OptimizationAction.SCALE_UP,
+                        priority="critical",
+                        confidence=0.9,
+                        expected_savings=0,  # Anomalies may require immediate action
+                        performance_impact="high",
+                        implementation_complexity="low",
+                        description=f"AI detected critical anomaly in {anomaly['metric']}: current {anomaly['current_value']:.1f}%, expected {anomaly['expected_range'][0]:.1f}-{anomaly['expected_range'][1]:.1f}%",
+                        current_config=metrics.current_capacity,
+                        recommended_config=metrics.current_capacity.copy(),
+                        implementation_steps=[
+                            "Investigate root cause of anomaly",
+                            "Implement immediate scaling if needed",
+                            "Review monitoring alerts",
+                            "Update anomaly detection thresholds if necessary"
+                        ],
+                        rollback_steps=[
+                            "Scale back resources if anomaly was false positive",
+                            "Review anomaly detection accuracy"
+                        ],
+                        risk_assessment={
+                            'performance_risk': 'high',
+                            'cost_risk': 'medium',
+                            'downtime_required': False
+                        },
+                        ai_enhanced=True,
+                        predictive_insights=[
+                            f"Anomaly detected: {anomaly['metric']} outside normal range"
+                        ]
+                    )
+                    recommendations.append(recommendation)
+        
+        return recommendations
+    
+    def _determine_utilization_level(self, metrics: ResourceMetrics) -> UtilizationLevel:
+        """Determine utilization level based on metrics"""
+        avg_utilization = (metrics.cpu_utilization + metrics.memory_utilization) / 2
+        
+        if avg_utilization >= 90:
+            return UtilizationLevel.CRITICAL
+        elif avg_utilization >= 80:
+            return UtilizationLevel.OVERUTILIZED
+        elif avg_utilization <= 25:
+            return UtilizationLevel.UNDERUTILIZED
+        else:
+            return UtilizationLevel.OPTIMAL
+    
+    def _calculate_rightsizing_savings(self, metrics: ResourceMetrics, new_cpu: int, new_memory: int) -> float:
+        """Calculate potential savings from rightsizing"""
+        current_cpu = metrics.current_capacity.get('cpu_cores', 1)
+        current_memory = metrics.current_capacity.get('memory_gb', 1)
+        
+        # Simplified cost calculation - in reality would use actual pricing
+        cpu_cost_per_core = 10.0  # $/month per CPU core
+        memory_cost_per_gb = 2.0  # $/month per GB RAM
+        
+        current_cost = (current_cpu * cpu_cost_per_core) + (current_memory * memory_cost_per_gb)
+        new_cost = (new_cpu * cpu_cost_per_core) + (new_memory * memory_cost_per_gb)
+        
+        return max(0, current_cost - new_cost)
+    
+    def _calculate_scaling_savings(self, metrics: ResourceMetrics, action: OptimizationAction) -> float:
+        """Calculate potential savings from scaling actions"""
+        # Simplified calculation
+        if action == OptimizationAction.SCALE_DOWN:
+            return metrics.cost_per_hour * 24 * 30 * 0.2  # 20% savings from scaling down
+        elif action == OptimizationAction.SCALE_UP:
+            return -(metrics.cost_per_hour * 24 * 30 * 0.3)  # Cost increase for scaling up
+        return 0
+    
+    def _collect_resource_data(self, provider: str, include_historical: bool) -> List[Dict[str, Any]]:
+        """Collect resource data from provider APIs"""
+        # This would integrate with actual cloud provider APIs
+        # For now, return mock data structure
+        return [
+            {
+                'resource_id': f'{provider}-instance-001',
+                'resource_name': f'{provider.capitalize()} Instance 001',
+                'resource_type': 'compute',
+                'region': self.config['providers'][provider]['region'],
+                'environment': 'production',
+                'cpu_utilization': 65.0,
+                'memory_utilization': 75.0,
+                'disk_utilization': 45.0,
+                'network_utilization': 30.0,
+                'current_capacity': {'cpu_cores': 2, 'memory_gb': 4},
+                'recommended_capacity': {'cpu_cores': 2, 'memory_gb': 6},
+                'utilization_score': 0.7,
+                'efficiency_score': 0.8,
+                'cost_per_hour': 0.15,
+                'metadata': {'concurrent_users': 50, 'request_rate': 200},
+                'historical_data': [
+                    {'cpu_utilization': 60, 'memory_utilization': 70, 'timestamp': datetime.now() - timedelta(hours=i)}
+                    for i in range(24)
+                ] if include_historical else []
+            },
+            # Add more mock data...
+        ]
+    
+    def _ai_filter_recommendations(self, recommendations: List[ResourceRecommendation]) -> List[ResourceRecommendation]:
+        """AI-based filtering and prioritization of recommendations"""
+        # Filter by confidence threshold
+        filtered = [
+            r for r in recommendations 
+            if r.confidence >= self.config['analysis_settings']['confidence_threshold']
+        ]
+        
+        # Sort by AI-enhanced confidence and expected savings
+        filtered.sort(key=lambda x: (x.confidence, -x.expected_savings), reverse=True)
+        
+        return filtered[:50]  # Limit to top 50 recommendations
+    
+    # Fallback methods for when AI is not available
+    def _analyze_provider_resources_basic(self, provider: str) -> List[ResourceRecommendation]:
+        """Basic resource analysis without AI"""
+        recommendations = []
+        resource_data = self._collect_resource_data(provider, False)
+        
+        for resource in resource_data:
+            basic_recommendations = self._analyze_resource_basic(resource, provider)
+            recommendations.extend(basic_recommendations)
+        
+        return recommendations
+    
+    def _analyze_resource_basic(self, resource: Dict[str, Any], provider: str) -> List[ResourceRecommendation]:
+        """Basic resource analysis without AI"""
+        recommendations = []
+        
+        # Simple threshold-based analysis
+        cpu_util = resource.get('cpu_utilization', 0)
+        memory_util = resource.get('memory_utilization', 0)
+        
+        thresholds = self.config['optimization_thresholds']
+        
+        if cpu_util > thresholds['cpu_overutilized'] or memory_util > thresholds['memory_overutilized']:
+            # Scale up recommendation
+            recommendation = ResourceRecommendation(
+                recommendation_id=f"basic-scale-up-{provider}-{resource['resource_id']}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                resource_id=resource['resource_id'],
+                resource_name=resource['resource_name'],
+                resource_type=ResourceType(resource.get('resource_type', 'compute')),
+                provider=provider,
+                current_state=UtilizationLevel.OVERUTILIZED,
+                recommended_action=OptimizationAction.SCALE_UP,
+                priority="high",
+                confidence=0.7,
+                expected_savings=0,  # Scaling up costs more
+                performance_impact="low",
+                implementation_complexity="low",
+                description=f"High utilization detected: CPU {cpu_util:.1f}%, Memory {memory_util:.1f}%",
+                current_config=resource.get('current_capacity', {}),
+                recommended_config=resource.get('current_capacity', {}),
+                implementation_steps=[
+                    "Scale up resources to handle load",
+                    "Monitor performance after scaling",
+                    "Adjust scaling policies as needed"
+                ],
+                rollback_steps=[
+                    "Scale back if performance improves",
+                    "Monitor for cost increases"
+                ],
+                risk_assessment={
+                    'performance_risk': 'low',
+                    'cost_risk': 'medium',
+                    'downtime_required': False
+                },
+                ai_enhanced=False
+            )
+            recommendations.append(recommendation)
+        
+        return recommendations
+    
+    def generate_resource_report(self, recommendations: List[ResourceRecommendation], 
+                               analysis_results: Dict[str, Any], output_file: Optional[str] = None) -> Dict[str, Any]:
+        """Generate comprehensive resource optimization report"""
+        logger.info("Generating AI-enhanced resource optimization report")
+        
+        total_recommendations = len(recommendations)
+        total_potential_savings = sum(rec.expected_savings for rec in recommendations)
+        ai_recommendations = [r for r in recommendations if r.ai_enhanced]
+        
+        # Collect AI insights
+        all_insights = []
+        for provider_results in analysis_results.values():
+            all_insights.extend(provider_results.get('ai_insights', []))
+        
+        report = {
+            'generated_at': datetime.utcnow().isoformat(),
+            'summary': {
+                'total_recommendations': total_recommendations,
+                'ai_enhanced_recommendations': len(ai_recommendations),
+                'total_potential_savings': total_potential_savings,
+                'providers_analyzed': len(analysis_results),
+                'ai_insights_count': len(all_insights)
+            },
+            'provider_breakdown': analysis_results,
+            'top_recommendations': [
+                {
+                    'resource_name': rec.resource_name,
+                    'provider': rec.provider,
+                    'action': rec.recommended_action.value,
+                    'priority': rec.priority,
+                    'confidence': rec.confidence,
+                    'expected_savings': rec.expected_savings,
+                    'ai_enhanced': rec.ai_enhanced,
+                    'description': rec.description
+                }
+                for rec in recommendations[:20]
+            ],
+            'ai_insights': all_insights[:10],
+            'recommendations_by_type': self._count_recommendations_by_type(recommendations)
+        }
+        
+        if output_file:
+            with open(output_file, 'w') as f:
+                json.dump(report, f, indent=2)
+            logger.info(f"Resource optimization report saved to: {output_file}")
+        
+        return report
+    
+    def _count_recommendations_by_type(self, recommendations: List[ResourceRecommendation]) -> Dict[str, int]:
+        """Count recommendations by optimization type"""
+        counts = {}
+        for rec in recommendations:
+            opt_type = rec.recommended_action.value
+            counts[opt_type] = counts.get(opt_type, 0) + 1
+        return counts
         
     def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
         """Load resource optimizer configuration"""

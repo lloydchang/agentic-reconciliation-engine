@@ -26,7 +26,15 @@
       "Bash(kubectl rollout:*)",
       "Bash(kubectl exec:*)",
       "Bash(curl -s http://localhost:5000/health)",
-      "Bash(curl -s http://localhost:5000/api/metrics)"
+      "Bash(curl -s http://localhost:5000/api/metrics)",
+      "Bash(xargs -I {} kubectl delete pod {} -n ai-infrastructure)",
+      "Bash(lsof:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://localhost:8081/health)",
+      "Bash(curl -s http://localhost:8081/api/memory/stats)",
+      "Bash(for i:*)",
+      "Bash(do kubectl:*)",
+      "Bash(done)"
     ]
   }
 }

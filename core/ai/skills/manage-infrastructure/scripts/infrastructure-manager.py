@@ -83,12 +83,966 @@ class InfrastructurePlan:
     estimated_duration: timedelta
     dependencies: List[str]
 
-class InfrastructureManager:
+#!/usr/bin/env python3
+"""
+Advanced AI Infrastructure Manager Script
+
+Multi-cloud automation for AI-powered infrastructure management, intelligent resource allocation,
+and predictive scaling across AWS, Azure, GCP, and on-premise environments.
+"""
+
+import json
+import sys
+import argparse
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
+import statistics
+
+# AI/ML imports
+try:
+    import numpy as np
+    import pandas as pd
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_absolute_error, r2_score
+    from sklearn.cluster import KMeans
+    from sklearn.ensemble import IsolationForest
+    import statsmodels.api as sm
+    from prophet import Prophet
+    import warnings
+    warnings.filterwarnings('ignore')
+except ImportError as e:
+    logging.warning(f"AI/ML libraries not available: {e}. Falling back to basic functionality.")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class CloudProvider(Enum):
+    AWS = "aws"
+    AZURE = "azure"
+    GCP = "gcp"
+    ONPREM = "onprem"
+    ALL = "all"
+
+class InfrastructureOperation(Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+    SCALE = "scale"
+    MONITOR = "monitor"
+    BACKUP = "backup"
+    RESTORE = "restore"
+
+class ResourceType(Enum):
+    COMPUTE = "compute"
+    STORAGE = "storage"
+    NETWORKING = "networking"
+    DATABASE = "database"
+    SECURITY = "security"
+    MONITORING = "monitoring"
+
+@dataclass
+class InfrastructureResource:
+    resource_id: str
+    resource_name: str
+    resource_type: ResourceType
+    provider: str
+    region: str
+    status: str
+    configuration: Dict[str, Any]
+    tags: Dict[str, str]
+    created_at: datetime
+    updated_at: datetime
+    cost: float
+    dependencies: List[str]
+    utilization_metrics: Dict[str, float] = None
+    ai_enhanced: bool = False
+
+@dataclass
+class InfrastructureOperation:
+    operation_id: str
+    operation_type: InfrastructureOperation
+    resource_id: str
+    resource_type: ResourceType
+    provider: str
+    status: str
+    progress: float
+    started_at: datetime
+    completed_at: Optional[datetime]
+    error_message: Optional[str]
+    configuration: Dict[str, Any]
+    ai_insights: List[str] = None
+
+@dataclass
+class InfrastructurePlan:
+    plan_id: str
+    name: str
+    description: str
+    provider: str
+    operations: List[InfrastructureOperation]
+    created_at: datetime
+    estimated_cost: float
+    estimated_duration: timedelta
+    dependencies: List[str]
+    ai_recommendations: List[str] = None
+
+class IntelligentInfrastructureAllocator:
+    """AI-powered infrastructure allocation and optimization engine"""
+    
+    def __init__(self):
+        self.allocation_model = None
+        self.scaling_model = None
+        self.cost_optimization_model = None
+        self.feature_scaler = StandardScaler()
+        self.is_trained = False
+        
+    def train_allocation_model(self, historical_data: List[Dict[str, Any]]):
+        """Train ML model for intelligent infrastructure allocation"""
+        try:
+            if not historical_data:
+                logger.warning("No historical data available for training")
+                return
+            
+            # Prepare features
+            features = []
+            targets = []
+            
+            for data_point in historical_data:
+                feature_vector = self._extract_allocation_features(data_point)
+                features.append(feature_vector)
+                
+                # Target: optimal infrastructure allocation score
+                targets.append(data_point.get('optimal_allocation_score', 0.8))
+            
+            if len(features) < 10:
+                logger.warning("Insufficient data for training allocation model")
+                return
+            
+            X = np.array(features)
+            y = np.array(targets)
+            
+            # Split data
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            
+            # Train model
+            self.allocation_model = GradientBoostingRegressor(
+                n_estimators=100,
+                max_depth=6,
+                learning_rate=0.1,
+                random_state=42
+            )
+            
+            self.allocation_model.fit(X_train, y_train)
+            
+            # Evaluate
+            y_pred = self.allocation_model.predict(X_test)
+            mae = mean_absolute_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            
+            logger.info(f"Infrastructure allocation model trained - MAE: {mae:.3f}, R²: {r2:.3f}")
+            self.is_trained = True
+            
+        except Exception as e:
+            logger.warning(f"Failed to train allocation model: {e}")
+    
+    def train_scaling_model(self, scaling_data: List[Dict[str, Any]]):
+        """Train ML model for predictive infrastructure scaling"""
+        try:
+            if not scaling_data:
+                logger.warning("No scaling data available for training")
+                return
+            
+            # Prepare features
+            features = []
+            targets = []
+            
+            for data_point in scaling_data:
+                feature_vector = self._extract_scaling_features(data_point)
+                features.append(feature_vector)
+                
+                # Target: scaling decision (scale up/down/no change)
+                targets.append(data_point.get('scaling_decision', 0))  # -1, 0, 1
+            
+            if len(features) < 10:
+                logger.warning("Insufficient data for training scaling model")
+                return
+            
+            X = np.array(features)
+            y = np.array(targets)
+            
+            # Split data
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            
+            # Train model
+            self.scaling_model = RandomForestRegressor(
+                n_estimators=100,
+                max_depth=8,
+                random_state=42,
+                n_jobs=-1
+            )
+            
+            self.scaling_model.fit(X_train, y_train)
+            
+            # Evaluate
+            y_pred = self.scaling_model.predict(X_test)
+            mae = mean_absolute_error(y_test, y_pred)
+            
+            logger.info(f"Infrastructure scaling model trained - MAE: {mae:.3f}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to train scaling model: {e}")
+    
+    def predict_optimal_allocation(self, resource_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Predict optimal infrastructure allocation using ML"""
+        if not self.is_trained or not self.allocation_model:
+            return self._fallback_allocation(resource_data)
+        
+        try:
+            features = self._extract_allocation_features(resource_data)
+            features_scaled = self.feature_scaler.transform([features])
+            
+            prediction = self.allocation_model.predict(features_scaled)[0]
+            
+            # Convert prediction to infrastructure recommendations
+            return {
+                'compute_instances': max(1, int(prediction * 3)),
+                'storage_gb': max(10, int(prediction * 100)),
+                'network_bandwidth_mbps': max(100, int(prediction * 1000)),
+                'confidence': min(0.95, max(0.1, prediction)),
+                'ai_predicted': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Infrastructure allocation prediction failed: {e}")
+            return self._fallback_allocation(resource_data)
+    
+    def predict_scaling_action(self, resource_data: Dict[str, Any], 
+                           historical_metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Predict infrastructure scaling actions using ML"""
+        if not self.scaling_model:
+            return self._fallback_scaling(resource_data)
+        
+        try:
+            features = self._extract_scaling_features_from_history(resource_data, historical_metrics)
+            features_scaled = self.feature_scaler.transform([features])
+            
+            prediction = self.scaling_model.predict(features_scaled)[0]
+            
+            # Interpret prediction
+            if prediction > 0.3:
+                action = "scale_up"
+                confidence = min(0.9, prediction)
+            elif prediction < -0.3:
+                action = "scale_down"
+                confidence = min(0.9, abs(prediction))
+            else:
+                action = "no_change"
+                confidence = 0.8
+            
+            return {
+                'action': action,
+                'confidence': confidence,
+                'prediction_score': prediction,
+                'ai_predicted': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Infrastructure scaling prediction failed: {e}")
+            return self._fallback_scaling(resource_data)
+    
+    def detect_infrastructure_anomalies(self, resources: List[InfrastructureResource]) -> Dict[str, Any]:
+        """Detect anomalous infrastructure patterns using ML"""
+        try:
+            if len(resources) < 5:
+                return {'anomalies_detected': [], 'ai_generated': False}
+            
+            # Prepare data for anomaly detection
+            features = []
+            resource_ids = []
+            
+            for resource in resources:
+                feature_vector = self._extract_anomaly_features(resource)
+                features.append(feature_vector)
+                resource_ids.append(resource.resource_id)
+            
+            if not features:
+                return {'anomalies_detected': [], 'ai_generated': False}
+            
+            X = np.array(features)
+            
+            # Use Isolation Forest for anomaly detection
+            iso_forest = IsolationForest(
+                n_estimators=100,
+                contamination=0.1,
+                random_state=42,
+                n_jobs=-1
+            )
+            
+            anomaly_labels = iso_forest.fit_predict(X)
+            
+            anomalies = []
+            for i, label in enumerate(anomaly_labels):
+                if label == -1:  # Anomaly detected
+                    resource = resources[i]
+                    anomalies.append({
+                        'resource_id': resource.resource_id,
+                        'resource_name': resource.resource_name,
+                        'resource_type': resource.resource_type.value,
+                        'anomaly_score': float(iso_forest.score_samples(X[i:i+1])[0]),
+                        'reason': 'Anomalous resource configuration or utilization pattern'
+                    })
+            
+            return {
+                'anomalies_detected': anomalies,
+                'total_anomalies': len(anomalies),
+                'ai_generated': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Infrastructure anomaly detection failed: {e}")
+            return {'anomalies_detected': [], 'ai_generated': False}
+    
+    def _extract_allocation_features(self, data_point: Dict[str, Any]) -> List[float]:
+        """Extract features for allocation model training"""
+        return [
+            data_point.get('cpu_utilization', 0),
+            data_point.get('memory_utilization', 0),
+            data_point.get('storage_utilization', 0),
+            data_point.get('network_utilization', 0),
+            data_point.get('request_rate', 0),
+            data_point.get('concurrent_users', 0),
+            data_point.get('cost_per_hour', 0),
+            data_point.get('resource_count', 1),
+            data_point.get('time_of_day', 12),  # hour of day
+            data_point.get('day_of_week', 1),  # 0-6
+        ]
+    
+    def _extract_scaling_features(self, data_point: Dict[str, Any]) -> List[float]:
+        """Extract features for scaling model training"""
+        return [
+            data_point.get('current_cpu', 0),
+            data_point.get('current_memory', 0),
+            data_point.get('cpu_trend', 0),  # rate of change
+            data_point.get('memory_trend', 0),
+            data_point.get('queue_length', 0),
+            data_point.get('error_rate', 0),
+            data_point.get('response_time', 0),
+            data_point.get('load_average', 0),
+        ]
+    
+    def _extract_scaling_features_from_history(self, resource_data: Dict[str, Any], 
+                                        historical: List[Dict[str, Any]]) -> List[float]:
+        """Extract scaling features from current resource and history"""
+        # Calculate trends
+        if historical:
+            recent_cpu = [h.get('cpu_utilization', 0) for h in historical[-10:]]
+            cpu_trend = np.polyfit(range(len(recent_cpu)), recent_cpu, 1)[0] if len(recent_cpu) > 1 else 0
+            
+            recent_memory = [h.get('memory_utilization', 0) for h in historical[-10:]]
+            memory_trend = np.polyfit(range(len(recent_memory)), recent_memory, 1)[0] if len(recent_memory) > 1 else 0
+        else:
+            cpu_trend = memory_trend = 0
+        
+        return [
+            resource_data.get('cpu_utilization', 0),
+            resource_data.get('memory_utilization', 0),
+            cpu_trend,
+            memory_trend,
+            resource_data.get('queue_length', 0),
+            resource_data.get('error_rate', 0),
+            resource_data.get('response_time', 0),
+            resource_data.get('load_average', 0),
+        ]
+    
+    def _extract_anomaly_features(self, resource: InfrastructureResource) -> List[float]:
+        """Extract features for anomaly detection"""
+        metrics = resource.utilization_metrics or {}
+        return [
+            metrics.get('cpu_utilization', 0),
+            metrics.get('memory_utilization', 0),
+            metrics.get('storage_utilization', 0),
+            metrics.get('network_utilization', 0),
+            resource.cost,
+            len(resource.dependencies),
+            1 if resource.status == 'running' else 0,
+            1 if resource.resource_type == ResourceType.COMPUTE else 0,
+            1 if resource.resource_type == ResourceType.STORAGE else 0,
+        ]
+    
+    def _fallback_allocation(self, resource_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Fallback allocation when AI is not available"""
+        # Simple rule-based allocation
+        cpu_util = resource_data.get('cpu_utilization', 0)
+        memory_util = resource_data.get('memory_utilization', 0)
+        
+        compute_instances = max(1, int(cpu_util * 3 / 100) + 1)
+        storage_gb = max(10, int(memory_util * 100 / 100) + 10)
+        
+        return {
+            'compute_instances': compute_instances,
+            'storage_gb': storage_gb,
+            'network_bandwidth_mbps': 1000,
+            'confidence': 0.5,
+            'ai_predicted': False
+        }
+    
+    def _fallback_scaling(self, resource_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Fallback scaling when AI is not available"""
+        # Simple threshold-based scaling
+        cpu_util = resource_data.get('cpu_utilization', 0)
+        memory_util = resource_data.get('memory_utilization', 0)
+        
+        avg_utilization = (cpu_util + memory_util) / 2
+        
+        if avg_utilization > 85:
+            action = "scale_up"
+            confidence = 0.7
+        elif avg_utilization < 25:
+            action = "scale_down"
+            confidence = 0.6
+        else:
+            action = "no_change"
+            confidence = 0.8
+        
+        return {
+            'action': action,
+            'confidence': confidence,
+            'ai_predicted': False
+        }
+
+class PredictiveInfrastructureManager:
+    """Predictive infrastructure management using time series forecasting"""
+    
+    def __init__(self):
+        self.forecasting_models = {}
+        
+    def forecast_resource_needs(self, resource_type: ResourceType, historical_data: List[Dict[str, Any]], 
+                               forecast_hours: int = 24) -> Dict[str, Any]:
+        """Forecast future infrastructure needs using time series analysis"""
+        try:
+            if len(historical_data) < 24:  # Need minimum data for forecasting
+                return self._simple_forecast(historical_data, forecast_hours)
+            
+            # Prepare data for Prophet
+            df = pd.DataFrame(historical_data)
+            if 'timestamp' not in df.columns:
+                # Create timestamps if not present
+                df['timestamp'] = pd.date_range(
+                    end=datetime.now(), 
+                    periods=len(df), 
+                    freq='H'
+                )
+            
+            df = df.rename(columns={'timestamp': 'ds'})
+            
+            forecasts = {}
+            
+            # Forecast compute needs
+            if 'compute_utilization' in df.columns:
+                compute_model = Prophet(
+                    yearly_seasonality=False,
+                    weekly_seasonality=True,
+                    daily_seasonality=True,
+                    seasonality_mode='multiplicative'
+                )
+                
+                compute_df = df[['ds', 'compute_utilization']].rename(columns={'compute_utilization': 'y'})
+                compute_model.fit(compute_df)
+                
+                future = compute_model.make_future_dataframe(periods=forecast_hours, freq='H')
+                compute_forecast = compute_model.predict(future)
+                
+                forecasts['compute_utilization'] = {
+                    'values': compute_forecast['yhat'].tail(forecast_hours).tolist(),
+                    'lower_bound': compute_forecast['yhat_lower'].tail(forecast_hours).tolist(),
+                    'upper_bound': compute_forecast['yhat_upper'].tail(forecast_hours).tolist()
+                }
+            
+            # Forecast storage needs
+            if 'storage_utilization' in df.columns:
+                storage_model = Prophet(
+                    yearly_seasonality=False,
+                    weekly_seasonality=True,
+                    daily_seasonality=True,
+                    seasonality_mode='multiplicative'
+                )
+                
+                storage_df = df[['ds', 'storage_utilization']].rename(columns={'storage_utilization': 'y'})
+                storage_model.fit(storage_df)
+                
+                future = storage_model.make_future_dataframe(periods=forecast_hours, freq='H')
+                storage_forecast = storage_model.predict(future)
+                
+                forecasts['storage_utilization'] = {
+                    'values': storage_forecast['yhat'].tail(forecast_hours).tolist(),
+                    'lower_bound': storage_forecast['yhat_lower'].tail(forecast_hours).tolist(),
+                    'upper_bound': storage_forecast['yhat_upper'].tail(forecast_hours).tolist()
+                }
+            
+            # Store model for future use
+            self.forecasting_models[resource_type.value] = {
+                'compute_model': compute_model if 'compute_utilization' in forecasts else None,
+                'storage_model': storage_model if 'storage_utilization' in forecasts else None,
+                'last_updated': datetime.now()
+            }
+            
+            return {
+                'forecasts': forecasts,
+                'forecast_period_hours': forecast_hours,
+                'confidence_intervals': True,
+                'ai_generated': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"Infrastructure needs forecasting failed: {e}")
+            return self._simple_forecast(historical_data, forecast_hours)
+    
+    def _simple_forecast(self, historical_data: List[Dict[str, Any]], forecast_hours: int) -> Dict[str, Any]:
+        """Simple trend-based forecasting fallback"""
+        if not historical_data:
+            return {'forecasts': {}, 'ai_generated': False}
+        
+        # Calculate simple moving averages
+        compute_values = [d.get('compute_utilization', 0) for d in historical_data[-24:]]
+        storage_values = [d.get('storage_utilization', 0) for d in historical_data[-24:]]
+        
+        forecasts = {}
+        
+        if compute_values:
+            avg_compute = statistics.mean(compute_values)
+            forecasts['compute_utilization'] = {
+                'values': [avg_compute] * forecast_hours,
+                'lower_bound': [max(0, avg_compute * 0.8)] * forecast_hours,
+                'upper_bound': [min(100, avg_compute * 1.2)] * forecast_hours
+            }
+        
+        if storage_values:
+            avg_storage = statistics.mean(storage_values)
+            forecasts['storage_utilization'] = {
+                'values': [avg_storage] * forecast_hours,
+                'lower_bound': [max(0, avg_storage * 0.8)] * forecast_hours,
+                'upper_bound': [min(100, avg_storage * 1.2)] * forecast_hours
+            }
+        
+        return {
+            'forecasts': forecasts,
+            'forecast_period_hours': forecast_hours,
+            'confidence_intervals': False,
+            'ai_generated': False
+        }
+
+class AIInfrastructureManager:
+    """Advanced AI-powered infrastructure manager with ML and predictive analytics"""
+    
     def __init__(self, config_file: Optional[str] = None):
         self.providers = {}
         self.resources = {}
         self.operations = {}
         self.config = self._load_config(config_file)
+        
+        # Initialize AI components
+        self.intelligent_allocator = IntelligentInfrastructureAllocator()
+        self.predictive_manager = PredictiveInfrastructureManager()
+        
+        # Train AI models if data is available
+        self._initialize_ai_models()
+        
+    def _load_config(self, config_file: Optional[str] = None) -> Dict[str, Any]:
+        """Load infrastructure management configuration"""
+        default_config = {
+            'providers': {
+                'aws': {'region': 'us-west-2', 'enabled': True},
+                'azure': {'region': 'eastus', 'enabled': True},
+                'gcp': {'region': 'us-central1', 'enabled': True},
+                'onprem': {'region': 'default', 'enabled': True}
+            },
+            'infrastructure_thresholds': {
+                'cpu_high_threshold': 80.0,
+                'cpu_low_threshold': 20.0,
+                'memory_high_threshold': 85.0,
+                'memory_low_threshold': 30.0,
+                'storage_high_threshold': 90.0,
+                'storage_low_threshold': 25.0,
+                'network_high_threshold': 80.0,
+                'network_low_threshold': 10.0
+            },
+            'ai_settings': {
+                'enable_ai_analysis': True,
+                'confidence_threshold': 0.7,
+                'forecast_horizon_hours': 24,
+                'anomaly_detection_enabled': True
+            }
+        }
+        
+        if config_file:
+            try:
+                with open(config_file, 'r') as f:
+                    user_config = json.load(f)
+                default_config.update(user_config)
+            except Exception as e:
+                logger.warning(f"Failed to load config file {config_file}: {e}")
+        
+        return default_config
+    
+    def _initialize_ai_models(self):
+        """Initialize and train AI models"""
+        try:
+            # Load historical training data (mock data for demonstration)
+            training_data = self._load_training_data()
+            
+            if training_data and self.config['ai_settings']['enable_ai_analysis']:
+                logger.info("Training AI models for infrastructure management...")
+                
+                # Train allocation model
+                self.intelligent_allocator.train_allocation_model(training_data.get('allocation', []))
+                
+                # Train scaling model
+                self.intelligent_allocator.train_scaling_model(training_data.get('scaling', []))
+                
+                logger.info("AI models trained successfully")
+            else:
+                logger.info("AI training data not available, using fallback methods")
+                
+        except Exception as e:
+            logger.warning(f"Failed to initialize AI models: {e}")
+    
+    def _load_training_data(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Load historical training data for AI models"""
+        # In a real implementation, this would load from a database or file
+        # For now, return empty data
+        return {
+            'allocation': [],
+            'scaling': []
+        }
+    
+    def manage_infrastructure_with_ai(self, operation: str, resources: List[str], 
+                                  providers: List[str], include_historical: bool = True) -> Tuple[List[InfrastructureOperation], Dict[str, Any]]:
+        """Manage infrastructure across providers using AI/ML techniques"""
+        logger.info(f"Performing AI-enhanced infrastructure management for operation: {operation}")
+        
+        all_operations = []
+        analysis_results = {}
+        
+        for provider in providers:
+            if provider not in self.config['providers']:
+                logger.warning(f"Provider {provider} not in configuration")
+                continue
+            
+            if not self.config['providers'][provider]['enabled']:
+                logger.info(f"Provider {provider} is disabled")
+                continue
+            
+            try:
+                # AI-powered management for this provider
+                provider_operations, provider_analysis = self._manage_provider_infrastructure_with_ai(
+                    operation, resources, provider, include_historical
+                )
+                all_operations.extend(provider_operations)
+                analysis_results[provider] = provider_analysis
+                
+                logger.info(f"Generated {len(provider_operations)} AI-enhanced operations for {provider}")
+                
+            except Exception as e:
+                logger.error(f"Failed to manage infrastructure for provider {provider}: {e}")
+                # Fallback to basic management
+                basic_operations = self._manage_provider_infrastructure_basic(operation, resources, provider)
+                all_operations.extend(basic_operations)
+        
+        # Apply AI-based filtering and prioritization
+        filtered_operations = self._ai_filter_operations(all_operations)
+        
+        return filtered_operations, analysis_results
+    
+    def _manage_provider_infrastructure_with_ai(self, operation: str, resources: List[str], 
+                                            provider: str, include_historical: bool) -> Tuple[List[InfrastructureOperation], Dict[str, Any]]:
+        """AI-powered infrastructure management for a specific provider"""
+        operations = []
+        
+        # Get resource data
+        resource_data = self._collect_resource_data(resources, provider, include_historical)
+        
+        if not resource_data:
+            logger.warning(f"No resource data available for {provider}")
+            return [], {'total_resources': 0, 'operations': 0, 'ai_insights': []}
+        
+        ai_insights = []
+        
+        for resource in resource_data:
+            try:
+                # AI-enhanced resource management
+                resource_operations, resource_insights = self._manage_resource_with_ai(
+                    operation, resource, provider, include_historical
+                )
+                operations.extend(resource_operations)
+                ai_insights.extend(resource_insights)
+                
+            except Exception as e:
+                logger.warning(f"AI management failed for resource {resource['resource_id']}: {e}")
+                # Fallback to basic management
+                basic_operations = self._manage_resource_basic(operation, resource, provider)
+                operations.extend(basic_operations)
+        
+        analysis_result = {
+            'total_resources': len(resource_data),
+            'operations': len(operations),
+            'ai_insights': ai_insights,
+            'ai_enabled': True
+        }
+        
+        return operations, analysis_result
+    
+    def _manage_resource_with_ai(self, operation: str, resource: Dict[str, Any], 
+                               provider: str, include_historical: bool) -> Tuple[List[InfrastructureOperation], List[str]]:
+        """AI-powered management for a single resource"""
+        operations = []
+        insights = []
+        
+        # Create InfrastructureResource object
+        infra_resource = InfrastructureResource(
+            resource_id=resource['resource_id'],
+            resource_name=resource['resource_name'],
+            resource_type=ResourceType(resource.get('resource_type', 'compute')),
+            provider=provider,
+            region=resource.get('region', 'unknown'),
+            status=resource.get('status', 'unknown'),
+            configuration=resource.get('configuration', {}),
+            tags=resource.get('tags', {}),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            cost=resource.get('cost', 0),
+            dependencies=resource.get('dependencies', []),
+            utilization_metrics=resource.get('utilization_metrics', {}),
+            ai_enhanced=True
+        )
+        
+        # Get historical data for predictive analysis
+        historical_data = resource.get('historical_data', []) if include_historical else []
+        
+        # AI-based allocation prediction
+        optimal_allocation = self.intelligent_allocator.predict_optimal_allocation(resource)
+        
+        # Predictive scaling analysis
+        scaling_prediction = self.intelligent_allocator.predict_scaling_action(resource, historical_data)
+        
+        # Resource needs forecasting
+        if historical_data:
+            forecast = self.predictive_manager.forecast_resource_needs(
+                infra_resource.resource_type, historical_data
+            )
+            insights.append(f"Resource {resource['resource_name']} shows predictable infrastructure needs")
+        
+        # Generate AI-enhanced operations
+        resource_operations = self._generate_ai_operations(
+            operation, infra_resource, optimal_allocation, scaling_prediction
+        )
+        operations.extend(resource_operations)
+        
+        return operations, insights
+    
+    def _generate_ai_operations(self, operation: str, resource: InfrastructureResource, 
+                              optimal_allocation: Dict[str, Any], scaling_prediction: Dict[str, Any]) -> List[InfrastructureOperation]:
+        """Generate AI-enhanced infrastructure operations"""
+        operations = []
+        
+        # Allocation-based operations
+        if optimal_allocation.get('ai_predicted'):
+            current_config = resource.configuration
+            predicted_config = self._convert_allocation_to_config(optimal_allocation)
+            
+            if current_config != predicted_config:
+                infra_operation = InfrastructureOperation(
+                    operation_id=f"ai-allocation-{resource.provider}-{resource.resource_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    operation_type=InfrastructureOperation.UPDATE,
+                    resource_id=resource.resource_id,
+                    resource_type=resource.resource_type,
+                    provider=resource.provider,
+                    status="planned",
+                    progress=0.0,
+                    started_at=datetime.utcnow(),
+                    completed_at=None,
+                    error_message=None,
+                    configuration=predicted_config,
+                    ai_insights=[
+                        f"AI predicts optimal allocation with {optimal_allocation.get('confidence', 0.5)*100:.1f}% confidence"
+                    ]
+                )
+                operations.append(infra_operation)
+        
+        # Scaling-based operations
+        if scaling_prediction.get('ai_predicted'):
+            action = scaling_prediction.get('action')
+            if action != 'no_change':
+                scaling_operation = InfrastructureOperation(
+                    operation_id=f"ai-scaling-{resource.provider}-{resource.resource_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                    operation_type=InfrastructureOperation.SCALE,
+                    resource_id=resource.resource_id,
+                    resource_type=resource.resource_type,
+                    provider=resource.provider,
+                    status="planned",
+                    progress=0.0,
+                    started_at=datetime.utcnow(),
+                    completed_at=None,
+                    error_message=None,
+                    configuration={'scaling_action': action, 'confidence': scaling_prediction.get('confidence', 0.5)},
+                    ai_insights=[
+                        f"AI scaling prediction confidence: {scaling_prediction.get('confidence', 0.5)*100:.1f}%"
+                    ]
+                )
+                operations.append(scaling_operation)
+        
+        return operations
+    
+    def _convert_allocation_to_config(self, allocation: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert AI allocation prediction to infrastructure configuration"""
+        return {
+            'compute_instances': allocation.get('compute_instances', 1),
+            'storage_gb': allocation.get('storage_gb', 10),
+            'network_bandwidth_mbps': allocation.get('network_bandwidth_mbps', 100),
+            'ai_predicted': allocation.get('ai_predicted', False)
+        }
+    
+    def _collect_resource_data(self, resources: List[str], provider: str, 
+                           include_historical: bool) -> List[Dict[str, Any]]:
+        """Collect resource data from provider APIs"""
+        # This would integrate with actual cloud provider APIs
+        # For now, return mock data structure
+        return [
+            {
+                'resource_id': f'{provider}-resource-001',
+                'resource_name': f'{provider.capitalize()} Resource 001',
+                'resource_type': 'compute',
+                'region': self.config['providers'][provider]['region'],
+                'status': 'running',
+                'configuration': {'cpu_cores': 2, 'memory_gb': 4, 'storage_gb': 100},
+                'tags': {'environment': 'production'},
+                'cost': 0.15,
+                'dependencies': [],
+                'utilization_metrics': {
+                    'cpu_utilization': 65.0,
+                    'memory_utilization': 75.0,
+                    'storage_utilization': 45.0,
+                    'network_utilization': 30.0
+                },
+                'historical_data': [
+                    {
+                        'cpu_utilization': 60 + i * 0.5,
+                        'memory_utilization': 70 + i * 0.3,
+                        'storage_utilization': 40 + i * 0.2,
+                        'timestamp': datetime.now() - timedelta(hours=i)
+                    }
+                    for i in range(24)
+                ] if include_historical else []
+            }
+            for resource_id in resources[:1]  # Limit to one for demo
+        ]
+    
+    def _ai_filter_operations(self, operations: List[InfrastructureOperation]) -> List[InfrastructureOperation]:
+        """AI-based filtering and prioritization of operations"""
+        # Filter by confidence threshold
+        filtered = [
+            op for op in operations 
+            if op.configuration.get('confidence', 1.0) >= self.config['ai_settings']['confidence_threshold']
+        ]
+        
+        # Sort by AI-enhanced confidence and priority
+        filtered.sort(key=lambda x: (x.configuration.get('confidence', 1.0), x.started_at), reverse=True)
+        
+        return filtered[:50]  # Limit to top 50 operations
+    
+    # Fallback methods for when AI is not available
+    def _manage_provider_infrastructure_basic(self, operation: str, resources: List[str], provider: str) -> List[InfrastructureOperation]:
+        """Basic infrastructure management without AI"""
+        operations = []
+        resource_data = self._collect_resource_data(resources, provider, False)
+        
+        for resource in resource_data:
+            basic_operations = self._manage_resource_basic(operation, resource, provider)
+            operations.extend(basic_operations)
+        
+        return operations
+    
+    def _manage_resource_basic(self, operation: str, resource: Dict[str, Any], provider: str) -> List[InfrastructureOperation]:
+        """Basic resource management without AI"""
+        operations = []
+        
+        # Simple rule-based management
+        infra_operation = InfrastructureOperation(
+            operation_id=f"basic-{operation}-{provider}-{resource['resource_id']}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            operation_type=InfrastructureOperation(operation),
+            resource_id=resource['resource_id'],
+            resource_type=ResourceType(resource.get('resource_type', 'compute')),
+            provider=provider,
+            status="planned",
+            progress=0.0,
+            started_at=datetime.utcnow(),
+            completed_at=None,
+            error_message=None,
+            configuration=resource.get('configuration', {})
+        )
+        operations.append(infra_operation)
+        
+        return operations
+    
+    def generate_infrastructure_report(self, operations: List[InfrastructureOperation], 
+                                  analysis_results: Dict[str, Any], output_file: Optional[str] = None) -> Dict[str, Any]:
+        """Generate comprehensive infrastructure management report"""
+        logger.info("Generating AI-enhanced infrastructure management report")
+        
+        total_operations = len(operations)
+        ai_operations = [op for op in operations if op.ai_insights]
+        
+        # Collect AI insights
+        all_insights = []
+        for provider_results in analysis_results.values():
+            all_insights.extend(provider_results.get('ai_insights', []))
+        
+        report = {
+            'generated_at': datetime.utcnow().isoformat(),
+            'summary': {
+                'total_operations': total_operations,
+                'ai_enhanced_operations': len(ai_operations),
+                'providers_analyzed': len(analysis_results),
+                'ai_insights_count': len(all_insights)
+            },
+            'provider_breakdown': analysis_results,
+            'top_operations': [
+                {
+                    'resource_id': op.resource_id,
+                    'provider': op.provider,
+                    'operation': op.operation_type.value,
+                    'status': op.status,
+                    'ai_enhanced': op.ai_insights is not None,
+                    'configuration': op.configuration
+                }
+                for op in operations[:20]
+            ],
+            'ai_insights': all_insights[:10],
+            'operations_by_type': self._count_operations_by_type(operations)
+        }
+        
+        if output_file:
+            with open(output_file, 'w') as f:
+                json.dump(report, f, indent=2)
+            logger.info(f"Infrastructure management report saved to: {output_file}")
+        
+        return report
+    
+    def _count_operations_by_type(self, operations: List[InfrastructureOperation]) -> Dict[str, int]:
+        """Count operations by operation type"""
+        counts = {}
+        for op in operations:
+            op_type = op.operation_type.value
+            counts[op_type] = counts.get(op_type, 0) + 1
+        return counts
         
     def _load_config(self, config_file: Optional[str]) -> Dict[str, Any]:
         """Load infrastructure management configuration"""
