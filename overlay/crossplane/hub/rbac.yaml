@@ -1,0 +1,193 @@
+# RBAC for Crossplane Team Isolation
+---
+# AWS Team Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-aws-team
+  labels:
+    crossplane.io/team: "aws-team"
+    crossplane.io/provider: "aws"
+rules:
+- apiGroups: ["aws.crossplane.io", "aws.upbound.io"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xnetworks", "xkubernetes", "xdatabase", "xstorage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["networks", "kubernetes", "databases", "storage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+---
+# Azure Team Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-azure-team
+  labels:
+    crossplane.io/team: "azure-team"
+    crossplane.io/provider: "azure"
+rules:
+- apiGroups: ["azure.crossplane.io", "azure.upbound.io"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xnetworks", "xkubernetes", "xdatabase", "xstorage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["networks", "kubernetes", "databases", "storage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+---
+# GCP Team Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-gcp-team
+  labels:
+    crossplane.io/team: "gcp-team"
+    crossplane.io/provider: "gcp"
+rules:
+- apiGroups: ["gcp.crossplane.io", "gcp.upbound.io"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xnetworks", "xkubernetes", "xdatabase", "xstorage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["networks", "kubernetes", "databases", "storage"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: ["*"]
+---
+# AWS Team ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-aws-team
+  namespace: crossplane-system
+  labels:
+    crossplane.io/team: "aws-team"
+    crossplane.io/provider: "aws"
+  annotations:
+    crossplane.io/managed-by: "crossplane"
+---
+# Azure Team ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-azure-team
+  namespace: crossplane-system
+  labels:
+    crossplane.io/team: "azure-team"
+    crossplane.io/provider: "azure"
+  annotations:
+    crossplane.io/managed-by: "crossplane"
+---
+# GCP Team ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-gcp-team
+  namespace: crossplane-system
+  labels:
+    crossplane.io/team: "gcp-team"
+    crossplane.io/provider: "gcp"
+  annotations:
+    crossplane.io/managed-by: "crossplane"
+---
+# AWS Team RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-aws-team-binding
+  labels:
+    crossplane.io/team: "aws-team"
+    crossplane.io/provider: "aws"
+subjects:
+- kind: ServiceAccount
+  name: crossplane-aws-team
+  namespace: crossplane-system
+roleRef:
+  kind: ClusterRole
+  name: crossplane-aws-team
+  apiGroup: rbac.authorization.k8s.io
+---
+# Azure Team RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-azure-team-binding
+  labels:
+    crossplane.io/team: "azure-team"
+    crossplane.io/provider: "azure"
+subjects:
+- kind: ServiceAccount
+  name: crossplane-azure-team
+  namespace: crossplane-system
+roleRef:
+  kind: ClusterRole
+  name: crossplane-azure-team
+  apiGroup: rbac.authorization.k8s.io
+---
+# GCP Team RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-gcp-team-binding
+  labels:
+    crossplane.io/team: "gcp-team"
+    crossplane.io/provider: "gcp"
+subjects:
+- kind: ServiceAccount
+  name: crossplane-gcp-team
+  namespace: crossplane-system
+roleRef:
+  kind: ClusterRole
+  name: crossplane-gcp-team
+  apiGroup: rbac.authorization.k8s.io
+---
+# Read-only Role for Cross-Cloud Observability
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-observability
+  labels:
+    crossplane.io/team: "observability"
+    crossplane.io/access: "read-only"
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+---
+# Observability Team ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-observability
+  namespace: crossplane-system
+  labels:
+    crossplane.io/team: "observability"
+    crossplane.io/access: "read-only"
+  annotations:
+    crossplane.io/managed-by: "crossplane"
+---
+# Observability Team RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-observability-binding
+  labels:
+    crossplane.io/team: "observability"
+    crossplane.io/access: "read-only"
+subjects:
+- kind: ServiceAccount
+  name: crossplane-observability
+  namespace: crossplane-system
+roleRef:
+  kind: ClusterRole
+  name: crossplane-observability
+  apiGroup: rbac.authorization.k8s.io

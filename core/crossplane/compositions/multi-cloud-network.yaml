@@ -1,0 +1,54 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-network
+  labels:
+    crossplane.io/managed: "true"
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: composition
+    app.kubernetes.io/resource: network
+  annotations:
+    crossplane.io/documentation: "Multi-cloud network composition that handles AWS, Azure, and GCP"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: network-resource
+    base:
+      apiVersion: # Determined at runtime by patch
+      kind: # Determined at runtime by patch
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Provider-specific resource type
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: 
+                apiVersion: ec2.aws.upbound.io/v1beta1
+                kind: VPC
+              azure:
+                apiVersion: network.azure.upbound.io/v1beta1
+                kind: VirtualNetwork
+              gcp:
+                apiVersion: compute.gcp.upbound.io/v1beta1
+                kind: Network
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId

@@ -1,4 +1,4 @@
-# Pi-Mono Containerized Agent
+# Pi-Mono Agent Dockerfile (Multi-Arch Optimized)
 # Third agent execution method alongside Temporal and other containers
 
 FROM node:18-alpine

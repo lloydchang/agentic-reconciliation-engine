@@ -1,0 +1,168 @@
+# GCP Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gcp-network
+  labels:
+    provider: gcp
+    crossplane.io/xrd: xnetworks.platform.example.com
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: gcp-network
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Network
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          autoCreateSubnetworks: false
+          routingMode: "REGIONAL"
+          tags:
+            Name: "ai-infrastructure-network"
+            Environment: "production"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId
+  - name: gcp-subnet-a
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          region: "us-central1"
+          networkSelector:
+            matchControllerRef: true
+          ipCidrRange: "10.0.1.0/24"
+          privateIpGoogleAccess: true
+          tags:
+            Name: "ai-infrastructure-subnet-a"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.ipCidrRange
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.1.0, %s)"
+  - name: gcp-subnet-b
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          region: "us-central1"
+          networkSelector:
+            matchControllerRef: true
+          ipCidrRange: "10.0.2.0/24"
+          privateIpGoogleAccess: true
+          tags:
+            Name: "ai-infrastructure-subnet-b"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.ipCidrRange
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.2.0, %s)"
+  - name: gcp-subnet-c
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          region: "us-central1"
+          networkSelector:
+            matchControllerRef: true
+          ipCidrRange: "10.0.3.0/24"
+          privateIpGoogleAccess: true
+          tags:
+            Name: "ai-infrastructure-subnet-c"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.ipCidrRange
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.3.0, %s)"
+  - name: gcp-router
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Router
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          region: "us-central1"
+          networkSelector:
+            matchControllerRef: true
+          tags:
+            Name: "ai-infrastructure-router"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+  - name: gcp-nat
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: RouterNAT
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "gcp-network"
+      spec:
+        forProvider:
+          region: "us-central1"
+          routerSelector:
+            matchControllerRef: true
+          natIpAllocateOption: "AUTO_ONLY"
+          sourceSubnetworkIpRangesToNat: "ALL_SUBNETWORKS_ALL_IP_RANGES"
+          tags:
+            Name: "ai-infrastructure-nat"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region

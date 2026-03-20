@@ -126,6 +126,53 @@ func DeploymentManagerActivity(ctx context.Context, input DeploymentManagerInput
 	return result, nil
 }
 
+// DeliverAgentMessage implementation
+func DeliverAgentMessage(ctx context.Context, message AgentMessage) (string, error) {
+	logger := activity.GetLogger(ctx)
+	logger.Info("Delivering agent message", 
+		"FromAgent", message.FromAgent, 
+		"ToAgent", message.ToAgent, 
+		"MessageID", message.ID)
+	
+	// Simulate message delivery to target agent
+	// In real implementation, this would:
+	// 1. Look up target agent's endpoint via service discovery
+	// 2. Send HTTP/gRPC message to target agent
+	// 3. Store message in message queue for reliability
+	
+	deliveryStatus := fmt.Sprintf("Message %s delivered from %s to %s", message.ID, message.FromAgent, message.ToAgent)
+	
+	logger.Info("Agent message delivered", "MessageID", message.ID, "Status", "delivered")
+	return deliveryStatus, nil
+}
+
+// WaitForAgentResponse implementation
+func WaitForAgentResponse(ctx context.Context, waiter ResponseWaiter) (string, error) {
+	logger := activity.GetLogger(ctx)
+	logger.Info("Waiting for agent response", 
+		"MessageID", waiter.MessageID, 
+		"FromAgent", waiter.FromAgent, 
+		"ToAgent", waiter.ToAgent)
+	
+	// Simulate waiting for response with timeout
+	// In real implementation, this would:
+	// 1. Check message queue for response
+	// 2. Poll response endpoint
+	// 3. Handle timeout scenarios
+	
+	select {
+	case <-time.After(waiter.Timeout):
+		return "", fmt.Errorf("timeout waiting for response to message %s", waiter.MessageID)
+	case <-ctx.Done():
+		return "", fmt.Errorf("context cancelled while waiting for response to message %s", waiter.MessageID)
+	default:
+		// Simulate successful response
+		response := fmt.Sprintf("Response from %s to %s for message %s", waiter.FromAgent, waiter.ToAgent, waiter.MessageID)
+		logger.Info("Agent response received", "MessageID", waiter.MessageID, "Response", response)
+		return response, nil
+	}
+}
+
 // Helper function to call memory agent (placeholder for now)
 func callMemoryAgent(ctx context.Context, action string, input interface{}) (string, error) {
 	// This would make HTTP call to agent-memory-rust:8080
@@ -147,11 +194,21 @@ func RegisterAgentActivities(workflow workflow.Workflow) {
 	
 	workflow.RegisterActivityWithOptions(AgentActivities{}.ClusterMonitorActivity, activity.RegisterOptions{
 		Name:        "ClusterMonitorActivity",
-		Description: "Monitor cluster health and performance metrics",
+		Description: "Monitor cluster health and metrics",
 	})
 	
 	workflow.RegisterActivityWithOptions(AgentActivities{}.DeploymentManagerActivity, activity.RegisterOptions{
 		Name:        "DeploymentManagerActivity",
-		Description: "Manage application deployments and rollouts",
+		Description: "Manage application deployments and rollbacks",
+	})
+	
+	workflow.RegisterActivityWithOptions(AgentActivities{}.DeliverAgentMessage, activity.RegisterOptions{
+		Name:        "DeliverAgentMessage",
+		Description: "Deliver messages between agents",
+	})
+	
+	workflow.RegisterActivityWithOptions(AgentActivities{}.WaitForAgentResponse, activity.RegisterOptions{
+		Name:        "WaitForAgentResponse",
+		Description: "Wait for agent responses with timeout",
 	})
 }

@@ -1,0 +1,213 @@
+# Backwards Compatibility Layer for Terraform to Crossplane Migration
+---
+# Terraform State Importer Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: terraform-state-importer
+  namespace: crossplane-system
+  labels:
+    app: terraform-migration
+    phase: "compatibility"
+spec:
+  template:
+    metadata:
+      labels:
+        app: terraform-state-importer
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: importer
+        image: hashicorp/terraform:1.5.7
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Import existing Terraform resources into Crossplane
+          echo "Starting Terraform state import for Crossplane migration..."
+          
+          # AWS Resources Import
+          if [ -f "/tf-state/aws/terraform.tfstate" ]; then
+            echo "Importing AWS resources..."
+            terraform init /tf-aws
+            terraform state pull > /shared/aws-current-state.json
+            
+            # Import VPC
+            VPC_ID=$(terraform state pull | jq -r '.values[] | select(.type == "aws_vpc") | .instances[0].attributes.id')
+            if [ ! -z "$VPC_ID" ]; then
+              crossplane beta import vpc.aws.upbound.io vpc-$VPC_ID $VPC_ID
+            fi
+          fi
+          
+          # Azure Resources Import
+          if [ -f "/tf-state/azure/terraform.tfstate" ]; then
+            echo "Importing Azure resources..."
+            terraform init /tf-azure
+            terraform state pull > /shared/azure-current-state.json
+            
+            # Import Virtual Network
+            VNET_ID=$(terraform state pull | jq -r '.values[] | select(.type == "azurerm_virtual_network") | .instances[0].attributes.id')
+            if [ ! -z "$VNET_ID" ]; then
+              crossplane beta import virtualnetwork.azure.upbound.io vnet-$VNET_ID $VNET_ID
+            fi
+          fi
+          
+          # GCP Resources Import
+          if [ -f "/tf-state/gcp/terraform.tfstate" ]; then
+            echo "Importing GCP resources..."
+            terraform init /tf-gcp
+            terraform state pull > /shared/gcp-current-state.json
+            
+            # Import Network
+            NETWORK_ID=$(terraform state pull | jq -r '.values[] | select(.type == "google_compute_network") | .instances[0].attributes.id')
+            if [ ! -z "$NETWORK_ID" ]; then
+              crossplane beta import network.gcp.upbound.io network-$NETWORK_ID $NETWORK_ID
+            fi
+          fi
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_secret_access_key
+        - name: AZURE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: azure-credentials
+              key: client_id
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: azure-credentials
+              key: client_secret
+        - name: AZURE_SUBSCRIPTION_ID
+          valueFrom:
+            secretKeyRef:
+              name: azure-credentials
+              key: subscription_id
+        - name: AZURE_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: azure-credentials
+              key: tenant_id
+        - name: GCP_PROJECT_ID
+          valueFrom:
+            secretKeyRef:
+              name: gcp-credentials
+              key: project_id
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          valueFrom:
+            secretKeyRef:
+              name: gcp-credentials
+              key: credentials
+        volumeMounts:
+        - name: tf-state
+          mountPath: /tf-state
+          readOnly: true
+        - name: shared
+          mountPath: /shared
+      volumes:
+      - name: tf-state
+        configMap:
+          name: terraform-state-config
+      - name: shared
+        emptyDir: {}
+---
+# Terraform State ConfigMap (placeholder)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: terraform-state-config
+  namespace: crossplane-system
+  labels:
+    app: terraform-migration
+    phase: "compatibility"
+data:
+  aws.tfstate: |
+    # AWS Terraform state will be mounted here
+    # This should be replaced with actual state during migration
+  azure.tfstate: |
+    # Azure Terraform state will be mounted here
+    # This should be replaced with actual state during migration
+  gcp.tfstate: |
+    # GCP Terraform state will be mounted here
+    # This should be replaced with actual state during migration
+---
+# Resource State Sync ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resource-state-sync
+  namespace: crossplane-system
+  labels:
+    app: terraform-migration
+    phase: "compatibility"
+data:
+  sync-config.yaml: |
+    # Configuration for syncing Terraform and Crossplane state
+    sync:
+      enabled: true
+      interval: "5m"
+      providers:
+        aws:
+          terraform_state_file: "/tf-state/aws/terraform.tfstate"
+          crossplane_resources:
+            - "vpc.aws.upbound.io"
+            - "subnet.aws.upbound.io"
+            - "eks.aws.upbound.io"
+            - "rds.aws.upbound.io"
+        azure:
+          terraform_state_file: "/tf-state/azure/terraform.tfstate"
+          crossplane_resources:
+            - "virtualnetwork.azure.upbound.io"
+            - "subnet.azure.upbound.io"
+            - "kubernetescluster.azure.upbound.io"
+            - "postgresqlflexibleserver.azure.upbound.io"
+        gcp:
+          terraform_state_file: "/tf-state/gcp/terraform.tfstate"
+          crossplane_resources:
+            - "network.gcp.upbound.io"
+            - "subnetwork.gcp.upbound.io"
+            - "containercluster.gcp.upbound.io"
+            - "sqlinstance.gcp.upbound.io"
+    validation:
+      enabled: true
+      drift_detection: true
+      auto_reconcile: false
+---
+# Migration Status ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-status
+  namespace: crossplane-system
+  labels:
+    app: terraform-migration
+    phase: "compatibility"
+data:
+  status.json: |
+    {
+      "phase": "backwards_compatibility",
+      "terraform_resources": {
+        "aws": "managed",
+        "azure": "managed", 
+        "gcp": "managed"
+      },
+      "crossplane_resources": {
+        "aws": "importing",
+        "azure": "importing",
+        "gcp": "importing"
+      },
+      "migration_progress": {
+        "networks": 0,
+        "kubernetes": 0,
+        "databases": 0,
+        "storage": 0
+      },
+      "last_sync": "2026-03-20T00:00:00Z"
+    }
