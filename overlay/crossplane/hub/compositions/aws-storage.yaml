@@ -1,0 +1,79 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-storage
+  labels:
+    provider: aws
+    resource: storage
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: aws-s3-bucket
+    base:
+      apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        forProvider:
+          region: us-west-2
+          acl: private
+          versioningConfiguration:
+            status: Enabled
+          publicAccessBlockConfiguration:
+            blockPublicAcls: true
+            blockPublicPolicy: true
+            ignorePublicAcls: true
+            restrictPublicBuckets: true
+          tags:
+            Name: multicloud-storage
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.versioning"
+      toFieldPath: "spec.forProvider.versioningConfiguration.status"
+      transforms:
+        - type: string
+          string:
+            fmt: "%s"
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.bucket"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloud-storage-%s"
+  - name: aws-s3-bucket-policy
+    base:
+      apiVersion: s3.aws.upbound.io/v1beta1
+      kind: BucketPolicy
+      spec:
+        forProvider:
+          region: us-west-2
+          bucketSelector:
+            matchControllerRef: true
+          policy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "AllowSSLRequestsOnly",
+                  "Action": "s3:*",
+                  "Effect": "Deny",
+                  "Resource": [
+                    "arn:aws:s3:::multicloud-storage-*",
+                    "arn:aws:s3:::multicloud-storage-*/*"
+                  ],
+                  "Condition": {
+                    "Bool": {
+                      "aws:SecureTransport": "false"
+                    }
+                  },
+                  "Principal": "*"
+                }
+              ]
+            }
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system

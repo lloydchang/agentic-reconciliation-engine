@@ -1,0 +1,97 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: storagebuckets.storage.aws
+  labels:
+    provider: aws
+    category: storage
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: storage.aws/v1alpha1
+    kind: StorageBucket
+  resources:
+  - name: bucket
+    base:
+      apiVersion: s3.aws.crossplane.io/v1beta1
+      kind: Bucket
+      spec:
+        forProvider:
+          location: ${this.region}
+          versioningConfiguration:
+            status: ${this.versioningEnabled ? "Enabled" : "Suspended"}
+          serverSideEncryptionConfiguration:
+            rules:
+            - applyServerSideEncryptionByDefault:
+                sseAlgorithm: ${this.encryption}
+                # If KMS, include KMSMasterKeyID
+          lifecycleRules:
+            ${#each rule in this.lifecycleRules}
+            - id: ${rule.id}
+              enabled: ${rule.enabled}
+              expirationInDays: ${rule.expirationDays}
+              transitions:
+                ${#each transition in rule.transitions}
+                - days: ${transition.days}
+                  storageClass: ${transition.storageClass}
+                ${/each}
+            ${/each}
+          corsRules:
+            ${#each rule in this.corsRules}
+            - allowedOrigins: ${rule.allowedOrigins}
+              allowedMethods: ${rule.allowedMethods}
+            ${/each}
+          tags:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+            ${#each key, value in this.tags}
+            ${key}: "${value}"
+            ${/each}
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.bucketName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.versioningEnabled
+      toFieldPath: spec.forProvider.versioningConfiguration.status
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.encryption
+      toFieldPath: spec.forProvider.serverSideEncryptionConfiguration.rules[0].applyServerSideEncryptionByDefault.sseAlgorithm
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.deletionProtection
+      toFieldPath: spec.deletionPolicy
+    # If KMS encryption, patch KMS key
+    - type: ToFieldPath
+      fromFieldPath: spec.kmsKeyID
+      toFieldPath: spec.forProvider.serverSideEncryptionConfiguration.rules[0].applyServerSideEncryptionByDefault.kmsMasterKeyID
+      policy:
+        fromFieldPath: Required
+
+  # Resource options: bucket policy, ACL, public access block
+  # These can be added as additional resources in the composition
+
+---
+# Example Claim:
+# apiVersion: storage.aws/v1alpha1
+# kind: StorageBucketClaim
+# metadata:
+#   name: ai-portal-backups
+#   namespace: team-a
+# spec:
+#   bucketName: ai-portal-backups-unique-name-12345
+#   region: us-west-2
+#   versioningEnabled: true
+#   encryption: AES256
+#   lifecycleRules:
+#   - id: cleanup-old-backups
+#     enabled: true
+#     expirationDays: 90
+#   tags:
+#     Purpose: "backups"
+#     Environment: "production"

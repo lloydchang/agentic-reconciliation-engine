@@ -1,0 +1,97 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: rdsinstances.database.aws
+  labels:
+    provider: aws
+    category: database
+    managed-by: crossplane
+spec:
+  group: database.aws
+  names:
+    kind: RDSInstance
+    plural: rdsinstances
+    singular: rdsinstance
+  claimNames:
+    kind: RDSInstanceClaim
+    plural: rdsinstanceclaims
+    singular: rdsinstanceclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                default: us-west-2
+              engine:
+                type: string
+                enum: [postgres, mysql, aurora-postgresql, aurora-mysql]
+                default: postgres
+              version:
+                type: string
+                default: "15.4"
+              instanceClass:
+                type: string
+                default: db.t3.medium
+              allocatedStorage:
+                type: integer
+                default: 20
+                minimum: 20
+                maximum: 65536
+              storageType:
+                type: string
+                default: gp2
+                enum: [gp2, gp3, io1, io2, standard]
+              multiAZ:
+                type: boolean
+                default: false
+              dbName:
+                type: string
+                description: Initial database name
+              username:
+                type: string
+                description: Master username
+              password:
+                type: string
+                description: Master password (will be stored in secret)
+              publiclyAccessible:
+                type: boolean
+                default: false
+              vpcSecurityGroupIds:
+                type: array
+                items:
+                  type: string
+                description: Security group IDs (if empty, create new)
+                default: []
+              dbSubnetGroupName:
+                type: string
+                description: Subnet group name (if empty, create new)
+              backupRetentionDays:
+                type: integer
+                default: 7
+                minimum: 0
+                maximum: 35
+              maintenanceWindow:
+                type: string
+                default: "Mon:00:00-Mon:03:00"
+                description: Weekly maintenance window
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+              deletionProtection:
+                type: boolean
+                default: false
+            required: ["engine", "instanceClass", "allocatedStorage", "username", "password"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

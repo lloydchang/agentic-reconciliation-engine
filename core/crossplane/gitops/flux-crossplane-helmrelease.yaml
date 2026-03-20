@@ -1,0 +1,110 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: crossplane
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: helmrelease
+    app.kubernetes.io/part-of: flux-system
+spec:
+  interval: 5m
+  releaseName: crossplane
+  chart:
+    spec:
+      chart: crossplane
+      version: "1.14.0"
+      sourceRef:
+        kind: HelmRepository
+        name: crossplane-stable
+        namespace: flux-system
+  values:
+    rbac:
+      create: true
+    securityContext:
+      runAsUser: 2000
+      runAsGroup: 2000
+    resourcesCrossplane:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    resourcesRBACManager:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    packaging:
+      namespace: crossplane-system
+      policy: always
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: crossplane-providers
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane-providers
+    app.kubernetes.io/component: helmrelease
+    app.kubernetes.io/part-of: flux-system
+spec:
+  interval: 5m
+  releaseName: crossplane-providers
+  chart:
+    spec:
+      chart: crossplane-providers
+      version: "0.1.0"
+      sourceRef:
+        kind: HelmRepository
+        name: crossplane-providers
+        namespace: flux-system
+  values:
+    aws:
+      enabled: true
+      package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.0
+    azure:
+      enabled: true
+      package: xpkg.upbound.io/upbound/provider-family-azure:v1.2.0
+    gcp:
+      enabled: true
+      package: xpkg.upbound.io/upbound/provider-family-gcp:v1.2.0
+    rbac:
+      create: true
+    securityContext:
+      runAsUser: 2000
+      runAsGroup: 2000
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crossplane-resources
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: crossplane-resources
+    app.kubernetes.io/component: kustomization
+    app.kubernetes.io/part-of: flux-system
+spec:
+  interval: 10m
+  path: ./core/crossplane
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  targetNamespace: crossplane-system
+  postBuild:
+    substitute:
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      AZURE_CLIENT_ID: "${AZURE_CLIENT_ID}"
+      AZURE_CLIENT_SECRET: "${AZURE_CLIENT_SECRET}"
+      AZURE_SUBSCRIPTION_ID: "${AZURE_SUBSCRIPTION_ID}"
+      AZURE_TENANT_ID: "${AZURE_TENANT_ID}"
+      GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
+      GCP_PRIVATE_KEY_ID: "${GCP_PRIVATE_KEY_ID}"
+      GCP_PRIVATE_KEY: "${GCP_PRIVATE_KEY}"
+      GCP_CLIENT_EMAIL: "${GCP_CLIENT_EMAIL}"
+      GCP_CLIENT_ID: "${GCP_CLIENT_ID}"

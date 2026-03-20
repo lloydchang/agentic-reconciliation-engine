@@ -1,0 +1,89 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: kubernetesclusters.platform.azure
+  labels:
+    provider: azure
+    category: compute
+    managed-by: crossplane
+spec:
+  group: platform.azure
+  names:
+    kind: KubernetesCluster
+    plural: kubernetesclusters
+    singular: kubernetescluster
+  claimNames:
+    kind: KubernetesClusterClaim
+    plural: kubernetesclusterclaims
+    singular: kubernetesclusterclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+                default: eastus
+              resourceGroupName:
+                type: string
+                description: Azure resource group (will be created if not exists)
+              kubernetesVersion:
+                type: string
+                default: "1.28"
+              nodePools:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    vmSize:
+                      type: string
+                      default: "Standard_D2s_v3"
+                    count:
+                      type: integer
+                      default: 3
+                    mode:
+                      type: string
+                      default: "User"
+                      enum: [User, System]
+                    osDiskSizeGB:
+                      type: integer
+                      default: 128
+                    maxPods:
+                      type: integer
+                      default: 110
+                description: AKS node pools
+              networkPlugin:
+                type: string
+                default: "azure"
+                enum: [azure, kubenet, none]
+              networkPolicy:
+                type: string
+                default: "azure"
+                enum: [calico, azure, none]
+              enableRBAC:
+                type: boolean
+                default: true
+              enableAzureMonitor:
+                type: boolean
+                default: true
+              logAnalyticsWorkspaceResourceID:
+                type: string
+                description: Resource ID for Log Analytics workspace
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+            required: ["location", "resourceGroupName"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

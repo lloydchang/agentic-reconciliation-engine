@@ -1,0 +1,100 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: postgresqlinstances.database.azure
+  labels:
+    provider: azure
+    category: database
+    managed-by: crossplane
+spec:
+  group: database.azure
+  names:
+    kind: PostgreSQLInstance
+    plural: postgresqlinstances
+    singular: postgresqlinstance
+  claimNames:
+    kind: PostgreSQLInstanceClaim
+    plural: postgresqlinstanceclaims
+    singular: postgresqlinstanceclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+                default: eastus
+              resourceGroupName:
+                type: string
+              serverName:
+                type: string
+                description: PostgreSQL server name (must be unique)
+              version:
+                type: string
+                default: "15"
+                enum: ["11", "12", "13", "14", "15"]
+              sku:
+                type: string
+                default: "B_Standard_B1ms"
+                description: Azure PostgreSQL SKU
+              storageGB:
+                type: integer
+                default: 5
+                minimum: 5
+                maximum: 4096
+              backupRetentionDays:
+                type: integer
+                default: 7
+                minimum: 7
+                maximum: 35
+              highAvailability:
+                type: boolean
+                default: false
+              administrator:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  passwordSecretRef:
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    key:
+                      type: string
+                      default: password
+                required: ["username", "passwordSecretRef"]
+              databaseName:
+                type: string
+                description: Initial database name
+              subnetID:
+                type: string
+                description: Private endpoint subnet (for private access)
+              firewallRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    startIP:
+                      type: string
+                    endIP:
+                      type: string
+                description: Firewall rules
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+            required: ["resourceGroupName", "serverName", "administrator"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

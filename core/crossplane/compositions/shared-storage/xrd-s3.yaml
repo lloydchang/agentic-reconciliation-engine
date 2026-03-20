@@ -1,0 +1,97 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: storagebuckets.storage.aws
+  labels:
+    provider: aws
+    category: storage
+    managed-by: crossplane
+spec:
+  group: storage.aws
+  names:
+    kind: StorageBucket
+    plural: storagebuckets
+    singular: storagebucket
+  claimNames:
+    kind: StorageBucketClaim
+    plural: storagebucketclaims
+    singular: storagebucketclaim
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                default: us-west-2
+              bucketName:
+                type: string
+                description: Globally unique S3 bucket name
+              versioningEnabled:
+                type: boolean
+                default: true
+              encryption:
+                type: string
+                default: AES256
+                enum: [AES256, aws:kms]
+              kmsKeyID:
+                type: string
+                description: KMS Key ID if using KMS encryption
+              lifecycleRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    enabled:
+                      type: boolean
+                      default: true
+                    expirationDays:
+                      type: integer
+                    transitions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          days:
+                            type: integer
+                          storageClass:
+                            type: string
+                            enum: [STANDARD, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE]
+                description: S3 lifecycle rules
+              corsRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    allowedOrigins:
+                      type: array
+                      items:
+                        type: string
+                    allowedMethods:
+                      type: array
+                      items:
+                        type: string
+                        enum: [GET, PUT, POST, DELETE, HEAD]
+                description: CORS rules
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                description: Bucket tags
+                default: {}
+              deletionProtection:
+                type: boolean
+                default: false
+            required: ["bucketName"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

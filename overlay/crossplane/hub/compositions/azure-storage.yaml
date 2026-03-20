@@ -1,0 +1,55 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: azure-storage
+  labels:
+    provider: azure
+    resource: storage
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: azure-storage-account
+    base:
+      apiVersion: storage.azure.upbound.io/v1beta1
+      kind: Account
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          accountTier: Standard
+          accountReplicationType: LRS
+          tags:
+            Name: multicloud-storage
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.name"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloudstorage%s"
+  - name: azure-storage-container
+    base:
+      apiVersion: storage.azure.upbound.io/v1beta1
+      kind: Container
+      spec:
+        forProvider:
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          accountNameSelector:
+            matchControllerRef: true
+          name: multicloud-container
+          publicAccess: Container
+          metadata:
+            items:
+              - key: managed-by
+                value: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  writeConnectionSecretsToNamespace: crossplane-system

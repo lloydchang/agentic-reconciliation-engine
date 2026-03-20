@@ -1,0 +1,151 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: postgresqlinstances.database.azure
+  labels:
+    provider: azure
+    category: database
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: database.azure/v1beta1
+    kind: PostgreSQLInstance
+  resources:
+  # 1. PostgreSQL Flexible Server
+  - name: postgres-server
+    base:
+      apiVersion: database.azure.upbound.io/v1beta1
+      kind: PostgreSQLServer
+      spec:
+        forProvider:
+          location: ${this.location}
+          resourceGroupName: ${this.resourceGroupName}
+          version: ${this.version}
+          skuName: ${this.sku}
+          storageMB: ${this.storageGB * 1024}
+          backup:
+            backupRetentionDays: ${this.backupRetentionDays}
+            geoRedundantBackupEnabled: false
+          highAvailability:
+            mode: ${this.highAvailability ? "ZoneRedundant" : "Disabled"}
+          administratorLogin: ${this.administrator.username}
+          administratorLoginPasswordSecretRef:
+            name: ${this.administrator.passwordSecretRef.name}
+            namespace: ${this.administrator.passwordSecretRef.namespace}
+            key: ${this.administrator.passwordSecretRef.key}
+          sslEnforcement: "Enabled"
+          publicNetworkAccess: ${this.subnetID ? "Disabled" : "Enabled"}
+          tags:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.serverName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.version
+      toFieldPath: spec.forProvider.version
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.sku
+      toFieldPath: spec.forProvider.skuName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageGB
+      toFieldPath: spec.forProvider.storageMB
+      transforms:
+      - type: multiply
+        multiply: 1024
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.backupRetentionDays
+      toFieldPath: spec.forProvider.backup.backupRetentionDays
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.highAvailability
+      toFieldPath: spec.forProvider.highAvailability.mode
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+
+  # 2. Database within the server
+  - name: postgres-database
+    base:
+      apiVersion: database.azure.upbound.io/v1beta1
+      kind: PostgreSQLDatabase
+      spec:
+        forProvider:
+          serverName: ${postgres-server.name}
+          resourceGroupName: ${this.resourceGroupName}
+          charset: "UTF8"
+          collation: "en_US.utf8"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-db-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.databaseName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: postgres-server.name
+      toFieldPath: spec.forProvider.serverName
+
+  # 3. Firewall Rules (if no subnet private endpoint)
+  - name: postgres-firewall
+    base:
+      apiVersion: database.azure.upbound.io/v1beta1
+      kind: PostgreSQLFirewallRule
+      spec:
+        forProvider:
+          serverName: ${postgres-server.name}
+          resourceGroupName: ${this.resourceGroupName}
+          startIpAddress: "0.0.0.0"
+          endIpAddress: "255.255.255.255"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-fw-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+
+  # 4. VNet Integration (if subnetID provided for private endpoint)
+  - name: postgres-private-endpoint
+    base:
+      apiVersion: networking.azure.upbound.io/v1beta1
+      kind: PrivateEndpoint
+      spec:
+        forProvider:
+          location: ${this.location}
+          resourceGroupName: ${this.resourceGroupName}
+          subnetID: ${this.subnetID}
+          privateLinkServiceConnections:
+            - name: postgres-connection
+              privateLinkServiceID: ""  # Will be filled by postgres-server ID
+              groupIds:
+                - postgresqlServer
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-pe-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: this.subnetID
+      toFieldPath: spec.forProvider.subnetID
+    # Link to PostgreSQL server
+    - type: ToFieldPath
+      fromFieldPath: postgres-server.id
+      toFieldPath: spec.forProvider.privateLinkServiceConnections[0].privateLinkServiceID

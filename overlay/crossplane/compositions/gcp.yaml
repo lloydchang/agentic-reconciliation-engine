@@ -1,0 +1,291 @@
+# GCP Provider Compositions
+# GCP Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-gcp
+  labels:
+    provider: gcp
+    resource: network
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: network
+    base:
+      apiVersion: compute.gcp.crossplane.io/v1beta1
+      kind: Network
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          autoCreateSubnetworks: false
+          routingMode: "REGIONAL"
+          labels:
+            Name: "agentic-reconciliation-network"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.labels.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.labels.Name"
+  - name: subnet1
+    base:
+      apiVersion: compute.gcp.crossplane.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          region: "us-central1"
+          ipCidrRange: "10.0.1.0/24"
+          networkNameSelector:
+            matchControllerRef: true
+          labels:
+            Name: "agentic-reconciliation-subnet-1"
+            Type: "Private"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.networkNameSelector.matchControllerRef"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.labels.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-subnet-1"
+  - name: subnet2
+    base:
+      apiVersion: compute.gcp.crossplane.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          region: "us-central1"
+          ipCidrRange: "10.0.2.0/24"
+          networkNameSelector:
+            matchControllerRef: true
+          labels:
+            Name: "agentic-reconciliation-subnet-2"
+            Type: "Private"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.networkNameSelector.matchControllerRef"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.labels.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-subnet-2"
+---
+# GCP Compute Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcompute-gcp
+  labels:
+    provider: gcp
+    resource: compute
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: instance
+    base:
+      apiVersion: compute.gcp.crossplane.io/v1beta1
+      kind: Instance
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          zone: "us-central1-a"
+          machineType: "e2-medium"
+          disks:
+          - boot: true
+            autoDelete: true
+            initializeParams:
+              sourceImage: "projects/debian-cloud/global/images/family/debian-11"
+          networkInterfaces:
+          - network: "default"
+              accessConfigs:
+              - type: "ONE_TO_ONE_NAT"
+                name: "External NAT"
+          labels:
+            Name: "agentic-reconciliation-instance"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.zone"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-a"
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.machineType"
+    - fromFieldPath: "spec.image"
+      toFieldPath: "spec.forProvider.disks[0].initializeParams.sourceImage"
+    - fromFieldPath: "spec.networkId"
+      toFieldPath: "spec.forProvider.networkInterfaces[0].network"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.labels.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.labels.Name"
+    - fromFieldPath: "spec.tags"
+      toFieldPath: "spec.forProvider.labels"
+    connectionDetails:
+    - name: instanceId
+      fromConnectionSecretKey: instanceId
+    - name: publicIp
+      fromConnectionSecretKey: publicIp
+    - name: privateIp
+      fromConnectionSecretKey: privateIp
+---
+# GCP Storage Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xstorage-gcp
+  labels:
+    provider: gcp
+    resource: storage
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: bucket
+    base:
+      apiVersion: storage.gcp.crossplane.io/v1beta1
+      kind: Bucket
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "US-CENTRAL1"
+          uniformBucketLevelAccess: true
+          labels:
+            Name: "agentic-reconciliation-bucket"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.bucket"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.labels.Environment"
+    - fromFieldPath: "spec.encryption"
+      toFieldPath: "spec.forProvider.defaultObjectAccessControl.uniformBucketLevelAccess"
+    - fromFieldPath: "spec.versioning"
+      toFieldPath: "spec.forProvider.versioning.enabled"
+    connectionDetails:
+    - name: bucketName
+      fromConnectionSecretKey: bucketName
+    - name: endpoint
+      fromConnectionSecretKey: selfLink
+---
+# GCP Database Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-gcp
+  labels:
+    provider: gcp
+    resource: database
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  resources:
+  - name: database
+    base:
+      apiVersion: sql.gcp.crossplane.io/v1beta1
+      kind: DatabaseInstance
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          region: "us-central1"
+          databaseVersion: "POSTGRES_13"
+          settings:
+            tier: "db-f1-micro"
+            dataDiskSizeGb: 10
+            backupConfiguration:
+              enabled: true
+              pointInTimeRecoveryEnabled: true
+              backupRetentionSettings:
+                retainedBackupsCount: 7
+            ipConfiguration:
+              ipv4Enabled: true
+              authorizedNetworks:
+              - name: "allow-all"
+                value: "0.0.0.0/0"
+          labels:
+            Name: "agentic-reconciliation-db"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+    - fromFieldPath: "spec.engine"
+      toFieldPath: "spec.forProvider.databaseVersion"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "postgresql": "POSTGRES_13"
+            "mysql": "MYSQL_8_0"
+            "mongodb": "MONGODB_4_4"
+    - fromFieldPath: "spec.instanceClass"
+      toFieldPath: "spec.forProvider.settings.tier"
+    - fromFieldPath: "spec.storageSize"
+      toFieldPath: "spec.forProvider.settings.dataDiskSizeGb"
+    - fromFieldPath: "spec.backupRetention"
+      toFieldPath: "spec.forProvider.settings.backupConfiguration.backupRetentionSettings.retainedBackupsCount"
+    - fromFieldPath: "spec.highAvailability"
+      toFieldPath: "spec.forProvider.settings.availabilityType"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "true": "REGIONAL"
+            "false": "ZONAL"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.labels.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.labels.Name"
+    connectionDetails:
+    - name: databaseId
+      fromConnectionSecretKey: name
+    - name: endpoint
+      fromConnectionSecretKey: publicIpAddress
+    - name: port
+      fromConnectionSecretKey: databasePort

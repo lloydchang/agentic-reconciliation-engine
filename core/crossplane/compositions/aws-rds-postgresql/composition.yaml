@@ -1,0 +1,165 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: rdsinstances.database.aws
+  labels:
+    provider: aws
+    category: database
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: database.aws/v1beta1
+    kind: RDSInstance
+  resources:
+  # 1. DB Subnet Group (if not provided)
+  - name: db-subnet-group
+    base:
+      apiVersion: database.aws.crossplane.io/v1beta1
+      kind: DBSubnetGroup
+      spec:
+        forProvider:
+          dbSubnetGroupDescription: "DB subnet group for ${this.metadata.name}"
+          subnetIds: []  # Will be populated
+          tags:
+            Name: ${this.metadata.name}-subnet-group
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-subnet-group-conn
+          namespace: default
+    patches:
+    # Collect subnet IDs (assuming VPC already exists with private subnets)
+    # In practice, you'd pass subnet IDs via spec or look them up via Composition functions
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcSecurityGroupIds
+      toFieldPath: spec.forProvider.subnetIds
+      # Note: This is simplified - you'd need actual subnet IDs
+
+  # 2. Security Group (if not provided)
+  - name: db-security-group
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          groupDescription: "Security group for ${this.metadata.name}"
+          vpcId: ${vpc.id}  # Need to reference VPC (could be from parent composition)
+          ingress:
+            - fromPort: 5432
+              toPort: 5432
+              protocol: tcp
+              cidrBlocks: ["10.0.0.0/8"]  # Restrict to VPC CIDR
+          egress:
+            - fromPort: -1
+              toPort: -1
+              protocol: -1
+              cidrBlocks: ["0.0.0.0/0"]
+          tags:
+            Name: ${this.metadata.name}-sg
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-sg-conn
+          namespace: default
+    patches:
+    # In practice, you'd reference the cluster's VPC
+    # For now, this will need external provisioning or lookup
+
+  # 3. RDS Instance
+  - name: rds-instance
+    base:
+      apiVersion: database.aws.crossplane.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: ${this.region}
+          engine: postgres
+          engineVersion: "15.4"
+          dbInstanceClass: ${this.instanceClass}
+          allocatedStorage: ${this.allocatedStorage}
+          storageType: ${this.storageType}
+          masterUsername: ${this.username}
+          masterUserPasswordSecretRef:
+            name: ${this.metadata.name}-password
+            namespace: default
+            key: password
+          dbName: ${this.dbName}
+          multiAZ: ${this.multiAZ}
+          publiclyAccessible: ${this.publiclyAccessible}
+          dbSubnetGroupName: ${db-subnet-group.name}
+          vpcSecurityGroupIds: []  # Will be filled with SG ID
+          backupRetentionPeriod: ${this.backupRetentionDays}
+          preferredBackupWindow: "03:00-06:00"
+          preferredMaintenanceWindow: ${this.maintenanceWindow}
+          skipFinalSnapshotBeforeDeletion: false
+          finalDBSnapshotIdentifier: "${this.metadata.name}-final-snapshot"
+          tags:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.engine
+      toFieldPath: spec.forProvider.engine
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.version
+      toFieldPath: spec.forProvider.engineVersion
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceClass
+      toFieldPath: spec.forProvider.dbInstanceClass
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.allocatedStorage
+      toFieldPath: spec.forProvider.allocatedStorage
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageType
+      toFieldPath: spec.forProvider.storageType
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.username
+      toFieldPath: spec.forProvider.masterUsername
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.dbName
+      toFieldPath: spec.forProvider.dbName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.multiAZ
+      toFieldPath: spec.forProvider.multiAZ
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.publiclyAccessible
+      toFieldPath: spec.forProvider.publiclyAccessible
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.backupRetentionDays
+      toFieldPath: spec.forProvider.backupRetentionPeriod
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.maintenanceWindow
+      toFieldPath: spec.forProvider.preferredMaintenanceWindow
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.deletionProtection
+      toFieldPath: spec.deletionPolicy
+    # Set final snapshot before deletion
+    - type: ToCompositeFieldPath
+      fromFieldPath: spec.deletionPolicy
+      toFieldPath: spec.forProvider.finalDBSnapshotIdentifier
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-final-snapshot"
+  # 4. Create password secret (if not provided)
+  - name: db-password
+    base:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${this.metadata.name}-password
+        namespace: default
+      type: Opaque
+      stringData:
+        password: ${this.password}
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.password
+      toFieldPath: stringData.password

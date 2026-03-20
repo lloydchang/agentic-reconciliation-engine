@@ -1,0 +1,113 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind:CompositeResourceDefinition
+metadata:
+  name: gkeclusters.platform.gcp
+  labels:
+    provider: gcp
+    category: compute
+    managed-by: crossplane
+spec:
+  group: platform.gcp
+  names:
+    kind: GKECluster
+    plural: gkeclusters
+    singular: gkecluster
+  claimNames:
+    kind: GKEClusterClaim
+    plural: gkeclusterclaims
+    singular: gkeclusterclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+                default: us-central1
+                description: GCP region or zone for cluster
+              projectID:
+                type: string
+                description: GCP project ID (if not set, uses provider default)
+              network:
+                type: string
+                default: "default"
+                description: VPC network name
+              subnetwork:
+                type: string
+                description: Subnetwork name (must exist in provided network)
+              clusterVersion:
+                type: string
+                default: "1.28"
+              autopilot:
+                type: boolean
+                default: true
+                description: Use GKE Autopilot (serverless) mode
+              nodePools:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    machineType:
+                      type: string
+                      default: "e2-medium"
+                    diskSizeGB:
+                      type: integer
+                      default: 100
+                    minCount:
+                      type: integer
+                      default: 1
+                    maxCount:
+                      type: integer
+                      default: 3
+                    initialCount:
+                      type: integer
+                      default: 1
+                    maxPodsPerNode:
+                      type: integer
+                      default: 110
+                  description: Node pools for standard (non-autopilot) clusters
+              ipAllocationPolicy:
+                type: object
+                properties:
+                  clusterSecondaryRangeName:
+                    type: string
+                  servicesSecondaryRangeName:
+                    type: string
+                  clusterIpv4Cidr:
+                    type: string
+                  servicesIpv4Cidr:
+                    type: string
+                description: IP allocation for pods and services
+              privateCluster:
+                type: boolean
+                default: false
+                description: Enable private cluster (no public endpoint)
+              masterIpv4CidrBlock:
+                type: string
+                default: "172.16.0.0/28"
+                description: CIDR block for master endpoints (private clusters)
+              enableWorkloadIdentity:
+                type: boolean
+                default: true
+                description: Enable GKE Workload Identity
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+              deletionProtection:
+                type: boolean
+                default: false
+            required: ["location"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

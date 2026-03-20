@@ -1,0 +1,129 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: kubernetesclusters.platform.azure
+  labels:
+    provider: azure
+    category: compute
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: platform.azure/v1beta1
+    kind: KubernetesCluster
+  resources:
+  # 1. Resource Group (if not using existing)
+  - name: resource-group
+    base:
+      apiVersion: resource.azure.upbound.io/v1beta1
+      kind: ResourceGroup
+      spec:
+        forProvider:
+          location: ${this.location}
+          tags:
+            Name: ${this.metadata.name}-rg
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-rg-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+
+  # 2. AKS Cluster
+  - name: aks-cluster
+    base:
+      apiVersion: platform.azure.upbound.io/v1beta1
+      kind: KubernetesCluster
+      spec:
+        forProvider:
+          location: ${this.location}
+          resourceGroupName: ${resource-group.name}
+          kubernetesVersion: ${this.kubernetesVersion}
+          defaultNodePool:
+            name: ${this.nodePools[0].name}
+            vmSize: ${this.nodePools[0].vmSize}
+            nodeCount: ${this.nodePools[0].count}
+            osDiskSizeGB: ${this.nodePools[0].osDiskSizeGB}
+            maxPods: ${this.nodePools[0].maxPods}
+            mode: ${this.nodePools[0].mode}
+            vnetSubnetID: ""  # Will be filled by VNet resource
+          networkProfile:
+            networkPlugin: ${this.networkPlugin}
+            networkPolicy: ${this.networkPolicy}
+            loadBalancerSku: "standard"
+          identity:
+            type: SystemAssigned
+          azureActiveDirectory:
+            enabled: false
+          omsAgent:
+            enabled: ${this.enableAzureMonitor}
+            logAnalyticsWorkspaceResourceID: ${this.logAnalyticsWorkspaceResourceID}
+          tags:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.kubernetesVersion
+      toFieldPath: spec.forProvider.kubernetesVersion
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodePools[0].name
+      toFieldPath: spec.forProvider.defaultNodePool.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodePools[0].vmSize
+      toFieldPath: spec.forProvider.defaultNodePool.vmSize
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodePools[0].count
+      toFieldPath: spec.forProvider.defaultNodePool.nodeCount
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.enableAzureMonitor
+      toFieldPath: spec.forProvider.omsAgent.enabled
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+
+  # 3. VNet (if needed)
+  - name: vnet
+    base:
+      apiVersion: networking.azure.upbound.io/v1beta1
+      kind: VirtualNetwork
+      spec:
+        forProvider:
+          location: ${this.location}
+          resourceGroupName: ${resource-group.name}
+          addressSpace:
+            - 10.0.0.0/16
+          subnets:
+            - name: ${this.metadata.name}-aks-subnet
+              addressPrefix: 10.0.0.0/24
+              serviceEndpoints:
+                - Microsoft.ContainerRegistry
+            - name: ${this.metadata.name}-pod-subnet
+              addressPrefix: 10.0.1.0/24
+            - name: ${this.metadata.name}-svc-subnet
+              addressPrefix: 10.0.2.0/24
+          tags:
+            Name: ${this.metadata.name}-vnet
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-vnet-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.resourceGroupName
+      toFieldPath: spec.forProvider.resourceGroupName
