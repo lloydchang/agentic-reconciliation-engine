@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./core/scripts/automation/quickstart.sh)",
+      "Bash(kubectl get:*)"
+    ]
+  }
+}

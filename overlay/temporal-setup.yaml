@@ -15,7 +15,7 @@ metadata:
   name: temporal-config
   namespace: ai-infrastructure
 data:
-  dynamicconfig.yaml: |
+  docker.yaml: |
     persistence:
       default:
         driver: sql
@@ -98,7 +98,8 @@ spec:
       containers:
       - name: temporal
         image: temporalio/server:1.22.0
-        command: ["/temporal-server"]
+        workingDir: /config
+        command: ["temporal-server", "start"]
         ports:
         - containerPort: 7233
         - containerPort: 9090
@@ -124,10 +125,10 @@ spec:
               name: temporal-secrets
         - name: TEMPORAL_HISTORY_DBNAME
           value: temporal
-        - name: TEMPORAL_VISIBILITY_DBNAME
-          value: temporal_visibility
+        - name: TEMPORAL_CONFIG_DIR
+          value: /config
         volumeMounts:
-        - mountPath: /etc/temporal
+        - mountPath: /config/config
           name: temporal-config
       volumes:
       - name: temporal-config
