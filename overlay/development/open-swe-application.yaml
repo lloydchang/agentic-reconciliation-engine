@@ -11,7 +11,7 @@ spec:
   project: development
   source:
     repoURL: https://github.com/lloydchang/agentic-reconciliation-engine
-    path: helm/open-swe
+    path: core/deploy/helm/open-swe
     targetRevision: HEAD
     helm:
       valueFiles:

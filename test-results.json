@@ -1,0 +1,278 @@
+{
+  "timestamp": "2026-03-20T00:29:36.234Z",
+  "summary": {
+    "total": 54,
+    "passed": 28,
+    "failed": 26,
+    "successRate": "51.85%"
+  },
+  "errors": [
+    "✗ /api/health/detailed - Expected 200, got 404",
+    "✗ /api/services - Expected 200, got 404",
+    "✗ /api/metrics - Expected 200, got 404",
+    "✗ /api/agents - Expected 200, got 404",
+    "✗ /api/skills - Expected 200, got 404",
+    "✗ /api/activity - Expected 200, got 404",
+    "✗ /api/alerts - Expected 200, got 404",
+    "✗ /api/metrics/history - Expected 200, got 404",
+    "✗ /api/metrics/prometheus - Expected 200, got 404",
+    "✗ /api/argocd/applications - Expected 200, got 404",
+    "✗ /api/langfuse/metrics - Expected 200, got 404",
+    "✗ POST /api/rag/query - Expected 200, got 404",
+    "✗ /api/agents - Expected 200, got 404",
+    "✗ /api/skills - Expected 200, got 404",
+    "✗ /api/services - Expected 200, got 404",
+    "✗ /api/argocd/applications - Expected 200, got 404",
+    "✗ ArgoCD integration failed or returned invalid data",
+    "✗ /api/langfuse/metrics - Expected 200, got 404",
+    "✗ Langfuse integration failed or returned invalid data",
+    "✗ /api/agents - Expected 200, got 404",
+    "✗ /api/services - Expected 200, got 404",
+    "✗ /api/metrics - Expected 200, got 404",
+    "✗ /api/services - Expected 200, got 404",
+    "✗ /api/agents - Expected 200, got 404",
+    "✗ /api/skills - Expected 200, got 404",
+    "✗ E2E: Missing critical data endpoints"
+  ],
+  "warnings": [
+    "⚠ Security header x-content-type-options missing or incorrect",
+    "⚠ Security header x-frame-options missing or incorrect",
+    "⚠ Security header x-xss-protection missing or incorrect",
+    "⚠ Unexpected response to malicious input",
+    "⚠ Unexpected response to malicious input",
+    "⚠ Unexpected response to malicious input"
+  ],
+  "performance": [
+    {
+      "endpoint": "/api/health",
+      "duration": 208,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health/detailed",
+      "duration": 14,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/services",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/metrics",
+      "duration": 2,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/agents",
+      "duration": 7,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/skills",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/activity",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/alerts",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/metrics/history",
+      "duration": 2,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/metrics/prometheus",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/argocd/applications",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/langfuse/metrics",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/rag/query",
+      "duration": 91,
+      "status": 404,
+      "method": "POST"
+    },
+    {
+      "endpoint": "/api/agents",
+      "duration": 2,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/skills",
+      "duration": 2,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/services",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/argocd/applications",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/langfuse/metrics",
+      "duration": 9,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/agents",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/services",
+      "duration": 2,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/metrics",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 3,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 3,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 3,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 3,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 3,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 2,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/health",
+      "duration": 1,
+      "status": 200
+    },
+    {
+      "endpoint": "/api/services",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/agents",
+      "duration": 1,
+      "status": 404
+    },
+    {
+      "endpoint": "/api/skills",
+      "duration": 0,
+      "status": 404
+    }
+  ]
+}

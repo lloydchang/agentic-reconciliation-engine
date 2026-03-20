@@ -4,8 +4,8 @@ This directory contains basic examples for getting started with the Agentic Reco
 
 ## Quick Start Examples
 
-1. **Basic Setup**: Run `./quickstart.sh` to get started
-2. **Overlay Mode**: Run `./overlay-quickstart.sh` for overlay-based setup
+1. **Basic Setup**: Run the environment-specific quickstart script
+2. **Overlay Mode**: Run the environment-specific overlay-quickstart script
 3. **Advanced**: See `overlay/examples/` directory for comprehensive examples
 
 ## Next Steps

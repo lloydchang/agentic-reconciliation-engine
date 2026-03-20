@@ -35,7 +35,7 @@ services:
       POSTGRES_SEEDS: postgres
       DYNAMIC_CONFIG_ROOT: /etc/temporal/config
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:7233/health || exit 1"]
+      test: ["CMD-SHELL", "tctl --address 127.0.0.1:7233 cluster health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -46,10 +46,10 @@ services:
       temporal:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8233:8080"
     environment:
       TEMPORAL_ADDRESS: temporal:7233
-      TEMPORAL_UI_PORT: 8080
+      TEMPORAL_UI_PORT: 8233
 
 volumes:
   postgres_data:

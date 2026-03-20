@@ -1,0 +1,41 @@
+# AI Infrastructure Portal - API Dockerfile
+FROM node:18-alpine AS base
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Production stage
+FROM base AS production
+
+# Create app user for security
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
+
+# Copy application code
+COPY --chown=appuser:appgroup real-data-api.js ./
+COPY --chown=appuser:appgroup service-integrator.js ./
+COPY --chown=appuser:appgroup auth-middleware.js ./
+COPY --chown=appuser:appgroup security-middleware.js ./
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 5001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5001/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"
+
+# Start application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "real-data-api.js"]

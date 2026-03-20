@@ -56,8 +56,8 @@ data:
         },
         "temporal_ui": {
           "status": "running",
-          "url": "http://localhost:7233",
-          "port": 7233
+          "url": "http://localhost:8233",
+          "port": 8233
         },
         "memory_service": {
           "status": "partial",
@@ -95,7 +95,7 @@ data:
         {
           "timestamp": "2026-03-19T15:43:00Z",
           "type": "info",
-          "message": "Temporal workflow orchestration active at http://localhost:7233",
+          "message": "Temporal workflow orchestration active at http://localhost:8233",
           "icon": "⏰"
         },
         {

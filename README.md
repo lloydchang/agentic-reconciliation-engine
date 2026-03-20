@@ -8,6 +8,75 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ---
 
+## AI Infrastructure Portal
+
+The AI Infrastructure Portal provides a comprehensive dashboard and API for monitoring and managing the Agentic Reconciliation Engine. It includes real-time metrics, agent status monitoring, service health checks, and integrations with external services like ArgoCD, Langfuse, Prometheus, and Elasticsearch.
+
+### Features
+
+- **Real-time Monitoring**: Live agent statuses, service health, and system metrics
+- **Dynamic Skills Repository**: Automatically populated from SKILL.md files
+- **External Service Integration**: ArgoCD, Langfuse, Prometheus, Elasticsearch, Git providers
+- **Advanced Analytics**: Historical metrics, trend analysis, and alerting
+- **Comprehensive API**: RESTful endpoints for all data and integrations
+- **Multi-deployment Support**: Docker Compose, Kubernetes, and bare-metal options
+
+### Quick Access
+
+- **Dashboard**: http://localhost:8081 (development)
+- **API**: http://localhost:5001/api (development)
+- **Health Check**: http://localhost:5001/api/health
+
+---
+
+## Deployment Options
+
+### 1. Docker Compose (Recommended for Development)
+
+```bash
+# Start all services with Docker Compose
+docker-compose -f docker-compose-portal.yaml up -d
+
+# Or use the convenience script
+./scripts/start-portal-docker.sh
+```
+
+This starts:
+- AI Infrastructure Portal (API + Dashboard)
+- Temporal server with UI
+- PostgreSQL database
+- Redis for caching
+- Prometheus for metrics
+- Grafana for visualization
+
+### 2. Kubernetes (Production)
+
+```bash
+# Deploy to Kubernetes cluster
+kubectl apply -f dashboard/overlay/dashboard-backend-k8s-real.yaml
+kubectl apply -f dashboard/overlay/dashboard-backend-code.yaml
+
+# Check deployment status
+kubectl get pods -l app=ai-infrastructure-portal
+```
+
+### 3. Bare Metal/VM
+
+```bash
+# Install dependencies
+npm install axios express cors helmet compression
+
+# Start services
+./scripts/start-real-services.sh
+
+# Access URLs:
+# Dashboard: http://localhost:8081
+# API: http://localhost:5001
+# Temporal UI: http://localhost:8080
+```
+
+---
+
 ### Separation of Concerns
 
 * **Agentic AI Layer (A):** [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [Qwen](https://www.alibabacloud.com/blog/qwen2-5-coder-series-powerful-diverse-practical_601765), [llama.cpp](https://github.com/ggml-org/llama.cpp), [SQLite](https://sqlite.org/), [Temporal](https://temporal.io/): Complex actions that stateless controllers cannot reconcile.
@@ -48,6 +117,9 @@ Each environment has an overlay version (e.g., `overlay-quickstart-local-kind.sh
 * [**Architecture**](./docs/OVERVIEW.md) — Deep dive into the escalation logic.
 * [**Skills Guide**](./docs/AGENTIC-AI-SKILLS-GUIDE.md) — Catalog of 98 autonomous capabilities.
 * [**Safety Rules**](./docs/CRITICAL-SAFETY-RULES-BEST-PRACTICES.md) — Operational best practices.
+* [**API Documentation**](./docs/API_REFERENCE.md) — Complete API reference for the portal.
+* [**Deployment Guide**](./docs/DEPLOYMENT.md) — Detailed deployment instructions.
+* [**Developer Guide**](./docs/DEVELOPER_SETUP.md) — Setup and contribution guide.
 
 ---
 

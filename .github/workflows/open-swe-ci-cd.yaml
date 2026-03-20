@@ -3,14 +3,14 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'helm/open-swe/**'
+      - 'core/deploy/helm/open-swe/**'
       - 'core/ai/runtime/**'
       - 'scripts/**'
       - '.github/workflows/**'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'helm/open-swe/**'
+      - 'core/deploy/helm/open-swe/**'
       - 'core/ai/runtime/**'
       - 'scripts/**'
       - '.github/workflows/**'
@@ -93,7 +93,7 @@ jobs:
 
     - name: Validate Kubernetes manifests
       run: |
-        find helm/open-swe/templates -name "*.yaml" -exec kubectl apply --dry-run=client {} \;
+        find core/deploy/helm/open-swe/templates -name "*.yaml" -exec kubectl apply --dry-run=client {} \;
 
   security:
     name: Security Scan
