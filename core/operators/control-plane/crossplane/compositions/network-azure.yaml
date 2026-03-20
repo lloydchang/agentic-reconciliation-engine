@@ -9,7 +9,31 @@ spec:
   compositeTypeRef:
     apiVersion: platform.example.com/v1alpha1
     kind: XNetwork
+  writeConnectionSecretsToNamespace: crossplane-system
   resources:
+    # Resource Group (should already exist, but include for completeness)
+    # Note: In production, resource group might be managed separately
+    - name: resource-group
+      base:
+        apiVersion: resources.azure.crossplane.io/v1beta1
+        kind: ResourceGroup
+        spec:
+          forProvider:
+            location: eastus
+            tags:
+              Name: placeholder
+              ManagedBy: crossplane
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+
+    # Virtual Network
     - name: vnet
       base:
         apiVersion: network.azure.crossplane.io/v1beta1
@@ -38,6 +62,138 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: metadata.name
           toFieldPath: spec.forProvider.tags.NetworkRef
+
+    # Public IP for NAT Gateway (if using NAT)
+    - name: nat-public-ip
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: PublicIPAddress
+        spec:
+          forProvider:
+            location: eastus
+            resourceGroupName: platform-rg
+            publicIPAllocationMethod: Static
+            sku: Standard
+            tags:
+              Name: placeholder-nat-pip
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+
+    # NAT Gateway
+    - name: nat-gateway
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: NatGateway
+        spec:
+          forProvider:
+            location: eastus
+            resourceGroupName: platform-rg
+            publicIpAddresses:
+              - ""  # Will patch to nat-public-ip name
+            sku: Standard
+            tags:
+              Name: placeholder-nat
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name  # Link to public IP
+          toFieldPath: spec.forProvider.publicIpAddresses[0]
+
+    # Network Security Group
+    - name: compute-nsg
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: NetworkSecurityGroup
+        spec:
+          forProvider:
+            location: eastus
+            resourceGroupName: platform-rg
+            securityRules:
+              - name: allow-internal
+                description: "Allow all internal VNet traffic"
+                priority: 100
+                direction: Inbound
+                access: Allow
+                protocol: "*"
+                sourceAddressPrefix: VirtualNetwork
+                sourcePortRange: "*"
+                destinationAddressPrefix: VirtualNetwork
+                destinationPortRange: "*"
+              - name: allow-ssh-from-vnet
+                description: "Allow SSH from VNet address space"
+                priority: 200
+                direction: Inbound
+                access: Allow
+                protocol: Tcp
+                sourceAddressPrefix: 10.0.0.0/8
+                sourcePortRange: "*"
+                destinationAddressPrefix: "*"
+                destinationPortRange: "22"
+              - name: deny-ssh-external
+                description: "Deny SSH from internet"
+                priority: 3000
+                direction: Inbound
+                access: Deny
+                protocol: Tcp
+                sourceAddressPrefix: Internet
+                sourcePortRange: "*"
+                destinationAddressPrefix: "*"
+                destinationPortRange: "22"
+            tags:
+              Name: placeholder-compute-nsg
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+
+    # Route Table (optional - Azure has default system routes, but we can add custom routes)
+    - name: custom-route-table
+      base:
+        apiVersion: network.azure.crossplane.io/v1beta1
+        kind: RouteTable
+        spec:
+          forProvider:
+            location: eastus
+            resourceGroupName: platform-rg
+            routes:
+              - name: default-to-nat
+                addressPrefix: 0.0.0.0/0
+                nextHopType: Internet  # Or "VirtualAppliance" if using NAT GW? Actually Azure NAT GW is implicit
+                nextHopIpAddress: ""  # Not needed for NAT GW
+            disableBgpRoutePropagation: false
+            tags:
+              Name: placeholder-rt
+          providerConfigRef:
+            name: azure-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.location
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.Name
+
+    # Subnets (keep existing three)
+    # Private subnets with NSG association and NAT gateway association
     - name: subnet
       base:
         apiVersion: network.azure.crossplane.io/v1beta1
@@ -47,6 +203,10 @@ spec:
             addressPrefix: 10.0.1.0/24
             virtualNetworkName: ""
             resourceGroupName: platform-rg
+            networkSecurityGroup:
+              name: ""  # Will patch to compute-nsg
+            natGateway:
+              name: ""  # Will patch to nat-gateway
           providerConfigRef:
             name: azure-provider
       patches:
@@ -56,6 +216,13 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[0]
           toFieldPath: spec.forProvider.addressPrefix
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name  # Link to NSG
+          toFieldPath: spec.forProvider.networkSecurityGroup.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name  # Link to NAT Gateway
+          toFieldPath: spec.forProvider.natGateway.name
+
     - name: subnet-2
       base:
         apiVersion: network.azure.crossplane.io/v1beta1
@@ -65,6 +232,10 @@ spec:
             addressPrefix: 10.0.2.0/24
             virtualNetworkName: ""
             resourceGroupName: platform-rg
+            networkSecurityGroup:
+              name: ""
+            natGateway:
+              name: ""
           providerConfigRef:
             name: azure-provider
       patches:
@@ -74,6 +245,13 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[1]
           toFieldPath: spec.forProvider.addressPrefix
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.networkSecurityGroup.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.natGateway.name
+
     - name: subnet-3
       base:
         apiVersion: network.azure.crossplane.io/v1beta1
@@ -83,6 +261,10 @@ spec:
             addressPrefix: 10.0.3.0/24
             virtualNetworkName: ""
             resourceGroupName: platform-rg
+            networkSecurityGroup:
+              name: ""
+            natGateway:
+              name: ""
           providerConfigRef:
             name: azure-provider
       patches:
@@ -92,3 +274,9 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[2]
           toFieldPath: spec.forProvider.addressPrefix
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.networkSecurityGroup.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.natGateway.name

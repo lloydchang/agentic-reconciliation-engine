@@ -9,7 +9,9 @@ spec:
   compositeTypeRef:
     apiVersion: platform.example.com/v1alpha1
     kind: XNetwork
+  writeConnectionSecretsToNamespace: crossplane-system
   resources:
+    # VPC (Network in GCP terminology)
     - name: vpc
       base:
         apiVersion: compute.gcp.crossplane.io/v1beta1
@@ -27,6 +29,132 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: metadata.name
           toFieldPath: spec.forProvider.labels.network-ref
+
+    # Cloud Router (for Cloud NAT)
+    - name: cloud-router
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Router
+        spec:
+          forProvider:
+            network: ""
+            region: us-central1
+            bgp:
+              asn: 64514
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+
+    # Cloud NAT (requires Cloud Router)
+    - name: cloud-nat
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: NatRouter
+        spec:
+          forProvider:
+            router: ""
+            region: us-central1
+            natIpAllocateOption: "AUTO_ONLY"
+            sourceSubnetworkIpRangesToNat: "ALL_SUBNETWORKS_ALL_IP_RANGES"
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.router
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+
+    # Firewall Rules (example: allow internal traffic, SSH from management CIDR)
+    - name: firewall-internal
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Firewall
+        spec:
+          forProvider:
+            network: ""
+            direction: "INGRESS"
+            priority: 1000
+            sourceRanges:
+              - 10.0.0.0/8
+            allowed:
+              - IPProtocol: tcp
+                ports:
+                  - "0-65535"
+              - IPProtocol: udp
+                ports:
+                  - "0-65535"
+              - IPProtocol: icmp
+            targetTags:
+              - internal
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+
+    - name: firewall-ssh
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Firewall
+        spec:
+          forProvider:
+            network: ""
+            direction: "INGRESS"
+            priority: 1001
+            sourceRanges:
+              - 10.0.0.0/8
+            allowed:
+              - IPProtocol: tcp
+                ports:
+                  - "22"
+            targetTags:
+              - ssh-access
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+
+    # Firewall rule to deny all external SSH (security best practice)
+    - name: firewall-deny-ssh-external
+      base:
+        apiVersion: compute.gcp.crossplane.io/v1beta1
+        kind: Firewall
+        spec:
+          forProvider:
+            network: ""
+            direction: "INGRESS"
+            priority: 2000
+            sourceRanges:
+              - "0.0.0.0/0"
+            denied:
+              - IPProtocol: tcp
+                ports:
+                  - "22"
+            targetTags:
+              - all
+          providerConfigRef:
+            name: gcp-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.network
+
+    # Custom route example: default route to internet gateway (auto-created by Cloud NAT? Actually Cloud NAT handles egress automatically)
+    # In GCP, Cloud NAT manages routes automatically. We may need a default route if not using Cloud NAT.
+    # For completeness, could add a route resource.
+
+    # Subnets (keep existing three)
     - name: subnet
       base:
         apiVersion: compute.gcp.crossplane.io/v1beta1
@@ -36,6 +164,7 @@ spec:
             region: us-central1
             ipCidrRange: 10.0.1.0/24
             network: ""
+            privateIpGoogleAccess: false  # Set true if need GCP APIs from private subnet
           providerConfigRef:
             name: gcp-provider
       patches:
@@ -48,6 +177,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[0]
           toFieldPath: spec.forProvider.ipCidrRange
+
     - name: subnet-2
       base:
         apiVersion: compute.gcp.crossplane.io/v1beta1
@@ -57,6 +187,7 @@ spec:
             region: us-central1
             ipCidrRange: 10.0.2.0/24
             network: ""
+            privateIpGoogleAccess: false
           providerConfigRef:
             name: gcp-provider
       patches:
@@ -69,6 +200,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[1]
           toFieldPath: spec.forProvider.ipCidrRange
+
     - name: subnet-3
       base:
         apiVersion: compute.gcp.crossplane.io/v1beta1
@@ -78,6 +210,7 @@ spec:
             region: us-central1
             ipCidrRange: 10.0.3.0/24
             network: ""
+            privateIpGoogleAccess: false
           providerConfigRef:
             name: gcp-provider
       patches:

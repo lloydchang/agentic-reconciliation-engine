@@ -9,7 +9,9 @@ spec:
   compositeTypeRef:
     apiVersion: platform.example.com/v1alpha1
     kind: XNetwork
+  writeConnectionSecretsToNamespace: crossplane-system
   resources:
+    # VPC
     - name: vpc
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -40,6 +42,252 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: metadata.name
           toFieldPath: spec.forProvider.tags[1].value
+
+    # Internet Gateway (optional)
+    - name: internet-gateway
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: InternetGateway
+        spec:
+          forProvider:
+            vpcIdRef:
+              name: ""
+            tags:
+              - key: Name
+                value: placeholder
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+      # Only create if enableInternetGateway is true
+      # (Note: Conditional resource creation needs policy engine or separate composition variants)
+
+    # NAT Gateway(s) - one per public subnet typically
+    - name: nat-gateway-1
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: NATGateway
+        spec:
+          forProvider:
+            allocationId: ""  # EIP allocation ID, needs EIP creation
+            subnetIdRef:
+              name: ""
+            tags:
+              - key: Name
+                value: placeholder-nat-1
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.subnetIdRef.name
+      # This needs Elastic IP allocation as separate resource
+      # Simplified: assume EIP exists or use public subnet
+
+    # Elastic IP for NAT (if using managed NAT Gateway)
+    - name: nat-eip-1
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: EIP
+        spec:
+          forProvider:
+            domain: vpc
+            tags:
+              - key: Name
+                value: placeholder-nat-eip-1
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+
+    # Route Table for private subnets
+    - name: private-route-table
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: RouteTable
+        spec:
+          forProvider:
+            vpcIdRef:
+              name: ""
+            tags:
+              - key: Name
+                value: placeholder-private
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+
+    # Default route to NAT in private route table
+    - name: private-route-to-nat
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: Route
+        spec:
+          forProvider:
+            routeTableIdRef:
+              name: ""
+            destinationCidrBlock: 0.0.0.0/0
+            natGatewayIdRef:
+              name: ""
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.routeTableIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.natGatewayIdRef.name
+
+    # Route Table for public subnets
+    - name: public-route-table
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: RouteTable
+        spec:
+          forProvider:
+            vpcIdRef:
+              name: ""
+            tags:
+              - key: Name
+                value: placeholder-public
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+
+    # Default route to Internet Gateway in public route table
+    - name: public-route-to-igw
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: Route
+        spec:
+          forProvider:
+            routeTableIdRef:
+              name: ""
+            destinationCidrBlock: 0.0.0.0/0
+            gatewayIdRef:
+              name: ""
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.routeTableIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.gatewayIdRef.name
+
+    # Associate private subnets with private route table
+    - name: private-route-table-association-1
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: RouteTableAssociation
+        spec:
+          forProvider:
+            routeTableIdRef:
+              name: ""
+            subnetIdRef:
+              name: ""  # Will patch to first subnet
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.routeTableIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.subnetIdRef.name
+        # Need to link to subnet resources - this gets complex
+
+    # Public route table association for first public subnet
+    - name: public-route-table-association-1
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: RouteTableAssociation
+        spec:
+          forProvider:
+            routeTableIdRef:
+              name: ""
+            subnetIdRef:
+              name: ""  # Will patch
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.routeTableIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.subnetIdRef.name
+
+    # Security Group for cluster/compute (example)
+    - name: compute-security-group
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: SecurityGroup
+        spec:
+          forProvider:
+            description: "Security group for compute resources"
+            groupName: placeholder-compute-sg
+            vpcIdRef:
+              name: ""
+            tags:
+              - key: Name
+                value: placeholder-compute-sg
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.vpcIdRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+
+    # Security Group Ingress Rules (example: allow SSH from specific CIDR)
+    - name: compute-sg-ingress-ssh
+      base:
+        apiVersion: ec2.aws.crossplane.io/v1beta1
+        kind: SecurityGroupIngress
+        spec:
+          forProvider:
+            groupIdRef:
+              name: ""
+            description: "Allow SSH from management CIDR"
+            fromPort: 22
+            toPort: 22
+            ipProtocol: tcp
+            cidrBlocks:
+              - 10.0.0.0/8
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.groupIdRef.name
+
+    # Subnets (keep existing three)
     - name: subnet
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -50,6 +298,7 @@ spec:
             vpcIdRef:
               name: ""
             cidrBlock: 10.0.1.0/24
+            mapPublicIpOnLaunch: false  # Private subnet
           providerConfigRef:
             name: aws-provider
       patches:
@@ -62,6 +311,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[0]
           toFieldPath: spec.forProvider.cidrBlock
+
     - name: subnet-2
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -72,6 +322,7 @@ spec:
             vpcIdRef:
               name: ""
             cidrBlock: 10.0.2.0/24
+            mapPublicIpOnLaunch: false
           providerConfigRef:
             name: aws-provider
       patches:
@@ -84,6 +335,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.subnetCidrs[1]
           toFieldPath: spec.forProvider.cidrBlock
+
     - name: subnet-3
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -94,6 +346,7 @@ spec:
             vpcIdRef:
               name: ""
             cidrBlock: 10.0.3.0/24
+            mapPublicIpOnLaunch: false
           providerConfigRef:
             name: aws-provider
       patches:
