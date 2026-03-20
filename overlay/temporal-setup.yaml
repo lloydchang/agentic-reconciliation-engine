@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: temporal-secrets
+  namespace: ai-infrastructure
+type: Opaque
+stringData:
+  DB_NAME: temporal
+  DB_PASSWORD: temporal
+  DB_USERNAME: temporal
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temporal-config
+  namespace: ai-infrastructure
+data:
+  dynamicconfig.yaml: |
+    persistence:
+      default:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres
+          port: 5432
+          database: temporal
+          user: temporal
+          password: temporal
+      visibility:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres
+          port: 5432
+          database: temporal_visibility
+          user: temporal
+          password: temporal
+    log:
+      level: info
+      output: stdout
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: temporal-postgres
+  namespace: ai-infrastructure
+spec:
+  serviceName: temporal-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-postgres
+  template:
+    metadata:
+      labels:
+        app: temporal-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: temporal
+        - name: POSTGRES_USER
+          value: temporal
+        - name: POSTGRES_PASSWORD
+          value: temporal
+        ports:
+        - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-postgres
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: temporal-postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-server
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-server
+  template:
+    metadata:
+      labels:
+        app: temporal-server
+    spec:
+      containers:
+      - name: temporal
+        image: temporalio/server:1.22.0
+        command: ["/temporal-server"]
+        ports:
+        - containerPort: 7233
+        - containerPort: 9090
+        env:
+        - name: DB
+          value: postgresql
+        - name: DB_PORT
+          value: "5432"
+        - name: DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: DB_NAME
+              name: temporal-secrets
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: DB_USERNAME
+              name: temporal-secrets
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: DB_PASSWORD
+              name: temporal-secrets
+        - name: TEMPORAL_HISTORY_DBNAME
+          value: temporal
+        - name: TEMPORAL_VISIBILITY_DBNAME
+          value: temporal_visibility
+        volumeMounts:
+        - mountPath: /etc/temporal
+          name: temporal-config
+      volumes:
+      - name: temporal-config
+        configMap:
+          name: temporal-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-frontend
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: temporal-server
+  ports:
+  - name: grpc
+    port: 7233
+    targetPort: 7233
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ui
+  namespace: ai-infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-ui
+  template:
+    metadata:
+      labels:
+        app: temporal-ui
+    spec:
+      containers:
+      - name: ui
+        image: temporalio/ui:2.27.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: TEMPORAL_UI_HOST
+          value: "0.0.0.0"
+        - name: TEMPORAL_UI_PORT
+          value: "8080"
+        - name: TEMPORAL_GRPC_ENDPOINT
+          value: temporal-frontend:7233
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ui
+  namespace: ai-infrastructure
+spec:
+  selector:
+    app: temporal-ui
+  ports:
+  - port: 8080
+    targetPort: 8080
