@@ -1,0 +1,139 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ai-infrastructure-portal-alerts
+  namespace: ai-infrastructure
+  labels:
+    app: ai-infrastructure-portal
+    prometheus: main
+spec:
+  groups:
+  - name: ai-portal.rules
+    rules:
+    # API Health Alerts
+    - alert: AIPortalAPIHighErrorRate
+      expr: rate(http_requests_total{job="ai-infrastructure-portal-api", status=~"5.."}[5m]) / rate(http_requests_total{job="ai-infrastructure-portal-api"}[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        service: api
+      annotations:
+        summary: "AI Portal API has high error rate"
+        description: "AI Portal API error rate is {{ $value | humanize }}% (threshold: 5%)"
+
+    - alert: AIPortalAPIHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ai-infrastructure-portal-api"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+        service: api
+      annotations:
+        summary: "AI Portal API has high latency"
+        description: "AI Portal API 95th percentile latency is {{ $value }}s (threshold: 2s)"
+
+    # Dashboard Health Alerts
+    - alert: AIPortalDashboardHighErrorRate
+      expr: rate(http_requests_total{job="ai-infrastructure-portal-dashboard", status=~"5.."}[5m]) / rate(http_requests_total{job="ai-infrastructure-portal-dashboard"}[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        service: dashboard
+      annotations:
+        summary: "AI Portal Dashboard has high error rate"
+        description: "AI Portal Dashboard error rate is {{ $value | humanize }}% (threshold: 5%)"
+
+    # Load Balancer Alerts
+    - alert: NginxHighErrorRate
+      expr: rate(http_requests_total{job="nginx-load-balancer", status=~"5.."}[5m]) / rate(http_requests_total{job="nginx-load-balancer"}[5m]) > 0.03
+      for: 3m
+      labels:
+        severity: warning
+        service: load-balancer
+      annotations:
+        summary: "NGINX Load Balancer has high error rate"
+        description: "NGINX error rate is {{ $value | humanize }}% (threshold: 3%)"
+
+    # HPA Scaling Alerts
+    - alert: HPAReplicasAtMax
+      expr: kube_hpa_status_current_replicas{namespace="ai-infrastructure"} == kube_hpa_spec_max_replicas{namespace="ai-infrastructure"}
+      for: 10m
+      labels:
+        severity: warning
+        service: autoscaling
+      annotations:
+        summary: "HPA at maximum replicas"
+        description: "HPA {{ $labels.horizontalpodautoscaler }} in {{ $labels.namespace }} is at maximum replicas"
+
+    - alert: HPAReplicasAtMin
+      expr: kube_hpa_status_current_replicas{namespace="ai-infrastructure"} == kube_hpa_spec_min_replicas{namespace="ai-infrastructure"}
+      for: 30m
+      labels:
+        severity: info
+        service: autoscaling
+      annotations:
+        summary: "HPA at minimum replicas"
+        description: "HPA {{ $labels.horizontalpodautoscaler }} in {{ $labels.namespace }} is at minimum replicas"
+
+    # Pod Resource Alerts
+    - alert: HighPodCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{namespace="ai-infrastructure"}[5m]) / container_spec_cpu_quota * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: resources
+      annotations:
+        summary: "High pod CPU usage"
+        description: "Pod {{ $labels.pod }} in {{ $labels.namespace }} has CPU usage of {{ $value | humanize }}%"
+
+    - alert: HighPodMemoryUsage
+      expr: container_memory_usage_bytes{namespace="ai-infrastructure"} / container_spec_memory_limit_bytes * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+        service: resources
+      annotations:
+        summary: "High pod memory usage"
+        description: "Pod {{ $labels.pod }} in {{ $labels.namespace }} has memory usage of {{ $value | humanize }}%"
+
+    # Redis Cache Alerts
+    - alert: RedisDown
+      expr: up{job="redis-cache"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: cache
+      annotations:
+        summary: "Redis cache is down"
+        description: "Redis cache has been down for more than 1 minute"
+
+    - alert: RedisMemoryHigh
+      expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: cache
+      annotations:
+        summary: "Redis memory usage high"
+        description: "Redis memory usage is {{ $value | humanize }}%"
+
+    # Service Discovery Alerts
+    - alert: KubeServiceDown
+      expr: up{job="kube-service-endpoints"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        service: kubernetes
+      annotations:
+        summary: "Kubernetes service is down"
+        description: "Service {{ $labels.service }} in {{ $labels.namespace }} is down"
+
+    # Network Alerts
+    - alert: HighNetworkErrorRate
+      expr: rate(container_network_receive_errors_total{namespace="ai-infrastructure"}[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: network
+      annotations:
+        summary: "High network error rate"
+        description: "Network errors detected in {{ $labels.namespace }}"

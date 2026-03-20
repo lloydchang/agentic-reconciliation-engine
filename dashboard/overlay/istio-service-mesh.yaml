@@ -1,0 +1,206 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: ai-portal-gateway
+  namespace: ai-infrastructure
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - api.ai-infrastructure-portal.com
+    - dashboard.ai-infrastructure-portal.com
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: ai-portal-tls
+    hosts:
+    - api.ai-infrastructure-portal.com
+    - dashboard.ai-infrastructure-portal.com
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ai-portal-api-vs
+  namespace: ai-infrastructure
+spec:
+  hosts:
+  - api.ai-infrastructure-portal.com
+  gateways:
+  - ai-portal-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: ai-infrastructure-portal-api
+        port:
+          number: 5001
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 5s
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+      allowHeaders:
+      - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ai-portal-dashboard-vs
+  namespace: ai-infrastructure
+spec:
+  hosts:
+  - dashboard.ai-infrastructure-portal.com
+  gateways:
+  - ai-portal-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: ai-infrastructure-portal-dashboard
+        port:
+          number: 8081
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 5s
+    websocketUpgrade: true
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ai-portal-api-dr
+  namespace: ai-infrastructure
+spec:
+  host: ai-infrastructure-portal-api
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 1024
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ai-portal-dashboard-dr
+  namespace: ai-infrastructure
+spec:
+  host: ai-infrastructure-portal-dashboard
+  trafficPolicy:
+    loadBalancer:
+      simple: RANDOM
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 1024
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: ai-infrastructure
+spec:
+  mtls:
+    mode: PERMISSIVE
+---
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: ai-portal-jwt
+  namespace: ai-infrastructure
+spec:
+  selector:
+    matchLabels:
+      app: ai-infrastructure-portal
+  jwtRules:
+  - issuer: "ai-infrastructure-portal"
+    jwksUri: "http://ai-infrastructure-portal-api.ai-infrastructure.svc.cluster.local:5001/auth/jwks"
+    forwardOriginalToken: true
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ai-portal-authz
+  namespace: ai-infrastructure
+spec:
+  selector:
+    matchLabels:
+      app: ai-infrastructure-portal
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    to:
+    - operation:
+        paths: ["/api/health", "/api/services", "/api/metrics"]
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    when:
+    - key: request.auth.claims[role]
+      values: ["admin", "user"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: ai-portal-telemetry
+  namespace: ai-infrastructure
+spec:
+  selector:
+    matchLabels:
+      app: ai-infrastructure-portal
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    - tagOverrides:
+        request_operation:
+          value: request.url_path
+    - tagOverrides:
+        response_code:
+          value: response.code
+  accessLogging:
+  - providers:
+    - name: envoy
+    disabled: false
