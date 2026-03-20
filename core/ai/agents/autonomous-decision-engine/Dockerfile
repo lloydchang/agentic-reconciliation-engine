@@ -8,7 +8,7 @@ RUN apk add --no-cache git ca-certificates tzdata
 
 # Copy go mod files
 COPY go.mod ./
-RUN go mod tidy && go mod download && go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine . && echo "Build completed successfully"
+RUN go mod tidy && go mod download && go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
 
 # Copy source code
 COPY . .
