@@ -59,7 +59,7 @@ The GitOps-infra-control-plane now includes comprehensive agentic AI capabilitie
 ### Validation
 Run the comprehensive test suite:
 ```bash
-./test/run-tests.sh --all
+./core/automation/testing/run-tests.sh --all
 ```
 
 ## Available Skills
