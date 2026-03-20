@@ -1,0 +1,327 @@
+# Composite Resource Definitions for Multi-Cloud Infrastructure
+# Network Resource Definition
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.platform.example.com
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  group: platform.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                description: "Cloud provider region"
+              cidrBlock:
+                type: string
+                default: "10.0.0.0/16"
+                description: "Network CIDR block"
+              subnetCount:
+                type: integer
+                default: 3
+                minimum: 1
+                maximum: 10
+                description: "Number of subnets to create"
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider"
+              environment:
+                type: string
+                enum: ["development", "staging", "production"]
+                default: "development"
+                description: "Environment tag"
+            required: ["region", "provider"]
+          status:
+            type: object
+            properties:
+              networkId:
+                type: string
+                description: "Network resource ID"
+              subnetIds:
+                type: array
+                items:
+                  type: string
+                description: "List of subnet IDs"
+              providerStatus:
+                type: string
+                description: "Provider-specific status"
+              ready:
+                type: boolean
+                description: "Network ready status"
+---
+# Compute Resource Definition
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcomputes.platform.example.com
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  group: platform.example.com
+  names:
+    kind: XCompute
+    plural: xcomputes
+  claimNames:
+    kind: Compute
+    plural: computes
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                description: "Cloud provider region"
+              instanceType:
+                type: string
+                description: "Instance type/size"
+              image:
+                type: string
+                description: "Machine image"
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider"
+              networkId:
+                type: string
+                description: "Network ID to attach to"
+              subnetId:
+                type: string
+                description: "Subnet ID to attach to"
+              sshKey:
+                type: string
+                description: "SSH key name"
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                description: "Resource tags"
+              environment:
+                type: string
+                enum: ["development", "staging", "production"]
+                default: "development"
+                description: "Environment tag"
+            required: ["region", "instanceType", "provider"]
+          status:
+            type: object
+            properties:
+              instanceId:
+                type: string
+                description: "Instance/VM ID"
+              publicIP:
+                type: string
+                description: "Public IP address"
+              privateIP:
+                type: string
+                description: "Private IP address"
+              status:
+                type: string
+                description: "Instance status"
+              providerStatus:
+                type: string
+                description: "Provider-specific status"
+              ready:
+                type: boolean
+                description: "Instance ready status"
+---
+# Storage Resource Definition
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xstorages.platform.example.com
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  group: platform.example.com
+  names:
+    kind: XStorage
+    plural: xstorages
+  claimNames:
+    kind: Storage
+    plural: storages
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                description: "Cloud provider region"
+              storageClass:
+                type: string
+                enum: ["standard", "premium", "cold"]
+                default: "standard"
+                description: "Storage class/tier"
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100000
+                description: "Storage size in GB"
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider"
+              encryption:
+                type: boolean
+                default: true
+                description: "Enable encryption"
+              versioning:
+                type: boolean
+                default: false
+                description: "Enable versioning"
+              lifecyclePolicy:
+                type: object
+                properties:
+                  transitionDays:
+                    type: integer
+                    minimum: 30
+                  expirationDays:
+                    type: integer
+                    minimum: 90
+                description: "Object lifecycle policy"
+              environment:
+                type: string
+                enum: ["development", "staging", "production"]
+                default: "development"
+                description: "Environment tag"
+            required: ["region", "size", "provider"]
+          status:
+            type: object
+            properties:
+              bucketName:
+                type: string
+                description: "Storage bucket name"
+              endpoint:
+                type: string
+                description: "Storage endpoint URL"
+              accessKey:
+                type: string
+                description: "Access key (if applicable)"
+              providerStatus:
+                type: string
+                description: "Provider-specific status"
+              ready:
+                type: boolean
+                description: "Storage ready status"
+---
+# Database Resource Definition
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdatabases.platform.example.com
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  group: platform.example.com
+  names:
+    kind: XDatabase
+    plural: xdatabases
+  claimNames:
+    kind: Database
+    plural: databases
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                description: "Cloud provider region"
+              engine:
+                type: string
+                enum: ["postgresql", "mysql", "mongodb", "redis"]
+                description: "Database engine"
+              version:
+                type: string
+                description: "Database version"
+              instanceClass:
+                type: string
+                description: "Database instance class"
+              storageSize:
+                type: integer
+                minimum: 20
+                maximum: 64000
+                description: "Storage size in GB"
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Cloud provider"
+              networkId:
+                type: string
+                description: "Network ID for database"
+              backupRetention:
+                type: integer
+                minimum: 1
+                maximum: 35
+                default: 7
+                description: "Backup retention days"
+              highAvailability:
+                type: boolean
+                default: false
+                description: "Enable high availability"
+              encryption:
+                type: boolean
+                default: true
+                description: "Enable encryption"
+              environment:
+                type: string
+                enum: ["development", "staging", "production"]
+                default: "development"
+                description: "Environment tag"
+            required: ["region", "engine", "instanceClass", "provider"]
+          status:
+            type: object
+            properties:
+              databaseId:
+                type: string
+                description: "Database instance ID"
+              endpoint:
+                type: string
+                description: "Database connection endpoint"
+              port:
+                type: integer
+                description: "Database port"
+              status:
+                type: string
+                description: "Database status"
+              providerStatus:
+                type: string
+                description: "Provider-specific status"
+              ready:
+                type: boolean
+                description: "Database ready status"

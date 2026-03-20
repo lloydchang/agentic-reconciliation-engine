@@ -1,0 +1,96 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gcp-network
+  labels:
+    provider: gcp
+    resource: network
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: gcp-network
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Network
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-network
+          autoCreateSubnetworks: false
+          routingMode: REGIONAL
+          description: "Multi-cloud network managed by Crossplane"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: gcp-subnet-1
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-subnet-1
+          region: us-central1
+          ipCidrRange: 10.0.1.0/24
+          networkSelector:
+            matchControllerRef: true
+          description: "Multi-cloud subnet 1"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: gcp-subnet-2
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-subnet-2
+          region: us-central1
+          ipCidrRange: 10.0.2.0/24
+          networkSelector:
+            matchControllerRef: true
+          description: "Multi-cloud subnet 2"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: gcp-subnet-3
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-subnet-3
+          region: us-central1
+          ipCidrRange: 10.0.3.0/24
+          networkSelector:
+            matchControllerRef: true
+          description: "Multi-cloud subnet 3"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: gcp-firewall
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Firewall
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-firewall
+          networkSelector:
+            matchControllerRef: true
+          allow:
+            - protocol: tcp
+              ports: ["22"]
+            - protocol: tcp
+              ports: ["80"]
+              ports: ["443"]
+          sourceRanges: ["0.0.0.0/0"]
+          description: "Multi-cloud firewall rules"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system
