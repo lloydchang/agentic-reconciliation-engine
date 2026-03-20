@@ -1,0 +1,198 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: ai-infrastructure
+  labels:
+    app: grafana
+data:
+  ai-portal-overview.json: |
+    {
+      "dashboard": {
+        "title": "AI Infrastructure Portal - Overview",
+        "tags": ["ai-portal", "infrastructure"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "API Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"ai-infrastructure-portal-api\"}[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          },
+          {
+            "title": "API Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"ai-infrastructure-portal-api\"}[5m])",
+                "legendFormat": "requests/sec"
+              }
+            ]
+          },
+          {
+            "title": "Pod CPU Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_cpu_usage_seconds_total{namespace=\"ai-infrastructure\"}[5m])",
+                "legendFormat": "{{ pod }}"
+              }
+            ]
+          },
+          {
+            "title": "Pod Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "container_memory_usage_bytes{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "{{ pod }}"
+              }
+            ]
+          },
+          {
+            "title": "HPA Current Replicas",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "kube_hpa_status_current_replicas{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "{{ horizontalpodautoscaler }}"
+              }
+            ]
+          },
+          {
+            "title": "Redis Cache Hit Rate",
+            "type": "gauge",
+            "targets": [
+              {
+                "expr": "rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m])) * 100",
+                "legendFormat": "hit rate %"
+              }
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "timepicker": {},
+        "templating": {
+          "list": []
+        },
+        "annotations": {
+          "list": []
+        },
+        "refresh": "30s",
+        "schemaVersion": 27,
+        "version": 0,
+        "links": []
+      }
+    }
+  ai-portal-scaling.json: |
+    {
+      "dashboard": {
+        "title": "AI Infrastructure Portal - Scaling Metrics",
+        "tags": ["ai-portal", "scaling", "autoscaling"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "HPA Desired vs Current Replicas",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "kube_hpa_status_desired_replicas{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "desired - {{ horizontalpodautoscaler }}"
+              },
+              {
+                "expr": "kube_hpa_status_current_replicas{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "current - {{ horizontalpodautoscaler }}"
+              }
+            ]
+          },
+          {
+            "title": "HPA Scaling Events",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "kube_hpa_status_condition{namespace=\"ai-infrastructure\", condition=\"ScalingActive\", status=\"true\"}",
+                "legendFormat": "{{ horizontalpodautoscaler }}"
+              }
+            ]
+          },
+          {
+            "title": "VPA Recommendations",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "vpa_container_cpu_recommendation{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "{{ container }} CPU recommendation"
+              },
+              {
+                "expr": "vpa_container_memory_recommendation{namespace=\"ai-infrastructure\"}",
+                "legendFormat": "{{ container }} Memory recommendation"
+              }
+            ]
+          },
+          {
+            "title": "Pod Resource Limits vs Requests",
+            "type": "bargauge",
+            "targets": [
+              {
+                "expr": "kube_pod_container_resource_requests{namespace=\"ai-infrastructure\", resource=\"cpu\"}",
+                "legendFormat": "{{ pod }} CPU requests"
+              },
+              {
+                "expr": "kube_pod_container_resource_limits{namespace=\"ai-infrastructure\", resource=\"cpu\"}",
+                "legendFormat": "{{ pod }} CPU limits"
+              }
+            ]
+          },
+          {
+            "title": "Load Balancer Connections",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "nginx_connections_active{job=\"nginx-load-balancer\"}",
+                "legendFormat": "active connections"
+              },
+              {
+                "expr": "nginx_connections_waiting{job=\"nginx-load-balancer\"}",
+                "legendFormat": "waiting connections"
+              }
+            ]
+          },
+          {
+            "title": "Cache Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(redis_commands_total[5m])",
+                "legendFormat": "commands/sec"
+              },
+              {
+                "expr": "redis_memory_used_bytes",
+                "legendFormat": "memory used"
+              }
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-6h",
+          "to": "now"
+        },
+        "timepicker": {},
+        "templating": {
+          "list": []
+        },
+        "annotations": {
+          "list": []
+        },
+        "refresh": "1m",
+        "schemaVersion": 27,
+        "version": 0,
+        "links": []
+      }
+    }

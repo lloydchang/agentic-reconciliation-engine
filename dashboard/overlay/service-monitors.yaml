@@ -1,0 +1,78 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-infrastructure-portal-api
+  namespace: ai-infrastructure
+  labels:
+    app: ai-infrastructure-portal
+    component: api
+spec:
+  selector:
+    matchLabels:
+      app: ai-infrastructure-portal
+      component: api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: http
+    path: /health
+    interval: 60s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-infrastructure-portal-dashboard
+  namespace: ai-infrastructure
+  labels:
+    app: ai-infrastructure-portal
+    component: dashboard
+spec:
+  selector:
+    matchLabels:
+      app: ai-infrastructure-portal
+      component: dashboard
+  endpoints:
+  - port: http
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-load-balancer
+  namespace: ai-infrastructure
+  labels:
+    app: nginx-load-balancer
+spec:
+  selector:
+    matchLabels:
+      app: nginx-load-balancer
+  endpoints:
+  - port: dashboard
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: api
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-cache
+  namespace: ai-infrastructure
+  labels:
+    app: redis-cache
+spec:
+  selector:
+    matchLabels:
+      app: redis-cache
+  endpoints:
+  - port: redis
+    interval: 30s
+    scrapeTimeout: 10s
