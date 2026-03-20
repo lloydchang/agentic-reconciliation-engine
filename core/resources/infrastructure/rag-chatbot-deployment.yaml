@@ -61,8 +61,8 @@ spec:
           value: "qwen2.5:0.5b"
         - name: INFERENCE_BACKEND
           value: "llama.cpp"
-        
-        # System Configuration
+        - name: LLAMACPP_SERVER
+          value: "http://agent-memory-service:8080/api/inference"
         - name: LOG_LEVEL
           value: "info"
         - name: KUBECTL_ENABLED
@@ -99,11 +99,16 @@ spec:
         - name: docs-storage
           mountPath: /app/data/docs
           readOnly: true
+        - name: config-storage
+          mountPath: /app/config
       
       volumes:
       - name: docs-storage
         configMap:
           name: rag-chatbot-docs
+      - name: config-storage
+        configMap:
+          name: rag-chatbot-config
       
       # Security Context
       securityContext:
