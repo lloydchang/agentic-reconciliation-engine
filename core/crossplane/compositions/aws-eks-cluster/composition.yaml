@@ -1,0 +1,276 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: eksclusters.platform.aws.ecs.azure
+  labels:
+    provider: aws
+    category: compute
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: platform.aws.ecs.azure/v1alpha1
+    kind: EKSCluster
+  # The composition creates these resources
+  resources:
+  # 1. VPC (required for EKS)
+  - name: vpc
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: VPC
+      spec:
+        forProvider:
+          cidrBlock: 10.0.0.0/16
+          enableDnsSupport: true
+          enableDnsHostnames: true
+          tags:
+            Name: ${this.metadata.name}-vpc
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-vpc-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcConfig.cidr
+      toFieldPath: spec.forProvider.cidrBlock
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-vpc"
+
+  # 2. Public Subnets (for ALB, NAT Gateway)
+  - name: public-subnet-1
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          cidrBlock: 10.0.101.0/24
+          availabilityZone: ${this.region}a
+          mapPublicIpOnLaunch: true
+          vpcId: ${vpc.id}
+          tags:
+            Name: ${this.metadata.name}-public-subnet-1
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-public-subnet-1-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone  # Will need transformation
+      transforms:
+      - type: string
+        string:
+          fmt: "%sa"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcConfig.publicSubnetCIDRs[0]
+      toFieldPath: spec.forProvider.cidrBlock
+
+  - name: public-subnet-2
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          cidrBlock: 10.0.102.0/24
+          availabilityZone: ${this.region}b
+          mapPublicIpOnLaunch: true
+          vpcId: ${vpc.id}
+          tags:
+            Name: ${this.metadata.name}-public-subnet-2
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-public-subnet-2-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - type: string
+        string:
+          fmt: "%sb"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcConfig.publicSubnetCIDRs[1]
+      toFieldPath: spec.forProvider.cidrBlock
+
+  # 3. Private Subnets (for EKS nodes)
+  - name: private-subnet-1
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          cidrBlock: 10.0.1.0/24
+          availabilityZone: ${this.region}a
+          mapPublicIpOnLaunch: false
+          vpcId: ${vpc.id}
+          tags:
+            Name: ${this.metadata.name}-private-subnet-1
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-private-subnet-1-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - type: string
+        string:
+          fmt: "%sa"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcConfig.privateSubnetCIDRs[0]
+      toFieldPath: spec.forProvider.cidrBlock
+
+  - name: private-subnet-2
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          cidrBlock: 10.0.2.0/24
+          availabilityZone: ${this.region}b
+          mapPublicIpOnLaunch: false
+          vpcId: ${vpc.id}
+          tags:
+            Name: ${this.metadata.name}-private-subnet-2
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-private-subnet-2-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - type: string
+        string:
+          fmt: "%sb"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.vpcConfig.privateSubnetCIDRs[1]
+      toFieldPath: spec.forProvider.cidrBlock
+
+  # 4. Internet Gateway
+  - name: internet-gateway
+    base:
+      apiVersion: networking.aws.crossplane.io/v1beta1
+      kind: InternetGateway
+      spec:
+        forProvider:
+          vpcId: ${vpc.id}
+          tags:
+            Name: ${this.metadata.name}-igw
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-igw-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+
+  # 5. EKS Cluster Control Plane
+  - name: eks-cluster
+    base:
+      apiVersion: eks.aws.crossplane.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          region: ${this.region}
+          version: ${this.version}
+          roleArn: arn:aws:iam::${accountId}:role/eks-cluster-role  # Must be pre-created
+          resourcesVpcConfig:
+            subnetIds: []  # Filled by patches
+            endpointPrivateAccess: false
+            endpointPublicAccess: true
+          tags:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.version
+      toFieldPath: spec.forProvider.version
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name
+    # Collect subnet IDs from all subnet resources
+    - type: CombineToComposite
+      date:
+        - subnet-1-id: ${public-subnet-1.id}
+        - subnet-2-id: ${public-subnet-2.id}
+        - subnet-3-id: ${private-subnet-1.id}
+        - subnet-4-id: ${private-subnet-2}.id
+      toFieldPath: spec.forProvider.resourcesVpcConfig.subnetIds
+      transforms:
+      - type: map
+        map:
+          fromFieldPath: [subnet-1-id, subnet-2-id, subnet-3-id, subnet-4-id]
+          to: subnets
+
+  # 6. Node Groups (from spec.nodeGroups array)
+  # For each node group in the claim, create a managed node group
+  # Note: Composition doesn't support dynamic resource creation from arrays yet
+  # We'll need to define static node groups or use a custom Composition function
+  # For now, create a default node group
+  - name: default-node-group
+    base:
+      apiVersion: eks.aws.crossplane.io/v1beta1
+      kind: NodeGroup
+      spec:
+        forProvider:
+          clusterName: ${eks-cluster.name}
+          region: ${this.region}
+          roleArn: arn:aws:iam::${accountId}:role/eks-node-group-role  # Pre-created
+          subnetIds: []  # Use private subnets
+          scalingConfig:
+            minSize: 2
+            maxSize: 5
+            desiredSize: 2
+          instanceTypes:
+          - t3.medium
+          amiType: AL2_x86_64
+          nodeRole: arn:aws:iam::${accountId}:role/eks-node-group-role
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-node-group-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: eks-cluster.name
+      toFieldPath: spec.forProvider.clusterName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodeGroups[0].minSize
+      toFieldPath: spec.forProvider.scalingConfig.minSize
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodeGroups[0].maxSize
+      toFieldPath: spec.forProvider.scalingConfig.maxSize
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodeGroups[0].desiredSize
+      toFieldPath: spec.forProvider.scalingConfig.desiredSize
+    # Use private subnets for node groups
+    - type: CombineToComposite
+      date:
+        - private-1: ${private-subnet-1.id}
+        - private-2: ${private-subnet-2.id}
+      toFieldPath: spec.forProvider.subnetIds
+      transforms:
+      - type: map
+        map:
+          fromFieldPath: [private-1, private-2]
+          to: subnets
+
+---
+# Patch sets for environment-specific configurations
+# Can be applied via Composition patches or environment-specific overrides

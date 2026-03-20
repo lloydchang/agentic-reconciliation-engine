@@ -1,0 +1,84 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gcp-compute
+  labels:
+    provider: gcp
+    resource: compute
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: gcp-instance
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          project: your-project-id
+          zone: us-central1-a
+          machineType: e2-medium
+          bootDisk:
+            initializeParams:
+              sourceImage: projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20220101
+              diskSizeGb: 30
+              diskType: pd-balanced
+          networkInterface:
+            - networkSelector:
+                matchControllerRef: true
+              accessConfigs:
+                - type: ONE_TO_ONE_NAT
+                  name: External NAT
+          metadata:
+            items:
+              - key: startup-script
+                value: |
+                  #!/bin/bash
+                  apt-get update
+                  apt-get install -y nginx
+                  systemctl start nginx
+                  systemctl enable nginx
+          tags:
+            items:
+              - key: managed-by
+                value: crossplane
+    patches:
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.machineType"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.zone"
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-a"
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.name"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloud-instance-%s"
+  - name: gcp-firewall-rule
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Firewall
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-vm-firewall
+          networkSelector:
+            matchControllerRef: true
+          allow:
+            - protocol: tcp
+              ports: ["22"]
+            - protocol: tcp
+              ports: ["80"]
+            - protocol: tcp
+              ports: ["443"]
+          sourceRanges: ["0.0.0.0/0"]
+          targetTags: ["multicloud-vm"]
+          description: "Firewall rules for multi-cloud VM"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system

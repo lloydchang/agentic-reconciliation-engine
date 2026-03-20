@@ -1,0 +1,347 @@
+# Azure Provider Compositions
+# Azure Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetwork-azure
+  labels:
+    provider: azure
+    resource: network
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: virtualNetwork
+    base:
+      apiVersion: network.azure.crossplane.io/v1beta1
+      kind: VirtualNetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          addressSpace:
+          - "10.0.0.0/16"
+          tags:
+            Name: "agentic-reconciliation-vnet"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "spec.cidrBlock"
+      toFieldPath: "spec.forProvider.addressSpace[0]"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+  - name: subnet1
+    base:
+      apiVersion: network.azure.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: "10.0.1.0/24"
+          tags:
+            Name: "agentic-reconciliation-subnet-1"
+            Type: "Private"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.virtualNetworkNameSelector.matchControllerRef"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.resourceGroupSelector.matchLabels[region]"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-subnet-1"
+  - name: subnet2
+    base:
+      apiVersion: network.azure.crossplane.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: "10.0.2.0/24"
+          tags:
+            Name: "agentic-reconciliation-subnet-2"
+            Type: "Private"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.virtualNetworkNameSelector.matchControllerRef"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.resourceGroupSelector.matchLabels[region]"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-subnet-2"
+  - name: publicIP
+    base:
+      apiVersion: network.azure.crossplane.io/v1beta1
+      kind: PublicIPAddress
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          publicIPAllocationMethod: "Static"
+          tags:
+            Name: "agentic-reconciliation-pip"
+            ManagedBy: "Crossplane"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-pip"
+---
+# Azure Compute Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcompute-azure
+  labels:
+    provider: azure
+    resource: compute
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: networkInterface
+    base:
+      apiVersion: network.azure.crossplane.io/v1beta1
+      kind: NetworkInterface
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          ipConfigurations:
+          - name: "ipconfig1"
+            privateIPAllocationMethod: "Dynamic"
+            subnetIdSelector:
+              matchControllerRef: true
+          tags:
+            Name: "agentic-reconciliation-nic"
+            ManagedBy: "Crossplane"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "spec.subnetId"
+      toFieldPath: "spec.forProvider.ipConfigurations[0].subnetIdSelector.matchLabels[app.kubernetes.io/name]"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-nic"
+  - name: virtualMachine
+    base:
+      apiVersion: compute.azure.crossplane.io/v1beta1
+      kind: VirtualMachine
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          vmSize: "Standard_B2s"
+          networkInterfaceIds:
+          - networkInterfaceIdSelector:
+              matchControllerRef: true
+          osDisk:
+            osType: "Linux"
+            createOption: "FromImage"
+            caching: "ReadWrite"
+            managedDisk:
+              storageAccountType: "Premium_LRS"
+          imageReference:
+            publisher: "Canonical"
+            offer: "UbuntuServer"
+            sku: "18.04-LTS"
+            version: "latest"
+          adminUsername: "azureuser"
+          authenticationType: "Password"
+          adminPasswordSelector:
+            matchControllerRef: true
+          tags:
+            Name: "agentic-reconciliation-vm"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "spec.instanceType"
+      toFieldPath: "spec.forProvider.vmSize"
+    - fromFieldPath: "spec.image"
+      toFieldPath: "spec.forProvider.imageReference.sku"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+    - fromFieldPath: "spec.tags"
+      toFieldPath: "spec.forProvider.tags"
+    connectionDetails:
+    - name: instanceId
+      fromConnectionSecretKey: vmId
+    - name: publicIp
+      fromConnectionSecretKey: publicIp
+    - name: privateIp
+      fromConnectionSecretKey: privateIp
+---
+# Azure Storage Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xstorage-azure
+  labels:
+    provider: azure
+    resource: storage
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: storageAccount
+    base:
+      apiVersion: storage.azure.crossplane.io/v1beta1
+      kind: Account
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          accountTier: "Standard"
+          accountReplicationType: "LRS"
+          minTlsVersion: "TLS1_2"
+          allowBlobPublicAccess: false
+          tags:
+            Name: "agentic-reconciliation-storage"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - fromFieldPath: "spec.storageClass"
+      toFieldPath: "spec.forProvider.accountTier"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "standard": "Standard"
+            "premium": "Premium"
+            "cold": "Standard"
+    connectionDetails:
+    - name: bucketName
+      fromConnectionSecretKey: accountName
+    - name: endpoint
+      fromConnectionSecretKey: primaryEndpoints
+---
+# Azure Database Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xdatabase-azure
+  labels:
+    provider: azure
+    resource: database
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XDatabase
+  resources:
+  - name: databaseServer
+    base:
+      apiVersion: dbforpostgresql.azure.crossplane.io/v1beta1
+      kind: FlexibleServer
+      metadata:
+        labels:
+          crossplane.io/managed-by: "agentic-reconciliation-engine"
+      spec:
+        forProvider:
+          location: "East US"
+          version: "13"
+          administratorLogin: "postgres"
+          storage:
+            storageSizeGB: 32
+          sku:
+            name: "B_Standard_B2s"
+            tier: "Burstable"
+          backup:
+            backupRetentionDays: 7
+            geoRedundantBackup: false
+          highAvailability:
+            mode: "Disabled"
+          tags:
+            Name: "agentic-reconciliation-db"
+            ManagedBy: "Crossplane"
+            Project: "agentic-reconciliation-engine"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "spec.version"
+      toFieldPath: "spec.forProvider.version"
+    - fromFieldPath: "spec.storageSize"
+      toFieldPath: "spec.forProvider.storage.storageSizeGB"
+    - fromFieldPath: "spec.instanceClass"
+      toFieldPath: "spec.forProvider.sku.name"
+    - fromFieldPath: "spec.backupRetention"
+      toFieldPath: "spec.forProvider.backup.backupRetentionDays"
+    - fromFieldPath: "spec.highAvailability"
+      toFieldPath: "spec.forProvider.highAvailability.mode"
+      transforms:
+      - type: string
+        string:
+          templates:
+            "true": "ZoneRedundant"
+            "false": "Disabled"
+    - fromFieldPath: "spec.environment"
+      toFieldPath: "spec.forProvider.tags.Environment"
+    - type: FromCompositeFieldPath
+      fromFieldPath: "metadata.name"
+      toFieldPath: "spec.forProvider.tags.Name"
+    connectionDetails:
+    - name: databaseId
+      fromConnectionSecretKey: serverName
+    - name: endpoint
+      fromConnectionSecretKey: fullyQualifiedDomainName
+    - name: port
+      fromConnectionSecretKey: port

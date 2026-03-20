@@ -1,0 +1,119 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: eksclusters.platform.aws.ecs.azure
+  labels:
+    provider: aws
+    category: compute
+    managed-by: crossplane
+spec:
+  group: platform.aws.ecs.azure
+  names:
+    kind: EKSCluster
+    plural: eksclusters
+    singular: ekscluster
+    shortNames:
+    - eks
+  claimNames:
+    kind: EKSClusterClaim
+    plural: eksclusterclaims
+    singular: eksclusterclaim
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                default: us-west-2
+                description: AWS region for cluster deployment
+              version:
+                type: string
+                default: "1.28"
+                description: Kubernetes version
+              nodeGroups:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Node group name
+                    instanceTypes:
+                      type: array
+                      items:
+                        type: string
+                      default: ["t3.medium"]
+                    minSize:
+                      type: integer
+                      default: 2
+                    maxSize:
+                      type: integer
+                      default: 5
+                    desiredSize:
+                      type: integer
+                      default: 2
+                    diskSize:
+                      type: integer
+                      default: 20
+                    labels:
+                      type: object
+                      additionalProperties:
+                        type: string
+                description: EKS managed node groups configuration
+              vpcConfig:
+                type: object
+                properties:
+                  cidr:
+                    type: string
+                    default: "10.0.0.0/16"
+                  privateSubnetCIDRs:
+                    type: array
+                    items:
+                      type: string
+                    default: ["10.0.1.0/24", "10.0.2.0/24"]
+                  publicSubnetCIDRs:
+                    type: array
+                    items:
+                      type: string
+                    default: ["10.0.101.0/24", "10.0.102.0/24"]
+                  enableNatGateway:
+                    type: boolean
+                    default: true
+                description: VPC configuration for cluster
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                description: AWS resource tags
+                default: {}
+              deletionProtection:
+                type: boolean
+                default: false
+                description: Prevent accidental deletion
+            required: ["region"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+  # Claims are resources that teams actually create
+  # They reference this CompositeResourceDefinition
+  # Example Claim:
+  # apiVersion: platform.aws.ecs.azure/v1alpha1
+  # kind: EKSClusterClaim
+  # metadata:
+  #   name: my-cluster
+  #   namespace: team-a
+  # spec:
+  #   region: us-west-2
+  #   nodeGroups:
+  #   - name: general
+  #     instanceTypes: ["t3.medium"]
+  #     minSize: 2
+  #     maxSize: 5
