@@ -1,8 +1,8 @@
-# AI Infrastructure Portal - User Guide
+# Portal - User Guide
 
 ## Overview
 
-The AI Infrastructure Portal is a comprehensive web-based platform for monitoring, managing, and optimizing AI infrastructure. This guide provides detailed instructions for using the portal's dashboard, APIs, and configuration options.
+The Portal is a comprehensive web-based platform for monitoring, managing, and optimizing AI infrastructure. This guide provides detailed instructions for using the portal's dashboard, APIs, and configuration options.
 
 ## Getting Started
 
@@ -589,7 +589,7 @@ Content-Type: application/json
 
 ## Feedback and Support
 
-We value your feedback! Please help us improve the AI Infrastructure Portal by:
+We value your feedback! Please help us improve the Portal by:
 
 - **Reporting Issues**: Use the feedback button in the dashboard
 - **Suggesting Features**: Share your ideas for new functionality

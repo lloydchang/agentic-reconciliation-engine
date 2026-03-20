@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AI Infrastructure Portal - Real Services Launcher
+# Portal - Real Services Launcher
 # Starts all services with real data instead of fake data
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 AI Infrastructure Portal - Real Services Launcher${NC}"
+echo -e "${BLUE}🚀 Portal - Real Services Launcher${NC}"
 echo -e "${YELLOW}Starting all services with REAL data${NC}"
 echo
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AI Infrastructure Portal Deployment Script
+# Portal Deployment Script
 # Deploys a central portal with links to all AI services
 
 set -e
@@ -65,7 +65,7 @@ create_namespace() {
 
 # Deploy portal
 deploy_portal() {
-    log_info "Deploying AI Infrastructure Portal..."
+    log_info "Deploying Portal..."
     
     # Deploy ConfigMap
     log_info "Deploying portal ConfigMap..."
@@ -115,7 +115,7 @@ start_port_forward() {
 
 # Main function
 main() {
-    echo -e "${BLUE}=== AI Infrastructure Portal Deployment ===${NC}"
+    echo -e "${BLUE}=== Portal Deployment ===${NC}"
     echo ""
     
     check_prerequisites
@@ -125,7 +125,7 @@ main() {
     start_port_forward
     
     echo ""
-    echo -e "${GREEN}🎉 AI Infrastructure Portal Deployment Complete!${NC}"
+    echo -e "${GREEN}🎉 Portal Deployment Complete!${NC}"
     echo ""
     echo -e "${BLUE}🚪 Portal Access:${NC}"
     echo "  🌐 Portal: http://localhost:8888"
@@ -145,7 +145,7 @@ main() {
 
 # Help function
 show_help() {
-    echo "AI Infrastructure Portal Deployment"
+    echo "Portal Deployment"
     echo ""
     echo "USAGE: $0 [OPTIONS]"
     echo ""

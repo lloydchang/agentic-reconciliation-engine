@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple HTTP server for the AI Infrastructure Portal
+Simple HTTP server for the Portal
 Runs on port 9000 (common for admin consoles and enterprise tools)
 """
 
@@ -34,7 +34,7 @@ def start_server():
     os.chdir(DIRECTORY)
     
     with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
-        print(f"🚀 AI Infrastructure Portal is running!")
+        print(f"🚀 Portal is running!")
         print(f"📍 Portal URL: http://localhost:{PORT}")
         print(f"📂 Serving from: {DIRECTORY}")
         print(f"🔄 Press Ctrl+C to stop the server")

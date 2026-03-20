@@ -179,6 +179,72 @@ data:
     dynamicConfigClient:
       filepath: "/etc/temporal/config/dynamicconfig"
       pollInterval: "10s"
+  config_template.yaml: |
+    persistence:
+      default:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres.ai-infrastructure.svc.cluster.local
+          port: 5432
+          database: temporal
+          user: temporal
+          password: temporal
+      visibility:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres.ai-infrastructure.svc.cluster.local
+          port: 5432
+          database: temporal_visibility
+          user: temporal
+          password: temporal
+    log:
+      level: info
+      output: stdout
+    services:
+      frontend:
+        rpc:
+          grpcPort: 7233
+          membershipPort: 6933
+          bindOnIP: "0.0.0.0"
+      history:
+        rpc:
+          grpcPort: 7234
+          membershipPort: 6934
+          bindOnIP: "0.0.0.0"
+      matching:
+        rpc:
+          grpcPort: 7235
+          membershipPort: 6935
+          bindOnIP: "0.0.0.0"
+      worker:
+        rpc:
+          grpcPort: 7239
+          membershipPort: 6939
+          bindOnIP: "0.0.0.0"
+    clusterMetadata:
+      enableGlobalNamespace: false
+      failoverVersionIncrement: 10
+      masterClusterName: "active"
+      currentClusterName: "active"
+      clusterInformation:
+        active:
+          enabled: true
+          initialFailoverVersion: 1
+          rpcAddress: "localhost:7233"
+    dcRedirectionPolicy:
+      policy: "noop"
+    archival:
+      history:
+        state: "disabled"
+      visibility:
+        state: "disabled"
+    publicClient:
+      hostPort: "temporal-frontend:7233"
+    dynamicConfigClient:
+      filepath: "/etc/temporal/config/dynamicconfig"
+      pollInterval: "10s"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -287,9 +353,26 @@ spec:
           value: "6935"
         - name: TEMPORAL_WORKER_MEMBERSHIP_PORT
           value: "6939"
+        - name: TEMPORAL_CONFIG_DIR
+          value: "/etc/temporal/data"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Setting up Temporal configuration..."
+          cp /etc/temporal/config/config.yaml /etc/temporal/data/config.yaml
+          cp /etc/temporal/config/config_template.yaml /etc/temporal/data/config_template.yaml
+          echo "Configuration files copied:"
+          ls -la /etc/temporal/data/
+          echo "Checking Temporal server command options:"
+          temporal server --help
+          echo "Starting Temporal server with default config..."
+          exec temporal server start-dev
         volumeMounts:
         - name: temporal-config
           mountPath: /etc/temporal/config
+        - name: temporal-data
+          mountPath: /etc/temporal/data
         resources:
           requests:
             memory: "512Mi"
@@ -313,6 +396,81 @@ spec:
       - name: temporal-config
         configMap:
           name: temporal-server-config
+      - name: temporal-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temporal-config-template
+  namespace: ai-infrastructure
+data:
+  config_template.yaml: |
+    persistence:
+      default:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres.ai-infrastructure.svc.cluster.local
+          port: 5432
+          database: temporal
+          user: temporal
+          password: temporal
+      visibility:
+        driver: sql
+        sql:
+          driver: postgres
+          host: temporal-postgres.ai-infrastructure.svc.cluster.local
+          port: 5432
+          database: temporal_visibility
+          user: temporal
+          password: temporal
+    log:
+      level: info
+      output: stdout
+    services:
+      frontend:
+        rpc:
+          grpcPort: 7233
+          membershipPort: 6933
+          bindOnIP: "0.0.0.0"
+      history:
+        rpc:
+          grpcPort: 7234
+          membershipPort: 6934
+          bindOnIP: "0.0.0.0"
+      matching:
+        rpc:
+          grpcPort: 7235
+          membershipPort: 6935
+          bindOnIP: "0.0.0.0"
+      worker:
+        rpc:
+          grpcPort: 7239
+          membershipPort: 6939
+          bindOnIP: "0.0.0.0"
+    clusterMetadata:
+      enableGlobalNamespace: false
+      failoverVersionIncrement: 10
+      masterClusterName: "active"
+      currentClusterName: "active"
+      clusterInformation:
+        active:
+          enabled: true
+          initialFailoverVersion: 1
+          rpcAddress: "localhost:7233"
+    dcRedirectionPolicy:
+      policy: "noop"
+    archival:
+      history:
+        state: "disabled"
+      visibility:
+        state: "disabled"
+    publicClient:
+      hostPort: "temporal-frontend:7233"
+    dynamicConfigClient:
+      filepath: "/etc/temporal/config/dynamicconfig"
+      pollInterval: "10s"
 ---
 apiVersion: v1
 kind: Service

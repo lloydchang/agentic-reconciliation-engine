@@ -8,9 +8,9 @@ Combines [SKILL.md](https://agentskills.io/), [AGENTS.md](https://agents.md/), [
 
 ---
 
-## AI Infrastructure Portal
+## Portal
 
-The AI Infrastructure Portal provides a comprehensive dashboard and API for monitoring and managing the Agentic Reconciliation Engine. It includes real-time metrics, agent status monitoring, service health checks, and integrations with external services like ArgoCD, Langfuse, Prometheus, and Elasticsearch.
+The Portal provides a comprehensive dashboard and API for monitoring and managing the Agentic Reconciliation Engine. It includes real-time metrics, agent status monitoring, service health checks, and integrations with external services like ArgoCD, Langfuse, Prometheus, and Elasticsearch.
 
 ### Features
 
@@ -71,7 +71,7 @@ docker-compose -f docker/docker-compose-temporal-new.yaml up -d
 ```
 
 This starts:
-- AI Infrastructure Portal (API + Dashboard)
+- Portal (API + Dashboard)
 - Temporal server with UI
 - PostgreSQL database
 - Redis for caching

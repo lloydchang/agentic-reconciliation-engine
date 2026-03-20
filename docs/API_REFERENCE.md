@@ -1,6 +1,6 @@
-# AI Infrastructure Portal - API Reference
+# Portal - API Reference
 
-Complete API documentation for the AI Infrastructure Portal endpoints.
+Complete API documentation for the Portal endpoints.
 
 ## Base URL
 ```
@@ -270,7 +270,7 @@ Process natural language queries about the system.
 ```json
 {
   "query": "What services are currently running?",
-  "response": "Based on current monitoring data, the following services are running: Temporal (port 7233), Prometheus (port 9090), Redis (port 6379), and the AI Infrastructure Portal API itself.",
+  "response": "Based on current monitoring data, the following services are running: Temporal (port 7233), Prometheus (port 9090), Redis (port 6379), and the Portal API itself.",
   "confidence": 0.95,
   "sources": ["services_endpoint", "health_checks"]
 }

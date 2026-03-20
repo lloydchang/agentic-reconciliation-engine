@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AI Infrastructure Portal Launcher
+# Portal Launcher
 # Starts the portal on port 9000 (common for admin consoles and enterprise tools)
 
 set -e
@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PORT=9000
 
-echo "🚀 Starting AI Infrastructure Portal..."
+echo "🚀 Starting Portal..."
 echo "📍 Portal will be available at: http://localhost:${PORT}"
 echo
 

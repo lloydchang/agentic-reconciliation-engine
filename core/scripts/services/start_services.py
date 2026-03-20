@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Service Startup Script
-Starts all required services for the AI Infrastructure Portal
+Starts all required services for the Portal
 """
 
 import subprocess

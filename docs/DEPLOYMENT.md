@@ -1,6 +1,6 @@
-# AI Infrastructure Portal - Deployment Guide
+# Portal - Deployment Guide
 
-This guide covers all deployment options for the AI Infrastructure Portal, from local development to production environments.
+This guide covers all deployment options for the Portal, from local development to production environments.
 
 ## Table of Contents
 
@@ -221,7 +221,7 @@ Create `/etc/systemd/system/ai-portal.service`:
 
 ```ini
 [Unit]
-Description=AI Infrastructure Portal
+Description=Portal
 After=network.target
 
 [Service]

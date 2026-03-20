@@ -90,7 +90,7 @@ metadata:
   name: default
   namespace: argocd
 spec:
-  description: Default project for AI Infrastructure Portal
+  description: Default project for Portal
   sourceRepos:
     - '*'
   destinations:

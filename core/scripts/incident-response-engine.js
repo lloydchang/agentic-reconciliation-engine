@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * AI Infrastructure Portal - Automated Incident Response Engine
+ * Portal - Automated Incident Response Engine
  * Intelligent incident detection, classification, and automated remediation
  */
 
@@ -688,7 +688,7 @@ class IncidentResponseEngine extends EventEmitter {
         </ul>
       ` : ''}
       <hr>
-      <p>This is an automated notification from the AI Infrastructure Portal Incident Response Engine.</p>
+      <p>This is an automated notification from the Portal Incident Response Engine.</p>
     `;
   }
 

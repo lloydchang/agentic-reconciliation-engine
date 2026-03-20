@@ -143,9 +143,9 @@ class DeploymentHealthChecker {
             this.checks.push(result);
 
             if (result.success) {
-              console.log(`✅ Found ${portalPods.length} AI Infrastructure Portal pods`);
+              console.log(`✅ Found ${portalPods.length} Portal pods`);
             } else {
-              console.log('❌ No AI Infrastructure Portal pods found');
+              console.log('❌ No Portal pods found');
             }
           } catch (error) {
             const result = {
@@ -214,9 +214,9 @@ class DeploymentHealthChecker {
           this.checks.push(result);
 
           if (result.success) {
-            console.log(`✅ Found ${portalContainers.length} AI Infrastructure Portal containers`);
+            console.log(`✅ Found ${portalContainers.length} Portal containers`);
           } else {
-            console.log('⚠️ No AI Infrastructure Portal containers found - may be using direct Node.js');
+            console.log('⚠️ No Portal containers found - may be using direct Node.js');
           }
         } else {
           const result = {

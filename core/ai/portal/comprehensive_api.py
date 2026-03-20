@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive API for AI Infrastructure Portal
+Comprehensive API for Portal
 Provides real agent metrics and system status
 """
 

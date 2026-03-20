@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AI Infrastructure Portal - Services Stopper
+# Portal - Services Stopper
 # Stops all real services
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🛑 AI Infrastructure Portal - Services Stopper${NC}"
+echo -e "${BLUE}🛑 Portal - Services Stopper${NC}"
 echo
 
 # Function to stop a service

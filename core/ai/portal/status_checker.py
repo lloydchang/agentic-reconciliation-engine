@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Real-time service status checker for AI Infrastructure Portal
+Real-time service status checker for Portal
 Checks actual service availability and updates status indicators
 """
 
