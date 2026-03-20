@@ -1,0 +1,360 @@
+# Simplified Crossplane Team Resource Examples
+# These examples demonstrate multi-cloud resource creation with team isolation
+
+---
+# Team A - AWS Network Example
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: team-a-production-network
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+spec:
+  provider: aws
+  region: us-west-2
+  cidrBlock: 10.100.0.0/16
+  subnetCount: 3
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: production-workload
+    ManagedBy: crossplane
+
+---
+# Team A - Azure Compute Example
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-a-web-servers
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: azure
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+spec:
+  provider: azure
+  region: East US
+  instanceType: Standard_B2s
+  minCount: 2
+  maxCount: 4
+  monitoring: true
+  imageId: UbuntuServer-18.04-LTS
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: web-servers
+    ManagedBy: crossplane
+
+---
+# Team A - GCP Storage Example
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: team-a-application-backups
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: gcp
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+spec:
+  provider: gcp
+  region: us-central1
+  bucketName: team-a-app-backups
+  storageClass: standard
+  versioning: true
+  encryption: true
+  accessControl: private
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: application-backups
+    ManagedBy: crossplane
+
+---
+# Team B - AWS Network Example
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: team-b-development-network
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+spec:
+  provider: aws
+  region: us-east-1
+  cidrBlock: 10.200.0.0/16
+  subnetCount: 2
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: development-workload
+    ManagedBy: crossplane
+
+---
+# Team B - Azure Compute Example
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-b-data-processing
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: azure
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+spec:
+  provider: azure
+  region: West Europe
+  instanceType: Standard_D4s_v3
+  minCount: 1
+  maxCount: 3
+  monitoring: true
+  imageId: UbuntuServer-20.04-LTS
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: data-processing
+    ManagedBy: crossplane
+
+---
+# Team B - GCP Storage Example
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: team-b-research-data
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: gcp
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+spec:
+  provider: gcp
+  region: us-west1
+  bucketName: team-b-research-data
+  storageClass: standard
+  versioning: false
+  encryption: true
+  accessControl: private
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: research-data
+    ManagedBy: crossplane
+
+---
+# Cross-cloud Example - Team A using multiple providers
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-a-multi-cloud-web
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+    multi-cloud: "true"
+spec:
+  provider: aws
+  region: us-west-2
+  instanceType: t3.medium
+  minCount: 1
+  maxCount: 2
+  monitoring: true
+  imageId: ami-0abcdef1234567890
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: multi-cloud-web
+    Provider: aws
+    ManagedBy: crossplane
+
+---
+# Cross-cloud Example - Same workload on different provider
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-a-multi-cloud-web-azure
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: azure
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+    multi-cloud: "true"
+    workload-group: web-servers
+spec:
+  provider: azure
+  region: East US
+  instanceType: Standard_B2s
+  minCount: 1
+  maxCount: 2
+  monitoring: true
+  imageId: UbuntuServer-18.04-LTS
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: multi-cloud-web
+    Provider: azure
+    WorkloadGroup: web-servers
+    ManagedBy: crossplane
+
+---
+# Cost Optimization Example - Team B using different instance types
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-b-cost-optimized-batch
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: gcp
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+    cost-optimized: "true"
+spec:
+  provider: gcp
+  region: us-central1
+  instanceType: e2-medium
+  minCount: 1
+  maxCount: 5
+  monitoring: false
+  imageId: projects/debian-cloud/global/images/family/debian-11
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: batch-processing
+    CostOptimized: "true"
+    ManagedBy: crossplane
+
+---
+# Disaster Recovery Example - Cross-region replication
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: team-a-dr-backup-east
+  namespace: team-a
+  labels:
+    app.kubernetes.io/team: team-a
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: production
+    cost-center: engineering
+    owner: team-a-lead
+    disaster-recovery: "true"
+    region-pair: "west-east"
+spec:
+  provider: aws
+  region: us-east-1
+  bucketName: team-a-dr-backup-east
+  storageClass: standard
+  versioning: true
+  encryption: true
+  accessControl: private
+  tags:
+    Environment: production
+    Team: team-a
+    CostCenter: engineering
+    Purpose: disaster-recovery
+    RegionPair: west-east
+    ManagedBy: crossplane
+
+---
+# Development Environment Example - Quick spin-up
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: team-b-dev-quickstart
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+    quickstart: "true"
+spec:
+  provider: aws
+  region: us-east-1
+  cidrBlock: 10.201.0.0/16
+  subnetCount: 1
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: quickstart-dev
+    ManagedBy: crossplane
+
+---
+apiVersion: platform.example.com/v1alpha1
+kind: Compute
+metadata:
+  name: team-b-dev-quickstart-vm
+  namespace: team-b
+  labels:
+    app.kubernetes.io/team: team-b
+    app.kubernetes.io/provider: aws
+    app.kubernetes.io/managed-by: crossplane
+    environment: development
+    cost-center: research
+    owner: team-b-lead
+    quickstart: "true"
+    depends-on: team-b-dev-quickstart
+spec:
+  provider: aws
+  region: us-east-1
+  instanceType: t3.micro
+  minCount: 1
+  maxCount: 1
+  monitoring: false
+  imageId: ami-0abcdef1234567890
+  tags:
+    Environment: development
+    Team: team-b
+    CostCenter: research
+    Purpose: quickstart-dev
+    ManagedBy: crossplane
