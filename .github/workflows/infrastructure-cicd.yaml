@@ -1,0 +1,290 @@
+name: Infrastructure as Code CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'core/gitops/**'
+      - 'overlay/**'
+      - 'helm/**'
+      - '.github/workflows/infrastructure-cicd.yaml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'core/gitops/**'
+      - 'overlay/**'
+      - 'helm/**'
+
+env:
+  KUBECONFIG: ${{ secrets.KUBECONFIG }}
+  ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+  ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+jobs:
+  validate-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g @kubernetes/client-node js-yaml
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.5.0'
+
+      - name: Install Trivy
+        run: |
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+      - name: Validate Infrastructure
+        run: |
+          node core/gitops/iac-pipeline-manager.js validate overlay/
+          node core/gitops/iac-pipeline-manager.js validate core/gitops/
+
+      - name: Run Security Scans
+        run: |
+          trivy config overlay/
+          trivy config core/gitops/
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-results
+          path: validation-report.json
+
+  test-infrastructure:
+    needs: validate-infrastructure
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, staging]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Configure kubectl for ${{ matrix.environment }}
+        run: |
+          echo "${{ secrets.KUBECONFIG_${{ matrix.environment }} }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Run Infrastructure Tests
+        run: |
+          # Test Kubernetes manifests
+          kubectl apply -f overlay/ --dry-run=client
+          kubectl apply -f overlay/ --dry-run=server
+
+          # Test Helm charts
+          if [ -d "helm/" ]; then
+            for chart in helm/*/; do
+              if [ -f "${chart}Chart.yaml" ]; then
+                helm template test ${chart} --dry-run
+              fi
+            done
+          fi
+
+      - name: Run Integration Tests
+        run: |
+          # Test service connectivity
+          kubectl run test-pod --image=busybox --rm -i --restart=Never -- wget --timeout=5 ai-infrastructure-portal.ai-infrastructure.svc.cluster.local:5001/api/health
+
+  deploy-dev:
+    needs: [validate-infrastructure, test-infrastructure]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER }} --username admin --password ${{ secrets.ARGOCD_PASSWORD }} --grpc-web
+
+      - name: Sync Development Environment
+        run: |
+          argocd app sync ai-infrastructure-dev
+          argocd app wait ai-infrastructure-dev --timeout 600
+
+      - name: Run Post-Deployment Tests
+        run: |
+          # Test development deployment
+          curl -f https://dev-api.ai-infrastructure-portal.com/api/health
+          curl -f https://dev-dashboard.ai-infrastructure-portal.com/health
+
+  deploy-staging:
+    needs: [validate-infrastructure, test-infrastructure]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER }} --username admin --password ${{ secrets.ARGOCD_PASSWORD }} --grpc-web
+
+      - name: Sync Staging Environment
+        run: |
+          argocd app sync ai-infrastructure-portal --revision ${{ github.sha }}
+          argocd app wait ai-infrastructure-portal --timeout 900
+
+      - name: Run Staging Tests
+        run: |
+          # Load testing
+          npm run test:load -- --environment staging
+
+          # E2E testing
+          npm run test:e2e -- --environment staging
+
+          # Performance testing
+          npm run test:performance -- --environment staging
+
+      - name: Create Release Candidate
+        if: success()
+        run: |
+          gh release create rc-${{ github.sha }} --title "Release Candidate ${{ github.sha }}" --notes "Staging deployment successful" --target ${{ github.sha }} --prerelease
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER }} --username admin --password ${{ secrets.ARGOCD_PASSWORD }} --grpc-web
+
+      - name: Blue-Green Deployment
+        run: |
+          # Get current production version
+          CURRENT_VERSION=$(argocd app get ai-infrastructure-portal -o json | jq -r '.status.sync.revision')
+
+          # Create green deployment
+          argocd app create ai-infrastructure-portal-green \
+            --repo https://github.com/${{ github.repository }} \
+            --path overlay \
+            --dest-server https://kubernetes.default.svc \
+            --dest-namespace ai-infrastructure \
+            --revision ${{ github.sha }} \
+            --sync-policy automated \
+            --auto-prune \
+            --self-heal
+
+          # Wait for green deployment to be healthy
+          argocd app wait ai-infrastructure-portal-green --timeout 1200
+
+          # Switch traffic to green
+          kubectl patch ingress ai-infrastructure-portal-ingress -p '{"spec":{"rules":[{"host":"api.ai-infrastructure-portal.com","http":{"paths":[{"path":"/","pathType":"Prefix","backend":{"service":{"name":"ai-infrastructure-portal-green","port":{"number":5001}}}}]}}]}}'
+
+          # Wait for traffic to stabilize
+          sleep 300
+
+          # Verify production health
+          curl -f https://api.ai-infrastructure-portal.com/api/health
+
+          # Promote green to blue
+          argocd app delete ai-infrastructure-portal
+          argocd app create ai-infrastructure-portal \
+            --repo https://github.com/${{ github.repository }} \
+            --path overlay \
+            --dest-server https://kubernetes.default.svc \
+            --dest-namespace ai-infrastructure \
+            --revision ${{ github.sha }} \
+            --sync-policy automated \
+            --auto-prune \
+            --self-heal
+
+      - name: Create Production Release
+        if: success()
+        run: |
+          gh release create v${{ github.run_number }} --title "Production Release v${{ github.run_number }}" --notes "Production deployment successful" --target ${{ github.sha }}
+
+      - name: Notify Stakeholders
+        if: success()
+        run: |
+          # Send Slack notification
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"🚀 Production deployment successful! Version: ${{ github.sha }}"}' \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
+
+          # Send email notification
+          # Implementation depends on email service
+
+  rollback-production:
+    runs-on: ubuntu-latest
+    if: failure() && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Setup ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Rollback Production
+        run: |
+          # Rollback to previous version
+          argocd app rollback ai-infrastructure-portal HEAD~1
+
+          # Restore ingress to blue deployment
+          kubectl patch ingress ai-infrastructure-portal-ingress -p '{"spec":{"rules":[{"host":"api.ai-infrastructure-portal.com","http":{"paths":[{"path":"/","pathType":"Prefix","backend":{"service":{"name":"ai-infrastructure-portal","port":{"number":5001}}}}]}}]}}'
+
+      - name: Notify Rollback
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"⚠️ Production rollback initiated due to deployment failure"}' \
+            ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,0 +1,280 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resource-limits
+  annotations:
+    policies.kyverno.io/title: Require Resource Limits
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-resources
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "CPU and memory resource limits are required"
+      pattern:
+        spec:
+          containers:
+          - resources:
+              limits:
+                memory: "?*"
+                cpu: "?*"
+              requests:
+                memory: "?*"
+                cpu: "?*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-security-context
+  annotations:
+    policies.kyverno.io/title: Require Security Context
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-security-context
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Security context must be configured"
+      pattern:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: ">0"
+          containers:
+          - securityContext:
+              allowPrivilegeEscalation: false
+              privileged: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: ">0"
+              capabilities:
+                drop:
+                - ALL
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+  annotations:
+    policies.kyverno.io/title: Require Standard Labels
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Resource
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: check-for-labels
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          - Job
+          - CronJob
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Standard labels are required"
+      pattern:
+        metadata:
+          labels:
+            app: "?*"
+            version: "?*"
+            environment: "?*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+  annotations:
+    policies.kyverno.io/title: Restrict Image Registries
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-image-registry
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Images must be from approved registries"
+      pattern:
+        spec:
+          containers:
+          - image: "ghcr.io/your-org/* | quay.io/your-org/* | registry.k8s.io/*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-probes
+  annotations:
+    policies.kyverno.io/title: Require Health Probes
+    policies.kyverno.io/category: Reliability
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-probes
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          - StatefulSet
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Liveness and readiness probes are required"
+      pattern:
+        spec:
+          template:
+            spec:
+              containers:
+              - livenessProbe:
+                  httpGet: "?*"
+                readinessProbe:
+                  httpGet: "?*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-host-mounts
+  annotations:
+    policies.kyverno.io/title: Restrict Host Mounts
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-volumes
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "HostPath volumes are not allowed"
+      pattern:
+        spec:
+          volumes:
+          - hostPath: "null"
+          - emptyDir: "?*"
+          - configMap: "?*"
+          - secret: "?*"
+          - persistentVolumeClaim: "?*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-network-policies
+  annotations:
+    policies.kyverno.io/title: Require Network Policies
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Namespace
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: check-network-policies
+    match:
+      any:
+      - resources:
+          kinds:
+          - Namespace
+    validate:
+      message: "Network policies should be defined for security"
+      pattern:
+        metadata:
+          name: "!kube-system"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-pod-disruption-budget
+  annotations:
+    policies.kyverno.io/title: Enforce Pod Disruption Budget
+    policies.kyverno.io/category: Reliability
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Deployment
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: check-pdb
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Pod Disruption Budget should be configured"
+      pattern:
+        spec:
+          replicas: ">1"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-encryption
+  annotations:
+    policies.kyverno.io/title: Require Encryption
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Secret
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-secret-encryption
+    match:
+      any:
+      - resources:
+          kinds:
+          - Secret
+          namespaces:
+          - ai-infrastructure
+    validate:
+      message: "Secrets must have encryption annotation"
+      pattern:
+        metadata:
+          annotations:
+            "encrypted": "true"

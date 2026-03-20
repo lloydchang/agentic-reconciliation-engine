@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{SERVICE_NAME}}-deployment
+  namespace: {{NAMESPACE}}
+  labels:
+    app: {{SERVICE_NAME}}
+    environment: {{ENVIRONMENT}}
+    version: {{VERSION}}
+spec:
+  replicas: {{REPLICAS}}
+  selector:
+    matchLabels:
+      app: {{SERVICE_NAME}}
+  template:
+    metadata:
+      labels:
+        app: {{SERVICE_NAME}}
+        environment: {{ENVIRONMENT}}
+        version: {{VERSION}}
+    spec:
+      containers:
+      - name: {{SERVICE_NAME}}
+        image: {{IMAGE_REGISTRY}}/{{SERVICE_NAME}}:{{VERSION}}
+        ports:
+        - containerPort: {{PORT}}
+          name: http
+        env:
+        {{ENVIRONMENT_VARIABLES}}
+        resources:
+          requests:
+            memory: {{MEMORY_REQUEST}}
+            cpu: {{CPU_REQUEST}}
+          limits:
+            memory: {{MEMORY_LIMIT}}
+            cpu: {{CPU_LIMIT}}
+        livenessProbe:
+          httpGet:
+            path: {{HEALTH_CHECK_PATH}}
+            port: {{PORT}}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: {{HEALTH_CHECK_PATH}}
+            port: {{PORT}}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        {{VOLUME_MOUNTS}}
+      volumes:
+      {{VOLUMES}}
+      {{IMAGE_PULL_SECRETS}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{SERVICE_NAME}}-service
+  namespace: {{NAMESPACE}}
+  labels:
+    app: {{SERVICE_NAME}}
+    environment: {{ENVIRONMENT}}
+spec:
+  selector:
+    app: {{SERVICE_NAME}}
+  ports:
+  - name: http
+    port: {{PORT}}
+    targetPort: {{PORT}}
+    protocol: TCP
+  type: {{SERVICE_TYPE}}
+---
+{{INGRESS_CONFIG}}

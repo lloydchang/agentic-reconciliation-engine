@@ -15,7 +15,7 @@ metadata:
   name: temporal-config
   namespace: ai-infrastructure
 data:
-  docker.yaml: |
+  config/docker.yaml: |
     persistence:
       default:
         driver: sql
@@ -128,7 +128,7 @@ spec:
         - name: TEMPORAL_CONFIG_DIR
           value: /config
         volumeMounts:
-        - mountPath: /config/config
+        - mountPath: /config
           name: temporal-config
       volumes:
       - name: temporal-config

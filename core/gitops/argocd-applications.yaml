@@ -1,0 +1,236 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-infrastructure-portal
+  namespace: argocd
+  labels:
+    app: ai-infrastructure-portal
+    environment: production
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
+    targetRevision: HEAD
+    path: overlay
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-infrastructure
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-infrastructure-monitoring
+  namespace: argocd
+  labels:
+    app: ai-infrastructure-monitoring
+    environment: production
+spec:
+  project: monitoring
+  source:
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
+    targetRevision: HEAD
+    path: overlay/monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+  revisionHistoryLimit: 5
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-infrastructure-dev
+  namespace: argocd
+  labels:
+    app: ai-infrastructure-portal
+    environment: development
+spec:
+  project: development
+  source:
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
+    targetRevision: develop
+    path: overlay
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-infrastructure-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+  revisionHistoryLimit: 3
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd
+spec:
+  description: Default project for AI Infrastructure Portal
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: ai-infrastructure
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  description: Monitoring and observability components
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: ai-infrastructure
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: development
+  namespace: argocd
+spec:
+  description: Development environment
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: ai-infrastructure-dev
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Enable resource tracking for better sync status
+  resource.customizations: |
+    networking.k8s.io/Ingress:
+      health.lua: |
+        hs = {}
+        hs.status = "Healthy"
+        hs.message = "Ingress is healthy"
+        return hs
+    cert-manager.io/Certificate:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          if obj.status.conditions ~= nil then
+            for i, condition in ipairs(obj.status.conditions) do
+              if condition.type == "Ready" and condition.status == "True" then
+                hs.status = "Healthy"
+                hs.message = "Certificate is ready"
+                return hs
+              end
+            end
+          end
+        end
+        hs.status = "Degraded"
+        hs.message = "Certificate is not ready"
+        return hs
+  # Configure repository credentials
+  repositories: |
+    ai-infrastructure-repo:
+      url: https://github.com/your-org/agentic-reconciliation-engine
+      type: git
+      enableLfs: true
+  # Configure resource exclusions
+  resource.exclusions: |
+    - apiGroups:
+        - "cilium.io"
+      kinds:
+        - CiliumIdentity
+      clusters:
+        - "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-secret
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/part-of: argocd
+type: Opaque
+data:
+  # Base64 encoded repository credentials
+  # repo.ai-infrastructure-repo: <base64-encoded-credentials>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  policy.csv: |
+    # Default policies
+    g, argocd-admin, role:admin
+    # Application management policies
+    p, role:application-admin, applications, *, ai-infrastructure-portal/*, allow
+    p, role:application-admin, applications, *, ai-infrastructure-monitoring/*, allow
+    p, role:application-admin, applications, *, ai-infrastructure-dev/*, allow
+    p, role:application-admin, clusters, get, *, allow
+    p, role:application-admin, repositories, *, *, allow
+    p, role:application-admin, projects, *, ai-infrastructure-portal, allow
+    p, role:application-admin, projects, *, monitoring, allow
+    p, role:application-admin, projects, *, development, allow
+    # Read-only policies
+    p, role:application-viewer, applications, get, ai-infrastructure-portal/*, allow
+    p, role:application-viewer, applications, get, ai-infrastructure-monitoring/*, allow
+    p, role:application-viewer, logs, get, ai-infrastructure-portal/*, allow
+    p, role:application-viewer, logs, get, ai-infrastructure-monitoring/*, allow
+  policy.default: role:application-viewer
