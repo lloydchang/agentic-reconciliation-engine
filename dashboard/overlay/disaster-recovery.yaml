@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-config
+  namespace: ai-infrastructure
+data:
+  dr-strategy.yaml: |
+    global:
+      clusterPrimary: "us-west-2"
+      clusterSecondary: "us-east-1"
+      rto: "300"  # 5 minutes Recovery Time Objective
+      rpo: "60"   # 1 minute Recovery Point Objective
+
+    services:
+      ai-infrastructure-portal:
+        replicas: 3
+        backupInterval: "3600"  # 1 hour
+        retentionPeriod: "168"  # 7 days
+
+      redis-cache:
+        replicas: 2
+        backupInterval: "1800"  # 30 minutes
+        retentionPeriod: "72"   # 3 days
+
+    monitoring:
+      healthCheckInterval: "30"
+      failoverTimeout: "120"
+      notificationChannels: ["email", "slack", "pagerduty"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disaster-recovery-controller
+  namespace: ai-infrastructure
+  labels:
+    app: disaster-recovery-controller
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: disaster-recovery-controller
+  template:
+    metadata:
+      labels:
+        app: disaster-recovery-controller
+    spec:
+      serviceAccountName: disaster-recovery-sa
+      containers:
+      - name: dr-controller
+        image: ai-infrastructure-portal/dr-controller:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: CLUSTER_PRIMARY
+          value: "us-west-2"
+        - name: CLUSTER_SECONDARY
+          value: "us-east-1"
+        - name: RTO_SECONDS
+          value: "300"
+        - name: RPO_SECONDS
+          value: "60"
+        volumeMounts:
+        - name: dr-config
+          mountPath: /etc/disaster-recovery
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: dr-config
+        configMap:
+          name: disaster-recovery-config
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: disaster-recovery-sa
+  namespace: ai-infrastructure
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: disaster-recovery-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: disaster-recovery-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: disaster-recovery-role
+subjects:
+- kind: ServiceAccount
+  name: disaster-recovery-sa
+  namespace: ai-infrastructure
