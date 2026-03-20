@@ -85,7 +85,9 @@
       "Bash(core/crossplane/helm-values.yaml:*)",
       "Bash(/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
       "Bash(break)",
-      "Bash(/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)"
+      "Bash(/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
+      "Bash(core/operators/control-plane/crossplane/xrds/xredis.yaml:*)",
+      "Bash(core/operators/control-plane/crossplane/compositions/redis-aws.yaml:*)"
     ]
   }
 }
