@@ -18,7 +18,9 @@
       "Bash(docker ps:*)",
       "Bash(go build:*)",
       "Bash(bash -x core/scripts/automation/deploy-ai-agents-ecosystem.sh)",
-      "Bash(TOPDIR=/Users/lloyd/github/antigravity/agentic-reconciliation-engine)"
+      "Bash(TOPDIR=/Users/lloyd/github/antigravity/agentic-reconciliation-engine)",
+      "Bash(kubectl delete:*)",
+      "Bash(go mod:*)"
     ]
   }
 }

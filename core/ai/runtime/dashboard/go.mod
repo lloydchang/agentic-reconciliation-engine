@@ -1,4 +1,4 @@
-module github.com/lloydchang/$TOPDIR/core/ai/runtime/dashboard
+module github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/dashboard
 
 go 1.24.0
 
