@@ -25,26 +25,197 @@ spec:
           properties:
             spec:
               type: object
-              required: [engine, version, size]
+              required: [engine, version, size, region]
               properties:
                 engine:
                   type: string
-                  enum: [postgres, mysql]
+                  enum: [postgres, mysql, mariadb, sqlserver]
+                  description: "Database engine type"
                 version:
                   type: string
-                  description: "Engine version string e.g. '15', '8.0'"
+                  description: "Engine version (e.g., '15', '8.0', '14')"
                 size:
                   type: string
-                  enum: [small, medium, large]
-                  description: "small=db.t3.small, medium=db.t3.medium, large=db.r6g.large"
+                  enum: [small, medium, large, xlarge, 2xlarge]
+                  description: "Size tier - maps to provider-specific instance types"
                 region:
                   type: string
-                  default: us-east-1
+                  description: "Cloud region for database deployment"
+
+                # Storage Configuration
+                storage:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["gp2", "gp3", "io1", "standard", "ultrassd"]
+                      description: "Storage type/performance tier"
+                    sizeGb:
+                      type: integer
+                      description: "Allocated storage in GB"
+                    iops:
+                      type: integer
+                      description: "Provisioned IOPS (for provisioned IOPS storage types)"
+                    throughput:
+                      type: integer
+                      description: "Throughput in MB/s (for gp3)"
+
+                # High Availability
+                highAvailability:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    mode:
+                      type: string
+                      enum: ["multi-az", "zone-redundant", "ha"]
+                    standbyCount:
+                      type: integer
+                      description: "Number of standby replicas"
+
+                # Backup Configuration
+                backup:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    retentionDays:
+                      type: integer
+                      description: "Backup retention period in days"
+                    window:
+                      type: string
+                      description: "Backup window e.g., '03:00-04:00'"
+                    type:
+                      type: string
+                      enum: ["automated", "manual"]
+                    pointInTimeRecovery:
+                      type: boolean
+                      description: "Enable PITR (Point-in-Time Recovery)"
+
+                # Maintenance
+                maintenance:
+                  type: object
+                  properties:
+                    window:
+                      type: string
+                      description: "Maintenance window cron or 'Sun:03:00-Sun:04:00'"
+                    day:
+                      type: string
+                      enum: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                    hour:
+                      type: integer
+                      minimum: 0
+                      maximum: 23
+                    preferred:
+                      type: boolean
+                      description: "Prefer this window for automatic maintenance"
+
+                # Encryption at Rest
+                encryption:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    type:
+                      type: string
+                      enum: ["provider-default", "aws-kms", "azure-keyvault", "gcp-kms"]
+                    keyId:
+                      type: string
+                      description: "KMS key ID or ARN for customer-managed key"
+
+                # Deletion Protection
+                deletionProtection:
+                  type: boolean
+                  description: "Prevent accidental deletion via control plane"
+
+                # Network & Connectivity
+                network:
+                  type: object
+                  properties:
+                    vpcId:
+                      type: string
+                      description: "VPC/VNet ID (or reference to XNetwork)"
+                    subnetIds:
+                      type: array
+                      items:
+                        type: string
+                      description: "Subnet IDs for DB subnet group"
+                    securityGroupIds:
+                      type: array
+                      items:
+                        type: string
+                      description: "Security group IDs"
+                    privateAccessOnly:
+                      type: boolean
+                      description: "Disable public access"
+                    assignPublicIp:
+                      type: boolean
+                      description: "Assign public IP (not recommended for production)"
+
+                # Database Parameters
+                parameterGroup:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    family:
+                      type: string
+                    parameters:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+
+                # Option Groups (RDS-specific for MySQL)
+                optionGroup:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+
+                # Performance & Monitoring
+                performance:
+                  type: object
+                  properties:
+                    insightsEnabled:
+                      type: boolean
+                      description: "Enable Performance Insights (RDS) / Query Insights (CloudSQL)"
+                    insightsRetentionDays:
+                      type: integer
+                    monitoringInterval:
+                      type: integer
+                      description: "Enhanced monitoring interval in seconds"
+                    monitoringRoleArn:
+                      type: string
+                      description: "IAM role for monitoring"
+
+                # Read Replicas
+                readReplicas:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      size:
+                        type: string
+                  description: "Configuration for read replicas"
+
+                # Multi-Master (Aurora/CloudSQL)
+                multiMaster:
+                  type: boolean
+                  description: "Enable multi-master clustering (if supported)"
+
                 deletionPolicy:
                   type: string
                   enum: [Delete, Orphan]
                   default: Orphan
-                  description: "Orphan retains the cloud resource if the claim is deleted"
+                  description: "Orphan retains cloud resource if claim is deleted"
+
             status:
               type: object
               properties:
@@ -53,3 +224,15 @@ spec:
                 port:
                   type: integer
                   format: int32
+                readerEndpoint:
+                  type: string
+                  description: "Read replica endpoint if available"
+                status:
+                  type: string
+                  description: "Database status (available, creating, failing)"
+                engine:
+                  type: string
+                  description: "Actual engine running"
+                version:
+                  type: string
+                  description: "Actual version running"

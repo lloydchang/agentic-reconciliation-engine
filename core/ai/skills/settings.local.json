@@ -82,7 +82,9 @@
       "Bash(git reset:*)",
       "Bash(yq eval:*)",
       "Bash(chmod:*)",
-      "Bash(core/crossplane/helm-values.yaml:*)"
+      "Bash(core/crossplane/helm-values.yaml:*)",
+      "Bash(/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
+      "Bash(break)"
     ]
   }
 }

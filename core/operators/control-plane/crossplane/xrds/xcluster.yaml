@@ -22,34 +22,278 @@ spec:
           properties:
             spec:
               type: object
-              required: [nodeCount, nodeSize, kubernetesVersion, region]
+              # Required: either nodeCount+nodeSize (legacy) OR nodePools
+              required: [kubernetesVersion, region]
               properties:
+                # Legacy fields (keep for backward compatibility, but deprecated)
                 nodeCount:
                   type: integer
                   minimum: 1
-                  default: 3
+                  description: "DEPRECATED: Use nodePools instead. Single node pool size."
                 nodeSize:
                   type: string
                   enum: [small, medium, large]
+                  description: "DEPRECATED: Use nodePools instead. Instance type size."
+
+                # Core cluster configuration
                 kubernetesVersion:
                   type: string
-                  description: "Kubernetes version string e.g. '1.30'"
+                  description: "Kubernetes version e.g. '1.30', '1.29'"
                 region:
                   type: string
+                  description: "Cloud provider region"
                 networkRef:
                   type: object
                   description: "Reference to an XNetwork claim"
                   properties:
                     name:
                       type: string
+                    namespace:
+                      type: string
+
+                # Node Pools (recommended)
+                nodePools:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, instanceType]
+                    properties:
+                      name:
+                        type: string
+                        description: "Node pool name (e.g., 'general', 'spot', 'gpu')"
+                      instanceType:
+                        type: string
+                        description: "Cloud-specific instance type (e.g., t3.large, e2-standard-2, Standard_D4s_v3)"
+                      minSize:
+                        type: integer
+                        description: "Minimum number of nodes (for autoscaling)"
+                      maxSize:
+                        type: integer
+                        description: "Maximum number of nodes (for autoscaling)"
+                      desiredSize:
+                        type: integer
+                        description: "Desired number of nodes (if not autoscaling, set min=max=desired)"
+                      diskSizeGb:
+                        type: integer
+                        description: "Root volume size in GB"
+                      diskType:
+                        type: string
+                        description: "Disk type (e.g., gp3, standard, premium)"
+                      labels:
+                        type: object
+                        additionalProperties:
+                          type: string
+                        description: "Kubernetes node labels"
+                      taints:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                            effect:
+                              type: string
+                              enum: ["NoSchedule", "PreferNoSchedule", "NoExecute"]
+                      tags:
+                        type: object
+                        additionalProperties:
+                          type: string
+                        description: "Cloud-specific resource tags"
+                      capacityType:
+                        type: string
+                        enum: ["ON_DEMAND", "SPOT", "RESERVED"]
+                        description: "Capacity type (affects cost and availability)"
+                      gpu:
+                        type: object
+                        description: "GPU configuration if needed"
+                        properties:
+                          type:
+                            type: string
+                            description: "GPU type (nvidia-tesla-v100, etc.)"
+                          count:
+                            type: integer
+                            description: "Number of GPUs per node"
+
+                # Cluster endpoint access
+                endpointAccess:
+                  type: object
+                  properties:
+                    private:
+                      type: boolean
+                      description: "Enable private endpoint (VPC-only access)"
+                    public:
+                      type: boolean
+                      description: "Enable public endpoint (internet-accessible)"
+                    publicCidrs:
+                      type: array
+                      items:
+                        type: string
+                      description: "CIDRs allowed to access public endpoint"
+
+                # Kubernetes add-ons
+                addons:
+                  type: array
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name:
+                        type: string
+                        enum: ["vpc-cni", "coredns", "kube-proxy", "ebs-csi", "efs-csi", "metrics-server", "cluster-autoscaler", "aws-node-termination-handler", "k8s-spot-termination-handler"]
+                        description: "Add-on name"
+                      version:
+                        type: string
+                        description: "Specific version (defaults to latest managed)"
+                      configuration:
+                        type: object
+                        description: "Add-on specific configuration"
+                        additionalProperties:
+                          type: object
+
+                # Logging configuration
+                logging:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    types:
+                      type: array
+                      items:
+                        type: string
+                        enum: ["api", "audit", "app", "controllerManager", "scheduler"]
+                      description: "Log types to enable"
+                    destination:
+                      type: string
+                      enum: ["cloudwatch", "stackdriver", "azuremonitor", "loki"]
+                      description: "Logging backend"
+
+                # Monitoring
+                monitoring:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    managedPrometheus:
+                      type: boolean
+                      description: "Enable cloud provider's managed Prometheus"
+                    cloudWatch (Azure Monitor / Cloud Monitoring):
+                      type: boolean
+                    metrics:
+                      type: array
+                      items:
+                        type: string
+                      description: "Additional metrics to collect"
+
+                # Identity & IAM
+                identity:
+                  type: object
+                  properties:
+                    oidc:
+                      type: object
+                      properties:
+                        issuerUrl:
+                          type: string
+                          description: "OIDC issuer URL (auto-generated if omitted)"
+                        clientId:
+                          type: string
+                          description: "OIDC client ID"
+                    iam:
+                      type: object
+                      properties:
+                        roleArn:
+                          type: string
+                          description: "AWS IAM role ARN for cluster (EKS)"
+                        serviceAccount:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            issuerUrl:
+                              type: string
+
+                # Encryption at rest
+                encryption:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    provider:
+                      type: string
+                      enum: ["provider-default", "aws-kms", "gcp-kms", "azure-keyvault"]
+                    keyId:
+                      type: string
+                      description: "KMS key ID/ARN if using customer-managed key"
+
+                # Maintenance window
+                maintenance:
+                  type: object
+                  properties:
+                    window:
+                      type: string
+                      description: "Maintenance window cron expression or 'Sun:03:00-Sun:04:00'"
+                    day:
+                      type: string
+                      enum: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                    hour:
+                      type: integer
+                      minimum: 0
+                      maximum: 23
+                    allowInterrupt:
+                      type: boolean
+                      description: "Allow interruptible maintenance"
+
+                # Shielded/GCE features
+                security:
+                  type: object
+                  properties:
+                    shieldedNodes:
+                      type: boolean
+                      description: "Enable shielded nodes (EKS/GKE)"
+                    binaryAuthorization:
+                      type: boolean
+                      description: "Enable binary authorization (GKE)"
+
                 deletionPolicy:
                   type: string
                   enum: [Delete, Orphan]
                   default: Orphan
+
             status:
               type: object
               properties:
                 endpoint:
                   type: string
+                  description: "Kubernetes API endpoint URL"
+                kubeconfigSecret:
+                  type: string
+                  description: "Name of kubeconfig secret (if writeConnectionSecretToRef used)"
                 phase:
                   type: string
+                  enum: ["Pending", "Creating", "Active", "Updating", "Deleting", "Failed"]
+                version:
+                  type: string
+                  description: "Actual Kubernetes version running"
+                nodeCount:
+                  type: integer
+                  description: "Current total node count"
+                readyCount:
+                  type: integer
+                  description: "Number of ready nodes"
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["True", "False", "Unknown"]
+                      reason:
+                        type: string
+                      message:
+                        type: string

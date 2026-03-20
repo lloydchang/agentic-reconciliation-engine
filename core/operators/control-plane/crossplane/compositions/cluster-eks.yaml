@@ -10,7 +10,38 @@ spec:
     apiVersion: platform.example.com/v1alpha1
     kind: XCluster
   writeConnectionSecretsToNamespace: crossplane-system
+  # Patch name must match composite name for kubeconfig secret
+  patchPropagation:
+    enabled: true
   resources:
+    # IAM Role for EKS cluster (must exist or create via composition)
+    - name: eks-cluster-role
+      base:
+        apiVersion: iam.aws.crossplane.io/v1beta1
+        kind: Role
+        spec:
+          forProvider:
+            assumeRolePolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Principal:
+                    Service: eks.amazonaws.com
+                  Action: sts:AssumeRole
+            managedPolicyArns:
+              - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+              - arn:aws:iam::aws:policy/AmazonEKSVPCResourceController
+            tags:
+              - key: Name
+                value: placeholder-eks-role
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
+
+    # EKS Cluster
     - name: eks-cluster
       base:
         apiVersion: eks.aws.crossplane.io/v1beta1
@@ -19,9 +50,36 @@ spec:
           forProvider:
             region: us-east-1
             version: "1.30"
-            roleArn: arn:aws:iam::123456789012:role/eks-cluster-role
+            roleArn: arn:aws:iam::123456789012:role/eks-cluster-role  # Will patch from eks-cluster-role
+            resourcesVpcConfig:
+              subnetIds: []  # Will patch from network claim
+              endpointPrivateAccess: true
+              endpointPublicAccess: false
+            kubernetesNetworkConfig:
+              ipFamily: ipv4
+            logging:
+              clusterLogging:
+                enabledTypes:
+                  - type: api
+                  - type: audit
+                  - type: app
+                  - type: controllerManager
+                target: cloudwatch-log-group
+            encryptionConfig:
+              - provider:
+                  keyArn: ""  # Optional: KMS key ARN
+                resources:
+                  - secrets
+            tags:
+              - key: Name
+                value: placeholder
+              - key: ManagedBy
+                value: crossplane
           providerConfigRef:
             name: aws-provider
+        writeConnectionSecretToRef:
+          name: ""
+          namespace: crossplane-system
       patches:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.region
@@ -29,3 +87,175 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.kubernetesVersion
           toFieldPath: spec.forProvider.version
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.encryption.keyId
+          toFieldPath: spec.forProvider.encryptionConfig[0].provider.keyArn
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath:
+            - spec.writeConnectionSecretToRef.name
+            - spec.forProvider.tags[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.endpointAccess.private
+          toFieldPath: spec.forProvider.resourcesVpcConfig.endpointPrivateAccess
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.endpointAccess.public
+          toFieldPath: spec.forProvider.resourcesVpcConfig.endpointPublicAccess
+        # Link to network subnets - complex patching needed
+        # This would require patches from network claim's status.subnetIds
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.atProvider.networkRef.subnetIds  # Hypothetical - network status would need to expose subnet IDs
+          toFieldPath: spec.forProvider.resourcesVpcConfig.subnetIds
+        # Map logging types
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.logging.types
+          toFieldPath: spec.forProvider.logging.clusterLogging.enabledTypes
+
+    # Node Group (general purpose)
+    - name: eks-nodegroup-general
+      base:
+        apiVersion: eks.aws.crossplane.io/v1beta1
+        kind: NodeGroup
+        spec:
+          forProvider:
+            clusterName: ""
+            region: us-east-1
+            nodeRole:
+              - arn:aws:iam::123456789012:role/AmazonEKSNodeRole  # Should create this role
+            subnetIds: []  # Should patch to same subnets as cluster
+            scalingConfig:
+              desiredSize: 3
+              maxSize: 10
+              minSize: 3
+            instanceTypes:
+              - t3.large
+            amiType: AL2_x86_64
+            diskSize: 100
+            diskType: gp3
+            labels:
+              node-type: general
+            tags:
+              - key: Name
+                value: placeholder-general-ng
+              - key: ManagedBy
+                value: crossplane
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name  # Link to cluster
+          toFieldPath: spec.forProvider.clusterName
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.atProvider.eks-cluster  # Get cluster name
+          toFieldPath: spec.forProvider.clusterName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].instanceType
+          toFieldPath: spec.forProvider.instanceTypes[0]
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].minSize
+          toFieldPath: spec.forProvider.scalingConfig.minSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].maxSize
+          toFieldPath: spec.forProvider.scalingConfig.maxSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].desiredSize
+          toFieldPath: spec.forProvider.scalingConfig.desiredSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].diskSizeGb
+          toFieldPath: spec.forProvider.diskSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="general"].labels
+          toFieldPath: spec.forProvider.labels
+
+    # Node Group (spot instances) - optional, only if nodePools has a pool with capacityType: SPOT
+    - name: eks-nodegroup-spot
+      base:
+        apiVersion: eks.aws.crossplane.io/v1beta1
+        kind: NodeGroup
+        spec:
+          forProvider:
+            clusterName: ""
+            region: us-east-1
+            nodeRole:
+              - arn:aws:iam::123456789012:role/AmazonEKSNodeRole
+            subnetIds: []
+            scalingConfig:
+              desiredSize: 0
+              maxSize: 10
+              minSize: 0
+            instanceTypes:
+              - t3.large
+           amiType: AL2_x86_64
+            diskSize: 100
+            diskType: gp3
+            capacityType: SPOT
+            labels:
+              node-type: spot
+              lifecycle: spot
+            tags:
+              - key: Name
+                value: placeholder-spot-ng
+              - key: ManagedBy
+                value: crossplane
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.clusterName
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.atProvider.eks-cluster
+          toFieldPath: spec.forProvider.clusterName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="spot"].instanceType
+          toFieldPath: spec.forProvider.instanceTypes[0]
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="spot"].minSize
+          toFieldPath: spec.forProvider.scalingConfig.minSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="spot"].maxSize
+          toFieldPath: spec.forProvider.scalingConfig.maxSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[??name=="spot"].desiredSize
+          toFieldPath: spec.forProvider.scalingConfig.desiredSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="spot"].diskSizeGb
+          toFieldPath: spec.forProvider.diskSize
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.nodePools[?name=="spot"].labels
+          toFieldPath: spec.forProvider.labels
+
+    # IAM Node Role (if not already present)
+    - name: eks-node-role
+      base:
+        apiVersion: iam.aws.crossplane.io/v1beta1
+        kind: Role
+        spec:
+          forProvider:
+            assumeRolePolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Principal:
+                    Service: ec2.amazonaws.com
+                  Action: sts:AssumeRole
+            managedPolicyArns:
+              - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+              - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+              - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+              - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+            tags:
+              - key: Name
+                value: placeholder-node-role
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value
