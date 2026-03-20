@@ -147,7 +147,7 @@ kubectl get ingress -n ai-infrastructure
 NAMESPACE="ai-infrastructure"  # Default namespace
 
 # Temporal configuration
-TEMPORAL_VERSION="1.22.0"      # Temporal server version
+TEMPORAL_VERSION="1.28.3"      # Temporal server version
 
 # Model configuration
 OLLAMA_MODEL="qwen2.5:0.5b"   # AI model for inference

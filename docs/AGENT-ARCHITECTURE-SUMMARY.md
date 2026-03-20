@@ -44,7 +44,7 @@ metadata:
 spec:
   containers:
   - name: temporal
-    image: temporalio/server:1.22.0
+    image: temporalio/server:1.28.3
     ports:
     - containerPort: 7233
 ```

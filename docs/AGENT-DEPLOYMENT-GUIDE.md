@@ -114,7 +114,7 @@ chmod +x core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```bash
 # Set environment variables
 export NAMESPACE="ai-infrastructure"
-export TEMPORAL_VERSION="1.22.0"
+export TEMPORAL_VERSION="1.28.3"
 export OLLAMA_MODEL="qwen2.5:0.5b"
 
 # Configure kubectl context
@@ -268,7 +268,7 @@ spec:
     spec:
       containers:
       - name: orchestrator
-        image: temporalio/server:1.22.0
+        image: temporalio/server:1.28.3
         ports:
         - containerPort: 7233
         env:
