@@ -1,0 +1,79 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xredis-aws
+  labels:
+    provider: aws
+    platform.example.com/xrd: xredis
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XRedis
+  writeConnectionSecretsToNamespace: crossplane-system
+  resources:
+    - name: elasticache-subnet-group
+      base:
+        apiVersion: elasticache.aws.crossplane.io/v1beta1
+        kind: SubnetGroup
+        spec:
+          forProvider:
+            description: "Managed by Crossplane"
+            subnetIds: []  # Will patch from spec.network.subnetIds
+          providerConfigRef:
+            name: aws-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.network.subnetIds
+          toFieldPath: spec.forProvider.subnetIds
+
+    - name: elasticache-redis
+      base:
+        apiVersion: elasticache.aws.crossplane.io/v1beta1
+        kind: CacheCluster
+        spec:
+          forProvider:
+            engine: redis
+            engineVersion: "6.x"
+            cacheNodeType: cache.t3.micro
+            numCacheNodes: 1
+            parameterGroupName: default.redis6.x
+            subnetGroupName: ""  # Patch from elasticache-subnet-group
+            securityGroupIds: []  # Patch from spec.network.securityGroupIds
+            port: 6379
+            snapshotRetentionLimit: 0
+            snapshotWindow: ""
+          providerConfigRef:
+            name: aws-provider
+        writeConnectionSecretToRef:
+          name: ""
+          namespace: crossplane-system
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.size
+          toFieldPath: spec.forProvider.cacheNodeType
+          transforms:
+            - type: map
+              map:
+                small: cache.t3.micro
+                medium: cache.t3.small
+                large: cache.t3.medium
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.ha.replicaCount
+          toFieldPath: spec.forProvider.numCacheNodes
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.version
+          toFieldPath: spec.forProvider.engineVersion
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath:
+            - spec.writeConnectionSecretToRef.name
+            - spec.forProvider.subnetGroupName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.network.subnetIds
+          toFieldPath: spec.forProvider.subnetIds
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.network.securityGroupIds
+          toFieldPath: spec.forProvider.securityGroupIds
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags[0].value

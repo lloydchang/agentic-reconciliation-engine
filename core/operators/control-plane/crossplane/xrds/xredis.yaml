@@ -1,0 +1,136 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xredises.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XRedis
+    plural: xredises
+  claimNames:
+    kind: Redis
+    plural: redises
+  connectionSecretKeys:
+    - host
+    - port
+    - password
+    - ssl
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [size, region]
+              properties:
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                  description: "Cache size tier (small=1-2GB, medium=4-8GB, large=16+GB)"
+                region:
+                  type: string
+                  description: "Cloud region"
+                version:
+                  type: string
+                  default: "6.x"
+                  description: "Redis version (6.x, 7.x)"
+                # High Availability
+                ha:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    replicationGroup:
+                      type: boolean
+                      description: "Use cluster mode with replication groups"
+                    replicaCount:
+                      type: integer
+                      description: "Number of read replicas"
+                    automaticFailover:
+                      type: boolean
+                # Networking
+                network:
+                  type: object
+                  properties:
+                    vpcId:
+                      type: string
+                    subnetIds:
+                      type: array
+                      items:
+                        type: string
+                    securityGroupIds:
+                      type: array
+                      items:
+                        type: string
+                    privateAccess:
+                      type: boolean
+                      description: "Only allow VPC private access"
+                # Security
+                auth:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["password", "acl", "both"]
+                    passwordSecretRef:
+                      type: object
+                      properties:
+                        namespace:
+                          type: string
+                        name:
+                          type: string
+                        key:
+                          type: string
+                            # Persistence
+                persistence:
+                  type: object
+                  properties:
+                    rdb:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        snapshotRetention:
+                          type: integer
+                        snapshotWindow:
+                          type: string
+                    aof:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                # Eviction Policy
+                evictionPolicy:
+                  type: string
+                  enum: ["noeviction", "allkeys-lru", "volatile-lru", "allkeys-random", "volatile-random", "volatile-ttl"]
+                # Encryption
+                encryption:
+                  type: object
+                  properties:
+                    inTransit:
+                      type: boolean
+                    atRest:
+                      type: boolean
+                    kmsKeyId:
+                      type: string
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                host:
+                  type: string
+                port:
+                  type: integer
+                endpoint:
+                  type: string
+                sslEnabled:
+                  type: boolean
+                replicaCount:
+                  type: integer
