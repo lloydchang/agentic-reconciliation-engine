@@ -1,0 +1,256 @@
+# Smart Multi-Cloud Compute Composition with Intelligent Provider Selection
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: smart-multi-cloud-compute
+  labels:
+    provider: multi-cloud
+    resource: compute
+    capability: smart-selection
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: compute-instance
+    base:
+      apiVersion: compute.aws.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: us-west-2
+          instanceType: t3.medium
+          ami: ami-0abcdef1234567890
+          subnetIdSelector:
+            matchControllerRef: true
+          associatePublicIpAddress: true
+          rootBlockDevice:
+            - volumeSize: 30
+              volumeType: gp3
+              deleteOnTermination: true
+          tags:
+            Name: multicloud-compute
+            ManagedBy: crossplane
+            ProviderSelection: smart
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.costOptimal
+      toFieldPath: metadata.annotations.crossplane.io/cost-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.performanceOptimal
+      toFieldPath: metadata.annotations.crossplane.io/performance-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.complianceRequired
+      toFieldPath: metadata.annotations.crossplane.io/compliance-required
+    - fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.instanceType
+      transforms:
+        - type: map
+          map:
+            small: t3.nano
+            medium: t3.medium
+            large: t3.large
+            xlarge: t3.xlarge
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+        - type: string
+          string:
+            fmt: "smart-compute-%s"
+    - fromFieldPath: spec.provider
+      toFieldPath: metadata.annotations.crossplane.io/selected-provider
+      transforms:
+        - type: map
+          map:
+            aws: aws
+            azure: azure
+            gcp: gcp
+            auto: aws
+  - name: compute-instance-azure
+    base:
+      apiVersion: compute.azure.upbound.io/v1beta1
+      kind: VirtualMachine
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          networkInterfaceIdsSelector:
+            matchControllerRef: true
+          vmSize: Standard_B2s
+          storageProfile:
+            osDisk:
+              createOption: FromImage
+              managedDisk:
+                storageAccountType: Premium_LRS
+              caching: ReadWrite
+              diskSizeGb: 30
+            imageReference:
+              publisher: Canonical
+              offer: UbuntuServer
+              sku: 20_04-lts-gen2
+              version: latest
+          osProfile:
+            computerName: multicloud-compute
+            adminUsername: adminuser
+          tags:
+            Name: multicloud-compute
+            ManagedBy: crossplane
+            ProviderSelection: smart
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.costOptimal
+      toFieldPath: metadata.annotations.crossplane.io/cost-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.performanceOptimal
+      toFieldPath: metadata.annotations.crossplane.io/performance-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.complianceRequired
+      toFieldPath: metadata.annotations.crossplane.io/compliance-required
+    - fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.vmSize
+      transforms:
+        - type: map
+          map:
+            small: Standard_B1s
+            medium: Standard_B2s
+            large: Standard_B4s
+            xlarge: Standard_B8s
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+      transforms:
+        - type: map
+          map:
+            us-west-2: West US
+            us-east-1: East US
+            us-central1: Central US
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.osProfile.computerName
+      transforms:
+        - type: string
+          string:
+            fmt: "smart-compute-%s"
+    - fromFieldPath: spec.provider
+      toFieldPath: metadata.annotations.crossplane.io/selected-provider
+      transforms:
+        - type: map
+          map:
+            aws: azure
+            azure: azure
+            gcp: azure
+            auto: azure
+  - name: compute-instance-gcp
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          project: your-project-id
+          zone: us-central1-a
+          machineType: e2-medium
+          bootDisk:
+            initializeParams:
+              sourceImage: projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20220101
+              diskSizeGb: 30
+              diskType: pd-balanced
+          networkInterface:
+            - networkSelector:
+                matchControllerRef: true
+              accessConfigs:
+                - type: ONE_TO_ONE_NAT
+                  name: External NAT
+          metadata:
+            items:
+              - key: managed-by
+                value: crossplane
+              - key: provider-selection
+                value: smart
+          tags:
+            items:
+              - key: managed-by
+                value: crossplane
+              - key: provider-selection
+                value: smart
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.costOptimal
+      toFieldPath: metadata.annotations.crossplane.io/cost-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.performanceOptimal
+      toFieldPath: metadata.annotations.crossplane.io/performance-optimal
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.providerSelector.complianceRequired
+      toFieldPath: metadata.annotations.crossplane.io/compliance-required
+    - fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.machineType
+      transforms:
+        - type: map
+          map:
+            small: e2-small
+            medium: e2-medium
+            large: e2-standard-2
+            xlarge: e2-standard-4
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.zone
+      transforms:
+        - type: map
+          map:
+            us-west-2: us-west-2-a
+            us-east-1: us-east1-b
+            us-central1: us-central1-a
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.name
+      transforms:
+        - type: string
+          string:
+            fmt: "smart-compute-%s"
+    - fromFieldPath: spec.provider
+      toFieldPath: metadata.annotations.crossplane.io/selected-provider
+      transforms:
+        - type: map
+          map:
+            aws: gcp
+            azure: gcp
+            gcp: gcp
+            auto: gcp
+  # Provider selection logic based on annotations
+  patchSets:
+  - name: aws-provider
+    selector:
+      matchControllerRef: true
+      matchLabels:
+        crossplane.io/selected-provider: aws
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: resources[0].spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceType
+      toFieldPath: resources[0].spec.forProvider.instanceType
+  - name: azure-provider
+    selector:
+      matchControllerRef: true
+      matchLabels:
+        crossplane.io/selected-provider: azure
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: resources[1].spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceType
+      toFieldPath: resources[1].spec.forProvider.vmSize
+  - name: gcp-provider
+    selector:
+      matchControllerRef: true
+      matchLabels:
+        crossplane.io/selected-provider: gcp
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: resources[2].spec.forProvider.zone
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceType
+      toFieldPath: resources[2].spec.forProvider.machineType
+  writeConnectionSecretsToNamespace: crossplane-system
