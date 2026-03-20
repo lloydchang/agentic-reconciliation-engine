@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: ai-infrastructure
+data:
+  backup-policy.json: |
+    {
+      "schedules": [
+        {
+          "name": "api-database-backup",
+          "schedule": "0 */6 * * *",
+          "type": "database",
+          "target": "ai-infrastructure-portal-db",
+          "retention": "168h",
+          "compression": true,
+          "encryption": true
+        },
+        {
+          "name": "redis-backup",
+          "schedule": "0 */2 * * *",
+          "type": "redis",
+          "target": "redis-cache",
+          "retention": "72h",
+          "compression": true
+        },
+        {
+          "name": "config-backup",
+          "schedule": "0 2 * * *",
+          "type": "config",
+          "target": "ai-infrastructure-configs",
+          "retention": "720h",
+          "compression": false
+        }
+      ],
+      "destinations": [
+        {
+          "name": "s3-primary",
+          "type": "s3",
+          "bucket": "ai-portal-backups-primary",
+          "region": "us-west-2",
+          "encryption": "AES256"
+        },
+        {
+          "name": "s3-secondary",
+          "type": "s3",
+          "bucket": "ai-portal-backups-secondary",
+          "region": "us-east-1",
+          "encryption": "AES256"
+        }
+      ]
+    }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: automated-backup
+  namespace: ai-infrastructure
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: backup-sa
+          containers:
+          - name: backup
+            image: ai-infrastructure-portal/backup-tool:latest
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              #!/bin/bash
+              set -e
+
+              echo "Starting automated backup..."
+
+              # Backup API data
+              kubectl exec -n ai-infrastructure deployment/ai-infrastructure-portal -- tar czf /tmp/api-backup.tar.gz /app/data
+              kubectl cp ai-infrastructure/ai-infrastructure-portal-pod:/tmp/api-backup.tar.gz ./api-backup.tar.gz
+
+              # Backup Redis data
+              kubectl exec -n ai-infrastructure deployment/redis-cache -- redis-cli SAVE
+              kubectl cp ai-infrastructure/redis-cache-pod:/data/dump.rdb ./redis-dump.rdb
+
+              # Upload to S3
+              aws s3 cp api-backup.tar.gz s3://ai-portal-backups-primary/api-$(date +%Y%m%d-%H%M%S).tar.gz --region us-west-2
+              aws s3 cp redis-dump.rdb s3://ai-portal-backups-primary/redis-$(date +%Y%m%d-%H%M%S).rdb --region us-west-2
+
+              # Cross-region replication
+              aws s3 cp s3://ai-portal-backups-primary/ s3://ai-portal-backups-secondary/ --recursive --region us-east-1
+
+              echo "Backup completed successfully"
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backup-aws-secret
+                  key: access-key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backup-aws-secret
+                  key: secret-key
+            volumeMounts:
+            - name: backup-volume
+              mountPath: /backup
+          volumes:
+          - name: backup-volume
+            emptyDir: {}
+          restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-cleanup
+  namespace: ai-infrastructure
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: amazonlinux:2
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              #!/bin/bash
+
+              # Remove backups older than retention period
+              aws s3api list-objects-v2 --bucket ai-portal-backups-primary --prefix "api-" --query 'Contents[?LastModified<`'"$(date -d '7 days ago' +%Y-%m-%d)"'`].Key' --output text | xargs -I {} aws s3 rm s3://ai-portal-backups-primary/{} || true
+              aws s3api list-objects-v2 --bucket ai-portal-backups-primary --prefix "redis-" --query 'Contents[?LastModified<`'"$(date -d '3 days ago' +%Y-%m-%d)"'`].Key' --output text | xargs -I {} aws s3 rm s3://ai-portal-backups-primary/{} || true
+
+              echo "Backup cleanup completed"
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backup-aws-secret
+                  key: access-key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backup-aws-secret
+                  key: secret-key
+          restartPolicy: Never
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-sa
+  namespace: ai-infrastructure
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: backup-role
+  namespace: ai-infrastructure
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/exec"]
+  verbs: ["get", "list", "create"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backup-binding
+  namespace: ai-infrastructure
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: backup-role
+subjects:
+- kind: ServiceAccount
+  name: backup-sa
