@@ -154,7 +154,7 @@ if [ "$found_issues" = true ]; then
     echo -e "${YELLOW}Recommended actions:${NC}"
     echo -e "1. Move misplaced files to appropriate subdirectories:"
     echo -e "   - Dashboard/Backend files → dashboard/"
-    echo -e "   - Portal files → portal/"
+    echo -e "   - Portal files → core/ai/portal/"
     echo -e "   - Scripts → scripts/"
     echo -e "   - Infrastructure manifests → overlay/"
     echo -e "   - Documentation → docs/"
