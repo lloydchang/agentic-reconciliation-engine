@@ -49,7 +49,7 @@ data:
           "runAsUser": 8737,
           "fsGroup": 8737
         },
-        "podSpecPatch": "[{\"op\": \"replace\", \"path\": \"/securityContext/runAsUser\", \"value\": 8737}]",
+        "podSpecPatch": "{\"op\": \"replace\", \"path\": \"/securityContext/runAsUser\", \"value\": 8737}",
         "entrypoint": "main",
         "serviceAccountName": "argo-workflows",
         "containerRuntimeExecutor": "pns",
