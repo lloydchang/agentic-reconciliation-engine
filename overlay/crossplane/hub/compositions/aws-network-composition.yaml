@@ -1,0 +1,209 @@
+# AWS Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-network
+  labels:
+    provider: aws
+    crossplane.io/xrd: xnetworks.platform.example.com
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: aws-vpc
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPC
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          cidrBlock: "10.0.0.0/16"
+          enableDnsSupport: true
+          enableDnsHostnames: true
+          tags:
+            Name: "ai-infrastructure-vpc"
+            Environment: "production"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.enableDnsSupport
+      toFieldPath: spec.forProvider.enableDnsSupport
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.enableDnsHostnames
+      toFieldPath: spec.forProvider.enableDnsHostnames
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.vpcId
+      toFieldPath: status.networkId
+  - name: aws-subnet-a
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          availabilityZone: "us-west-2a"
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: "10.0.1.0/24"
+          mapPublicIpOnLaunch: false
+          tags:
+            Name: "ai-infrastructure-subnet-a"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.region
+        strategy: string
+        string:
+          fmt: "%sa"
+      toFieldPath: spec.forProvider.availabilityZone
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.1.0, %s)"
+  - name: aws-subnet-b
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          availabilityZone: "us-west-2b"
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: "10.0.2.0/24"
+          mapPublicIpOnLaunch: false
+          tags:
+            Name: "ai-infrastructure-subnet-b"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.region
+        strategy: string
+        string:
+          fmt: "%sb"
+      toFieldPath: spec.forProvider.availabilityZone
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.2.0, %s)"
+  - name: aws-subnet-c
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          availabilityZone: "us-west-2c"
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: "10.0.3.0/24"
+          mapPublicIpOnLaunch: false
+          tags:
+            Name: "ai-infrastructure-subnet-c"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.region
+        strategy: string
+        string:
+          fmt: "%sc"
+      toFieldPath: spec.forProvider.availabilityZone
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.3.0, %s)"
+  - name: aws-internet-gateway
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: InternetGateway
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            Name: "ai-infrastructure-igw"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+  - name: aws-route-table
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTable
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "aws-network"
+      spec:
+        forProvider:
+          region: "us-west-2"
+          vpcIdSelector:
+            matchControllerRef: true
+          routes:
+            - destinationCidrBlock: "0.0.0.0/0"
+              gatewayIdSelector:
+                matchControllerRef: true
+          tags:
+            Name: "ai-infrastructure-rt"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region

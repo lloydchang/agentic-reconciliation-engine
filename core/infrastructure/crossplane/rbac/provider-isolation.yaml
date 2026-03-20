@@ -1,0 +1,87 @@
+# RBAC for Provider Isolation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aws-team
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: azure-team
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gcp-team
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aws-team-role
+rules:
+- apiGroups: ["aws.upbound.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xvms", "xnetworks"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: aws-team-binding
+subjects:
+- kind: ServiceAccount
+  name: aws-team-sa
+  namespace: aws-team
+roleRef:
+  kind: ClusterRole
+  name: aws-team-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: azure-team-role
+rules:
+- apiGroups: ["azure.upbound.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xvms", "xnetworks"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: azure-team-binding
+subjects:
+- kind: ServiceAccount
+  name: azure-team-sa
+  namespace: azure-team
+roleRef:
+  kind: ClusterRole
+  name: azure-team-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gcp-team-role
+rules:
+- apiGroups: ["gcp.upbound.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["platform.example.com"]
+  resources: ["xvms", "xnetworks"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gcp-team-binding
+subjects:
+- kind: ServiceAccount
+  name: gcp-team-sa
+  namespace: gcp-team
+roleRef:
+  kind: ClusterRole
+  name: gcp-team-role

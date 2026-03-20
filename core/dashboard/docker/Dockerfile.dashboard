@@ -1,4 +1,4 @@
-# AI Infrastructure Portal - Dashboard Dockerfile
+# AI Infrastructure Portal - Dashboard Dockerfile (Multi-Arch Optimized)
 FROM node:18-alpine AS base
 
 RUN apk add --no-cache dumb-init

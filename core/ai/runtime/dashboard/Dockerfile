@@ -1,4 +1,4 @@
-# Backend Dockerfile
+# Backend Dockerfile (Multi-Arch Optimized)
 FROM golang:1.24-alpine AS backend-builder
 
 WORKDIR /app

@@ -1,0 +1,127 @@
+# Azure Network Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: azure-network
+  labels:
+    provider: azure
+    crossplane.io/xrd: xnetworks.platform.example.com
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: azure-vnet
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: VirtualNetwork
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "azure-network"
+      spec:
+        forProvider:
+          location: "East US"
+          addressSpace:
+            - "10.0.0.0/16"
+          tags:
+            Name: "ai-infrastructure-vnet"
+            Environment: "production"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.addressSpace[0]
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId
+  - name: azure-subnet-a
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "azure-network"
+      spec:
+        forProvider:
+          location: "East US"
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: "10.0.1.0/24"
+          tags:
+            Name: "ai-infrastructure-subnet-a"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.addressPrefix
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.1.0, %s)"
+  - name: azure-subnet-b
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "azure-network"
+      spec:
+        forProvider:
+          location: "East US"
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: "10.0.2.0/24"
+          tags:
+            Name: "ai-infrastructure-subnet-b"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.addressPrefix
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.2.0, %s)"
+  - name: azure-subnet-c
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          crossplane.io/managed-by: "crossplane"
+          crossplane.io/composition: "azure-network"
+      spec:
+        forProvider:
+          location: "East US"
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: "10.0.3.0/24"
+          tags:
+            Name: "ai-infrastructure-subnet-c"
+            Type: "private"
+            ManagedBy: "crossplane"
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.addressPrefix
+      transform:
+        type: string
+        string:
+          fmt: "replace(10.0.0.0, 10.0.3.0, %s)"

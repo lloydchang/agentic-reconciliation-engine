@@ -1,4 +1,4 @@
-# AI Infrastructure Portal - API Dockerfile
+# AI Infrastructure Portal - API Dockerfile (Multi-Arch Optimized)
 FROM node:18-alpine AS base
 
 # Install dumb-init for proper signal handling
