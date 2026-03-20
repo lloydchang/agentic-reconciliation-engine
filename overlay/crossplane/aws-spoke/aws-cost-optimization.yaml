@@ -1,0 +1,137 @@
+# AWS Cost Optimization XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: awscostoptimizations.aws.crossplane.io
+  namespace: crossplane-aws-spoke
+spec:
+  group: aws.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              budgetName:
+                type: string
+              budgetLimit:
+                type: object
+                properties:
+                  amount:
+                    type: string
+                  unit:
+                    type: string
+              timeUnit:
+                type: string
+                enum: ["DAILY", "MONTHLY", "QUARTERLY", "ANNUALLY"]
+              costFilters:
+                type: object
+              notifications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    notificationType:
+                      type: string
+                      enum: ["ACTUAL", "FORECASTED"]
+                    comparisonOperator:
+                      type: string
+                      enum: ["GREATER_THAN", "LESS_THAN", "EQUAL_TO"]
+                    threshold:
+                      type: number
+                    thresholdType:
+                      type: string
+                      enum: ["PERCENTAGE", "ABSOLUTE_VALUE"]
+                    subscriberSnsTopicArns:
+                      type: array
+                      items:
+                        type: string
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              budgetArn:
+                type: string
+              lastUpdatedTime:
+                type: string
+  scope: Namespaced
+  names:
+    plural: awscostoptimizations
+    singular: awscostoptimization
+    kind: AWSCostOptimization
+
+---
+# AWS Cost Monitoring Composition
+apiVersion: aws.crossplane.io/v1alpha1
+kind: AWSCostOptimization
+metadata:
+  name: aws-cost-budget
+  namespace: crossplane-aws-spoke
+spec:
+  region: us-east-1
+  budgetName: crossplane-monthly-budget
+  budgetLimit:
+    amount: "1000"
+    unit: USD
+  timeUnit: MONTHLY
+  costFilters:
+    Service:
+    - EC2-Instances
+    - S3
+    - RDS
+  notifications:
+  - notificationType: ACTUAL
+    comparisonOperator: GREATER_THAN
+    threshold: 80
+    thresholdType: PERCENTAGE
+    subscriberSnsTopicArns:
+    - arn:aws:sns:us-east-1:123456789012:crossplane-budget-alerts
+  resources:
+  - name: budget
+    kind: budgets.aws.crossplane.io/v1beta1.Budget
+    spec:
+      forProvider:
+        budgetName: crossplane-monthly-budget
+        budgetLimit:
+          amount: "1000"
+          unit: USD
+        timeUnit: MONTHLY
+        costFilters:
+          Service:
+          - EC2-Instances
+          - S3
+          - RDS
+        notificationsWithSubscribers:
+        - notification:
+            notificationType: ACTUAL
+            comparisonOperator: GREATER_THAN
+            threshold: 80
+            thresholdType: PERCENTAGE
+          subscribers:
+          - subscriptionType: SNS
+            address: arn:aws:sns:us-east-1:123456789012:crossplane-budget-alerts
+  - name: cost-explorer-report
+    kind: ce.aws.crossplane.io/v1beta1.ReportDefinition
+    spec:
+      forProvider:
+        reportName: crossplane-cost-report
+        timeUnit: DAILY
+        format: textORcsv
+        compression: GZIP
+        additionalSchemaElements:
+        - RESOURCES
+        s3Bucket: crossplane-cost-reports
+        s3Prefix: daily-reports/
+        s3Region: us-east-1
+        additionalArtifacts:
+        - ATHENA
+        refreshClosedReports: true
+        reportVersioning: CREATE_NEW_REPORT

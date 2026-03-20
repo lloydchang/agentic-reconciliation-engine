@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-alerting-config
+  namespace: ai-infrastructure
+  labels:
+    component: monitoring
+    layer: observability
+data:
+  alertmanager.yml: |
+    global:
+      smtp_smarthost: 'localhost:587'
+      smtp_from: 'alerts@agentic-reconciliation-engine.local'
+      
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'web.hook'
+      
+    receivers:
+    - name: 'web.hook'
+      webhook_configs:
+      - url: 'http://agent-dashboard:9002/api/v1/alerts'
+        send_resolved: true
+        http_config:
+          bearer_token: 'agent-dashboard-webhook'
+          
+    inhibit_rules:
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      equal: ['alertname', 'AgentDown']

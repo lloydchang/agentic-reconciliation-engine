@@ -54,6 +54,7 @@ class MultiCloudAbstractionLayer {
     };
 
     this.initializeProviders();
+    this._initKubernetesClient();
   }
 
   initializeProviders() {
@@ -84,6 +85,18 @@ class MultiCloudAbstractionLayer {
     }
 
     console.log(`🔧 Initialized ${this.providers.size} cloud providers: ${Array.from(this.providers.keys()).join(', ')}`);
+  }
+
+  _initKubernetesClient() {
+    const kc = new k8s.KubeConfig();
+    if (this.kubeConfigPath) {
+      kc.loadFromFile(this.kubeConfigPath);
+    } else {
+      kc.loadFromCluster();
+    }
+
+    this.k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+    this.customApi = kc.makeApiClient(k8s.CustomObjectsApi);
   }
 
   // Unified VM Management

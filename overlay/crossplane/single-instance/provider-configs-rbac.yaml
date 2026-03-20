@@ -1,0 +1,181 @@
+# AWS ProviderConfig with Isolation
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: aws-config
+  namespace: crossplane-system
+  labels:
+    crossplane.io/tenant: aws
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: aws-creds
+      namespace: crossplane-system
+      key: creds
+  region: us-east-1
+
+---
+# Azure ProviderConfig with Isolation
+apiVersion: azure.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: azure-config
+  namespace: crossplane-system
+  labels:
+    crossplane.io/tenant: azure
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: azure-creds
+      namespace: crossplane-system
+      key: creds
+  subscriptionIDRef:
+    name: azure-subscription
+    namespace: crossplane-system
+    key: subscriptionID
+  tenantIDRef:
+    name: azure-tenant
+    namespace: crossplane-system
+    key: tenantID
+
+---
+# GCP ProviderConfig with Isolation
+apiVersion: gcp.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: gcp-config
+  namespace: crossplane-system
+  labels:
+    crossplane.io/tenant: gcp
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: gcp-creds
+      namespace: crossplane-system
+      key: service-account
+  projectIDRef:
+    name: gcp-project
+    namespace: crossplane-system
+    key: projectID
+
+---
+# RBAC Roles for Multi-Tenant Isolation
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aws-tenant-role
+  namespace: crossplane-system
+rules:
+- apiGroups: ["aws.crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["compositeresources", "compositeresourceclaims"]
+  verbs: ["*"]
+  resourceNames: ["*aws*"]  # Only AWS-related resources
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: azure-tenant-role
+  namespace: crossplane-system
+rules:
+- apiGroups: ["azure.crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["compositeresources", "compositeresourceclaims"]
+  verbs: ["*"]
+  resourceNames: ["*azure*"]  # Only Azure-related resources
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gcp-tenant-role
+  namespace: crossplane-system
+rules:
+- apiGroups: ["gcp.crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["compositeresources", "compositeresourceclaims"]
+  verbs: ["*"]
+  resourceNames: ["*gcp*"]  # Only GCP-related resources
+
+---
+# Multi-Cloud Admin Role (Full Access)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: multicloud-admin-role
+  namespace: crossplane-system
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+# Service Account Bindings (Example - customize as needed)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aws-tenant-binding
+  namespace: crossplane-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aws-tenant-role
+subjects:
+- kind: ServiceAccount
+  name: aws-provider-sa
+  namespace: crossplane-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: azure-tenant-binding
+  namespace: crossplane-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: azure-tenant-role
+subjects:
+- kind: ServiceAccount
+  name: azure-provider-sa
+  namespace: crossplane-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gcp-tenant-binding
+  namespace: crossplane-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gcp-tenant-role
+subjects:
+- kind: ServiceAccount
+  name: gcp-provider-sa
+  namespace: crossplane-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: multicloud-admin-binding
+  namespace: crossplane-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: multicloud-admin-role
+subjects:
+- kind: ServiceAccount
+  name: crossplane-universal
+  namespace: crossplane-system

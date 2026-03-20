@@ -1,0 +1,266 @@
+# Multi-Cloud VM Composition (Spans Multiple Clouds)
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: multicloudvirtualmachines.multicloud.crossplane.io
+  namespace: crossplane-system
+spec:
+  group: multicloud.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 10
+              providers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      enum: ["aws", "azure", "gcp"]
+                    region:
+                      type: string
+                    weight:
+                      type: integer
+                      minimum: 1
+                      maximum: 100
+              instanceType:
+                type: string
+              vmSize:
+                type: string
+              machineType:
+                type: string
+              ami:
+                type: string
+              sourceImage:
+                type: string
+              osImage:
+                type: object
+                properties:
+                  publisher:
+                    type: string
+                  offer:
+                    type: string
+                  sku:
+                    type: string
+                  version:
+                    type: string
+              adminUsername:
+                type: string
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              instances:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    provider:
+                      type: string
+                    instanceId:
+                      type: string
+                    publicIp:
+                      type: string
+                    status:
+                      type: string
+  scope: Namespaced
+  names:
+    plural: multicloudvirtualmachines
+    singular: multicloudvirtualmachine
+    kind: MultiCloudVirtualMachine
+
+---
+# Multi-Cloud VM Composition Implementation
+apiVersion: multicloud.crossplane.io/v1alpha1
+kind: MultiCloudVirtualMachine
+metadata:
+  name: global-web-tier
+  namespace: crossplane-system
+spec:
+  replicas: 6  # 2 per cloud
+  providers:
+  - name: aws
+    region: us-east-1
+    weight: 40  # 40% in AWS
+  - name: azure
+    region: eastus
+    weight: 30  # 30% in Azure
+  - name: gcp
+    region: us-central1
+    weight: 30  # 30% in GCP
+  instanceType: t3.medium
+  vmSize: Standard_B2s
+  machineType: n1-standard-1
+  ami: ami-0abcdef1234567890
+  sourceImage: projects/debian-cloud/global/images/family/debian-10
+  osImage:
+    publisher: Canonical
+    offer: UbuntuServer
+    sku: 18.04-LTS
+    version: latest
+  adminUsername: azureuser
+  tags:
+    environment: production
+    tier: web
+    managed-by: crossplane
+resources:
+  # AWS Instances (weighted distribution)
+  - name: aws-instance-1
+    kind: ec2.aws.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        region: us-east-1
+        instanceType: t3.medium
+        ami: ami-0abcdef1234567890
+        securityGroupRefs:
+        - name: aws-sg
+        subnetRef:
+          name: aws-subnet
+        tags:
+          Name: global-web-tier-aws-1
+          Environment: production
+          Tier: web
+  - name: aws-instance-2
+    kind: ec2.aws.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        region: us-east-1
+        instanceType: t3.medium
+        ami: ami-0abcdef1234567890
+        securityGroupRefs:
+        - name: aws-sg
+        subnetRef:
+          name: aws-subnet
+        tags:
+          Name: global-web-tier-aws-2
+          Environment: production
+          Tier: web
+  # Azure Instances
+  - name: azure-instance-1
+    kind: compute.azure.crossplane.io/v1beta1.VirtualMachine
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        vmSize: Standard_B2s
+        osProfile:
+          computerName: global-web-tier-azure-1
+          adminUsername: azureuser
+        storageProfile:
+          imageReference:
+            publisher: Canonical
+            offer: UbuntuServer
+            sku: 18.04-LTS
+            version: latest
+          osDisk:
+            name: global-web-tier-azure-1-os-disk
+            caching: ReadWrite
+            createOption: FromImage
+        networkProfile:
+          networkInterfaces:
+          - id: /subscriptions/.../resourceGroups/crossplane-rg/providers/Microsoft.Network/networkInterfaces/global-web-tier-azure-1-nic
+            primary: true
+        tags:
+          environment: production
+          tier: web
+          managed-by: crossplane
+  - name: azure-instance-2
+    kind: compute.azure.crossplane.io/v1beta1.VirtualMachine
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        vmSize: Standard_B2s
+        osProfile:
+          computerName: global-web-tier-azure-2
+          adminUsername: azureuser
+        storageProfile:
+          imageReference:
+            publisher: Canonical
+            offer: UbuntuServer
+            sku: 18.04-LTS
+            version: latest
+          osDisk:
+            name: global-web-tier-azure-2-os-disk
+            caching: ReadWrite
+            createOption: FromImage
+        networkProfile:
+          networkInterfaces:
+          - id: /subscriptions/.../resourceGroups/crossplane-rg/providers/Microsoft.Network/networkInterfaces/global-web-tier-azure-2-nic
+            primary: true
+        tags:
+          environment: production
+          tier: web
+          managed-by: crossplane
+  # GCP Instances
+  - name: gcp-instance-1
+    kind: compute.gcp.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        zone: us-central1-a
+        machineType: zones/us-central1-a/machineTypes/n1-standard-1
+        disks:
+        - boot: true
+          initializeParams:
+            sourceImage: projects/debian-cloud/global/images/family/debian-10
+            diskSizeGb: 20
+            diskType: zones/us-central1-a/diskTypes/pd-standard
+        networkInterfaces:
+        - network: global/networks/default
+          accessConfigs:
+          - name: External NAT
+            type: ONE_TO_ONE_NAT
+        serviceAccounts:
+        - email: default
+          scopes:
+          - https://www.googleapis.com/auth/cloud-platform
+        tags:
+          items:
+          - global-web-tier-gcp-1
+        labels:
+          environment: production
+          tier: web
+          managed-by: crossplane
+  - name: gcp-instance-2
+    kind: compute.gcp.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        zone: us-central1-a
+        machineType: zones/us-central1-a/machineTypes/n1-standard-1
+        disks:
+        - boot: true
+          initializeParams:
+            sourceImage: projects/debian-cloud/global/images/family/debian-10
+            diskSizeGb: 20
+            diskType: zones/us-central1-a/diskTypes/pd-standard
+        networkInterfaces:
+        - network: global/networks/default
+          accessConfigs:
+          - name: External NAT
+            type: ONE_TO_ONE_NAT
+        serviceAccounts:
+        - email: default
+          scopes:
+          - https://www.googleapis.com/auth/cloud-platform
+        tags:
+          items:
+          - global-web-tier-gcp-2
+        labels:
+          environment: production
+          tier: web
+          managed-by: crossplane

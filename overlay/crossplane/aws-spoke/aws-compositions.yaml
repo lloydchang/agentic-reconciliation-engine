@@ -1,0 +1,216 @@
+# AWS VM Composition
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: awsvirtualmachinecompositions.aws.crossplane.io
+  namespace: crossplane-aws-spoke
+spec:
+  group: aws.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              instanceType:
+                type: string
+              ami:
+                type: string
+              keyName:
+                type: string
+              securityGroupIds:
+                type: array
+                items:
+                  type: string
+              subnetId:
+                type: string
+              tags:
+                type: object
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    kind:
+                      type: string
+                    spec:
+                      type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    status:
+                      type: object
+  scope: Namespaced
+  names:
+    plural: awsvirtualmachinecompositions
+    singular: awsvirtualmachinecomposition
+    kind: AWSVirtualMachineComposition
+
+---
+# AWS EC2 Instance Composition (Terraform to Crossplane)
+apiVersion: aws.crossplane.io/v1alpha1
+kind: AWSVirtualMachineComposition
+metadata:
+  name: aws-ec2-composition
+  namespace: crossplane-aws-spoke
+spec:
+  region: us-east-1
+  instanceType: t3.micro
+  ami: ami-0abcdef1234567890
+  resources:
+  - name: ec2-instance
+    kind: ec2.aws.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        region: us-east-1
+        instanceType: t3.micro
+        ami: ami-0abcdef1234567890
+        securityGroupRefs:
+        - name: default-sg
+        subnetRef:
+          name: default-subnet
+        tags:
+          Name: crossplane-managed-vm
+  - name: ebs-volume
+    kind: ec2.aws.crossplane.io/v1beta1.Volume
+    spec:
+      forProvider:
+        region: us-east-1
+        size: 20
+        availabilityZone: us-east-1a
+        volumeType: gp3
+        tags:
+          Name: crossplane-managed-volume
+
+---
+# AWS Network Composition (VPC, Subnets, Security Groups)
+apiVersion: aws.crossplane.io/v1alpha1
+kind: AWSNetworkComposition
+metadata:
+  name: aws-vpc-composition
+  namespace: crossplane-aws-spoke
+spec:
+  region: us-east-1
+  vpcCidrBlock: 10.0.0.0/16
+  subnetCidrBlocks: ["10.0.1.0/24", "10.0.2.0/24"]
+  availabilityZones: ["us-east-1a", "us-east-1b"]
+  securityGroupRules:
+  - type: ingress
+    fromPort: 22
+    toPort: 22
+    protocol: tcp
+    cidrBlocks: ["0.0.0.0/0"]
+  - type: ingress
+    fromPort: 80
+    toPort: 80
+    protocol: tcp
+    cidrBlocks: ["0.0.0.0/0"]
+  resources:
+  - name: vpc
+    kind: ec2.aws.crossplane.io/v1beta1.VPC
+    spec:
+      forProvider:
+        region: us-east-1
+        cidrBlock: 10.0.0.0/16
+        enableDnsHostnames: true
+        enableDnsSupport: true
+        tags:
+          Name: crossplane-vpc
+  - name: internet-gateway
+    kind: ec2.aws.crossplane.io/v1beta1.InternetGateway
+    spec:
+      forProvider:
+        region: us-east-1
+        vpcRef:
+          name: vpc
+        tags:
+          Name: crossplane-igw
+  - name: subnet-public-a
+    kind: ec2.aws.crossplane.io/v1beta1.Subnet
+    spec:
+      forProvider:
+        region: us-east-1
+        vpcRef:
+          name: vpc
+        cidrBlock: 10.0.1.0/24
+        availabilityZone: us-east-1a
+        mapPublicIpOnLaunch: true
+        tags:
+          Name: crossplane-subnet-public-a
+  - name: security-group
+    kind: ec2.aws.crossplane.io/v1beta1.SecurityGroup
+    spec:
+      forProvider:
+        region: us-east-1
+        vpcRef:
+          name: vpc
+        groupDescription: Crossplane managed security group
+        ingress:
+        - fromPort: 22
+          toPort: 22
+          protocol: tcp
+          cidrBlocks: ["0.0.0.0/0"]
+        - fromPort: 80
+          toPort: 80
+          protocol: tcp
+          cidrBlocks: ["0.0.0.0/0"]
+        tags:
+          Name: crossplane-sg
+
+---
+# AWS Storage Composition (S3 Buckets)
+apiVersion: aws.crossplane.io/v1alpha1
+kind: AWSStorageComposition
+metadata:
+  name: aws-s3-composition
+  namespace: crossplane-aws-spoke
+spec:
+  region: us-east-1
+  bucketName: crossplane-managed-bucket
+  versioning: true
+  encryption:
+    algorithm: AES256
+  lifecycleRules:
+  - id: archive-old-versions
+    enabled: true
+    expiration:
+      days: 365
+  resources:
+  - name: s3-bucket
+    kind: s3.aws.crossplane.io/v1beta1.Bucket
+    spec:
+      forProvider:
+        region: us-east-1
+        acl: private
+        versioning:
+          enabled: true
+        serverSideEncryptionConfiguration:
+          rules:
+          - applyServerSideEncryptionByDefault:
+              sseAlgorithm: AES256
+        lifecycleConfiguration:
+          rules:
+          - id: archive-old-versions
+            status: Enabled
+            expiration:
+              days: 365
+        tags:
+          Environment: crossplane-managed

@@ -1,0 +1,196 @@
+# Azure Network XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: azurenetworks.azure.crossplane.io
+  namespace: crossplane-azure-spoke
+spec:
+  group: azure.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+              resourceGroupName:
+                type: string
+              virtualNetworkName:
+                type: string
+              addressSpace:
+                type: array
+                items:
+                  type: string
+              subnets:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    addressPrefix:
+                      type: string
+                    securityGroupName:
+                      type: string
+              networkSecurityGroups:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    rules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          priority:
+                            type: integer
+                          direction:
+                            type: string
+                            enum: ["Inbound", "Outbound"]
+                          access:
+                            type: string
+                            enum: ["Allow", "Deny"]
+                          protocol:
+                            type: string
+                          sourcePortRange:
+                            type: string
+                          destinationPortRange:
+                            type: string
+                          sourceAddressPrefix:
+                            type: string
+                          destinationAddressPrefix:
+                            type: string
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              virtualNetworkId:
+                type: string
+              subnetIds:
+                type: array
+                items:
+                  type: string
+              networkSecurityGroupIds:
+                type: array
+                items:
+                  type: string
+  scope: Namespaced
+  names:
+    plural: azurenetworks
+    singular: azurenetwork
+    kind: AzureNetwork
+
+---
+# Azure Storage XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: azurestorages.azure.crossplane.io
+  namespace: crossplane-azure-spoke
+spec:
+  group: azure.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+              resourceGroupName:
+                type: string
+              storageAccountName:
+                type: string
+              accountTier:
+                type: string
+                enum: ["Standard", "Premium"]
+              accountReplicationType:
+                type: string
+                enum: ["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"]
+              allowBlobPublicAccess:
+                type: boolean
+              minimumTlsVersion:
+                type: string
+                enum: ["TLS1_0", "TLS1_1", "TLS1_2"]
+              containers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    containerAccessType:
+                      type: string
+                      enum: ["blob", "container", "private"]
+                    metadata:
+                      type: object
+              blobServices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    corsRules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          allowedHeaders:
+                            type: array
+                            items:
+                              type: string
+                          allowedMethods:
+                            type: array
+                            items:
+                              type: string
+                          allowedOrigins:
+                            type: array
+                            items:
+                              type: string
+                          exposedHeaders:
+                            type: array
+                            items:
+                              type: string
+                          maxAgeInSeconds:
+                            type: integer
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              storageAccountId:
+                type: string
+              primaryBlobEndpoint:
+                type: string
+              primaryQueueEndpoint:
+                type: string
+              primaryTableEndpoint:
+                type: string
+              primaryFileEndpoint:
+                type: string
+  scope: Namespaced
+  names:
+    plural: azurestorages
+    singular: azurestorage
+    kind: AzureStorage

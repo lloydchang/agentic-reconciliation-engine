@@ -1,0 +1,94 @@
+# Crossplane Pipeline Controller (Hub)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crossplane-pipeline-controller
+  namespace: crossplane-hub
+  labels:
+    app: crossplane-pipeline-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crossplane-pipeline-controller
+  template:
+    metadata:
+      labels:
+        app: crossplane-pipeline-controller
+    spec:
+      serviceAccountName: crossplane-pipeline-sa
+      containers:
+      - name: controller
+        image: crossplane/pipeline-controller:v0.1.0
+        args:
+        - --leader-elect
+        env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 65532
+          runAsGroup: 65532
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+
+---
+# Pipeline Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-pipeline-sa
+  namespace: crossplane-hub
+
+---
+# Pipeline RBAC
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-pipeline-role
+  namespace: crossplane-hub
+rules:
+- apiGroups: ["crossplane.io"]
+  resources: ["multicloudpipelines", "multicloudpipelines/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["aws.crossplane.io", "azure.crossplane.io", "gcp.crossplane.io"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-pipeline-binding
+  namespace: crossplane-hub
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crossplane-pipeline-role
+subjects:
+- kind: ServiceAccount
+  name: crossplane-pipeline-sa
+  namespace: crossplane-hub

@@ -1,0 +1,98 @@
+# Crossplane Pipeline XRD (Hub)
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: multicloudpipelines.crossplane.io
+  namespace: crossplane-hub
+spec:
+  group: crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              strategy:
+                type: string
+                enum: ["sequential", "parallel", "rolling", "blue-green", "canary"]
+              regions:
+                type: array
+                items:
+                  type: string
+              providers:
+                type: array
+                items:
+                  type: string
+                  enum: ["aws", "azure", "gcp"]
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    provider:
+                      type: string
+                    region:
+                      type: string
+                    type:
+                      type: string
+                      enum: ["vm", "network", "storage"]
+                    spec:
+                      type: object
+              healthChecks:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                      enum: ["http", "tcp", "custom"]
+                    endpoint:
+                      type: string
+                    interval:
+                      type: string
+                    timeout:
+                      type: string
+                    retries:
+                      type: integer
+              rollback:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  strategy:
+                    type: string
+                    enum: ["immediate", "gradual"]
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Running", "Completed", "Failed", "RollingBack"]
+              currentStep:
+                type: string
+              completedSteps:
+                type: array
+                items:
+                  type: string
+              failedSteps:
+                type: array
+                items:
+                  type: string
+              startTime:
+                type: string
+              completionTime:
+                type: string
+  scope: Namespaced
+  names:
+    plural: multicloudpipelines
+    singular: multicloudpipeline
+    kind: MultiCloudPipeline

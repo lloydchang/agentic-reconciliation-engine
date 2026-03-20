@@ -1,0 +1,132 @@
+# Hub Control Plane Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-hub
+  labels:
+    crossplane.io/architecture: hub
+    crossplane.io/purpose: multi-cloud-orchestration
+
+---
+# Crossplane Hub Operator
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: crossplane-hub
+  namespace: crossplane-hub
+spec:
+  package: xpkg.upbound.io/crossplane/crossplane:v1.14.0
+  runtimeConfigRef:
+    name: crossplane-hub-config
+
+---
+# Hub Runtime Config
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: crossplane-hub-config
+  namespace: crossplane-hub
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: crossplane-hub
+      template:
+        spec:
+          serviceAccountName: crossplane-hub
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/crossplane:v1.14.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+
+---
+# Hub Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-hub
+  namespace: crossplane-hub
+
+---
+# Hub RBAC - Cluster Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-hub
+  namespace: crossplane-hub
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services", "serviceaccounts"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+# Hub RBAC - Cluster Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-hub
+  namespace: crossplane-hub
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crossplane-hub
+subjects:
+- kind: ServiceAccount
+  name: crossplane-hub
+  namespace: crossplane-hub
+
+---
+# Multi-Cloud XRD Base
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: multicloudresources.crossplane.io
+  namespace: crossplane-hub
+spec:
+  group: crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+              region:
+                type: string
+              resourceType:
+                type: string
+                enum: ["vm", "storage", "network"]
+              parameters:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Creating", "Running", "Failed"]
+              providerStatus:
+                type: object
+  scope: Namespaced
+  names:
+    plural: multicloudresources
+    singular: multicloudresource
+    kind: MultiCloudResource

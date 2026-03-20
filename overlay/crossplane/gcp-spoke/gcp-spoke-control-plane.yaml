@@ -1,0 +1,188 @@
+# GCP Spoke Control Plane Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-gcp-spoke
+  labels:
+    crossplane.io/architecture: spoke
+    crossplane.io/provider: gcp
+    crossplane.io/purpose: multi-cloud-orchestration
+
+---
+# GCP Provider
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  namespace: crossplane-gcp-spoke
+spec:
+  package: xpkg.upbound.io/crossplane/provider-gcp:v0.46.0
+  runtimeConfigRef:
+    name: gcp-provider-config
+
+---
+# GCP Provider Runtime Config
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: gcp-provider-config
+  namespace: crossplane-gcp-spoke
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: provider-gcp
+      template:
+        spec:
+          serviceAccountName: gcp-provider-sa
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/provider-gcp:v0.46.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+            env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/secrets/gcp/service-account.json
+            - name: GCP_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: gcp-creds
+                  key: project-id
+
+---
+# GCP Provider Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gcp-provider-sa
+  namespace: crossplane-gcp-spoke
+
+---
+# GCP Provider RBAC - Cluster Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gcp-provider-role
+  namespace: crossplane-gcp-spoke
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services", "serviceaccounts"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["*"]
+- apiGroups: ["gcp.crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+# GCP Provider RBAC - Cluster Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gcp-provider-binding
+  namespace: crossplane-gcp-spoke
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gcp-provider-role
+subjects:
+- kind: ServiceAccount
+  name: gcp-provider-sa
+  namespace: crossplane-gcp-spoke
+
+---
+# GCP Provider Config
+apiVersion: gcp.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: gcp-provider-config
+  namespace: crossplane-gcp-spoke
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: gcp-creds
+      namespace: crossplane-gcp-spoke
+      key: service-account
+  projectIDRef:
+    name: gcp-project
+    namespace: crossplane-gcp-spoke
+    key: projectID
+
+---
+# GCP VM XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gcpvirtualmachines.gcp.crossplane.io
+  namespace: crossplane-gcp-spoke
+spec:
+  group: gcp.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              zone:
+                type: string
+              machineType:
+                type: string
+              sourceImage:
+                type: string
+              networkInterfaces:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    network:
+                      type: string
+                    subnetwork:
+                      type: string
+              serviceAccounts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    scopes:
+                      type: array
+                      items:
+                        type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              labels:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              instanceName:
+                type: string
+              externalIP:
+                type: string
+  scope: Namespaced
+  names:
+    plural: gcpvirtualmachines
+    singular: gcpvirtualmachine
+    kind: GCPVirtualMachine

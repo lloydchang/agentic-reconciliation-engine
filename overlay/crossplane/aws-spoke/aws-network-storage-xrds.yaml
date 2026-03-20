@@ -1,0 +1,133 @@
+# AWS Network XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: awsnetworks.aws.crossplane.io
+  namespace: crossplane-aws-spoke
+spec:
+  group: aws.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              vpcCidrBlock:
+                type: string
+              subnetCidrBlocks:
+                type: array
+                items:
+                  type: string
+              availabilityZones:
+                type: array
+                items:
+                  type: string
+              securityGroupRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["ingress", "egress"]
+                    fromPort:
+                      type: integer
+                    toPort:
+                      type: integer
+                    protocol:
+                      type: string
+                    cidrBlocks:
+                      type: array
+                      items:
+                        type: string
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              vpcId:
+                type: string
+              subnetIds:
+                type: array
+                items:
+                  type: string
+              securityGroupId:
+                type: string
+  scope: Namespaced
+  names:
+    plural: awsnetworks
+    singular: awsnetwork
+    kind: AWSNetwork
+
+---
+# AWS Storage XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: awsstorages.aws.crossplane.io
+  namespace: crossplane-aws-spoke
+spec:
+  group: aws.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              bucketName:
+                type: string
+              versioning:
+                type: boolean
+              encryption:
+                type: object
+                properties:
+                  algorithm:
+                    type: string
+                  kmsKeyId:
+                    type: string
+              lifecycleRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    enabled:
+                      type: boolean
+                    expiration:
+                      type: object
+                      properties:
+                        days:
+                          type: integer
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              bucketArn:
+                type: string
+              bucketDomainName:
+                type: string
+  scope: Namespaced
+  names:
+    plural: awsstorages
+    singular: awsstorage
+    kind: AWSStorage

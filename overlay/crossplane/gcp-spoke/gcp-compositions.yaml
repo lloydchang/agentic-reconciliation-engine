@@ -1,0 +1,262 @@
+# GCP VM Composition
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gcpvirtualmachinecompositions.gcp.crossplane.io
+  namespace: crossplane-gcp-spoke
+spec:
+  group: gcp.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              zone:
+                type: string
+              machineType:
+                type: string
+              sourceImage:
+                type: string
+              networkInterfaces:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    network:
+                      type: string
+                    subnetwork:
+                      type: string
+              serviceAccounts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    scopes:
+                      type: array
+                      items:
+                        type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              labels:
+                type: object
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    kind:
+                      type: string
+                    spec:
+                      type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    status:
+                      type: object
+  scope: Namespaced
+  names:
+    plural: gcpvirtualmachinecompositions
+    singular: gcpvirtualmachinecomposition
+    kind: GCPVirtualMachineComposition
+
+---
+# GCP Compute Instance Composition (Terraform to Crossplane)
+apiVersion: gcp.crossplane.io/v1alpha1
+kind: GCPVirtualMachineComposition
+metadata:
+  name: gcp-compute-composition
+  namespace: crossplane-gcp-spoke
+spec:
+  region: us-central1
+  zone: us-central1-a
+  machineType: n1-standard-1
+  sourceImage: projects/debian-cloud/global/images/family/debian-10
+  resources:
+  - name: compute-instance
+    kind: compute.gcp.crossplane.io/v1beta1.Instance
+    spec:
+      forProvider:
+        zone: us-central1-a
+        machineType: zones/us-central1-a/machineTypes/n1-standard-1
+        disks:
+        - boot: true
+          initializeParams:
+            sourceImage: projects/debian-cloud/global/images/family/debian-10
+            diskSizeGb: 20
+            diskType: zones/us-central1-a/diskTypes/pd-standard
+        networkInterfaces:
+        - network: global/networks/default
+          accessConfigs:
+          - name: External NAT
+            type: ONE_TO_ONE_NAT
+        serviceAccounts:
+        - email: default
+          scopes:
+          - https://www.googleapis.com/auth/cloud-platform
+        tags:
+          items:
+          - crossplane-managed
+        labels:
+          environment: production
+  - name: persistent-disk
+    kind: compute.gcp.crossplane.io/v1beta1.Disk
+    spec:
+      forProvider:
+        zone: us-central1-a
+        sizeGb: 50
+        type: pd-standard
+        labels:
+          environment: production
+
+---
+# GCP Network Composition (VPC, Subnets, Firewall)
+apiVersion: gcp.crossplane.io/v1alpha1
+kind: GCPNetworkComposition
+metadata:
+  name: gcp-vpc-composition
+  namespace: crossplane-gcp-spoke
+spec:
+  region: us-central1
+  networkName: crossplane-vpc
+  autoCreateSubnetworks: false
+  routingMode: GLOBAL
+  subnetworks:
+  - name: crossplane-subnet-1
+    region: us-central1
+    ipCidrRange: 10.0.1.0/24
+    privateIpGoogleAccess: true
+  - name: crossplane-subnet-2
+    region: us-central1
+    ipCidrRange: 10.0.2.0/24
+    privateIpGoogleAccess: true
+  firewallRules:
+  - name: allow-ssh
+    direction: INGRESS
+    priority: 1000
+    allowed:
+    - ipProtocol: tcp
+      ports: ["22"]
+    sourceRanges: ["0.0.0.0/0"]
+    targetTags: ["crossplane-managed"]
+  - name: allow-http
+    direction: INGRESS
+    priority: 1000
+    allowed:
+    - ipProtocol: tcp
+      ports: ["80"]
+    sourceRanges: ["0.0.0.0/0"]
+    targetTags: ["crossplane-managed"]
+  resources:
+  - name: vpc-network
+    kind: compute.gcp.crossplane.io/v1beta1.Network
+    spec:
+      forProvider:
+        name: crossplane-vpc
+        autoCreateSubnetworks: false
+        routingConfig:
+          routingMode: GLOBAL
+        labels:
+          environment: production
+  - name: subnet-1
+    kind: compute.gcp.crossplane.io/v1beta1.Subnetwork
+    spec:
+      forProvider:
+        name: crossplane-subnet-1
+        region: us-central1
+        networkRef:
+          name: vpc-network
+        ipCidrRange: 10.0.1.0/24
+        privateIpGoogleAccess: true
+        labels:
+          environment: production
+  - name: subnet-2
+    kind: compute.gcp.crossplane.io/v1beta1.Subnetwork
+    spec:
+      forProvider:
+        name: crossplane-subnet-2
+        region: us-central1
+        networkRef:
+          name: vpc-network
+        ipCidrRange: 10.0.2.0/24
+        privateIpGoogleAccess: true
+        labels:
+          environment: production
+  - name: firewall-ssh
+    kind: compute.gcp.crossplane.io/v1beta1.Firewall
+    spec:
+      forProvider:
+        name: allow-ssh
+        networkRef:
+          name: vpc-network
+        direction: INGRESS
+        priority: 1000
+        allowed:
+        - ipProtocol: tcp
+          ports: ["22"]
+        sourceRanges: ["0.0.0.0/0"]
+        targetTags: ["crossplane-managed"]
+
+---
+# GCP Storage Composition (Cloud Storage Buckets)
+apiVersion: gcp.crossplane.io/v1alpha1
+kind: GCPStorageComposition
+metadata:
+  name: gcp-storage-composition
+  namespace: crossplane-gcp-spoke
+spec:
+  location: US
+  bucketName: crossplane-managed-bucket
+  storageClass: STANDARD
+  versioning:
+    enabled: true
+  encryption:
+    defaultKmsKeyName: ""
+  lifecycle:
+    rules:
+    - action:
+        type: Delete
+      condition:
+        age: 365
+        isLive: true
+  resources:
+  - name: storage-bucket
+    kind: storage.gcp.crossplane.io/v1beta1.Bucket
+    spec:
+      forProvider:
+        name: crossplane-managed-bucket
+        location: US
+        storageClass: STANDARD
+        versioning:
+          enabled: true
+        lifecycle:
+          rules:
+          - action:
+              type: Delete
+            condition:
+              age: 365
+              isLive: true
+        labels:
+          environment: production

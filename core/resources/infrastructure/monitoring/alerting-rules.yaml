@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-alerting-rules
+  namespace: ai-infrastructure
+  labels:
+    component: monitoring
+    layer: observability
+data:
+  agent-health.yml: |
+    groups:
+    - name: agent.health
+      rules:
+      - alert: AgentDown
+        expr: up{job=~".*agent.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: agent
+        annotations:
+          summary: "Agent {{ $labels.kubernetes_pod_name }} is down"
+          description: "Agent {{ $labels.kubernetes_pod_name }} has been down for more than 2 minutes."
+      
+      - alert: AgentHighMemoryUsage
+        expr: container_memory_usage_bytes{job=~".*agent.*"} / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: agent
+        annotations:
+          summary: "Agent {{ $labels.kubernetes_pod_name }} high memory usage"
+          description: "Agent {{ $labels.kubernetes_pod_name }} is using more than 90% of its memory limit."
+      
+      - alert: AgentHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{job=~".*agent.*"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: agent
+        annotations:
+          summary: "Agent {{ $labels.kubernetes_pod_name }} high CPU usage"
+          description: "Agent {{ $labels.kubernetes_pod_name }} is using more than 80% CPU."
+  
+  service-mesh.yml: |
+    groups:
+    - name: service.mesh
+      rules:
+      - alert: ServiceMeshDown
+        expr: up{job="service-mesh-discovery"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: service-mesh
+        annotations:
+          summary: "Service mesh discovery is down"
+          description: "Service mesh discovery service has been down for more than 1 minute."
+      
+      - alert: AgentDiscoveryFailure
+        expr: service_mesh_agents_total < 3
+        for: 3m
+        labels:
+          severity: warning
+          component: service-mesh
+        annotations:
+          summary: "Low agent discovery count"
+          description: "Only {{ $value }} agents discovered, expected at least 3."
+      
+      - alert: AgentUnhealthy
+        expr: service_mesh_agents_unhealthy > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: service-mesh
+        annotations:
+          summary: "Unhealthy agents detected"
+          description: "{{ $value }} agents are reporting unhealthy status."
+  
+  temporal.yml: |
+    groups:
+    - name: temporal.workflows
+      rules:
+      - alert: TemporalWorkflowFailure
+        expr: increase(temporal_workflow_failed_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: temporal
+        annotations:
+          summary: "Temporal workflow failures detected"
+          description: "{{ $value }} workflow failures in the last 5 minutes."
+      
+      - alert: TemporalActivityTimeout
+        expr: increase(temporal_activity_timeout_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: temporal
+        annotations:
+          summary: "Temporal activity timeouts"
+          description: "{{ $value }} activity timeouts in the last 5 minutes."
+      
+      - alert: TemporalWorkerDown
+        expr: up{job="temporal-worker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: temporal
+        annotations:
+          summary: "Temporal worker is down"
+          description: "Temporal worker has been down for more than 1 minute."

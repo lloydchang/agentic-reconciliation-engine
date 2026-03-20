@@ -1,0 +1,196 @@
+# Azure Spoke Control Plane Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-azure-spoke
+  labels:
+    crossplane.io/architecture: spoke
+    crossplane.io/provider: azure
+    crossplane.io/purpose: multi-cloud-orchestration
+
+---
+# Azure Provider
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  namespace: crossplane-azure-spoke
+spec:
+  package: xpkg.upbound.io/crossplane/provider-azure:v0.46.0
+  runtimeConfigRef:
+    name: azure-provider-config
+
+---
+# Azure Provider Runtime Config
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: azure-provider-config
+  namespace: crossplane-azure-spoke
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: provider-azure
+      template:
+        spec:
+          serviceAccountName: azure-provider-sa
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/provider-azure:v0.46.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+            env:
+            - name: ARM_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-creds
+                  key: client-id
+            - name: ARM_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-creds
+                  key: client-secret
+            - name: ARM_SUBSCRIPTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-creds
+                  key: subscription-id
+            - name: ARM_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-creds
+                  key: tenant-id
+
+---
+# Azure Provider Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azure-provider-sa
+  namespace: crossplane-azure-spoke
+
+---
+# Azure Provider RBAC - Cluster Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: azure-provider-role
+  namespace: crossplane-azure-spoke
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services", "serviceaccounts"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["*"]
+- apiGroups: ["azure.crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["crossplane.io"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+# Azure Provider RBAC - Cluster Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: azure-provider-binding
+  namespace: crossplane-azure-spoke
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: azure-provider-role
+subjects:
+- kind: ServiceAccount
+  name: azure-provider-sa
+  namespace: crossplane-azure-spoke
+
+---
+# Azure Provider Config
+apiVersion: azure.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: azure-provider-config
+  namespace: crossplane-azure-spoke
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: azure-creds
+      namespace: crossplane-azure-spoke
+      key: creds
+  subscriptionIDRef:
+    name: azure-subscription
+    namespace: crossplane-azure-spoke
+    key: subscriptionID
+  tenantIDRef:
+    name: azure-tenant
+    namespace: crossplane-azure-spoke
+    key: tenantID
+
+---
+# Azure VM XRD
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: azurevirtualmachines.azure.crossplane.io
+  namespace: crossplane-azure-spoke
+spec:
+  group: azure.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+              resourceGroupName:
+                type: string
+              vmSize:
+                type: string
+              osImage:
+                type: object
+                properties:
+                  publisher:
+                    type: string
+                  offer:
+                    type: string
+                  sku:
+                    type: string
+                  version:
+                    type: string
+              adminUsername:
+                type: string
+              networkInterfaceIds:
+                type: array
+                items:
+                  type: string
+              tags:
+                type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              vmId:
+                type: string
+              publicIPAddress:
+                type: string
+  scope: Namespaced
+  names:
+    plural: azurevirtualmachines
+    singular: azurevirtualmachine
+    kind: AzureVirtualMachine

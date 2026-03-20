@@ -1,0 +1,279 @@
+# Azure VM Composition
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: azurevirtualmachinecompositions.azure.crossplane.io
+  namespace: crossplane-azure-spoke
+spec:
+  group: azure.crossplane.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+              resourceGroupName:
+                type: string
+              vmSize:
+                type: string
+              osImage:
+                type: object
+                properties:
+                  publisher:
+                    type: string
+                  offer:
+                    type: string
+                  sku:
+                    type: string
+                  version:
+                    type: string
+              adminUsername:
+                type: string
+              networkInterfaceIds:
+                type: array
+                items:
+                  type: string
+              tags:
+                type: object
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    kind:
+                      type: string
+                    spec:
+                      type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    status:
+                      type: object
+  scope: Namespaced
+  names:
+    plural: azurevirtualmachinecompositions
+    singular: azurevirtualmachinecomposition
+    kind: AzureVirtualMachineComposition
+
+---
+# Azure VM Composition (Terraform to Crossplane)
+apiVersion: azure.crossplane.io/v1alpha1
+kind: AzureVirtualMachineComposition
+metadata:
+  name: azure-vm-composition
+  namespace: crossplane-azure-spoke
+spec:
+  location: East US
+  resourceGroupName: crossplane-rg
+  vmSize: Standard_B2s
+  osImage:
+    publisher: Canonical
+    offer: UbuntuServer
+    sku: 18.04-LTS
+    version: latest
+  adminUsername: azureuser
+  tags:
+    environment: production
+    managed-by: crossplane
+  resources:
+  - name: virtual-machine
+    kind: compute.azure.crossplane.io/v1beta1.VirtualMachine
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        vmSize: Standard_B2s
+        osProfile:
+          computerName: crossplane-vm
+          adminUsername: azureuser
+          linuxConfiguration:
+            disablePasswordAuthentication: true
+            ssh:
+              publicKeys:
+              - keyData: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC7vbqajDhS5Xc9...
+                path: /home/azureuser/.ssh/authorized_keys
+        storageProfile:
+          imageReference:
+            publisher: Canonical
+            offer: UbuntuServer
+            sku: 18.04-LTS
+            version: latest
+          osDisk:
+            name: crossplane-os-disk
+            caching: ReadWrite
+            createOption: FromImage
+            diskSizeGB: 30
+        networkProfile:
+          networkInterfaces:
+          - id: /subscriptions/.../resourceGroups/crossplane-rg/providers/Microsoft.Network/networkInterfaces/crossplane-nic
+            primary: true
+        tags:
+          environment: production
+          managed-by: crossplane
+  - name: managed-disk
+    kind: compute.azure.crossplane.io/v1beta1.Disk
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        creationData:
+          createOption: Empty
+        diskSizeGB: 50
+        tags:
+          environment: production
+
+---
+# Azure Network Composition (VNet, Subnets, NSG)
+apiVersion: azure.crossplane.io/v1alpha1
+kind: AzureNetworkComposition
+metadata:
+  name: azure-vnet-composition
+  namespace: crossplane-azure-spoke
+spec:
+  location: East US
+  resourceGroupName: crossplane-rg
+  virtualNetworkName: crossplane-vnet
+  addressSpace: ["10.0.0.0/16"]
+  subnets:
+  - name: crossplane-subnet-1
+    addressPrefix: 10.0.1.0/24
+    securityGroupName: crossplane-nsg
+  - name: crossplane-subnet-2
+    addressPrefix: 10.0.2.0/24
+    securityGroupName: crossplane-nsg
+  networkSecurityGroups:
+  - name: crossplane-nsg
+    rules:
+    - name: AllowSSH
+      priority: 100
+      direction: Inbound
+      access: Allow
+      protocol: Tcp
+      sourcePortRange: "*"
+      destinationPortRange: "22"
+      sourceAddressPrefix: "*"
+      destinationAddressPrefix: "*"
+    - name: AllowHTTP
+      priority: 101
+      direction: Inbound
+      access: Allow
+      protocol: Tcp
+      sourcePortRange: "*"
+      destinationPortRange: "80"
+      sourceAddressPrefix: "*"
+      destinationAddressPrefix: "*"
+  resources:
+  - name: virtual-network
+    kind: network.azure.crossplane.io/v1beta1.VirtualNetwork
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        addressSpace:
+        - 10.0.0.0/16
+        subnets:
+        - name: crossplane-subnet-1
+          addressPrefix: 10.0.1.0/24
+        - name: crossplane-subnet-2
+          addressPrefix: 10.0.2.0/24
+        tags:
+          environment: production
+  - name: network-security-group
+    kind: network.azure.crossplane.io/v1beta1.SecurityGroup
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        securityRules:
+        - name: AllowSSH
+          priority: 100
+          direction: Inbound
+          access: Allow
+          protocol: Tcp
+          sourcePortRange: "*"
+          destinationPortRange: "22"
+          sourceAddressPrefix: "*"
+          destinationAddressPrefix: "*"
+        - name: AllowHTTP
+          priority: 101
+          direction: Inbound
+          access: Allow
+          protocol: Tcp
+          sourcePortRange: "*"
+          destinationPortRange: "80"
+          sourceAddressPrefix: "*"
+          destinationAddressPrefix: "*"
+        tags:
+          environment: production
+
+---
+# Azure Storage Composition (Storage Account)
+apiVersion: azure.crossplane.io/v1alpha1
+kind: AzureStorageComposition
+metadata:
+  name: azure-storage-composition
+  namespace: crossplane-azure-spoke
+spec:
+  location: East US
+  resourceGroupName: crossplane-rg
+  storageAccountName: crossplanestorageacct
+  accountTier: Standard
+  accountReplicationType: LRS
+  allowBlobPublicAccess: false
+  minimumTlsVersion: TLS1_2
+  containers:
+  - name: crossplane-container
+    containerAccessType: private
+    metadata:
+      environment: production
+  blobServices:
+  - name: default
+    corsRules:
+    - allowedHeaders: ["*"]
+      allowedMethods: ["GET", "HEAD", "POST", "PUT", "DELETE"]
+      allowedOrigins: ["*"]
+      exposedHeaders: ["*"]
+      maxAgeInSeconds: 3600
+  resources:
+  - name: storage-account
+    kind: storage.azure.crossplane.io/v1beta1.Account
+    spec:
+      forProvider:
+        location: East US
+        resourceGroupName: crossplane-rg
+        accountName: crossplanestorageacct
+        accountKind: StorageV2
+        accountTier: Standard
+        accountReplicationType: LRS
+        allowBlobPublicAccess: false
+        minimumTlsVersion: TLS1_2
+        tags:
+          environment: production
+  - name: blob-container
+    kind: storage.azure.crossplane.io/v1beta1.Container
+    spec:
+      forProvider:
+        storageAccountNameRef:
+          name: storage-account
+        name: crossplane-container
+        containerAccessType: private
+        metadata:
+          environment: production

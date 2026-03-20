@@ -1,0 +1,217 @@
+# Single Crossplane Instance with Multi-Tenant Isolation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-system
+  labels:
+    crossplane.io/purpose: multi-cloud-orchestration
+    crossplane.io/architecture: single-instance
+
+---
+# Single Crossplane Instance (Universal API Server)
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: crossplane-universal
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/crossplane/crossplane:v1.14.0
+  runtimeConfigRef:
+    name: crossplane-runtime
+
+---
+# Crossplane Runtime Configuration
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: crossplane-runtime
+  namespace: crossplane-system
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: crossplane-universal
+      template:
+        spec:
+          serviceAccountName: crossplane-universal
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/crossplane:v1.14.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+
+---
+# Universal Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crossplane-universal
+  namespace: crossplane-system
+
+---
+# Cluster-wide RBAC for Crossplane
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-universal
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services", "serviceaccounts"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["*"]
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-universal
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crossplane-universal
+subjects:
+- kind: ServiceAccount
+  name: crossplane-universal
+  namespace: crossplane-system
+
+---
+# AWS Provider (Single Instance)
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/crossplane/provider-aws:v0.46.0
+
+---
+# AWS Provider Runtime
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: aws-provider-runtime
+  namespace: crossplane-system
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: provider-aws
+      template:
+        spec:
+          serviceAccountName: aws-provider-sa
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/provider-aws:v0.46.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+
+---
+# AWS Provider Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aws-provider-sa
+  namespace: crossplane-system
+
+---
+# Azure Provider (Single Instance)
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/crossplane/provider-azure:v0.46.0
+
+---
+# Azure Provider Runtime
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: azure-provider-runtime
+  namespace: crossplane-system
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: provider-azure
+      template:
+        spec:
+          serviceAccountName: azure-provider-sa
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/provider-azure:v0.46.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+
+---
+# Azure Provider Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azure-provider-sa
+  namespace: crossplane-system
+
+---
+# GCP Provider (Single Instance)
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/crossplane/provider-gcp:v0.46.0
+
+---
+# GCP Provider Runtime
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: gcp-provider-runtime
+  namespace: crossplane-system
+spec:
+  deploymentTemplate:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          pkg.crossplane.io/provider: provider-gcp
+      template:
+        spec:
+          serviceAccountName: gcp-provider-sa
+          containers:
+          - name: package-runtime
+            image: xpkg.upbound.io/crossplane/provider-gcp:v0.46.0
+            args: ["-d", "*"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 65532
+              runAsGroup: 65532
+
+---
+# GCP Provider Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gcp-provider-sa
+  namespace: crossplane-system

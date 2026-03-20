@@ -1,0 +1,83 @@
+# GitOps Configuration for Single Crossplane Instance
+# This replaces the complex hub-spoke GitOps with a single target
+
+# ArgoCD Application for Single Crossplane Instance
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane-single-instance
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: infrastructure
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/agentic-reconciliation-engine
+    targetRevision: HEAD
+    path: overlay/crossplane/single-instance
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+
+---
+# Flux Kustomization for Single Crossplane Instance
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: crossplane-single-instance
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./overlay/crossplane/single-instance
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: agentic-reconciliation-engine
+  validation: client
+  healthChecks:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: crossplane
+    namespace: crossplane-system
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Provider
+    name: provider-aws
+    namespace: crossplane-system
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Provider
+    name: provider-azure
+    namespace: crossplane-system
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Provider
+    name: provider-gcp
+    namespace: crossplane-system
+
+---
+# Single Source of Truth - All Crossplane Configuration
+# No need for separate hub and spoke repositories
+# Everything managed from one GitOps target
+
+# Health Check for Single Instance
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crossplane-health-check
+  namespace: crossplane-system
+  labels:
+    crossplane.io/health-check: "true"
+data:
+  # Single health endpoint for entire multi-cloud setup
+  health-endpoint: "http://crossplane.crossplane-system.svc.cluster.local:8080/health"
+  # Single metrics endpoint
+  metrics-endpoint: "http://crossplane.crossplane-system.svc.cluster.local:8080/metrics"
+  # Single status endpoint
+  status-endpoint: "http://crossplane.crossplane-system.svc.cluster.local:8080/status"
