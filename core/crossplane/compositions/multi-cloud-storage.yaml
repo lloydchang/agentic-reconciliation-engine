@@ -1,0 +1,73 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-storage
+  labels:
+    crossplane.io/managed: "true"
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: composition
+    app.kubernetes.io/resource: storage
+  annotations:
+    crossplane.io/documentation: "Multi-cloud storage composition that handles AWS, Azure, and GCP"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: storage-resource
+    base:
+      apiVersion: # Determined at runtime by patch
+      kind: # Determined at runtime by patch
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Provider-specific resource type
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: 
+                apiVersion: s3.aws.upbound.io/v1beta1
+                kind: Bucket
+              azure:
+                apiVersion: storage.azure.upbound.io/v1beta1
+                kind: StorageAccount
+              gcp:
+                apiVersion: storage.gcp.upbound.io/v1beta1
+                kind: Bucket
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.bucketName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.storageClass
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.versioning
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.encryption
+      toFieldPath: spec.forProvider.encryption
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.accessControl
+      toFieldPath: spec.forProvider.accessControl
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+          - Type
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.arn
+      toFieldPath: status.bucketArn
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.bucketDomainName
+      toFieldPath: status.bucketDomainName
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.creationDate
+      toFieldPath: status.createdAt

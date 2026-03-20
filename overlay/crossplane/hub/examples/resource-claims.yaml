@@ -1,0 +1,340 @@
+# Example Resource Claims demonstrating unified multi-cloud interface
+---
+# AWS Network Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: aws-production-network
+  namespace: default
+  labels:
+    provider: aws
+    environment: production
+    team: aws-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  provider: aws
+  region: us-west-2
+  cidrBlock: "10.0.0.0/16"
+  subnetCount: 3
+  enableDnsSupport: true
+  enableDnsHostnames: true
+  writeConnectionSecretToRef:
+    namespace: default
+    name: aws-network-connection
+---
+# Azure Network Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: azure-production-network
+  namespace: default
+  labels:
+    provider: azure
+    environment: production
+    team: azure-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: azure
+  provider: azure
+  region: "East US"
+  cidrBlock: "10.1.0.0/16"
+  subnetCount: 3
+  enableDnsSupport: true
+  enableDnsHostnames: true
+  writeConnectionSecretToRef:
+    namespace: default
+    name: azure-network-connection
+---
+# GCP Network Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Network
+metadata:
+  name: gcp-production-network
+  namespace: default
+  labels:
+    provider: gcp
+    environment: production
+    team: gcp-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: gcp
+  provider: gcp
+  region: us-central1
+  cidrBlock: "10.2.0.0/16"
+  subnetCount: 3
+  enableDnsSupport: true
+  enableDnsHostnames: true
+  writeConnectionSecretToRef:
+    namespace: default
+    name: gcp-network-connection
+---
+# AWS Kubernetes Cluster Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Kubernetes
+metadata:
+  name: aws-production-cluster
+  namespace: default
+  labels:
+    provider: aws
+    environment: production
+    team: aws-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  provider: aws
+  region: us-west-2
+  networkId: aws-production-network
+  nodeCount: 3
+  nodeInstanceType: t3.medium
+  version: "1.28"
+  enableAutoscaling: true
+  minNodes: 1
+  maxNodes: 10
+  writeConnectionSecretToRef:
+    namespace: default
+    name: aws-cluster-connection
+---
+# Azure Kubernetes Cluster Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Kubernetes
+metadata:
+  name: azure-production-cluster
+  namespace: default
+  labels:
+    provider: azure
+    environment: production
+    team: azure-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: azure
+  provider: azure
+  region: "East US"
+  networkId: azure-production-network
+  nodeCount: 3
+  nodeInstanceType: Standard_D2s_v3
+  version: "1.28"
+  enableAutoscaling: true
+  minNodes: 1
+  maxNodes: 10
+  writeConnectionSecretToRef:
+    namespace: default
+    name: azure-cluster-connection
+---
+# GCP Kubernetes Cluster Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Kubernetes
+metadata:
+  name: gcp-production-cluster
+  namespace: default
+  labels:
+    provider: gcp
+    environment: production
+    team: gcp-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: gcp
+  provider: gcp
+  region: us-central1
+  networkId: gcp-production-network
+  nodeCount: 3
+  nodeInstanceType: e2-medium
+  version: "1.28"
+  enableAutoscaling: true
+  minNodes: 1
+  maxNodes: 10
+  writeConnectionSecretToRef:
+    namespace: default
+    name: gcp-cluster-connection
+---
+# AWS Database Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Database
+metadata:
+  name: aws-production-db
+  namespace: default
+  labels:
+    provider: aws
+    environment: production
+    team: aws-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  provider: aws
+  region: us-west-2
+  networkId: aws-production-network
+  engine: postgresql
+  version: "15"
+  instanceClass: db.t3.micro
+  allocatedStorage: 20
+  username: admin
+  passwordSecretRef:
+    name: aws-db-password
+    namespace: default
+    key: password
+  enableBackup: true
+  enableMultiAZ: true
+  writeConnectionSecretToRef:
+    namespace: default
+    name: aws-db-connection
+---
+# Azure Database Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Database
+metadata:
+  name: azure-production-db
+  namespace: default
+  labels:
+    provider: azure
+    environment: production
+    team: azure-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: azure
+  provider: azure
+  region: "East US"
+  networkId: azure-production-network
+  engine: postgresql
+  version: "15"
+  instanceClass: Standard_B2s
+  allocatedStorage: 20
+  username: admin
+  passwordSecretRef:
+    name: azure-db-password
+    namespace: default
+    key: password
+  enableBackup: true
+  enableMultiAZ: false
+  writeConnectionSecretToRef:
+    namespace: default
+    name: azure-db-connection
+---
+# GCP Database Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Database
+metadata:
+  name: gcp-production-db
+  namespace: default
+  labels:
+    provider: gcp
+    environment: production
+    team: gcp-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: gcp
+  provider: gcp
+  region: us-central1
+  networkId: gcp-production-network
+  engine: postgresql
+  version: "15"
+  instanceClass: db-g1-small
+  allocatedStorage: 20
+  username: admin
+  passwordSecretRef:
+    name: gcp-db-password
+    namespace: default
+    key: password
+  enableBackup: true
+  enableMultiAZ: false
+  writeConnectionSecretToRef:
+    namespace: default
+    name: gcp-db-connection
+---
+# AWS Storage Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: aws-production-storage
+  namespace: default
+  labels:
+    provider: aws
+    environment: production
+    team: aws-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: aws
+  provider: aws
+  region: us-west-2
+  bucketName: ai-portal-backups-prod
+  storageClass: STANDARD
+  enableVersioning: true
+  enableEncryption: true
+  lifecycleRules:
+    - id: "DeleteOldBackups"
+      status: "Enabled"
+      expiration:
+        days: 90
+      transitions:
+        - days: 30
+          storageClass: GLACIER
+  writeConnectionSecretToRef:
+    namespace: default
+    name: aws-storage-connection
+---
+# Azure Storage Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: azure-production-storage
+  namespace: default
+  labels:
+    provider: azure
+    environment: production
+    team: azure-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: azure
+  provider: azure
+  region: "East US"
+  bucketName: ai-portal-backups-prod
+  storageClass: STANDARD
+  enableVersioning: true
+  enableEncryption: true
+  lifecycleRules:
+    - id: "DeleteOldBackups"
+      status: "Enabled"
+      expiration:
+        days: 90
+  writeConnectionSecretToRef:
+    namespace: default
+    name: azure-storage-connection
+---
+# GCP Storage Claim
+apiVersion: platform.example.com/v1alpha1
+kind: Storage
+metadata:
+  name: gcp-production-storage
+  namespace: default
+  labels:
+    provider: gcp
+    environment: production
+    team: gcp-team
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: gcp
+  provider: gcp
+  region: us-central1
+  bucketName: ai-portal-backups-prod
+  storageClass: STANDARD
+  enableVersioning: true
+  enableEncryption: true
+  lifecycleRules:
+    - id: "DeleteOldBackups"
+      status: "Enabled"
+      expiration:
+        days: 90
+  writeConnectionSecretToRef:
+    namespace: default
+    name: gcp-storage-connection
