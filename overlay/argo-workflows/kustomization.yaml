@@ -8,42 +8,34 @@ metadata:
 resources:
 # Core Argo Workflows resources
 - base/argo-workflows-install.yaml
-- base/workflow-controller-configmap.yaml
 
-# Qwen LLM Integration - Using Centralized Service
-# Removed separate Qwen deployment - now using agent-memory-rust
-# Service: agent-memory-service.ai-infrastructure.svc.cluster.local:8080
-# Metrics: agent-memory-service.ai-infrastructure.svc.cluster.local:9090
+# Workflow Examples and Templates (if they exist)
+# - examples/basic-workflows.yaml
+# - examples/ci-cd-workflows.yaml
 
-# Workflow Examples and Templates
-- examples/basic-workflows.yaml
-- examples/ci-cd-workflows.yaml
+# Monitoring and Observability (if they exist)
+# - base/monitoring/prometheus-config.yaml
+# - base/monitoring/grafana-dashboard.yaml
 
-# Monitoring and Observability
-- base/monitoring/prometheus-config.yaml
-- base/monitoring/grafana-dashboard.yaml
-
-# Security and RBAC
-- security/rbac.yaml
-- security/network-policies.yaml
+# Security and RBAC (if they exist)
+# - security/rbac.yaml
+# - security/network-policies.yaml
 
 # Configurations
-- configurations/workflow-controller-config.yaml
+# - configurations/workflow-controller-config.yaml
 
-patchesStrategicMerge:
-# Development environment patches
-- patches/dev/controller-resources.yaml
+# Patches (commented out as files don't exist yet)
+# - path: patches/dev/controller-resources.yaml
+# - path: patches/prod/controller-resources.yaml
 
-# Production environment patches  
-- patches/prod/controller-resources.yaml
+# Configurations (commented out as files don't exist yet)
+# - configurations/configmap-transformer.yaml
 
-configurations:
-- configurations/configmap-transformer.yaml
-
-commonLabels:
-  app.kubernetes.io/name: argo-workflows
-  app.kubernetes.io/component: workflows
-  app.kubernetes.io/part-of: agentic-reconciliation-engine
+labels:
+- pairs:
+    app.kubernetes.io/name: argo-workflows
+    app.kubernetes.io/component: workflows
+    app.kubernetes.io/part-of: agentic-reconciliation-engine
 
 commonAnnotations:
   argo-workflows/version: "v3.5.0"
@@ -51,20 +43,8 @@ commonAnnotations:
   qwen-llm/integrated: "true"
   qwen-centralized: "true"
 
-vars:
-- name: ARGOWF_NAMESPACE
-  objref:
-    kind: ConfigMap
-    name: workflow-controller-configmap
-    fieldref:
-      fieldpath: data.namespace
-- name: QWEN_SERVICE_URL
-  objref:
-    kind: Service
-    name: agent-memory-service
-    namespace: ai-infrastructure
-    fieldref:
-      fieldpath: metadata.name
+# Variables simplified to avoid field reference errors
+# ARGOWF_NAMESPACE and QWEN_SERVICE_URL will be set directly in ConfigMaps
 
 replicas:
 - name: argo-workflows-controller
