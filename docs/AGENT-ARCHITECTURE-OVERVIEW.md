@@ -184,31 +184,54 @@ graph TD
 
 ### 🐳 Container Technologies
 
-#### Kubernetes Resources
+#### Multi-Architecture Container Optimization
+- **Base Images**: Distroless minimal images for security and size
+- **Multi-Platform Builds**: AMD64, ARM64 support via BuildKit
+- **Layer Caching**: Optimized Docker layers for faster builds
+- **Security Hardening**: Non-root users, read-only filesystems
+- **Health Checks**: Container health monitoring and probes
+- **Signal Handling**: Proper SIGTERM/SIGINT handling for graceful shutdowns
+
+#### Build Optimization
 ```yaml
-# Core Deployments
-- memory-agent-rust
-- memory-agent-go  
-- memory-agent-python
-- temporal-frontend
-- temporal-worker
-- skills-orchestrator
-- agent-dashboard
-- dashboard-api
+# Multi-arch Dockerfile example
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
+WORKDIR /app
+COPY go.* ./
+RUN go mod download
+COPY . .
+ARG TARGETARCH
+RUN GOARCH=$TARGETARCH go build -o app .
 
-# Services
-- agent-dashboard-service
-- dashboard-api-service
-- memory-agent-service
-- temporal-frontend
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /app/app /
+USER nonroot:nonroot
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["/app", "--health"]
+ENTRYPOINT ["/app"]
+```
 
-# Storage
-- memory-agent-pvc
-- temporal-pvc
-
-# Networking
-- ai-agents-ingress
-- network-policies
+#### CI/CD Integration
+```yaml
+# GitHub Actions multi-arch build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          platforms: ${{ matrix.platform }}
+          push: true
+          tags: myapp:latest
 ```
 
 ### 📊 Monitoring Stack
