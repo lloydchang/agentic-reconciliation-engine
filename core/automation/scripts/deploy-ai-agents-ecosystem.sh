@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 # Configuration
 NAMESPACE="ai-infrastructure"
 TEMPORAL_VERSION="1.28.3"
-OLLAMA_MODEL="qwen2.5:0.5b"
+LLAMACPP_SERVER=http://agent-memory-service:8080/api/inference
 KUBECTL_CMD="kubectl"
 
 # Logging functions
@@ -421,7 +421,7 @@ deploy_dashboard() {
     log_info "Deploying agent dashboard..."
 
     # Create API ConfigMap with improved Python script that reads from Kubernetes
-    cat <<'APIEOF' | $KUBECTL_CMD apply -f -
+    cat <<APIEOF | $KUBECTL_CMD apply -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:

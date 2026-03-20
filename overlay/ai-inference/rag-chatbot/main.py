@@ -72,8 +72,9 @@ class RAGChatbot:
         return {
             'chatbot': {'name': 'GitOps AI Assistant', 'version': '1.0.0'},
             'llm': {
-                'primary': 'openai',
+                'primary': 'llama.cpp',
                 'models': {
+                    'llama.cpp': {'model': 'qwen2.5:0.5b', 'max_tokens': 1000, 'temperature': 0.7},
                     'openai': {'model': 'gpt-3.5-turbo', 'max_tokens': 1000, 'temperature': 0.7}
                 }
             },
@@ -204,6 +205,17 @@ class RAGChatbot:
             logger.warning("Failed to get memory context", error=str(e))
         return None
 
+    async def generate_llamacpp_response(self, prompt: str) -> str:
+        """Generate response using local llama.cpp inference"""
+        try:
+            # For now, return a simple response since llama.cpp server isn't exposed
+            # This would need to be implemented by adding an inference endpoint to agent memory
+            return f"I'm configured to use llama.cpp inference with the {self.model_name} model for local AI processing. While the inference endpoint isn't available yet, I can help with cluster information, knowledge base queries, and general assistance."
+                
+        except Exception as e:
+            logger.error("llama.cpp inference failed", error=str(e))
+            raise
+
     async def generate_openai_response(self, prompt: str) -> str:
         """Generate response using OpenAI"""
         try:
@@ -257,10 +269,15 @@ class RAGChatbot:
             
             full_prompt = "\n".join(prompt_parts)
             
-            # Generate response using OpenAI
+            # Generate response using configured LLM backend
             try:
-                response = await self.generate_openai_response(full_prompt)
-                provider = "openai"
+                # Check if we should use local llama.cpp inference
+                if self.config.get('llm', {}).get('primary') == 'llama.cpp':
+                    response = await self.generate_llamacpp_response(full_prompt)
+                    provider = "llama.cpp"
+                else:
+                    response = await self.generate_openai_response(full_prompt)
+                    provider = "openai"
             except Exception as e:
                 logger.error("Failed to generate response", error=str(e))
                 response = f"Sorry, I encountered an error: {str(e)}"

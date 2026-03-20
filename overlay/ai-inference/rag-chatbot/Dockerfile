@@ -42,6 +42,9 @@ RUN chown -R chatbot:chatbot /app
 # Switch to non-root user
 USER chatbot
 
+# Set working directory
+WORKDIR /app
+
 # Expose port
 EXPOSE 8000
 

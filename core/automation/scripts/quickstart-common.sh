@@ -520,6 +520,16 @@ common_main() {
         "GCP")
             setup_gcp_environment || return 1
             ;;
+        "General")
+            print_info "Setting up General development environment..."
+            # General environment doesn't need specific cluster setup
+            # Just check if kubectl is accessible for dashboard deployment
+            if ! kubectl cluster-info &> /dev/null; then
+                print_warning "Kubernetes cluster not accessible - dashboard deployment will be skipped"
+                print_info "You can deploy the dashboard later by configuring kubectl and running: ./core/automation/scripts/deploy-ai-agents-ecosystem.sh"
+            fi
+            print_success "General environment ready"
+            ;;
         "On-Premises")
             setup_on_prem_environment || return 1
             ;;
