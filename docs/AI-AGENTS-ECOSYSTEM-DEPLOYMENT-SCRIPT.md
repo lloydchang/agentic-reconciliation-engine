@@ -42,7 +42,7 @@ chmod +x core/scripts/automation/deploy-ai-agents-ecosystem.sh
 ```bash
 # Optional configuration
 export NAMESPACE="ai-infrastructure"
-export TEMPORAL_VERSION="1.22.0"
+export TEMPORAL_VERSION="1.28.3"
 export OLLAMA_MODEL="qwen2.5:0.5b"
 export KUBECTL_CMD="kubectl"
 ```

@@ -1,11 +1,11 @@
 module autonomous-decision-engine
 
-go 1.21
+go 1.24.13
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/joho/godotenv v1.4.0
-	go.temporal.io/sdk v1.25.1
+	go.temporal.io/sdk v1.28.3
 )
 
 require (

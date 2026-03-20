@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 NAMESPACE="ai-infrastructure"
-TEMPORAL_VERSION="1.22.0"
+TEMPORAL_VERSION="1.28.3"
 OLLAMA_MODEL="qwen2.5:0.5b"
 KUBECTL_CMD="kubectl"
 

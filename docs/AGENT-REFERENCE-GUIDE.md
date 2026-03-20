@@ -890,7 +890,7 @@ alertmanager:
 set -e
 
 NAMESPACE="ai-infrastructure"
-TEMPORAL_VERSION="1.22.0"
+TEMPORAL_VERSION="1.28.3"
 OLLAMA_MODEL="qwen2.5:0.5b"
 
 # Colors for output
