@@ -97,7 +97,11 @@
       "Bash(git update-index:*)",
       "Bash(kubectl cluster-info:*)",
       "Bash(core/operators/control-plane/crossplane/xrds/xlb.yaml:*)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(grep -E \"\\\\.yaml$\")",
+      "Bash(core/operators/control-plane/crossplane/xrds/xwaf.yaml:*)",
+      "Bash(core/operators/control-plane/crossplane/xrds/xdns.yaml:*)",
+      "Bash(grep -A5 \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)"
     ]
   }
 }
