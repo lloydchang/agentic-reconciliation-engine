@@ -1,0 +1,109 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Crossplane Multi-Cloud Dashboard",
+    "tags": ["crossplane", "multi-cloud", "kubernetes"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Crossplane Provider Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "crossplane_provider_status",
+            "legendFormat": "{{provider}} - {{status}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Resource Count by Provider",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "crossplane_resources_total",
+            "legendFormat": "{{provider}} - {{resource_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Reconciliation Duration",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "crossplane_reconciliation_duration_seconds",
+            "legendFormat": "{{provider}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Reconciliation Errors",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(crossplane_reconciliation_errors_total[5m])",
+            "legendFormat": "{{provider}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Resource Sync Age",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "crossplane_resource_sync_age_seconds",
+            "legendFormat": "{{resource_name}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "API Call Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(crossplane_api_calls_total[5m])",
+            "legendFormat": "{{provider}} - {{resource}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Operation Duration",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(crossplane_operation_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{provider}} - {{operation}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "refresh": "30s"
+  }
+}

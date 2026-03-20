@@ -91,7 +91,7 @@ class MultiCloudOrchestrator:
         return default_config
     
     def initialize_providers(self, providers: List[str]) -> Dict[str, bool]:
-        """Initialize cloud provider handlers using Crossplane"""
+        """Validate Crossplane provider availability"""
         results = {}
         
         for provider in providers:
@@ -106,30 +106,35 @@ class MultiCloudOrchestrator:
                     results[provider] = False
                     continue
                 
-                # Crossplane doesn't require explicit provider initialization like SDKs
-                # Providers are managed through Kubernetes custom resources
-                results[provider] = True
-                logger.info(f"Provider {provider} available through Crossplane")
+                # Check if Crossplane ProviderConfig exists
+                provider_config_name = f"provider-{provider}"
+                if self.crossplane_orchestrator.check_provider_config(provider_config_name):
+                    results[provider] = True
+                    logger.info(f"Crossplane provider {provider} initialized successfully")
+                else:
+                    results[provider] = False
+                    logger.error(f"Crossplane ProviderConfig not found for {provider}")
                     
             except Exception as e:
-                logger.error(f"Error initializing provider {provider}: {e}")
+                logger.error(f"Error validating provider {provider}: {e}")
                 results[provider] = False
         
         return results
     
     def create_deployment_plan(self, 
-                            agents: List[Dict[str, Any]], 
+                            resources: List[Dict[str, Any]], 
                             strategy: OrchestrationStrategy = OrchestrationStrategy.PARALLEL) -> List[OrchestrationTask]:
         """Create deployment plan based on strategy"""
         tasks = []
         
-        for i, agent in enumerate(agents):
+        for i, resource in enumerate(resources):
             task = OrchestrationTask(
                 id=f"deploy-{i}",
-                name=f"Deploy {agent['name']}",
-                provider=agent['provider'],
+                name=f"Deploy {resource['name']}",
+                provider=resource['provider'],
                 operation="deploy",
-                config=agent,
+                resource_type=resource.get('type', 'compute'),
+                config=resource,
                 dependencies=[]
             )
             
@@ -269,55 +274,47 @@ class MultiCloudOrchestrator:
         return blue_results + green_results
     
     def _execute_single_task(self, task: OrchestrationTask) -> OrchestrationResult:
-        """Execute a single task"""
+        """Execute a single task using Crossplane"""
         start_time = datetime.utcnow()
         
         try:
-            if task.provider not in self.handlers:
+            # Convert task to Crossplane resource request
+            resource_request = self._convert_to_crossplane_request(task)
+            if not resource_request:
                 return OrchestrationResult(
                     task_id=task.id,
                     provider=task.provider,
                     status="error",
-                    message=f"Handler not available for provider {task.provider}",
+                    message="Failed to convert task to Crossplane resource request",
                     data=None,
                     timestamp=datetime.utcnow(),
                     execution_time=0.0
                 )
             
-            handler = self.handlers[task.provider]
-            
+            # Execute Crossplane operation
             if task.operation == "deploy":
-                # Try Crossplane first, fallback to legacy handler
-                if hasattr(self, 'crossplane_orchestrator'):
-                    try:
-                        resource_request = self._convert_to_crossplane_request(task)
-                        if resource_request:
-                            if task.config.get('resource_type') == 'network':
-                                result_data = self.crossplane_orchestrator.create_network(resource_request)
-                            elif task.config.get('resource_type') == 'compute':
-                                result_data = self.crossplane_orchestrator.create_compute(resource_request)
-                            elif task.config.get('resource_type') == 'storage':
-                                result_data = self.crossplane_orchestrator.create_storage(resource_request)
-                            else:
-                                result_data = handler.deploy_agent(task.config)
-                        else:
-                            result_data = handler.deploy_agent(task.config)
-                    except Exception as e:
-                        logger.warning(f"Crossplane deployment failed, falling back to legacy: {e}")
-                        result_data = handler.deploy_agent(task.config)
+                if task.config.get('resource_type') == 'network':
+                    result_data = self.crossplane_orchestrator.create_network(resource_request)
+                elif task.config.get('resource_type') == 'compute':
+                    result_data = self.crossplane_orchestrator.create_compute(resource_request)
+                elif task.config.get('resource_type') == 'storage':
+                    result_data = self.crossplane_orchestrator.create_storage(resource_request)
                 else:
-                    result_data = handler.deploy_agent(task.config)
+                    result_data = {
+                        'status': 'error',
+                        'message': f'Unknown resource type: {task.config.get("resource_type")}'
+                    }
             elif task.operation == "scale":
-                result_data = handler.scale_agent(
-                    task.config['agent_id'], 
-                    task.config['replicas']
+                result_data = self.crossplane_orchestrator.scale_resource(
+                    resource_request.name,
+                    task.config.get('replicas', 1)
                 )
             elif task.operation == "stop":
-                result_data = handler.stop_agent(task.config['agent_id'])
+                result_data = self.crossplane_orchestrator.delete_resource(resource_request.name)
             elif task.operation == "start":
-                result_data = handler.start_agent(task.config['agent_id'])
+                result_data = self.crossplane_orchestrator.start_resource(resource_request.name)
             elif task.operation == "status":
-                result_data = handler.get_agent_status(task.config['agent_id'])
+                result_data = self.crossplane_orchestrator.get_resource_status(resource_request.name)
             else:
                 result_data = {
                     'status': 'error',
@@ -387,49 +384,51 @@ class MultiCloudOrchestrator:
         return levels
     
     def get_multi_cloud_status(self) -> Dict[str, Any]:
-        """Get comprehensive multi-cloud status"""
+        """Get comprehensive multi-cloud status from Crossplane"""
         status = {
             'timestamp': datetime.utcnow().isoformat(),
             'providers': {},
-            'total_agents': 0,
-            'healthy_agents': 0,
-            'unhealthy_agents': 0,
-            'degraded_agents': 0
+            'total_resources': 0,
+            'healthy_resources': 0,
+            'unhealthy_resources': 0,
+            'degraded_resources': 0
         }
         
-        for provider_name, handler in self.handlers.items():
+        for provider_name in self.handlers.keys():
             try:
-                agents = handler.list_agents()
+                # Query Crossplane resources for this provider
+                resources = self.crossplane_orchestrator.list_resources_by_provider(provider_name)
                 provider_status = {
                     'status': 'connected',
-                    'agent_count': len(agents),
-                    'agents': []
+                    'resource_count': len(resources),
+                    'resources': []
                 }
                 
-                for agent in agents:
-                    agent_details = handler.get_agent_status(agent.name)
-                    health = self._assess_agent_health(agent_details)
+                for resource in resources:
+                    resource_details = self.crossplane_orchestrator.get_resource_status(resource.name)
+                    health = self._assess_resource_health(resource_details)
                     
-                    agent_info = {
-                        'id': agent.id,
-                        'name': agent.name,
-                        'type': agent.type,
-                        'status': agent.status,
+                    resource_info = {
+                        'id': resource.name,
+                        'name': resource.name,
+                        'type': resource.resource_type.value,
+                        'status': resource_details.get('status', 'unknown'),
                         'health': health.value,
-                        'metadata': agent.metadata,
-                        'details': agent_details
+                        'provider': provider_name,
+                        'region': resource.region,
+                        'details': resource_details
                     }
                     
-                    provider_status['agents'].append(agent_info)
+                    provider_status['resources'].append(resource_info)
                     
                     # Update global counts
-                    status['total_agents'] += 1
+                    status['total_resources'] += 1
                     if health == HealthStatus.HEALTHY:
-                        status['healthy_agents'] += 1
+                        status['healthy_resources'] += 1
                     elif health == HealthStatus.UNHEALTHY:
-                        status['unhealthy_agents'] += 1
+                        status['unhealthy_resources'] += 1
                     elif health == HealthStatus.DEGRADED:
-                        status['degraded_agents'] += 1
+                        status['degraded_resources'] += 1
                 
                 status['providers'][provider_name] = provider_status
                 
@@ -438,8 +437,8 @@ class MultiCloudOrchestrator:
                 status['providers'][provider_name] = {
                     'status': 'error',
                     'error': str(e),
-                    'agent_count': 0,
-                    'agents': []
+                    'resource_count': 0,
+                    'resources': []
                 }
         
         return status

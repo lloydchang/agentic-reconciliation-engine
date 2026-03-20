@@ -1,0 +1,115 @@
+# Sample Crossplane Multi-Cloud Resources
+
+# AWS Network
+apiVersion: multicloud.example.com/v1alpha1
+kind: XNetwork
+metadata:
+  name: aws-sample-network
+  namespace: default
+spec:
+  provider: aws
+  region: us-west-2
+  cidrBlock: 10.0.0.0/16
+  subnetCount: 3
+---
+# AWS Compute Instance
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: aws-sample-compute
+  namespace: default
+spec:
+  provider: aws
+  region: us-west-2
+  instanceType: t3.medium
+  image: ubuntu-20.04
+  subnetId: aws-sample-network
+---
+# AWS Storage
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: aws-sample-storage
+  namespace: default
+spec:
+  provider: aws
+  region: us-west-2
+  storageClass: standard
+  size: 100Gi
+  versioning: true
+---
+# Azure Network
+apiVersion: multicloud.example.com/v1alpha1
+kind: XNetwork
+metadata:
+  name: azure-sample-network
+  namespace: default
+spec:
+  provider: azure
+  region: East US
+  cidrBlock: 10.1.0.0/16
+  subnetCount: 3
+---
+# Azure Compute Instance
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: azure-sample-compute
+  namespace: default
+spec:
+  provider: azure
+  region: East US
+  instanceType: Standard_B2s
+  image: ubuntu-20.04
+  subnetId: azure-sample-network
+---
+# Azure Storage
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: azure-sample-storage
+  namespace: default
+spec:
+  provider: azure
+  region: East US
+  storageClass: standard
+  size: 100Gi
+  versioning: true
+---
+# GCP Network
+apiVersion: multicloud.example.com/v1alpha1
+kind: XNetwork
+metadata:
+  name: gcp-sample-network
+  namespace: default
+spec:
+  provider: gcp
+  region: us-central1
+  cidrBlock: 10.2.0.0/16
+  subnetCount: 3
+---
+# GCP Compute Instance
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: gcp-sample-compute
+  namespace: default
+spec:
+  provider: gcp
+  region: us-central1
+  instanceType: e2-medium
+  image: ubuntu-20.04
+  subnetId: gcp-sample-network
+---
+# GCP Storage
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: gcp-sample-storage
+  namespace: default
+spec:
+  provider: gcp
+  region: us-central1
+  storageClass: standard
+  size: 100Gi
+  versioning: true
