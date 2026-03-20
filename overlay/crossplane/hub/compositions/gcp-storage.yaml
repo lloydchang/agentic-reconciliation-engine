@@ -1,0 +1,58 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gcp-storage
+  labels:
+    provider: gcp
+    resource: storage
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  - name: gcp-storage-bucket
+    base:
+      apiVersion: storage.gcp.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        forProvider:
+          project: your-project-id
+          name: multicloud-storage
+          location: US-CENTRAL1
+          storageClass: STANDARD
+          uniformBucketLevelAccess: true
+          versioning:
+            enabled: true
+          labels:
+            managed-by: crossplane
+            environment: production
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+    - fromFieldPath: "spec.versioning"
+      toFieldPath: "spec.forProvider.versioning.enabled"
+    - fromFieldPath: "metadata.uid"
+      toFieldPath: "spec.forProvider.name"
+      transforms:
+        - type: string
+          string:
+            fmt: "multicloud-storage-%s"
+  - name: gcp-bucket-iam
+    base:
+      apiVersion: storage.gcp.upbound.io/v1beta1
+      kind: BucketIAMMember
+      spec:
+        forProvider:
+          project: your-project-id
+          bucketSelector:
+            matchControllerRef: true
+          role: roles/storage.objectViewer
+          member: "allUsers"
+          condition:
+            title: "Public read access condition"
+            description: "Allow public read access to objects"
+            expression: "resource.name.startsWith('projects/_/buckets/multicloud-storage/public/')"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system
