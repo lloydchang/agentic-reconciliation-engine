@@ -14,7 +14,8 @@ from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 
-from ai_agent_orchestration_handler import get_handler, CloudHandler, CloudResource
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 from crossplane_orchestrator import CrossplaneOrchestrator, ResourceRequest, ResourceType, CloudProvider
 
 logger = logging.getLogger(__name__)
@@ -293,7 +294,26 @@ class MultiCloudOrchestrator:
             handler = self.handlers[task.provider]
             
             if task.operation == "deploy":
-                result_data = handler.deploy_agent(task.config)
+                # Try Crossplane first, fallback to legacy handler
+                if hasattr(self, 'crossplane_orchestrator'):
+                    try:
+                        resource_request = self._convert_to_crossplane_request(task)
+                        if resource_request:
+                            if task.config.get('resource_type') == 'network':
+                                result_data = self.crossplane_orchestrator.create_network(resource_request)
+                            elif task.config.get('resource_type') == 'compute':
+                                result_data = self.crossplane_orchestrator.create_compute(resource_request)
+                            elif task.config.get('resource_type') == 'storage':
+                                result_data = self.crossplane_orchestrator.create_storage(resource_request)
+                            else:
+                                result_data = handler.deploy_agent(task.config)
+                        else:
+                            result_data = handler.deploy_agent(task.config)
+                    except Exception as e:
+                        logger.warning(f"Crossplane deployment failed, falling back to legacy: {e}")
+                        result_data = handler.deploy_agent(task.config)
+                else:
+                    result_data = handler.deploy_agent(task.config)
             elif task.operation == "scale":
                 result_data = handler.scale_agent(
                     task.config['agent_id'], 

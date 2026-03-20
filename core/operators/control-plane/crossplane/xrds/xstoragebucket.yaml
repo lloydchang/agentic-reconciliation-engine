@@ -1,0 +1,184 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xstoragebuckets.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XStorageBucket
+    plural: xstoragebuckets
+  claimNames:
+    kind: StorageBucket
+    plural: storagebuckets
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [region]
+              properties:
+                region:
+                  type: string
+                  description: "Cloud region for bucket location"
+                # Versioning
+                versioning:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    suspended:
+                      type: boolean
+                # Encryption
+                encryption:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["AES256", "aws:kms", "SSE-KMS"]
+                      description: "Server-side encryption type"
+                    kmsKeyId:
+                      type: string
+                      description: "KMS Key ID for SSE-KMS"
+                    customerManagedKey:
+                      type: boolean
+                # Lifecycle Policies
+                lifecycle:
+                  type: object
+                  properties:
+                    rules:
+                      type: array
+                      items:
+                        type: object
+                        required: [id, status]
+                        properties:
+                          id:
+                            type: string
+                          status:
+                            type: boolean
+                          expiration:
+                            type: object
+                            properties:
+                              days:
+                                type: integer
+                              expiredObjectDeleteMarker:
+                                type: boolean
+                          transition:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                days:
+                                  type: integer
+                                storageClass:
+                                  type: string
+                                  enum: ["STANDARD_IA", "ONEZONE_IA", "GLACIER", "DEEP_ARCHIVE"]
+                # Public Access Block (security)
+                publicAccessBlock:
+                  type: object
+                  properties:
+                    blockPublicAcls:
+                      type: boolean
+                    blockPublicPolicy:
+                      type: boolean
+                    ignorePublicAcls:
+                      type: boolean
+                    restrictPublicBuckets:
+                      type: boolean
+                # CORS rules
+                cors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      allowedOrigins:
+                        type: array
+                        items:
+                          type: string
+                      allowedMethods:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["GET", "PUT", "POST", "DELETE", "HEAD"]
+                      allowedHeaders:
+                        type: array
+                        items:
+                          type: string
+                      maxAgeSeconds:
+                        type: integer
+                # Bucket Policy / ACL
+                acl:
+                  type: string
+                  enum: ["private", "public-read", "public-read-write", "authenticated-read"]
+                  description: "ACL (legacy, prefer bucketPolicy)"
+                bucketPolicy:
+                  type: object
+                  additionalProperties:
+                    type: object
+                  description: "Bucket policy JSON (use for fine-grained control)"
+                # Logging
+                logging:
+                  type: object
+                  properties:
+                    targetBucket:
+                      type: string
+                    targetPrefix:
+                      type: string
+                # Object Lock (WORM)
+                objectLock:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    mode:
+                      type: string
+                      enum: ["GOVERNANCE", "COMPLIANCE"]
+                    retention:
+                      type: object
+                      properties:
+                        days:
+                          type: integer
+                        years:
+                          type: integer
+                # Replication
+                replication:
+                  type: object
+                  properties:
+                    rules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          destination:
+                            type: object
+                            properties:
+                              bucket:
+                                type: string
+                              storageClass:
+                                type: string
+                          deleteMarkerReplication:
+                            type: boolean
+                          status:
+                            type: boolean
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                bucketName:
+                  type: string
+                bucketArn:
+                  type: string
+                endpoint:
+                  type: string
+                region:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
