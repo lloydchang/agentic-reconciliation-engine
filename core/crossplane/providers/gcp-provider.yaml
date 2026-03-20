@@ -1,0 +1,66 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider
+    app.kubernetes.io/provider: gcp
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-gcp:v1.2.0
+  controllerConfigRef:
+    name: gcp-controller-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-credentials
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: credentials
+type: Opaque
+stringData:
+  credentials: |
+    {
+      "type": "service_account",
+      "project_id": "${GCP_PROJECT_ID}",
+      "private_key_id": "${GCP_PRIVATE_KEY_ID}",
+      "private_key": "${GCP_PRIVATE_KEY}",
+      "client_email": "${GCP_CLIENT_EMAIL}",
+      "client_id": "${GCP_CLIENT_ID}",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token"
+    }
+---
+apiVersion: gcp.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: gcp-default
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/provider: gcp
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: gcp-credentials
+      key: credentials
+  projectID: ${GCP_PROJECT_ID}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gcp-controller-config
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: controller-config
+data:
+  args: |
+    --debug
+    --max-reconcile-rate=20

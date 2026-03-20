@@ -1,0 +1,47 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-family-aws
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-family-azure
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-azure:v1.2.0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-family-gcp
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-gcp:v1.2.0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws:v0.38.0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-azure:v0.38.0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  namespace: crossplane-system
+spec:
+  package: xpkg.upbound.io/upbound/provider-gcp:v0.38.0

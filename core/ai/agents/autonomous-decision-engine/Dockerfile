@@ -8,13 +8,9 @@ RUN apk add --no-cache git ca-certificates tzdata
 
 # Copy go mod files
 COPY go.mod ./
-RUN go mod tidy && go mod download && go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
-
-# Copy source code
+COPY go.sum ./
 COPY . .
-
-# Build the autonomous decision engine
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
+RUN go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
 
 # Final stage
 FROM alpine:latest
@@ -36,8 +32,8 @@ USER autonomous
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD ["/autonomous-decision-engine", "health"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
-# Run the autonomous decision engine
+# Run the application
 CMD ["./autonomous-decision-engine"]

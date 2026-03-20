@@ -1,0 +1,132 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xstorages.platform.example.com
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: xrd
+    app.kubernetes.io/resource: storage
+  annotations:
+    crossplane.io/documentation: "Unified storage resource across AWS, Azure, and GCP"
+spec:
+  group: platform.example.com
+  names:
+    kind: XStorage
+    plural: xstorages
+  claimNames:
+    kind: Storage
+    plural: storages
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Target cloud provider"
+                default: "aws"
+              region:
+                type: string
+                description: "Cloud provider region"
+                default: "us-west-2"
+              storageClass:
+                type: string
+                description: "Storage class tier"
+                default: "standard"
+              bucketName:
+                type: string
+                description: "Bucket/container name"
+              versioning:
+                type: boolean
+                description: "Enable versioning"
+                default: false
+              encryption:
+                type: boolean
+                description: "Enable encryption"
+                default: true
+              lifecycleRules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    status:
+                      type: string
+                      enum: ["Enabled", "Disabled"]
+                    transitions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          days:
+                            type: integer
+                          storageClass:
+                            type: string
+                    expiration:
+                      type: object
+                      properties:
+                        days:
+                          type: integer
+                description: "Lifecycle management rules"
+              accessControl:
+                type: string
+                enum: ["private", "public-read", "public-read-write", "authenticated-read"]
+                description: "Access control level"
+                default: "private"
+              tags:
+                type: object
+                description: "Resource tags"
+                additionalProperties:
+                  type: string
+                default: {}
+            required:
+              - region
+              - bucketName
+          status:
+            type: object
+            properties:
+              bucketArn:
+                type: string
+                description: "Bucket ARN"
+              bucketDomainName:
+                type: string
+                description: "Bucket domain name"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+              createdAt:
+                type: string
+                description: "Creation timestamp"
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    status:
+                      type: string
+                    lastTransitionTime:
+                      type: string
+                    reason:
+                      type: string
+                    message:
+                      type: string
+                description: "Resource conditions"
+    writeConnectionSecretsToNamespace: crossplane-system
+    connectionDetails:
+      - name: bucket-arn
+        fromConnectionSecretKey: bucket-arn
+      - name: bucket-domain-name
+        fromConnectionSecretKey: bucket-domain-name

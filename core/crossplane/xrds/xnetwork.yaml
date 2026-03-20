@@ -1,0 +1,113 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.platform.example.com
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: xrd
+    app.kubernetes.io/resource: network
+  annotations:
+    crossplane.io/documentation: "Unified network resource across AWS, Azure, and GCP"
+spec:
+  group: platform.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Target cloud provider"
+                default: "aws"
+              region:
+                type: string
+                description: "Cloud provider region"
+                default: "us-west-2"
+              cidrBlock:
+                type: string
+                description: "Network CIDR block"
+                default: "10.0.0.0/16"
+              subnetCount:
+                type: integer
+                description: "Number of subnets to create"
+                default: 3
+              subnetCidrBits:
+                type: integer
+                description: "CIDR bits for subnets"
+                default: 8
+              enableDnsHostnames:
+                type: boolean
+                description: "Enable DNS hostnames"
+                default: true
+              enableDnsSupport:
+                type: boolean
+                description: "Enable DNS support"
+                default: true
+              tags:
+                type: object
+                description: "Resource tags"
+                additionalProperties:
+                  type: string
+                default: {}
+            required:
+              - region
+          status:
+            type: object
+            properties:
+              networkId:
+                type: string
+                description: "Network resource ID"
+              subnetIds:
+                type: array
+                items:
+                  type: string
+                description: "Subnet resource IDs"
+              routeTableIds:
+                type: array
+                items:
+                  type: string
+                description: "Route table IDs"
+              internetGatewayId:
+                type: string
+                description: "Internet gateway ID"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    status:
+                      type: string
+                    lastTransitionTime:
+                      type: string
+                    reason:
+                      type: string
+                    message:
+                      type: string
+                description: "Resource conditions"
+    writeConnectionSecretsToNamespace: crossplane-system
+    connectionDetails:
+      - name: network-id
+        fromConnectionSecretKey: network-id
+      - name: subnet-ids
+        fromConnectionSecretKey: subnet-ids

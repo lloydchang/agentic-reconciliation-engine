@@ -1,0 +1,155 @@
+# Composite Resource Definition for Multi-Cloud Network
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.multicloud.example.com
+spec:
+  group: multicloud.example.com
+  names:
+    kind: XNetwork
+    plural: xnetworks
+    claimNames:
+      kind: Network
+      plural: networks
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                default: "aws"
+              region:
+                type: string
+                default: "us-west-2"
+              cidrBlock:
+                type: string
+                default: "10.0.0.0/16"
+              subnetCount:
+                type: integer
+                default: 3
+            required:
+              - provider
+          status:
+            type: object
+            properties:
+              networkId:
+                type: string
+              subnetIds:
+                type: array
+                items:
+                  type: string
+              provider:
+                type: string
+---
+# Composite Resource Definition for Multi-Cloud Compute
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcomputes.multicloud.example.com
+spec:
+  group: multicloud.example.com
+  names:
+    kind: XCompute
+    plural: xcomputes
+    claimNames:
+      kind: Compute
+      plural: computes
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                default: "aws"
+              region:
+                type: string
+                default: "us-west-2"
+              instanceType:
+                type: string
+                default: "medium"
+              image:
+                type: string
+                default: "ubuntu-20.04"
+              subnetId:
+                type: string
+            required:
+              - provider
+          status:
+            type: object
+            properties:
+              instanceId:
+                type: string
+              publicIP:
+                type: string
+              privateIP:
+                type: string
+              provider:
+                type: string
+---
+# Composite Resource Definition for Multi-Cloud Storage
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xstorages.multicloud.example.com
+spec:
+  group: multicloud.example.com
+  names:
+    kind: XStorage
+    plural: xstorages
+    claimNames:
+      kind: Storage
+      plural: storages
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                default: "aws"
+              region:
+                type: string
+                default: "us-west-2"
+              storageClass:
+                type: string
+                default: "standard"
+              size:
+                type: string
+                default: "100Gi"
+              versioning:
+                type: boolean
+                default: true
+            required:
+              - provider
+          status:
+            type: object
+            properties:
+              bucketName:
+                type: string
+              endpoint:
+                type: string
+              provider:
+                type: string

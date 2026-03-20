@@ -202,10 +202,6 @@ spec:
         configMap:
           name: dashboard-backend-realtime
 EOF
-    
-    # Delete existing PVC to avoid database corruption issues (quickstart/dev only)
-    log_info "Cleaning up any existing agent-memory PVC..."
-    kubectl delete pvc agent-memory-pvc -n $NAMESPACE --ignore-not-found &>/dev/null || true
 
     # Create ConfigMap with autonomous agent code
     log_info "Creating autonomous agent ConfigMap..."

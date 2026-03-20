@@ -33,27 +33,31 @@ The Portal provides a comprehensive dashboard and API for monitoring and managin
 
 ```
 agentic-reconciliation-engine/
-├── config/                    # Configuration files (.env, nginx.conf)
 ├── core/                      # Core system components and agent logic
-├── dashboard/                 # Dashboard application
-│   ├── configs/               # Dashboard configuration files
-│   ├── deployments/           # Kubernetes deployment manifests
-│   ├── docker/                # Dashboard Dockerfile
-│   └── src/                   # Dashboard source code
-├── docker/                    # Dockerfiles and compose files
+│   ├── ai/                    # AI agents and skills
+│   ├── automation/            # Automation scripts
+│   ├── config/                # Configuration files
+│   ├── dashboard/             # Dashboard application
+│   ├── deploy/                # Deployment files
+│   ├── deployment/            # Deployment manifests
+│   ├── docker/                # Dockerfiles
+│   ├── examples/              # Examples
+│   ├── gitops/                # GitOps configurations
+│   ├── governance/            # Governance files
+│   ├── hooks/                 # Git hooks
+│   ├── infrastructure/        # Infrastructure files
+│   ├── logs/                  # Logs
+│   ├── multi-cloud-abstraction.js  # Multi-cloud abstraction script
+│   ├── operators/             # Operators
+│   ├── performance-profiler.js    # Performance profiler
+│   ├── resources/             # Resources
+│   ├── scripts/               # Scripts
+│   ├── test/                  # Tests
+│   ├── tests/                 # Tests
+│   └── voice-chat/            # Voice chat
 ├── docs/                      # Documentation and guides
-├── infrastructure/            # Infrastructure files (go.mod)
 ├── overlay/                   # Kubernetes overlays and configurations
-├── scripts/                   # Development and deployment scripts
-│   ├── access/                # Access and connection scripts
-│   ├── deployment/            # Deployment automation
-│   ├── health/                # Health check scripts
-│   ├── monitoring/            # Monitoring and profiling
-│   ├── services/               # Service management
-│   ├── testing/               # Testing scripts
-│   ├── utils/                 # Utility scripts
-│   └── validation/            # Validation and linting
-└── [root files]               # Essential root configuration files
+└── [root files]               # Essential root configuration files (.env, .gitignore, AGENTS.md, etc.)
 ```
 
 ---

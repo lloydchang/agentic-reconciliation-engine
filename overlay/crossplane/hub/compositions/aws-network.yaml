@@ -1,0 +1,119 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-network
+  labels:
+    provider: aws
+    resource: network
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: aws-vpc
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPC
+      spec:
+        forProvider:
+          region: us-west-2
+          cidrBlock: 10.0.0.0/16
+          enableDnsHostnames: true
+          enableDnsSupport: true
+          tags:
+            Name: multicloud-network
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.cidrBlock"
+      toFieldPath: "spec.forProvider.cidrBlock"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-subnet-1
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          region: us-west-2
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: 10.0.1.0/24
+          availabilityZone: us-west-2a
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: multicloud-subnet-1
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-subnet-2
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          region: us-west-2
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: 10.0.2.0/24
+          availabilityZone: us-west-2b
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: multicloud-subnet-2
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-subnet-3
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          region: us-west-2
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: 10.0.3.0/24
+          availabilityZone: us-west-2c
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: multicloud-subnet-3
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-internet-gateway
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: InternetGateway
+      spec:
+        forProvider:
+          region: us-west-2
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            Name: multicloud-igw
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  - name: aws-route-table
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTable
+      spec:
+        forProvider:
+          region: us-west-2
+          vpcIdSelector:
+            matchControllerRef: true
+          routes:
+            - destinationCidrBlock: 0.0.0.0/0
+              gatewayIdSelector:
+                matchControllerRef: true
+          tags:
+            Name: multicloud-rt
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.region"
+  writeConnectionSecretsToNamespace: crossplane-system

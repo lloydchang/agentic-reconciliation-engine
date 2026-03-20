@@ -1,0 +1,107 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: azure-network
+  labels:
+    provider: azure
+    resource: network
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  - name: azure-vnet
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: VirtualNetwork
+      spec:
+        forProvider:
+          location: East US
+          addressSpace:
+            - 10.0.0.0/16
+          tags:
+            Name: multicloud-network
+            ManagedBy: crossplane
+    patches:
+    - fromFieldPath: "spec.cidrBlock"
+      toFieldPath: "spec.forProvider.addressSpace[0]"
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  - name: azure-subnet-1
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          addressPrefix: 10.0.1.0/24
+          name: multicloud-subnet-1
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  - name: azure-subnet-2
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          addressPrefix: 10.0.2.0/24
+          name: multicloud-subnet-2
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  - name: azure-subnet-3
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          addressPrefix: 10.0.3.0/24
+          name: multicloud-subnet-3
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  - name: azure-nsg
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: NetworkSecurityGroup
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          name: multicloud-nsg
+          securityRules:
+            - name: allow-ssh
+              priority: 1000
+              direction: Inbound
+              access: Allow
+              protocol: Tcp
+              sourcePortRange: "*"
+              destinationPortRange: "22"
+              sourceAddressPrefix: "*"
+              destinationAddressPrefix: "*"
+            - name: allow-http
+              priority: 1001
+              direction: Inbound
+              access: Allow
+              protocol: Tcp
+              sourcePortRange: "*"
+              destinationPortRange: "80"
+              sourceAddressPrefix: "*"
+              destinationAddressPrefix: "*"
+    patches:
+    - fromFieldPath: "spec.region"
+      toFieldPath: "spec.forProvider.location"
+  writeConnectionSecretsToNamespace: crossplane-system

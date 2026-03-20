@@ -1,0 +1,62 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider
+    app.kubernetes.io/provider: azure
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-azure:v1.2.0
+  controllerConfigRef:
+    name: azure-controller-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-credentials
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: credentials
+type: Opaque
+stringData:
+  credentials: |
+    {
+      "clientId": "${AZURE_CLIENT_ID}",
+      "clientSecret": "${AZURE_CLIENT_SECRET}",
+      "subscriptionId": "${AZURE_SUBSCRIPTION_ID}",
+      "tenantId": "${AZURE_TENANT_ID}"
+    }
+---
+apiVersion: azure.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: azure-default
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/provider: azure
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: azure-credentials
+      key: credentials
+  location: East US
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: azure-controller-config
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: controller-config
+data:
+  args: |
+    --debug
+    --max-reconcile-rate=20

@@ -46,7 +46,26 @@
       "Bash(/tmp/temporal-server-patch.yaml:*)",
       "Bash(while kubectl:*)",
       "Bash(do sleep:*)",
-      "Bash(ps:*)"
+      "Bash(ps:*)",
+      "Bash(kubectl set:*)",
+      "WebFetch(domain:surajblog.medium.com)",
+      "WebFetch(domain:oneuptime.com)",
+      "WebFetch(domain:aws.plainenglish.io)",
+      "WebFetch(domain:medium.com)",
+      "Bash(xargs cat:*)",
+      "WebSearch",
+      "Bash(curl -s http://localhost:9002/)",
+      "Bash(tee /tmp/deploy-fixed.log)",
+      "Bash(kubectl wait:*)",
+      "Bash(node -e \"const path = require\\(''path''\\); console.log\\(path.join\\(__dirname, ''src'', ''real-dashboard.html''\\)\\)\")",
+      "Bash(grep -E \"\\\\.\\(md|yaml|yml\\)$\")",
+      "Bash(grep -E \"\\\\.md$\")",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"docs: add comprehensive Crossplane migration plan:*)"
     ]
   }
 }

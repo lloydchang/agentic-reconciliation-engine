@@ -1,0 +1,139 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcomputes.platform.example.com
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: xrd
+    app.kubernetes.io/resource: compute
+  annotations:
+    crossplane.io/documentation: "Unified compute resource across AWS, Azure, and GCP"
+spec:
+  group: platform.example.com
+  names:
+    kind: XCompute
+    plural: xcomputes
+  claimNames:
+    kind: Compute
+    plural: computes
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              provider:
+                type: string
+                enum: ["aws", "azure", "gcp"]
+                description: "Target cloud provider"
+                default: "aws"
+              region:
+                type: string
+                description: "Cloud provider region"
+                default: "us-west-2"
+              instanceType:
+                type: string
+                description: "Instance type/size"
+                default: "t3.medium"
+              imageId:
+                type: string
+                description: "Machine image ID"
+                default: "ami-0abcdef1234567890"
+              keyName:
+                type: string
+                description: "SSH key name"
+              subnetId:
+                type: string
+                description: "Subnet ID for instance"
+              securityGroupIds:
+                type: array
+                items:
+                  type: string
+                description: "Security group IDs"
+              minCount:
+                type: integer
+                description: "Minimum number of instances"
+                default: 1
+              maxCount:
+                type: integer
+                description: "Maximum number of instances"
+                default: 1
+              userData:
+                type: string
+                description: "User data script"
+              tags:
+                type: object
+                description: "Resource tags"
+                additionalProperties:
+                  type: string
+                default: {}
+              monitoring:
+                type: boolean
+                description: "Enable detailed monitoring"
+                default: true
+              ebsOptimized:
+                type: boolean
+                description: "Enable EBS optimization"
+                default: false
+            required:
+              - region
+              - instanceType
+          status:
+            type: object
+            properties:
+              instanceIds:
+                type: array
+                items:
+                  type: string
+                description: "Instance resource IDs"
+              publicIps:
+                type: array
+                items:
+                  type: string
+                description: "Public IP addresses"
+              privateIps:
+                type: array
+                items:
+                  type: string
+                description: "Private IP addresses"
+              provider:
+                type: string
+                description: "Actual provider used"
+              region:
+                type: string
+                description: "Actual region deployed"
+              instanceState:
+                type: string
+                description: "Current instance state"
+              launchTime:
+                type: string
+                description: "Instance launch time"
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    status:
+                      type: string
+                    lastTransitionTime:
+                      type: string
+                    reason:
+                      type: string
+                    message:
+                      type: string
+                description: "Resource conditions"
+    writeConnectionSecretsToNamespace: crossplane-system
+    connectionDetails:
+      - name: instance-ids
+        fromConnectionSecretKey: instance-ids
+      - name: public-ips
+        fromConnectionSecretKey: public-ips
+      - name: private-ips
+        fromConnectionSecretKey: private-ips

@@ -1,0 +1,62 @@
+# Crossplane Provider Installation
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.0
+  controllerConfigRef:
+    name: crossplane-rbac
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-azure:v1.2.0
+  controllerConfigRef:
+    name: crossplane-rbac
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  annotations:
+    crossplane.io/managed-by: "agentic-reconciliation-engine"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-gcp:v1.2.0
+  controllerConfigRef:
+    name: crossplane-rbac
+---
+# RBAC Configuration for Crossplane
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-rbac
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+- apiGroups: ["platform.example.com"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crossplane-rbac
+subjects:
+- kind: ServiceAccount
+  name: crossplane
+  namespace: crossplane-system

@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
+	"go.temporal.io/sdk/workflow"
 )
 
 // AutonomousDecisionEngine enables fully autonomous AI operations
@@ -135,7 +136,8 @@ func (e *AutonomousDecisionEngine) setupTemporal() {
 
 func (e *AutonomousDecisionEngine) startAutonomousWorker() {
 	// Create worker for autonomous operations
-	w := worker.New(e.temporalClient, "autonomous-decision-engine")
+	options := worker.Options{}
+	w := worker.New(e.temporalClient, options)
 	
 	// Register autonomous workflows
 	w.RegisterWorkflow(e.AutonomousOperationWorkflow)
@@ -159,7 +161,7 @@ func (e *AutonomousDecisionEngine) AutonomousOperationWorkflow(ctx workflow.Cont
 		MaximumInterval:    time.Minute,
 		MaximumAttempts:    3,
 	})
-
+	
 	// Step 1: Apply reconciliation guard
 	var guardPassed bool
 	err := workflow.ExecuteActivity(ctx, workflow.GetActivityOptions(ctx).SetActivityID("apply-guard"), e.ApplyReconciliationGuard, operation).Get(ctx, &guardPassed)
@@ -172,7 +174,7 @@ func (e *AutonomousDecisionEngine) AutonomousOperationWorkflow(ctx workflow.Cont
 	}
 
 	// Step 2: Execute autonomous operation
-	var outcome LearningData
+	err = workflow.ExecuteActivity(ao, e.ExecuteAutonomousOperation, operation)
 	err = workflow.ExecuteActivity(ctx, ao.SetActivityID("execute-operation"), e.ExecuteAutonomousOperation, operation).Get(ctx, &outcome)
 	if err != nil {
 		return fmt.Errorf("autonomous operation failed: %w", err)
