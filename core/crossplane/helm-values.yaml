@@ -43,5 +43,3 @@ networkPolicy:
           port: 80
 args:
   - --dangerous-disable-forward-rotation
-  - --gitops
-EOF

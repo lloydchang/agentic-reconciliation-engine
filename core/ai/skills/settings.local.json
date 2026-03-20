@@ -73,7 +73,9 @@
       "Bash(helm list:*)",
       "Bash(helm repo:*)",
       "Bash(git ls-tree:*)",
-      "Bash(grep -r \"temporal\" core/automation/scripts/quickstart-*.sh)"
+      "Bash(grep -r \"temporal\" core/automation/scripts/quickstart-*.sh)",
+      "Bash(helm install:*)",
+      "Bash(docs/migration/INVENTORY-MATRIX.md:*)"
     ]
   }
 }
