@@ -20,7 +20,7 @@ spec:
       serviceAccountName: agent-swarm-sa
       containers:
       - name: cost-optimizer
-        image: nginx:alpine
+        image: cost-optimizer-agent:latest
         env:
         - name: MEMORY_AGENT_URL
           value: "http://agent-memory-rust:8080"

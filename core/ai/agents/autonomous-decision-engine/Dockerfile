@@ -1,5 +1,5 @@
 # Build autonomous decision engine with learning capabilities
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -7,9 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache git ca-certificates tzdata
 
 # Copy go mod files
-COPY go.mod go.sum ./
-
-# Download dependencies
+COPY go.mod ./
+RUN go mod download dependencies
 RUN go mod download
 
 # Copy source code
