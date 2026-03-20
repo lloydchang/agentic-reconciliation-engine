@@ -1,0 +1,138 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: postgresqlinstances.database.gcp
+  labels:
+    provider: gcp
+    category: database
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: database.gcp/v1beta1
+    kind: CloudSQLPostgreSQL
+  resources:
+  # 1. Cloud SQL Instance
+  - name: cloudsql-instance
+    base:
+      apiVersion: database.gcp.upbound.io/v1beta1
+      kind: PostgreSQLInstance
+      spec:
+        forProvider:
+          region: ${this.region}
+          project: ${this.projectID}
+          databaseVersion: ${this.databaseVersion}
+          settings:
+            tier: ${this.tier}
+            diskSizeGb: ${this.diskSizeGB}
+            diskType: ${this.diskType}
+            storageAutoResize: ${this.storageAutoResize}
+            backupConfiguration:
+              enabled: ${this.backupConfiguration.enabled}
+              startTime: ${this.backupConfiguration.startTime}
+              backupRetentionDays: ${this.backupConfiguration.backupRetentionDays}
+            maintenanceWindow:
+              day: ${this.maintenanceWindow.day}
+              hour: ${this.maintenanceWindow.hour}
+            ipConfiguration:
+              ipv4Enabled: ${this.ipConfiguration.ipv4Enabled}
+              privateNetwork: ${this.ipConfiguration.privateNetwork}
+              authorizedNetworks: []  # Can be populated from spec
+            databaseFlags: []  # Populate from spec.databaseFlags
+          passwordSecretRef:
+            name: ${this.administrator.passwordSecretRef.name}
+            namespace: ${this.administrator.passwordSecretRef.namespace}
+          administratorLogin: ${this.administrator.username}
+          deletionProtection: ${this.deletionProtection}
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.projectID
+      toFieldPath: spec.forProvider.project
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.databaseVersion
+      toFieldPath: spec.forProvider.databaseVersion
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tier
+      toFieldPath: spec.forProvider.settings.tier
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.diskSizeGB
+      toFieldPath: spec.forProvider.settings.diskSizeGb
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.administrator.username
+      toFieldPath: spec.forProvider.administratorLogin
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.tags.Name  # If supported
+
+  # 2. Database within instance (optional auto-creation)
+  - name: application-database
+    base:
+      apiVersion: database.gcp.upbound.io/v1beta1
+      kind: PostgreSQLDatabase
+      spec:
+        forProvider:
+          instanceRef:
+            name: ${cloudsql-instance.name}
+          charset: "UTF8"
+          collation: "en_US.utf8"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-db-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.databaseName
+      toFieldPath: metadata.name
+
+  # 3. User for application (optional)
+  - name: app-user
+    base:
+      apiVersion: database.gcp.upbound.io/v1beta1
+      kind: PostgreSQLUser
+      spec:
+        forProvider:
+          instanceRef:
+            name: ${cloudsql-instance.name}
+          passwordSecretRef:
+            name: ${this.metadata.name}-app-user-secret
+            namespace: default
+            key: password
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-app-user-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.appUsername
+      toFieldPath: metadata.name
+      # Default: if not specified, use "app"
+
+---
+# Example Claim:
+# apiVersion: database.gcp/v1beta1
+# kind: CloudSQLPostgreSQLClaim
+# metadata:
+#   name: app-database
+#   namespace: team-a
+# spec:
+#   region: us-central1
+#   projectID: "my-project"
+#   instanceName: "app-postgres-01"
+#   tier: "db-custom-2-7680"
+#   diskSizeGB: 50
+#   administrator:
+#     username: "postgres"
+#     passwordSecretRef:
+#       name: "app-db-password"
+#       namespace: "team-a"
+#       key: "password"
+#   databaseName: "app_db"
+#   ipConfiguration:
+#     ipv4Enabled: false
+#     privateNetwork: "projects/my-project/global/networks/default"

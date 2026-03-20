@@ -70,8 +70,10 @@
       "Bash(git status:*)",
       "Bash(kubectl version:*)",
       "Bash(curl:*)",
-      "Bash(git reset:*)",
-      "Bash(helm list:*)"
+      "Bash(helm list:*)",
+      "Bash(helm repo:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(grep -r \"temporal\" core/automation/scripts/quickstart-*.sh)"
     ]
   }
 }

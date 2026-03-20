@@ -1,0 +1,137 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: postgresqlinstances.database.gcp
+  labels:
+    provider: gcp
+    category: database
+    managed-by: crossplane
+spec:
+  group: database.gcp
+  names:
+    kind: CloudSQLPostgreSQL
+    plural: postgresqlinstances
+    singular: postgresqlinstance
+  claimNames:
+    kind: CloudSQLPostgreSQLClaim
+    plural: postgresqlinstanceclaims
+    singular: postgresqlinstanceclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                default: us-central1
+              projectID:
+                type: string
+              instanceName:
+                type: string
+                description: Cloud SQL instance name
+              databaseVersion:
+                type: string
+                default: "POSTGRES_15"
+                enum: ["POSTGRES_11", "POSTGRES_12", "POSTGRES_13", "POSTGRES_14", "POSTGRES_15"]
+              tier:
+                type: string
+                default: "db-custom-1-3840"
+                description: Machine type (e.g., db-custom-1-3840, db-f1-micro)
+              diskSizeGB:
+                type: integer
+                default: 20
+                minimum: 10
+                maximum: 65536
+              diskType:
+                type: string
+                default: "PD_SSD"
+                enum: ["PD_SSD", "PD_HDD"]
+              storageAutoResize:
+                type: boolean
+                default: true
+              ipConfiguration:
+                type: object
+                properties:
+                  ipv4Enabled:
+                    type: boolean
+                    default: false
+                  privateNetwork:
+                    type: string
+                    description: SelfLink of VPC network for private IP
+                  authorizedNetworks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                description: IP configuration
+              backupConfiguration:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  startTime:
+                    type: string
+                    default: "03:00"
+                  backupRetentionDays:
+                    type: integer
+                    default: 7
+                    minimum: 1
+                    maximum: 365
+                description: Backup configuration
+              maintenanceWindow:
+                type: object
+                properties:
+                  day:
+                    type: integer
+                    minimum: 1
+                    maximum: 7
+                    default: 1
+                  hour:
+                    type: integer
+                    minimum: 0
+                    maximum: 23
+                    default: 3
+                description: Weekly maintenance window
+              databaseFlags:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                description: Database flags (e.g., max_connections)
+              administrator:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  passwordSecretRef:
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                    key:
+                      type: string
+                      default: password
+                required: ["username", "passwordSecretRef"]
+              deletionProtection:
+                type: boolean
+                default: false
+            required: ["instanceName", "administrator"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

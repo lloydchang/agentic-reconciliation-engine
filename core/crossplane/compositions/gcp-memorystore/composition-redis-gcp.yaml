@@ -1,0 +1,73 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: redisinstances.cache.gcp
+  labels:
+    provider: gcp
+    category: cache
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: cache.gcp/v1beta1
+    kind: RedisInstance
+  resources:
+  # 1. Redis Instance (Memorystore)
+  - name: redis-instance
+    base:
+      apiVersion: cache.gcp.upbound.io/v1beta1
+      kind: RedisInstance
+      spec:
+        forProvider:
+          region: ${this.region}
+          project: ${this.projectID}
+          memorySizeGb: ${this.memorySizeGB}
+          tier: ${this.tier}
+          redisVersion: ${this.redisVersion}
+          authorizedNetwork: ${this.authorizedNetwork}
+          labels:
+            Name: ${this.metadata.name}
+            ManagedBy: "crossplane"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.projectID
+      toFieldPath: spec.forProvider.project
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.memorySizeGB
+      toFieldPath: spec.forProvider.memorySizeGb
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tier
+      toFieldPath: spec.forProvider.tier
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.redisVersion
+      toFieldPath: spec.forProvider.redisVersion
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.authorizedNetwork
+      toFieldPath: spec.forProvider.authorizedNetwork
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.labels.Name
+
+---
+# Example Claim:
+# apiVersion: cache.gcp/v1beta1
+# kind: RedisInstanceClaim
+# metadata:
+#   name: app-cache
+#   namespace: team-a
+# spec:
+#   region: us-central1
+#   projectID: "my-project"
+#   instanceName: "app-redis-cache"
+#   memorySizeGB: 4
+#   tier: "STANDARD_HA"
+#   redisVersion: "REDIS_7_0"
+#   authorizedNetwork: "projects/my-project/global/networks/default"

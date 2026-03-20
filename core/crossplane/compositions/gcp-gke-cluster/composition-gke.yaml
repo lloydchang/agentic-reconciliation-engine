@@ -1,0 +1,198 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gkeclusters.platform.gcp
+  labels:
+    provider: gcp
+    category: compute
+    managed-by: crossplane
+spec:
+  compositeTypeRef:
+    apiVersion: platform.gcp/v1beta1
+    kind: GKECluster
+  resources:
+  # 1. Network (if subnetwork doesn't exist)
+  - name: network
+    base:
+      apiVersion: networking.gcp.upbound.io/v1beta1
+      kind: Network
+      spec:
+        forProvider:
+          autoCreateSubnetworks: false
+          routingConfig:
+            routingMode: REGIONAL
+          description: "Network for ${this.metadata.name}"
+          mtu: 1460
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-network-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.network
+      toFieldPath: metadata.name
+      # If spec.network provided, use that name instead
+
+  # 2. Subnetwork
+  - name: subnetwork
+    base:
+      apiVersion: networking.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      spec:
+        forProvider:
+          networkRef:
+            name: ${network.name}
+          region: ${this.location}
+          ipCidrRange: 10.0.0.0/16
+          privateIpGoogleAccess: true
+          secondaryIpRanges:
+            - rangeName: "pods"
+              ipCidrRange: 10.1.0.0/16
+            - rangeName: "services"
+              ipCidrRange: 10.2.0.0/16
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-subnet-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.region
+
+  # 3. GKE Cluster
+  - name: gke-cluster
+    base:
+      apiVersion: platform.gcp.upbound.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          location: ${this.location}
+          project: ${this.projectID}
+          network:
+            networkRef:
+              name: ${network.name}
+            subnetwork: ${subnetwork.name}
+          removeDefaultNodePool: true
+          binaryAuthorization:
+            evaluationMode: DISABLED
+          ipAllocationPolicy:
+            useIpAliases: true
+            clusterCidr: 10.1.0.0/16
+            servicesCidr: 10.2.0.0/16
+            clusterSecondaryRangeName: "pods"
+            servicesSecondaryRangeName: "services"
+          privateClusterConfig:
+            enablePrivateNodes: ${this.privateCluster}
+            enablePrivateEndpoint: ${this.privateCluster}
+            masterIpv4CidrBlock: ${this.masterIpv4CidrBlock}
+          masterAuth:
+            clientCertificateConfig:
+              issueClientCertificate: false
+          identityServiceConfig:
+            enabled: false
+          monitoringService: "monitoring.googleapis.com/kubernetes"
+          loggingService: "logging.googleapis.com/kubernetes"
+          resourceUsageExportConfig:
+            enabled: true
+            bigqueryDestination:
+              datasetId: "gke_usage"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.projectID
+      toFieldPath: spec.forProvider.project
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.network
+      toFieldPath: spec.forProvider.network.networkRef.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: subnetwork.name
+      toFieldPath: spec.forProvider.network.subnetwork
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.privateCluster
+      toFieldPath: spec.forProvider.privateClusterConfig.enablePrivateNodes
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.masterIpv4CidrBlock
+      toFieldPath: spec.forProvider.privateClusterConfig.masterIpv4CidrBlock
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.additionalMetadata.name  # Some providers need this
+
+  # 4. Node Pool (for standard clusters, not autopilot)
+  - name: default-node-pool
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: NodeTemplates # or use InstanceTemplate for GKE node pools
+      spec:
+        forProvider:
+          region: ${this.location}
+          machineType: ${this.nodePools[0].machineType}
+          diskSizeGb: ${this.nodePools[0].diskSizeGB}
+          networkInterface:
+            - accessConfigs:
+                - name: "External NAT"
+                  networkTier: PREMIUM
+              subnetwork: ${subnetwork.name}
+          tags:
+            - "gke-node"
+            - "${this.metadata.name}"
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-node-template-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodePools[0].machineType
+      toFieldPath: spec.forProvider.machineType
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.nodePools[0].diskSizeGB
+      toFieldPath: spec.forProvider.diskSizeGb
+
+  # Note: For Autopilot clusters, node pools are managed automatically by GKE
+  # For standard clusters, you'd create a NodePool resource referencing the node template
+
+  # 5. Cloud SQL Backup bucket (optional, for backups)
+  - name: backup-bucket
+    base:
+      apiVersion: storage.gcp.upbound.io/v1alpha1
+      kind: Bucket
+      spec:
+        forProvider:
+          location: ${this.location}
+          storageClass: "STANDARD"
+          versioning:
+            enabled: true
+          labels:
+            purpose: "gke-backups"
+            cluster: ${this.metadata.name}
+        writeConnectionSecretToRef:
+          name: ${this.metadata.name}-backup-bucket-conn
+          namespace: default
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.location
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.labels.cluster
+
+---
+# Example Claim:
+# apiVersion: platform.gcp/v1beta1
+# kind: GKEClusterClaim
+# metadata:
+#   name: prod-gke-cluster
+#   namespace: team-a
+# spec:
+#   location: us-central1
+#   projectID: "my-gcp-project"
+#   autopilot: true
+#   privateCluster: true
+#   enableWorkloadIdentity: true
+#   tags:
+#     Environment: "production"
+#     Team: "platform"

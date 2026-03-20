@@ -1,0 +1,63 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: redisinstances.cache.gcp
+  labels:
+    provider: gcp
+    category: cache
+    managed-by: crossplane
+spec:
+  group: cache.gcp
+  names:
+    kind: RedisInstance
+    plural: redisinstances
+    singular: redisinstance
+  claimNames:
+    kind: RedisInstanceClaim
+    plural: redisinstanceclaims
+    singular: redisinstanceclaim
+  versions:
+  - name: v1beta1
+    referenceable: true
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+                default: us-central1
+              projectID:
+                type: string
+              instanceName:
+                type: string
+                description: Memorystore Redis instance name
+              memorySizeGB:
+                type: integer
+                default: 4
+                minimum: 1
+                maximum: 300
+              tier:
+                type: string
+                default: "STANDARD_HA"
+                enum: ["STANDARD_HA", "BASIC"]
+              redisVersion:
+                type: string
+                default: "REDIS_7_0"
+                enum: ["REDIS_6_X", "REDIS_7_0"]
+              authorizedNetwork:
+                type: string
+                description: VPC network selfLink for authorized access
+              labels:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+            required: ["instanceName", "authorizedNetwork"]
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true

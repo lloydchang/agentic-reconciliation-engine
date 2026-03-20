@@ -1,0 +1,47 @@
+replicas: 2
+image:
+  tag: v1.13.0
+  repository: ghcr.io/crossplane/crossplane
+providerTeams:
+  enabled: false
+rbac:
+  enable: true
+metrics:
+  enable: true
+  serviceMonitor:
+    enabled: true
+podSecurityContext:
+  fsGroup: 2000
+  runAsNonRoot: true
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crossplane
+  egress:
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+args:
+  - --dangerous-disable-forward-rotation
+  - --gitops
+EOF

@@ -1,5 +1,5 @@
 apiVersion: apiextensions.crossplane.io/v1
-kind:CompositeResourceDefinition
+kind: CompositeResourceDefinition
 metadata:
   name: gkeclusters.platform.gcp
   labels:
