@@ -101,7 +101,8 @@
       "Bash(grep -E \"\\\\.yaml$\")",
       "Bash(core/operators/control-plane/crossplane/xrds/xwaf.yaml:*)",
       "Bash(core/operators/control-plane/crossplane/xrds/xdns.yaml:*)",
-      "Bash(grep -A5 \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)"
+      "Bash(grep -A5 \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)",
+      "Bash(grep -r \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)"
     ]
   }
 }

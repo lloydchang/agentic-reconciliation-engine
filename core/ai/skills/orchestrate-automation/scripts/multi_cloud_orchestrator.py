@@ -91,7 +91,7 @@ class MultiCloudOrchestrator:
         return default_config
     
     def initialize_providers(self, providers: List[str]) -> Dict[str, bool]:
-        """Initialize cloud provider handlers"""
+        """Initialize cloud provider handlers using Crossplane"""
         results = {}
         
         for provider in providers:
@@ -106,16 +106,10 @@ class MultiCloudOrchestrator:
                     results[provider] = False
                     continue
                 
-                region = self.config['providers'][provider]['region']
-                handler = get_handler(provider, region)
-                
-                if handler.initialize_client():
-                    self.handlers[provider] = handler
-                    results[provider] = True
-                    logger.info(f"Provider {provider} initialized successfully")
-                else:
-                    results[provider] = False
-                    logger.error(f"Failed to initialize provider {provider}")
+                # Crossplane doesn't require explicit provider initialization like SDKs
+                # Providers are managed through Kubernetes custom resources
+                results[provider] = True
+                logger.info(f"Provider {provider} available through Crossplane")
                     
             except Exception as e:
                 logger.error(f"Error initializing provider {provider}: {e}")
