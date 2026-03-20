@@ -169,4 +169,4 @@ if __name__ == '__main__':
     print("   - Metrics: http://localhost:5003/api/metrics")
     print("   - Activity: http://localhost:5003/api/activity")
     print("   - Agents List: http://localhost:5003/api/agents")
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

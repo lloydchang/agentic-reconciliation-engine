@@ -18,8 +18,8 @@ spec:
         severity: critical
         service: api
       annotations:
-        summary: "AI Portal API has high error rate"
-        description: "AI Portal API error rate is {{ $value | humanize }}% (threshold: 5%)"
+        summary: "Portal API has high error rate"
+        description: "Portal API error rate is {{ $value | humanize }}% (threshold: 5%)"
 
     - alert: AIPortalAPIHighLatency
       expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ai-infrastructure-portal-api"}[5m])) > 2
@@ -28,8 +28,8 @@ spec:
         severity: warning
         service: api
       annotations:
-        summary: "AI Portal API has high latency"
-        description: "AI Portal API 95th percentile latency is {{ $value }}s (threshold: 2s)"
+        summary: "Portal API has high latency"
+        description: "Portal API 95th percentile latency is {{ $value }}s (threshold: 2s)"
 
     # Dashboard Health Alerts
     - alert: AIPortalDashboardHighErrorRate
@@ -39,8 +39,8 @@ spec:
         severity: critical
         service: dashboard
       annotations:
-        summary: "AI Portal Dashboard has high error rate"
-        description: "AI Portal Dashboard error rate is {{ $value | humanize }}% (threshold: 5%)"
+        summary: "Portal Dashboard has high error rate"
+        description: "Portal Dashboard error rate is {{ $value | humanize }}% (threshold: 5%)"
 
     # Load Balancer Alerts
     - alert: NginxHighErrorRate
