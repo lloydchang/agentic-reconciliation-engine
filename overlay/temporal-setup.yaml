@@ -15,7 +15,7 @@ metadata:
   name: temporal-config
   namespace: ai-infrastructure
 data:
-  docker.yaml: |
+  config/config.yaml: |
     persistence:
       default:
         driver: sql
@@ -38,6 +38,49 @@ data:
     log:
       level: info
       output: stdout
+    services:
+      frontend:
+        rpc:
+          grpcPort: 7233
+          membershipPort: 6933
+          bindOnIP: "0.0.0.0"
+      history:
+        rpc:
+          grpcPort: 7234
+          membershipPort: 6934
+          bindOnIP: "0.0.0.0"
+      matching:
+        rpc:
+          grpcPort: 7235
+          membershipPort: 6935
+          bindOnIP: "0.0.0.0"
+      worker:
+        rpc:
+          grpcPort: 7239
+          membershipPort: 6939
+          bindOnIP: "0.0.0.0"
+    clusterMetadata:
+      enableGlobalNamespace: false
+      failoverVersionIncrement: 10
+      masterClusterName: "active"
+      currentClusterName: "active"
+      clusterInformation:
+        active:
+          enabled: true
+          initialFailoverVersion: 1
+          rpcAddress: "localhost:7233"
+    dcRedirectionPolicy:
+      policy: "noop"
+    archival:
+      history:
+        state: "disabled"
+      visibility:
+        state: "disabled"
+    publicClient:
+      hostPort: "temporal-frontend:7233"
+    dynamicConfigClient:
+      filepath: "/etc/temporal/config/dynamicconfig"
+      pollInterval: "10s"
 ---
 apiVersion: apps/v1
 kind: StatefulSet
