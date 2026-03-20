@@ -67,7 +67,7 @@ kubectl get pods -l app=ai-infrastructure-portal
 npm install axios express cors helmet compression
 
 # Start services
-./scripts/start-real-services.sh
+./scripts/services/start-real-services.sh
 
 # Access URLs:
 # Dashboard: http://localhost:8081

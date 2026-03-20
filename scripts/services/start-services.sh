@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source scripts/set-topdir.sh
+source scripts/utils/set-topdir.sh
 
 echo "🚀 Starting AI Infrastructure Services..."
 
