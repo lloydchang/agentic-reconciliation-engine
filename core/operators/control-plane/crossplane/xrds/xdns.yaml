@@ -1,0 +1,109 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdnses.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XDNS
+    plural: xdnses
+  claimNames:
+    kind: DNS
+    plural: dnses
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [zone, recordSets]
+              properties:
+                provider:
+                  type: string
+                  enum: ["aws", "gcp", "azure"]
+                zone:
+                  type: object
+                  required: [name]
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    private:
+                      type: boolean
+                    vpcs:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          vpcId:
+                            type: string
+                          region:
+                            type: string
+                recordSets:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, type, ttl, records]
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum: ["A", "AAAA", "CNAME", "MX", "TXT", "SRV", "NS", "PTR"]
+                      ttl:
+                        type: integer
+                      records:
+                        type: array
+                        items:
+                          type: string
+                      # Routing policies
+                      routingPolicy:
+                        type: object
+                        properties:
+                          weight:
+                            type: integer
+                          geolocation:
+                            type: object
+                            properties:
+                              continent:
+                                type: string
+                              country:
+                                type: string
+                              subdivision:
+                                type: string
+                          failover:
+                            type: string
+                            enum: ["PRIMARY", "SECONDARY"]
+                          healthCheckId:
+                            type: string
+                      alias:
+                        type: object
+                        properties:
+                          dnsName:
+                            type: string
+                          hostedZoneId:
+                            type: string
+                          evaluateTargetHealth:
+                            type: boolean
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                zoneId:
+                  type: string
+                nameServers:
+                  type: array
+                  items:
+                    type: string
+                recordSetIds:
+                  type: array
+                  items:
+                    type: string

@@ -1,0 +1,134 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xlbs.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XLB
+    plural: xlbs
+  claimNames:
+    kind: LoadBalancer
+    plural: loadbalancers
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [listeners]
+              properties:
+                provider:
+                  type: string
+                  description: "Cloud provider (aws, gcp, azure) - or use compositionSelector"
+                type:
+                  type: string
+                  enum: ["application", "network", "gateway"]
+                  description: "Load balancer type"
+                listeners:
+                  type: array
+                  items:
+                    type: object
+                    required: [port, protocol]
+                    properties:
+                      port:
+                        type: integer
+                      protocol:
+                        type: string
+                        enum: ["HTTP", "HTTPS", "TCP", "TLS", "UDP"]
+                      targetPort:
+                        type: integer
+                      targetProtocol:
+                        type: string
+                      sslCertificate:
+                        type: string
+                        description: "Certificate ARN or reference"
+                      caCertificate:
+                        type: string
+                # Default/health check backend
+                defaultBackend:
+                  type: object
+                  properties:
+                    service:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        port:
+                          type: integer
+                    healthCheck:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        port:
+                          type: integer
+                        protocol:
+                          type: string
+                        intervalSeconds:
+                          type: integer
+                        timeoutSeconds:
+                          type: integer
+                        healthyThresholdCount:
+                          type: integer
+                        unhealthyThresholdCount:
+                          type: integer
+                # Advanced routing rules
+                hostRules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      host:
+                        type: string
+                      pathRules:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              path:
+                                type: string
+                              serviceName:
+                                type: string
+                              servicePort:
+                                type: integer
+                # WAF integration
+                wafEnabled:
+                  type: boolean
+                wafAclId:
+                  type: string
+                # Session affinity
+                sessionAffinity:
+                  type: string
+                  enum: ["none", "source_ip", "cookie"]
+                # Cross-zone load balancing
+                crossZoneLoadBalancing:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                dnsName:
+                  type: string
+                hostname:
+                  type: string
+                ipAddresses:
+                  type: array
+                  items:
+                    type: string
+                canonicalHostedZoneId:
+                  type: string
+                status:
+                  type: string

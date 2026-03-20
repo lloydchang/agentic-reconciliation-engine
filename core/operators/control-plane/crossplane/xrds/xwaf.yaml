@@ -1,0 +1,119 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xwafs.platform.example.com
+spec:
+  group: platform.example.com
+  names:
+    kind: XWAF
+    plural: xwafs
+  claimNames:
+    kind: WAF
+    plural: wafs
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [provider, scope]
+              properties:
+                provider:
+                  type: string
+                  enum: ["aws", "gcp", "azure"]
+                scope:
+                  type: string
+                  enum: ["CLOUDFRONT", "REGIONAL", "GLOBAL"]
+                defaultAction:
+                  type: object
+                  properties:
+                    allow:
+                      type: boolean
+                rules:
+                  type: array
+                  items:
+                    type: object
+                    required: [priority, action]
+                    properties:
+                      priority:
+                        type: integer
+                      name:
+                        type: string
+                      statement:
+                        type: object
+                        properties:
+                          # Simplified - could expand
+                          byteMatchStatement: object
+                          sqliMatchStatement: object
+                          xssMatchStatement: object
+                          rateBasedStatement: object
+                          ipSetReferenceStatement: object
+                          sizeConstraintStatement: object
+                          geoMatchStatement: object
+                      action:
+                        type: object
+                        properties:
+                          allow:
+                            type: boolean
+                          block:
+                            type: boolean
+                          count:
+                            type: boolean
+                      visibilityConfig:
+                        type: object
+                        properties:
+                          sampledRequestsEnabled:
+                            type: boolean
+                          cloudWatchMetricsEnabled:
+                            type: boolean
+                          metricName:
+                            type: string
+                ruleGroups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      priority:
+                        type: integer
+                      statement:
+                        type: object
+                        properties:
+                          managedRuleGroup:
+                            type: object
+                            properties:
+                              vendorName:
+                                type: string
+                              name:
+                                type: string
+                              version:
+                                type: string
+                              excludedRules:
+                                type: array
+                                items:
+                                  type: string
+                visibilityConfig:
+                  type: object
+                  properties:
+                    sampledRequestsEnabled:
+                      type: boolean
+                    cloudWatchMetricsEnabled:
+                      type: boolean
+                deletionPolicy:
+                  type: string
+                  enum: [Delete, Orphan]
+                  default: Orphan
+            status:
+              type: object
+              properties:
+                wafId:
+                  type: string
+                arn:
+                  type: string
+                webAclId:
+                  type: string
