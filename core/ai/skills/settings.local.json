@@ -15,7 +15,10 @@
       "Bash(tee /tmp/quickstart.log)",
       "Bash(kubectl patch:*)",
       "Bash(yes Y)",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(go build:*)",
+      "Bash(bash -x core/scripts/automation/deploy-ai-agents-ecosystem.sh)",
+      "Bash(TOPDIR=/Users/lloyd/github/antigravity/agentic-reconciliation-engine)"
     ]
   }
 }

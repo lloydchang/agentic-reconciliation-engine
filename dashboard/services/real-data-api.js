@@ -113,7 +113,8 @@ function updateServiceStatuses() {
 function getAgentData() {
   const fs = require('fs');
   const path = require('path');
-  const skillsDir = path.join(__dirname, 'core', 'ai', 'skills');
+  // real-data-api.js runs from `dashboard/services/`, so we must walk back to repo root
+  const skillsDir = path.join(__dirname, '..', '..', 'core', 'ai', 'skills');
 
   // Get all available skills from repository
   const allSkills = [];
@@ -291,7 +292,8 @@ function getAgentData() {
 function getSkillsData() {
   const fs = require('fs');
   const path = require('path');
-  const skillsDir = path.join(__dirname, 'core', 'ai', 'skills');
+  // real-data-api.js runs from `dashboard/services/`, so we must walk back to repo root
+  const skillsDir = path.join(__dirname, '..', '..', 'core', 'ai', 'skills');
 
   const skills = [];
 

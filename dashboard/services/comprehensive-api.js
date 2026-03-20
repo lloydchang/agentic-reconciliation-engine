@@ -17,7 +17,8 @@ app.use(express.json());
 
 // Function to dynamically load skills from repository
 function loadSkillsFromRepository() {
-  const skillsDir = path.join(__dirname, 'core', 'ai', 'skills');
+  // comprehensive-api.js runs from `dashboard/services/`, so we must walk back to repo root
+  const skillsDir = path.join(__dirname, '..', '..', 'core', 'ai', 'skills');
   const skills = [];
   
   try {

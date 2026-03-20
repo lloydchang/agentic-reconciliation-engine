@@ -241,8 +241,8 @@
                 <div class="stat-label">Success Rate</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="skills-executed">1,247</div>
-                <div class="stat-label">Skills Executed</div>
+                <div class="stat-value" id="skills-executed">-</div>
+                <div class="stat-label">Skills Available</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="response-time">1.2s</div>
@@ -324,69 +324,20 @@
             }
         ];
 
-        const activities = [
-            { icon: '🚀', text: 'Cost Optimizer completed analysis for production cluster', time: '2 min ago', color: '#28a745' },
-            { icon: '⚠️', text: 'Security Scanner detected unusual network traffic', time: '5 min ago', color: '#ffc107' },
-            { icon: '📊', text: 'Cluster Monitor generated performance report', time: '12 min ago', color: '#17a2b8' },
-            { icon: '✅', text: 'Deployment Manager successfully rolled out update', time: '18 min ago', color: '#28a745' },
-            { icon: '❌', text: 'Backup Manager failed to connect to storage', time: '25 min ago', color: '#dc3545' }
-        ];
+        let activities = [];
 
-        async function checkServiceStatus(service) {
+        async function fetchJson(url, timeoutMs = 5000) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
             try {
-                const response = await fetch(service.url, { 
-                    method: 'HEAD',
-                    mode: 'no-cors',
-                    timeout: 3000
-                });
-                return 'online';
-            } catch (error) {
-                // Try to fetch with CORS disabled
-                try {
-                    const img = new Image();
-                    img.src = service.url + '/favicon.ico?' + Date.now();
-                    return 'online';
-                } catch (imgError) {
-                    return 'offline';
+                const res = await fetch(url, { method: 'GET', signal: controller.signal });
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status} for ${url}`);
                 }
+                return await res.json();
+            } finally {
+                clearTimeout(timeout);
             }
-        }
-
-        async function refreshStatus() {
-            const btn = document.getElementById('refresh-btn');
-            btn.classList.add('spinning');
-            
-            // Update timestamp
-            document.getElementById('last-updated').textContent = 
-                `Last updated: ${new Date().toLocaleString()}`;
-
-            // Check service statuses
-            for (let service of services) {
-                service.status = 'checking';
-                renderServices();
-                
-                service.status = await checkServiceStatus(service);
-                renderServices();
-            }
-
-            // Update stats with simulated real data
-            updateStats();
-            
-            btn.classList.remove('spinning');
-        }
-
-        function updateStats() {
-            const onlineServices = services.filter(s => s.status === 'online').length;
-            document.getElementById('active-agents').textContent = onlineServices;
-            
-            const successRate = Math.min(99, 85 + onlineServices * 2);
-            document.getElementById('success-rate').textContent = `${successRate}%`;
-            
-            const skillsExecuted = 1200 + Math.floor(Math.random() * 100);
-            document.getElementById('skills-executed').textContent = skillsExecuted.toLocaleString();
-            
-            const responseTime = (1.5 - (onlineServices * 0.1)).toFixed(1);
-            document.getElementById('response-time').textContent = `${responseTime}s`;
         }
 
         function renderServices() {
@@ -414,9 +365,6 @@
                                     Service Offline
                                 </span>`
                             }
-                            <button class="btn btn-secondary" onclick="checkService('${service.url}')">
-                                Health Check
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -425,6 +373,19 @@
 
         function renderActivities() {
             const list = document.getElementById('activity-list');
+            if (!activities || activities.length === 0) {
+                list.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #28a74520; color: #28a745">✅</div>
+                        <div class="activity-content">
+                            <div>All systems operational</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             list.innerHTML = activities.map(activity => `
                 <div class="activity-item">
                     <div class="activity-icon" style="background: ${activity.color}20; color: ${activity.color}">
@@ -438,8 +399,94 @@
             `).join('');
         }
 
-        function checkService(url) {
-            window.open(url, '_blank');
+        async function refreshStatus() {
+            const btn = document.getElementById('refresh-btn');
+            btn.classList.add('spinning');
+
+            // Always update timestamp even if backend fetch fails.
+            document.getElementById('last-updated').textContent =
+                `Last updated: ${new Date().toLocaleString()}`;
+
+            const startedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
+            try {
+                // Pull real status + health from the real backend (no HEAD probes, no client-side random).
+                const [runtimeStatus, systemHealth, skillsPayload] = await Promise.all([
+                    fetchJson('http://localhost:8080/api/core/ai/runtime/status'),
+                    fetchJson('http://localhost:8080/api/system/health'),
+                    fetchJson('http://localhost:5000/api/skills').catch(() => null),
+                ]);
+
+                const servicesByPort = new Map();
+                for (const svcInfo of Object.values(systemHealth.services || {})) {
+                    if (typeof svcInfo.port === 'number') {
+                        servicesByPort.set(svcInfo.port, svcInfo);
+                    }
+                }
+
+                let onlineCount = 0;
+                const totalCount = services.length;
+                for (const service of services) {
+                    const match = servicesByPort.get(service.port);
+                    if (match && match.status === 'running') {
+                        service.status = 'online';
+                        onlineCount += 1;
+                    } else {
+                        service.status = 'offline';
+                    }
+                }
+                renderServices();
+
+                const healthPct = totalCount > 0 ? Math.round((onlineCount / totalCount) * 100) : 0;
+
+                const responseTimeSec = (((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - startedAt) / 1000;
+
+                document.getElementById('active-agents').textContent =
+                    (runtimeStatus && typeof runtimeStatus.active_agents === 'number') ? runtimeStatus.active_agents : 'N/A';
+                document.getElementById('success-rate').textContent = `${healthPct}%`;
+                if (skillsPayload && Array.isArray(skillsPayload.skills)) {
+                    document.getElementById('skills-executed').textContent = skillsPayload.skills.length.toLocaleString();
+                } else {
+                    document.getElementById('skills-executed').textContent = 'N/A';
+                }
+                document.getElementById('response-time').textContent = isFinite(responseTimeSec) ? `${responseTimeSec.toFixed(2)}s` : 'N/A';
+
+                const issues = Array.isArray(systemHealth.issues) ? systemHealth.issues : [];
+                activities = issues.slice(0, 6).map(issue => {
+                    const severity = issue && issue.severity ? issue.severity : 'info';
+                    const color = severity === 'error' ? '#dc3545' :
+                        severity === 'warning' ? '#ffc107' :
+                            '#17a2b8';
+                    const icon = severity === 'error' ? '❌' :
+                        severity === 'warning' ? '⚠️' :
+                            'ℹ️';
+
+                    return {
+                        icon,
+                        text: issue && issue.message ? issue.message : 'Health issue detected',
+                        time: 'Just now',
+                        color
+                    };
+                });
+            } catch (error) {
+                console.error('Failed to refresh real portal status:', error);
+                for (const service of services) {
+                    service.status = 'offline';
+                }
+                renderServices();
+
+                document.getElementById('active-agents').textContent = 'N/A';
+                document.getElementById('success-rate').textContent = 'N/A';
+                document.getElementById('skills-executed').textContent = 'N/A';
+                document.getElementById('response-time').textContent = 'N/A';
+
+                activities = [
+                    { icon: '⚠️', text: 'Real backend unavailable (service status unknown).', time: 'N/A', color: '#ffc107' }
+                ];
+            } finally {
+                renderActivities();
+                btn.classList.remove('spinning');
+            }
         }
 
         // Initialize the page
