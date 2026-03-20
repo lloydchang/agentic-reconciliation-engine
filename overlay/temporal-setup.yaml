@@ -15,7 +15,7 @@ metadata:
   name: temporal-config
   namespace: ai-infrastructure
 data:
-  config/docker.yaml: |
+  docker.yaml: |
     persistence:
       default:
         driver: sql
