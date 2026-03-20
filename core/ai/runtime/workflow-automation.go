@@ -770,11 +770,7 @@ func (we *WorkflowEngine) executeCompensation(ctx context.Context, execution *Wo
 
 // pow calculates power for retry backoff
 func pow(base float64, exp int) float64 {
-	result := 1.0
-	for i := 0; i < exp; i++ {
-		result *= base
-	}
-	return result
+	return math.Pow(base, float64(exp))
 }
 
 // GetExecution returns a workflow execution by ID
@@ -858,5 +854,7 @@ func CreateWorkflowDefinition(jsonDefinition string) (*WorkflowDefinition, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse workflow definition: %v", err)
 	}
+	return &definition, nil
+}
 	return &definition, nil
 }
