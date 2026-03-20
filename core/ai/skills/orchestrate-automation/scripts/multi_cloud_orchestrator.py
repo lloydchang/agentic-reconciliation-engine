@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 
 from ai_agent_orchestration_handler import get_handler, CloudHandler, CloudResource
+from crossplane_orchestrator import CrossplaneOrchestrator, ResourceRequest, ResourceType, CloudProvider
 
 logger = logging.getLogger(__name__)
 

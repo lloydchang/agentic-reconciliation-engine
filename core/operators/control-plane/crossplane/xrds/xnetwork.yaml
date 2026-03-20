@@ -33,12 +33,152 @@ spec:
                   items:
                     type: string
                   description: "One CIDR per availability zone"
+                # DNS & Network Settings
+                enableDnsHostnames:
+                  type: boolean
+                  description: "Enable DNS hostnames (AWS VPC, Azure VNet)"
+                enableDnsSupport:
+                  type: boolean
+                  description: "Enable DNS support (AWS VPC)"
+                # NAT Gateway
+                enableNat:
+                  type: boolean
+                  description: "Create NAT Gateway(s) for outbound internet access"
+                natGatewayType:
+                  type: string
+                  enum: ["managed", "self-managed"]
+                  description: "NAT Gateway type (cloud provider specific)"
+                natCount:
+                  type: integer
+                  description: "Number of NAT Gateways (for HA, typically 1 per AZ)"
+                # Internet Gateway
+                enableInternetGateway:
+                  type: boolean
+                  description: "Create Internet Gateway for public internet access"
+                # Route Tables
+                routeTables:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: "Route table name"
+                      associatedSubnets:
+                        type: array
+                        items:
+                          type: string
+                        description: "Subnet CIDRs to associate"
+                      routes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            destinationCidr:
+                              type: string
+                              description: "Destination CIDR block"
+                            gatewayType:
+                              type: string
+                              enum: ["internet-gateway", "nat-gateway", "local", "vpc-peering", "virtual-network-gateway"]
+                              description: "Route target type"
+                            gatewayId:
+                              type: string
+                              description: "ID of the gateway (IGW, NAT, etc.)"
+                # Security Groups / Firewall Rules (as part of network definition)
+                securityGroups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: "Security group name"
+                      description:
+                        type: string
+                      ingressRules:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            protocol:
+                              type: string
+                              enum: ["tcp", "udp", "icmp", "-1"]
+                            fromPort:
+                              type: integer
+                              description: "Start port (or -1 for all)"
+                            toPort:
+                              type: integer
+                              description: "End port (or -1 for all)"
+                            cidrBlocks:
+                              type: array
+                              items:
+                                type: string
+                      egressRules:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            protocol:
+                              type: string
+                            fromPort:
+                              type: integer
+                            toPort:
+                              type: integer
+                            cidrBlocks:
+                              type: array
+                              items:
+                                type: string
+                # VPC Peering (if needed for multi-VPC connectivity)
+                vpcPeering:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      peerVpcId:
+                        type: string
+                      peerRegion:
+                        type: string
+                      autoAccept:
+                        type: boolean
+                # VPN / Transit Gateway (future)
+                enableVpnGateway:
+                  type: boolean
+                  description: "Create VPN Gateway for site-to-site VPN"
+                vpnType:
+                  type: string
+                  enum: ["ipsec.1", "ipsec.2"]
+                # Flow Logs
+                enableFlowLogs:
+                  type: boolean
+                  description: "Enable VPC Flow Logs"
+                flowLogsDestination:
+                  type: string
+                  description: "Cloud storage bucket for flow logs"
+                flowLogsRetentionDays:
+                  type: integer
+                  description: "Flow logs retention period"
             status:
               type: object
               properties:
                 vpcId:
                   type: string
                 subnetIds:
+                  type: array
+                  items:
+                    type: string
+                natGatewayIds:
+                  type: array
+                  items:
+                    type: string
+                internetGatewayId:
+                  type: string
+                routeTableIds:
+                  type: array
+                  items:
+                    type: string
+                securityGroupIds:
                   type: array
                   items:
                     type: string

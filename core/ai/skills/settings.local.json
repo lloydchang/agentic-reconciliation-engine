@@ -75,7 +75,14 @@
       "Bash(git ls-tree:*)",
       "Bash(grep -r \"temporal\" core/automation/scripts/quickstart-*.sh)",
       "Bash(helm install:*)",
-      "Bash(docs/migration/INVENTORY-MATRIX.md:*)"
+      "Bash(docs/migration/INVENTORY-MATRIX.md:*)",
+      "Bash(helm show:*)",
+      "Bash(helm uninstall:*)",
+      "Bash(/tmp/temporal-server-tcp.yaml:*)",
+      "Bash(git reset:*)",
+      "Bash(yq eval:*)",
+      "Bash(chmod:*)",
+      "Bash(core/crossplane/helm-values.yaml:*)"
     ]
   }
 }
