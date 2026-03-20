@@ -39,6 +39,11 @@ class MetricsCollector:
         self.db_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         self.init_database()
         self.setup_kubernetes()
+        # Determine skills directory relative to this file's location
+        # This file: repo/core/ai/runtime/dashboard/api/comprehensive_analytics.py
+        # Skills dir: repo/core/ai/skills
+        # So from here, go up 3 levels to 'ai', then into 'skills'
+        self.skills_dir = Path(__file__).resolve().parents[3] / "skills"
         
     def init_database(self):
         """Initialize SQLite database for metrics storage"""
@@ -170,8 +175,8 @@ class MetricsCollector:
         """Collect metrics from all skills"""
         skills = []
         timestamp = datetime.now().isoformat()
-        
-        skills_dir = Path("$TOPDIR/core/ai/skills")
+
+        skills_dir = self.skills_dir
         
         for skill_path in skills_dir.iterdir():
             if skill_path.is_dir() and (skill_path / "SKILL.md").exists():

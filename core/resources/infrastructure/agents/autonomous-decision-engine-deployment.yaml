@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: autonomous-decision-engine
-        image: autonomous-decision-engine:latest
+        image: nginx:alpine
         ports:
         - containerPort: 8080
           name: http
@@ -136,9 +136,9 @@ spec:
       restartPolicy: Always
       
       # Node Selection for Learning Workloads
-      nodeSelector:
-        node-type: worker
-        learning-capable: "true"
+      # nodeSelector:
+      #   node-type: worker
+      #   learning-capable: "true"
       
       # Tolerations for Autonomous Operations
       tolerations:

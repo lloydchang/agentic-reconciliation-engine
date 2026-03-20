@@ -89,7 +89,11 @@ build_agent_images() {
 # Deploy AI agents
 deploy_ai_agents() {
     log_info "Deploying AI memory agents with placeholder images..."
-    
+
+    # Clean up any existing PVC to avoid database corruption (dev only)
+    log_info "Removing any existing agent-memory-pvc to start fresh..."
+    kubectl delete pvc agent-memory-pvc -n $NAMESPACE --ignore-not-found &>/dev/null || true
+
     # Create PVC with correct storage class first
     cat <<EOF | $KUBECTL_CMD apply -f -
 apiVersion: v1
@@ -130,35 +134,13 @@ spec:
         language: rust
         backend: llama-cpp
     spec:
-      initContainers:
-      - name: init-memory-db
-        image: alpine:latest
-        command: ["sh", "-c"]
-        args:
-        - |
-          if [ ! -f /data/memory.db ]; then
-            echo "Initializing empty memory.db"
-            touch /data/memory.db
-          else
-            echo "Using existing memory.db"
-          fi
-        volumeMounts:
-        - name: memory-storage
-          mountPath: /data
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "10m"
-          limits:
-            memory: "64Mi"
-            cpu: "50m"
       containers:
       - name: agent-memory
         image: python:3.11-alpine  # Use Python for autonomous agent
         command: ["/bin/sh", "-c"]
         args:
         - |
-          pip install --no-cache-dir pyyaml flask flask-cors;
+          pip install --no-cache-dir pyyaml flask flask-cors kubernetes;
           python /app/autonomous_agent.py --once
         ports:
         - containerPort: 8080
@@ -189,7 +171,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          pip install --no-cache-dir flask flask-cors pyyaml;
+          pip install --no-cache-dir flask flask-cors pyyaml kubernetes;
           python /app/backend.py
         ports:
         - containerPort: 5000

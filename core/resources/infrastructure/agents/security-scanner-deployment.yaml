@@ -20,7 +20,7 @@ spec:
       serviceAccountName: agent-swarm-sa
       containers:
       - name: security-scanner
-        image: security-scanner-agent:latest
+        image: nginx:alpine
         env:
         - name: MEMORY_AGENT_URL
           value: "http://agent-memory-rust:8080"
