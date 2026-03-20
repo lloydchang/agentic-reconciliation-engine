@@ -1,0 +1,113 @@
+# RBAC for team-based isolation
+---
+# Team A Crossplane Operator Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: crossplane-operator
+  namespace: team-a
+  labels:
+    team: team-a
+    isolation: rbac
+    managed-by: crossplane
+rules:
+- apiGroups: ["multicloud.example.com"]
+  resources: ["xnetworks", "xcomputes", "xstorages"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["apiextensions.crossplane.io"]
+  resources: ["compositions"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["aws.upbound.io", "azure.upbound.io", "gcp.upbound.io"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+# Team A RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: crossplane-operator-binding
+  namespace: team-a
+  labels:
+    team: team-a
+    isolation: rbac
+    managed-by: crossplane
+subjects:
+- kind: ServiceAccount
+  name: crossplane
+  namespace: crossplane-system
+roleRef:
+  kind: Role
+  name: crossplane-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+# Team B Crossplane Operator Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: crossplane-operator
+  namespace: team-b
+  labels:
+    team: team-b
+    isolation: rbac
+    managed-by: crossplane
+rules:
+- apiGroups: ["multicloud.example.com"]
+  resources: ["xnetworks", "xcomputes", "xstorages"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: ["apiextensions.crossplane.io"]
+  resources: ["compositions"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["aws.upbound.io", "azure.upbound.io", "gcp.upbound.io"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+# Team B RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: crossplane-operator-binding
+  namespace: team-b
+  labels:
+    team: team-b
+    isolation: rbac
+    managed-by: crossplane
+subjects:
+- kind: ServiceAccount
+  name: crossplane
+  namespace: crossplane-system
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+---
+# ClusterRole for Crossplane system operations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-system
+  labels:
+    isolation: rbac
+    managed-by: crossplane
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create", "get", "list", "watch"]
+---
+# ClusterRoleBinding for Crossplane system
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-system-binding
+  labels:
+    isolation: rbac
+    managed-by: crossplane
+subjects:
+- kind: ServiceAccount
+  name: crossplane
+  namespace: crossplane-system
+roleRef:
+  kind: ClusterRole
+  name: crossplane-system
+  apiGroup: rbac.authorization.k8s.io

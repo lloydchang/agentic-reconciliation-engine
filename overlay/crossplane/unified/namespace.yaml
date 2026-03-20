@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-system
+  labels:
+    name: crossplane-system
+    control-plane: unified
+    component: crossplane
+---
+# Team namespaces for isolation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-a
+  labels:
+    name: team-a
+    isolation: namespace
+    managed-by: crossplane
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-b
+  labels:
+    name: team-b
+    isolation: namespace
+    managed-by: crossplane

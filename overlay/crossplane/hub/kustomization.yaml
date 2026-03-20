@@ -1,0 +1,73 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: crossplane-hub
+  namespace: crossplane-system
+resources:
+# Crossplane Installation
+- crossplane-install.yaml
+# Provider Configurations
+- provider-configs.yaml
+# Composite Resource Definitions
+- composite-resource-definitions.yaml
+# Network Compositions
+- compositions/aws-network-composition.yaml
+- compositions/azure-network-composition.yaml
+- compositions/gcp-network-composition.yaml
+# RBAC for Team Isolation
+- rbac.yaml
+# Backwards Compatibility Layer
+- backwards-compatibility.yaml
+patchesStrategicMerge:
+# Patch for production environment
+- target:
+    kind: ProviderConfig
+    name: aws-hub
+  patch: |
+    - op: replace
+      path: /spec/region
+      value: "us-west-2"
+- target:
+    kind: ProviderConfig
+    name: azure-hub
+  patch: |
+    - op: replace
+      path: /spec/location
+      value: "East US"
+- target:
+    kind: ProviderConfig
+    name: gcp-hub
+  patch: |
+    - op: replace
+      path: /spec/projectID
+      value: "your-production-project-id"
+# Patch for development environment
+- target:
+    kind: ProviderConfig
+    name: aws-hub
+  patch: |
+    - op: replace
+      path: /spec/region
+      value: "us-west-2"
+- target:
+    kind: ProviderConfig
+    name: azure-hub
+  patch: |
+    - op: replace
+      path: /spec/location
+      value: "East US"
+- target:
+    kind: ProviderConfig
+    name: gcp-hub
+  patch: |
+    - op: replace
+      path: /spec/projectID
+      value: "your-development-project-id"
+commonLabels:
+  app.kubernetes.io/name: crossplane-hub
+  app.kubernetes.io/component: crossplane
+  app.kubernetes.io/managed-by: crossplane
+commonAnnotations:
+  crossplane.io/architecture: "single-instance"
+  crossplane.io/isolation: "providerconfig-rbac"
+  crossplane.io/migration-phase: "foundation"

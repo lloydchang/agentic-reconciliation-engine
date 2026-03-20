@@ -1,0 +1,94 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-compute
+  labels:
+    crossplane.io/managed: "true"
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: composition
+    app.kubernetes.io/resource: compute
+  annotations:
+    crossplane.io/documentation: "Multi-cloud compute composition that handles AWS, Azure, and GCP"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  - name: compute-resource
+    base:
+      apiVersion: # Determined at runtime by patch
+      kind: # Determined at runtime by patch
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Provider-specific resource type
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: 
+                apiVersion: ec2.aws.upbound.io/v1beta1
+                kind: Instance
+              azure:
+                apiVersion: compute.azure.upbound.io/v1beta1
+                kind: VirtualMachine
+              gcp:
+                apiVersion: compute.gcp.upbound.io/v1beta1
+                kind: Instance
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.instanceType
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.imageId
+      toFieldPath: spec.forProvider.imageId
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.minCount
+      toFieldPath: spec.forProvider.minCount
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.maxCount
+      toFieldPath: spec.forProvider.maxCount
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+          - Type
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.instanceId
+      toFieldPath: status.instanceIds
+      policy:
+        fromFieldPath: "status.atProvider.instanceId"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.publicIp
+      toFieldPath: status.publicIps
+      policy:
+        fromFieldPath: "status.atProvider.publicIp"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.privateIp
+      toFieldPath: status.privateIps
+      policy:
+        fromFieldPath: "status.atProvider.privateIp"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.instanceState
+      toFieldPath: status.instanceState
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.launchTime
+      toFieldPath: status.launchTime
