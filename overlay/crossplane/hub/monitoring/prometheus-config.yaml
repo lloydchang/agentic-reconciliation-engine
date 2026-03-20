@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crossplane-prometheus-config
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: crossplane
+data:
+  crossplane-rules.yml: |
+    groups:
+    - name: crossplane.rules
+      rules:
+      - record: crossplane:resource_count:by_provider
+        expr: count(kube_resource_info{exported_namespace="crossplane-system"}) by (exported_kind)
+      
+      - record: crossplane:reconciliation_duration_seconds
+        expr: histogram_quantile(0.95, rate(reconciliation_duration_seconds_bucket[5m]))
+      
+      - record: crossplane:reconciliation_errors_total
+        expr: increase(reconciliation_errors_total[5m])
+      
+      - record: crossplane:resource_sync_age_seconds
+        expr: time() - kube_resource_created{exported_namespace="crossplane-system"}
+      
+      - alert: CrossplaneProviderUnhealthy
+        expr: crossplane_provider_status{status="unhealthy"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          service: crossplane
+        annotations:
+          summary: "Crossplane provider {{ $labels.provider }} is unhealthy"
+          description: "Crossplane provider {{ $labels.provider }} has been unhealthy for more than 5 minutes."
+      
+      - alert: CrossplaneReconciliationFailure
+        expr: increase(reconciliation_errors_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: crossplane
+        annotations:
+          summary: "Crossplane reconciliation failures detected"
+          description: "Crossplane has encountered {{ $value }} reconciliation errors in the last 5 minutes."
+      
+      - alert: CrossplaneResourceStuck
+        expr: crossplane:resource_sync_age_seconds > 300
+        for: 10m
+        labels:
+          severity: warning
+          service: crossplane
+        annotations:
+          summary: "Crossplane resource {{ $labels.exported_name }} is stuck"
+          description: "Crossplane resource {{ $labels.exported_name }} has not been reconciled for more than 5 minutes."
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: crossplane-metrics
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: crossplane
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crossplane
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

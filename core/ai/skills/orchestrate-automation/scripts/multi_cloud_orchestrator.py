@@ -58,7 +58,7 @@ class MultiCloudOrchestrator:
     """Multi-cloud orchestration engine"""
     
     def __init__(self, config_file: Optional[str] = None):
-        self.handlers = {}
+        self.crossplane_orchestrator = CrossplaneOrchestrator(config_file)
         self.tasks = []
         self.results = []
         self.running_tasks = {}
