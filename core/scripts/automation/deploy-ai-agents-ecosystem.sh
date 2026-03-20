@@ -221,14 +221,109 @@ spec:
           name: dashboard-backend-realtime
 EOF
     
+    # Delete existing PVC to avoid database corruption issues (quickstart/dev only)
+    log_info "Cleaning up any existing agent-memory PVC..."
+    kubectl delete pvc agent-memory-pvc -n $NAMESPACE --ignore-not-found &>/dev/null || true
+
     # Create ConfigMap with autonomous agent code
     log_info "Creating autonomous agent ConfigMap..."
     kubectl create configmap autonomous-agent-code \
       --from-file=autonomous_agent.py=core/ai/runtime/agents/autonomous_agent.py \
       -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
-    
+
+    # Deploy AI memory agents
+    log_info "Deploying AI memory agents (agent-memory-rust)..."
+    cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-memory-rust
+  namespace: $NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: agent-memory
+      language: rust
+  template:
+    metadata:
+      labels:
+        component: agent-memory
+        language: rust
+        backend: llama-cpp
+    spec:
+      containers:
+      - name: agent-memory
+        image: python:3.11-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          pip install --no-cache-dir pyyaml flask flask-cors kubernetes;
+          python /app/autonomous_agent.py --once
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_PATH
+          value: "/data/memory.db"
+        - name: INBOX_PATH
+          value: "/data/inbox"
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        - name: autonomous-agent
+          mountPath: /app/autonomous_agent.py
+          subPath: autonomous_agent.py
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: api
+        image: python:3.11-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          pip install --no-cache-dir flask flask-cors pyyaml kubernetes;
+          python /app/backend.py
+        ports:
+        - containerPort: 5000
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: backend-code
+          mountPath: /app/backend.py
+          subPath: backend.py
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: memory-storage
+        persistentVolumeClaim:
+          claimName: agent-memory-pvc
+      - name: autonomous-agent
+        configMap:
+          name: autonomous-agent-code
+      - name: backend-code
+        configMap:
+          name: dashboard-backend-realtime
+EOF
+
     # Wait for memory agent deployment
-    $KUBECTL_CMD wait --for=condition=available --timeout=180s deployment/agent-memory-rust -n $NAMESPACE
+    log_info "Waiting for agent-memory-rust deployment to become ready..."
+    $KUBECTL_CMD wait --for=condition=available --timeout=300s deployment/agent-memory-rust -n $NAMESPACE
     
     log_success "AI memory agents deployed with autonomous capabilities"
 }

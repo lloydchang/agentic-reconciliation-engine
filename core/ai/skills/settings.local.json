@@ -34,7 +34,11 @@
       "Bash(curl -s http://localhost:8081/api/memory/stats)",
       "Bash(for i:*)",
       "Bash(do kubectl:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(curl -s http://localhost:5001/health)",
+      "Bash(curl -s http://localhost:5001/api/performance/metrics)",
+      "Bash(curl -s http://localhost:5001/api/skills/analysis)",
+      "Bash(curl -v http://localhost:5001/health)"
     ]
   }
 }
