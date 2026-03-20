@@ -1,0 +1,256 @@
+# Crossplane Claims
+# These are what application teams actually create to request infrastructure
+# Claims reference the CompositeResourceDefinition (XRD) and request specific resources
+#
+# IMPORTANT: Claims are namespaced. Teams create claims in their own namespace
+# (team-a, team-b, team-c). Crossplane will create the actual cloud resources
+# based on the associated Composition.
+
+---
+# TEAM A: AWS EKS Cluster Claim
+# This would be created by team-a in their namespace
+apiVersion: platform.aws.ecs.azure/v1alpha1
+kind: EKSClusterClaim
+metadata:
+  name: ai-platform-eks-cluster
+  namespace: team-a
+  labels:
+    team: "a"
+    environment: "production"
+spec:
+  region: us-west-2
+  version: "1.28"
+  nodeGroups:
+    - name: general
+      instanceTypes: ["t3.medium", "t3.large"]
+      minSize: 3
+      maxSize: 10
+      desiredSize: 3
+    - name: spot
+      instanceTypes: ["t3.large", "t3.xlarge"]
+      minSize: 2
+      maxSize: 8
+      desiredSize: 2
+  vpcConfig:
+    cidr: "10.0.0.0/16"
+    privateSubnetCIDRs: ["10.0.1.0/24", "10.0.2.0/24"]
+    publicSubnetCIDRs: ["10.0.101.0/24", "10.0.102.0/24"]
+    enableNatGateway: true
+  tags:
+    Environment: "production"
+    Project: "ai-infrastructure-portal"
+    Team: "platform"
+
+---
+# TEAM A: AWS RDS PostgreSQL Claim
+apiVersion: database.aws/v1beta1
+kind: RDSInstanceClaim
+metadata:
+  name: ai-portal-postgres
+  namespace: team-a
+  labels:
+    team: "a"
+spec:
+  region: us-west-2
+  engine: postgres
+  version: "15.4"
+  instanceClass: db.t3.large
+  allocatedStorage: 100
+  storageType: gp2
+  multiAZ: true
+  dbName: "ai_portal"
+  username: "postgres"
+  # Password stored in separate secret, referenced here
+  password: ""  # Will be populated via Composition from secret
+  vpcSecurityGroupIds: []  # Will be created automatically
+  backupRetentionDays: 14
+  maintenanceWindow: "Sun:04:00-Sun:08:00"
+  deletionProtection: true
+  tags:
+    Environment: "production"
+    Project: "ai-infrastructure-portal"
+
+---
+# TEAM A: AWS S3 Backup Bucket Claim
+apiVersion: storage.aws/v1alpha1
+kind: StorageBucketClaim
+metadata:
+  name: ai-portal-backups
+  namespace: team-a
+  labels:
+    team: "a"
+spec:
+  region: us-west-2
+  bucketName: "ai-portal-backups-unique-identifier-12345"  # MUST be globally unique
+  versioningEnabled: true
+  encryption: AES256
+  lifecycleRules:
+    - id: "cleanup-old-backups"
+      enabled: true
+      expirationDays: 90
+    - id: "transition-to-glacier"
+      enabled: true
+      transitions:
+        - days: 30
+          storageClass: "GLACIER"
+  tags:
+    Purpose: "backups"
+    Environment: "production"
+    Project: "ai-infrastructure-portal"
+
+---
+# TEAM B: Azure AKS Cluster Claim
+apiVersion: platform.azure/v1beta1
+kind: KubernetesClusterClaim
+metadata:
+  name: ai-platform-aks
+  namespace: team-b
+  labels:
+    team: "b"
+    environment: "production"
+spec:
+  location: eastus
+  resourceGroupName: "ai-portal-rg"
+  kubernetesVersion: "1.28"
+  nodePools:
+    - name: default
+      vmSize: "Standard_D4s_v3"
+      count: 3
+      mode: "User"
+    - name: system
+      vmSize: "Standard_D2s_v3"
+      count: 2
+      mode: "System"
+  networkPlugin: "azure"
+  networkPolicy: "azure"
+  enableRBAC: true
+  enableAzureMonitor: true
+  logAnalyticsWorkspaceResourceID: "/subscriptions/xxx/resourcegroups/ai-portal-rg/providers/Microsoft.OperationalInsights/workspaces/ai-portal-insights"
+
+---
+# TEAM B: Azure PostgreSQL Flexible Claim
+apiVersion: database.azure/v1beta1
+kind: PostgreSQLInstanceClaim
+metadata:
+  name: ai-portal-postgres
+  namespace: team-b
+  labels:
+    team: "b"
+spec:
+  location: eastus
+  resourceGroupName: "ai-portal-rg"
+  serverName: "ai-portal-postgres-srv"
+  version: "15"
+  sku: "B_Standard_B2ms"  # Or Standard_D2s_v3, etc
+  storageGB: 10
+  backupRetentionDays: 7
+  highAvailability: true
+  administrator:
+    username: "postgres"
+    passwordSecretRef:
+      name: "ai-portal-postgres-password"
+      namespace: "team-b"
+      key: "password"
+  databaseName: "ai_portal"
+
+---
+# TEAM B: Azure Redis Cache Claim
+apiVersion: cache.azure/v1beta1
+kind: RedisCacheClaim  # Assuming Cache.azure exists or use RedisCache
+metadata:
+  name: ai-portal-redis
+  namespace: team-b
+  labels:
+    team: "b"
+spec:
+  location: eastus
+  resourceGroupName: "ai-portal-rg"
+  cacheName: "ai-portal-redis"
+  skuName: "Standard"
+  capacity: 2  # C1: 0.25GB, C2: 0.5GB, C3: 1GB, C4: 2.5GB, C5: 6GB, C6: 13GB, C7: 26GB
+  enableNonSslPort: false
+  minTlsVersion: "1.2"
+
+---
+# TEAM C: GCP GKE Autopilot Cluster Claim
+apiVersion: platform.gcp/v1beta1
+kind: GKEClusterClaim
+metadata:
+  name: ai-platform-gke
+  namespace: team-c
+  labels:
+    team: "c"
+    environment: "production"
+spec:
+  location: us-central1
+  projectID: "my-gcp-project-id"
+  autopilot: true
+  privateCluster: true
+  enableWorkloadIdentity: true
+  clusterVersion: "1.28"
+  # IP allocation for autopilot
+  ipAllocationPolicy:
+    clusterCidr: "10.4.0.0/14"
+    servicesCidr: "10.8.0.0/20"
+  tags:
+    Environment: "production"
+    Project: "ai-infrastructure-portal"
+
+---
+# TEAM C: GCP Cloud SQL PostgreSQL Claim
+apiVersion: database.gcp/v1beta1
+kind: CloudSQLPostgreSQLClaim
+metadata:
+  name: ai-portal-postgres
+  namespace: team-c
+  labels:
+    team: "c"
+spec:
+  region: us-central1
+  projectID: "my-gcp-project-id"
+  instanceName: "ai-portal-postgres-01"
+  databaseVersion: "POSTGRES_15"
+  tier: "db-custom-2-7680"  # 2 vCPU, 3GB RAM
+  diskSizeGB: 50
+  diskType: "PD_SSD"
+  storageAutoResize: true
+  ipConfiguration:
+    ipv4Enabled: false
+    privateNetwork: "projects/my-project/global/networks/default"
+  backupConfiguration:
+    enabled: true
+    startTime: "03:00"
+    backupRetentionDays: 7
+  maintenanceWindow:
+    day: 1
+    hour: 3
+  administrator:
+    username: "postgres"
+    passwordSecretRef:
+      name: "ai-portal-postgres-password"
+      namespace: "team-c"
+      key: "password"
+  databaseName: "ai_portal"
+  deletionProtection: true
+
+---
+# TEAM C: GCP Memorystore Redis Claim
+apiVersion: cache.gcp/v1beta1
+kind: RedisInstanceClaim
+metadata:
+  name: ai-portal-redis
+  namespace: team-c
+  labels:
+    team: "c"
+spec:
+  region: us-central1
+  projectID: "my-gcp-project-id"
+  instanceName: "ai-portal-redis-01"
+  memorySizeGB: 4
+  tier: "STANDARD_HA"
+  redisVersion: "REDIS_7_0"
+  authorizedNetwork: "projects/my-project/global/networks/default"
+
+---
+# Multi-cloud topology example: Team C can create resources across all clouds
+# This shows a deployment that uses AWS for primary, Azure as backup, etc.

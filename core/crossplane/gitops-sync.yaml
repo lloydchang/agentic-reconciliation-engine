@@ -1,0 +1,76 @@
+# GitOps Synchronization for Crossplane Resources
+# This Application resource tells Flux/ArgoCD to sync all Crossplane configurations
+#
+# If using Flux:
+#   flux create source git crossplane-config \
+#     --url=ssh://git@github.com/yourorg/agentic-reconciliation-engine \
+#     --branch=main \
+#     --interval=5m
+#
+#   flux create kustomization crossplane-resources \
+#     --source=crossplane-config \
+#     --path="./core/crossplane" \
+#     --prune=true \
+#     --interval=5m
+#
+# If using ArgoCD, create an Application like the one below:
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane-infrastructure
+  namespace: argocd
+  labels:
+    team: "platform"
+    component: "crossplane"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lloydchang/agentic-reconciliation-engine.git
+    targetRevision: main
+    path: core/crossplane
+    directory:
+      recurse: true
+      jsonnetParameters:
+        - name: environment
+          value: production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    timeout:
+      duration: 10m
+      requeue: false
+  ignoreDifferences:
+  - group: apiextensions.crossplane.io
+    kind: CompositeResourceDefinition
+    jsonPointers:
+    - /status
+  - group: apiextensions.crossplane.io
+    kind: Composition
+    jsonPointers:
+    - /status
+  - group: "aws.crossplane.io"
+    kind: ProviderConfig
+    jsonPointers:
+    - /status
+  - group: "azure.crossplane.io"
+    kind: ProviderConfig
+    jsonPointers:
+    - /status
+  - group: "gcp.crossplane.io"
+    kind: ProviderConfig
+    jsonPointers:
+    - /status
