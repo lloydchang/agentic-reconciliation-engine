@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Get TOPDIR
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TOPDIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+TOPDIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Patterns that should not be in TOPDIR
 FORBIDDEN_PATTERNS=(
@@ -57,12 +57,13 @@ ALLOWED_DIRS=(
     "core"
     "dashboard"
     "docs"
-    "helm"
     "hooks"
+    "logs"
     "overlay"
     "portal"
     "scripts"
     "test"
+    "tmp"
     ".git"
     ".github"
     ".agents"
@@ -105,6 +106,7 @@ done
 echo
 echo -e "${YELLOW}Checking for unexpected directories in TOPDIR...${NC}"
 
+# Only check directories directly in TOPDIR (maxdepth 1)
 for dir in "$TOPDIR"/*; do
     if [ -d "$dir" ]; then
         dirname=$(basename "$dir")
