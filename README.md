@@ -29,16 +29,45 @@ The AI Infrastructure Portal provides a comprehensive dashboard and API for moni
 
 ---
 
+## Repository Structure
+
+```
+agentic-reconciliation-engine/
+├── config/                    # Configuration files (.env, nginx.conf)
+├── core/                      # Core system components and agent logic
+├── dashboard/                 # Dashboard application
+│   ├── configs/               # Dashboard configuration files
+│   ├── deployments/           # Kubernetes deployment manifests
+│   ├── docker/                # Dashboard Dockerfile
+│   └── src/                   # Dashboard source code
+├── docker/                    # Dockerfiles and compose files
+├── docs/                      # Documentation and guides
+├── infrastructure/            # Infrastructure files (go.mod)
+├── overlay/                   # Kubernetes overlays and configurations
+├── scripts/                   # Development and deployment scripts
+│   ├── access/                # Access and connection scripts
+│   ├── deployment/            # Deployment automation
+│   ├── health/                # Health check scripts
+│   ├── monitoring/            # Monitoring and profiling
+│   ├── services/               # Service management
+│   ├── testing/               # Testing scripts
+│   ├── utils/                 # Utility scripts
+│   └── validation/            # Validation and linting
+└── [root files]               # Essential root configuration files
+```
+
+---
+
 ## Deployment Options
 
-### 1. Docker Compose (Recommended for Development)
+### 1. Development Environment (Recommended)
 
 ```bash
-# Start all services with Docker Compose
-docker-compose -f docker-compose-portal.yaml up -d
+# Start development environment
+./scripts/start-dev.sh
 
-# Or use the convenience script
-./scripts/start-portal-docker.sh
+# Or start Temporal services
+docker-compose -f docker/docker-compose-temporal-new.yaml up -d
 ```
 
 This starts:

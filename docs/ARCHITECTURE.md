@@ -299,3 +299,106 @@ deterministic reconciliation loop breaks the auditability and predictability tha
 See [AI Integration Analysis](./AI-INTEGRATION-ANALYSIS.md) for research context, scope, and
 known limitations. Treat it as a separate experimental track with no dependency on this
 architecture.
+
+---
+
+## Agentic Reconciliation Engine Diagrams
+
+This section provides visual representations of the Agentic Reconciliation Engine architecture using Mermaid diagrams.
+
+### System Overview
+
+```mermaid
+graph TD
+    A[User Request] --> B[Agent Execution Methods]
+    B --> C[Memory Agent Layer]
+    B --> D[Temporal Orchestration]
+    B --> E[GitOps Control]
+    B --> F[Pi-Mono RPC]
+    C --> G[SQLite Persistence]
+    C --> H[llama.cpp / Ollama]
+    D --> I[Durable Workflows]
+    E --> J[Flux / ArgoCD]
+    F --> K[Containerized Agents]
+    J --> L[Kubernetes Reconciliation]
+```
+
+### Data Flow
+
+```mermaid
+flowchart LR
+    subgraph "User Input"
+        U[User Request]
+    end
+    subgraph "Agent Layer"
+        A[Memory Agent] --> B[Context Retrieval]
+        B --> C[Skill Discovery]
+    end
+    subgraph "Temporal Layer"
+        C --> D[Workflow Orchestration]
+        D --> E[Plan Generation]
+        E --> F[Risk Assessment]
+        F --> G[Human Gate]
+    end
+    subgraph "GitOps Layer"
+        G --> H[PR Creation]
+        H --> I[Structured Plan Execution]
+        I --> J[Flux/ArgoCD Sync]
+    end
+    subgraph "Infrastructure"
+        J --> K[Kubernetes Reconciliation]
+        K --> L[Resource Provisioning]
+    end
+    subgraph "Feedback"
+        L --> M[Telemetry]
+        M --> N[Memory Update]
+        N --> A
+    end
+    U --> A
+```
+
+### Component Relationships
+
+```mermaid
+graph TD
+    subgraph "Execution Methods"
+        A[Temporal Workflows]
+        B[Container Agents]
+        C[Pi-Mono RPC]
+    end
+    subgraph "Memory Layer"
+        D[Rust Agent]
+        E[Go Agent]
+        F[Python Agent]
+        G[SQLite Database]
+        H[llama.cpp]
+        I[Ollama]
+    end
+    subgraph "Skills System"
+        J[SKILL.md Files]
+        K[agentskills.io Spec]
+    end
+    subgraph "Control Plane"
+        L[Flux CD]
+        M[ArgoCD]
+        N[Kubernetes]
+        O[Crossplane]
+    end
+    A --> D
+    A --> E
+    A --> F
+    D --> G
+    E --> G
+    F --> G
+    D --> H
+    E --> I
+    F --> I
+    B --> J
+    C --> J
+    J --> K
+    L --> N
+    M --> N
+    O --> N
+    A --> L
+    A --> M
+```
