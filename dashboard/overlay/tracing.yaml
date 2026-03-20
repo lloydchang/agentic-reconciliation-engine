@@ -1,0 +1,85 @@
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: ai-portal-jaeger
+  namespace: ai-infrastructure
+spec:
+  strategy: allInOne
+  allInOne:
+    image: jaegertracing/all-in-one:latest
+    options:
+      log-level: info
+      memory:
+        max-traces: 100000
+  storage:
+    type: memory
+    options:
+      memory:
+        max-traces: 100000
+  ingress:
+    enabled: true
+    hosts:
+    - jaeger.ai-infrastructure-portal.com
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    tls:
+    - hosts:
+      - jaeger.ai-infrastructure-portal.com
+      secretName: jaeger-tls
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: ai-portal-otel-collector
+  namespace: ai-infrastructure
+spec:
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+    processors:
+      batch:
+        send_batch_size: 1024
+        timeout: 1s
+      memory_limiter:
+        limit_mib: 512
+        spike_limit_mib: 128
+    exporters:
+      jaeger:
+        endpoint: jaeger-collector.ai-infrastructure.svc.cluster.local:14268
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+      logging:
+        loglevel: debug
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp, jaeger]
+          processors: [memory_limiter, batch]
+          exporters: [jaeger, logging]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [prometheus, logging]
+  mode: deployment
+  replicas: 2
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
