@@ -9,7 +9,9 @@
       "Bash(kubectl logs:*)",
       "Bash(kubectl describe:*)",
       "Bash(yes)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(ls -la core/scripts/automation/*.sh)",
+      "Bash(./core/scripts/automation/deploy-ai-agents-ecosystem.sh 2>&1)"
     ]
   }
 }
