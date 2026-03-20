@@ -1,5 +1,5 @@
 # Build autonomous decision engine with learning capabilities
-FROM golang:1.24-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -8,8 +8,7 @@ RUN apk add --no-cache git ca-certificates tzdata
 
 # Copy go mod files
 COPY go.mod ./
-RUN go mod download dependencies
-RUN go mod download
+RUN go mod tidy && go mod download && go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
 
 # Copy source code
 COPY . .

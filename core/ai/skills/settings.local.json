@@ -40,7 +40,13 @@
       "Bash(curl -s http://localhost:5001/api/skills/analysis)",
       "Bash(curl -v http://localhost:5001/health)",
       "Bash(git checkout:*)",
-      "Bash(/tmp/fixed-temporal-config.yaml:*)"
+      "Bash(/tmp/fixed-temporal-config.yaml:*)",
+      "Bash(bash core/scripts/automation/deploy-ai-agents-ecosystem.sh)",
+      "Bash(python3 -c \"import json, sys; data=json.load\\(sys.stdin\\); print\\(json.dumps\\(data[''''spec''''][''''template''''][''''spec''''][''''containers''''][0][''''command''''], indent=2\\)\\)\")",
+      "Bash(/tmp/temporal-server-patch.yaml:*)",
+      "Bash(while kubectl:*)",
+      "Bash(do sleep:*)",
+      "Bash(ps:*)"
     ]
   }
 }
