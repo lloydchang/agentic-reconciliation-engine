@@ -1,0 +1,162 @@
+# Unified Crossplane providers for single control plane
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider
+    app.kubernetes.io/provider: aws
+    crossplane.io/managed: "true"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.0
+  controllerConfigRef:
+    name: aws-controller-config
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-azure
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider
+    app.kubernetes.io/provider: azure
+    crossplane.io/managed: "true"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-azure:v1.2.0
+  controllerConfigRef:
+    name: azure-controller-config
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider
+    app.kubernetes.io/provider: gcp
+    crossplane.io/managed: "true"
+spec:
+  package: xpkg.upbound.io/upbound/provider-family-gcp:v1.2.0
+  controllerConfigRef:
+    name: gcp-controller-config
+---
+# Team-specific provider configurations for isolation
+---
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-a-aws
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-a
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-a
+      name: aws-credentials
+      key: credentials
+  defaultRegion: us-west-2
+---
+apiVersion: azure.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-a-azure
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-a
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-a
+      name: azure-credentials
+      key: credentials
+  location: East US
+---
+apiVersion: gcp.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-a-gcp
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-a
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-a
+      name: gcp-credentials
+      key: credentials
+  projectID: ${GCP_PROJECT_ID}
+---
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-b-aws
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-b
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-b
+      name: aws-credentials
+      key: credentials
+  defaultRegion: us-east-1
+---
+apiVersion: azure.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-b-azure
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-b
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-b
+      name: azure-credentials
+      key: credentials
+  location: West Europe
+---
+apiVersion: gcp.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-b-gcp
+  namespace: crossplane-system
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: provider-config
+    app.kubernetes.io/team: team-b
+    crossplane.io/managed: "true"
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: team-b
+      name: gcp-credentials
+      key: credentials
+  projectID: ${GCP_PROJECT_ID}

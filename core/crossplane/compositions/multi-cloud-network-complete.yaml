@@ -1,0 +1,366 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-network
+  labels:
+    crossplane.io/managed: "true"
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: composition
+    app.kubernetes.io/resource: network
+  annotations:
+    crossplane.io/documentation: "Multi-cloud network composition that handles AWS, Azure, and GCP"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XNetwork
+  resources:
+  # AWS VPC Resources
+  - name: aws-vpc
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPC
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: aws
+      spec:
+        forProvider:
+          cidrBlock: 10.0.0.0/16
+          enableDnsSupport: true
+          enableDnsHostnames: true
+          tags:
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is aws
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.cidrBlock
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+
+  # Azure Virtual Network Resources
+  - name: azure-vnet
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: VirtualNetwork
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: azure
+      spec:
+        forProvider:
+          addressSpace:
+          - 10.0.0.0/16
+          location: East US
+          tags:
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is azure
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.addressSpace[0]
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+
+  # GCP Network Resources
+  - name: gcp-network
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Network
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: gcp
+      spec:
+        forProvider:
+          autoCreateSubnetworks: false
+          routingMode: REGIONAL
+          description: "Crossplane managed network"
+          tags:
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is gcp
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.networkId
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+
+  # AWS Subnet
+  - name: aws-subnet
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: aws
+      spec:
+        forProvider:
+          vpcIdSelector:
+            matchControllerRef: true
+          cidrBlock: 10.0.1.0/24
+          availabilityZone: us-west-2a
+          mapPublicIpOnLaunch: true
+          tags:
+            Name: subnet-primary
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is aws
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.subnetIds
+      policy:
+        fromFieldPath: "status.atProvider.id"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+
+  # Azure Subnet
+  - name: azure-subnet
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: azure
+      spec:
+        forProvider:
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefix: 10.0.1.0/24
+          addressPrefixes:
+          - 10.0.1.0/24
+          delegations: []
+          privateEndpointNetworkPolicies: Disabled
+          privateLinkServiceNetworkPolicies: Disabled
+          serviceEndpoints: []
+          tags:
+            Name: subnet-primary
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is azure
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.subnetIds
+      policy:
+        fromFieldPath: "status.atProvider.id"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+
+  # GCP Subnet
+  - name: gcp-subnet
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Subnetwork
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: gcp
+      spec:
+        forProvider:
+          networkSelector:
+            matchControllerRef: true
+          ipCidrRange: 10.0.1.0/24
+          region: us-central1
+          privateIpGoogleAccess: true
+          logConfig:
+            aggregationInterval: INTERVAL_10_MIN
+            flowSampling: 0.5
+            metadataFields:
+            - all
+          tags:
+            Name: subnet-primary
+            ManagedBy: crossplane
+            Environment: production
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is gcp
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.cidrBlock
+      toFieldPath: spec.forProvider.ipCidrRange
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.subnetIds
+      policy:
+        fromFieldPath: "status.atProvider.id"
+        combine:
+          strategy: string
+          string:
+            fmt: "[\"%s\"]"
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"

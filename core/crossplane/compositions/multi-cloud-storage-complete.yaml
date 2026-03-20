@@ -1,0 +1,341 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: multi-cloud-storage
+  labels:
+    crossplane.io/managed: "true"
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: composition
+    app.kubernetes.io/resource: storage
+  annotations:
+    crossplane.io/documentation: "Multi-cloud storage composition that handles AWS, Azure, and GCP"
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  # AWS S3 Bucket
+  - name: aws-bucket
+    base:
+      apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: aws
+      spec:
+        forProvider:
+          region: us-west-2
+          versioningConfiguration:
+            status: Disabled
+          serverSideEncryptionConfiguration:
+            rules:
+            - applyServerSideEncryptionByDefault:
+                sseAlgorithm: AES256
+          publicAccessBlockConfiguration:
+            blockPublicAcls: true
+            blockPublicPolicy: true
+            ignorePublicAcls: true
+            restrictPublicBuckets: true
+          tags:
+            ManagedBy: crossplane
+            Environment: production
+            Type: storage
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is aws
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.bucketName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.versioningConfiguration.status
+      transform:
+        convert: "standard:Disabled,premium:Enabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.versioningConfiguration.status
+      transform:
+        convert: "true:Enabled,false:Disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.encryption
+      toFieldPath: spec.forProvider.serverSideEncryptionConfiguration.rules[0].applyServerSideEncryptionByDefault.sseAlgorithm
+      transform:
+        convert: "true:AES256,false:None"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.accessControl
+      toFieldPath: spec.forProvider.publicAccessBlockConfiguration.blockPublicAcls
+      transform:
+        convert: "private:true,public-read:false,public-read-write:false,authenticated-read:false"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+          - Type
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.arn
+      toFieldPath: status.bucketArn
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.bucketDomainName
+      toFieldPath: status.bucketDomainName
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.creationDate
+      toFieldPath: status.createdAt
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "enabled"
+              azure: "disabled"
+              gcp: "disabled"
+
+  # Azure Storage Account
+  - name: azure-storage-account
+    base:
+      apiVersion: storage.azure.upbound.io/v1beta1
+      kind: StorageAccount
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: azure
+      spec:
+        forProvider:
+          location: East US
+          accountTier: Standard
+          kind: StorageV2
+          sku:
+            name: Standard_LRS
+            tier: Standard
+          accessTier: Hot
+          minimumTlsVersion: TLS1_2
+          allowBlobPublicAccess: false
+          allowSharedKeyAccess: true
+          defaultToAzureADAuthorization: false
+          networkRules:
+            bypass: AzureServices
+            defaultAction: Deny
+            ipRules: []
+            virtualNetworkRules: []
+          encryption:
+            services:
+              blob: true
+              file: true
+            keySource: Microsoft.Storage
+          tags:
+            ManagedBy: crossplane
+            Environment: production
+            Type: storage
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is azure
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.bucketName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.accountTier
+      transform:
+        convert: "standard:Standard,premium:Premium"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.encryption
+      toFieldPath: spec.forProvider.encryption.services.blob
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.accessControl
+      toFieldPath: spec.forProvider.allowBlobPublicAccess
+      transform:
+        convert: "private:false,public-read:true,public-read-write:true,authenticated-read:false"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.tags
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+          - Type
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.bucketArn
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.primaryEndpoints.blob
+      toFieldPath: status.bucketDomainName
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.creationTime
+      toFieldPath: status.createdAt
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "enabled"
+              gcp: "disabled"
+
+  # GCP Cloud Storage Bucket
+  - name: gcp-bucket
+    base:
+      apiVersion: storage.gcp.upbound.io/v1beta1
+      kind: Bucket
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: crossplane
+          app.kubernetes.io/provider: gcp
+      spec:
+        forProvider:
+          location: US-CENTRAL1
+          storageClass: STANDARD
+          uniformBucketLevelAccess:
+            enabled: false
+          publicAccessPrevention:
+            enforced: true
+          versioning:
+            enabled: false
+          lifecycle:
+            rule:
+            - action:
+                type: Delete
+                condition:
+                  age: 30
+              storageClass: STANDARD
+          encryption:
+            defaultKmsKeyName: ""
+          labels:
+            ManagedBy: crossplane
+            Environment: production
+            Type: storage
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.provider
+      toFieldPath: # Only apply if provider is gcp
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.bucketName
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.storageClass
+      transform:
+        convert: "standard:STANDARD,premium:PREMIUM,nearline:NEARLINE,coldline:COLDLINE,archive:ARCHIVE"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.versioning.enabled
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.encryption
+      toFieldPath: spec.forProvider.encryption.defaultKmsKeyName
+      transform:
+        convert: "true:projects/${GCP_PROJECT_ID}/locations/global/keyRings/storage/cryptoKeys/default,false:"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.accessControl
+      toFieldPath: spec.forProvider.publicAccessPrevention.enforced
+      transform:
+        convert: "private:true,public-read:false,public-read-write:false,authenticated-read:false"
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: spec.forProvider.labels
+      policy:
+        mergeKeys:
+          - ManagedBy
+          - Environment
+          - Type
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.id
+      toFieldPath: status.bucketArn
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.url
+      toFieldPath: status.bucketDomainName
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.timeCreated
+      toFieldPath: status.createdAt
+      policy:
+        fromFieldPath: spec.provider
+        transforms:
+          - type: map
+            map:
+              aws: "disabled"
+              azure: "disabled"
+              gcp: "enabled"
