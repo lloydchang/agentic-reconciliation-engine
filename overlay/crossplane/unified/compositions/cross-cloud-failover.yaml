@@ -1,0 +1,233 @@
+# Cross-Cloud Failover Composition for High Availability
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cross-cloud-failover
+  labels:
+    provider: multi-cloud
+    resource: compute
+    capability: failover
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XCompute
+  resources:
+  # Primary Instance
+  - name: primary-compute
+    base:
+      apiVersion: compute.aws.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: us-west-2
+          instanceType: t3.medium
+          ami: ami-0abcdef1234567890
+          subnetIdSelector:
+            matchControllerRef: true
+          associatePublicIpAddress: true
+          rootBlockDevice:
+            - volumeSize: 30
+              volumeType: gp3
+              deleteOnTermination: true
+          tags:
+            Name: primary-compute
+            ManagedBy: crossplane
+            Role: primary
+            FailoverGroup: cross-cloud-failover
+    patches:
+    - fromFieldPath: spec.provider
+      toFieldPath: spec.forProvider.region
+      transforms:
+        - type: map
+          map:
+            aws: us-west-2
+            azure: West US
+            gcp: us-central1
+    - fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.instanceType
+      transforms:
+        - type: map
+          map:
+            small: t3.nano
+            medium: t3.medium
+            large: t3.large
+            xlarge: t3.xlarge
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+        - type: string
+          string:
+            fmt: "primary-compute-%s"
+  # Backup Instance (different provider)
+  - name: backup-compute
+    base:
+      apiVersion: compute.azure.upbound.io/v1beta1
+      kind: VirtualMachine
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          networkInterfaceIdsSelector:
+            matchControllerRef: true
+          vmSize: Standard_B2s
+          storageProfile:
+            osDisk:
+              createOption: FromImage
+              managedDisk:
+                storageAccountType: Premium_LRS
+              caching: ReadWrite
+              diskSizeGb: 30
+            imageReference:
+              publisher: Canonical
+              offer: UbuntuServer
+              sku: 20_04-lts-gen2
+              version: latest
+          osProfile:
+            computerName: backup-compute
+            adminUsername: adminuser
+          tags:
+            Name: backup-compute
+            ManagedBy: crossplane
+            Role: backup
+            FailoverGroup: cross-cloud-failover
+    patches:
+    - fromFieldPath: spec.failoverConfig.backupProvider
+      toFieldPath: spec.forProvider.location
+      transforms:
+        - type: map
+          map:
+            aws: West US
+            azure: East US
+            gcp: Central US
+    - fromFieldPath: spec.instanceType
+      toFieldPath: spec.forProvider.vmSize
+      transforms:
+        - type: map
+          map:
+            small: Standard_B1s
+            medium: Standard_B2s
+            large: Standard_B4s
+            xlarge: Standard_B8s
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.location
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.osProfile.computerName
+      transforms:
+        - type: string
+          string:
+            fmt: "backup-compute-%s"
+  # Health Check Service
+  - name: health-check-service
+    base:
+      apiVersion: v1
+      kind: Service
+      spec:
+        selector:
+          matchLabels:
+            app: cross-cloud-failover
+            role: primary
+        ports:
+        - port: 8080
+          targetPort: 8080
+          name: health-check
+        type: ClusterIP
+    patches:
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-health-check"
+  # Health Check Deployment
+  - name: health-check-deployment
+    base:
+      apiVersion: apps/v1
+      kind: Deployment
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: cross-cloud-failover-health
+        template:
+          metadata:
+            labels:
+              app: cross-cloud-failover-health
+          spec:
+            containers:
+            - name: health-checker
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  while true; do
+                    # Check primary instance health
+                    PRIMARY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://primary-compute:8080/health || echo "000")
+                    BACKUP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://backup-compute:8080/health || echo "000")
+                    
+                    if [ "$PRIMARY_STATUS" = "200" ]; then
+                      echo "Primary healthy"
+                      # Update primary status annotation
+                      kubectl annotate xcomputes.multicloud.example.com $(kubectl get xcomputes.multicloud.example.com -o jsonpath='{.items[0].metadata.name}') \
+                        failover.crossplane.io/primary-status=healthy --overwrite
+                    else
+                      echo "Primary unhealthy, promoting backup"
+                      # Promote backup to primary
+                      kubectl annotate xcomputes.multicloud.example.com $(kubectl get xcomputes.multicloud.example.com -o jsonpath='{.items[0].metadata.name}') \
+                        failover.crossplane.io/primary-status=failed --overwrite
+                      kubectl annotate xcomputes.multicloud.example.com $(kubectl get xcomputes.multicloud.example.com -o jsonpath='{.items[0].metadata.name}') \
+                        failover.crossplane.io/backup-status=active --overwrite
+                    fi
+                    
+                    sleep 30
+                  done
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+    patches:
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-health-check"
+  # NetworkPolicy for failover communication
+  - name: failover-network-policy
+    base:
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      spec:
+        podSelector:
+          matchLabels:
+            app: cross-cloud-failover
+        policyTypes:
+        - Ingress
+        - Egress
+        ingress:
+        - from:
+          - podSelector:
+              matchLabels:
+                app: cross-cloud-failover-health
+          ports:
+          - protocol: TCP
+            port: 8080
+        egress:
+        - to:
+          - podSelector:
+              matchLabels:
+                app: cross-cloud-failover
+          ports:
+          - protocol: TCP
+            port: 8080
+    patches:
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-network-policy"
+  writeConnectionSecretsToNamespace: crossplane-system

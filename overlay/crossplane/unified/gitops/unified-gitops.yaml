@@ -1,0 +1,169 @@
+# Unified GitOps Configuration for Single Crossplane Instance
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: crossplane-config
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/component: source-controller
+spec:
+  interval: 5m
+  url: https://github.com/agentic-reconciliation-engine/crossplane-config
+  ref:
+    branch: main
+  ignore: |
+    # Exclude temporary files
+    *.tmp
+    *.bak
+    # Exclude logs
+    *.log
+---
+# Kustomization for unified Crossplane deployment
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: crossplane-unified
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/component: kustomize-controller
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-config
+  path: ./unified
+  prune: true
+  wait: true
+  timeout: 5m
+  postBuild:
+    substitute:
+      # Environment-specific substitutions
+      TEAM_A_NAMESPACE: "team-a"
+      TEAM_B_NAMESPACE: "team-b"
+      CROSSPLANE_NAMESPACE: "crossplane-system"
+---
+# Kustomization for Team A resources
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: team-a-resources
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/component: kustomize-controller
+    team: team-a
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-config
+  path: ./unified/examples/team-a
+  prune: true
+  wait: true
+  timeout: 3m
+  dependsOn:
+    - name: crossplane-unified
+---
+# Kustomization for Team B resources
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: team-b-resources
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: flux
+    app.kubernetes.io/component: kustomize-controller
+    team: team-b
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-config
+  path: ./unified/examples/team-b
+  prune: true
+  wait: true
+  timeout: 3m
+  dependsOn:
+    - name: crossplane-unified
+---
+# Image update automation
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: crossplane-image-update
+  namespace: flux-system
+spec:
+  interval: 1h
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-config
+  git:
+    commit:
+      author:
+        email: flux@example.com
+        name: fluxcdbot
+  update:
+    path: ./unified
+    strategy: Setters
+---
+# Image policy for Crossplane components
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: crossplane-policy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: crossplane-image-repo
+    namespace: flux-system
+  policy:
+    alphabetical:
+      order: asc
+  filterTags:
+    pattern: 'v[0-9]+\.[0-9]+\.[0-9]+'
+---
+# Alert for Crossplane reconciliation failures
+apiVersion: notification.toolkit.fluxcd.io/v1beta2
+kind: Alert
+metadata:
+  name: crossplane-reconcile-failure
+  namespace: flux-system
+spec:
+  providerRef:
+    name: slack
+    namespace: flux-system
+  eventSeverity: info
+  eventSources:
+  - kind: Kustomization
+    name: team-a-resources
+    name: team-b-resources
+  - kind: Provider
+  - kind: CompositeResourceDefinition
+  eventMetadata:
+  - name: severity
+    value: error
+  - name: message
+    value: "Crossplane reconciliation failed"
+  summary: "Crossplane reconciliation failure in {{ .kind }} {{ .name }}"
+---
+# Alert for provider configuration issues
+apiVersion: notification.toolkit.fluxcd.io/v1beta2
+kind: Alert
+metadata:
+  name: crossplane-provider-issue
+  namespace: flux-system
+spec:
+  providerRef:
+    name: slack
+    namespace: flux-system
+  eventSeverity: warning
+  eventSources:
+  - kind: ProviderConfig
+  eventMetadata:
+  - name: severity
+    value: warning
+  - name: message
+    value: "Crossplane provider configuration issue"
+  summary: "Provider configuration issue for {{ .kind }} {{ .metadata.name }}"

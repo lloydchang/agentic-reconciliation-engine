@@ -1,0 +1,292 @@
+# Cost-Optimized Multi-Cloud Storage Composition
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cost-optimized-storage
+  labels:
+    provider: multi-cloud
+    resource: storage
+    capability: cost-optimization
+spec:
+  compositeTypeRef:
+    apiVersion: multicloud.example.com/v1alpha1
+    kind: XStorage
+  resources:
+  # AWS S3 with cost optimization
+  - name: aws-s3-storage
+    base:
+      apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        forProvider:
+          region: us-west-2
+          acl: private
+          versioningConfiguration:
+            status: Enabled
+          publicAccessBlockConfiguration:
+            blockPublicAcls: true
+            blockPublicPolicy: true
+            ignorePublicAcls: true
+            restrictPublicBuckets: true
+          # Cost optimization settings
+          intelligentTieringConfiguration:
+            status: Enabled
+          lifecycleConfiguration:
+            rules:
+              - id: LifecycleRule1
+                status: Enabled
+                filter:
+                  prefix: logs/
+                transitions:
+                  - days: 30
+                    storageClass: STANDARD_IA
+                  - days: 90
+                    storageClass: GLACIER
+                expiration:
+                  days: 365
+          tags:
+            Name: cost-optimized-storage
+            ManagedBy: crossplane
+            CostOptimization: enabled
+            Environment: production
+    patches:
+    - fromFieldPath: spec.provider
+      toFieldPath: spec.forProvider.region
+      transforms:
+        - type: map
+          map:
+            aws: us-west-2
+            azure: East US
+            gcp: us-central1
+    - fromFieldPath: spec.size
+      toFieldPath: metadata.annotations.crossplane.io/requested-size
+    - fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.storageClass
+      transforms:
+        - type: map
+          map:
+            standard: STANDARD
+            premium: STANDARD
+            infrequent: STANDARD_IA
+            archive: GLACIER
+    - fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.versioningConfiguration.status
+      transforms:
+        - type: map
+          map:
+            true: Enabled
+            false: Suspended
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.bucket
+      transforms:
+        - type: string
+          string:
+            fmt: "cost-opt-storage-%s"
+  # Azure Storage with cost optimization
+  - name: azure-storage-account
+    base:
+      apiVersion: storage.azure.upbound.io/v1beta1
+      kind: Account
+      spec:
+        forProvider:
+          location: East US
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          accountTier: Standard
+          accountReplicationType: LRS
+          # Cost optimization settings
+          accessTier: Hot
+          minimumTlsVersion: TLS1_2
+          allowBlobPublicAccess: false
+          enableHierarchicalNamespace: true
+          largeFileSharesEnabled: false
+          networkAcls:
+            bypass: AzureServices
+            defaultAction: Deny
+            ipRules: []
+            virtualNetworkRules:
+              - id: allow-vnet
+                action: Allow
+                state: Enabled
+                virtualNetworkResourceIdSelector:
+                  matchControllerRef: true
+                defaultAction: Allow
+          tags:
+            Name: cost-optimized-storage
+            ManagedBy: crossplane
+            CostOptimization: enabled
+            Environment: production
+    patches:
+    - fromFieldPath: spec.provider
+      toFieldPath: spec.forProvider.location
+      transforms:
+        - type: map
+          map:
+            aws: East US
+            azure: East US
+            gcp: Central US
+    - fromFieldPath: spec.size
+      toFieldPath: metadata.annotations.crossplane.io/requested-size
+    - fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.accessTier
+      transforms:
+        - type: map
+          map:
+            standard: Hot
+            premium: Hot
+            infrequent: Cool
+            archive: Cold
+    - fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.enableHierarchicalNamespace
+      transforms:
+        - type: map
+          map:
+            true: true
+            false: false
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.name
+      transforms:
+        - type: string
+          string:
+            fmt: "costoptstorage%s"
+  # GCP Storage with cost optimization
+  - name: gcp-storage-bucket
+    base:
+      apiVersion: storage.gcp.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        forProvider:
+          project: your-project-id
+          name: cost-optimized-storage
+          location: US-CENTRAL1
+          storageClass: STANDARD
+          # Cost optimization settings
+          uniformBucketLevelAccess: true
+          versioning:
+            enabled: true
+          lifecycle:
+            rule:
+              - action:
+                  type: SetStorageClass
+                  storageClass: NEARLINE
+                condition:
+                  age: 30
+                storageClass: NEARLINE
+              - action:
+                  type: SetStorageClass
+                  storageClass: COLDLINE
+                condition:
+                  age: 90
+                storageClass: COLDLINE
+              - action:
+                  type: Delete
+                condition:
+                  age: 365
+          labels:
+            managed-by: crossplane
+            cost-optimization: enabled
+            environment: production
+          billing:
+            requesterPays: false
+    patches:
+    - fromFieldPath: spec.provider
+      toFieldPath: spec.forProvider.location
+      transforms:
+        - type: map
+          map:
+            aws: US-CENTRAL1
+            azure: US-CENTRAL1
+            gcp: US-CENTRAL1
+    - fromFieldPath: spec.size
+      toFieldPath: metadata.annotations.crossplane.io/requested-size
+    - fromFieldPath: spec.storageClass
+      toFieldPath: spec.forProvider.storageClass
+      transforms:
+        - type: map
+          map:
+            standard: STANDARD
+            premium: STANDARD
+            infrequent: NEARLINE
+            archive: COLDLINE
+    - fromFieldPath: spec.versioning
+      toFieldPath: spec.forProvider.versioning.enabled
+      transforms:
+        - type: map
+          map:
+            true: true
+            false: false
+    - fromFieldPath: metadata.uid
+      toFieldPath: spec.forProvider.name
+      transforms:
+        - type: string
+          string:
+            fmt: "cost-opt-storage-%s"
+  # Cost monitoring service
+  - name: cost-monitor
+    base:
+      apiVersion: v1
+      kind: Service
+      spec:
+        selector:
+          matchLabels:
+            app: cost-monitor
+        ports:
+        - port: 8080
+          targetPort: 8080
+          name: metrics
+        type: ClusterIP
+    patches:
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-cost-monitor"
+  # Cost monitoring deployment
+  - name: cost-monitor-deployment
+    base:
+      apiVersion: apps/v1
+      kind: Deployment
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: cost-monitor
+        template:
+          metadata:
+            labels:
+              app: cost-monitor
+          spec:
+            containers:
+            - name: cost-analyzer
+              image: prom/cost-analyzer:latest
+              env:
+              - name: PROVIDER_CREDENTIALS
+                valueFrom:
+                  secretKeyRef:
+                    name: cost-monitor-credentials
+                    key: credentials
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  while true; do
+                    # Analyze storage costs across providers
+                    python3 /app/cost_analyzer.py --providers aws,azure,gcp --interval 300
+                    sleep 300
+                  done
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi
+    patches:
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+        - type: string
+          string:
+            fmt: "%s-cost-monitor"
+  writeConnectionSecretsToNamespace: crossplane-system

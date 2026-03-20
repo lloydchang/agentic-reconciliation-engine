@@ -1,0 +1,301 @@
+# Unified Monitoring for Single Crossplane Instance
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crossplane-unified-rules
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: crossplane-unified
+data:
+  unified-rules.yml: |
+    groups:
+    - name: crossplane.unified.rules
+      rules:
+      # Resource count metrics across all providers
+      - record: crossplane_unified:resource_count:total
+        expr: count(kube_resource_info{exported_namespace="crossplane-system"})
+      
+      - record: crossplane_unified:resource_count:by_provider
+        expr: count(kube_resource_info{exported_namespace="crossplane-system"}) by (exported_kind)
+      
+      - record: crossplane_unified:resource_count:by_team
+        expr: count(kube_resource_info{exported_namespace=~"team-.*"}) by (exported_namespace)
+      
+      # Provider health monitoring
+      - record: crossplane_unified:provider_health_score
+        expr: |
+          (
+            count(kube_resource_info{exported_namespace="crossplane-system", exported_kind="ProviderConfig"}) * 
+            (
+              count(kube_resource_info{exported_namespace="crossplane-system", exported_kind="ProviderConfig", status="Healthy"}) * 1 +
+              count(kube_resource_info{exported_namespace="crossplane-system", exported_kind="ProviderConfig", status="Unhealthy"}) * 0.5 +
+              count(kube_resource_info{exported_namespace="crossplane-system", exported_kind="ProviderConfig", status="Unknown"}) * 0.25
+            )
+          ) / 
+          count(kube_resource_info{exported_namespace="crossplane-system", exported_kind="ProviderConfig"})
+      
+      # Cross-cloud resource distribution
+      - record: crossplane_unified:cross_cloud_distribution
+        expr: |
+          count(
+            kube_resource_info{exported_namespace=~"team-.*", exported_kind=~"X.*"}
+          ) by (
+            exported_namespace,
+            label_join(
+              " ",
+              label_replace(
+                label_replace(
+                  kube_resource_info{exported_namespace=~"team-.*", exported_kind=~"X.*"},
+                "exported_kind",
+                "X",
+                ""
+              ),
+              "exported_namespace",
+              "team",
+              ""
+              ),
+              json_extract(
+                kube_resource_info{exported_namespace=~"team-.*", exported_kind=~"X.*"},
+                "$.metadata.annotations['crossplane\\.io/selected-provider']"
+              )
+            )
+          )
+      
+      # Cost optimization metrics
+      - record: crossplane_unified:cost_optimization_score
+        expr: |
+          (
+            count(
+              kube_resource_info{exported_namespace=~"team-.*", exported_annotations_cost_optimal="true"}
+            ) /
+            count(kube_resource_info{exported_namespace=~"team-.*", exported_kind=~"X.*"})
+          ) * 100
+      
+      # Failover status monitoring
+      - record: crossplane_unified:failover_status
+        expr: |
+          count(
+            kube_resource_info{exported_namespace=~"team-.*", exported_annotations_failover_crossplane_io_enabled="true"}
+          ) by (
+            exported_namespace,
+            label_join(
+              " ",
+              "failover:",
+              json_extract(
+                kube_resource_info{exported_namespace=~"team-.*", exported_annotations_failover_crossplane_io_enabled="true"},
+                "$.metadata.annotations['failover\\.crossplane\\.io/backup-status']"
+              )
+            )
+          )
+      
+      # Reconciliation performance
+      - record: crossplane_unified:reconciliation_duration_seconds:quantile
+        expr: histogram_quantile(0.95, rate(reconciliation_duration_seconds_bucket[5m]))
+      
+      - record: crossplane_unified:reconciliation_error_rate
+        expr: |
+          (
+            increase(reconciliation_errors_total[5m]) /
+            increase(reconciliations_total[5m])
+          ) * 100
+      
+      # Alerts for unified Crossplane
+      - alert: CrossplaneUnifiedProviderDown
+        expr: crossplane_unified:provider_health_score < 0.75
+        for: 5m
+        labels:
+          severity: critical
+          service: crossplane-unified
+          component: provider-health
+        annotations:
+          summary: "Crossplane provider health degraded"
+          description: "Crossplane provider health score is {{ $value }} below threshold of 0.75"
+      
+      - alert: CrossplaneUnifiedResourceStuck
+        expr: |
+          (
+            time() - kube_resource_created{exported_namespace="crossplane-system"} > 600
+          )
+        for: 15m
+        labels:
+          severity: warning
+          service: crossplane-unified
+          component: resource-reconciliation
+        annotations:
+          summary: "Crossplane resource stuck in reconciliation"
+          description: "Resource {{ $labels.exported_name }} has not been reconciled for over 10 minutes"
+      
+      - alert: CrossplaneUnifiedHighErrorRate
+        expr: crossplane_unified:reconciliation_error_rate > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: crossplane-unified
+          component: reconciliation
+        annotations:
+          summary: "High Crossplane reconciliation error rate"
+          description: "Crossplane reconciliation error rate is {{ $value }}% over the last 5 minutes"
+      
+      - alert: CrossplaneUnifiedCostOptimizationLow
+        expr: crossplane_unified:cost_optimization_score < 50
+        for: 1h
+        labels:
+          severity: info
+          service: crossplane-unified
+          component: cost-optimization
+        annotations:
+          summary: "Cost optimization score below target"
+          description: "Cost optimization score is {{ $value }}%, below target of 50%"
+---
+# ServiceMonitor for unified Crossplane metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: crossplane-unified-metrics
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: crossplane-unified
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crossplane
+      app.kubernetes.io/component: unified
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+---
+# PrometheusRule for Crossplane unified alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: crossplane-unified-alerts
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: crossplane-unified
+spec:
+  groups:
+  - name: crossplane-unified
+    rules:
+      - alert: CrossplaneUnifiedCriticalFailure
+        expr: up{job="crossplane-unified"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Crossplane unified instance is down"
+          description: "Crossplane unified instance has been down for more than 2 minutes"
+          runbook_url: "https://runbooks.example.com/crossplane/unified-failure"
+---
+# Dashboard for unified Crossplane
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crossplane-unified-dashboard
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: crossplane-unified
+data:
+  dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Crossplane Unified Multi-Cloud Dashboard",
+        "tags": ["crossplane", "multi-cloud", "unified", "kubernetes"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Provider Health Score",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "crossplane_unified:provider_health_score",
+                "legendFormat": "{{provider}}"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {"mode": "thresholds"},
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 0.5},
+                    {"color": "green", "value": 0.75}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Cross-Cloud Resource Distribution",
+            "type": "piechart",
+            "targets": [
+              {
+                "expr": "crossplane_unified:cross_cloud_distribution",
+                "legendFormat": "{{exported_namespace}} - {{provider}}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Cost Optimization Score",
+            "type": "gauge",
+            "targets": [
+              {
+                "expr": "crossplane_unified:cost_optimization_score",
+                "legendFormat": "{{exported_namespace}}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+          },
+          {
+            "id": 4,
+            "title": "Failover Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "crossplane_unified:failover_status",
+                "legendFormat": "{{exported_namespace}}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+          },
+          {
+            "id": 5,
+            "title": "Reconciliation Duration",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "crossplane_unified:reconciliation_duration_seconds:quantile",
+                "legendFormat": "95th percentile"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 6,
+            "title": "Resource Count by Team",
+            "type": "barchart",
+            "targets": [
+              {
+                "expr": "crossplane_unified:resource_count:by_team",
+                "legendFormat": "{{exported_namespace}}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          }
+        ],
+        "time": {"from": "now-1h", "to": "now"},
+        "refresh": "30s"
+      }
+    }

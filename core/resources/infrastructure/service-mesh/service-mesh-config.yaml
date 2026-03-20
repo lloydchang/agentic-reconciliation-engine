@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-mesh-config
+  namespace: ai-infrastructure
+  labels:
+    component: service-mesh
+    layer: orchestration
+data:
+  config.yaml: |
+    # Service Mesh Configuration for Agent Discovery
+    service_mesh:
+      enabled: true
+      discovery:
+        type: "kubernetes"
+        namespace: "ai-infrastructure"
+        label_selector: "app.kubernetes.io/part-of=agent"
+        port: 8080
+        health_check:
+          path: "/health"
+          interval: "30s"
+          timeout: "5s"
+      
+      routing:
+        type: "intelligent"
+        load_balancing: "round_robin"
+        retry_policy:
+          attempts: 3
+          backoff: "exponential"
+          max_delay: "10s"
+      
+      security:
+        mtls: true
+        authn: "jwt"
+        authz: "rbac"
+      
+      telemetry:
+        metrics:
+          enabled: true
+          port: 9090
+          path: "/metrics"
+        tracing:
+          enabled: true
+          sampling: "0.1"
+          exporter: "jaeger"
+        logging:
+          level: "info"
+          format: "json"
+      
+      agents:
+        cost-optimizer:
+          service: "cost-optimizer-service"
+          port: 8080
+          endpoints:
+            - "/optimize"
+            - "/recommendations"
+            - "/health"
+          capabilities:
+            - "cost_optimization"
+            - "resource_analysis"
+            - "recommendation_engine"
+        
+        security-scanner:
+          service: "security-scanner-service"
+          port: 8080
+          endpoints:
+            - "/scan"
+            - "/vulnerabilities"
+            - "/health"
+          capabilities:
+            - "security_scanning"
+            - "vulnerability_assessment"
+            - "compliance_checking"
+        
+        autonomous-decision-engine:
+          service: "autonomous-decision-engine-service"
+          port: 8080
+          endpoints:
+            - "/decide"
+            - "/orchestrate"
+            - "/health"
+          capabilities:
+            - "autonomous_decisions"
+            - "workflow_orchestration"
+            - "learning_optimization"

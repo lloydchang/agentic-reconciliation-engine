@@ -1,0 +1,165 @@
+# Unified Crossplane Multi-Cloud Resources with Smart Selection
+---
+# Smart Multi-Cloud Network with Cost Optimization
+apiVersion: multicloud.example.com/v1alpha1
+kind: XNetwork
+metadata:
+  name: smart-network
+  namespace: team-a
+  labels:
+    team: team-a
+    capability: smart-selection
+spec:
+  provider: auto
+  region: us-west-2
+  cidrBlock: 10.0.0.0/16
+  subnetCount: 3
+  providerSelector:
+    costOptimal: true
+    matchLabels:
+      environment: production
+---
+# Smart Multi-Cloud Compute with Auto-Scaling
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: smart-compute-cluster
+  namespace: team-a
+  labels:
+    team: team-a
+    capability: auto-scaling
+spec:
+  provider: auto
+  region: us-west-2
+  instanceType: medium
+  image: ubuntu-20.04
+  providerSelector:
+    costOptimal: true
+    performanceOptimal: true
+  autoScaling:
+    enabled: true
+    minInstances: 2
+    maxInstances: 5
+    targetCPU: 70
+  failoverConfig:
+    enabled: true
+    backupProvider: azure
+    healthCheckInterval: 30
+---
+# Cost-Optimized Multi-Cloud Storage with Cross-Cloud Replication
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: cost-optimized-storage
+  namespace: team-a
+  labels:
+    team: team-a
+    capability: cost-optimization
+spec:
+  provider: auto
+  region: us-west-2
+  storageClass: standard
+  size: 500Gi
+  versioning: true
+  providerSelector:
+    costOptimal: true
+    complianceRequired: hipaa
+  crossCloudReplication:
+    enabled: true
+    targetProviders:
+    - aws
+    - azure
+    replicationInterval: 24h
+  lifecyclePolicy:
+    automated: true
+    retentionDays: 90
+---
+# High-Availability Compute with Failover
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: ha-compute-cluster
+  namespace: team-b
+  labels:
+    team: team-b
+    capability: failover
+spec:
+  provider: aws
+  region: us-west-2
+  instanceType: large
+  image: ubuntu-20.04
+  failoverConfig:
+    enabled: true
+    backupProvider: gcp
+    healthCheckInterval: 15
+---
+# Compliance-Optimized Storage for Team B
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: compliance-storage
+  namespace: team-b
+  labels:
+    team: team-b
+    capability: compliance
+spec:
+  provider: azure
+  region: East US
+  storageClass: premium
+  size: 1Ti
+  versioning: true
+  providerSelector:
+    complianceRequired: pci
+    matchLabels:
+      data-classification: sensitive
+  lifecyclePolicy:
+    automated: true
+    retentionDays: 2555  # 7 years for PCI compliance
+---
+# Development Environment Resources
+apiVersion: multicloud.example.com/v1alpha1
+kind: XNetwork
+metadata:
+  name: dev-network
+  namespace: team-b
+  labels:
+    team: team-b
+    environment: development
+spec:
+  provider: gcp
+  region: us-central1
+  cidrBlock: 192.168.0.0/16
+  subnetCount: 2
+---
+apiVersion: multicloud.example.com/v1alpha1
+kind: XCompute
+metadata:
+  name: dev-compute
+  namespace: team-b
+  labels:
+    team: team-b
+    environment: development
+spec:
+  provider: gcp
+  region: us-central1
+  instanceType: small
+  image: ubuntu-20.04
+  subnetId: dev-network
+---
+apiVersion: multicloud.example.com/v1alpha1
+kind: XStorage
+metadata:
+  name: dev-storage
+  namespace: team-b
+  labels:
+    team: team-b
+    environment: development
+spec:
+  provider: gcp
+  region: us-central1
+  storageClass: standard
+  size: 100Gi
+  versioning: false
+  lifecyclePolicy:
+    automated: true
+    retentionDays: 30

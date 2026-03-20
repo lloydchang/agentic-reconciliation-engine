@@ -125,4 +125,9 @@ func RegisterAgentWorkflows(w workflow.Workflow) {
 		Name:        "DeploymentManagerWorkflow",
 		Description: "Orchestrate application deployment and rollout management",
 	})
+	
+	workflow.RegisterWorkflowWithOptions(AgentCommunicationWorkflow, workflow.RegisterOptions{
+		Name:        "AgentCommunicationWorkflow",
+		Description: "Enable inter-agent communication and coordination",
+	})
 }
