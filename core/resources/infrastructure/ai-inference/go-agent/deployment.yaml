@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-memory-go-pvc
+  namespace: ai-infrastructure
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-memory-go-service
+  namespace: ai-infrastructure
+  labels:
+    component: agent-memory
+    language: go
+spec:
+  selector:
+    component: agent-memory
+    language: go
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-memory-go
+  namespace: ai-infrastructure
+  labels:
+    component: agent-memory
+    language: go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: agent-memory
+      language: go
+  template:
+    metadata:
+      labels:
+        component: agent-memory
+        language: go
+    spec:
+      initContainers:
+      - name: init-memory-db
+        image: alpine:latest
+        command: ["sh", "-c"]
+        args:
+        - |
+          if [ ! -f /data/memory.db ]; then
+            echo "Initializing empty memory.db"
+            touch /data/memory.db
+          else
+            echo "Using existing memory.db"
+          fi
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+      containers:
+      - name: agent-memory-go
+        image: agentic-reconciliation-engine/agent-memory-go:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: DATABASE_PATH
+          value: "/data/memory.db"
+        - name: BACKEND_PRIORITY
+          value: "llama.cpp"
+        - name: LLAMACPP_URL
+          value: "http://llama-cpp-server:8080"
+        - name: MODEL
+          value: "qwen2.5:0.5b"
+        - name: PORT
+          value: "8080"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: METRICS_PORT
+          value: "9090"
+        volumeMounts:
+        - name: memory-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: memory-storage
+        persistentVolumeClaim:
+          claimName: agent-memory-go-pvc

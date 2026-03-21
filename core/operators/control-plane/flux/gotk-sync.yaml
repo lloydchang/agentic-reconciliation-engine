@@ -75,3 +75,18 @@ spec:
     name: agentic-reconciliation-engine
   dependsOn:
     - name: workload-infra
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ai-agents
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./core/ai/deployments/agents
+  prune: true
+  dependsOn:
+    - name: workload-infra
+  sourceRef:
+    kind: GitRepository
+    name: agentic-reconciliation-engine

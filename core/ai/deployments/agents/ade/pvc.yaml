@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: autonomous-learning-pvc
+  namespace: ai-infrastructure
+  labels:
+    app: autonomous-decision-engine
+    component: autonomous-agent
+    storage-type: learning-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: standalone-backend
+  namespace: ai-infrastructure
+  labels:
+    app: standalone-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: standalone-backend
+  template:
+    metadata:
+      labels:
+        app: standalone-backend
+    spec:
+      containers:
+      - name: backend
+        image: agentic-reconciliation-engine/standalone-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: MEMORY_AGENT_URL
+          value: "http://memory-selector-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        - name: SKILLS_PATH
+          value: "/skills"
+        - name: LOG_LEVEL
+          value: "info"
+        volumeMounts:
+        - name: skills-volume
+          mountPath: /skills
+          readOnly: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: skills-volume
+        configMap:
+          name: agent-skills-configmap
+          optional: true

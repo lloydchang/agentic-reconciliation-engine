@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-skills-configmap
+  namespace: ai-infrastructure
+  labels:
+    app: standalone-backend
+    component: skills
+data:
+  # This ConfigMap provides skill definitions to the standalone-backend.
+  # Skills are mounted at /skills in the container.
+  # Add skill files as keys here, e.g.:
+  # sample-skill/SKILL.md: |
+  #   ---
+  #   name: sample-skill
+  #   description: A sample skill
+  #   ---
+  #   Skill content here.
+  #

@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: memory-selector-metrics
+  namespace: ai-infrastructure
+  labels:
+    app: memory-selector
+    component: memory-selector
+    monitoring: prometheus
+spec:
+  selector:
+    matchLabels:
+      component: memory-selector
+  namespaceSelector:
+    matchNames:
+    - ai-infrastructure
+  endpoints:
+  - port: http
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+    honorLabels: true

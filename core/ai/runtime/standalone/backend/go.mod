@@ -1,4 +1,4 @@
-module github.com/lloydchang/$TOPDIR/ai-agents/backend
+module github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend
 
 go 1.25.0
 

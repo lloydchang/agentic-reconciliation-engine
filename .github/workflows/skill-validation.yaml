@@ -1,0 +1,44 @@
+name: Skill Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'core/ai/skills/**'
+      - 'core/automation/scripts/validate_skills.py'
+  push:
+    branches: [ main ]
+    paths:
+      - 'core/ai/skills/**'
+      - 'core/automation/scripts/validate_skills.py'
+
+jobs:
+  validate-skills:
+    name: Validate Skills Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install PyYAML
+      run: |
+        pip install pyyaml
+
+    - name: Run skill validation script
+      run: |
+        chmod +x core/automation/scripts/validate_skills.py
+        python core/automation/scripts/validate_skills.py
+
+    - name: Upload validation results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: skill-validation-results
+        path: |
+          skill-validation-*.txt

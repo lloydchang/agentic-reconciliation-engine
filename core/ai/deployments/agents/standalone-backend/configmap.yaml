@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: standalone-backend-config
+  namespace: ai-infrastructure
+data:
+  config.yaml: |
+    memory:
+      selector_url: "http://memory-selector-service.ai-infrastructure.svc.cluster.local:8080"
+    temporal:
+      address: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+    skills:
+      path: "/skills"
+      auto_reload: true
+    logging:
+      level: "info"
+      format: "json"
+    gitops:
+      enabled: true
+      repository: "git@github.com:your-org/agentic-reconciliation-engine.git"
+      branch: "main"
+      working_dir: "/tmp/gitops"

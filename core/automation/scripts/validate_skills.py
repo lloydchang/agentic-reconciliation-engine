@@ -89,7 +89,10 @@ def validate_skill_file(skill_path):
 
 def main():
     # Find all SKILL.md files
-    skill_files = glob.glob('agentic-reconciliation-engine/core/operators/core/ai/skills/*/SKILL.md')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))  # Go up from scripts/ to repo root
+    skills_path = os.path.join(repo_root, 'core', 'ai', 'skills', '*', 'SKILL.md')
+    skill_files = glob.glob(skills_path)
     
     total_errors = 0
     total_warnings = 0

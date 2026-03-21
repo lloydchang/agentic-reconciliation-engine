@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonomous-decision-engine
+  namespace: ai-infrastructure
+  labels:
+    app: autonomous-decision-engine
+    component: autonomous-agent
+    autonomy-level: fully_auto
+    learning-enabled: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autonomous-decision-engine
+      component: autonomous-agent
+  template:
+    metadata:
+      labels:
+        app: autonomous-decision-engine
+        component: autonomous-agent
+        autonomy-level: fully_auto
+        learning-enabled: "true"
+    spec:
+      containers:
+      - name: autonomous-decision-engine
+        image: agentic-reconciliation-engine/autonomous-decision-engine:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        # Autonomy Configuration
+        - name: AUTONOMY_LEVEL
+          value: "fully_auto"
+        - name: LEARNING_ENABLED
+          value: "true"
+        - name: LEARNING_RETENTION_HOURS
+          value: "24"
+
+        # Safety Thresholds
+        - name: MAX_COST_PER_HOUR
+          value: "1000.0"
+        - name: MAX_FAILURE_RATE
+          value: "0.15"
+        - name: REQUIRE_APPROVAL
+          value: "false"
+        - name: ROLLBACK_ENABLED
+          value: "true"
+
+        # Temporal Integration
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
+        - name: TEMPORAL_NAMESPACE
+          value: "default"
+        - name: TEMPORAL_WORKER_TASK_QUEUE
+          value: "autonomous-decision-engine"
+
+        # Learning Storage
+        - name: REDIS_ADDR
+          value: "redis-service.ai-infrastructure.svc.cluster.local:6379"
+        - name: LEARNING_STORAGE_PATH
+          value: "/data/learning"
+
+        # Risk Configuration
+        - name: RISK_THRESHOLD
+          value: "0.3"
+        - name: EXPERIENCE_BONUS
+          value: "0.01"
+
+        # Memory Integration - use memory selector
+        - name: AGENT_MEMORY_URL
+          value: "http://memory-selector-service.ai-infrastructure.svc.cluster.local:8080"
+        - name: MEMORY_INTEGRATION_ENABLED
+          value: "true"
+
+        # Logging and Monitoring
+        - name: LOG_LEVEL
+          value: "info"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: AUDIT_LOGGING
+          value: "true"
+
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        volumeMounts:
+        - name: learning-storage
+          mountPath: /data/learning
+
+      volumes:
+      - name: learning-storage
+        persistentVolumeClaim:
+          claimName: autonomous-learning-pvc
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001

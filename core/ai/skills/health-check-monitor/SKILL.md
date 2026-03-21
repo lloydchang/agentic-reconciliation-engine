@@ -10,7 +10,7 @@ metadata:
   autonomy: full
   layer: temporal
 compatibility: Requires kubectl, Python 3.8+, and access to Kubernetes clusters
-allowed-tools: kubectl, python
+allowed-tools: kubectl python
 ---
 
 # Health Check Monitor — Kubernetes Cluster Monitoring

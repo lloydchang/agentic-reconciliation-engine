@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: standalone-backend-metrics
+  namespace: ai-infrastructure
+  labels:
+    app: standalone-backend
+    monitoring: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: standalone-backend
+  namespaceSelector:
+    matchNames:
+    - ai-infrastructure
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+    honorLabels: true

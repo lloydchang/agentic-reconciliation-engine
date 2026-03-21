@@ -1,4 +1,12 @@
 {
+  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
+  },
   "permissions": {
     "allow": [
       "Bash(./core/scripts/automation/quickstart.sh)",
@@ -18,7 +26,7 @@
       "Bash(docker ps:*)",
       "Bash(go build:*)",
       "Bash(bash -x core/scripts/automation/deploy-ai-agents-ecosystem.sh)",
-      "Bash(TOPDIR=/Users/lloyd/github/antigravity/agentic-reconciliation-engine)",
+      "Bash(TOPDIR=.)",
       "Bash(kubectl delete:*)",
       "Bash(go mod:*)",
       "Bash(find . -name *.py -exec grep -l def.*metrics {})",
@@ -85,12 +93,12 @@
       "Bash(core/crossplane/helm-values.yaml:*)",
       "Bash(/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
       "Bash(break)",
-      "Bash(/Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
+      "Bash(core/scripts/automation/validate-crossplane-migration-prerequisites.sh)",
       "Bash(core/operators/control-plane/crossplane/xrds/xredis.yaml:*)",
       "Bash(core/operators/control-plane/crossplane/compositions/redis-aws.yaml:*)",
       "Bash(for f:*)",
       "Bash(do echo:*)",
-      "Read(//Users/lloyd/github/antigravity/agentic-reconciliation-engine/**)",
+      "Read(./**)",
       "Bash(kubectl api-resources:*)",
       "Bash(core/operators/control-plane/crossplane/xrds/xstoragebucket.yaml:*)",
       "Bash(docker info:*)",
@@ -101,8 +109,23 @@
       "Bash(grep -E \"\\\\.yaml$\")",
       "Bash(core/operators/control-plane/crossplane/xrds/xwaf.yaml:*)",
       "Bash(core/operators/control-plane/crossplane/xrds/xdns.yaml:*)",
-      "Bash(grep -A5 \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)",
-      "Bash(grep -r \"kind: GitRepository\" /Users/lloyd/github/antigravity/agentic-reconciliation-engine/core/operators/control-plane/flux/*.yaml)"
+      "Bash(grep -A5 \"kind: GitRepository\" core/operators/control-plane/flux/*.yaml)",
+      "Bash(grep -r \"kind: GitRepository\" core/operators/control-plane/flux/*.yaml)",
+      "Bash(git log:*)",
+      "Bash(core/ai/skills/*/SKILL.md)",
+      "Bash(grep -r metadata: core/ai/skills/*/SKILL.md)",
+      "Bash(find . -type d -name agent-memory-* -o -name memory-agent*)",
+      "Bash(find . -name skills-ref* -o -name *skill*validate*)",
+      "Bash(find core/ai/skills -name \"SKILL.md\" -exec grep -l \"risk_level\\\\|autonomy\\\\|layer\" {})",
+      "Bash(find . -name \"*.go\" -path \"*/temporal/*\" -exec grep -l \"workflow\\\\|Workflow\" {})",
+      "Bash(find . -name skills-ref -o -name *skills* -type f)",
+      "Bash(docker version:*)",
+      "Bash(brew services:*)",
+      "Bash(open -a Docker)",
+      "Bash(docker push:*)",
+      "Bash(kind load:*)",
+      "Bash(kind get:*)",
+      "Bash(python:*)"
     ]
   }
 }

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-memory-service
+  namespace: ai-infrastructure
+  labels:
+    component: agent-memory
+    language: rust
+spec:
+  selector:
+    component: agent-memory
+    language: rust
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
