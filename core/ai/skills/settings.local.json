@@ -1,12 +1,9 @@
 {
-  "includeCoAuthoredBy": false,
   "attribution": {
     "commit": "",
     "pr": ""
   },
-  "enabledPlugins": {
-    "pyright-lsp@claude-plugins-official": true
-  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(./core/scripts/automation/quickstart.sh)",
@@ -125,7 +122,11 @@
       "Bash(docker push:*)",
       "Bash(kind load:*)",
       "Bash(kind get:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(helm version:*)"
     ]
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
   }
 }
