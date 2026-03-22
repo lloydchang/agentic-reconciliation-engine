@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skills-orchestrator
+  namespace: ai-infrastructure
+  labels:
+    app: skills-orchestrator
+    component: temporal-workers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skills-orchestrator
+  template:
+    metadata:
+      labels:
+        app: skills-orchestrator
+        component: temporal-workers
+    spec:
+      containers:
+      - name: orchestrator
+        image: temporalio/auto-setup:1.22.0
+        ports:
+        - containerPort: 7233
+          name: temporal
+          protocol: TCP
+        env:
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend:7233"
+        - name: DB
+          value: "postgresql"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_HOST
+          value: "temporal-postgres"
+        - name: POSTGRES_USER
+          value: "temporal"
+        - name: POSTGRES_PASSWORD
+          value: "temporal"
+        - name: POSTGRES_DB
+          value: "temporal"
+        - name: TEMPORAL_CLI_SHOW_STACK_TRACE
+          value: "true"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

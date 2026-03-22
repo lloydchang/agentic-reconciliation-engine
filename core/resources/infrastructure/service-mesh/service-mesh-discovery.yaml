@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: service-mesh-discovery
-        image: nginx:alpine  # Placeholder for service mesh discovery service
+        image: nginx:alpine
         ports:
         - containerPort: 8080
           name: http
@@ -88,10 +88,16 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
         volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          readOnly: true
         - name: config
           mountPath: /etc/service-mesh
           readOnly: true
       volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-health-config
       - name: config
         configMap:
           name: service-mesh-config

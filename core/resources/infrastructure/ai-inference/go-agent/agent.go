@@ -2,20 +2,14 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -470,7 +464,7 @@ Be thorough but concise.`, context, sourceIDs)
 		return fmt.Errorf("failed to insert consolidation: %w", err)
 	}
 
-	consolidationID, _ := result.LastInsertId()
+	_, _ = result.LastInsertId() // Store consolidation ID if needed later
 
 	// Update connections and mark as consolidated
 	for _, conn := range data.Connections {
@@ -708,4 +702,61 @@ func (ma *MemoryAgent) GetMemories() ([]Memory, error) {
 // Close closes the database connection
 func (ma *MemoryAgent) Close() error {
 	return ma.db.Close()
+}
+
+// Main function to run the memory agent server
+func main() {
+	agent, err := NewMemoryAgent("memory.db", "./inbox")
+	if err != nil {
+		log.Fatal("Failed to initialize memory agent:", err)
+	}
+	defer agent.Close()
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
+	})
+
+	http.HandleFunc("/ingest", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var data struct {
+			Text   string `json:"text"`
+			Source string `json:"source"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		result, err := agent.Ingest(data.Text, data.Source)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(result)
+	})
+
+	http.HandleFunc("/query", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("q")
+		if query == "" {
+			http.Error(w, "Missing query parameter", http.StatusBadRequest)
+			return
+		}
+
+		result, err := agent.Query(query, false) // Set useSearch to false for now
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"answer": result})
+	})
+
+	log.Println("Memory Agent server starting on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

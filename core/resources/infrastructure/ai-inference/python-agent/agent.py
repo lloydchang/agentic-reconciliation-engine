@@ -31,7 +31,7 @@ from aiohttp import web
 # Configuration
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:0.5b")
-DB_PATH = os.getenv("MEMORY_DB", "memory.db")
+DB_PATH = os.getenv("MEMORY_DB", "/data/memory.db")
 
 # Supported file types for ingestion
 TEXT_EXTENSIONS = {".txt", ".md", ".json", ".csv", ".log", ".xml", ".yaml", ".yml"}
@@ -218,6 +218,77 @@ def delete_memory(memory_id: int) -> dict:
     return {"status": "deleted", "memory_id": memory_id}
 
 
+from typing import List
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class BackendType(Enum):
+    OLLAMA = "ollama"
+    LLAMA_CPP = "llama_cpp"
+
+
+class Backend:
+    """Abstract base class for inference backends."""
+
+    def name(self) -> str:
+        raise NotImplementedError
+
+    def generate(self, prompt: str) -> str:
+        raise NotImplementedError
+
+
+class OllamaBackend(Backend):
+    """Ollama inference backend."""
+
+    def __init__(self, url: str, model: str):
+        self.url = url
+        self.model = model
+
+    def name(self) -> str:
+        return f"ollama-{self.model}"
+
+    def generate(self, prompt: str) -> str:
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False,
+        }
+        response = requests.post(f"{self.url}/api/generate", json=payload, timeout=60)
+        response.raise_for_status()
+        result = response.json()
+        return result.get("response", "").strip()
+
+
+class LlamaCppBackend(Backend):
+    """llama.cpp inference backend."""
+
+    def __init__(self, model_path: str):
+        self.model_path = model_path
+        # Try to import llama_cpp
+        try:
+            from llama_cpp import Llama
+            self.llm = Llama(model_path=model_path, verbose=False)
+        except ImportError:
+            raise Exception("llama_cpp module not installed")
+
+    def name(self) -> str:
+        return "llama.cpp"
+
+    def generate(self, prompt: str) -> str:
+        result = self.llm(prompt, max_tokens=512, stop=["</s>"])
+        return result["choices"][0]["text"].strip()
+
+
+@dataclass
+class AgentConfig:
+    """Configuration for the Memory Agent."""
+    ollama_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    model: str = os.getenv("OLLAMA_MODEL", "qwen2.5:0.5b")
+    llama_cpp_model_path: str = os.getenv("LLAMA_CPP_MODEL_PATH", "")
+    backend_priority: List[BackendType] = field(default_factory=lambda: [BackendType.OLLAMA])
+
+
 def clear_all_memories(inbox_path: str | None = None) -> dict:
     """Delete all memories, consolidations, and inbox files. Full reset."""
     db = get_db()
@@ -227,27 +298,6 @@ def clear_all_memories(inbox_path: str | None = None) -> dict:
     db.execute("DELETE FROM processed_files")
     db.commit()
     db.close()
-
-    files_deleted = 0
-    if inbox_path:
-        folder = Path(inbox_path)
-        if folder.is_dir():
-            for f in folder.iterdir():
-                if f.name.startswith("."):
-                    continue
-                try:
-                    if f.is_file():
-                        f.unlink()
-                        files_deleted += 1
-                    elif f.is_dir():
-                        shutil.rmtree(f)
-                        files_deleted += 1
-                except OSError as e:
-                    log.error(f"Failed to delete {f.name}: {e}")
-
-    log.info(f"🗑️  Cleared all {mem_count} memories, deleted {files_deleted} inbox files")
-    return {"status": "cleared", "memories_deleted": mem_count, "files_deleted": files_deleted}
-
 
 class MemoryAgent:
     """Always-On Memory Agent using Qwen2.5 0.5B via configurable backends"""
@@ -523,6 +573,8 @@ async def consolidation_loop(agent: MemoryAgent, interval_minutes: int = 30):
 
 
 async def main_async(args):
+    # Use /data/inbox as default for container environments
+    watch_path = args.watch if args.watch else "/data/inbox"
     agent = MemoryAgent()
 
     log.info("🧠 Always-On Memory Agent starting")
@@ -536,7 +588,7 @@ async def main_async(args):
 
     # Start background tasks
     tasks = [
-        asyncio.create_task(watch_folder(agent, Path(args.watch))),
+        asyncio.create_task(watch_folder(agent, Path(watch_path))),
         asyncio.create_task(consolidation_loop(agent, args.consolidate_every)),
     ]
 
@@ -562,7 +614,7 @@ async def main_async(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Always-On Memory Agent - Qwen2.5 0.5B via Ollama")
-    parser.add_argument("--watch", default="./inbox", help="Folder to watch for new files (default: ./inbox)")
+    parser.add_argument("--watch", default="/data/inbox", help="Folder to watch for new files (default: /data/inbox)")
     parser.add_argument("--port", type=int, default=8888, help="HTTP API port (default: 8888)")
     parser.add_argument("--consolidate-every", type=int, default=30, help="Consolidation interval in minutes (default: 30)")
     args = parser.parse_args()

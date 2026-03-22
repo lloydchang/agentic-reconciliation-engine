@@ -360,14 +360,14 @@ spec:
         - -c
         - |
           echo "Setting up Temporal configuration..."
-          cp /etc/temporal/config/config.yaml /etc/temporal/data/config.yaml
-          cp /etc/temporal/config/config_template.yaml /etc/temporal/data/config_template.yaml
-          echo "Configuration files copied:"
-          ls -la /etc/temporal/data/
-          echo "Checking Temporal server command options:"
-          temporal server --help
-          echo "Starting Temporal server with default config..."
-          exec temporal server start-dev
+          echo "Starting Temporal server in development mode with PostgreSQL backend..."
+          exec temporal server start-dev \
+            --db-port 5432 \
+            --db-host temporal-postgres \
+            --db temporal \
+            --port 7233 \
+            --ui-port 8080 \
+            --log-level info
         volumeMounts:
         - name: temporal-config
           mountPath: /etc/temporal/config

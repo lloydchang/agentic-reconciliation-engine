@@ -1,14 +1,18 @@
 log-level: info
 persistence:
   default:
-    driver: cassandra
-    cassandra:
-      hosts: ["cassandra"]
-      keyspace: temporal
-      port: 9042
+    driver: postgres
+    postgres:
+      host: temporal-postgres
+      port: 5432
+      user: temporal
+      password: temporal
+      database: temporal
   visibility:
-    driver: cassandra
-    cassandra:
-      hosts: ["cassandra"]
-      keyspace: temporal_visibility
-      port: 9042
+    driver: postgres
+    postgres:
+      host: temporal-postgres
+      port: 5432
+      user: temporal
+      password: temporal
+      database: temporal_visibility
