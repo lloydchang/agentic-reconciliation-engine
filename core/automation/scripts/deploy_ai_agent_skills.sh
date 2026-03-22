@@ -268,6 +268,10 @@ EOF
     print_info "Auto-starting MCP servers..."
     echo "DEBUG: About to start MCP server loop"
     
+    # Track started servers and any failures
+    local started_servers=0
+    local failed_servers=0
+    
     # Check if .env file exists and has required variables
     if [[ -f "$REPO_ROOT/.env" ]]; then
         echo "DEBUG: Entering if branch (.env file exists)"
@@ -277,6 +281,8 @@ EOF
         set +a
         
         # Start MCP servers in background
+        # Note: MCP servers using StdioServerTransport need stdin to stay alive
+        # We use 'tail -f /dev/null | node index.js' to provide a persistent stdin
         for server_dir in "$REPO_ROOT/.claude/mcp-servers"/*; do
             echo "DEBUG: Processing server directory: $server_dir"
             if [[ -d "$server_dir" && -f "$server_dir/index.js" ]]; then
@@ -284,20 +290,48 @@ EOF
                 print_info "Auto-starting $server_name server..."
                 
                 cd "$server_dir"
-                nohup node index.js > "$REPO_ROOT/logs/${server_name}.log" 2>&1 &
-                echo $! > "$REPO_ROOT/.${server_name}.pid"
-                print_success "$server_name server auto-started (PID: $!)"
+                
+                # Use tail -f /dev/null to provide stdin for stdio-based MCP servers
+                # This keeps them running unlike nohup which detaches stdin
+                tail -f /dev/null 2>/dev/null | node index.js > "$REPO_ROOT/logs/${server_name}.log" 2>&1 &
+                local pid=$!
+                
+                # Verify the process started
+                sleep 0.5
+                if kill -0 "$pid" 2>/dev/null; then
+                    echo $pid > "$REPO_ROOT/.${server_name}.pid"
+                    print_success "$server_name server auto-started (PID: $pid)"
+                    ((started_servers++))
+                else
+                    print_warning "$server_name server failed to start (may require manual start via Claude Desktop)"
+                    ((failed_servers++))
+                fi
             fi
         done
         
-        echo "DEBUG: Completed MCP server for loop, about to wait for servers to initialize"
+        echo "DEBUG: Completed MCP server for loop, started $started_servers servers"
         # Return to repository root
         cd "$REPO_ROOT"
-        sleep 3
-        echo "DEBUG: Completed sleep 3, about to start verification loop"
+        sleep 2
         
-        # Skip verification - MCP servers are stdio-based and exit normally
-        echo "DEBUG: Skipping verification, proceeding to success"
+        # Verify servers are still running
+        print_info "Verifying MCP server status..."
+        local running_servers=0
+        for pid_file in "$REPO_ROOT"/.[^.]*.pid; do
+            if [[ -f "$pid_file" ]]; then
+                local pid=$(cat "$pid_file")
+                if kill -0 "$pid" 2>/dev/null; then
+                    ((running_servers++))
+                fi
+            fi
+        done
+        
+        print_info "$running_servers/$started_servers MCP servers are running"
+        
+        if [[ $failed_servers -gt 0 ]]; then
+            print_warning "$failed_servers MCP server(s) failed to auto-start"
+            print_info "Note: MCP servers can be manually started by Claude Desktop when needed"
+        fi
         
     print_success "AI Agent Skills and MCP servers deployment completed!"
     echo ""
