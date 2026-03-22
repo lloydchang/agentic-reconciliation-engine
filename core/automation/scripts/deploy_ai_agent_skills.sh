@@ -266,9 +266,11 @@ EOF
     
     # Auto-start MCP servers
     print_info "Auto-starting MCP servers..."
+    echo "DEBUG: About to start MCP server loop"
     
     # Check if .env file exists and has required variables
     if [[ -f "$REPO_ROOT/.env" ]]; then
+        echo "DEBUG: Entering if branch (.env file exists)"
         # Source environment variables
         set -a
         source "$REPO_ROOT/.env"
@@ -276,6 +278,7 @@ EOF
         
         # Start MCP servers in background
         for server_dir in "$REPO_ROOT/.claude/mcp-servers"/*; do
+            echo "DEBUG: Processing server directory: $server_dir"
             if [[ -d "$server_dir" && -f "$server_dir/index.js" ]]; then
                 server_name=$(basename "$server_dir")
                 print_info "Auto-starting $server_name server..."
@@ -287,10 +290,14 @@ EOF
             fi
         done
         
-        # Wait a moment for servers to initialize
+        echo "DEBUG: Completed MCP server for loop, about to wait for servers to initialize"
+        # Return to repository root
+        cd "$REPO_ROOT"
         sleep 3
+        echo "DEBUG: Completed sleep 3, about to start verification loop"
         
         # Verify servers are running
+        echo "DEBUG: Starting verification loop"
         local running_count=0
         local total_count=0
         for server_dir in "$REPO_ROOT/.claude/mcp-servers"/*; do
@@ -313,9 +320,10 @@ EOF
         done
         
         print_info "MCP servers: $running_count/$total_count running"
+        echo "DEBUG: Completed MCP server startup, about to check for code command"
         
         # Auto-configure Claude Desktop if possible
-        if command -v code &>/dev/null; then
+        if command -v code >/dev/null 2>&1; then
             print_info "Attempting to auto-configure Claude Desktop..."
             # Try to restart Claude Desktop to load new configuration
             if pgrep -f "Claude Desktop" >/dev/null 2>&1; then
@@ -327,6 +335,7 @@ EOF
         
     else
         # Auto-create .env file with placeholder values
+        echo "DEBUG: Entering else branch (no .env file)"
         print_info "Auto-creating .env file with placeholder credentials..."
         cp "$REPO_ROOT/.env.template" "$REPO_ROOT/.env"
         
@@ -404,7 +413,7 @@ EOF
     echo "  • $REPO_ROOT/scripts/stop-mcp-servers.sh (manual control)"
     echo ""
     echo -e "${GREEN}🚀 AI Agent Skills are now fully operational and autonomous!${NC}"
-    echo "DEBUG: Script completed successfully, returning 0"
+    echo "DEBUG: About to return 0 from deploy_ai_agent_skills function"
     return 0
 }
 
