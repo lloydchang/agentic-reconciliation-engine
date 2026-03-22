@@ -354,17 +354,13 @@ spec:
         - name: TEMPORAL_WORKER_MEMBERSHIP_PORT
           value: "6939"
         - name: TEMPORAL_CONFIG_DIR
-          value: "/etc/temporal/data"
+          value: "/etc/temporal/config"
         command:
         - /bin/sh
         - -c
         - |
-          echo "Setting up Temporal configuration..."
-          echo "Starting Temporal server in development mode with PostgreSQL backend..."
+          echo "Starting Temporal server in development mode..."
           exec temporal server start-dev \
-            --db-port 5432 \
-            --db-host temporal-postgres \
-            --db temporal \
             --port 7233 \
             --ui-port 8080 \
             --log-level info
@@ -381,14 +377,12 @@ spec:
             memory: "1Gi"
             cpu: "1000m"
         livenessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 7233
           initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 7233
           initialDelaySeconds: 30
           periodSeconds: 5

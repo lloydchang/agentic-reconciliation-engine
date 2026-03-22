@@ -17,30 +17,23 @@ spec:
         app: skills-orchestrator
         component: temporal-workers
     spec:
+      initContainers:
+      - name: wait-for-temporal
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z temporal-frontend 7233; do echo waiting for temporal; sleep 2; done']
       containers:
       - name: orchestrator
-        image: temporalio/auto-setup:1.22.0
-        ports:
-        - containerPort: 7233
-          name: temporal
-          protocol: TCP
+        image: temporalio/admin-tools:1.22.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Skills orchestrator ready - connected to Temporal at temporal-frontend:7233"
+          # Keep container running
+          tail -f /dev/null
         env:
         - name: TEMPORAL_ADDRESS
           value: "temporal-frontend:7233"
-        - name: DB
-          value: "postgresql"
-        - name: DB_PORT
-          value: "5432"
-        - name: DB_HOST
-          value: "temporal-postgres"
-        - name: POSTGRES_USER
-          value: "temporal"
-        - name: POSTGRES_PASSWORD
-          value: "temporal"
-        - name: POSTGRES_DB
-          value: "temporal"
-        - name: TEMPORAL_CLI_SHOW_STACK_TRACE
-          value: "true"
         resources:
           requests:
             cpu: 100m
