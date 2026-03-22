@@ -27,7 +27,8 @@ key in each `SKILL.md` frontmatter — it is not part of the agentskills.io stan
 8. Autonomy, PR Gating, and Risk Levels
 9. Integration Guidelines
 10. Testing, Validation & Troubleshooting
-11. Appendices
+11. Hallucination Reduction Techniques
+12. Appendices
     * A: Skill Index Mapping
     * B: Environment Variables & Configurations
     * C: Human Gate Reference Table
@@ -471,7 +472,50 @@ autonomy: requires_PR
 
 ---
 
-## 10. Appendices
+## 10. Hallucination Reduction Techniques
+
+Even advanced language models like Claude can sometimes generate factually incorrect or inconsistent information, known as "hallucination." This can undermine the reliability of AI-driven infrastructure operations. The following techniques, adapted from [Anthropic's guidance](https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations), help minimize hallucinations in agent systems.
+
+### Basic Strategies
+
+- **Allow Claude to say "I don't know":** Explicitly give the agent permission to admit uncertainty. This can drastically reduce false information generation.
+
+  Example prompt for skills:
+  ```text
+  If you're unsure about any aspect or if the available information lacks necessary data, say "I don't have enough information to confidently assess this."
+  ```
+
+- **Use direct quotes for factual grounding:** For tasks involving long documents (>20k tokens), ask the agent to extract word-for-word quotes first before performing analysis. This grounds responses in actual text, reducing hallucinations.
+
+  Example approach:
+  ```text
+  1. Extract exact quotes from the document that are most relevant to the task. If you can't find relevant quotes, state "No relevant quotes found."
+
+  2. Use the quotes to perform the analysis, referencing them by number. Only base your response on the extracted quotes.
+  ```
+
+- **Verify with citations:** Make agent responses auditable by requiring citations for each claim. Have the agent verify each claim by finding supporting quotes after generating a response. If it can't find a quote, it must retract the claim.
+
+  Example workflow:
+  ```text
+  After drafting your response, review each claim. For each claim, find a direct quote from the documents that supports it. If you can't find a supporting quote for a claim, remove that claim and mark where it was removed with empty [] brackets.
+  ```
+
+### Advanced Techniques
+
+- **Chain-of-thought verification:** Ask the agent to explain its reasoning step-by-step before giving a final answer. This can reveal faulty logic or assumptions in the plan generation process.
+
+- **Best-of-N verification:** Run the agent through the same prompt multiple times and compare the outputs. Inconsistencies across outputs could indicate hallucinations.
+
+- **Iterative refinement:** Use the agent's outputs as inputs for follow-up prompts, asking it to verify or expand on previous statements. This can catch and correct inconsistencies in multi-step workflows.
+
+- **External knowledge restriction:** Explicitly instruct the agent to only use information from provided documents and not its general knowledge. This is critical for GitOps operations where all changes must be based on verified data sources.
+
+> **Note:** While these techniques significantly reduce hallucinations, they don't eliminate them entirely. Always validate critical information, especially for high-stakes infrastructure changes. The GitOps control layer's PR-based workflow provides an essential human validation step for medium and high-risk operations.
+
+---
+
+## 11. Appendices
 
 ### A: Skill Index Mapping
 
