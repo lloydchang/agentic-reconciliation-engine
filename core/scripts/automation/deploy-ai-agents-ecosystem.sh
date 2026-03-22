@@ -7,6 +7,8 @@ set -e
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get repository root
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Colors for output
 RED='\033[0;31m'
@@ -398,7 +400,7 @@ deploy_temporal_workers() {
     log_info "Skipping Docker build - using placeholder image for testing"
     
     # Deploy workers
-    kubectl apply -f core/resources/infrastructure/temporal/temporal-workers-deployment.yaml
+    kubectl apply -f "$REPO_ROOT/resources/infrastructure/temporal/temporal-workers-deployment.yaml"
     
     log_success "Temporal workers deployed"
 }
