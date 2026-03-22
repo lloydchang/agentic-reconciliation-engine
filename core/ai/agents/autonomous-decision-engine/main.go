@@ -11,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 )
@@ -127,7 +128,8 @@ func (e *AutonomousDecisionEngine) setupTemporal() {
 
 	c, err := client.Dial(clientOptions)
 	if err != nil {
-		log.Fatalf("Failed to connect to Temporal: %v", err)
+		log.Printf("Warning: Failed to connect to Temporal: %v. Continuing for local development...", err)
+		return
 	}
 
 	e.temporalClient = c
@@ -135,9 +137,17 @@ func (e *AutonomousDecisionEngine) setupTemporal() {
 }
 
 func (e *AutonomousDecisionEngine) startAutonomousWorker() {
+	if e.temporalClient == nil || (fmt.Sprintf("%T", e.temporalClient) != "<nil>" && fmt.Sprintf("%v", e.temporalClient) == "<nil>") {
+		log.Printf("Warning: Temporal client is nil or invalid, skipping autonomous worker start")
+		return
+	}
 	// Create worker for autonomous operations
+	taskQueue := os.Getenv("TEMPORAL_WORKER_TASK_QUEUE")
+	if taskQueue == "" {
+		taskQueue = "autonomous-decision-engine"
+	}
 	options := worker.Options{}
-	w := worker.New(e.temporalClient, options)
+	w := worker.New(e.temporalClient, taskQueue, options)
 	
 	// Register autonomous workflows
 	w.RegisterWorkflow(e.AutonomousOperationWorkflow)
@@ -154,17 +164,23 @@ func (e *AutonomousDecisionEngine) startAutonomousWorker() {
 
 // AutonomousOperationWorkflow - Main workflow for autonomous operations
 func (e *AutonomousDecisionEngine) AutonomousOperationWorkflow(ctx workflow.Context, operation AutonomousOperation) error {
-	ao := workflow.NewActivityOptions(ctx)
-	ao.SetRetryPolicy(workflow.RetryPolicy{
-		InitialInterval:    time.Second,
-		BackoffCoefficient: 2.0,
-		MaximumInterval:    time.Minute,
-		MaximumAttempts:    3,
-	})
+	ao := workflow.ActivityOptions{
+		RetryPolicy: &temporal.RetryPolicy{
+			InitialInterval:    time.Second,
+			BackoffCoefficient: 2.0,
+			MaximumInterval:    time.Minute,
+			MaximumAttempts:    3,
+		},
+		StartToCloseTimeout: 10 * time.Minute,
+	}
 	
 	// Step 1: Apply reconciliation guard
 	var guardPassed bool
-	err := workflow.ExecuteActivity(ctx, workflow.GetActivityOptions(ctx).SetActivityID("apply-guard"), e.ApplyReconciliationGuard, operation).Get(ctx, &guardPassed)
+	guardCtx := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+		ActivityID: "apply-guard",
+		StartToCloseTimeout: 1 * time.Minute,
+	})
+	err := workflow.ExecuteActivity(guardCtx, e.ApplyReconciliationGuard, operation).Get(ctx, &guardPassed)
 	if err != nil {
 		return fmt.Errorf("reconciliation guard failed: %w", err)
 	}
@@ -174,15 +190,16 @@ func (e *AutonomousDecisionEngine) AutonomousOperationWorkflow(ctx workflow.Cont
 	}
 
 	// Step 2: Execute autonomous operation
-	err = workflow.ExecuteActivity(ao, e.ExecuteAutonomousOperation, operation)
-	err = workflow.ExecuteActivity(ctx, ao.SetActivityID("execute-operation"), e.ExecuteAutonomousOperation, operation).Get(ctx, &outcome)
+	var outcome LearningData
+	ctx = workflow.WithActivityOptions(ctx, ao)
+	err = workflow.ExecuteActivity(ctx, e.ExecuteAutonomousOperation, operation).Get(ctx, &outcome)
 	if err != nil {
 		return fmt.Errorf("autonomous operation failed: %w", err)
 	}
 
 	// Step 3: Learn from outcome
 	var learned bool
-	err = workflow.ExecuteActivity(ctx, ao.SetActivityID("learn-from-outcome"), e.LearnFromOutcome, outcome).Get(ctx, &learned)
+	err = workflow.ExecuteActivity(ctx, e.LearnFromOutcome, outcome).Get(ctx, &learned)
 	if err != nil {
 		log.Printf("Warning: Failed to learn from outcome: %v", err)
 	}
