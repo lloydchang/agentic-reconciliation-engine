@@ -132,7 +132,10 @@
       "Bash(gh workflow:*)",
       "Bash(pip install:*)",
       "Bash(yamllint .github/workflows/skill-validation.yaml)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(export AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy AZURE_TENANT_ID=dummy AZURE_SUBSCRIPTION_ID=dummy AZURE_CLIENT_ID=dummy AZURE_CLIENT_SECRET=dummy GCP_SERVICE_ACCOUNT_KEY=dummy)",
+      "Bash(timeout 600s core/automation/scripts/deploy-unified-crossplane.sh)",
+      "Bash(tee /tmp/crossplane-deployment-complete.log)"
     ]
   },
   "enabledPlugins": {
