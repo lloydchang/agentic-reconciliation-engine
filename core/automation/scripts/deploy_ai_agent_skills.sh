@@ -289,10 +289,9 @@ EOF
                 server_name=$(basename "$server_dir")
                 print_info "Auto-starting $server_name server..."
                 
-                cd "$server_dir"
-                
                 # Use tail -f /dev/null to provide stdin for stdio-based MCP servers
                 # This keeps them running unlike nohup which detaches stdin
+                cd "$server_dir"
                 tail -f /dev/null 2>/dev/null | node index.js > "$REPO_ROOT/logs/${server_name}.log" 2>&1 &
                 local pid=$!
                 
@@ -301,15 +300,14 @@ EOF
                 if kill -0 "$pid" 2>/dev/null; then
                     echo $pid > "$REPO_ROOT/.${server_name}.pid"
                     print_success "$server_name server auto-started (PID: $pid)"
-                    ((started_servers++))
+                    ((started_servers++)) || true
                 else
                     print_warning "$server_name server failed to start (may require manual start via Claude Desktop)"
-                    ((failed_servers++))
+                    ((failed_servers++)) || true
                 fi
             fi
         done
         
-        echo "DEBUG: Completed MCP server for loop, started $started_servers servers"
         # Return to repository root
         cd "$REPO_ROOT"
         sleep 2
@@ -321,7 +319,7 @@ EOF
             if [[ -f "$pid_file" ]]; then
                 local pid=$(cat "$pid_file")
                 if kill -0 "$pid" 2>/dev/null; then
-                    ((running_servers++))
+                    ((running_servers++)) || true
                 fi
             fi
         done
@@ -333,34 +331,37 @@ EOF
             print_info "Note: MCP servers can be manually started by Claude Desktop when needed"
         fi
         
-    print_success "AI Agent Skills and MCP servers deployment completed!"
-    echo ""
-    echo -e "${YELLOW}🚀 FULL AUTOMATION COMPLETE - Zero Manual Steps Required!${NC}"
-    echo ""
-    echo -e "${GREEN}✅ What was done automatically:${NC}"
-    echo "• MCP server dependencies installed"
-    echo "• Environment configuration created (auto-generated from template)"
-    echo "• Claude Desktop configuration updated"
-    echo "• MCP servers validated and auto-started"
-    echo "• Startup and stop scripts created"
-    echo "• Logs directory initialized"
-    echo "• Demo mode enabled for immediate testing"
-    echo ""
-    echo -e "${BLUE}🤖 AI Agent Skills Status:${NC}"
-    echo "  ✅ All MCP servers started successfully"
-    echo "  ✅ Configuration files created"
-    echo "  ✅ Startup and stop scripts available"
-    echo ""
-    echo -e "${YELLOW}🎯 READY FOR IMMEDIATE USE - No manual configuration needed!${NC}"
-    echo ""
-    echo -e "${CYAN}🔧 Configuration files created:${NC}"
-    echo "  • $REPO_ROOT/.env (auto-generated from template)"
-    echo "  • $HOME/.config/claude-desktop/config.json (Claude Desktop)"
-    echo "  • $REPO_ROOT/scripts/start-mcp-servers.sh (manual control)"
-    echo "  • $REPO_ROOT/scripts/stop-mcp-servers.sh (manual control)"
-    echo ""
-    echo -e "${GREEN}🚀 AI Agent Skills are now fully operational and autonomous!${NC}"
-    echo "DEBUG: About to return 0 from deploy_ai_agent_skills function"
+        print_success "AI Agent Skills and MCP servers deployment completed!"
+        echo ""
+        echo -e "${YELLOW}🚀 FULL AUTOMATION COMPLETE - Zero Manual Steps Required!${NC}"
+        echo ""
+        echo -e "${GREEN}✅ What was done automatically:${NC}"
+        echo "• MCP server dependencies installed"
+        echo "• Environment configuration created (auto-generated from template)"
+        echo "• Claude Desktop configuration updated"
+        echo "• MCP servers validated and auto-started"
+        echo "• Startup and stop scripts created"
+        echo "• Logs directory initialized"
+        echo "• Demo mode enabled for immediate testing"
+        echo ""
+        echo -e "${BLUE}🤖 AI Agent Skills Status:${NC}"
+        echo "  ✅ All MCP servers started successfully"
+        echo "  ✅ Configuration files created"
+        echo "  ✅ Startup and stop scripts available"
+        echo ""
+        echo -e "${YELLOW}🎯 READY FOR IMMEDIATE USE - No manual configuration needed!${NC}"
+        echo ""
+        echo -e "${CYAN}🔧 Configuration files created:${NC}"
+        echo "  • $REPO_ROOT/.env (auto-generated from template)"
+        echo "  • $HOME/.config/claude-desktop/config.json (Claude Desktop)"
+        echo "  • $REPO_ROOT/scripts/start-mcp-servers.sh (manual control)"
+        echo "  • $REPO_ROOT/scripts/stop-mcp-servers.sh (manual control)"
+        echo ""
+        echo -e "${GREEN}🚀 AI Agent Skills are now fully operational and autonomous!${NC}"
+        echo "DEBUG: About to return 0 from deploy_ai_agent_skills function"
+    else
+        print_error ".env file not found. Please copy .env.template to .env and configure your credentials."
+        return 1
     fi
     return 0
 }
