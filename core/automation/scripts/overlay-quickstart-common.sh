@@ -85,6 +85,8 @@ EOF
 # Overlay post-quickstart hook
 # This runs after the base quickstart.sh
 
+source core/scripts/utils/set-topdir.sh
+
 echo "🚀 Overlay post-quickstart hook executing..."
 
 # Deploy Langfuse + Temporal Integration for Overlay
@@ -163,6 +165,9 @@ REGISTRY_EOF
     fi
 
 echo "✅ Overlay structure initialized"
+else
+    echo "⚠️  kubectl not available - skipping overlay deployment"
+fi
 EOF
     
     # Make hooks executable

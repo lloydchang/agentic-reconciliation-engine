@@ -159,6 +159,15 @@ setup_basic_config() {
     mkdir -p logs/
     mkdir -p tmp/
     
+    # Create overlay hooks if in overlay mode
+    if [[ "${OVERLAY_MODE:-false}" == "true" ]]; then
+        # Source overlay common functions if available
+        if [[ -f "$SCRIPT_DIR/overlay-quickstart-common.sh" ]]; then
+            source "$SCRIPT_DIR/overlay-quickstart-common.sh"
+            create_overlay_hooks
+        fi
+    fi
+    
     # Make scripts executable
     find "$SCRIPT_DIR" -name "*.sh" -exec chmod +x {} \;
     find "$SCRIPT_DIR" -name "*.py" -exec chmod +x {} \;
