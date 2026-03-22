@@ -36,7 +36,7 @@ jobs:
           python core/automation/scripts/validate_skills.py
 
       - name: Upload validation results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: skill-validation-results
