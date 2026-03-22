@@ -1,8 +1,8 @@
 #!/bin/bash
-
-source ../../core/scripts/utils/set-topdir.sh
 # Overlay post-quickstart hook
 # This runs after the base quickstart.sh
+
+source core/scripts/utils/set-topdir.sh
 
 echo "🚀 Overlay post-quickstart hook executing..."
 
@@ -64,6 +64,7 @@ if command -v kubectl &> /dev/null; then
 
     # Initialize overlay registry if it doesn't exist
     if [[ ! -f overlay/registry/catalog.yaml ]]; then
+        mkdir -p overlay/registry
         cat > overlay/registry/catalog.yaml << 'REGISTRY_EOF'
 apiVersion: v1
 kind: OverlayRegistry
@@ -80,7 +81,7 @@ REGISTRY_EOF
         mkdir -p overlay/templates/{skill-overlay,dashboard-overlay,infra-overlay}
     fi
 
-    echo "✅ Overlay structure initialized"
+echo "✅ Overlay structure initialized"
 else
     echo "⚠️  kubectl not available - skipping overlay deployment"
 fi

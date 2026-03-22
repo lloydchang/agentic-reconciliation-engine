@@ -5,7 +5,7 @@
 echo "🔧 Overlay pre-quickstart hook executing..."
 
 # Set overlay-specific defaults
-export OVERLAY_DIR="overlays"
+export OVERLAY_DIR="overlay"
 export OVERLAY_REGISTRY_ENABLED="true"
 export OVERLAY_TEMPLATES_ENABLED="true"
 
