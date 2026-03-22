@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/websocket"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/websocket"
 )
 
 // WebSocketActivities provides activities for WebSocket integration

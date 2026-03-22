@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/skills"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/emulators"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/skills"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/emulators"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
 )
 
 // SkillExecutionActivities provides activities for executing skills

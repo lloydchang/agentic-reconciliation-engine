@@ -6,8 +6,8 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/activities"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
 )
 
 

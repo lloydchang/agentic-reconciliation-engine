@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/mcp"
 )
 
 // RagAIHandler handles RAG AI API endpoints

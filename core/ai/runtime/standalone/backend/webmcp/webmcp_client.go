@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/mcp"
 )
 
 // WebMCPClient represents a web-based MCP client

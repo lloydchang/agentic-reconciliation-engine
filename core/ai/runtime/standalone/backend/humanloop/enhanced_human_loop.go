@@ -8,7 +8,7 @@ import (
 
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
 )
 
 // EnhancedHumanInTheLoopWorkflow provides sophisticated human-in-the-loop capabilities

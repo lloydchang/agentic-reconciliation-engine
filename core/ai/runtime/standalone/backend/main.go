@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	"strings"
 
@@ -19,21 +20,21 @@ import (
 	"net/url"
 	
 	// Import our custom packages
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/activities"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/bedrock"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/config"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/emulators"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/humanloop"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/monitoring"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/multimodel"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/performance"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/ragai"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/security"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/skills"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/websocket"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/workflows"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/bedrock"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/config"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/emulators"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/humanloop"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/monitoring"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/multimodel"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/performance"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/ragai"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/security"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/skills"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/websocket"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/workflows"
 )
 
 // CORS middleware
@@ -206,8 +207,12 @@ func main() {
 	log.Printf("Infrastructure emulator initialized")
 
 	// Initialize skills service
-	skillService := skills.NewSkillService("../../../../../", "session-"+time.Now().Format("20060102150405"))
-	log.Printf("Skills service initialized with %d skills", len(skillService.GetManager().ListSkills()))
+	skillsPath := os.Getenv("SKILLS_PATH")
+	if skillsPath == "" {
+		skillsPath = "../../../../../"
+	}
+	skillService := skills.NewSkillService(skillsPath, "session-"+time.Now().Format("20060102150405"))
+	log.Printf("Skills service initialized with %d skills from %s", len(skillService.GetManager().ListSkills()), skillsPath)
 
 	// Initialize monitoring system
 	metricsCollector := monitoring.GetGlobalMetricsCollector()
@@ -1502,8 +1507,12 @@ func main() {
 		json.NewEncoder(w).Encode(entities)
 	}).Methods("GET", "OPTIONS")
 
-	log.Printf("Starting enhanced HTTP server on :8083")
-	log.Fatal(http.ListenAndServe(":8083", corsMiddleware(r)))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+	log.Printf("Starting enhanced HTTP server on :%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, corsMiddleware(r)))
 }
 
 // Helper function to get Temporal workflow-based agents

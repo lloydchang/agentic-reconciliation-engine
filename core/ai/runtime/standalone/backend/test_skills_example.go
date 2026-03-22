@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/skills"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/skills"
 )
 
 func testSkillsMain() {
@@ -33,8 +33,8 @@ func testSkillsMain() {
 	fmt.Printf("Discovered %d skills:\n", len(skills))
 
 	for _, skill := range skills {
-		fmt.Printf("  - %s: %s (scope: %s, priority: %d)\n",
-			skill.Name, skill.Description, skill.Scope, skill.Priority)
+		fmt.Printf("  - %s: %s\n",
+			skill.Name, skill.Description)
 	}
 
 	// Test skill execution

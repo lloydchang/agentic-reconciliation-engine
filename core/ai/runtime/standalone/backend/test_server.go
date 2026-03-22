@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/bedrock"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/mcp"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/ragai"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/websocket"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/bedrock"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/mcp"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/ragai"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/websocket"
 )
 
 // CORS middleware

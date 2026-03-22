@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/bedrock"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/bedrock"
 )
 
 // ModelProvider represents an AI model provider

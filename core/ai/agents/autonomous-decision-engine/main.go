@@ -62,6 +62,7 @@ type ReconciliationGuard struct {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// Load configuration
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: Could not load .env file: %v", err)
@@ -137,8 +138,15 @@ func (e *AutonomousDecisionEngine) setupTemporal() {
 }
 
 func (e *AutonomousDecisionEngine) startAutonomousWorker() {
-	if e.temporalClient == nil || (fmt.Sprintf("%T", e.temporalClient) != "<nil>" && fmt.Sprintf("%v", e.temporalClient) == "<nil>") {
-		log.Printf("Warning: Temporal client is nil or invalid, skipping autonomous worker start")
+	fmt.Printf("DEBUG: Entering startAutonomousWorker, temporalClient: %v\n", e.temporalClient)
+	if e.temporalClient == nil {
+		fmt.Println("Warning: Temporal client interface is nil, skipping autonomous worker start")
+		return
+	}
+	fmt.Printf("DEBUG: Temporal client type: %T, value: %v\n", e.temporalClient, e.temporalClient)
+	// Robust check for nil pointer inside interface using reflection-like check
+	if fmt.Sprintf("%v", e.temporalClient) == "<nil>" || fmt.Sprintf("%p", e.temporalClient) == "0x0" {
+		fmt.Println("Warning: Temporal client contains a nil pointer, skipping autonomous worker start")
 		return
 	}
 	// Create worker for autonomous operations

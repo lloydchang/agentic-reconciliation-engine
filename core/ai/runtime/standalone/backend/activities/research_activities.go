@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/activity"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
 )
 
 // GenerateResearchPlanActivity generates a research plan

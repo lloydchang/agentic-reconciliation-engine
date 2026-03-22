@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/workflow"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/activities"
-	"github.com/lloydchang/agentic-reconciliation-engine/ai-agents/backend/types"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/activities"
+	"github.com/lloydchang/agentic-reconciliation-engine/core/ai/runtime/standalone/backend/types"
 )
 
 // SkillExecutionWorkflow orchestrates the execution of a skill's steps
