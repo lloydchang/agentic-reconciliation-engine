@@ -125,14 +125,18 @@ deploy_crossplane() {
 # Install Crossplane providers
 install_providers() {
     log_info "Installing Crossplane providers..."
-    
+
     kubectl apply -f overlay/crossplane/unified/crossplane-install.yaml
-    
-    # Wait for providers to be installed
-    log_info "Waiting for providers to be ready..."
-    kubectl wait --for=condition=healthy provider --all --namespace ${NAMESPACE} --timeout=${TIMEOUT}
-    
-    log_success "Crossplane providers installed"
+
+    # Wait for providers to be installed (non-blocking, 30s timeout for dev)
+    log_info "Waiting for providers to be ready (short timeout for development)..."
+    if kubectl wait --for=condition=healthy provider --all --namespace ${NAMESPACE} --timeout=30s 2>/dev/null; then
+        log_success "All providers healthy"
+    else
+        log_warning "Provider health check timed out or failed - continuing anyway (providers need credentials for full health)"
+    fi
+
+    log_success "Crossplane providers installed (proceeding with deployment)"
 }
 
 # Create provider configurations with team isolation

@@ -13,9 +13,6 @@ spec:
   names:
     kind: XNetwork
     plural: xnetworks
-    claimNames:
-      kind: Network
-      plural: networks
   versions:
   - name: v1alpha1
     served: true
@@ -99,9 +96,6 @@ spec:
   names:
     kind: XCompute
     plural: xcomputes
-    claimNames:
-      kind: Compute
-      plural: computes
   versions:
   - name: v1alpha1
     served: true
@@ -214,9 +208,6 @@ spec:
   names:
     kind: XStorage
     plural: xstorages
-    claimNames:
-      kind: Storage
-      plural: storages
   versions:
   - name: v1alpha1
     served: true
