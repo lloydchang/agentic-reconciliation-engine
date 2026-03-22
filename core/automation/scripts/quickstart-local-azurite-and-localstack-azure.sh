@@ -64,22 +64,22 @@ show_help() {
     echo "  - Azure credentials and endpoints auto-configured"
 }
 
-# Cleanup function
-cleanup_azure_emulators() {
-    print_info "Cleaning up Azure emulator resources..."
-    
-    if docker ps | grep -q "azurite"; then
-        docker stop azurite
-        docker rm azurite
-        print_success "Azurite container stopped and removed"
-    fi
-    
-    if docker ps | grep -q "localstack-azure"; then
-        docker stop localstack-azure
-        docker rm localstack-azure
-        print_success "LocalStack Azure container stopped and removed"
-    fi
-}
+# Cleanup function (commented out to prevent automatic cleanup)
+# cleanup_azure_emulators() {
+#     print_info "Cleaning up Azure emulator resources..."
+#     
+#     if docker ps | grep -q "azurite"; then
+#         docker stop azurite
+#         docker rm azurite
+#         print_success "Azurite container stopped and removed"
+#     fi
+#     
+#     if docker ps | grep -q "localstack-azure"; then
+#         docker stop localstack-azure
+#         docker rm localstack-azure
+#         print_success "LocalStack Azure container stopped and removed"
+#     fi
+# }
 
 # Setup Azure-specific environment
 setup_azure_emulators_environment() {
@@ -122,8 +122,8 @@ setup_azure_emulators_environment() {
 
 # Main function
 main() {
-    # Set trap for cleanup on script exit
-    trap cleanup_azure_emulators EXIT
+    # Set trap for cleanup on script exit (commented out to prevent automatic cleanup)
+    # trap cleanup_azure_emulators EXIT
     
     # Override the environment setup function
     setup_azure_emulators_environment || return 1
