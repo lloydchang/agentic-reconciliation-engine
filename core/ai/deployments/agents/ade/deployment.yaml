@@ -6,25 +6,31 @@ metadata:
   labels:
     app: autonomous-decision-engine
     component: autonomous-agent
+    layer: ai-agents
+    managed-by: gitops
     autonomy-level: fully_auto
     learning-enabled: "true"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: autonomous-decision-engine
       component: autonomous-agent
+      layer: ai-agents
+      managed-by: gitops
   template:
     metadata:
       labels:
         app: autonomous-decision-engine
         component: autonomous-agent
+        layer: ai-agents
+        managed-by: gitops
         autonomy-level: fully_auto
         learning-enabled: "true"
     spec:
       containers:
       - name: autonomous-decision-engine
-        image: agentic-reconciliation-engine/autonomous-decision-engine:latest
+        image: agentic-reconciliation-engine/autonomous-decision-engine:v11
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -37,7 +43,7 @@ spec:
           value: "true"
         - name: LEARNING_RETENTION_HOURS
           value: "24"
-
+        
         # Safety Thresholds
         - name: MAX_COST_PER_HOUR
           value: "1000.0"
@@ -47,7 +53,7 @@ spec:
           value: "false"
         - name: ROLLBACK_ENABLED
           value: "true"
-
+        
         # Temporal Integration
         - name: TEMPORAL_ADDRESS
           value: "temporal-frontend.ai-infrastructure.svc.cluster.local:7233"
@@ -55,25 +61,25 @@ spec:
           value: "default"
         - name: TEMPORAL_WORKER_TASK_QUEUE
           value: "autonomous-decision-engine"
-
+        
         # Learning Storage
         - name: REDIS_ADDR
           value: "redis-service.ai-infrastructure.svc.cluster.local:6379"
         - name: LEARNING_STORAGE_PATH
           value: "/data/learning"
-
+        
         # Risk Configuration
         - name: RISK_THRESHOLD
           value: "0.3"
         - name: EXPERIENCE_BONUS
           value: "0.01"
-
+        
         # Memory Integration - use memory selector
         - name: AGENT_MEMORY_URL
           value: "http://memory-selector-service.ai-infrastructure.svc.cluster.local:8080"
         - name: MEMORY_INTEGRATION_ENABLED
           value: "true"
-
+        
         # Logging and Monitoring
         - name: LOG_LEVEL
           value: "info"
@@ -81,14 +87,14 @@ spec:
           value: "true"
         - name: AUDIT_LOGGING
           value: "true"
-
+        
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "128Mi"
+            cpu: "50m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "250m"
 
         livenessProbe:
           httpGet:

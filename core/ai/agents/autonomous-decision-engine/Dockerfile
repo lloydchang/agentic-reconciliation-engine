@@ -1,10 +1,10 @@
 # Build autonomous decision engine with learning capabilities
-FROM golang:1.24.2-alpine AS builder
+FROM golang:1.24.2 AS builder
 
 WORKDIR /app
 
 # Install dependencies
-RUN apk add --no-cache git ca-certificates tzdata
+RUN apt-get update && apt-get install -y git ca-certificates tzdata
 
 # Copy go mod files
 COPY go.mod ./
@@ -13,18 +13,19 @@ COPY . .
 RUN go mod vendor && echo "Dependencies resolved" && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o autonomous-decision-engine .
 
 # Final stage
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-RUN apk --no-cache add ca-certificates tzdata
+RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /root/
+# Create non-root user BEFORE copying files so we can chown properly
+RUN addgroup --gid 1001 autonomous && \
+    adduser --uid 1001 --gid 1001 --disabled-password --gecos "" autonomous
 
-# Copy the binary from builder stage
-COPY --from=builder /app/autonomous-decision-engine .
+WORKDIR /app
 
-# Create non-root user
-RUN addgroup -g 1001 -S autonomous && \
-    adduser -u 1001 -S autonomous -G autonomous
+# Copy the binary from builder stage and ensure the non-root user can read it
+# The Temporal SDK's getBinaryChecksum() reads the running binary — it must be readable by the process user
+COPY --from=builder --chown=autonomous:autonomous /app/autonomous-decision-engine .
 
 USER autonomous
 
@@ -36,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Run the application
-CMD ["./autonomous-decision-engine"]
+CMD ["/app/autonomous-decision-engine"]
