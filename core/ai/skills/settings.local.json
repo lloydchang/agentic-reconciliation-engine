@@ -123,7 +123,16 @@
       "Bash(kind load:*)",
       "Bash(kind get:*)",
       "Bash(python:*)",
-      "Bash(helm version:*)"
+      "Bash(helm version:*)",
+      "Bash(timeout 1800s core/automation/scripts/deploy-unified-crossplane.sh)",
+      "Bash(tee /tmp/crossplane-deploy.log)",
+      "Bash(timeout 120s core/automation/scripts/deploy-unified-crossplane.sh)",
+      "Bash(gh auth:*)",
+      "Bash(gh run:*)",
+      "Bash(gh workflow:*)",
+      "Bash(pip install:*)",
+      "Bash(yamllint .github/workflows/skill-validation.yaml)",
+      "Bash(git fetch:*)"
     ]
   },
   "enabledPlugins": {
