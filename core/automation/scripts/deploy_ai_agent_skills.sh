@@ -318,7 +318,7 @@ EOF
         if command -v code &>/dev/null; then
             print_info "Attempting to auto-configure Claude Desktop..."
             # Try to restart Claude Desktop to load new configuration
-            if pgrep -f "Claude Desktop" > /dev/null; then
+            if pgrep -f "Claude Desktop" >/dev/null 2>&1; then
                 print_info "Claude Desktop detected - please restart to load new AI Agent Skills"
             else
                 print_info "Claude Desktop not running - configuration ready for next startup"
@@ -404,6 +404,7 @@ EOF
     echo "  • $REPO_ROOT/scripts/stop-mcp-servers.sh (manual control)"
     echo ""
     echo -e "${GREEN}🚀 AI Agent Skills are now fully operational and autonomous!${NC}"
+    echo "DEBUG: Script completed successfully, returning 0"
     return 0
 }
 
