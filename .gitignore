@@ -631,3 +631,10 @@ localhost-*.svg
 
 # Runtime PID files
 *.pid
+
+objdump.txt
+core/ai/agents/autonomous-decision-engine/objdump.txt
+autonomous-decision-engine
+core/ai/agents/autonomous-decision-engine/autonomous-decision-engine
+ade-v10
+core/ai/agents/autonomous-decision-engine/ade-v10
