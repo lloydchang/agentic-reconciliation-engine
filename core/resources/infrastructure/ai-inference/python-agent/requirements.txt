@@ -1,4 +1,4 @@
 aiohttp==3.13.3
-requests==2.32.4
+requests==2.33.0
 llama-cpp-python==0.2.20
 duckduckgo-search==4.1.1
